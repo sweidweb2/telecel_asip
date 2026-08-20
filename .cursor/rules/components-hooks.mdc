@@ -14,6 +14,7 @@ alwaysApply: false
 - One-off page UI stays next to the route in `app/`
 - Never import Supabase clients or `data/`/`actions/` query builders here — pages/actions call those
 - Forms: `react-hook-form` + `zodResolver` against a `validations/` schema
+- Skeletons: put them in the route’s `loading.tsx`. Do not use `Skeleton` as a substitute for that convention.
 
 ## hooks/
 

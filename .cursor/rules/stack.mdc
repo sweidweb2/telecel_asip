@@ -8,6 +8,8 @@ alwaysApply: true
 Use the libraries in `Docs/libraries.md`. Do not introduce alternatives.
 
 - **UI** — shadcn/ui in `components/ui/` (`npx shadcn@latest add <name>`). Icons via `lucide-react`. ClassNames via `cn()` from `lib/utils.ts` (clsx + tailwind-merge). Tailwind only — no CSS-in-JS.
+- **Route progress** — `nextjs-toploader` in `app/layout.tsx` only. Do not add other nprogress wrappers. Programmatic nav: `useRouter` from `nextjs-toploader/app`.
+- **Skeletons** — colocate `loading.tsx` next to `page.tsx` and render `Skeleton` from `components/ui/skeleton`. Next shows it during the Server Component fetch. Installing the component is not enough.
 - **Forms** — `react-hook-form` + Zod schema from `validations/` via `zodResolver`. Do not use uncontrolled-form-killing `useState` for every field.
 - **Dates** — `date-fns` named imports only. Never moment.js.
 - **Temp IDs** — `nanoid` on the client. Postgres `gen_random_uuid()` on the server.

@@ -12,6 +12,7 @@ Approved stack for this Next.js App Router + Supabase app. Prefer these over alt
 - **Tailwind CSS v4** — required by shadcn; no runtime CSS-in-JS.
 - **lucide-react** — default shadcn icon set. Tree-shakeable; keep icons at `h-4 w-4` / `h-5 w-5`.
 - **clsx** + **tailwind-merge** — used only via `cn()` in `lib/utils.ts` for conditional classNames.
+- **nextjs-toploader** — thin top-of-screen progress bar on route changes (YouTube/GitHub style). Not shadcn. Mount once in `app/layout.tsx`. For `router.push` / `router.replace`, import `useRouter` from `nextjs-toploader/app` so the bar still runs.
 
 ## Forms & validation
 
