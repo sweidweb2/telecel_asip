@@ -8,10 +8,12 @@ alwaysApply: false
 
 ## components/
 
-- `components/ui/` — primitives (Button, Input, Dialog; shadcn lives here)
+- `components/ui/` — shadcn primitives. Add with `npx shadcn@latest add <name>`; do not hand-roll Button/Input/Dialog if shadcn has it
+- Icons from `lucide-react`. Conditional classes via `cn()` from `lib/utils.ts`
 - `components/[feature]/` — reused across routes (e.g. `components/projects/project-card.tsx`)
 - One-off page UI stays next to the route in `app/`
 - Never import Supabase clients or `data/`/`actions/` query builders here — pages/actions call those
+- Forms: `react-hook-form` + `zodResolver` against a `validations/` schema
 
 ## hooks/
 

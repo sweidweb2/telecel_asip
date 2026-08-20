@@ -9,6 +9,7 @@ alwaysApply: false
 One file per entity: `actions/projects.ts`. Every `'use server'` mutation lives here.
 
 - Validate with a `validations/` Zod schema before touching Supabase
+- Use `ts-pattern` for result/error branching instead of long `if`/`switch` chains
 - INSERT/UPDATE/DELETE only — reads belong in `data/`
 - `revalidatePath` / `revalidateTag` after successful mutations
 - Never import from `app/`

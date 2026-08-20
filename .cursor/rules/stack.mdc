@@ -1,0 +1,20 @@
+---
+description: Approved libraries and when (not) to add optional ones
+alwaysApply: true
+---
+
+# Approved stack
+
+Use the libraries in `Docs/libraries.md`. Do not introduce alternatives.
+
+- **UI** — shadcn/ui in `components/ui/` (`npx shadcn@latest add <name>`). Icons via `lucide-react`. ClassNames via `cn()` from `lib/utils.ts` (clsx + tailwind-merge). Tailwind only — no CSS-in-JS.
+- **Forms** — `react-hook-form` + Zod schema from `validations/` via `zodResolver`. Do not use uncontrolled-form-killing `useState` for every field.
+- **Dates** — `date-fns` named imports only. Never moment.js.
+- **Temp IDs** — `nanoid` on the client. Postgres `gen_random_uuid()` on the server.
+- **Branching** — `ts-pattern` in `data/` and `actions/` for result/error unions.
+- **Tests** — Vitest for unit/component; Playwright for E2E (auth/RLS). Not Jest.
+
+## Do not add by default
+
+- **Zustand / `stores/`** — only if client global state cannot live in Server Components or URL search params. Never Redux.
+- **TanStack Query** — only for post-load client caching (polling, optimistic updates, infinite scroll). Never for initial Server Component reads.

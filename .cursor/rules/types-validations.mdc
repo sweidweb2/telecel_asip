@@ -15,7 +15,7 @@ alwaysApply: false
 ## validations/
 
 - One Zod file per entity: `validations/project.ts`
-- Share the same schema in forms (`zodResolver`) and Server Actions — write once, validate twice
+- Share the same schema in `react-hook-form` (`zodResolver` from `@hookform/resolvers/zod`) and Server Actions — write once, validate twice
 
 ## constants/
 

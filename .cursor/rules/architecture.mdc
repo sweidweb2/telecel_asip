@@ -17,9 +17,10 @@ Colocate by feature, separate by layer. Route folders own UI. Business logic, da
 - `types/` — shared TypeScript types
 - `validations/` — Zod schemas (client + server)
 - `hooks/` — custom React hooks
-- `stores/` — client-side global state (Zustand/Jotai). Do not create this folder until that state is actually needed
+- `stores/` — Zustand only. Do not create this folder or install Zustand until client global state cannot live in Server Components or URL search params. Never Redux.
 - `constants/` — enums, route paths, flags
 - `middleware.ts` — Next.js middleware
+- `supabase/migrations/` — append-only SQL (never edit applied/merged files)
 
 ## Dependency flow (one direction)
 
