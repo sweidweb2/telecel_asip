@@ -1,0 +1,19 @@
+---
+description: Shared UI and hooks — no direct Supabase, no one-off page components
+globs: components/**/*.{ts,tsx},hooks/**/*.{ts,tsx},stores/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# components/ and hooks/
+
+## components/
+
+- `components/ui/` — primitives (Button, Input, Dialog; shadcn lives here)
+- `components/[feature]/` — reused across routes (e.g. `components/projects/project-card.tsx`)
+- One-off page UI stays next to the route in `app/`
+- Never import Supabase clients or `data/`/`actions/` query builders here — pages/actions call those
+
+## hooks/
+
+- Custom hooks: `useUser()`, `useDebounce()`, etc.
+- Realtime wrappers live here (`hooks/use-realtime-projects.ts`) — subscribe only when live updates are required, not by default

@@ -1,0 +1,15 @@
+---
+description: lib/ is infrastructure only — no domain/business logic
+globs: lib/**/*.ts
+alwaysApply: false
+---
+
+# lib/ — infrastructure, not domain
+
+If it does not know about app entities (projects, users, teams), it belongs here.
+
+- Supabase clients: `lib/supabase/client.ts`, `server.ts`, `admin.ts`
+- Generic utils: `lib/utils.ts` (`cn()`, formatting)
+- Third-party SDK setup (Stripe, Resend, etc.)
+
+`admin.ts` is server-only. Import it only from `actions/` or `app/api/` — never from Client Components, hooks, or `data/` called on the client.
