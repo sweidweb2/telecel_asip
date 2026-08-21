@@ -1,10 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MenuIcon } from "lucide-react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { LOCALES, type Locale } from "@/constants/locales";
 import { ROUTES } from "@/constants/routes";
 import { swapLocaleInPath } from "@/lib/i18n/path";
@@ -31,8 +40,56 @@ const AUTH_LABELS: Record<
   },
 };
 
+function isNavActive(pathname: string, href: string, locale: Locale) {
+  return (
+    pathname === href ||
+    (href !== `/${locale}` && pathname.startsWith(`${href}/`))
+  );
+}
+
+function LanguageToggle({
+  locale,
+  pathname,
+  groupLabel,
+  className,
+}: {
+  locale: Locale;
+  pathname: string;
+  groupLabel: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn("flex items-center gap-1", className)}
+      role="group"
+      aria-label={groupLabel}
+    >
+      {LOCALES.map((loc) => {
+        const href = swapLocaleInPath(pathname || `/${locale}`, loc);
+        const isActive = loc === locale;
+        return (
+          <Link
+            key={loc}
+            href={href}
+            hrefLang={loc}
+            className={cn(
+              "inline-flex min-h-11 min-w-11 items-center justify-center px-1.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground",
+              isActive &&
+                "font-bold text-foreground underline underline-offset-4"
+            )}
+            aria-current={isActive ? "true" : undefined}
+          >
+            {loc}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const auth = AUTH_LABELS[locale];
   const dashboardHref = labels.dashboard?.href ?? ROUTES.dashboard;
   const loginHref = labels.login?.href ?? ROUTES.login;
@@ -40,84 +97,132 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const dashboardLabel = labels.dashboard?.label ?? auth.dashboard;
   const loginLabel = labels.login?.label ?? auth.login;
   const registerLabel = labels.register?.label ?? auth.register;
+  const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
+
+  const authLinks = (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        asChild
+        className={cn(
+          "min-h-11 justify-start lg:min-h-8",
+          pathname.startsWith(dashboardHref) && "bg-muted"
+        )}
+      >
+        <Link href={dashboardHref} onClick={() => setOpen(false)}>
+          {dashboardLabel}
+        </Link>
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        asChild
+        className={cn(
+          "min-h-11 justify-start lg:min-h-8",
+          pathname === loginHref && "bg-muted"
+        )}
+      >
+        <Link href={loginHref} onClick={() => setOpen(false)}>
+          {loginLabel}
+        </Link>
+      </Button>
+      <Button size="sm" asChild className="min-h-11 lg:min-h-8">
+        <Link href={registerHref} onClick={() => setOpen(false)}>
+          {registerLabel}
+        </Link>
+      </Button>
+    </>
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href={labels.items[0]?.href ?? `/${locale}`}
           className="font-heading shrink-0 text-sm font-semibold tracking-tight"
         >
           {labels.brand}
         </Link>
+
+        {/* Desktop navigation */}
         <nav
-          className="flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto"
+          className="hidden min-w-0 flex-1 items-center justify-end gap-1 lg:flex"
           aria-label="Primary"
         >
-          {labels.items.map((item) => {
-            const active =
-              pathname === item.href ||
-              (item.href !== `/${locale}` &&
-                pathname.startsWith(`${item.href}/`));
-            return (
-              <Button
-                key={item.href}
-                variant="ghost"
-                size="sm"
-                asChild
-                className={cn(active && "bg-muted font-semibold")}
-              >
-                <Link href={item.href}>{item.label}</Link>
-              </Button>
-            );
-          })}
-          <div
-            className="ml-2 flex items-center gap-1 border-l pl-2"
-            role="group"
-            aria-label={labels.languageGroupLabel}
-          >
-            {LOCALES.map((loc) => {
-              const href = swapLocaleInPath(pathname || `/${locale}`, loc);
-              const isActive = loc === locale;
-              return (
-                <Link
-                  key={loc}
-                  href={href}
-                  hrefLang={loc}
-                  className={cn(
-                    "px-1.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground",
-                    isActive &&
-                      "font-bold text-foreground underline underline-offset-4"
-                  )}
-                  aria-current={isActive ? "true" : undefined}
-                >
-                  {loc}
-                </Link>
-              );
-            })}
-          </div>
+          {labels.items.map((item) => (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              asChild
+              className={cn(
+                isNavActive(pathname, item.href, locale) &&
+                  "bg-muted font-semibold"
+              )}
+            >
+              <Link href={item.href}>{item.label}</Link>
+            </Button>
+          ))}
+          <LanguageToggle
+            locale={locale}
+            pathname={pathname}
+            groupLabel={labels.languageGroupLabel}
+            className="ml-2 border-l pl-2"
+          />
           <div className="ml-1 flex shrink-0 items-center gap-1 border-l pl-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className={cn(pathname.startsWith(dashboardHref) && "bg-muted")}
-            >
-              <Link href={dashboardHref}>{dashboardLabel}</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className={cn(pathname === loginHref && "bg-muted")}
-            >
-              <Link href={loginHref}>{loginLabel}</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href={registerHref}>{registerLabel}</Link>
-            </Button>
+            {authLinks}
           </div>
         </nav>
+
+        {/* Mobile / tablet: language + menu */}
+        <div className="flex items-center gap-1 lg:hidden">
+          <LanguageToggle
+            locale={locale}
+            pathname={pathname}
+            groupLabel={labels.languageGroupLabel}
+          />
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-11 min-w-11"
+                aria-label={menuLabel}
+              >
+                <MenuIcon className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-sm">
+              <SheetHeader className="border-b">
+                <SheetTitle>{menuLabel}</SheetTitle>
+              </SheetHeader>
+              <nav
+                className="flex flex-1 flex-col gap-1 overflow-y-auto p-4"
+                aria-label="Primary"
+              >
+                {labels.items.map((item) => (
+                  <Button
+                    key={item.href}
+                    variant="ghost"
+                    asChild
+                    className={cn(
+                      "h-11 justify-start",
+                      isNavActive(pathname, item.href, locale) &&
+                        "bg-muted font-semibold"
+                    )}
+                  >
+                    <Link href={item.href} onClick={() => setOpen(false)}>
+                      {item.label}
+                    </Link>
+                  </Button>
+                ))}
+                <div className="my-2 border-t" />
+                <div className="flex flex-col gap-1">{authLinks}</div>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

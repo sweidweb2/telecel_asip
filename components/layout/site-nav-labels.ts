@@ -11,6 +11,7 @@ export type SiteNavLabels = {
   brand: string;
   items: NavItem[];
   languageGroupLabel: string;
+  menuLabel: string;
   dashboard: NavItem;
   login: NavItem;
   register: NavItem;
@@ -33,6 +34,7 @@ export function enNavLabels(): SiteNavLabels {
   return {
     brand: "ASIP",
     languageGroupLabel: "Language",
+    menuLabel: "Menu",
     items: EN_NAV.map(({ slug, label }) => ({
       href: publicPath("en", slug),
       label,
@@ -60,6 +62,7 @@ export function frNavLabels(): SiteNavLabels {
   return {
     brand: "ASIP",
     languageGroupLabel: "Langue",
+    menuLabel: "Menu",
     items: FR_NAV.map(({ slug, label }) => ({
       href: publicPath("fr", slug),
       label,
