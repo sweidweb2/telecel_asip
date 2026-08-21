@@ -51,8 +51,8 @@ export function MarketingPageShell({
             ))}
           </div>
         ) : null}
-        {children}
       </div>
+      {children ? <div className="mt-10 w-full lg:mt-12">{children}</div> : null}
     </main>
   );
 }
