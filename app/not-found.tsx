@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FileQuestionIcon } from "lucide-react";
 
+import { enFooterLabels } from "@/components/layout/site-footer-labels";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { enNavLabels } from "@/components/layout/site-nav-labels";
 import { ErrorScreen } from "@/components/layout/error-screen";
 import { SiteNavbar } from "@/components/layout/site-navbar";
@@ -31,6 +33,7 @@ export default function NotFound() {
           </Button>
         </ErrorScreen>
       </div>
+      <SiteFooter labels={enFooterLabels()} />
     </>
   );
 }
