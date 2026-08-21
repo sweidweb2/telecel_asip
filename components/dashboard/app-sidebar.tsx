@@ -51,12 +51,14 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild tooltip="Telecel">
               <Link href={publicPath("en")}>
-                <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
+                <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
                   T
                 </span>
-                <span className="font-heading font-medium">Telecel</span>
+                <span className="truncate font-heading font-medium group-data-[collapsible=icon]:hidden">
+                  Telecel
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -92,11 +94,13 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <Avatar size="sm">
+            <SidebarMenuButton size="lg" tooltip="Admin">
+              <Avatar>
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
-              <span className="truncate text-sm font-medium">Admin</span>
+              <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+                Admin
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
