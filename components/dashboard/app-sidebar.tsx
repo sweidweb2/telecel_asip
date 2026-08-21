@@ -29,7 +29,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { DASHBOARD_NAV_ITEMS } from "@/constants/dashboard-nav";
-import { ROUTES } from "@/constants/routes";
+import { publicPath, ROUTES } from "@/constants/routes";
 
 const NAV_ICONS: Record<(typeof DASHBOARD_NAV_ITEMS)[number]["href"], LucideIcon> =
   {
@@ -52,7 +52,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href={ROUTES.home}>
+              <Link href={publicPath("en")}>
                 <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
                   T
                 </span>

@@ -1,3 +1,6 @@
+import type { Locale } from "@/constants/locales";
+import type { PublicPageSlug } from "@/constants/public-pages";
+
 export const ROUTES = {
   home: "/",
   login: "/login",
@@ -11,3 +14,8 @@ export const ROUTES = {
   backup: "/dashboard/backup",
   settings: "/dashboard/settings",
 } as const;
+
+/** Locale-prefixed marketing path. Home slug `""` → `/en` or `/fr`. */
+export function publicPath(locale: Locale, slug: PublicPageSlug = ""): string {
+  return slug === "" ? `/${locale}` : `/${locale}/${slug}`;
+}
