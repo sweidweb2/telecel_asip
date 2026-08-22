@@ -10,15 +10,40 @@ import {
   LOCALE_HEADER,
 } from "@/constants/locales";
 import { geistMono, geistSans } from "@/lib/fonts";
+import { siteUrl } from "@/lib/seo/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl(),
   title: {
     default: "ASIP — Africa Startup Initiative Program",
     template: "%s",
   },
   description:
     "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+  applicationName: "ASIP",
+  openGraph: {
+    type: "website",
+    siteName: "ASIP",
+    title: "ASIP — Africa Startup Initiative Program",
+    description:
+      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ASIP — Africa Startup Initiative Program",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ASIP — Africa Startup Initiative Program",
+    description:
+      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+    images: ["/opengraph-image.png"],
+  },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

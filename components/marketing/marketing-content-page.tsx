@@ -1,16 +1,48 @@
 import Link from "next/link";
 
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { marketingCopyFor } from "@/constants/marketing-copy";
 import { publicPath } from "@/constants/routes";
 import type { MarketingContentSlug } from "@/types/marketing-page";
+import { localeUrl } from "@/lib/seo/alternates";
 
 export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: MarketingContentSlug }) {
   const copy = marketingCopyFor(locale, slug);
+  const structuredData =
+    slug === ""
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Africa Startup Initiative Program",
+          alternateName: "ASIP",
+          url: localeUrl(locale),
+          description: copy.description,
+          parentOrganization: {
+            "@type": "Organization",
+            name: "Telecel Group",
+          },
+        }
+      : slug === "faq"
+        ? {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: copy.cards.map((card) => ({
+              "@type": "Question",
+              name: card.title,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: card.description,
+              },
+            })),
+          }
+        : null;
+
   return (
     <main>
+      {structuredData ? <JsonLd data={structuredData} /> : null}
       <PageHero eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
       <Section>
         <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{copy.notice}</p>

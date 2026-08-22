@@ -21,5 +21,11 @@ export function buildMarketingMetadata({
     description,
     alternates: pageAlternates(locale, path),
     openGraph: pageOpenGraph(locale, path, title, description),
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/opengraph-image.png"],
+    },
   };
 }

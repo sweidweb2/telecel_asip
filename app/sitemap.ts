@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const path = slug === "" ? "/" : `/${slug}`;
       entries.push({
         url: localeUrl(locale, path),
+        changeFrequency: slug === "insights" ? "weekly" : "monthly",
+        priority: slug === "" ? 1 : 0.8,
         alternates: {
           languages: Object.fromEntries(
             LOCALES.map((loc) => [loc, localeUrl(loc, path)])

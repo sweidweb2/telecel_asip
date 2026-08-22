@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/constants/locales";
-
-function siteOrigin(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  return raw && raw.length > 0 ? raw : "";
-}
+import { absoluteUrl } from "@/lib/seo/site";
 
 /** Absolute or root-relative public URL for a locale + path (path without locale). */
 export function localeUrl(locale: Locale, path: string = "/"): string {
@@ -13,8 +9,7 @@ export function localeUrl(locale: Locale, path: string = "/"): string {
     path === "/" || path === ""
       ? `/${locale}`
       : `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
-  const origin = siteOrigin();
-  return origin ? `${origin}${normalized}` : normalized;
+  return absoluteUrl(normalized);
 }
 
 /**
@@ -51,5 +46,14 @@ export function pageOpenGraph(
     alternateLocale: locale === "fr" ? ["en_GB"] : ["fr_FR"],
     url: localeUrl(locale, path),
     type: "website",
+    siteName: "ASIP",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ASIP — Africa Startup Initiative Program",
+      },
+    ],
   };
 }
