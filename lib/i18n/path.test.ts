@@ -22,6 +22,21 @@ describe("swapLocaleInPath", () => {
     expect(swapLocaleInPath("/portfolio", "fr")).toBe("/fr/portfolio");
     expect(swapLocaleInPath("/", "en")).toBe("/en");
   });
+
+  it("maps bare auth routes to localized auth pages", () => {
+    expect(swapLocaleInPath("/login", "fr")).toBe("/fr/login");
+    expect(swapLocaleInPath("/signup", "en")).toBe("/en/signup");
+    expect(swapLocaleInPath("/register", "fr")).toBe("/fr/signup");
+  });
+
+  it("swaps locale on localized auth pages", () => {
+    expect(swapLocaleInPath("/en/login", "fr")).toBe("/fr/login");
+    expect(swapLocaleInPath("/fr/signup", "en")).toBe("/en/signup");
+  });
+
+  it("maps dashboard to locale home", () => {
+    expect(swapLocaleInPath("/dashboard/settings", "fr")).toBe("/fr");
+  });
 });
 
 describe("stripLocaleFromPath", () => {

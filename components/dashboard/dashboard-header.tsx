@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTransition } from "react";
 import { HomeIcon, LogOutIcon } from "lucide-react";
 
+import { signOut } from "@/actions/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +24,13 @@ import { publicPath } from "@/constants/routes";
 export function DashboardHeader() {
   const pathname = usePathname();
   const title = getDashboardPageTitle(pathname);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSignOut() {
+    startTransition(async () => {
+      await signOut();
+    });
+  }
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
@@ -52,9 +61,14 @@ export function DashboardHeader() {
           <DropdownMenuItem
             variant="destructive"
             className="min-h-11 sm:min-h-8"
+            disabled={isPending}
+            onSelect={(event) => {
+              event.preventDefault();
+              handleSignOut();
+            }}
           >
             <LogOutIcon />
-            Log out
+            {isPending ? "Signing out…" : "Log out"}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

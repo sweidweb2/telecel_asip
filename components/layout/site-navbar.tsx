@@ -138,12 +138,14 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link
-          href={labels.items[0]?.href ?? `/${locale}`}
-          className="font-heading shrink-0 text-sm font-semibold tracking-tight"
-        >
-          {labels.brand}
-        </Link>
+        {labels.brand ? (
+          <Link
+            href={labels.items[0]?.href ?? `/${locale}`}
+            className="font-heading shrink-0 text-sm font-semibold tracking-tight"
+          >
+            {labels.brand}
+          </Link>
+        ) : null}
 
         {/* Desktop navigation */}
         <nav
@@ -176,7 +178,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
         </nav>
 
         {/* Mobile / tablet: language + menu */}
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="ml-auto flex items-center gap-1 lg:hidden">
           <LanguageToggle
             locale={locale}
             pathname={pathname}

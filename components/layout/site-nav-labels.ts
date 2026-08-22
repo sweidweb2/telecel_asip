@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath, ROUTES } from "@/constants/routes";
+import { authPath, publicPath, ROUTES } from "@/constants/routes";
 
 export type NavItem = {
   href: string;
@@ -32,7 +32,7 @@ const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
 
 export function enNavLabels(): SiteNavLabels {
   return {
-    brand: "ASIP",
+    brand: "",
     languageGroupLabel: "Language",
     menuLabel: "Menu",
     items: EN_NAV.map(({ slug, label }) => ({
@@ -40,8 +40,8 @@ export function enNavLabels(): SiteNavLabels {
       label,
     })),
     dashboard: { href: ROUTES.dashboard, label: "Dashboard" },
-    login: { href: ROUTES.login, label: "Login" },
-    register: { href: ROUTES.register, label: "Register" },
+    login: { href: authPath("en", "login"), label: "Login" },
+    register: { href: authPath("en", "signup"), label: "Register" },
   };
 }
 
@@ -60,7 +60,7 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
 
 export function frNavLabels(): SiteNavLabels {
   return {
-    brand: "ASIP",
+    brand: "",
     languageGroupLabel: "Langue",
     menuLabel: "Menu",
     items: FR_NAV.map(({ slug, label }) => ({
@@ -68,8 +68,8 @@ export function frNavLabels(): SiteNavLabels {
       label,
     })),
     dashboard: { href: ROUTES.dashboard, label: "Tableau de bord" },
-    login: { href: ROUTES.login, label: "Connexion" },
-    register: { href: ROUTES.register, label: "Inscription" },
+    login: { href: authPath("fr", "login"), label: "Connexion" },
+    register: { href: authPath("fr", "signup"), label: "Inscription" },
   };
 }
 

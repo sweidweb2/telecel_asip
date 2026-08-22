@@ -9,6 +9,7 @@ import {
   type Locale,
 } from "@/constants/locales";
 import { PUBLIC_PAGE_SLUG_SET } from "@/constants/public-pages";
+import { authPath, ROUTES } from "@/constants/routes";
 
 function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
@@ -48,14 +49,41 @@ function copyCookies(from: NextResponse, to: NextResponse): void {
   });
 }
 
+function isAuthPage(pathname: string): boolean {
+  if (
+    pathname === ROUTES.login ||
+    pathname === ROUTES.signup ||
+    pathname === "/register"
+  ) {
+    return true;
+  }
+
+  const segments = pathname.split("/").filter(Boolean);
+  return (
+    segments.length === 2 &&
+    isLocale(segments[0]) &&
+    (segments[1] === "login" ||
+      segments[1] === "signup" ||
+      segments[1] === "register")
+  );
+}
+
+function isProtectedPath(pathname: string): boolean {
+  return (
+    pathname === ROUTES.dashboard ||
+    pathname.startsWith(`${ROUTES.dashboard}/`)
+  );
+}
+
 async function refreshSupabaseSession(request: NextRequest): Promise<{
   response: NextResponse;
+  userId: string | null;
 }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    return { response: NextResponse.next({ request }) };
+    return { response: NextResponse.next({ request }), userId: null };
   }
 
   let response = NextResponse.next({ request });
@@ -77,27 +105,47 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return { response };
+  return { response, userId: user?.id ?? null };
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const { response } = await refreshSupabaseSession(request);
+  const { response, userId } = await refreshSupabaseSession(request);
+  const locale = detectLocale(request);
+
+  if (isProtectedPath(pathname) && !userId) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = authPath(locale, "login");
+    loginUrl.searchParams.set("next", pathname);
+    const redirect = NextResponse.redirect(loginUrl);
+    copyCookies(response, redirect);
+    return withLocaleHeaders(redirect, locale);
+  }
+
+  if (isAuthPage(pathname) && userId) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = ROUTES.dashboard;
+    dashboardUrl.search = "";
+    const redirect = NextResponse.redirect(dashboardUrl);
+    copyCookies(response, redirect);
+    return redirect;
+  }
 
   const segments = pathname.split("/").filter(Boolean);
   const first = segments[0];
 
   // Root → preferred locale home
   if (pathname === "/") {
-    const locale = detectLocale(request);
     const redirect = NextResponse.redirect(new URL(`/${locale}`, request.url));
     copyCookies(response, redirect);
     return withLocaleHeaders(redirect, locale);
   }
 
-  // Already on a locale route
+  // Already on a locale route (marketing or localized auth)
   if (first && isLocale(first)) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(LOCALE_HEADER, first);
@@ -114,7 +162,6 @@ export async function middleware(request: NextRequest) {
     segments[0] !== "" &&
     PUBLIC_PAGE_SLUG_SET.has(segments[0])
   ) {
-    const locale = detectLocale(request);
     const redirect = NextResponse.redirect(
       new URL(`/${locale}/${segments[0]}`, request.url)
     );
@@ -122,8 +169,8 @@ export async function middleware(request: NextRequest) {
     return withLocaleHeaders(redirect, locale);
   }
 
-  // Auth / dashboard / other — pass through; default lang header
-  response.headers.set(LOCALE_HEADER, DEFAULT_LOCALE);
+  // Bare auth / dashboard / other — pass through with preferred locale
+  response.headers.set(LOCALE_HEADER, locale);
   return response;
 }
 

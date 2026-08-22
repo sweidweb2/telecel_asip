@@ -1,27 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { redirect } from "next/navigation";
 
-import { RegisterForm } from "./register-form";
+import { authPath } from "@/constants/routes";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
-export default function RegisterPage() {
-  return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>
-            Create an account to access the dashboard.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RegisterForm />
-        </CardContent>
-      </Card>
-    </main>
-  );
+export default async function RegisterRedirectPage() {
+  const locale = await getRequestLocale();
+  redirect(authPath(locale, "signup"));
 }
