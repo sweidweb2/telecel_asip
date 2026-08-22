@@ -9,15 +9,22 @@ import { ErrorScreen } from "@/components/layout/error-screen";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { Button } from "@/components/ui/button";
 import { publicPath, ROUTES } from "@/constants/routes";
+import { isAuthenticated } from "@/data/auth";
 
 export const metadata: Metadata = {
   title: "Page not found",
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  const loggedIn = await isAuthenticated();
+
   return (
     <>
-      <SiteNavbar locale="en" labels={enNavLabels()} />
+      <SiteNavbar
+        locale="en"
+        labels={enNavLabels()}
+        isAuthenticated={loggedIn}
+      />
       <div className="flex flex-1 flex-col">
         <ErrorScreen
           icon={FileQuestionIcon}
@@ -28,9 +35,15 @@ export default function NotFound() {
           <Button className="w-full" asChild>
             <Link href={publicPath("en")}>Go home</Link>
           </Button>
-          <Button variant="outline" className="w-full" asChild>
-            <Link href={ROUTES.dashboard}>Dashboard</Link>
-          </Button>
+          {loggedIn ? (
+            <Button variant="outline" className="w-full" asChild>
+              <Link href={ROUTES.dashboard}>Dashboard</Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="w-full" asChild>
+              <Link href={ROUTES.login}>Login</Link>
+            </Button>
+          )}
         </ErrorScreen>
       </div>
       <SiteFooter labels={enFooterLabels()} />

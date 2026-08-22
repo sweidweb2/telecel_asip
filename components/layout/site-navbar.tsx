@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
+  /** When true, show Dashboard only; otherwise Login + Register. */
+  isAuthenticated?: boolean;
 };
 
 const AUTH_LABELS: Record<
@@ -87,7 +89,11 @@ function LanguageToggle({
   );
 }
 
-export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
+export function SiteNavbar({
+  locale,
+  labels,
+  isAuthenticated = false,
+}: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const auth = AUTH_LABELS[locale];
@@ -99,21 +105,21 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const registerLabel = labels.register?.label ?? auth.register;
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
 
-  const authLinks = (
+  const authLinks = isAuthenticated ? (
+    <Button
+      size="sm"
+      asChild
+      className={cn(
+        "min-h-11 justify-start lg:min-h-8",
+        pathname.startsWith(dashboardHref) && "bg-muted"
+      )}
+    >
+      <Link href={dashboardHref} onClick={() => setOpen(false)}>
+        {dashboardLabel}
+      </Link>
+    </Button>
+  ) : (
     <>
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
-        className={cn(
-          "min-h-11 justify-start lg:min-h-8",
-          pathname.startsWith(dashboardHref) && "bg-muted"
-        )}
-      >
-        <Link href={dashboardHref} onClick={() => setOpen(false)}>
-          {dashboardLabel}
-        </Link>
-      </Button>
       <Button
         variant="ghost"
         size="sm"
