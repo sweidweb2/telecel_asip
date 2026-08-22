@@ -1,0 +1,66 @@
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Article } from "@/types/article";
+
+function authorInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+type BlogCardProps = {
+  article: Article;
+};
+
+export function BlogCard({ article }: BlogCardProps) {
+  return (
+    <a
+      href={article.href}
+      onClick={(event) => {
+        event.preventDefault();
+      }}
+      className="group flex flex-col gap-5 outline-none"
+    >
+      <div className="relative aspect-[1.5] w-full overflow-hidden rounded-2xl bg-muted">
+        <Image
+          src={article.thumbnailUrl}
+          alt={article.title}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-semibold text-primary">
+          {article.category.name}
+        </p>
+        <div className="flex gap-4">
+          <h3 className="flex-1 font-heading text-lg font-semibold tracking-tight text-balance group-hover:underline group-hover:underline-offset-4">
+            {article.title}
+          </h3>
+          <ArrowUpRight className="mt-0.5 size-5 shrink-0" />
+        </div>
+        <p className="line-clamp-2 text-sm text-muted-foreground sm:text-base">
+          {article.summary}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Avatar size="sm">
+          <AvatarImage src={article.author.avatarUrl} alt="" />
+          <AvatarFallback>{authorInitials(article.author.name)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{article.author.name}</p>
+          <p className="text-sm text-muted-foreground">
+            {article.publishedAt} · {article.readingTime}
+          </p>
+        </div>
+      </div>
+    </a>
+  );
+}

@@ -1,27 +1,21 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { redirect } from "next/navigation";
 
-import { LoginForm } from "./login-form";
+import { authPath } from "@/constants/routes";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
-export default function LoginPage() {
-  return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>
-            Enter your email and password to continue.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-      </Card>
-    </main>
-  );
+type LoginRedirectProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function LoginRedirectPage({
+  searchParams,
+}: LoginRedirectProps) {
+  const locale = await getRequestLocale();
+  const params = await searchParams;
+  const next = typeof params.next === "string" ? params.next : undefined;
+  const target = new URL(authPath(locale, "login"), "http://local.invalid");
+  if (next) {
+    target.searchParams.set("next", next);
+  }
+  redirect(`${target.pathname}${target.search}`);
 }

@@ -1,6 +1,30 @@
+import type { Locale } from "@/constants/locales";
+import type { PublicPageSlug } from "@/constants/public-pages";
+
 export const ROUTES = {
   home: "/",
   login: "/login",
-  register: "/register",
+  signup: "/signup",
+  /** @deprecated Use `signup` — kept for existing nav labels. */
+  register: "/signup",
   dashboard: "/dashboard",
+  users: "/dashboard/users",
+  registrations: "/dashboard/registrations",
+  portfolio: "/dashboard/portfolio",
+  contactUs: "/dashboard/contact-us",
+  analytics: "/dashboard/analytics",
+  backup: "/dashboard/backup",
+  settings: "/dashboard/settings",
 } as const;
+
+export type AuthPage = "login" | "signup";
+
+/** Locale-prefixed marketing path. Home slug `""` → `/en` or `/fr`. */
+export function publicPath(locale: Locale, slug: PublicPageSlug = ""): string {
+  return slug === "" ? `/${locale}` : `/${locale}/${slug}`;
+}
+
+/** Locale-prefixed auth path, e.g. `/fr/login`. */
+export function authPath(locale: Locale, page: AuthPage = "login"): string {
+  return `/${locale}/${page}`;
+}

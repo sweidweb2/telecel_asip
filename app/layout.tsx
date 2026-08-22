@@ -1,31 +1,60 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import NextTopLoader from "nextjs-toploader";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-
+import {
+  DEFAULT_LOCALE,
+  isLocale,
+  LOCALE_HEADER,
+} from "@/constants/locales";
+import { geistMono, geistSans } from "@/lib/fonts";
+import { siteUrl } from "@/lib/seo/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Telecel",
-  description: "Telecel admin",
+  metadataBase: siteUrl(),
+  title: {
+    default: "ASIP — Africa Startup Initiative Program",
+    template: "%s",
+  },
+  description:
+    "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+  applicationName: "ASIP",
+  openGraph: {
+    type: "website",
+    siteName: "ASIP",
+    title: "ASIP — Africa Startup Initiative Program",
+    description:
+      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ASIP — Africa Startup Initiative Program",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ASIP — Africa Startup Initiative Program",
+    description:
+      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+    images: ["/opengraph-image.png"],
+  },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const headerStore = await headers();
+  const headerLocale = headerStore.get(LOCALE_HEADER);
+  const lang =
+    headerLocale && isLocale(headerLocale) ? headerLocale : DEFAULT_LOCALE;
+
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
