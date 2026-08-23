@@ -8,3 +8,18 @@ export type Profile = {
   created_at: string;
   updated_at: string;
 };
+
+export type UserListResult = {
+  users: Profile[];
+  total: number;
+  totalPages: number;
+};
+
+export type UserStats = {
+  total: number;
+  admins: number;
+  editors: number;
+  viewers: number;
+  newThisWeek: number;
+  newThisMonth: number;
+};

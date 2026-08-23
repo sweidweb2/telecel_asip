@@ -16,3 +16,19 @@ export async function isAuthenticated() {
   const user = await getAuthUser();
   return user !== null;
 }
+
+/** Checks the current session against the database-backed admin role. */
+export async function isCurrentUserAdmin(): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) return false;
+
+  const { data, error } = await supabase.rpc("is_admin");
+  if (error) throw error;
+
+  return data;
+}
