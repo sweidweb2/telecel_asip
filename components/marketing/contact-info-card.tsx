@@ -59,7 +59,7 @@ export function ContactInfoCard({ labels }: ContactInfoCardProps) {
         <InfoRow icon={<MailIcon className="size-4" />} label={labels.emailLabel}>
           <a
             href={CONTACT.emailHref}
-            className="inline-flex min-h-11 items-center break-all text-foreground underline-offset-4 hover:underline"
+            className="break-all text-foreground underline-offset-4 hover:underline"
           >
             {CONTACT.email}
           </a>
@@ -67,7 +67,7 @@ export function ContactInfoCard({ labels }: ContactInfoCardProps) {
         <InfoRow icon={<PhoneIcon className="size-4" />} label={labels.phoneLabel}>
           <a
             href={CONTACT.phoneHref}
-            className="inline-flex min-h-11 items-center text-foreground underline-offset-4 hover:underline"
+            className="text-foreground underline-offset-4 hover:underline"
           >
             {CONTACT.phone}
           </a>
