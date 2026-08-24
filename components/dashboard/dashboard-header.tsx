@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useSyncExternalStore, useTransition } from "react";
 import {
   HomeIcon,
   LogOutIcon,
@@ -35,16 +35,18 @@ const THEME_OPTIONS = [
   { value: "system", label: "System", icon: MonitorIcon },
 ] as const;
 
+const emptySubscribe = () => () => {};
+
+function useIsClient() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+}
+
 export function DashboardHeader() {
   const pathname = usePathname();
   const title = getDashboardPageTitle(pathname);
   const [isPending, startTransition] = useTransition();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   function handleSignOut() {
     startTransition(async () => {

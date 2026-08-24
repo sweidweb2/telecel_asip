@@ -33,13 +33,15 @@ export function UsersFilters({ query, onSearchChange }: UsersFiltersProps) {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(query.search);
+  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasFilters = query.search !== "" || query.role !== "all";
 
-  useEffect(() => {
+  // Sync local input when the URL search param changes (e.g. back/forward).
+  if (query.search !== prevQuerySearch) {
+    setPrevQuerySearch(query.search);
     setSearch(query.search);
-    onSearchChange?.(query.search);
-  }, [query.search, onSearchChange]);
+  }
 
   useEffect(() => {
     return () => {

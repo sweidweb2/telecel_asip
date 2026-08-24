@@ -38,6 +38,14 @@ export function UsersTable({
   query: UserListQuery;
 }) {
   const [clientSearch, setClientSearch] = useState(query.search);
+  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
+
+  // Keep instant client filter aligned when URL search changes (back/forward, clear).
+  if (query.search !== prevQuerySearch) {
+    setPrevQuerySearch(query.search);
+    setClientSearch(query.search);
+  }
+
   const onSearchChange = useCallback((value: string) => {
     setClientSearch(value);
   }, []);
