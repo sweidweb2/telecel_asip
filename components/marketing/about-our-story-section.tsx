@@ -41,6 +41,7 @@ function StoryFeatureItem({
   title,
   description,
   slug,
+  hash,
   linkLabel,
   className,
 }: {
@@ -49,10 +50,14 @@ function StoryFeatureItem({
   title: string;
   description: string;
   slug?: PublicPageSlug;
+  hash?: string;
   linkLabel?: string;
   className?: string;
 }) {
   const Icon = FEATURE_ICONS[icon];
+  const href = slug
+    ? `${publicPath(locale, slug)}${hash ? `#${hash}` : ""}`
+    : null;
 
   return (
     <article
@@ -70,9 +75,9 @@ function StoryFeatureItem({
       <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
         {description}
       </p>
-      {slug && linkLabel ? (
+      {href && linkLabel ? (
         <Link
-          href={publicPath(locale, slug)}
+          href={href}
           className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
         >
           {linkLabel}
@@ -177,6 +182,7 @@ export function AboutOurStorySection({
                 title={feature.title}
                 description={feature.description}
                 slug={feature.slug}
+                hash={feature.hash}
                 linkLabel={feature.linkLabel}
                 className={cn(
                   "about-story-fade-up",
@@ -201,6 +207,7 @@ export function AboutOurStorySection({
                 title={feature.title}
                 description={feature.description}
                 slug={feature.slug}
+                hash={feature.hash}
                 linkLabel={feature.linkLabel}
                 className={cn(
                   "about-story-fade-up",

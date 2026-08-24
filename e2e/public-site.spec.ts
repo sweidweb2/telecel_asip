@@ -5,7 +5,6 @@ const publicSlugs = [
   "/about",
   "/programme",
   "/portfolio",
-  "/impact",
   "/insights",
   "/apply",
   "/contact",

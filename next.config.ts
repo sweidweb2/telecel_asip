@@ -13,6 +13,25 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/en/impact",
+        destination: "/en/programme#impact",
+        permanent: true,
+      },
+      {
+        source: "/fr/impact",
+        destination: "/fr/programme#impact",
+        permanent: true,
+      },
+      {
+        source: "/impact",
+        destination: "/en/programme#impact",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

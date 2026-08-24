@@ -88,7 +88,7 @@ export function PortfolioPageContent({
               {cta.description}
             </p>
             <Link
-              href={publicPath(locale, cta.slug)}
+              href={`${publicPath(locale, cta.slug)}${cta.hash ? `#${cta.hash}` : ""}`}
               className={cn(
                 buttonVariants(),
                 "mt-8 inline-flex min-h-11 w-full sm:w-auto",

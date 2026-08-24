@@ -14,8 +14,23 @@ export function PageHero({ eyebrow, title, description }: { eyebrow?: string; ti
   );
 }
 
-export function Section({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("mx-auto w-full max-w-6xl px-4 py-14 sm:py-20", className)}>{children}</section>;
+export function Section({
+  children,
+  className,
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <section
+      id={id}
+      className={cn("mx-auto w-full max-w-6xl px-4 py-14 sm:py-20", className)}
+    >
+      {children}
+    </section>
+  );
 }
 
 export function SectionHeading({

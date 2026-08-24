@@ -21,6 +21,7 @@ export type AboutStoryCopy = {
     title: string;
     description: string;
     slug?: PublicPageSlug;
+    hash?: string;
     linkLabel?: string;
   }[];
   stats?: {
@@ -74,11 +75,20 @@ export type MarketingPageCopy = {
     label: string;
     items: { title: string; description: string }[];
   }[];
-  /** FAQ page — dedicated CTA block at the bottom. */
+  /** FAQ / portfolio — dedicated CTA block at the bottom. */
   ctaSection?: {
     title: string;
     description: string;
     slug: PublicPageSlug;
     label: string;
+    hash?: string;
+  };
+  /** Programme page — impact metrics section. */
+  impactSection?: {
+    eyebrow?: string;
+    title: string;
+    description: string;
+    notice?: string;
+    cards: { title: string; description: string }[];
   };
 };
