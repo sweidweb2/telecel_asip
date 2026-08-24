@@ -12,7 +12,7 @@ Use the libraries in `Docs/libraries.md`. Do not introduce alternatives.
 - **Icons / classes** — `lucide-react`; `cn()` from `lib/utils.ts`. Tailwind only — no CSS-in-JS.
 - **Tooltips** — keep `TooltipProvider` in `app/layout.tsx` (already required by the tooltip component).
 - **Route progress** — `nextjs-toploader` in `app/layout.tsx` only. Do not add other nprogress wrappers. Programmatic nav: `useRouter` from `nextjs-toploader/app`.
-- **Skeletons** — colocate `loading.tsx` next to `page.tsx` and render `Skeleton` from `components/ui/skeleton`. Next shows it during the Server Component fetch. Installing the component is not enough.
+- **Skeletons** — **boneyard-js** for route loading: colocate `loading.tsx` next to `page.tsx` and render `RouteSkeleton` from `components/skeleton/route-skeleton.tsx` with a shadcn `fallback` until `npm run bones:build`. Registry in `bones/registry.ts`; config in `boneyard.config.json`. Keep shadcn `Skeleton` (`components/ui/skeleton`) only for small inline placeholders (sidebar, form suspense).
 - **Errors** — designed `error.tsx`, `global-error.tsx`, and `not-found.tsx` via `components/layout/error-screen.tsx` and `route-error.tsx`. Do not leave Next’s default error UI.
 - **Forms** — `react-hook-form` + Zod schema from `validations/` via `zodResolver`. Do not use uncontrolled-form-killing `useState` for every field.
 - **Dates** — `date-fns` named imports only. Never moment.js.

@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import NextTopLoader from "nextjs-toploader";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { BoneyardSetup } from "@/components/skeleton/boneyard-setup";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
@@ -67,6 +68,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col">
+        <BoneyardSetup />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
