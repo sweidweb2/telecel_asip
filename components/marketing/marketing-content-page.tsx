@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AboutPageContent } from "@/components/marketing/about-page-content";
 import { FaqPageContent } from "@/components/marketing/faq-page-content";
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -49,6 +50,10 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
         <FaqPageContent locale={locale} copy={copy} />
       </main>
     );
+  }
+
+  if (slug === "about") {
+    return <AboutPageContent locale={locale} copy={copy} />;
   }
 
   return (

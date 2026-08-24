@@ -1,5 +1,45 @@
 import type { PublicPageSlug } from "@/constants/public-pages";
 
+export type AboutStoryFeatureIcon =
+  | "rocket"
+  | "trending-up"
+  | "globe"
+  | "heart";
+
+export type AboutStoryStatIcon =
+  | "rocket"
+  | "users"
+  | "map-pin"
+  | "star";
+
+export type AboutStoryCopy = {
+  title: string;
+  paragraphs: string[];
+  eyebrow?: string;
+  features?: {
+    icon: AboutStoryFeatureIcon;
+    title: string;
+    description: string;
+    slug?: PublicPageSlug;
+    linkLabel?: string;
+  }[];
+  stats?: {
+    icon: AboutStoryStatIcon;
+    value: number;
+    suffix?: string;
+    label: string;
+  }[];
+  imageCta?: { slug: PublicPageSlug; label: string };
+  bottomCta?: { title: string; slug: PublicPageSlug; label: string };
+  statsNotice?: string;
+};
+
+export type AboutNarrativeBlockCopy = {
+  title: string;
+  paragraphs: string[];
+  imageLabel: string;
+};
+
 export type MarketingContentSlug = Exclude<
   PublicPageSlug,
   "contact" | "insights"
@@ -13,7 +53,19 @@ export type MarketingPageCopy = {
   sectionTitle: string;
   sectionDescription: string;
   cards: { title: string; description: string }[];
-  cta?: { slug: PublicPageSlug; label: string };
+  cta?: { slug: PublicPageSlug; label: string; hash?: string };
+  /** About page — partners logo cloud section. */
+  partnersSection?: {
+    eyebrow?: string;
+    title: string;
+    description?: string;
+  };
+  /** About page — story, vision, and mission narrative blocks. */
+  aboutNarrative?: {
+    story: AboutStoryCopy;
+    vision: AboutNarrativeBlockCopy;
+    mission: AboutNarrativeBlockCopy;
+  };
   /** FAQ page — tabbed question groups below the scroller. */
   tabsSectionTitle?: string;
   tabsSectionDescription?: string;

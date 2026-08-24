@@ -50,7 +50,6 @@ export function enFooterLabels(): SiteFooterLabels {
       { slug: "about", label: "About" },
       { slug: "portfolio", label: "Portfolio" },
       { slug: "impact", label: "Impact" },
-      { slug: "partners", label: "Partners" },
       { slug: "insights", label: "Insights" },
     ]),
     programme: links("en", [
@@ -58,10 +57,10 @@ export function enFooterLabels(): SiteFooterLabels {
       { slug: "apply", label: "Register interest" },
       { slug: "faq", label: "FAQ" },
     ]),
-    connect: links("en", [
-      { slug: "contact", label: "Contact" },
-      { slug: "partners", label: "Partner with us" },
-    ]),
+    connect: [
+      { href: publicPath("en", "contact"), label: "Contact" },
+      { href: `${publicPath("en", "about")}#partners`, label: "Partner with us" },
+    ],
     socialHeading: "Follow",
     social: [
       { href: "https://www.linkedin.com", label: "LinkedIn" },
@@ -86,7 +85,6 @@ export function frFooterLabels(): SiteFooterLabels {
       { slug: "about", label: "À propos" },
       { slug: "portfolio", label: "Portefeuille" },
       { slug: "impact", label: "Impact" },
-      { slug: "partners", label: "Partenaires" },
       { slug: "insights", label: "Perspectives" },
     ]),
     programme: links("fr", [
@@ -94,10 +92,13 @@ export function frFooterLabels(): SiteFooterLabels {
       { slug: "apply", label: "Manifestez votre intérêt" },
       { slug: "faq", label: "FAQ" },
     ]),
-    connect: links("fr", [
-      { slug: "contact", label: "Nous contacter" },
-      { slug: "partners", label: "Devenir partenaire" },
-    ]),
+    connect: [
+      { href: publicPath("fr", "contact"), label: "Nous contacter" },
+      {
+        href: `${publicPath("fr", "about")}#partners`,
+        label: "Devenir partenaire",
+      },
+    ],
     socialHeading: "Suivre",
     social: [
       { href: "https://www.linkedin.com", label: "LinkedIn" },

@@ -147,6 +147,62 @@
   }
 }
 
+@keyframes about-story-underline {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes about-story-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.about-story-fade-up {
+  animation: fade-in-up 0.7s ease-out both;
+}
+
+.about-story-fade-up-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.about-story-fade-up-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.about-story-fade-up-delay-3 {
+  animation-delay: 0.3s;
+}
+
+.about-story-fade-up-delay-4 {
+  animation-delay: 0.4s;
+}
+
+.about-story-fade-up-delay-5 {
+  animation-delay: 0.5s;
+}
+
+.about-story-underline {
+  animation: about-story-underline 0.6s ease-out 0.25s both;
+  transform-origin: center;
+}
+
+.about-story-float {
+  animation: about-story-float 5s ease-in-out infinite;
+}
+
+.about-story-float-delayed {
+  animation: about-story-float 6s ease-in-out 1s infinite;
+}
+
 @keyframes scroll-horizontal {
   0% {
     transform: translateX(0);
@@ -178,7 +234,11 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-scroll-horizontal,
   .animate-scroll-horizontal-reverse,
-  .animate-fade-in-up {
+  .animate-fade-in-up,
+  .about-story-fade-up,
+  .about-story-underline,
+  .about-story-float,
+  .about-story-float-delayed {
     animation: none !important;
     opacity: 1;
     transform: none;

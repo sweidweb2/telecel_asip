@@ -54,11 +54,13 @@ function LanguageToggle({
   pathname,
   groupLabel,
   className,
+  onLinkClick,
 }: {
   locale: Locale;
   pathname: string;
   groupLabel: string;
   className?: string;
+  onLinkClick?: () => void;
 }) {
   return (
     <div
@@ -74,10 +76,11 @@ function LanguageToggle({
             key={loc}
             href={href}
             hrefLang={loc}
+            onClick={onLinkClick}
             className={cn(
               "inline-flex min-h-11 min-w-11 items-center justify-center px-1.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground",
               isActive &&
-                "font-bold text-foreground underline underline-offset-4"
+                "font-bold text-foreground underline underline-offset-4",
             )}
             aria-current={isActive ? "true" : undefined}
           >
@@ -184,18 +187,13 @@ export function SiteNavbar({
           </div>
         </nav>
 
-        {/* Mobile / tablet: language + menu */}
-        <div className="ml-auto flex items-center gap-1 lg:hidden">
-          <LanguageToggle
-            locale={locale}
-            pathname={pathname}
-            groupLabel={labels.languageGroupLabel}
-          />
+        {/* Mobile / tablet: menu only — language lives in the sheet */}
+        <div className="ml-auto flex items-center lg:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
-                "min-h-11 min-w-11"
+                "min-h-11 min-w-11",
               )}
               aria-label={menuLabel}
             >
@@ -218,12 +216,24 @@ export function SiteNavbar({
                       buttonVariants({ variant: "ghost" }),
                       "h-11 justify-start",
                       isNavActive(pathname, item.href, locale) &&
-                        "bg-muted font-semibold"
+                        "bg-muted font-semibold",
                     )}
                   >
                     {item.label}
                   </Link>
                 ))}
+                <div className="my-2 border-t" />
+                <div className="flex flex-col gap-2 px-1 py-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {labels.languageGroupLabel}
+                  </p>
+                  <LanguageToggle
+                    locale={locale}
+                    pathname={pathname}
+                    groupLabel={labels.languageGroupLabel}
+                    onLinkClick={() => setOpen(false)}
+                  />
+                </div>
                 <div className="my-2 border-t" />
                 <div className="flex flex-col gap-1">{authLinks}</div>
               </nav>

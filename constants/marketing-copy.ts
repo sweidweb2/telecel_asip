@@ -22,11 +22,96 @@ const en: MarketingCopy = {
     cta: { slug: "programme", label: "Explore the programme" },
   },
   about: {
-    eyebrow: "About ASIP", title: "A platform for African technology ventures", description: "ASIP is a Telecel Group initiative created to support founders through acceleration, ecosystem access, and market visibility.", notice: "Final history, imagery, names, and milestones require Telecel approval.", sectionTitle: "Purpose and direction", sectionDescription: "The programme is designed to help promising ventures strengthen their foundations, reach useful networks, and communicate their progress responsibly.", cards: [
-      { title: "Foundation", description: "ASIP was created to contribute practical support to Africa’s growing technology ecosystem." },
-      { title: "Programme development", description: "Each programme cycle turns founder needs into focused support and meaningful introductions." },
-      { title: "The next chapter", description: "The platform will document verified ventures, partnerships, outcomes, and opportunities." },
-    ], cta: { slug: "partners", label: "Meet our partners" },
+    eyebrow: "About ASIP",
+    title: "A platform for African technology ventures",
+    description:
+      "ASIP is a Telecel Group initiative created to support founders through acceleration, ecosystem access, and market visibility.",
+    notice: "Final history, imagery, names, and milestones require Telecel approval.",
+    sectionTitle: "Purpose and direction",
+    sectionDescription:
+      "The programme is designed to help promising ventures strengthen their foundations, reach useful networks, and communicate their progress responsibly.",
+    cards: [],
+    cta: { slug: "contact", label: "Become a partner" },
+    partnersSection: {
+      eyebrow: "Ecosystem",
+      title: "Partners",
+      description:
+        "Leading organizations across the ecosystem support ASIP founders.",
+    },
+    aboutNarrative: {
+      story: {
+        title: "Our story",
+        eyebrow: "Telecel Group CSR",
+        paragraphs: [
+          "ASIP is a program launched by Telecel Group as part of its CSR activities. ASIP contributes in a meaningful way to the African continent by supporting young startups whose innovative ideas are creating a difference in their communities, exposing them to international organizations, and bridging knowledge and expertise so they can attract partners that add value to their startups.",
+        ],
+        features: [
+          {
+            icon: "rocket",
+            title: "Accelerator",
+            description:
+              "Coaching, mentoring, workshops, market access, and education for early-stage founders.",
+            slug: "programme",
+            linkLabel: "Learn more",
+          },
+          {
+            icon: "trending-up",
+            title: "Investment",
+            description:
+              "Access to investors, grants, angel capital, and venture funding pathways.",
+            slug: "programme",
+            linkLabel: "Learn more",
+          },
+          {
+            icon: "globe",
+            title: "Ecosystem",
+            description:
+              "Exposure to international organizations and partners who add strategic value.",
+            slug: "about",
+            linkLabel: "Learn more",
+          },
+          {
+            icon: "heart",
+            title: "Community impact",
+            description:
+              "Supporting startups whose ideas create measurable difference in African communities.",
+            slug: "impact",
+            linkLabel: "Learn more",
+          },
+        ],
+        stats: [
+          { icon: "rocket", value: 50, suffix: "+", label: "Startups supported" },
+          { icon: "map-pin", value: 12, suffix: "+", label: "Markets reached" },
+          { icon: "users", value: 5, suffix: "+", label: "Programme cycles" },
+          { icon: "star", value: 95, suffix: "%", label: "Founder satisfaction" },
+        ],
+        imageCta: { slug: "programme", label: "Explore the programme" },
+        statsNotice: "Draft figures — final numbers require Telecel approval.",
+        bottomCta: {
+          title: "Ready to grow with ASIP?",
+          slug: "apply",
+          label: "Register your interest",
+        },
+      },
+      vision: {
+        title: "Vision",
+        imageLabel: "Vision imagery — pending Telecel approval",
+        paragraphs: [
+          "ASIP will be recognized as a leading Startup Initiative Program that provides startups with a level of support that surpasses their highest expectations.",
+          "Our ability to leverage relationships on behalf of our program participants to provide them with boundless access to investors and markets will be unmatched.",
+          "The startups will be transformed into well-established firms that introduce the most innovative solutions in Africa and become drivers of economic growth in the community.",
+        ],
+      },
+      mission: {
+        title: "Mission",
+        imageLabel: "Mission imagery — pending Telecel approval",
+        paragraphs: [
+          "Africa Startup Initiative Program aims to contribute in a meaningful way to the African community by supporting young startups in Africa whose innovative ideas are creating a difference in their communities.",
+          "Our goal is to discover Africa’s most talented entrepreneurs operating in the fields of telecom and technology, and help them create successful companies at scale. We support startups via our Accelerator and Investment Programs. The Accelerator program provides coaching and mentoring, workshops, access to markets, and education. The Investment Program emphasizes access to investors, funding, grants, angel investments, and venture capital.",
+          "We want to expose pre-seed companies to international organizations and bridge knowledge and expertise to attract partners that can add value and transform entrepreneurial concepts into sustainable businesses that serve the community and society at large.",
+        ],
+      },
+    },
   },
   programme: {
     eyebrow: "Programme", title: "A founder journey designed for growth", description: "A clear overview of who the programme is for, how participation works, and what founders can expect.", notice: "Eligibility, dates, and delivery details will be published once approved.", sectionTitle: "A simple programme pathway", sectionDescription: "The experience moves from initial interest and selection to focused acceleration and ecosystem access.", cards: [
@@ -49,13 +134,6 @@ const en: MarketingCopy = {
       { title: "Markets reached", description: "Portfolio expansion will be presented with clear definitions and reporting periods." },
       { title: "Founder outcomes", description: "Stories will connect business progress with lessons from each founder journey." },
     ], cta: { slug: "insights", label: "Read the latest insights" },
-  },
-  partners: {
-    eyebrow: "Partners", title: "Collaboration across the ecosystem", description: "Organizations contributing expertise, access, visibility, and support to African technology founders.", notice: "Partner names and logos will appear after publication approval.", sectionTitle: "Opening useful doors", sectionDescription: "ASIP works with partners whose capabilities can make a practical difference to participating ventures.", cards: [
-      { title: "Expertise", description: "Specialists and mentors contribute relevant knowledge and founder guidance." },
-      { title: "Market access", description: "Ecosystem relationships create pathways to customers, peers, and new markets." },
-      { title: "Visibility", description: "Media and community partners help share credible venture and programme stories." },
-    ], cta: { slug: "contact", label: "Become a partner" },
   },
   apply: {
     eyebrow: "For founders", title: "Register your interest", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "The current form is a demonstration and does not transmit or store application data.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
@@ -122,11 +200,102 @@ const en: MarketingCopy = {
 
 const fr: MarketingCopy = {
   "": { eyebrow: "Programme africain d’initiative pour les startups", title: "Aider les entreprises technologiques africaines à grandir avec confiance", description: "Une initiative du Groupe Telecel qui relie les fondateurs à une accélération structurée, à l’écosystème et à une visibilité marché.", notice: "Les informations du programme sont en cours de validation finale par Telecel.", sectionTitle: "Conçu autour du parcours des fondateurs", sectionDescription: "Découvrez le programme, les entreprises participantes et les histoires qui façonnent l’écosystème technologique africain.", cards: [{ title: "Accélération structurée", description: "Un accompagnement pratique adapté aux besoins et à la maturité de chaque entreprise." }, { title: "Accès à l’écosystème", description: "Des liens avec des mentors, partenaires, pairs et marchés pertinents." }, { title: "Visibilité crédible", description: "Une plateforme pour partager des progrès, enseignements et parcours vérifiés." }], cta: { slug: "programme", label: "Découvrir le programme" } },
-  about: { eyebrow: "À propos d’ASIP", title: "Une plateforme pour les entreprises technologiques africaines", description: "ASIP est une initiative du Groupe Telecel qui accompagne les fondateurs par l’accélération, l’accès à l’écosystème et la visibilité marché.", notice: "L’histoire, les images, les noms et les étapes clés nécessitent l’approbation de Telecel.", sectionTitle: "Mission et orientation", sectionDescription: "Le programme aide les entreprises prometteuses à renforcer leurs bases, atteindre des réseaux utiles et communiquer leurs progrès de manière responsable.", cards: [{ title: "Fondation", description: "ASIP a été créé pour apporter un soutien concret à l’écosystème technologique africain." }, { title: "Développement du programme", description: "Chaque cycle transforme les besoins des fondateurs en accompagnement ciblé et en rencontres utiles." }, { title: "Le prochain chapitre", description: "La plateforme documentera les entreprises, partenariats, résultats et opportunités vérifiés." }], cta: { slug: "partners", label: "Découvrir nos partenaires" } },
+  about: {
+    eyebrow: "À propos d’ASIP",
+    title: "Une plateforme pour les entreprises technologiques africaines",
+    description:
+      "ASIP est une initiative du Groupe Telecel qui accompagne les fondateurs par l’accélération, l’accès à l’écosystème et la visibilité marché.",
+    notice: "L’histoire, les images, les noms et les étapes clés nécessitent l’approbation de Telecel.",
+    sectionTitle: "Mission et orientation",
+    sectionDescription:
+      "Le programme aide les entreprises prometteuses à renforcer leurs bases, atteindre des réseaux utiles et communiquer leurs progrès de manière responsable.",
+    cards: [],
+    cta: { slug: "contact", label: "Devenir partenaire" },
+    partnersSection: {
+      eyebrow: "Écosystème",
+      title: "Partenaires",
+      description:
+        "Des organisations de premier plan soutiennent les fondateurs ASIP.",
+    },
+    aboutNarrative: {
+      story: {
+        title: "Notre histoire",
+        eyebrow: "RSE du Groupe Telecel",
+        paragraphs: [
+          "ASIP est un programme lancé par le Groupe Telecel dans le cadre de ses activités RSE. ASIP contribue de manière significative au continent africain en soutenant les jeunes startups dont les idées innovantes transforment leurs communautés, en les exposant aux organisations internationales et en créant des ponts de connaissances et d’expertise pour qu’elles puissent attirer des partenaires capables d’apporter une réelle valeur à leurs entreprises.",
+        ],
+        features: [
+          {
+            icon: "rocket",
+            title: "Accélérateur",
+            description:
+              "Coaching, mentorat, ateliers, accès aux marchés et formation pour les fondateurs en phase initiale.",
+            slug: "programme",
+            linkLabel: "En savoir plus",
+          },
+          {
+            icon: "trending-up",
+            title: "Investissement",
+            description:
+              "Accès aux investisseurs, subventions, capital providentiel et voies de financement en capital-risque.",
+            slug: "programme",
+            linkLabel: "En savoir plus",
+          },
+          {
+            icon: "globe",
+            title: "Écosystème",
+            description:
+              "Exposition aux organisations internationales et partenaires qui apportent une valeur stratégique.",
+            slug: "about",
+            linkLabel: "En savoir plus",
+          },
+          {
+            icon: "heart",
+            title: "Impact communautaire",
+            description:
+              "Soutien aux startups dont les idées créent une différence mesurable dans les communautés africaines.",
+            slug: "impact",
+            linkLabel: "En savoir plus",
+          },
+        ],
+        stats: [
+          { icon: "rocket", value: 50, suffix: "+", label: "Startups accompagnées" },
+          { icon: "map-pin", value: 12, suffix: "+", label: "Marchés atteints" },
+          { icon: "users", value: 5, suffix: "+", label: "Cycles du programme" },
+          { icon: "star", value: 95, suffix: "%", label: "Satisfaction des fondateurs" },
+        ],
+        imageCta: { slug: "programme", label: "Découvrir le programme" },
+        statsNotice:
+          "Chiffres provisoires — les données finales nécessitent l’approbation de Telecel.",
+        bottomCta: {
+          title: "Prêt à grandir avec ASIP ?",
+          slug: "apply",
+          label: "Manifester votre intérêt",
+        },
+      },
+      vision: {
+        title: "Vision",
+        imageLabel: "Visuel Vision — en attente d’approbation Telecel",
+        paragraphs: [
+          "ASIP sera reconnu comme un programme d’initiative pour les startups de référence, offrant un niveau de soutien qui dépasse les attentes les plus élevées des participants.",
+          "Notre capacité à mobiliser des relations au profit des participants, pour leur garantir un accès sans limites aux investisseurs et aux marchés, sera inégalée.",
+          "Les startups deviendront des entreprises solidement établies, porteuses des solutions les plus innovantes en Afrique et moteurs de la croissance économique dans leurs communautés.",
+        ],
+      },
+      mission: {
+        title: "Mission",
+        imageLabel: "Visuel Mission — en attente d’approbation Telecel",
+        paragraphs: [
+          "Le Programme africain d’initiative pour les startups vise à contribuer de manière significative à la communauté africaine en soutenant les jeunes startups dont les idées innovantes transforment leurs communautés.",
+          "Notre objectif est de découvrir les entrepreneurs les plus talentueux d’Afrique dans les domaines des télécommunications et de la technologie, et de les aider à bâtir des entreprises prospères à grande échelle. Nous accompagnons les startups via nos programmes d’accélération et d’investissement. Le programme d’accélération offre coaching, mentorat, ateliers, accès aux marchés et formation. Le programme d’investissement met l’accent sur l’accès aux investisseurs, au financement, aux subventions, aux investissements providentiels et au capital-risque.",
+          "Nous souhaitons exposer les entreprises en phase pré-amorçage aux organisations internationales et créer des ponts de connaissances et d’expertise pour attirer des partenaires capables de transformer des concepts entrepreneuriaux en entreprises durables au service de la communauté et de la société.",
+        ],
+      },
+    },
+  },
   programme: { eyebrow: "Programme", title: "Un parcours de croissance conçu pour les fondateurs", description: "Une présentation claire du public concerné, du fonctionnement de la participation et de ce que les fondateurs peuvent attendre.", notice: "Les critères, dates et modalités seront publiés après validation.", sectionTitle: "Un parcours simple", sectionDescription: "L’expérience va de la manifestation d’intérêt et de la sélection à l’accélération ciblée et à l’accès à l’écosystème.", cards: [{ title: "01 · Manifester son intérêt", description: "Présentez brièvement l’équipe, l’entreprise, le marché et les progrès actuels." }, { title: "02 · Évaluation et sélection", description: "Les candidatures sont évaluées selon les critères publiés pour le cycle concerné." }, { title: "03 · Parcours du programme", description: "Les fondateurs sélectionnés participent à des sessions structurées, au mentorat et aux échanges entre pairs." }, { title: "04 · Accès au marché", description: "Des introductions et une visibilité pertinentes préparent l’entreprise à sa prochaine étape." }], cta: { slug: "apply", label: "Manifester votre intérêt" } },
   portfolio: { eyebrow: "Portefeuille", title: "Les entreprises de l’écosystème ASIP", description: "Découvrez les entreprises accompagnées par ASIP selon les cohortes, pays et secteurs technologiques.", notice: "Les profils et résultats ne sont publiés qu’après vérification.", sectionTitle: "Une archive d’entreprises en croissance", sectionDescription: "Le portefeuille facilite la découverte des fondateurs, de leurs solutions et de leurs progrès.", cards: [{ title: "Par cohorte", description: "Explorez les entreprises de chaque cycle à mesure que les profils sont approuvés." }, { title: "Par marché", description: "Découvrez les pays et communautés où les entreprises construisent leurs solutions." }, { title: "Par secteur", description: "Explorez la finance, la santé, le climat, le commerce et d’autres domaines." }], cta: { slug: "impact", label: "Découvrir notre impact" } },
   impact: { eyebrow: "Impact", title: "Rendre les progrès visibles et crédibles", description: "La portée vérifiée du portefeuille, les résultats des fondateurs et les histoires de l’écosystème, avec le contexte des chiffres.", notice: "Les chiffres ne seront publiés qu’après examen et approbation.", sectionTitle: "Des preuves accompagnées de contexte", sectionDescription: "Le suivi d’impact associe les résultats mesurables aux histoires qui les expliquent.", cards: [{ title: "Entreprises accompagnées", description: "Les chiffres de participation proviendront des dossiers vérifiés du programme." }, { title: "Marchés atteints", description: "L’expansion sera présentée avec des définitions et périodes de référence claires." }, { title: "Résultats des fondateurs", description: "Les récits relieront les progrès aux enseignements de chaque parcours." }], cta: { slug: "insights", label: "Lire les dernières perspectives" } },
-  partners: { eyebrow: "Partenaires", title: "Collaborer à travers l’écosystème", description: "Des organisations qui apportent expertise, accès, visibilité et soutien aux fondateurs technologiques africains.", notice: "Les noms et logos seront affichés après autorisation de publication.", sectionTitle: "Ouvrir des portes utiles", sectionDescription: "ASIP travaille avec des partenaires dont les capacités ont un impact concret sur les entreprises participantes.", cards: [{ title: "Expertise", description: "Des spécialistes et mentors partagent des connaissances pertinentes." }, { title: "Accès au marché", description: "Les relations créent des passerelles vers clients, pairs et nouveaux marchés." }, { title: "Visibilité", description: "Les partenaires médias et communautaires valorisent des histoires crédibles." }], cta: { slug: "contact", label: "Devenir partenaire" } },
   apply: { eyebrow: "Pour les fondateurs", title: "Manifester votre intérêt", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Le formulaire actuel est une démonstration et ne transmet ni ne stocke de données.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
   faq: {
     eyebrow: "FAQ",

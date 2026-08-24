@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.untitledui.com",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.21st.dev",
+      },
     ],
   },
 };
