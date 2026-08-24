@@ -122,11 +122,40 @@ const en: MarketingCopy = {
     ], cta: { slug: "apply", label: "Register your interest" },
   },
   portfolio: {
-    eyebrow: "Portfolio", title: "Ventures across the ASIP ecosystem", description: "Discover the companies supported by ASIP across cohorts, countries, and technology sectors.", notice: "Profiles and performance information are published only after verification.", sectionTitle: "A growing venture archive", sectionDescription: "The portfolio will make it easier to discover founders, understand their solutions, and follow their progress.", cards: [
-      { title: "Across cohorts", description: "Explore ventures from each programme cycle as profiles are approved." },
-      { title: "Across markets", description: "See the countries and communities where portfolio companies are building." },
-      { title: "Across sectors", description: "Discover solutions in financial services, health, climate, commerce, and more." },
-    ], cta: { slug: "impact", label: "Explore our impact" },
+    eyebrow: "Portfolio",
+    title: "Ventures across the ASIP ecosystem",
+    description:
+      "Discover the companies supported by ASIP across cohorts, countries, and technology sectors.",
+    notice:
+      "Profiles and performance information are published only after verification.",
+    sectionTitle: "A growing venture archive",
+    sectionDescription:
+      "The portfolio will make it easier to discover founders, understand their solutions, and follow their progress.",
+    cards: [
+      {
+        title: "Across cohorts",
+        description:
+          "Explore ventures from each programme cycle as profiles are approved.",
+      },
+      {
+        title: "Across markets",
+        description:
+          "See the countries and communities where portfolio companies are building.",
+      },
+      {
+        title: "Across sectors",
+        description:
+          "Discover solutions in financial services, health, climate, commerce, and more.",
+      },
+    ],
+    cta: { slug: "impact", label: "Explore our impact" },
+    ctaSection: {
+      title: "Explore our impact",
+      description:
+        "See how ASIP ventures contribute to communities across Africa — with verified reach, founder outcomes, and programme stories.",
+      slug: "impact",
+      label: "Explore our impact",
+    },
   },
   impact: {
     eyebrow: "Impact", title: "Making progress visible and credible", description: "Verified portfolio reach, founder outcomes, and ecosystem stories presented with the context behind the numbers.", notice: "Figures will remain unpublished until they have been reviewed and approved.", sectionTitle: "Evidence supported by context", sectionDescription: "Impact reporting combines measurable outcomes with the founder and programme stories that explain them.", cards: [
@@ -294,7 +323,42 @@ const fr: MarketingCopy = {
     },
   },
   programme: { eyebrow: "Programme", title: "Un parcours de croissance conçu pour les fondateurs", description: "Une présentation claire du public concerné, du fonctionnement de la participation et de ce que les fondateurs peuvent attendre.", notice: "Les critères, dates et modalités seront publiés après validation.", sectionTitle: "Un parcours simple", sectionDescription: "L’expérience va de la manifestation d’intérêt et de la sélection à l’accélération ciblée et à l’accès à l’écosystème.", cards: [{ title: "01 · Manifester son intérêt", description: "Présentez brièvement l’équipe, l’entreprise, le marché et les progrès actuels." }, { title: "02 · Évaluation et sélection", description: "Les candidatures sont évaluées selon les critères publiés pour le cycle concerné." }, { title: "03 · Parcours du programme", description: "Les fondateurs sélectionnés participent à des sessions structurées, au mentorat et aux échanges entre pairs." }, { title: "04 · Accès au marché", description: "Des introductions et une visibilité pertinentes préparent l’entreprise à sa prochaine étape." }], cta: { slug: "apply", label: "Manifester votre intérêt" } },
-  portfolio: { eyebrow: "Portefeuille", title: "Les entreprises de l’écosystème ASIP", description: "Découvrez les entreprises accompagnées par ASIP selon les cohortes, pays et secteurs technologiques.", notice: "Les profils et résultats ne sont publiés qu’après vérification.", sectionTitle: "Une archive d’entreprises en croissance", sectionDescription: "Le portefeuille facilite la découverte des fondateurs, de leurs solutions et de leurs progrès.", cards: [{ title: "Par cohorte", description: "Explorez les entreprises de chaque cycle à mesure que les profils sont approuvés." }, { title: "Par marché", description: "Découvrez les pays et communautés où les entreprises construisent leurs solutions." }, { title: "Par secteur", description: "Explorez la finance, la santé, le climat, le commerce et d’autres domaines." }], cta: { slug: "impact", label: "Découvrir notre impact" } },
+  portfolio: {
+    eyebrow: "Portefeuille",
+    title: "Les entreprises de l’écosystème ASIP",
+    description:
+      "Découvrez les entreprises accompagnées par ASIP selon les cohortes, pays et secteurs technologiques.",
+    notice:
+      "Les profils et résultats ne sont publiés qu’après vérification.",
+    sectionTitle: "Une archive d’entreprises en croissance",
+    sectionDescription:
+      "Le portefeuille facilite la découverte des fondateurs, de leurs solutions et de leurs progrès.",
+    cards: [
+      {
+        title: "Par cohorte",
+        description:
+          "Explorez les entreprises de chaque cycle à mesure que les profils sont approuvés.",
+      },
+      {
+        title: "Par marché",
+        description:
+          "Découvrez les pays et communautés où les entreprises construisent leurs solutions.",
+      },
+      {
+        title: "Par secteur",
+        description:
+          "Explorez la finance, la santé, le climat, le commerce et d’autres domaines.",
+      },
+    ],
+    cta: { slug: "impact", label: "Découvrir notre impact" },
+    ctaSection: {
+      title: "Découvrir notre impact",
+      description:
+        "Découvrez comment les entreprises ASIP contribuent aux communautés en Afrique — portée vérifiée, résultats des fondateurs et histoires du programme.",
+      slug: "impact",
+      label: "Découvrir notre impact",
+    },
+  },
   impact: { eyebrow: "Impact", title: "Rendre les progrès visibles et crédibles", description: "La portée vérifiée du portefeuille, les résultats des fondateurs et les histoires de l’écosystème, avec le contexte des chiffres.", notice: "Les chiffres ne seront publiés qu’après examen et approbation.", sectionTitle: "Des preuves accompagnées de contexte", sectionDescription: "Le suivi d’impact associe les résultats mesurables aux histoires qui les expliquent.", cards: [{ title: "Entreprises accompagnées", description: "Les chiffres de participation proviendront des dossiers vérifiés du programme." }, { title: "Marchés atteints", description: "L’expansion sera présentée avec des définitions et périodes de référence claires." }, { title: "Résultats des fondateurs", description: "Les récits relieront les progrès aux enseignements de chaque parcours." }], cta: { slug: "insights", label: "Lire les dernières perspectives" } },
   apply: { eyebrow: "Pour les fondateurs", title: "Manifester votre intérêt", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Le formulaire actuel est une démonstration et ne transmet ni ne stocke de données.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
   faq: {
