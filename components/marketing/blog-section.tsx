@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
@@ -31,11 +32,9 @@ import {
   type BlogSortId,
   type BlogTabId,
 } from "@/constants/blog-articles";
+import type { Locale } from "@/constants/locales";
+import { insightPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-
-function preventDummyNav(event: MouseEvent<HTMLAnchorElement>) {
-  event.preventDefault();
-}
 
 function authorInitials(name: string) {
   return name
@@ -47,17 +46,24 @@ function authorInitials(name: string) {
 }
 
 type BlogSectionProps = {
+  locale: Locale;
   labels: BlogLabels;
 };
 
-function FeaturedPost({ labels }: { labels: BlogLabels }) {
+function FeaturedPost({
+  locale,
+  labels,
+}: {
+  locale: Locale;
+  labels: BlogLabels;
+}) {
   const article = FEATURED_ARTICLE;
+  const href = insightPath(locale, article.slug);
 
   return (
     <>
-      <a
-        href={article.href}
-        onClick={preventDummyNav}
+      <Link
+        href={href}
         className="relative hidden w-full overflow-hidden rounded-2xl focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none md:block md:h-[28rem] lg:h-[36rem]"
       >
         <Image
@@ -128,16 +134,16 @@ function FeaturedPost({ labels }: { labels: BlogLabels }) {
             </div>
           </div>
         </div>
-      </a>
+      </Link>
 
       <div className="md:hidden">
-        <BlogCard article={article} />
+        <BlogCard locale={locale} article={article} />
       </div>
     </>
   );
 }
 
-export function BlogSection({ labels }: BlogSectionProps) {
+export function BlogSection({ locale, labels }: BlogSectionProps) {
   const [tab, setTab] = useState<BlogTabId>("all");
   const [sortBy, setSortBy] = useState<BlogSortId>("recent");
 
@@ -175,7 +181,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 sm:px-6 md:gap-16 lg:pb-24">
-        <FeaturedPost labels={labels} />
+        <FeaturedPost locale={locale} labels={labels} />
 
         <div className="flex flex-col items-stretch gap-6 md:flex-row md:items-end md:gap-8">
           <Tabs
@@ -227,7 +233,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
               key={article.id}
               className={cn(index >= 6 && "max-lg:hidden")}
             >
-              <BlogCard article={article} />
+              <BlogCard locale={locale} article={article} />
             </li>
           ))}
         </ul>
@@ -238,16 +244,14 @@ export function BlogSection({ labels }: BlogSectionProps) {
               <PaginationPrevious
                 href="#"
                 text={labels.previous}
-                className="min-h-11"
-                onClick={preventDummyNav}
+                className="min-h-11 pointer-events-none opacity-50"
               />
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
                 href="#"
                 isActive
-                className="min-h-11 min-w-11 rounded-full"
-                onClick={preventDummyNav}
+                className="min-h-11 min-w-11 rounded-full pointer-events-none"
               >
                 1
               </PaginationLink>
@@ -255,8 +259,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
             <PaginationItem>
               <PaginationLink
                 href="#"
-                className="min-h-11 min-w-11 rounded-full"
-                onClick={preventDummyNav}
+                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
               >
                 2
               </PaginationLink>
@@ -264,8 +267,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
             <PaginationItem>
               <PaginationLink
                 href="#"
-                className="min-h-11 min-w-11 rounded-full"
-                onClick={preventDummyNav}
+                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
               >
                 3
               </PaginationLink>
@@ -276,8 +278,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
             <PaginationItem>
               <PaginationLink
                 href="#"
-                className="min-h-11 min-w-11 rounded-full"
-                onClick={preventDummyNav}
+                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
               >
                 10
               </PaginationLink>
@@ -286,8 +287,7 @@ export function BlogSection({ labels }: BlogSectionProps) {
               <PaginationNext
                 href="#"
                 text={labels.next}
-                className="min-h-11"
-                onClick={preventDummyNav}
+                className="min-h-11 pointer-events-none opacity-50"
               />
             </PaginationItem>
           </PaginationContent>

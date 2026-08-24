@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FaqPageContent } from "@/components/marketing/faq-page-content";
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonVariants } from "@/components/ui/button";
@@ -41,6 +42,15 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
           }
         : null;
 
+  if (slug === "faq") {
+    return (
+      <main>
+        {structuredData ? <JsonLd data={structuredData} /> : null}
+        <FaqPageContent locale={locale} copy={copy} />
+      </main>
+    );
+  }
+
   return (
     <main>
       {structuredData ? <JsonLd data={structuredData} /> : null}
@@ -48,12 +58,19 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
       <Section>
         <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{copy.notice}</p>
         <div className="mt-10">
-          <SectionHeading title={copy.sectionTitle} description={copy.sectionDescription} />
+          <SectionHeading
+            title={copy.sectionTitle}
+            description={copy.sectionDescription}
+          />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {copy.cards.map((card) => (
               <article key={card.title} className="rounded-xl border p-5 sm:p-6">
-                <h2 className="font-heading text-xl font-semibold tracking-tight">{card.title}</h2>
-                <p className="mt-3 leading-7 text-muted-foreground">{card.description}</p>
+                <h2 className="font-heading text-xl font-semibold tracking-tight">
+                  {card.title}
+                </h2>
+                <p className="mt-3 leading-7 text-muted-foreground">
+                  {card.description}
+                </p>
               </article>
             ))}
           </div>
@@ -62,7 +79,7 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
               href={publicPath(locale, copy.cta.slug)}
               className={cn(
                 buttonVariants(),
-                "mt-8 min-h-11 w-full sm:w-auto"
+                "mt-8 min-h-11 w-full sm:w-auto",
               )}
             >
               {copy.cta.label}

@@ -28,3 +28,8 @@ export function publicPath(locale: Locale, slug: PublicPageSlug = ""): string {
 export function authPath(locale: Locale, page: AuthPage = "login"): string {
   return `/${locale}/${page}`;
 }
+
+/** Locale-prefixed insight detail path, e.g. `/en/insights/ux-review-presentations`. */
+export function insightPath(locale: Locale, slug: string): string {
+  return `/${locale}/insights/${slug}`;
+}

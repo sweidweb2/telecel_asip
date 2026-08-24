@@ -1,7 +1,10 @@
+import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Locale } from "@/constants/locales";
+import { insightPath } from "@/constants/routes";
 import type { Article } from "@/types/article";
 
 function authorInitials(name: string) {
@@ -15,17 +18,14 @@ function authorInitials(name: string) {
 
 type BlogCardProps = {
   article: Article;
+  locale: Locale;
 };
 
-export function BlogCard({ article }: BlogCardProps) {
+export function BlogCard({ article, locale }: BlogCardProps) {
+  const href = insightPath(locale, article.slug);
+
   return (
-    <a
-      href={article.href}
-      onClick={(event) => {
-        event.preventDefault();
-      }}
-      className="group flex flex-col gap-5 outline-none"
-    >
+    <Link href={href} className="group flex flex-col gap-5 outline-none">
       <div className="relative aspect-[1.5] w-full overflow-hidden rounded-2xl bg-muted">
         <Image
           src={article.thumbnailUrl}
@@ -61,6 +61,6 @@ export function BlogCard({ article }: BlogCardProps) {
           </p>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }

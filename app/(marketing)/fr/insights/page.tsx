@@ -11,5 +11,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function FrInsightsPage() {
-  return <BlogSection labels={blogLabelsFor("fr")} />;
+  return <BlogSection locale="fr" labels={blogLabelsFor("fr")} />;
 }

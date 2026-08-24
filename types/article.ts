@@ -17,6 +17,7 @@ export type ArticleCategory = {
 
 export type Article = {
   id: string;
+  slug: string;
   title: string;
   summary: string;
   href: string;
@@ -26,5 +27,6 @@ export type Article = {
   readingTime: string;
   author: ArticleAuthor;
   tags: ArticleTag[];
+  body: string[];
   isFeatured?: boolean;
 };

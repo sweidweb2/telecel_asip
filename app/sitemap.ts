@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { LOCALES } from "@/constants/locales";
 import { PUBLIC_PAGE_SLUGS } from "@/constants/public-pages";
+import { getInsightSlugs } from "@/data/insights";
 import { localeUrl } from "@/lib/seo/alternates";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -14,6 +15,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
         url: localeUrl(locale, path),
         changeFrequency: slug === "insights" ? "weekly" : "monthly",
         priority: slug === "" ? 1 : 0.8,
+        alternates: {
+          languages: Object.fromEntries(
+            LOCALES.map((loc) => [loc, localeUrl(loc, path)])
+          ),
+        },
+      });
+    }
+
+    for (const insightSlug of getInsightSlugs()) {
+      const path = `/insights/${insightSlug}`;
+      entries.push({
+        url: localeUrl(locale, path),
+        changeFrequency: "monthly",
+        priority: 0.7,
         alternates: {
           languages: Object.fromEntries(
             LOCALES.map((loc) => [loc, localeUrl(loc, path)])

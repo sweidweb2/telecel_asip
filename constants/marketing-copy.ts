@@ -65,12 +65,58 @@ const en: MarketingCopy = {
     ], cta: { slug: "contact", label: "Ask a question" },
   },
   faq: {
-    eyebrow: "FAQ", title: "Frequently asked questions", description: "Practical information about the programme, applications, portfolio, and partnerships.", notice: "Programme-specific dates and criteria will be updated after approval.", sectionTitle: "What founders and partners ask", sectionDescription: "These answers describe the current programme structure and will evolve with each published cycle.", cards: [
+    eyebrow: "FAQ",
+    title: "Frequently asked questions",
+    description:
+      "Practical information about the programme, applications, portfolio, and partnerships.",
+    notice: "Programme-specific dates and criteria will be updated after approval.",
+    sectionTitle: "What founders and partners ask",
+    sectionDescription:
+      "These answers describe the current programme structure and will evolve with each published cycle.",
+    cards: [
       { title: "What is ASIP?", description: "A Telecel Group initiative supporting African technology ventures through acceleration, ecosystem access, and visibility." },
       { title: "Who can register interest?", description: "Technology founders can share their interest; final eligibility is published for each programme cycle." },
       { title: "What support is provided?", description: "The programme combines structured guidance, relevant connections, peer learning, and market visibility." },
       { title: "How can organizations partner?", description: "Prospective partners can contact ASIP to discuss expertise, access, content, and ecosystem collaboration." },
-    ], cta: { slug: "contact", label: "Ask another question" },
+      { title: "How do applications work?", description: "Register interest, get reviewed against cycle criteria, and join the programme if selected." },
+      { title: "Is there a cost to participate?", description: "Programme fee details, if any, are published with each cycle. ASIP aims to keep participation accessible for qualifying ventures." },
+    ],
+    tabsSectionTitle: "Browse by topic",
+    tabsSectionDescription:
+      "Explore answers grouped by programme, founders, and partners.",
+    tabs: [
+      {
+        id: "programme",
+        label: "Programme",
+        items: [
+          { title: "What is ASIP?", description: "A Telecel Group initiative supporting African technology ventures through acceleration, ecosystem access, and visibility." },
+          { title: "What support is provided?", description: "The programme combines structured guidance, relevant connections, peer learning, and market visibility." },
+          { title: "Is there a cost to participate?", description: "Programme fee details, if any, are published with each cycle. ASIP aims to keep participation accessible for qualifying ventures." },
+        ],
+      },
+      {
+        id: "founders",
+        label: "Founders",
+        items: [
+          { title: "Who can register interest?", description: "Technology founders can share their interest; final eligibility is published for each programme cycle." },
+          { title: "How do applications work?", description: "Register interest, get reviewed against cycle criteria, and join the programme if selected." },
+        ],
+      },
+      {
+        id: "partners",
+        label: "Partners",
+        items: [
+          { title: "How can organizations partner?", description: "Prospective partners can contact ASIP to discuss expertise, access, content, and ecosystem collaboration." },
+        ],
+      },
+    ],
+    ctaSection: {
+      title: "Still have questions?",
+      description:
+        "If you cannot find what you need, contact the ASIP team and we will follow up.",
+      slug: "contact",
+      label: "Ask another question",
+    },
   },
 };
 
@@ -82,7 +128,60 @@ const fr: MarketingCopy = {
   impact: { eyebrow: "Impact", title: "Rendre les progrès visibles et crédibles", description: "La portée vérifiée du portefeuille, les résultats des fondateurs et les histoires de l’écosystème, avec le contexte des chiffres.", notice: "Les chiffres ne seront publiés qu’après examen et approbation.", sectionTitle: "Des preuves accompagnées de contexte", sectionDescription: "Le suivi d’impact associe les résultats mesurables aux histoires qui les expliquent.", cards: [{ title: "Entreprises accompagnées", description: "Les chiffres de participation proviendront des dossiers vérifiés du programme." }, { title: "Marchés atteints", description: "L’expansion sera présentée avec des définitions et périodes de référence claires." }, { title: "Résultats des fondateurs", description: "Les récits relieront les progrès aux enseignements de chaque parcours." }], cta: { slug: "insights", label: "Lire les dernières perspectives" } },
   partners: { eyebrow: "Partenaires", title: "Collaborer à travers l’écosystème", description: "Des organisations qui apportent expertise, accès, visibilité et soutien aux fondateurs technologiques africains.", notice: "Les noms et logos seront affichés après autorisation de publication.", sectionTitle: "Ouvrir des portes utiles", sectionDescription: "ASIP travaille avec des partenaires dont les capacités ont un impact concret sur les entreprises participantes.", cards: [{ title: "Expertise", description: "Des spécialistes et mentors partagent des connaissances pertinentes." }, { title: "Accès au marché", description: "Les relations créent des passerelles vers clients, pairs et nouveaux marchés." }, { title: "Visibilité", description: "Les partenaires médias et communautaires valorisent des histoires crédibles." }], cta: { slug: "contact", label: "Devenir partenaire" } },
   apply: { eyebrow: "Pour les fondateurs", title: "Manifester votre intérêt", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Le formulaire actuel est une démonstration et ne transmet ni ne stocke de données.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
-  faq: { eyebrow: "FAQ", title: "Questions fréquentes", description: "Informations pratiques sur le programme, les candidatures, le portefeuille et les partenariats.", notice: "Les dates et critères propres au programme seront actualisés après validation.", sectionTitle: "Les questions des fondateurs et partenaires", sectionDescription: "Ces réponses décrivent la structure actuelle et évolueront avec chaque cycle publié.", cards: [{ title: "Qu’est-ce qu’ASIP ?", description: "Une initiative du Groupe Telecel qui soutient les entreprises technologiques africaines par l’accélération, l’accès à l’écosystème et la visibilité." }, { title: "Qui peut manifester son intérêt ?", description: "Les fondateurs technologiques peuvent se présenter ; les critères définitifs sont publiés pour chaque cycle." }, { title: "Quel soutien est proposé ?", description: "Le programme associe accompagnement structuré, connexions pertinentes, apprentissage entre pairs et visibilité." }, { title: "Comment devenir partenaire ?", description: "Les organisations peuvent contacter ASIP pour discuter expertise, accès, contenu et collaboration." }], cta: { slug: "contact", label: "Poser une autre question" } },
+  faq: {
+    eyebrow: "FAQ",
+    title: "Questions fréquentes",
+    description:
+      "Informations pratiques sur le programme, les candidatures, le portefeuille et les partenariats.",
+    notice: "Les dates et critères propres au programme seront actualisés après validation.",
+    sectionTitle: "Les questions des fondateurs et partenaires",
+    sectionDescription:
+      "Ces réponses décrivent la structure actuelle et évolueront avec chaque cycle publié.",
+    cards: [
+      { title: "Qu’est-ce qu’ASIP ?", description: "Une initiative du Groupe Telecel qui soutient les entreprises technologiques africaines par l’accélération, l’accès à l’écosystème et la visibilité." },
+      { title: "Qui peut manifester son intérêt ?", description: "Les fondateurs technologiques peuvent se présenter ; les critères définitifs sont publiés pour chaque cycle." },
+      { title: "Quel soutien est proposé ?", description: "Le programme associe accompagnement structuré, connexions pertinentes, apprentissage entre pairs et visibilité." },
+      { title: "Comment devenir partenaire ?", description: "Les organisations peuvent contacter ASIP pour discuter expertise, accès, contenu et collaboration." },
+      { title: "Comment candidater ?", description: "Manifestez votre intérêt, passez l’évaluation du cycle et rejoignez le programme si retenu." },
+      { title: "La participation est-elle payante ?", description: "Les modalités de frais, le cas échéant, sont publiées avec chaque cycle. ASIP vise à rendre la participation accessible aux entreprises éligibles." },
+    ],
+    tabsSectionTitle: "Parcourir par thème",
+    tabsSectionDescription:
+      "Explorez les réponses regroupées par programme, fondateurs et partenaires.",
+    tabs: [
+      {
+        id: "programme",
+        label: "Programme",
+        items: [
+          { title: "Qu’est-ce qu’ASIP ?", description: "Une initiative du Groupe Telecel qui soutient les entreprises technologiques africaines par l’accélération, l’accès à l’écosystème et la visibilité." },
+          { title: "Quel soutien est proposé ?", description: "Le programme associe accompagnement structuré, connexions pertinentes, apprentissage entre pairs et visibilité." },
+          { title: "La participation est-elle payante ?", description: "Les modalités de frais, le cas échéant, sont publiées avec chaque cycle. ASIP vise à rendre la participation accessible aux entreprises éligibles." },
+        ],
+      },
+      {
+        id: "founders",
+        label: "Fondateurs",
+        items: [
+          { title: "Qui peut manifester son intérêt ?", description: "Les fondateurs technologiques peuvent se présenter ; les critères définitifs sont publiés pour chaque cycle." },
+          { title: "Comment candidater ?", description: "Manifestez votre intérêt, passez l’évaluation du cycle et rejoignez le programme si retenu." },
+        ],
+      },
+      {
+        id: "partners",
+        label: "Partenaires",
+        items: [
+          { title: "Comment devenir partenaire ?", description: "Les organisations peuvent contacter ASIP pour discuter expertise, accès, contenu et collaboration." },
+        ],
+      },
+    ],
+    ctaSection: {
+      title: "Vous avez encore des questions ?",
+      description:
+        "Si vous ne trouvez pas ce qu’il vous faut, contactez l’équipe ASIP et nous vous répondrons.",
+      slug: "contact",
+      label: "Poser une autre question",
+    },
+  },
 };
 
 export function marketingCopyFor(locale: Locale, slug: MarketingContentSlug) {
