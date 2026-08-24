@@ -1,49 +1,68 @@
 import { z } from "zod";
 
 export const USER_ROLES = ["admin", "editor", "viewer"] as const;
-export const USER_PAGE_SIZES = [10, 25, 50, 100] as const;
+/** Fixed page size — not configurable via URL or UI. */
+export const USER_PAGE_SIZE = 10;
+
+/** Create/edit forms always assign admin for now. */
+export const USER_FORM_ROLE = "admin" as const;
+
+export const USER_FULL_NAME_MIN = 2;
+export const USER_FULL_NAME_MAX = 80;
+export const USER_EMAIL_MAX = 254;
+export const USER_PASSWORD_MIN = 8;
+export const USER_PASSWORD_MAX = 128;
+export const USER_DEFAULT_PASSWORD = "password";
 
 const fullNameSchema = z
   .string()
   .trim()
-  .min(2, "Full name must be at least 2 characters")
-  .max(80, "Full name must be 80 characters or fewer");
+  .min(USER_FULL_NAME_MIN, "Full name must be at least 2 characters")
+  .max(USER_FULL_NAME_MAX, "Full name must be 80 characters or fewer");
 
-const emailSchema = z.email("Enter a valid email address").trim().toLowerCase();
+const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Email is required")
+  .max(USER_EMAIL_MAX, "Email must be 254 characters or fewer")
+  .email("Enter a valid email address")
+  .transform((value) => value.toLowerCase());
 
-const roleSchema = z.enum(USER_ROLES);
+const passwordSchema = z
+  .string()
+  .min(USER_PASSWORD_MIN, "Password must be at least 8 characters")
+  .max(USER_PASSWORD_MAX, "Password must be 128 characters or fewer")
+  .regex(/[A-Za-z]/, "Password must include a letter")
+  .regex(/[0-9]/, "Password must include a number");
+
+const createPasswordSchema = z
+  .string()
+  .trim()
+  .transform((value) => (value === "" ? USER_DEFAULT_PASSWORD : value))
+  .pipe(z.union([z.literal(USER_DEFAULT_PASSWORD), passwordSchema]));
+
+const lockedAdminRoleSchema = z.literal(USER_FORM_ROLE);
 
 export const createUserSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Za-z]/, "Password must include a letter")
-    .regex(/[0-9]/, "Password must include a number"),
-  role: roleSchema,
+  password: createPasswordSchema,
+  role: lockedAdminRoleSchema,
 });
 
 export const updateUserSchema = z.object({
   id: z.uuid("Invalid user id"),
   fullName: fullNameSchema,
   email: emailSchema,
-  role: roleSchema,
+  role: lockedAdminRoleSchema,
 });
 
 export const deleteUserSchema = z.object({
   id: z.uuid("Invalid user id"),
 });
 
-export const userListQuerySchema = z.object({
+const userListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
-  pageSize: z
-    .enum(["10", "25", "50", "100"])
-    .transform(Number)
-    .pipe(
-      z.union([z.literal(10), z.literal(25), z.literal(50), z.literal(100)]),
-    )
-    .catch(10),
   search: z
     .string()
     .trim()
@@ -53,6 +72,10 @@ export const userListQuerySchema = z.object({
   role: z.enum(["all", ...USER_ROLES]).catch("all"),
 });
 
+export type UserListQuery = z.infer<typeof userListQueryInputSchema> & {
+  pageSize: typeof USER_PAGE_SIZE;
+};
+
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
 function first(value: string | string[] | undefined): string | undefined {
@@ -60,15 +83,18 @@ function first(value: string | string[] | undefined): string | undefined {
 }
 
 export function parseUserListQuery(input: RawSearchParams): UserListQuery {
-  return userListQuerySchema.parse({
+  const parsed = userListQueryInputSchema.parse({
     page: first(input.page) ?? "1",
-    pageSize: first(input.pageSize) ?? "10",
     search: first(input.search) ?? "",
     role: first(input.role) ?? "all",
   });
+
+  return {
+    ...parsed,
+    pageSize: USER_PAGE_SIZE,
+  };
 }
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type DeleteUserInput = z.infer<typeof deleteUserSchema>;
-export type UserListQuery = z.infer<typeof userListQuerySchema>;

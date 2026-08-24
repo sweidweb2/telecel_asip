@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -106,38 +106,40 @@ export function SiteNavbar({
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
 
   const authLinks = isAuthenticated ? (
-    <Button
-      size="sm"
-      asChild
+    <Link
+      href={dashboardHref}
+      onClick={() => setOpen(false)}
       className={cn(
+        buttonVariants({ size: "sm" }),
         "min-h-11 justify-start lg:min-h-8",
         pathname.startsWith(dashboardHref) && "bg-muted"
       )}
     >
-      <Link href={dashboardHref} onClick={() => setOpen(false)}>
-        {dashboardLabel}
-      </Link>
-    </Button>
+      {dashboardLabel}
+    </Link>
   ) : (
     <>
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
+      <Link
+        href={loginHref}
+        onClick={() => setOpen(false)}
         className={cn(
+          buttonVariants({ variant: "ghost", size: "sm" }),
           "min-h-11 justify-start lg:min-h-8",
           pathname === loginHref && "bg-muted"
         )}
       >
-        <Link href={loginHref} onClick={() => setOpen(false)}>
-          {loginLabel}
-        </Link>
-      </Button>
-      <Button size="sm" asChild className="min-h-11 lg:min-h-8">
-        <Link href={registerHref} onClick={() => setOpen(false)}>
-          {registerLabel}
-        </Link>
-      </Button>
+        {loginLabel}
+      </Link>
+      <Link
+        href={registerHref}
+        onClick={() => setOpen(false)}
+        className={cn(
+          buttonVariants({ size: "sm" }),
+          "min-h-11 lg:min-h-8"
+        )}
+      >
+        {registerLabel}
+      </Link>
     </>
   );
 
@@ -159,18 +161,17 @@ export function SiteNavbar({
           aria-label="Primary"
         >
           {labels.items.map((item) => (
-            <Button
+            <Link
               key={item.href}
-              variant="ghost"
-              size="sm"
-              asChild
+              href={item.href}
               className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
                 isNavActive(pathname, item.href, locale) &&
                   "bg-muted font-semibold"
               )}
             >
-              <Link href={item.href}>{item.label}</Link>
-            </Button>
+              {item.label}
+            </Link>
           ))}
           <LanguageToggle
             locale={locale}
@@ -191,15 +192,14 @@ export function SiteNavbar({
             groupLabel={labels.languageGroupLabel}
           />
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="min-h-11 min-w-11"
-                aria-label={menuLabel}
-              >
-                <MenuIcon className="size-5" />
-              </Button>
+            <SheetTrigger
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "min-h-11 min-w-11"
+              )}
+              aria-label={menuLabel}
+            >
+              <MenuIcon className="size-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-sm">
               <SheetHeader className="border-b">
@@ -210,20 +210,19 @@ export function SiteNavbar({
                 aria-label="Primary"
               >
                 {labels.items.map((item) => (
-                  <Button
+                  <Link
                     key={item.href}
-                    variant="ghost"
-                    asChild
+                    href={item.href}
+                    onClick={() => setOpen(false)}
                     className={cn(
+                      buttonVariants({ variant: "ghost" }),
                       "h-11 justify-start",
                       isNavActive(pathname, item.href, locale) &&
                         "bg-muted font-semibold"
                     )}
                   >
-                    <Link href={item.href} onClick={() => setOpen(false)}>
-                      {item.label}
-                    </Link>
-                  </Button>
+                    {item.label}
+                  </Link>
                 ))}
                 <div className="my-2 border-t" />
                 <div className="flex flex-col gap-1">{authLinks}</div>

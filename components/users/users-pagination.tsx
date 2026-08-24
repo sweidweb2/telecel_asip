@@ -1,7 +1,6 @@
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -9,79 +8,71 @@ import {
 } from "@/components/ui/pagination";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-import type { UserListQuery } from "@/validations/users";
+import { USER_PAGE_SIZE, type UserListQuery } from "@/validations/users";
 
 function pageHref(query: UserListQuery, page: number): string {
   const params = new URLSearchParams();
-  params.set("page", String(page));
-  params.set("pageSize", String(query.pageSize));
+  if (page > 1) params.set("page", String(page));
   if (query.search) params.set("search", query.search);
   if (query.role !== "all") params.set("role", query.role);
-  return `${ROUTES.users}?${params.toString()}`;
+  const qs = params.toString();
+  return qs ? `${ROUTES.users}?${qs}` : ROUTES.users;
 }
 
 export function UsersPagination({
   query,
+  total,
   totalPages,
 }: {
   query: UserListQuery;
+  total: number;
   totalPages: number;
 }) {
-  if (totalPages <= 1) return null;
-
-  const current = Math.min(query.page, totalPages);
-  const visible = Array.from(
-    new Set([1, current - 1, current, current + 1, totalPages]),
-  ).filter((page) => page >= 1 && page <= totalPages);
+  const current = Math.min(query.page, Math.max(totalPages, 1));
+  const from = total === 0 ? 0 : (current - 1) * USER_PAGE_SIZE + 1;
+  const to = Math.min(current * USER_PAGE_SIZE, total);
 
   return (
-    <Pagination className="justify-end">
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href={current > 1 ? pageHref(query, current - 1) : undefined}
-            aria-disabled={current === 1}
-            className={cn(
-              "min-h-11 min-w-11 sm:min-h-8 sm:min-w-8",
-              current === 1 && "pointer-events-none opacity-50",
-            )}
-          />
-        </PaginationItem>
-        {visible.map((page, index) => {
-          const previous = visible[index - 1];
-          return (
-            <span className="contents" key={page}>
-              {previous && page - previous > 1 ? (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              ) : null}
-              <PaginationItem>
-                <PaginationLink
-                  href={pageHref(query, page)}
-                  isActive={page === current}
-                  aria-label={`Go to page ${page}`}
-                  className="min-h-11 min-w-11 sm:min-h-8 sm:min-w-8"
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            </span>
-          );
-        })}
-        <PaginationItem>
-          <PaginationNext
-            href={
-              current < totalPages ? pageHref(query, current + 1) : undefined
-            }
-            aria-disabled={current === totalPages}
-            className={cn(
-              "min-h-11 min-w-11 sm:min-h-8 sm:min-w-8",
-              current === totalPages && "pointer-events-none opacity-50",
-            )}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-muted-foreground">
+        {total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}
+      </p>
+
+      {totalPages > 1 ? (
+        <Pagination className="mx-0 w-auto justify-start sm:justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={current > 1 ? pageHref(query, current - 1) : undefined}
+                aria-disabled={current === 1}
+                className={cn(current === 1 && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                href={pageHref(query, current)}
+                isActive
+                aria-label={`Page ${current} of ${totalPages}`}
+              >
+                {current} / {totalPages}
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                href={
+                  current < totalPages
+                    ? pageHref(query, current + 1)
+                    : undefined
+                }
+                aria-disabled={current === totalPages}
+                className={cn(
+                  current === totalPages && "pointer-events-none opacity-50",
+                )}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      ) : null}
+    </div>
   );
 }

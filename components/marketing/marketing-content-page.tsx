@@ -2,12 +2,13 @@ import Link from "next/link";
 
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { marketingCopyFor } from "@/constants/marketing-copy";
 import { publicPath } from "@/constants/routes";
 import type { MarketingContentSlug } from "@/types/marketing-page";
 import { localeUrl } from "@/lib/seo/alternates";
+import { cn } from "@/lib/utils";
 
 export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: MarketingContentSlug }) {
   const copy = marketingCopyFor(locale, slug);
@@ -57,9 +58,15 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
             ))}
           </div>
           {copy.cta ? (
-            <Button asChild className="mt-8 min-h-11 w-full sm:w-auto">
-              <Link href={publicPath(locale, copy.cta.slug)}>{copy.cta.label}</Link>
-            </Button>
+            <Link
+              href={publicPath(locale, copy.cta.slug)}
+              className={cn(
+                buttonVariants(),
+                "mt-8 min-h-11 w-full sm:w-auto"
+              )}
+            >
+              {copy.cta.label}
+            </Link>
           ) : null}
         </div>
       </Section>

@@ -31,4 +31,4 @@ app/
 └── api/webhooks/stripe/route.ts
 ```
 
-Top-of-screen progress on route changes is `NextTopLoader` in `app/layout.tsx`, not a per-route component.
+Top-of-screen progress on route changes is `NextTopLoader` in `app/layout.tsx`, not a per-route component. Keep `TooltipProvider` wrapped around `{children}` there as well (shadcn tooltip).

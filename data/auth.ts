@@ -1,7 +1,9 @@
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 
 /** Returns the signed-in Auth user, or null when logged out. */
-export async function getAuthUser() {
+export const getAuthUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -10,25 +12,20 @@ export async function getAuthUser() {
 
   if (error || !user) return null;
   return user;
-}
+});
 
 export async function isAuthenticated() {
   const user = await getAuthUser();
   return user !== null;
 }
 
-/** Checks the current session against the database-backed admin role. */
-export async function isCurrentUserAdmin(): Promise<boolean> {
+/**
+ * DB-backed admin check. Uses `is_admin()` only (auth.uid from JWT) —
+ * skips a redundant getUser() round trip after middleware already refreshed the session.
+ */
+export const isCurrentUserAdmin = cache(async (): Promise<boolean> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) return false;
-
   const { data, error } = await supabase.rpc("is_admin");
   if (error) throw error;
-
-  return data;
-}
+  return Boolean(data);
+});

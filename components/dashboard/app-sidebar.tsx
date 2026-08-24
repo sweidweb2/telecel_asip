@@ -51,15 +51,17 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Telecel">
-              <Link href={publicPath("en")}>
-                <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
-                  T
-                </span>
-                <span className="truncate font-heading font-medium group-data-[collapsible=icon]:hidden">
-                  Telecel
-                </span>
-              </Link>
+            <SidebarMenuButton
+              size="lg"
+              tooltip="Telecel"
+              render={<Link href={publicPath("en")} />}
+            >
+              <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
+                T
+              </span>
+              <span className="truncate font-heading font-medium group-data-[collapsible=icon]:hidden">
+                Telecel
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -75,14 +77,12 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
-                      asChild
+                      render={<Link href={item.href} />}
                       isActive={pathname === item.href}
                       tooltip={item.title}
                     >
-                      <Link href={item.href}>
-                        <Icon />
-                        <span>{item.title}</span>
-                      </Link>
+                      <Icon />
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTransition } from "react";
-import { HomeIcon, LogOutIcon } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import {
+  HomeIcon,
+  LogOutIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+} from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { signOut } from "@/actions/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,11 +27,24 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getDashboardPageTitle } from "@/constants/dashboard-nav";
 import { DEFAULT_LOCALE } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
+import { cn } from "@/lib/utils";
+
+const THEME_OPTIONS = [
+  { value: "light", label: "Light", icon: SunIcon },
+  { value: "dark", label: "Dark", icon: MoonIcon },
+  { value: "system", label: "System", icon: MonitorIcon },
+] as const;
 
 export function DashboardHeader() {
   const pathname = usePathname();
   const title = getDashboardPageTitle(pathname);
   const [isPending, startTransition] = useTransition();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function handleSignOut() {
     startTransition(async () => {
@@ -38,32 +58,55 @@ export function DashboardHeader() {
       <Separator orientation="vertical" className="h-4" />
       <h1 className="min-w-0 truncate text-sm font-medium">{title}</h1>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto min-h-11 min-w-11 rounded-full"
-            aria-label="Open account menu"
-          >
-            <Avatar>
-              <AvatarFallback>AD</AvatarFallback>
-            </Avatar>
-          </Button>
+        {/*
+          Base UI Menu Trigger already renders a <button>.
+          Do not wrap <Button> with asChild — that nests button-in-button
+          and breaks hydration.
+        */}
+        <DropdownMenuTrigger
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon" }),
+            "ml-auto min-h-11 min-w-11 rounded-full",
+          )}
+          aria-label="Open account menu"
+        >
+          <Avatar>
+            <AvatarFallback>AD</AvatarFallback>
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 min-w-48">
-          <DropdownMenuItem asChild className="min-h-11 cursor-pointer sm:min-h-8">
-            <Link href={publicPath(DEFAULT_LOCALE)}>
-              <HomeIcon />
-              Go home
-            </Link>
+          <DropdownMenuItem
+            className="min-h-11 cursor-pointer sm:min-h-8"
+            render={<Link href={publicPath(DEFAULT_LOCALE)} />}
+            nativeButton={false}
+          >
+            <HomeIcon />
+            Go home
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+            <DropdownMenuItem
+              key={value}
+              className="min-h-11 cursor-pointer sm:min-h-8"
+              onClick={() => {
+                setTheme(value);
+              }}
+            >
+              <Icon />
+              {label}
+              {mounted && theme === value ? (
+                <span className="ml-auto text-xs text-muted-foreground">
+                  Active
+                </span>
+              ) : null}
+            </DropdownMenuItem>
+          ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
             className="min-h-11 sm:min-h-8"
             disabled={isPending}
-            onSelect={(event) => {
-              event.preventDefault();
+            onClick={() => {
               handleSignOut();
             }}
           >

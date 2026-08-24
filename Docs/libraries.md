@@ -8,11 +8,13 @@ Approved stack for this Next.js App Router + Supabase app. Prefer these over alt
 
 ## UI / styling
 
-- **shadcn/ui** — not an npm component library. CLI copies source into `components/ui/`. Add components with `npx shadcn@latest add <name>`. Do not reinvent primitives that shadcn already has.
+- **shadcn/ui** — not an npm component library. This app uses the **Next** template, **Base UI** library, and **Nova** preset (`style: "base-nova"` in `components.json`). CLI copies source into `components/ui/`. Add with `npx shadcn@latest add <name>`. Do not reinvent primitives shadcn already has. Do not re-init onto Radix or another preset.
+- **@base-ui/react** — underlying primitives for `components/ui/`. Do not add Radix (`radix-ui` / `@radix-ui/*`) for new UI.
 - **Tailwind CSS v4** — required by shadcn; no runtime CSS-in-JS.
 - **lucide-react** — default shadcn icon set. Tree-shakeable; keep icons at `h-4 w-4` / `h-5 w-5`.
 - **clsx** + **tailwind-merge** — used only via `cn()` in `lib/utils.ts` for conditional classNames.
 - **nextjs-toploader** — thin top-of-screen progress bar on route changes (YouTube/GitHub style). Not shadcn. Mount once in `app/layout.tsx`. For `router.push` / `router.replace`, import `useRouter` from `nextjs-toploader/app` so the bar still runs.
+- **next-themes** — class-based light/dark/system theme. Wrap the app with `ThemeProvider` in `app/layout.tsx`; dashboard avatar menu toggles theme.
 
 ## Forms & validation
 

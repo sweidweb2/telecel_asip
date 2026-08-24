@@ -47,6 +47,17 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      get_user_stats: {
+        Args: never
+        Returns: {
+          total: number
+          admins: number
+          editors: number
+          viewers: number
+          new_this_week: number
+          new_this_month: number
+        }[]
+      }
     }
     Enums: {
       user_role: "admin" | "editor" | "viewer"

@@ -138,7 +138,6 @@ test.describe("admin users CRUD", () => {
       await duplicateDialog.getByRole("button", { name: "Cancel" }).click();
 
       await page.getByLabel("Search users").fill(email);
-      await page.getByRole("button", { name: "Search", exact: true }).click();
       await expect(page).toHaveURL(/search=users.e2e/, { timeout: 15_000 });
 
       const row = page.getByRole("row").filter({ hasText: email });
@@ -149,9 +148,7 @@ test.describe("admin users CRUD", () => {
 
       await row.getByRole("button", { name: `Edit ${email}` }).click();
       const editDialog = page.getByRole("dialog");
-      await editDialog.getByLabel("Full name").fill("Users E2E Editor");
-      await editDialog.getByRole("combobox").click();
-      await page.getByRole("option", { name: "Editor" }).click();
+      await editDialog.getByLabel("Full name").fill("Users E2E Admin");
       await editDialog.getByRole("button", { name: "Save changes" }).click();
       await expect(
         editDialog.getByRole("button", { name: "Saving…" }),
@@ -161,7 +158,7 @@ test.describe("admin users CRUD", () => {
       ).toBeVisible({ timeout: 20_000 });
       await expect(
         page.getByRole("row").filter({ hasText: email }),
-      ).toContainText("editor");
+      ).toContainText("admin");
 
       await page
         .getByRole("row")

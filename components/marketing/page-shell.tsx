@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export type MarketingCta = {
   href: string;
@@ -40,14 +41,16 @@ export function MarketingPageShell({
         {ctas && ctas.length > 0 ? (
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             {ctas.map((cta) => (
-              <Button
+              <Link
                 key={`${cta.href}-${cta.label}`}
-                variant={cta.variant ?? "default"}
-                className="min-h-11 w-full sm:w-auto"
-                asChild
+                href={cta.href}
+                className={cn(
+                  buttonVariants({ variant: cta.variant ?? "default" }),
+                  "min-h-11 w-full sm:w-auto"
+                )}
               >
-                <Link href={cta.href}>{cta.label}</Link>
-              </Button>
+                {cta.label}
+              </Link>
             ))}
           </div>
         ) : null}

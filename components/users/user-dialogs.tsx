@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useId, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
 import {
   EyeIcon,
@@ -14,6 +15,16 @@ import {
 import { toast } from "sonner";
 
 import { createUser, deleteUser, updateUser } from "@/actions/users";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,30 +36,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { Profile } from "@/types/profile";
 import {
   createUserSchema,
   updateUserSchema,
+  USER_EMAIL_MAX,
+  USER_FORM_ROLE,
+  USER_FULL_NAME_MAX,
+  USER_PASSWORD_MAX,
   type CreateUserInput,
   type UpdateUserInput,
 } from "@/validations/users";
 
-const ROLE_OPTIONS = ["admin", "editor", "viewer"] as const;
+function FormFieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <FieldError>{message}</FieldError>;
+}
 
-function FieldError({ message }: { message?: string }) {
-  return message ? <p className="text-sm text-destructive">{message}</p> : null;
+function LockedRoleField({ id }: { id: string }) {
+  return (
+    <Field>
+      <Label htmlFor={id}>Role</Label>
+      <Input
+        id={id}
+        value="Admin"
+        readOnly
+        disabled
+        aria-readonly="true"
+        className="bg-muted/50"
+      />
+      <p className="text-xs text-muted-foreground">
+        New and updated users are assigned the admin role.
+      </p>
+    </Field>
+  );
 }
 
 export function CreateUserDialog() {
+  const formId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -58,19 +86,26 @@ export function CreateUserDialog() {
       fullName: "",
       email: "",
       password: "",
-      role: "viewer",
+      role: USER_FORM_ROLE,
     },
   });
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) form.reset();
+    if (next) {
+      form.reset({
+        fullName: "",
+        email: "",
+        password: "",
+        role: USER_FORM_ROLE,
+      });
+    }
   }
 
   function onSubmit(values: CreateUserInput) {
     startTransition(async () => {
       try {
-        const result = await createUser(values);
+        const result = await createUser({ ...values, role: USER_FORM_ROLE });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -87,118 +122,99 @@ export function CreateUserDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="min-h-11 w-full sm:min-h-8 sm:w-auto">
-          <PlusIcon />
-          Create user
-        </Button>
+      <DialogTrigger
+        render={
+          <Button className="min-h-11 w-full sm:min-h-8 sm:w-auto" />
+        }
+      >
+        <PlusIcon />
+        Create user
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Create user</DialogTitle>
           <DialogDescription>
-            Create a confirmed login and its linked profile. The password can be
-            changed later through Supabase recovery.
+            Create a confirmed login and linked profile.
           </DialogDescription>
         </DialogHeader>
+
         <form
-          className="grid gap-4"
+          id={formId}
           onSubmit={form.handleSubmit(onSubmit)}
           noValidate
         >
-          <div className="grid gap-2">
-            <Label htmlFor="create-full-name">Full name</Label>
-            <Input
-              id="create-full-name"
-              autoComplete="name"
-              disabled={isPending}
-              aria-invalid={Boolean(form.formState.errors.fullName)}
-              {...form.register("fullName")}
-            />
-            <FieldError message={form.formState.errors.fullName?.message} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="create-email">Email</Label>
-            <Input
-              id="create-email"
-              type="email"
-              autoComplete="email"
-              disabled={isPending}
-              aria-invalid={Boolean(form.formState.errors.email)}
-              {...form.register("email")}
-            />
-            <FieldError message={form.formState.errors.email?.message} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="create-password">Temporary password</Label>
-            <Input
-              id="create-password"
-              type="password"
-              autoComplete="new-password"
-              disabled={isPending}
-              aria-invalid={Boolean(form.formState.errors.password)}
-              {...form.register("password")}
-            />
-            <FieldError message={form.formState.errors.password?.message} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="create-role">Role</Label>
-            <Controller
-              name="role"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isPending}
-                >
-                  <SelectTrigger
-                    id="create-role"
-                    className="min-h-11 w-full sm:min-h-8"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role[0].toUpperCase() + role.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isPending}
-              className="min-h-11 sm:min-h-8"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="min-h-11 sm:min-h-8"
-            >
-              {isPending ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <PlusIcon />
-              )}
-              {isPending ? "Creating…" : "Create user"}
-            </Button>
-          </DialogFooter>
+          <input type="hidden" {...form.register("role")} />
+          <FieldGroup>
+            <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+              <Label htmlFor="create-full-name">Full name</Label>
+              <Input
+                id="create-full-name"
+                autoComplete="name"
+                disabled={isPending}
+                maxLength={USER_FULL_NAME_MAX}
+                aria-invalid={Boolean(form.formState.errors.fullName)}
+                {...form.register("fullName")}
+              />
+              <FormFieldError message={form.formState.errors.fullName?.message} />
+            </Field>
+            <Field data-invalid={Boolean(form.formState.errors.email)}>
+              <Label htmlFor="create-email">Email</Label>
+              <Input
+                id="create-email"
+                type="email"
+                autoComplete="email"
+                disabled={isPending}
+                maxLength={USER_EMAIL_MAX}
+                aria-invalid={Boolean(form.formState.errors.email)}
+                {...form.register("email")}
+              />
+              <FormFieldError message={form.formState.errors.email?.message} />
+            </Field>
+            <Field data-invalid={Boolean(form.formState.errors.password)}>
+              <Label htmlFor="create-password">Temporary password</Label>
+              <Input
+                id="create-password"
+                type="password"
+                autoComplete="new-password"
+                disabled={isPending}
+                maxLength={USER_PASSWORD_MAX}
+                placeholder='Defaults to "password" if empty'
+                aria-invalid={Boolean(form.formState.errors.password)}
+                {...form.register("password")}
+              />
+              <FormFieldError
+                message={form.formState.errors.password?.message}
+              />
+            </Field>
+            <LockedRoleField id="create-role" />
+          </FieldGroup>
         </form>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" form={formId} disabled={isPending}>
+            {isPending ? (
+              <Loader2Icon className="animate-spin" />
+            ) : (
+              <PlusIcon />
+            )}
+            {isPending ? "Creating…" : "Create user"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
 export function UserRowActions({ user }: { user: Profile }) {
+  const editFormId = useId();
   const router = useRouter();
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -209,7 +225,7 @@ export function UserRowActions({ user }: { user: Profile }) {
     id: user.id,
     fullName: user.full_name ?? "",
     email: user.email,
-    role: user.role,
+    role: USER_FORM_ROLE,
   };
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
@@ -224,7 +240,7 @@ export function UserRowActions({ user }: { user: Profile }) {
   function onUpdate(values: UpdateUserInput) {
     startUpdate(async () => {
       try {
-        const result = await updateUser(values);
+        const result = await updateUser({ ...values, role: USER_FORM_ROLE });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -256,21 +272,24 @@ export function UserRowActions({ user }: { user: Profile }) {
   }
 
   return (
-    <div className="flex items-center justify-end gap-1">
+    <div className="flex items-center justify-end gap-0.5">
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="min-h-11 min-w-11 sm:min-h-8 sm:min-w-8"
-            aria-label={`View ${user.email}`}
-          >
-            <EyeIcon />
-          </Button>
+        <DialogTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`View ${user.email}`}
+            />
+          }
+        >
+          <EyeIcon />
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{user.full_name || "Unnamed user"}</DialogTitle>
+            <DialogTitle className="truncate pr-8">
+              {user.full_name || "Unnamed user"}
+            </DialogTitle>
             <DialogDescription>User profile details</DialogDescription>
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
@@ -288,143 +307,132 @@ export function UserRowActions({ user }: { user: Profile }) {
               <dt className="text-muted-foreground">User ID</dt>
               <dd className="break-all font-mono text-xs">{user.id}</dd>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-1">
+                <dt className="text-muted-foreground">Created</dt>
+                <dd className="font-medium">
+                  {format(new Date(user.created_at), "MMM d, yyyy")}
+                </dd>
+              </div>
+              <div className="grid gap-1">
+                <dt className="text-muted-foreground">Updated</dt>
+                <dd className="font-medium">
+                  {format(new Date(user.updated_at), "MMM d, yyyy")}
+                </dd>
+              </div>
+            </div>
           </dl>
+          <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
 
       <Dialog open={editOpen} onOpenChange={handleEditOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="min-h-11 min-w-11 sm:min-h-8 sm:min-w-8"
-            aria-label={`Edit ${user.email}`}
-          >
-            <PencilIcon />
-          </Button>
+        <DialogTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Edit ${user.email}`}
+            />
+          }
+        >
+          <PencilIcon />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Edit user</DialogTitle>
             <DialogDescription>
-              Update the Auth email and linked profile details.
+              Update email and profile details for this account.
             </DialogDescription>
           </DialogHeader>
+
           <form
-            className="grid gap-4"
+            id={editFormId}
             onSubmit={form.handleSubmit(onUpdate)}
             noValidate
           >
             <input type="hidden" {...form.register("id")} />
-            <div className="grid gap-2">
-              <Label htmlFor={`edit-name-${user.id}`}>Full name</Label>
-              <Input
-                id={`edit-name-${user.id}`}
-                disabled={isUpdating}
-                aria-invalid={Boolean(form.formState.errors.fullName)}
-                {...form.register("fullName")}
-              />
-              <FieldError message={form.formState.errors.fullName?.message} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor={`edit-email-${user.id}`}>Email</Label>
-              <Input
-                id={`edit-email-${user.id}`}
-                type="email"
-                disabled={isUpdating}
-                aria-invalid={Boolean(form.formState.errors.email)}
-                {...form.register("email")}
-              />
-              <FieldError message={form.formState.errors.email?.message} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor={`edit-role-${user.id}`}>Role</Label>
-              <Controller
-                name="role"
-                control={form.control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isUpdating}
-                  >
-                    <SelectTrigger
-                      id={`edit-role-${user.id}`}
-                      className="min-h-11 w-full sm:min-h-8"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ROLE_OPTIONS.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {role[0].toUpperCase() + role.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setEditOpen(false)}
-                disabled={isUpdating}
-                className="min-h-11 sm:min-h-8"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isUpdating}
-                className="min-h-11 sm:min-h-8"
-              >
-                {isUpdating ? (
-                  <Loader2Icon className="animate-spin" />
-                ) : (
-                  <PencilIcon />
-                )}
-                {isUpdating ? "Saving…" : "Save changes"}
-              </Button>
-            </DialogFooter>
+            <input type="hidden" {...form.register("role")} />
+            <FieldGroup>
+              <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+                <Label htmlFor={`edit-name-${user.id}`}>Full name</Label>
+                <Input
+                  id={`edit-name-${user.id}`}
+                  disabled={isUpdating}
+                  maxLength={USER_FULL_NAME_MAX}
+                  aria-invalid={Boolean(form.formState.errors.fullName)}
+                  {...form.register("fullName")}
+                />
+                <FormFieldError
+                  message={form.formState.errors.fullName?.message}
+                />
+              </Field>
+              <Field data-invalid={Boolean(form.formState.errors.email)}>
+                <Label htmlFor={`edit-email-${user.id}`}>Email</Label>
+                <Input
+                  id={`edit-email-${user.id}`}
+                  type="email"
+                  disabled={isUpdating}
+                  maxLength={USER_EMAIL_MAX}
+                  aria-invalid={Boolean(form.formState.errors.email)}
+                  {...form.register("email")}
+                />
+                <FormFieldError
+                  message={form.formState.errors.email?.message}
+                />
+              </Field>
+              <LockedRoleField id={`edit-role-${user.id}`} />
+            </FieldGroup>
           </form>
-        </DialogContent>
-      </Dialog>
 
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="min-h-11 min-w-11 text-destructive hover:text-destructive sm:min-h-8 sm:min-w-8"
-            aria-label={`Delete ${user.email}`}
-          >
-            <Trash2Icon />
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete user?</DialogTitle>
-            <DialogDescription>
-              This permanently deletes {user.email} from Supabase Auth and
-              removes the linked profile. This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
-              onClick={() => setDeleteOpen(false)}
-              disabled={isDeleting}
-              className="min-h-11 sm:min-h-8"
+              onClick={() => setEditOpen(false)}
+              disabled={isUpdating}
             >
               Cancel
             </Button>
+            <Button type="submit" form={editFormId} disabled={isUpdating}>
+              {isUpdating ? (
+                <Loader2Icon className="animate-spin" />
+              ) : (
+                <PencilIcon />
+              )}
+              {isUpdating ? "Saving…" : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              aria-label={`Delete ${user.email}`}
+            />
+          }
+        >
+          <Trash2Icon />
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+            <AlertDialogDescription className="break-all">
+              This permanently deletes {user.email} from Auth and removes the
+              linked profile. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={onDelete}
               disabled={isDeleting}
-              className="min-h-11 sm:min-h-8"
             >
               {isDeleting ? (
                 <Loader2Icon className="animate-spin" />
@@ -433,9 +441,9 @@ export function UserRowActions({ user }: { user: Profile }) {
               )}
               {isDeleting ? "Deleting…" : "Delete user"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

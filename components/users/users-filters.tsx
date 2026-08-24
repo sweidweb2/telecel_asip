@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useTransition, type FormEvent } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Loader2Icon, SearchIcon, XIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,11 +20,32 @@ import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { UserListQuery } from "@/validations/users";
 
-export function UsersFilters({ query }: { query: UserListQuery }) {
+const SEARCH_DEBOUNCE_MS = 600;
+
+type UsersFiltersProps = {
+  query: UserListQuery;
+  /** Instant client-side filter (does not hit the server). */
+  onSearchChange?: (value: string) => void;
+};
+
+export function UsersFilters({ query, onSearchChange }: UsersFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState(query.search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasFilters = query.search !== "" || query.role !== "all";
+
+  useEffect(() => {
+    setSearch(query.search);
+    onSearchChange?.(query.search);
+  }, [query.search, onSearchChange]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   function navigate(changes: Record<string, string>) {
     const next = new URLSearchParams(searchParams.toString());
@@ -42,108 +63,83 @@ export function UsersFilters({ query }: { query: UserListQuery }) {
     });
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    navigate({ search: String(formData.get("search") ?? "").trim() });
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    onSearchChange?.(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const nextSearch = value.trim();
+      if (nextSearch === query.search) return;
+      navigate({ search: nextSearch });
+    }, SEARCH_DEBOUNCE_MS);
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 lg:flex-row lg:items-end">
-      <form
-        className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end"
-        onSubmit={handleSearch}
-      >
-        <div className="grid min-w-0 flex-1 gap-2">
-          <Label htmlFor="users-search">Search users</Label>
-          <div className="relative">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="users-search"
-              name="search"
-              type="search"
-              defaultValue={query.search}
-              placeholder="Name or email"
-              maxLength={100}
-              className="min-h-11 pl-9 sm:min-h-8"
-              disabled={isPending}
-            />
-          </div>
-        </div>
-        <Button
-          type="submit"
-          variant="outline"
-          className="min-h-11 sm:min-h-8"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <Loader2Icon className="animate-spin" />
-          ) : (
-            <SearchIcon />
-          )}
-          Search
-        </Button>
-      </form>
-
-      <div className="grid grid-cols-2 gap-3 sm:flex sm:items-end">
-        <div className="grid gap-2">
-          <Label htmlFor="users-role">Role</Label>
-          <Select
-            value={query.role}
-            onValueChange={(value) => navigate({ role: value })}
-            disabled={isPending}
-          >
-            <SelectTrigger
-              id="users-role"
-              className="min-h-11 w-full sm:min-h-8 sm:w-32"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All roles</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="editor">Editor</SelectItem>
-              <SelectItem value="viewer">Viewer</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="users-page-size">Rows</Label>
-          <Select
-            value={String(query.pageSize)}
-            onValueChange={(value) => navigate({ pageSize: value })}
-            disabled={isPending}
-          >
-            <SelectTrigger
-              id="users-page-size"
-              className="min-h-11 w-full sm:min-h-8 sm:w-24"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 25, 50, 100].map((size) => (
-                <SelectItem key={size} value={String(size)}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex flex-col gap-2 border-b p-4 sm:flex-row sm:items-center">
+      <div className="relative min-w-0 flex-1">
+        <Label htmlFor="users-search" className="sr-only">
+          Search users
+        </Label>
+        <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          id="users-search"
+          type="search"
+          value={search}
+          onChange={(event) => handleSearchChange(event.target.value)}
+          placeholder="Filter by name or email…"
+          maxLength={100}
+          autoComplete="off"
+          className="min-h-11 pl-8 sm:min-h-8"
+        />
+        {isPending ? (
+          <Loader2Icon className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+        ) : null}
       </div>
 
-      {hasFilters ? (
-        <Button variant="ghost" className="min-h-11 sm:min-h-8" asChild>
+      <div className="flex items-center gap-2">
+        <Label htmlFor="users-role" className="sr-only">
+          Role
+        </Label>
+        <Select
+          value={query.role}
+          onValueChange={(value) => {
+            if (value) navigate({ role: value });
+          }}
+          disabled={isPending}
+        >
+          <SelectTrigger
+            id="users-role"
+            className="min-h-11 w-full sm:min-h-8 sm:w-36"
+          >
+            <SelectValue placeholder="All roles" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All roles</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="editor">Editor</SelectItem>
+            <SelectItem value="viewer">Viewer</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {hasFilters || search ? (
           <Link
-            href={`${ROUTES.users}?pageSize=${query.pageSize}`}
+            href={ROUTES.users}
             aria-disabled={isPending}
-            className={cn(isPending && "pointer-events-none opacity-50")}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "min-h-11 shrink-0 sm:min-h-8",
+              isPending && "pointer-events-none opacity-50",
+            )}
+            onClick={() => {
+              setSearch("");
+              onSearchChange?.("");
+            }}
           >
             <XIcon />
             Clear
           </Link>
-        </Button>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 }
