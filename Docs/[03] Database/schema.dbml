@@ -58,17 +58,24 @@ Table interest_registrations {
   indexes {
     (created_at) [name: 'interest_registrations_created_at_idx', note: 'created_at DESC — admin lists']
     (email) [name: 'interest_registrations_email_idx']
+    (email, company_name) [name: 'interest_registrations_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
   }
 
   Note: '''
     RLS enabled.
 
     Grants:
-    - service_role: SELECT, INSERT
-    - no grants to anon or authenticated (public cannot write via PostgREST)
+    - authenticated: SELECT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - no grants to anon (public cannot write via PostgREST)
 
-    Policies: none. Inserts only via Server Action + service role client.
-    App validates with Zod before insert; consent must be true.
+    Policies (authenticated):
+    - Admins can read interest registrations — SELECT USING (is_admin())
+    - Admins can update interest registrations — UPDATE USING/WITH CHECK (is_admin())
+    - Admins can delete interest registrations — DELETE USING (is_admin())
+
+    Public inserts only via Server Action + service role client.
+    App validates with Zod before insert/update; consent must stay true.
   '''
 }
 

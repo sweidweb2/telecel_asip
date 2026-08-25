@@ -17,6 +17,7 @@ type InterestRegistrationMessages = {
   pitchMin: string;
   pitchMax: string;
   consentRequired: string;
+  invalidId: string;
 };
 
 const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
@@ -25,7 +26,8 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     fullNameMax: "Name must be at most 100 characters",
     invalidEmail: "Enter a valid email address",
     emailMax: "Email must be at most 254 characters",
-    phoneInvalid: "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
+    phoneInvalid:
+      "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
     companyMin: "Company name must be at least 2 characters",
     companyMax: "Company name must be at most 120 characters",
     sectorMin: "Sector must be at least 2 characters",
@@ -35,6 +37,7 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     pitchMin: "Pitch must be at least 20 characters",
     pitchMax: "Pitch must be at most 1000 characters",
     consentRequired: "You must agree before submitting",
+    invalidId: "Invalid registration id",
   },
   fr: {
     fullNameMin: "Le nom doit contenir au moins 2 caractères",
@@ -52,15 +55,23 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     pitchMin: "Le message doit contenir au moins 20 caractères",
     pitchMax: "Le message doit contenir au plus 1000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
+    invalidId: "Identifiant de candidature invalide",
   },
 };
 
 const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
 
-export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
-  const messages = VALIDATION_MESSAGES[locale];
+export const INTEREST_REGISTRATION_PAGE_SIZE = 10;
+export const INTEREST_REGISTRATION_FULL_NAME_MAX = 100;
+export const INTEREST_REGISTRATION_EMAIL_MAX = 254;
+export const INTEREST_REGISTRATION_PHONE_MAX = 20;
+export const INTEREST_REGISTRATION_COMPANY_MAX = 120;
+export const INTEREST_REGISTRATION_SECTOR_MAX = 80;
+export const INTEREST_REGISTRATION_COUNTRY_MAX = 80;
+export const INTEREST_REGISTRATION_PITCH_MAX = 1000;
 
-  return z.object({
+function registrationFieldsSchema(messages: InterestRegistrationMessages) {
+  return {
     fullName: z
       .string()
       .trim()
@@ -76,7 +87,11 @@ export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
       .trim()
       .min(7, messages.phoneInvalid)
       .max(20, messages.phoneInvalid)
-      .regex(PHONE_REGEX, messages.phoneInvalid),
+      .regex(PHONE_REGEX, messages.phoneInvalid)
+      .refine(
+        (value) => value.replace(/\D/g, "").length >= 7,
+        messages.phoneInvalid,
+      ),
     companyName: z
       .string()
       .trim()
@@ -97,6 +112,14 @@ export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
       .trim()
       .min(20, messages.pitchMin)
       .max(1000, messages.pitchMax),
+  };
+}
+
+export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
+  const messages = VALIDATION_MESSAGES[locale];
+
+  return z.object({
+    ...registrationFieldsSchema(messages),
     consent: z.boolean().refine((value) => value === true, {
       message: messages.consentRequired,
     }),
@@ -109,4 +132,56 @@ export const interestRegistrationSchema =
 
 export type InterestRegistrationInput = z.infer<
   typeof interestRegistrationSchema
+>;
+
+export const updateInterestRegistrationSchema = z.object({
+  id: z.uuid(VALIDATION_MESSAGES.en.invalidId),
+  ...registrationFieldsSchema(VALIDATION_MESSAGES.en),
+});
+
+export const deleteInterestRegistrationSchema = z.object({
+  id: z.uuid(VALIDATION_MESSAGES.en.invalidId),
+});
+
+const interestRegistrationListQueryInputSchema = z.object({
+  page: z.coerce.number().int().min(1).max(10_000).catch(1),
+  search: z
+    .string()
+    .trim()
+    .max(100, "Search must be 100 characters or fewer")
+    .regex(/^[^,%_().]*$/, "Search contains unsupported characters")
+    .catch(""),
+});
+
+export type InterestRegistrationListQuery = z.infer<
+  typeof interestRegistrationListQueryInputSchema
+> & {
+  pageSize: typeof INTEREST_REGISTRATION_PAGE_SIZE;
+};
+
+type RawSearchParams = Record<string, string | string[] | undefined>;
+
+function first(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export function parseInterestRegistrationListQuery(
+  input: RawSearchParams,
+): InterestRegistrationListQuery {
+  const parsed = interestRegistrationListQueryInputSchema.parse({
+    page: first(input.page) ?? "1",
+    search: first(input.search) ?? "",
+  });
+
+  return {
+    ...parsed,
+    pageSize: INTEREST_REGISTRATION_PAGE_SIZE,
+  };
+}
+
+export type UpdateInterestRegistrationInput = z.infer<
+  typeof updateInterestRegistrationSchema
+>;
+export type DeleteInterestRegistrationInput = z.infer<
+  typeof deleteInterestRegistrationSchema
 >;

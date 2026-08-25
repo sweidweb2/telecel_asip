@@ -1,5 +1,11 @@
-import { DashboardPageSkeleton } from "@/components/dashboard/page-skeleton";
+import { RegistrationsPageSkeleton } from "@/components/registrations/registrations-page-skeleton";
+import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
 
 export default function RegistrationsLoading() {
-  return <DashboardPageSkeleton />;
+  return (
+    <RouteSkeleton
+      name="dashboard-registrations"
+      fallback={<RegistrationsPageSkeleton />}
+    />
+  );
 }

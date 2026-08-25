@@ -124,4 +124,4 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 ### `public.interest_registrations`
 
-No RPCs, functions, or triggers. Rows are inserted only from a Server Action via the service-role client after Zod validation. RLS is enabled with no policies for `anon` / `authenticated`.
+No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation. Admins list/update/delete via the session client under `is_admin()` RLS policies.

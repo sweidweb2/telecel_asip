@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   interestRegistrationSchema,
   interestRegistrationSchemaFor,
+  parseInterestRegistrationListQuery,
 } from "@/validations/interest-registration";
 
 const validInput = {
@@ -50,6 +51,14 @@ describe("interestRegistrationSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects phone with too few digits", () => {
+    const result = interestRegistrationSchema.safeParse({
+      ...validInput,
+      phone: ".......",
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects a short pitch", () => {
     const result = interestRegistrationSchema.safeParse({
       ...validInput,
@@ -77,5 +86,17 @@ describe("interestRegistrationSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toMatch(/caractères|accepter/i);
     }
+  });
+});
+
+describe("parseInterestRegistrationListQuery", () => {
+  it("accepts a plain search term", () => {
+    const query = parseInterestRegistrationListQuery({ search: "ada" });
+    expect(query.search).toBe("ada");
+  });
+
+  it("clears search containing a dot", () => {
+    const query = parseInterestRegistrationListQuery({ search: "a.b" });
+    expect(query.search).toBe("");
   });
 });
