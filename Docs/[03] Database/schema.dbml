@@ -43,6 +43,35 @@ Table profiles {
   '''
 }
 
+Table interest_registrations {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  full_name text [not null]
+  email text [not null]
+  phone text [not null]
+  company_name text [not null]
+  sector text [not null, note: 'Free text for now']
+  country text [not null, note: 'Free text for now']
+  pitch text [not null]
+  consent boolean [not null, note: 'CHECK (consent = true)']
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (created_at) [name: 'interest_registrations_created_at_idx', note: 'created_at DESC — admin lists']
+    (email) [name: 'interest_registrations_email_idx']
+  }
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - service_role: SELECT, INSERT
+    - no grants to anon or authenticated (public cannot write via PostgREST)
+
+    Policies: none. Inserts only via Server Action + service role client.
+    App validates with Zod before insert; consent must be true.
+  '''
+}
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]

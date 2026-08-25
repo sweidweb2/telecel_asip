@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AboutPageContent } from "@/components/marketing/about-page-content";
+import { ApplyPageContent } from "@/components/marketing/apply-page-content";
 import { FaqPageContent } from "@/components/marketing/faq-page-content";
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
@@ -59,6 +60,10 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
 
   if (slug === "programme") {
     return <ProgrammePageContent locale={locale} copy={copy} />;
+  }
+
+  if (slug === "apply") {
+    return <ApplyPageContent locale={locale} copy={copy} />;
   }
 
   return (

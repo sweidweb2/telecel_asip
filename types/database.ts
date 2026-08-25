@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      interest_registrations: {
+        Row: {
+          company_name: string
+          consent: boolean
+          country: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Insert: {
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Update: {
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          pitch?: string
+          sector?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

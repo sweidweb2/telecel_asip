@@ -117,3 +117,11 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 | **Calls** | `public.prevent_unauthorized_profile_role_change()` |
 
 **How it works:** Blocks role column changes unless the current user is an admin, even when the own-profile UPDATE policy would otherwise allow the row update.
+
+---
+
+## Tables without functions / triggers
+
+### `public.interest_registrations`
+
+No RPCs, functions, or triggers. Rows are inserted only from a Server Action via the service-role client after Zod validation. RLS is enabled with no policies for `anon` / `authenticated`.
