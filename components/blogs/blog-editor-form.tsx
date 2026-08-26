@@ -17,9 +17,27 @@ import {
   uploadBlogThumbnail,
 } from "@/actions/blogs";
 import { BlogRichTextEditor } from "@/components/blogs/blog-rich-text-editor";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,9 +99,20 @@ export function BlogEditorForm({
   const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
     null,
   );
-  const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
-    string | null
-  >(null);
+  const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const isCreateSuccessOpen = Boolean(createdBlogId);
+
+  const emptyCreateValues: CreateBlogInput = {
+    title: "",
+    slug: "",
+    summary: "",
+    bodyHtml: "",
+    categories: [],
+    authorName: "",
+    status: "draft",
+    isFeatured: false,
+  };
 
   const {
     register,
@@ -91,9 +120,13 @@ export function BlogEditorForm({
     control,
     setValue,
     watch,
+    reset,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateBlogInput>({
     resolver: zodResolver(createBlogSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       title: blog?.title ?? "",
       slug: blog?.slug ?? "",
@@ -113,7 +146,7 @@ export function BlogEditorForm({
 
   useEffect(() => {
     if (mode === "create" && !slugTouched.current && title) {
-      setValue("slug", slugifyTitle(title), { shouldValidate: true });
+      setValue("slug", slugifyTitle(title), { shouldValidate: false });
     }
   }, [mode, setValue, title]);
 
@@ -127,21 +160,11 @@ export function BlogEditorForm({
     return () => URL.revokeObjectURL(url);
   }, [pendingCover]);
 
-  useEffect(() => {
-    if (!pendingAvatar) {
-      setPendingAvatarPreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(pendingAvatar);
-    setPendingAvatarPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [pendingAvatar]);
-
   function toggleCategory(name: string) {
     const next = categories.includes(name)
       ? categories.filter((item) => item !== name)
       : [...categories, name];
-    setValue("categories", next, { shouldValidate: true });
+    setValue("categories", next, { shouldValidate: false });
   }
 
   function onSubmit(values: CreateBlogInput) {
@@ -173,7 +196,7 @@ export function BlogEditorForm({
 
         toast.success(result.message);
         if (result.id) {
-          router.push(`${ROUTES.blogs}/${result.id}`);
+          setCreatedBlogId(result.id);
           router.refresh();
         }
         return;
@@ -192,15 +215,13 @@ export function BlogEditorForm({
 
   function onDelete() {
     if (!blog) return;
-    if (!window.confirm("Delete this blog post? This cannot be undone.")) {
-      return;
-    }
     startTransition(async () => {
       const result = await deleteBlog({ id: blog.id });
       if (result.status === "error") {
         toast.error(result.message);
         return;
       }
+      setIsDeleteOpen(false);
       toast.success(result.message);
       router.push(ROUTES.blogs);
       router.refresh();
@@ -283,14 +304,46 @@ export function BlogEditorForm({
     });
   }
 
+  function goToCreatedBlog() {
+    if (!createdBlogId) return;
+    router.push(`${ROUTES.blogs}/${createdBlogId}`);
+    router.refresh();
+  }
+
+  function continueCreating() {
+    setCreatedBlogId(null);
+    slugTouched.current = false;
+    setPendingCover(null);
+    setPendingAvatar(null);
+    if (coverInputRef.current) coverInputRef.current.value = "";
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
+    reset(emptyCreateValues);
+    clearErrors();
+    router.push(`${ROUTES.blogs}/new`);
+    router.refresh();
+  }
+
+  function goToBlogsList() {
+    setCreatedBlogId(null);
+    router.push(ROUTES.blogs);
+    router.refresh();
+  }
+
   const coverPreview =
     mode === "create" ? pendingCoverPreview : blog?.thumbnail_url ?? null;
-  const avatarPreview =
-    mode === "create" ? pendingAvatarPreview : blog?.author_avatar_url ?? null;
   const hasCover = Boolean(coverPreview);
-  const hasAvatar = Boolean(avatarPreview);
+  const avatarFileLabel =
+    mode === "create"
+      ? pendingAvatar?.name ?? null
+      : blog?.author_avatar_url
+        ? "Avatar uploaded"
+        : null;
+  const hasAvatar = Boolean(
+    mode === "create" ? pendingAvatar : blog?.author_avatar_url,
+  );
 
   return (
+    <>
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
@@ -312,7 +365,7 @@ export function BlogEditorForm({
               variant="destructive"
               className="min-h-11"
               disabled={isPending}
-              onClick={onDelete}
+              onClick={() => setIsDeleteOpen(true)}
             >
               <Trash2Icon className="size-4" />
               Delete
@@ -333,341 +386,440 @@ export function BlogEditorForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
-            Title
-          </FieldLabel>
-          <Input
-            id="blog-title"
-            className="min-h-11"
-            placeholder="e.g. Improve your design skills"
-            disabled={isPending}
-            aria-invalid={Boolean(errors.title)}
-            {...register("title")}
-          />
-          {errors.title ? (
-            <p className="text-sm text-destructive">{errors.title.message}</p>
-          ) : null}
-        </div>
-        <div className="grid gap-2">
-          <FieldLabel
-            htmlFor="blog-slug"
-            hint={`2–${BLOG_SLUG_MAX} · a-z 0-9 -`}
-          >
-            Slug
-          </FieldLabel>
-          <Input
-            id="blog-slug"
-            className="min-h-11"
-            placeholder="e.g. improve-your-design-skills"
-            disabled={isPending}
-            aria-invalid={Boolean(errors.slug)}
-            {...register("slug", {
-              onChange: () => {
-                slugTouched.current = true;
-              },
-            })}
-          />
-          {errors.slug ? (
-            <p className="text-sm text-destructive">{errors.slug.message}</p>
-          ) : null}
-        </div>
-        <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
-          <FieldLabel
-            htmlFor="blog-author"
-            hint={`2–${BLOG_AUTHOR_NAME_MAX} chars`}
-          >
-            Author
-          </FieldLabel>
-          <Input
-            id="blog-author"
-            className="min-h-11"
-            placeholder="e.g. Amélie Laurent"
-            disabled={isPending}
-            aria-invalid={Boolean(errors.authorName)}
-            {...register("authorName")}
-          />
-          {errors.authorName ? (
-            <p className="text-sm text-destructive">
-              {errors.authorName.message}
-            </p>
-          ) : null}
-        </div>
-      </div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
+        {/* Left: content fields */}
+        <div className="grid min-w-0 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-2">
+              <FieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
+                Title
+              </FieldLabel>
+              <Input
+                id="blog-title"
+                className="min-h-11"
+                placeholder="e.g. Improve your design skills"
+                disabled={isPending}
+                aria-invalid={Boolean(errors.title)}
+                {...register("title")}
+              />
+              {errors.title ? (
+                <p className="text-sm text-destructive">{errors.title.message}</p>
+              ) : null}
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel
+                htmlFor="blog-slug"
+                hint={`2–${BLOG_SLUG_MAX} · a-z 0-9 -`}
+              >
+                Slug
+              </FieldLabel>
+              <Input
+                id="blog-slug"
+                className="min-h-11"
+                placeholder="e.g. improve-your-design-skills"
+                disabled={isPending}
+                aria-invalid={Boolean(errors.slug)}
+                {...register("slug", {
+                  onChange: () => {
+                    slugTouched.current = true;
+                  },
+                })}
+              />
+              {errors.slug ? (
+                <p className="text-sm text-destructive">{errors.slug.message}</p>
+              ) : null}
+            </div>
+            <div className="grid gap-2 sm:col-span-2 xl:col-span-1">
+              <FieldLabel
+                htmlFor="blog-author"
+                hint={`2–${BLOG_AUTHOR_NAME_MAX} chars`}
+              >
+                Author
+              </FieldLabel>
+              <Input
+                id="blog-author"
+                className="min-h-11"
+                placeholder="e.g. Amélie Laurent"
+                disabled={isPending}
+                aria-invalid={Boolean(errors.authorName)}
+                {...register("authorName")}
+              />
+              {errors.authorName ? (
+                <p className="text-sm text-destructive">
+                  {errors.authorName.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
 
-      <div className="grid gap-2">
-        <FieldLabel htmlFor="blog-summary" hint={`2–${BLOG_SUMMARY_MAX} chars`}>
-          Summary
-        </FieldLabel>
-        <Textarea
-          id="blog-summary"
-          rows={3}
-          className="min-h-24"
-          placeholder="Short summary shown on cards and search results"
-          disabled={isPending}
-          aria-invalid={Boolean(errors.summary)}
-          {...register("summary")}
-        />
-        {errors.summary ? (
-          <p className="text-sm text-destructive">{errors.summary.message}</p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-2">
-        <FieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
-          Body
-        </FieldLabel>
-        <Controller
-          name="bodyHtml"
-          control={control}
-          render={({ field }) => (
-            <BlogRichTextEditor
-              value={field.value}
-              onChange={field.onChange}
+          <div className="grid gap-2">
+            <FieldLabel
+              htmlFor="blog-summary"
+              hint={`2–${BLOG_SUMMARY_MAX} chars`}
+            >
+              Summary
+            </FieldLabel>
+            <Textarea
+              id="blog-summary"
+              rows={3}
+              className="min-h-24"
+              placeholder="Short summary shown on cards and search results"
               disabled={isPending}
-              placeholder="Write the article body…"
+              aria-invalid={Boolean(errors.summary)}
+              {...register("summary")}
             />
-          )}
-        />
-        {errors.bodyHtml ? (
-          <p className="text-sm text-destructive">{errors.bodyHtml.message}</p>
-        ) : null}
-      </div>
+            {errors.summary ? (
+              <p className="text-sm text-destructive">{errors.summary.message}</p>
+            ) : null}
+          </div>
 
-      <div className="grid gap-2">
-        <FieldLabel
-          hint={`up to ${BLOG_CATEGORIES_MAX} · each max ${BLOG_CATEGORY_MAX} chars`}
-        >
-          Categories
-        </FieldLabel>
-        <div className="flex flex-wrap gap-2">
-          {RECOMMENDED_BLOG_CATEGORIES.map((name) => {
-            const active = categories.includes(name);
-            return (
-              <Button
-                key={name}
-                type="button"
-                size="sm"
-                variant={active ? "default" : "outline"}
-                className="min-h-11"
-                disabled={isPending}
-                onClick={() => toggleCategory(name)}
-              >
-                {name}
-              </Button>
-            );
-          })}
-        </div>
-        <Input
-          className="min-h-11"
-          placeholder="Add custom category and press Enter"
-          disabled={isPending}
-          onKeyDown={(event) => {
-            if (event.key !== "Enter") return;
-            event.preventDefault();
-            const value = event.currentTarget.value.trim();
-            if (!value || categories.includes(value)) return;
-            setValue("categories", [...categories, value], {
-              shouldValidate: true,
-            });
-            event.currentTarget.value = "";
-          }}
-        />
-        {categories.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {categories.map((name) => (
-              <li key={name}>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  className="min-h-11"
-                  disabled={isPending}
-                  onClick={() => toggleCategory(name)}
-                >
-                  {name} ×
-                </Button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {errors.categories ? (
-          <p className="text-sm text-destructive">
-            {errors.categories.message ?? errors.categories.root?.message}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-4">
-        <div className="flex items-center gap-3">
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                id="blog-published"
-                checked={field.value === "published"}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  field.onChange(checked === true ? "published" : "draft")
-                }
-                className="size-5"
-              />
-            )}
-          />
-          <Label htmlFor="blog-published" className="font-normal">
-            Published (visible on Insights)
-          </Label>
-        </div>
-        <div className="flex items-center gap-3">
-          <Controller
-            name="isFeatured"
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                id="blog-featured"
-                checked={field.value}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  field.onChange(checked === true)
-                }
-                className="size-5"
-              />
-            )}
-          />
-          <Label htmlFor="blog-featured" className="font-normal">
-            Featured hero (only one at a time)
-          </Label>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="grid gap-3 rounded-xl border p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <FieldLabel hint="JPEG/PNG/WebP/GIF · max 5MB">
-              Cover image
+          <div className="grid gap-2">
+            <FieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
+              Body
             </FieldLabel>
-            <div className="flex gap-2">
-              <input
-                ref={coverInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                className="hidden"
-                onChange={(event) => onPickCover(event.target.files)}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={isPending}
-                onClick={() => coverInputRef.current?.click()}
-              >
-                <UploadIcon className="size-4" />
-                Upload
-              </Button>
-              {hasCover ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-11"
+            <Controller
+              name="bodyHtml"
+              control={control}
+              render={({ field }) => (
+                <BlogRichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
                   disabled={isPending}
-                  onClick={onRemoveCover}
-                >
-                  Remove
-                </Button>
-              ) : null}
-            </div>
-          </div>
-          <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
-            {coverPreview ? (
-              mode === "create" ? (
-                // Local File preview (blob:) — native img avoids next/image remote rules
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={coverPreview}
-                  alt={title || "Cover preview"}
-                  className="absolute inset-0 size-full object-cover"
+                  placeholder="Write the article body…"
                 />
-              ) : (
-                <Image
-                  src={coverPreview}
-                  alt={title || "Cover preview"}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              )
-            ) : (
-              <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                No cover yet
+              )}
+            />
+            {errors.bodyHtml ? (
+              <p className="text-sm text-destructive">
+                {errors.bodyHtml.message}
               </p>
-            )}
+            ) : null}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card size="sm" className="min-w-0">
+              <CardHeader className="border-b">
+                <CardTitle>Publishing</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Visibility and hero placement
+                </p>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                <div className="flex items-center gap-3">
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="blog-published"
+                        checked={field.value === "published"}
+                        disabled={isPending}
+                        onCheckedChange={(checked) =>
+                          field.onChange(
+                            checked === true ? "published" : "draft",
+                          )
+                        }
+                        className="size-5"
+                      />
+                    )}
+                  />
+                  <Label htmlFor="blog-published" className="font-normal">
+                    Published (visible on Insights)
+                  </Label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Controller
+                    name="isFeatured"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="blog-featured"
+                        checked={field.value}
+                        disabled={isPending}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked === true)
+                        }
+                        className="size-5"
+                      />
+                    )}
+                  />
+                  <Label htmlFor="blog-featured" className="font-normal">
+                    Featured hero (only one at a time)
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card size="sm" className="min-w-0">
+              <CardHeader className="border-b">
+                <CardTitle>Author avatar</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  JPEG/PNG/WebP/GIF · max 2MB
+                </p>
+              </CardHeader>
+              <CardContent>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(event) => onPickAvatar(event.target.files)}
+                />
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="min-h-11 shrink-0"
+                    disabled={isPending}
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    <UploadIcon className="size-4" />
+                    {hasAvatar ? "Replace" : "Choose file"}
+                  </Button>
+                  {hasAvatar ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-11 shrink-0"
+                      disabled={isPending}
+                      onClick={onRemoveAvatar}
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
+                  <span className="min-w-0 truncate text-sm text-muted-foreground">
+                    {avatarFileLabel ?? "No file selected"}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-xl border p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <FieldLabel hint="JPEG/PNG/WebP/GIF · max 2MB">
-              Author avatar
-            </FieldLabel>
-            <div className="flex gap-2">
-              <input
-                ref={avatarInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                className="hidden"
-                onChange={(event) => onPickAvatar(event.target.files)}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={isPending}
-                onClick={() => avatarInputRef.current?.click()}
-              >
-                <UploadIcon className="size-4" />
-                Upload
-              </Button>
-              {hasAvatar ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-11"
-                  disabled={isPending}
-                  onClick={onRemoveAvatar}
-                >
-                  Remove
-                </Button>
-              ) : null}
-            </div>
-          </div>
-          <div className="relative mx-auto size-28 overflow-hidden rounded-full bg-muted">
-            {avatarPreview ? (
-              mode === "create" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarPreview}
-                  alt={watch("authorName") || "Author preview"}
-                  className="absolute inset-0 size-full object-cover"
-                />
-              ) : (
-                <Image
-                  src={avatarPreview}
-                  alt={watch("authorName") || "Author preview"}
-                  fill
-                  className="object-cover"
-                  sizes="112px"
-                />
-              )
-            ) : (
-              <p className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                No avatar
+        {/* Right: cover + categories */}
+        <aside className="grid gap-4 lg:sticky lg:top-4">
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <CardTitle>Cover image</CardTitle>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    JPEG/PNG/WebP/GIF · max 5MB
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(event) => onPickCover(event.target.files)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="min-h-11"
+                    disabled={isPending}
+                    onClick={() => coverInputRef.current?.click()}
+                  >
+                    <UploadIcon className="size-4" />
+                    Upload
+                  </Button>
+                  {hasCover ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-11"
+                      disabled={isPending}
+                      onClick={onRemoveCover}
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
+                {coverPreview ? (
+                  mode === "create" ? (
+                    // Local File preview (blob:) — native img avoids next/image remote rules
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={coverPreview}
+                      alt={title || "Cover preview"}
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={coverPreview}
+                      alt={title || "Cover preview"}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 22rem"
+                    />
+                  )
+                ) : (
+                  <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    No cover yet
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <CardTitle>Categories</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                up to {BLOG_CATEGORIES_MAX} · each max {BLOG_CATEGORY_MAX} chars
               </p>
-            )}
-          </div>
-        </div>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <div className="flex flex-wrap gap-2">
+                {RECOMMENDED_BLOG_CATEGORIES.map((name) => {
+                  const active = categories.includes(name);
+                  return (
+                    <Button
+                      key={name}
+                      type="button"
+                      size="sm"
+                      variant={active ? "default" : "outline"}
+                      className="min-h-11"
+                      disabled={isPending}
+                      onClick={() => toggleCategory(name)}
+                    >
+                      {name}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Input
+                className="min-h-11"
+                placeholder="Add custom category and press Enter"
+                disabled={isPending}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter") return;
+                  event.preventDefault();
+                  const value = event.currentTarget.value.trim();
+                  if (!value || categories.includes(value)) return;
+                  setValue("categories", [...categories, value], {
+                    shouldValidate: false,
+                  });
+                  event.currentTarget.value = "";
+                }}
+              />
+              {categories.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {categories.map((name) => (
+                    <li key={name}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="min-h-11"
+                        disabled={isPending}
+                        onClick={() => toggleCategory(name)}
+                      >
+                        {name} ×
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {errors.categories ? (
+                <p className="text-sm text-destructive">
+                  {errors.categories.message ?? errors.categories.root?.message}
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
+        </aside>
       </div>
     </form>
+
+    <Dialog
+      open={isCreateSuccessOpen}
+      onOpenChange={(open) => {
+        if (!open) goToBlogsList();
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-md"
+        showCloseButton={false}
+      >
+        <DialogHeader>
+          <DialogTitle>Blog created</DialogTitle>
+          <DialogDescription>
+            Your post was saved. What would you like to do next?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex-col gap-2 sm:flex-col sm:justify-stretch">
+          <Button
+            type="button"
+            className="min-h-11 w-full"
+            onClick={goToCreatedBlog}
+          >
+            Edit this post
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full"
+            onClick={continueCreating}
+          >
+            Create another
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-11 w-full"
+            onClick={goToBlogsList}
+          >
+            Back to blogs
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader className="text-left">
+          <AlertDialogTitle>Delete this blog?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {blog?.title
+              ? `This permanently deletes “${blog.title}”. This cannot be undone.`
+              : "This permanently deletes the blog post. This cannot be undone."}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <Button
+            type="button"
+            variant="destructive"
+            className="min-h-11"
+            disabled={isPending}
+            onClick={onDelete}
+          >
+            {isPending ? (
+              <>
+                <Loader2Icon className="animate-spin" />
+                Deleting…
+              </>
+            ) : (
+              <>
+                <Trash2Icon className="size-4" />
+                Delete
+              </>
+            )}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
