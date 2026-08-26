@@ -9,6 +9,8 @@ import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   deleteInterestRegistrationSchema,
   interestRegistrationSchemaFor,
@@ -36,6 +38,7 @@ const ACTION_MESSAGES = {
       "Too many submissions. Please wait and try again later.",
     duplicate:
       "You already registered this company with this email.",
+    verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
@@ -50,6 +53,8 @@ const ACTION_MESSAGES = {
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
     duplicate:
       "Vous avez déjà enregistré cette entreprise avec cet e-mail.",
+    verificationFailed:
+      "La vérification de sécurité a échoué. Veuillez réessayer.",
   },
 } as const;
 
@@ -139,9 +144,19 @@ export async function submitInterestRegistration(
     country,
     pitch,
     consent,
+    turnstileToken,
   } = parsed.data;
 
   const ip = await getClientIp();
+  const turnstileOk = await verifyTurnstileToken({
+    token: turnstileToken,
+    expectedAction: TURNSTILE_APPLY_ACTION,
+    remoteip: ip,
+  });
+  if (!turnstileOk) {
+    return { status: "error", message: copy.verificationFailed };
+  }
+
   const ipKey = `apply:ip:${ip}`;
   const emailKey = `apply:email:${email}`;
 

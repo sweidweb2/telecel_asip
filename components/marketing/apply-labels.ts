@@ -21,6 +21,7 @@ export type ApplyLabels = {
   submitLabel: string;
   submittingLabel: string;
   successToast: string;
+  turnstileHint: string;
 };
 
 const EN: ApplyLabels = {
@@ -47,6 +48,7 @@ const EN: ApplyLabels = {
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
   successToast: "Thank you — your interest has been registered.",
+  turnstileHint: "Complete the security check before submitting.",
 };
 
 const FR: ApplyLabels = {
@@ -73,6 +75,7 @@ const FR: ApplyLabels = {
   submitLabel: "Envoyer",
   submittingLabel: "Envoi…",
   successToast: "Merci — votre intérêt a bien été enregistré.",
+  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 export function applyLabelsFor(locale: Locale): ApplyLabels {

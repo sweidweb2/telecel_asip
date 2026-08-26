@@ -16,6 +16,7 @@ const validInput = {
   pitch:
     "We help African SMEs access working capital through a mobile-first credit platform.",
   consent: true as const,
+  turnstileToken: "test-turnstile-token",
 };
 
 describe("interestRegistrationSchema", () => {
@@ -73,6 +74,17 @@ describe("interestRegistrationSchema", () => {
       consent: false,
     });
     expect(result.success).toBe(false);
+  });
+
+  it("rejects a missing turnstile token", () => {
+    const result = interestRegistrationSchema.safeParse({
+      ...validInput,
+      turnstileToken: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toMatch(/security check/i);
+    }
   });
 
   it("returns french validation messages", () => {

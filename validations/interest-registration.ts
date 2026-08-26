@@ -17,6 +17,7 @@ type InterestRegistrationMessages = {
   pitchMin: string;
   pitchMax: string;
   consentRequired: string;
+  turnstileRequired: string;
   invalidId: string;
 };
 
@@ -37,6 +38,7 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     pitchMin: "Pitch must be at least 20 characters",
     pitchMax: "Pitch must be at most 1000 characters",
     consentRequired: "You must agree before submitting",
+    turnstileRequired: "Please complete the security check",
     invalidId: "Invalid registration id",
   },
   fr: {
@@ -55,6 +57,7 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     pitchMin: "Le message doit contenir au moins 20 caractères",
     pitchMax: "Le message doit contenir au plus 1000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
+    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant de candidature invalide",
   },
 };
@@ -123,6 +126,11 @@ export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
     consent: z.boolean().refine((value) => value === true, {
       message: messages.consentRequired,
     }),
+    turnstileToken: z
+      .string()
+      .trim()
+      .min(1, messages.turnstileRequired)
+      .max(2048, messages.turnstileRequired),
   });
 }
 

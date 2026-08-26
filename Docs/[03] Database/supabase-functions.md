@@ -124,7 +124,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 ### `public.interest_registrations`
 
-No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation. Admins list/update/delete via the session client under `is_admin()` RLS policies.
+No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=apply`), and in-memory rate limits (hits recorded only after a successful insert). Admins list/update/delete via the session client under `is_admin()` RLS policies.
 
 ### `public.contact_messages`
 
