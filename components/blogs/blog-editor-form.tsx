@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useForm } from "react-hook-form";
@@ -28,6 +28,13 @@ import { ROUTES } from "@/constants/routes";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
 import {
+  BLOG_AUTHOR_NAME_MAX,
+  BLOG_BODY_MAX,
+  BLOG_CATEGORIES_MAX,
+  BLOG_CATEGORY_MAX,
+  BLOG_SLUG_MAX,
+  BLOG_SUMMARY_MAX,
+  BLOG_TITLE_MAX,
   createBlogSchema,
   type CreateBlogInput,
 } from "@/validations/blog";
@@ -35,14 +42,48 @@ import {
 type BlogEditorFormProps = {
   mode: "create" | "edit";
   blog?: Blog;
+  heading: string;
+  description: string;
 };
 
-export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
+function FieldLabel({
+  htmlFor,
+  children,
+  hint,
+}: {
+  htmlFor?: string;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <Label htmlFor={htmlFor}>{children}</Label>
+      {hint ? (
+        <span className="text-xs text-muted-foreground">{hint}</span>
+      ) : null}
+    </div>
+  );
+}
+
+export function BlogEditorForm({
+  mode,
+  blog,
+  heading,
+  description,
+}: BlogEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const slugTouched = useRef(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [pendingCover, setPendingCover] = useState<File | null>(null);
+  const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
+  const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
+    null,
+  );
+  const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
+    string | null
+  >(null);
 
   const {
     register,
@@ -76,6 +117,26 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
     }
   }, [mode, setValue, title]);
 
+  useEffect(() => {
+    if (!pendingCover) {
+      setPendingCoverPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(pendingCover);
+    setPendingCoverPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pendingCover]);
+
+  useEffect(() => {
+    if (!pendingAvatar) {
+      setPendingAvatarPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(pendingAvatar);
+    setPendingAvatarPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pendingAvatar]);
+
   function toggleCategory(name: string) {
     const next = categories.includes(name)
       ? categories.filter((item) => item !== name)
@@ -91,6 +152,25 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
           toast.error(result.message);
           return;
         }
+
+        if (result.id && pendingCover) {
+          const formData = new FormData();
+          formData.set("file", pendingCover);
+          const upload = await uploadBlogThumbnail(result.id, formData);
+          if (upload.status === "error") {
+            toast.error(upload.message);
+          }
+        }
+
+        if (result.id && pendingAvatar) {
+          const formData = new FormData();
+          formData.set("file", pendingAvatar);
+          const upload = await uploadAuthorAvatar(result.id, formData);
+          if (upload.status === "error") {
+            toast.error(upload.message);
+          }
+        }
+
         toast.success(result.message);
         if (result.id) {
           router.push(`${ROUTES.blogs}/${result.id}`);
@@ -127,10 +207,15 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
     });
   }
 
-  function onUploadCover(fileList: FileList | null) {
-    if (!blog || !fileList?.[0]) return;
+  function onPickCover(fileList: FileList | null) {
+    const file = fileList?.[0] ?? null;
+    if (mode === "create") {
+      setPendingCover(file);
+      return;
+    }
+    if (!blog || !file) return;
     const formData = new FormData();
-    formData.set("file", fileList[0]);
+    formData.set("file", file);
     startTransition(async () => {
       const result = await uploadBlogThumbnail(blog.id, formData);
       if (result.status === "error") {
@@ -142,10 +227,15 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
     });
   }
 
-  function onUploadAvatar(fileList: FileList | null) {
-    if (!blog || !fileList?.[0]) return;
+  function onPickAvatar(fileList: FileList | null) {
+    const file = fileList?.[0] ?? null;
+    if (mode === "create") {
+      setPendingAvatar(file);
+      return;
+    }
+    if (!blog || !file) return;
     const formData = new FormData();
-    formData.set("file", fileList[0]);
+    formData.set("file", file);
     startTransition(async () => {
       const result = await uploadAuthorAvatar(blog.id, formData);
       if (result.status === "error") {
@@ -157,10 +247,15 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
     });
   }
 
-  function onRemoveImage(kind: "thumbnail" | "author") {
+  function onRemoveCover() {
+    if (mode === "create") {
+      setPendingCover(null);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+      return;
+    }
     if (!blog) return;
     startTransition(async () => {
-      const result = await removeBlogImage({ id: blog.id, kind });
+      const result = await removeBlogImage({ id: blog.id, kind: "thumbnail" });
       if (result.status === "error") {
         toast.error(result.message);
         return;
@@ -170,16 +265,47 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
     });
   }
 
+  function onRemoveAvatar() {
+    if (mode === "create") {
+      setPendingAvatar(null);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+      return;
+    }
+    if (!blog) return;
+    startTransition(async () => {
+      const result = await removeBlogImage({ id: blog.id, kind: "author" });
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+      toast.success(result.message);
+      router.refresh();
+    });
+  }
+
+  const coverPreview =
+    mode === "create" ? pendingCoverPreview : blog?.thumbnail_url ?? null;
+  const avatarPreview =
+    mode === "create" ? pendingAvatarPreview : blog?.author_avatar_url ?? null;
+  const hasCover = Boolean(coverPreview);
+  const hasAvatar = Boolean(avatarPreview);
+
   return (
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={status === "published" ? "default" : "secondary"}>
-            {status === "published" ? "Published" : "Draft"}
-          </Badge>
-          {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-heading text-2xl font-semibold tracking-tight">
+              {heading}
+            </h2>
+            <Badge variant={status === "published" ? "default" : "secondary"}>
+              {status === "published" ? "Published" : "Draft"}
+            </Badge>
+            {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
           {mode === "edit" ? (
             <Button
               type="button"
@@ -207,12 +333,15 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="grid gap-2">
-          <Label htmlFor="blog-title">Title</Label>
+          <FieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
+            Title
+          </FieldLabel>
           <Input
             id="blog-title"
             className="min-h-11"
+            placeholder="e.g. Improve your design skills"
             disabled={isPending}
             aria-invalid={Boolean(errors.title)}
             {...register("title")}
@@ -222,10 +351,16 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="blog-slug">Slug</Label>
+          <FieldLabel
+            htmlFor="blog-slug"
+            hint={`2–${BLOG_SLUG_MAX} · a-z 0-9 -`}
+          >
+            Slug
+          </FieldLabel>
           <Input
             id="blog-slug"
             className="min-h-11"
+            placeholder="e.g. improve-your-design-skills"
             disabled={isPending}
             aria-invalid={Boolean(errors.slug)}
             {...register("slug", {
@@ -238,14 +373,38 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
             <p className="text-sm text-destructive">{errors.slug.message}</p>
           ) : null}
         </div>
+        <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
+          <FieldLabel
+            htmlFor="blog-author"
+            hint={`2–${BLOG_AUTHOR_NAME_MAX} chars`}
+          >
+            Author
+          </FieldLabel>
+          <Input
+            id="blog-author"
+            className="min-h-11"
+            placeholder="e.g. Amélie Laurent"
+            disabled={isPending}
+            aria-invalid={Boolean(errors.authorName)}
+            {...register("authorName")}
+          />
+          {errors.authorName ? (
+            <p className="text-sm text-destructive">
+              {errors.authorName.message}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="blog-summary">Summary</Label>
+        <FieldLabel htmlFor="blog-summary" hint={`2–${BLOG_SUMMARY_MAX} chars`}>
+          Summary
+        </FieldLabel>
         <Textarea
           id="blog-summary"
           rows={3}
           className="min-h-24"
+          placeholder="Short summary shown on cards and search results"
           disabled={isPending}
           aria-invalid={Boolean(errors.summary)}
           {...register("summary")}
@@ -256,7 +415,9 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
       </div>
 
       <div className="grid gap-2">
-        <Label>Body</Label>
+        <FieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
+          Body
+        </FieldLabel>
         <Controller
           name="bodyHtml"
           control={control}
@@ -265,6 +426,7 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
               value={field.value}
               onChange={field.onChange}
               disabled={isPending}
+              placeholder="Write the article body…"
             />
           )}
         />
@@ -274,7 +436,11 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
       </div>
 
       <div className="grid gap-2">
-        <Label>Categories</Label>
+        <FieldLabel
+          hint={`up to ${BLOG_CATEGORIES_MAX} · each max ${BLOG_CATEGORY_MAX} chars`}
+        >
+          Categories
+        </FieldLabel>
         <div className="flex flex-wrap gap-2">
           {RECOMMENDED_BLOG_CATEGORIES.map((name) => {
             const active = categories.includes(name);
@@ -333,175 +499,175 @@ export function BlogEditorForm({ mode, blog }: BlogEditorFormProps) {
         ) : null}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="grid gap-2">
-          <Label htmlFor="blog-author">Author name</Label>
-          <Input
-            id="blog-author"
-            className="min-h-11"
-            disabled={isPending}
-            aria-invalid={Boolean(errors.authorName)}
-            {...register("authorName")}
+      <div className="grid gap-4">
+        <div className="flex items-center gap-3">
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                id="blog-published"
+                checked={field.value === "published"}
+                disabled={isPending}
+                onCheckedChange={(checked) =>
+                  field.onChange(checked === true ? "published" : "draft")
+                }
+                className="size-5"
+              />
+            )}
           />
-          {errors.authorName ? (
-            <p className="text-sm text-destructive">
-              {errors.authorName.message}
-            </p>
-          ) : null}
+          <Label htmlFor="blog-published" className="font-normal">
+            Published (visible on Insights)
+          </Label>
         </div>
-        <div className="grid gap-4">
-          <div className="flex items-center gap-3">
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  id="blog-published"
-                  checked={field.value === "published"}
-                  disabled={isPending}
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked === true ? "published" : "draft")
-                  }
-                  className="size-5"
-                />
-              )}
-            />
-            <Label htmlFor="blog-published" className="font-normal">
-              Published (visible on Insights)
-            </Label>
-          </div>
-          <div className="flex items-center gap-3">
-            <Controller
-              name="isFeatured"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  id="blog-featured"
-                  checked={field.value}
-                  disabled={isPending}
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked === true)
-                  }
-                  className="size-5"
-                />
-              )}
-            />
-            <Label htmlFor="blog-featured" className="font-normal">
-              Featured hero (only one at a time)
-            </Label>
-          </div>
+        <div className="flex items-center gap-3">
+          <Controller
+            name="isFeatured"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                id="blog-featured"
+                checked={field.value}
+                disabled={isPending}
+                onCheckedChange={(checked) =>
+                  field.onChange(checked === true)
+                }
+                className="size-5"
+              />
+            )}
+          />
+          <Label htmlFor="blog-featured" className="font-normal">
+            Featured hero (only one at a time)
+          </Label>
         </div>
       </div>
 
-      {mode === "edit" && blog ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="grid gap-3 rounded-xl border p-4">
-            <div className="flex items-center justify-between gap-2">
-              <Label>Cover image</Label>
-              <div className="flex gap-2">
-                <input
-                  ref={coverInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  onChange={(event) => onUploadCover(event.target.files)}
-                />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-3 rounded-xl border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <FieldLabel hint="JPEG/PNG/WebP/GIF · max 5MB">
+              Cover image
+            </FieldLabel>
+            <div className="flex gap-2">
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={(event) => onPickCover(event.target.files)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11"
+                disabled={isPending}
+                onClick={() => coverInputRef.current?.click()}
+              >
+                <UploadIcon className="size-4" />
+                Upload
+              </Button>
+              {hasCover ? (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   className="min-h-11"
                   disabled={isPending}
-                  onClick={() => coverInputRef.current?.click()}
+                  onClick={onRemoveCover}
                 >
-                  <UploadIcon className="size-4" />
-                  Upload
+                  Remove
                 </Button>
-                {blog.thumbnail_url ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="min-h-11"
-                    disabled={isPending}
-                    onClick={() => onRemoveImage("thumbnail")}
-                  >
-                    Remove
-                  </Button>
-                ) : null}
-              </div>
+              ) : null}
             </div>
-            <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
-              {blog.thumbnail_url ? (
+          </div>
+          <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
+            {coverPreview ? (
+              mode === "create" ? (
+                // Local File preview (blob:) — native img avoids next/image remote rules
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={coverPreview}
+                  alt={title || "Cover preview"}
+                  className="absolute inset-0 size-full object-cover"
+                />
+              ) : (
                 <Image
-                  src={blog.thumbnail_url}
-                  alt={blog.title}
+                  src={coverPreview}
+                  alt={title || "Cover preview"}
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-              ) : (
-                <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  No cover yet
-                </p>
-              )}
-            </div>
+              )
+            ) : (
+              <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                No cover yet
+              </p>
+            )}
           </div>
+        </div>
 
-          <div className="grid gap-3 rounded-xl border p-4">
-            <div className="flex items-center justify-between gap-2">
-              <Label>Author avatar</Label>
-              <div className="flex gap-2">
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  onChange={(event) => onUploadAvatar(event.target.files)}
-                />
+        <div className="grid gap-3 rounded-xl border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <FieldLabel hint="JPEG/PNG/WebP/GIF · max 2MB">
+              Author avatar
+            </FieldLabel>
+            <div className="flex gap-2">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={(event) => onPickAvatar(event.target.files)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11"
+                disabled={isPending}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                <UploadIcon className="size-4" />
+                Upload
+              </Button>
+              {hasAvatar ? (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   className="min-h-11"
                   disabled={isPending}
-                  onClick={() => avatarInputRef.current?.click()}
+                  onClick={onRemoveAvatar}
                 >
-                  <UploadIcon className="size-4" />
-                  Upload
+                  Remove
                 </Button>
-                {blog.author_avatar_url ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="min-h-11"
-                    disabled={isPending}
-                    onClick={() => onRemoveImage("author")}
-                  >
-                    Remove
-                  </Button>
-                ) : null}
-              </div>
+              ) : null}
             </div>
-            <div className="relative mx-auto size-28 overflow-hidden rounded-full bg-muted">
-              {blog.author_avatar_url ? (
+          </div>
+          <div className="relative mx-auto size-28 overflow-hidden rounded-full bg-muted">
+            {avatarPreview ? (
+              mode === "create" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarPreview}
+                  alt={watch("authorName") || "Author preview"}
+                  className="absolute inset-0 size-full object-cover"
+                />
+              ) : (
                 <Image
-                  src={blog.author_avatar_url}
-                  alt={blog.author_name}
+                  src={avatarPreview}
+                  alt={watch("authorName") || "Author preview"}
                   fill
                   className="object-cover"
                   sizes="112px"
                 />
-              ) : (
-                <p className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                  No avatar
-                </p>
-              )}
-            </div>
+              )
+            ) : (
+              <p className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                No avatar
+              </p>
+            )}
           </div>
         </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          Save the blog first, then upload a cover and author avatar.
-        </p>
-      )}
+      </div>
     </form>
   );
 }
