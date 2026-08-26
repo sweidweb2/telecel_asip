@@ -9,6 +9,10 @@ import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
+  TURNSTILE_CONTACT_ACTION,
+  verifyTurnstileToken,
+} from "@/lib/turnstile";
+import {
   contactMessageSchemaFor,
   deleteContactMessageSchema,
   updateContactMessageSchema,
@@ -28,6 +32,7 @@ const PUBLIC_MESSAGES = {
     success: "Thank you — your message has been sent.",
     genericError: "Something went wrong. Please try again.",
     rateLimited: "Too many submissions. Please wait and try again later.",
+    verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
@@ -35,6 +40,8 @@ const PUBLIC_MESSAGES = {
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
+    verificationFailed:
+      "La vérification de sécurité a échoué. Veuillez réessayer.",
   },
 } as const;
 
@@ -107,9 +114,19 @@ export async function submitContactMessage(
     };
   }
 
-  const { fullName, email, phone, subject, message } = parsed.data;
+  const { fullName, email, phone, subject, message, turnstileToken } =
+    parsed.data;
 
   const ip = await getClientIp();
+  const turnstileOk = await verifyTurnstileToken({
+    token: turnstileToken,
+    expectedAction: TURNSTILE_CONTACT_ACTION,
+    remoteip: ip,
+  });
+  if (!turnstileOk) {
+    return { status: "error", message: copy.verificationFailed };
+  }
+
   const ipKey = `contact:ip:${ip}`;
   const emailKey = `contact:email:${email}`;
 

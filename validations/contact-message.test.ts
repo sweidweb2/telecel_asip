@@ -13,6 +13,7 @@ const validInput = {
   subject: "Partnership inquiry",
   message:
     "I would like to learn more about partnering with ASIP for the next cohort.",
+  turnstileToken: "test-turnstile-token",
 };
 
 describe("contactMessageSchema", () => {
@@ -43,6 +44,17 @@ describe("contactMessageSchema", () => {
       message: "Too short",
     });
     expect(result.success).toBe(false);
+  });
+
+  it("rejects a missing turnstile token", () => {
+    const result = contactMessageSchema.safeParse({
+      ...validInput,
+      turnstileToken: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toMatch(/security check/i);
+    }
   });
 
   it("returns french validation messages", () => {

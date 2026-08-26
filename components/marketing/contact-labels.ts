@@ -21,6 +21,7 @@ export type ContactLabels = {
   submitLabel: string;
   submittingLabel: string;
   successToast: string;
+  turnstileHint: string;
 };
 
 const EN: ContactLabels = {
@@ -44,6 +45,7 @@ const EN: ContactLabels = {
   submitLabel: "Send message",
   submittingLabel: "Sending…",
   successToast: "Thank you — your message has been sent.",
+  turnstileHint: "Complete the security check before sending.",
 };
 
 const FR: ContactLabels = {
@@ -69,6 +71,7 @@ const FR: ContactLabels = {
   submitLabel: "Envoyer le message",
   submittingLabel: "Envoi…",
   successToast: "Merci — votre message a bien été envoyé.",
+  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 export function contactLabelsFor(locale: Locale): ContactLabels {

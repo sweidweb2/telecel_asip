@@ -69,6 +69,19 @@ async function fillContactForm(
   await page.locator("#contact-message").fill(values.message);
 }
 
+/**
+ * Wait until Turnstile issues a token (submit becomes enabled).
+ * Widget domains must include localhost for local E2E.
+ */
+async function waitForTurnstileReady(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("contact-turnstile")).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(
+    page.getByRole("button", { name: "Send message" }),
+  ).toBeEnabled({ timeout: 60_000 });
+}
+
 test.describe.configure({ mode: "serial" });
 
 test.describe("contact messages", () => {
@@ -100,6 +113,7 @@ test.describe("contact messages", () => {
         subject,
         message: BODY,
       });
+      await waitForTurnstileReady(page);
       await page.getByRole("button", { name: "Send message" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({ hasText: SUCCESS_TOAST }),
@@ -113,6 +127,7 @@ test.describe("contact messages", () => {
         subject,
         message: `${BODY} Follow-up details included.`,
       });
+      await waitForTurnstileReady(page);
       await page.getByRole("button", { name: "Send message" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({ hasText: SUCCESS_TOAST }),
@@ -141,6 +156,7 @@ test.describe("contact messages", () => {
           subject: `Rate limit subject ${suffix}-${i}`,
           message: `${BODY} Attempt ${i + 1}.`,
         });
+        await waitForTurnstileReady(page);
         await page.getByRole("button", { name: "Send message" }).click();
         await expect(
           page.locator("[data-sonner-toast]").filter({ hasText: SUCCESS_TOAST }),
@@ -159,6 +175,7 @@ test.describe("contact messages", () => {
         subject: `Rate limit subject ${suffix}-blocked`,
         message: `${BODY} Attempt 4 should be blocked.`,
       });
+      await waitForTurnstileReady(page);
       await page.getByRole("button", { name: "Send message" }).click();
       await expect(
         page

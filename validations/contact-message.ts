@@ -12,6 +12,7 @@ type ContactMessageMessages = {
   subjectMax: string;
   messageMin: string;
   messageMax: string;
+  turnstileRequired: string;
   invalidId: string;
 };
 
@@ -27,6 +28,7 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     subjectMax: "Subject must be at most 120 characters",
     messageMin: "Message must be at least 20 characters",
     messageMax: "Message must be at most 2000 characters",
+    turnstileRequired: "Please complete the security check",
     invalidId: "Invalid message id",
   },
   fr: {
@@ -40,6 +42,7 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     subjectMax: "Le sujet doit contenir au plus 120 caractères",
     messageMin: "Le message doit contenir au moins 20 caractères",
     messageMax: "Le message doit contenir au plus 2000 caractères",
+    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant de message invalide",
   },
 };
@@ -89,7 +92,15 @@ function contactMessageFieldsSchema(messages: ContactMessageMessages) {
 }
 
 export function contactMessageSchemaFor(locale: Locale = DEFAULT_LOCALE) {
-  return z.object(contactMessageFieldsSchema(VALIDATION_MESSAGES[locale]));
+  const messages = VALIDATION_MESSAGES[locale];
+  return z.object({
+    ...contactMessageFieldsSchema(messages),
+    turnstileToken: z
+      .string()
+      .trim()
+      .min(1, messages.turnstileRequired)
+      .max(2048, messages.turnstileRequired),
+  });
 }
 
 export const contactMessageSchema = contactMessageSchemaFor(DEFAULT_LOCALE);
