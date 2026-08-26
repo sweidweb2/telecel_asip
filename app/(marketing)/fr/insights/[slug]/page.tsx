@@ -5,23 +5,28 @@ import {
   insightDetailLabelsFor,
 } from "@/components/marketing/insight-detail-page";
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
-import { getInsightBySlug, getInsightSlugs } from "@/data/insights";
+import {
+  getInsightBySlug,
+  getInsightSlugs,
+  getRelatedInsights,
+} from "@/data/insights";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getInsightSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getInsightSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const article = getInsightBySlug(slug);
+  const article = await getInsightBySlug(slug, "fr");
 
   if (!article) {
-    return { title: "Article introuvable — ASIP" };
+    return { title: "Perspective introuvable — ASIP" };
   }
 
   return buildMarketingMetadata({
@@ -34,7 +39,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function FrInsightDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const article = getInsightBySlug(slug);
+  const [article, related] = await Promise.all([
+    getInsightBySlug(slug, "fr"),
+    getRelatedInsights(slug, 3, "fr"),
+  ]);
 
   if (!article) notFound();
 
@@ -42,6 +50,7 @@ export default async function FrInsightDetailPage({ params }: PageProps) {
     <InsightDetailPage
       locale="fr"
       article={article}
+      related={related}
       labels={insightDetailLabelsFor("fr", blogLabelsFor("fr"))}
     />
   );

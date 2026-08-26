@@ -27,13 +27,15 @@ export function BlogCard({ article, locale }: BlogCardProps) {
   return (
     <Link href={href} className="group flex flex-col gap-5 outline-none">
       <div className="relative aspect-[1.5] w-full overflow-hidden rounded-2xl bg-muted">
-        <Image
-          src={article.thumbnailUrl}
-          alt={article.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        {article.thumbnailUrl ? (
+          <Image
+            src={article.thumbnailUrl}
+            alt={article.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-sm font-semibold text-primary">
@@ -51,7 +53,9 @@ export function BlogCard({ article, locale }: BlogCardProps) {
       </div>
       <div className="flex items-center gap-2">
         <Avatar size="sm">
-          <AvatarImage src={article.author.avatarUrl} alt="" />
+          {article.author.avatarUrl ? (
+            <AvatarImage src={article.author.avatarUrl} alt="" />
+          ) : null}
           <AvatarFallback>{authorInitials(article.author.name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">

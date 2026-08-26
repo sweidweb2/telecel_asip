@@ -11,6 +11,7 @@ export const ROUTES = {
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
   portfolio: "/dashboard/portfolio",
+  blogs: "/dashboard/blogs",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
   backup: "/dashboard/backup",

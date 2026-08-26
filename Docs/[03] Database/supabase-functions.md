@@ -129,3 +129,22 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 ### `public.contact_messages`
 
 No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=contact`), and in-memory rate limits (hits recorded only after a successful insert). Admins list/update/delete via the session client under `is_admin()` RLS policies. Length CHECKs mirror the Zod schema; there is no unique constraint on email/subject (follow-ups allowed).
+
+### `public.blogs`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_blogs_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.blogs_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.blogs` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_blogs_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Cover images live in Storage bucket `blogs`; author avatars in `auther`. Featured exclusivity is enforced by a partial unique index plus app-level clear-on-feature.

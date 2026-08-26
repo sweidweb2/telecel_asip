@@ -5,6 +5,7 @@ export const DASHBOARD_NAV_ITEMS = [
   { title: "Manage users", href: ROUTES.users },
   { title: "Manage registrations", href: ROUTES.registrations },
   { title: "Manage portfolio", href: ROUTES.portfolio },
+  { title: "Manage blogs", href: ROUTES.blogs },
   { title: "Manage contact us", href: ROUTES.contactUs },
   { title: "Analytics", href: ROUTES.analytics },
   { title: "Backup", href: ROUTES.backup },

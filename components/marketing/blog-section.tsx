@@ -9,15 +9,6 @@ import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,15 +17,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  BLOG_ARTICLES,
   categoryToTabId,
-  FEATURED_ARTICLE,
   type BlogSortId,
   type BlogTabId,
-} from "@/constants/blog-articles";
+} from "@/constants/blog-ui";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import { cn } from "@/lib/utils";
+import type { Article } from "@/types/article";
 
 function authorInitials(name: string) {
   return name
@@ -48,16 +37,19 @@ function authorInitials(name: string) {
 type BlogSectionProps = {
   locale: Locale;
   labels: BlogLabels;
+  articles: Article[];
+  featured?: Article;
 };
 
 function FeaturedPost({
   locale,
   labels,
+  article,
 }: {
   locale: Locale;
   labels: BlogLabels;
+  article: Article;
 }) {
-  const article = FEATURED_ARTICLE;
   const href = insightPath(locale, article.slug);
 
   return (
@@ -66,14 +58,18 @@ function FeaturedPost({
         href={href}
         className="relative hidden w-full overflow-hidden rounded-2xl focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none md:block md:h-[28rem] lg:h-[36rem]"
       >
-        <Image
-          src={article.thumbnailUrl}
-          alt={article.title}
-          fill
-          priority
-          className="object-cover"
-          sizes="(max-width: 1152px) 100vw, 1152px"
-        />
+        {article.thumbnailUrl ? (
+          <Image
+            src={article.thumbnailUrl}
+            alt={article.title}
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 1152px) 100vw, 1152px"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-muted" />
+        )}
         <div className="absolute inset-x-0 bottom-0 w-full bg-linear-to-t from-black/60 to-transparent pt-24">
           <div className="flex w-full flex-col gap-6 p-6 lg:p-8">
             <div className="flex flex-col gap-2">
@@ -95,7 +91,9 @@ function FeaturedPost({
                   </p>
                   <div className="flex items-center gap-2">
                     <Avatar>
-                      <AvatarImage src={article.author.avatarUrl} alt="" />
+                      {article.author.avatarUrl ? (
+                        <AvatarImage src={article.author.avatarUrl} alt="" />
+                      ) : null}
                       <AvatarFallback>
                         {authorInitials(article.author.name)}
                       </AvatarFallback>
@@ -143,24 +141,30 @@ function FeaturedPost({
   );
 }
 
-export function BlogSection({ locale, labels }: BlogSectionProps) {
+export function BlogSection({
+  locale,
+  labels,
+  articles,
+  featured,
+}: BlogSectionProps) {
   const [tab, setTab] = useState<BlogTabId>("all");
   const [sortBy, setSortBy] = useState<BlogSortId>("recent");
 
-  const articles = useMemo(() => {
+  const filteredArticles = useMemo(() => {
     const filtered =
       tab === "all"
-        ? BLOG_ARTICLES
-        : BLOG_ARTICLES.filter(
-            (article) => categoryToTabId(article.category.name) === tab
+        ? articles
+        : articles.filter(
+            (article) => categoryToTabId(article.category.name) === tab,
           );
 
+    // Phase 1: popular/viewed share published order (already recent-first).
     if (sortBy === "recent") {
       return filtered;
     }
 
     return [...filtered].reverse();
-  }, [tab, sortBy]);
+  }, [articles, tab, sortBy]);
 
   return (
     <main>
@@ -181,7 +185,9 @@ export function BlogSection({ locale, labels }: BlogSectionProps) {
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 sm:px-6 md:gap-16 lg:pb-24">
-        <FeaturedPost locale={locale} labels={labels} />
+        {featured ? (
+          <FeaturedPost locale={locale} labels={labels} article={featured} />
+        ) : null}
 
         <div className="flex flex-col items-stretch gap-6 md:flex-row md:items-end md:gap-8">
           <Tabs
@@ -208,7 +214,10 @@ export function BlogSection({ locale, labels }: BlogSectionProps) {
           <div className="w-full shrink-0 md:max-w-44">
             <Select
               value={sortBy}
-              onValueChange={(value) => setSortBy(value as BlogSortId)}
+              onValueChange={(value) => {
+                if (!value) return;
+                setSortBy(value as BlogSortId);
+              }}
             >
               <SelectTrigger
                 aria-label={labels.sortAriaLabel}
@@ -227,71 +236,19 @@ export function BlogSection({ locale, labels }: BlogSectionProps) {
           </div>
         </div>
 
-        <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article, index) => (
-            <li
-              key={article.id}
-              className={cn(index >= 6 && "max-lg:hidden")}
-            >
-              <BlogCard locale={locale} article={article} />
-            </li>
-          ))}
-        </ul>
-
-        <Pagination>
-          <PaginationContent className="flex-wrap justify-center gap-1">
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                text={labels.previous}
-                className="min-h-11 pointer-events-none opacity-50"
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                isActive
-                className="min-h-11 min-w-11 rounded-full pointer-events-none"
-              >
-                1
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
-              >
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
-              >
-                3
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                className="min-h-11 min-w-11 rounded-full pointer-events-none opacity-50"
-              >
-                10
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                text={labels.next}
-                className="min-h-11 pointer-events-none opacity-50"
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {filteredArticles.length === 0 ? (
+          <p className="text-muted-foreground">
+            No published articles yet. Check back soon.
+          </p>
+        ) : (
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+            {filteredArticles.map((article) => (
+              <li key={article.id}>
+                <BlogCard locale={locale} article={article} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );

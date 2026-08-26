@@ -22,6 +22,8 @@ Approved stack for this Next.js App Router + Supabase app. Prefer these over alt
 - **zod** — schemas live in `validations/`. Same schema for client forms and Server Actions.
 - **react-hook-form** — performant forms (uncontrolled inputs). Do not drive forms with a pile of `useState`.
 - **@hookform/resolvers** — `zodResolver` connects Zod to react-hook-form.
+- **@tiptap/react** (+ StarterKit, Link, Underline, Placeholder) — rich HTML body editor for admin blog posts (`components/blogs/blog-rich-text-editor.tsx`). Do not add the full TipTap Simple Editor CLI scaffold (extra UI kit that conflicts with Base UI).
+- **isomorphic-dompurify** — sanitize TipTap HTML on save and before public render (`lib/sanitize-html.ts`).
 
 ## Dates & IDs
 

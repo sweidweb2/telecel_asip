@@ -27,6 +27,7 @@ export type Article = {
   readingTime: string;
   author: ArticleAuthor;
   tags: ArticleTag[];
-  body: string[];
+  /** Sanitized HTML body for the detail page. */
+  bodyHtml: string;
   isFeatured?: boolean;
 };

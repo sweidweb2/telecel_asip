@@ -1,5 +1,5 @@
 import type { Locale } from "@/constants/locales";
-import type { BlogSortId, BlogTabId } from "@/constants/blog-articles";
+import type { BlogSortId, BlogTabId } from "@/constants/blog-ui";
 
 export type BlogLabels = {
   eyebrow: string;

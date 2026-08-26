@@ -1,15 +1,28 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { BlogSection } from "@/components/marketing/blog-section";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
+import { getAllInsights, getFeaturedInsight } from "@/data/insights";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/insights",
-  title: "Insights — ASIP",
+  title: "Insights",
   description:
-    "Articles, updates and case studies from the Africa Startup Initiative Program.",
+    "Resources and insights from the ASIP programme and African tech ecosystem.",
 });
 
-export default function EnInsightsPage() {
-  return <BlogSection locale="en" labels={blogLabelsFor("en")} />;
+export default async function InsightsPageEn() {
+  const [articles, featured] = await Promise.all([
+    getAllInsights("en"),
+    getFeaturedInsight("en"),
+  ]);
+
+  return (
+    <BlogSection
+      locale="en"
+      labels={blogLabelsFor("en")}
+      articles={articles}
+      featured={featured}
+    />
+  );
 }

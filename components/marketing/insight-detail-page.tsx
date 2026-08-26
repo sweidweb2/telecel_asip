@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getRelatedInsights } from "@/data/insights";
+import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import type { Article } from "@/types/article";
 import { cn } from "@/lib/utils";
 
@@ -33,22 +33,24 @@ type InsightDetailLabels = {
 type InsightDetailPageProps = {
   locale: Locale;
   article: Article;
+  related: Article[];
   labels: InsightDetailLabels;
 };
 
 export function InsightDetailPage({
   locale,
   article,
+  related,
   labels,
 }: InsightDetailPageProps) {
-  const related = getRelatedInsights(article.slug, 3);
+  const safeHtml = sanitizeBlogHtml(article.bodyHtml);
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: article.title,
     description: article.summary,
-    image: article.thumbnailUrl,
+    image: article.thumbnailUrl || undefined,
     datePublished: article.publishedAt,
     author: {
       "@type": "Person",
@@ -88,14 +90,16 @@ export function InsightDetailPage({
 
         <div className="mx-auto mt-8 w-full max-w-6xl px-4 sm:mt-10 sm:px-6">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted md:aspect-[2/1]">
-            <Image
-              src={article.thumbnailUrl}
-              alt={article.title}
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1152px) 100vw, 1152px"
-            />
+            {article.thumbnailUrl ? (
+              <Image
+                src={article.thumbnailUrl}
+                alt={article.title}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1152px) 100vw, 1152px"
+              />
+            ) : null}
           </div>
         </div>
 
@@ -106,7 +110,9 @@ export function InsightDetailPage({
                 <p className="text-sm font-semibold">{labels.writtenBy}</p>
                 <div className="flex items-center gap-2">
                   <Avatar>
-                    <AvatarImage src={article.author.avatarUrl} alt="" />
+                    {article.author.avatarUrl ? (
+                      <AvatarImage src={article.author.avatarUrl} alt="" />
+                    ) : null}
                     <AvatarFallback>
                       {authorInitials(article.author.name)}
                     </AvatarFallback>
@@ -138,11 +144,10 @@ export function InsightDetailPage({
         </div>
 
         <div className="mx-auto mt-8 w-full max-w-3xl px-4 sm:mt-10 sm:px-6">
-          <div className="flex flex-col gap-5 text-base leading-7 text-muted-foreground sm:gap-6 sm:text-lg sm:leading-8">
-            {article.body.map((paragraph) => (
-              <p key={paragraph.slice(0, 24)}>{paragraph}</p>
-            ))}
-          </div>
+          <div
+            className="prose prose-neutral dark:prose-invert max-w-none text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8"
+            dangerouslySetInnerHTML={{ __html: safeHtml }}
+          />
         </div>
 
         {related.length > 0 ? (

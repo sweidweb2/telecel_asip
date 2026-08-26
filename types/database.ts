@@ -44,6 +44,60 @@ export type Database = {
         }
         Relationships: []
       }
+      blogs: {
+        Row: {
+          author_avatar_url: string | null
+          author_name: string
+          body_html: string
+          categories: string[]
+          created_at: string
+          id: string
+          is_featured: boolean
+          published_at: string | null
+          reading_time_minutes: number
+          slug: string
+          status: Database["public"]["Enums"]["blog_status"]
+          summary: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_avatar_url?: string | null
+          author_name: string
+          body_html?: string
+          categories?: string[]
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          summary: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_avatar_url?: string | null
+          author_name?: string
+          body_html?: string
+          categories?: string[]
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          summary?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       interest_registrations: {
         Row: {
           company_name: string
@@ -129,6 +183,7 @@ export type Database = {
       }
     }
     Enums: {
+      blog_status: "draft" | "published"
       user_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
@@ -257,6 +312,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      blog_status: ["draft", "published"],
       user_role: ["admin", "editor", "viewer"],
     },
   },

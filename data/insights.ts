@@ -1,34 +1,50 @@
-import type { Locale } from "@/constants/locales";
 import {
-  BLOG_ARTICLES,
-  FEATURED_ARTICLE,
-} from "@/constants/blog-articles";
+  getFeaturedBlog,
+  getPublishedBlogBySlug,
+  getPublishedBlogSlugs,
+  getPublishedBlogs,
+  getRelatedPublishedBlogs,
+} from "@/data/blogs";
+import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
+import { toArticle } from "@/types/blog";
 import type { Article } from "@/types/article";
 
-const ALL_INSIGHTS: Article[] = [FEATURED_ARTICLE, ...BLOG_ARTICLES];
-
-export function getAllInsights(): Article[] {
-  return ALL_INSIGHTS;
+export async function getAllInsights(locale: Locale = "en"): Promise<Article[]> {
+  const blogs = await getPublishedBlogs();
+  return blogs.map((blog) => toArticle(blog, locale));
 }
 
-export function getInsightSlugs(): string[] {
-  return ALL_INSIGHTS.map((article) => article.slug);
+export async function getInsightSlugs(): Promise<string[]> {
+  return getPublishedBlogSlugs();
 }
 
-export function getInsightBySlug(slug: string): Article | undefined {
-  return ALL_INSIGHTS.find((article) => article.slug === slug);
+export async function getInsightBySlug(
+  slug: string,
+  locale: Locale = "en",
+): Promise<Article | undefined> {
+  const blog = await getPublishedBlogBySlug(slug);
+  return blog ? toArticle(blog, locale) : undefined;
 }
 
-export function getRelatedInsights(slug: string, limit = 3): Article[] {
-  const current = getInsightBySlug(slug);
-  if (!current) return BLOG_ARTICLES.slice(0, limit);
+export async function getFeaturedInsight(
+  locale: Locale = "en",
+): Promise<Article | undefined> {
+  const featured = await getFeaturedBlog();
+  if (featured) return toArticle(featured, locale);
 
-  return BLOG_ARTICLES.filter(
-    (article) =>
-      article.slug !== slug &&
-      article.category.name === current.category.name,
-  ).slice(0, limit);
+  const blogs = await getPublishedBlogs();
+  const first = blogs[0];
+  return first ? toArticle(first, locale) : undefined;
+}
+
+export async function getRelatedInsights(
+  slug: string,
+  limit = 3,
+  locale: Locale = "en",
+): Promise<Article[]> {
+  const related = await getRelatedPublishedBlogs(slug, limit);
+  return related.map((blog) => toArticle(blog, locale));
 }
 
 export function insightHref(locale: Locale, slug: string): string {
