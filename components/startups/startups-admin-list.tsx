@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { PlusIcon, SearchIcon } from "lucide-react";
 
 import { StartupAdminCard } from "@/components/startups/startup-admin-card";
@@ -34,6 +34,11 @@ export function StartupsAdminList({
 }: StartupsAdminListProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState(query.search);
+
+  useEffect(() => {
+    setSearch(query.search);
+  }, [query.search]);
 
   function updateParams(patch: Record<string, string>) {
     const params = new URLSearchParams();
@@ -70,7 +75,8 @@ export function StartupsAdminList({
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               name="search"
-              defaultValue={query.search}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search name or slug"
               className="min-h-11 pl-9"
               disabled={isPending}
