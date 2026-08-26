@@ -9,10 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  StoryStatCounter,
-  StoryStatsNotice,
-} from "@/components/marketing/story-stat-counter";
+import { StoryStatCounter } from "@/components/marketing/story-stat-counter";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
@@ -224,11 +221,6 @@ export function AboutOurStorySection({
       {story.stats && story.stats.length > 0 ? (
         <div className="mt-12 sm:mt-14 lg:mt-20">
           <StoryStatCounter stats={story.stats} />
-          {story.statsNotice ? (
-            <StoryStatsNotice className="mt-4">
-              {story.statsNotice}
-            </StoryStatsNotice>
-          ) : null}
         </div>
       ) : null}
 

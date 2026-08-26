@@ -27,43 +27,37 @@ export function ProgrammePageContent({
       />
 
       <Section className="border-t">
-        <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
-
-        <div className="mt-10 sm:mt-12">
-          <SectionHeading
-            title={copy.sectionTitle}
-            description={copy.sectionDescription}
-          />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {copy.cards.map((card) => (
-              <article
-                key={card.title}
-                className="rounded-xl border p-5 sm:p-6"
-              >
-                <h2 className="font-heading text-xl font-semibold tracking-tight">
-                  {card.title}
-                </h2>
-                <p className="mt-3 leading-7 text-muted-foreground">
-                  {card.description}
-                </p>
-              </article>
-            ))}
-          </div>
-
-          {copy.cta ? (
-            <Link
-              href={publicPath(locale, copy.cta.slug)}
-              className={cn(
-                buttonVariants(),
-                "mt-8 min-h-11 w-full sm:w-auto",
-              )}
+        <SectionHeading
+          title={copy.sectionTitle}
+          description={copy.sectionDescription}
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {copy.cards.map((card) => (
+            <article
+              key={card.title}
+              className="rounded-xl border p-5 sm:p-6"
             >
-              {copy.cta.label}
-            </Link>
-          ) : null}
+              <h2 className="font-heading text-xl font-semibold tracking-tight">
+                {card.title}
+              </h2>
+              <p className="mt-3 leading-7 text-muted-foreground">
+                {card.description}
+              </p>
+            </article>
+          ))}
         </div>
+
+        {copy.cta ? (
+          <Link
+            href={publicPath(locale, copy.cta.slug)}
+            className={cn(
+              buttonVariants(),
+              "mt-8 min-h-11 w-full sm:w-auto",
+            )}
+          >
+            {copy.cta.label}
+          </Link>
+        ) : null}
       </Section>
 
       {impact ? (
@@ -73,11 +67,6 @@ export function ProgrammePageContent({
             title={impact.title}
             description={impact.description}
           />
-          {impact.notice ? (
-            <p className="mb-8 rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-              {impact.notice}
-            </p>
-          ) : null}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {impact.cards.map((card) => (
               <article

@@ -37,13 +37,7 @@ export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
       />
 
       <Section>
-        {copy.notice ? (
-          <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-            {copy.notice}
-          </p>
-        ) : null}
-
-        <Card className="mt-8">
+        <Card>
           <CardHeader>
             <CardTitle>{labels.formTitle}</CardTitle>
             <CardDescription>{labels.formDescription}</CardDescription>
