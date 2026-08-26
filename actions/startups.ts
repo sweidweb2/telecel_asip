@@ -98,7 +98,7 @@ function emptyToNull(value: string | undefined | null): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function toStartupRow(input: CreateStartupInput) {
+function toStartupRow(input: CreateStartupInput | UpdateStartupInput) {
   return {
     name: input.name,
     slug: input.slug,
@@ -108,7 +108,10 @@ function toStartupRow(input: CreateStartupInput) {
   };
 }
 
-function toDetailsRow(startupId: string, details: CreateStartupInput["details"]) {
+function toDetailsRow(
+  startupId: string,
+  details: CreateStartupInput["details"] | UpdateStartupInput["details"],
+) {
   return {
     startup_id: startupId,
     website_url: emptyToNull(details.websiteUrl),

@@ -123,7 +123,7 @@ export const startupDetailsSchema = z
     }
   });
 
-export const startupFieldsSchema = z.object({
+export const startupCoreSchema = z.object({
   name: z
     .string()
     .trim()
@@ -140,12 +140,22 @@ export const startupFieldsSchema = z.object({
     ),
   status: z.enum(STARTUP_STATUSES),
   foundedAt: optionalDate,
-  details: startupDetailsSchema,
 });
 
-export const createStartupSchema = startupFieldsSchema;
+/** Form schema — core + optional details (all detail fields nullable). */
+export const startupFormSchema = startupCoreSchema.and(
+  z.object({
+    details: startupDetailsSchema,
+  }),
+);
 
-export const updateStartupSchema = startupFieldsSchema.and(
+/** Create accepts optional details; empty details still insert a linked row. */
+export const createStartupSchema = startupFormSchema;
+
+/** Edit form (without id). */
+export const editStartupFormSchema = startupFormSchema;
+
+export const updateStartupSchema = startupFormSchema.and(
   z.object({
     id: z.uuid("Invalid startup id"),
   }),

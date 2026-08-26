@@ -6,9 +6,11 @@ import {
   getActiveStartupSlugRows,
 } from "@/data/startups";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
+import { parsePortfolioPageParam } from "@/validations/startup";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ fromPage?: string }>;
 };
 
 export async function generateStaticParams() {
@@ -33,10 +35,21 @@ export async function generateMetadata({ params }: PageProps) {
   });
 }
 
-export default async function EnPortfolioStartupPage({ params }: PageProps) {
+export default async function EnPortfolioStartupPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug } = await params;
+  const query = await searchParams;
+  const fromPage = parsePortfolioPageParam(query.fromPage);
   const startup = await getActiveStartupBySlug(slug);
   if (!startup) notFound();
 
-  return <StartupDetailPageContent locale="en" startup={startup} />;
+  return (
+    <StartupDetailPageContent
+      locale="en"
+      startup={startup}
+      fromPage={fromPage}
+    />
+  );
 }

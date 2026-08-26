@@ -42,7 +42,7 @@ export default async function NewStartupPage() {
       <StartupEditorForm
         mode="create"
         heading="New startup"
-        description="Create a portfolio company. Set status to active when it should appear on the public site."
+        description="Create core startup info. Details are optional — expand that section if you want to fill them now."
       />
     </main>
   );

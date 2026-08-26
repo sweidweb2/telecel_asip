@@ -30,9 +30,17 @@ const DETAILS_COLUMNS =
 const PUBLIC_LIST_COLUMNS =
   "id, name, slug, logo_url, description, founded_at" as const;
 
+const PUBLIC_DETAILS_EMBED =
+  "website_url, industry, category, location, founding_year, team, size, problem, solution, target_market, business_model, funding_goal, amount_raised" as const;
+
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
+
+/** Escape PostgREST ilike wildcards in user search input. */
+function escapeIlikePattern(value: string): string {
+  return value.replace(/[%_]/g, "\\$&");
+}
 
 async function fetchStartupsPage(
   supabase: ServerClient,
@@ -53,9 +61,8 @@ async function fetchStartupsPage(
   }
 
   if (query.search) {
-    request = request.or(
-      `name.ilike.%${query.search}%,slug.ilike.%${query.search}%`,
-    );
+    const pattern = escapeIlikePattern(query.search);
+    request = request.or(`name.ilike.%${pattern}%,slug.ilike.%${pattern}%`);
   }
 
   const { data, count, error } = await request;
@@ -142,13 +149,12 @@ async function fetchActiveStartupsPage(
 
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const currentPage = Math.min(safePage, totalPages);
 
   return {
     items: (data ?? []) as StartupPublicListItem[],
     total,
     totalPages,
-    currentPage,
+    currentPage: safePage,
     pageSize,
   };
 }
@@ -157,48 +163,72 @@ export async function getActiveStartupsPage(
   page: number,
 ): Promise<StartupPublicPageResult> {
   return unstable_cache(
-    async () => {
-      const first = await fetchActiveStartupsPage(
-        page,
-        STARTUP_PUBLIC_PAGE_SIZE,
-      );
-      if (page > first.totalPages && first.totalPages >= 1) {
-        return fetchActiveStartupsPage(
-          first.totalPages,
-          STARTUP_PUBLIC_PAGE_SIZE,
-        );
-      }
-      return first;
-    },
+    () => fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE),
     ["active-startups-page", String(page)],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
 }
 
+type PublicStartupRow = StartupPublicListItem & {
+  startup_details:
+    | {
+        website_url: string | null;
+        industry: string | null;
+        category: string | null;
+        location: string | null;
+        founding_year: number | null;
+        team: string | null;
+        size: string | null;
+        problem: string | null;
+        solution: string | null;
+        target_market: string | null;
+        business_model: string | null;
+        funding_goal: number | null;
+        amount_raised: number | null;
+      }
+    | {
+        website_url: string | null;
+        industry: string | null;
+        category: string | null;
+        location: string | null;
+        founding_year: number | null;
+        team: string | null;
+        size: string | null;
+        problem: string | null;
+        solution: string | null;
+        target_market: string | null;
+        business_model: string | null;
+        funding_goal: number | null;
+        amount_raised: number | null;
+      }[]
+    | null;
+};
+
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {
   const supabase = createPublicClient();
-  const { data: startup, error } = await supabase
+  const { data, error } = await supabase
     .from("startups")
-    .select(PUBLIC_LIST_COLUMNS)
+    .select(`${PUBLIC_LIST_COLUMNS}, startup_details(${PUBLIC_DETAILS_EMBED})`)
     .eq("slug", slug)
     .eq("status", "active")
     .maybeSingle();
 
   if (error) throw error;
-  if (!startup) return null;
+  if (!data) return null;
 
-  const { data: details, error: detailsError } = await supabase
-    .from("startup_details")
-    .select(DETAILS_COLUMNS)
-    .eq("startup_id", startup.id)
-    .maybeSingle();
-
-  if (detailsError) throw detailsError;
+  const row = data as PublicStartupRow;
+  const rawDetails = row.startup_details;
+  const details = Array.isArray(rawDetails) ? (rawDetails[0] ?? null) : rawDetails;
 
   return {
-    ...(startup as StartupPublicListItem),
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    logo_url: row.logo_url,
+    description: row.description,
+    founded_at: row.founded_at,
     details: details
       ? {
           website_url: details.website_url,

@@ -1,18 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
-import { format } from "date-fns";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
 import { PageHero, Section } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
+import { formatFoundedDate, startupInitials } from "@/lib/startup-display";
 import type { StartupPublicDetail } from "@/types/startup";
 import { cn } from "@/lib/utils";
 
 type StartupDetailPageContentProps = {
   locale: Locale;
   startup: StartupPublicDetail;
+  fromPage?: number;
 };
 
 const LABELS = {
@@ -61,6 +62,14 @@ function formatMoney(value: number | null | undefined) {
   }).format(value);
 }
 
+function portfolioBackHref(locale: Locale, fromPage?: number) {
+  const base = publicPath(locale, "portfolio");
+  if (fromPage !== undefined && fromPage > 1) {
+    return `${base}?page=${fromPage}`;
+  }
+  return base;
+}
+
 function DetailBlock({
   title,
   children,
@@ -84,11 +93,12 @@ function DetailBlock({
 export function StartupDetailPageContent({
   locale,
   startup,
+  fromPage,
 }: StartupDetailPageContentProps) {
   const labels = LABELS[locale];
   const details = startup.details;
   const foundedLabel = startup.founded_at
-    ? format(new Date(startup.founded_at), "d MMM yyyy")
+    ? formatFoundedDate(startup.founded_at)
     : null;
 
   const metaItems = [
@@ -125,7 +135,7 @@ export function StartupDetailPageContent({
       <div className="border-b bg-muted/30">
         <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10">
           <Link
-            href={publicPath(locale, "portfolio")}
+            href={portfolioBackHref(locale, fromPage)}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
               "min-h-11 gap-2 px-0 hover:bg-transparent",
@@ -151,7 +161,16 @@ export function StartupDetailPageContent({
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 60vw"
               />
-            ) : null}
+            ) : (
+              <div
+                aria-hidden
+                className="flex size-full items-center justify-center bg-gradient-to-br from-primary/15 via-muted to-primary/5"
+              >
+                <span className="font-heading text-4xl font-semibold tracking-tight text-primary/50 sm:text-5xl">
+                  {startupInitials(startup.name)}
+                </span>
+              </div>
+            )}
           </div>
 
           <DetailBlock title={labels.problem}>{details?.problem}</DetailBlock>

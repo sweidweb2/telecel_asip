@@ -1,5 +1,17 @@
 import type { NextConfig } from "next";
 
+function supabaseStorageHostname(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!raw) return null;
+  try {
+    return new URL(raw).hostname;
+  } catch {
+    return null;
+  }
+}
+
+const supabaseHostname = supabaseStorageHostname();
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -11,11 +23,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.21st.dev",
       },
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
+      ...(supabaseHostname
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
     ],
   },
   async redirects() {

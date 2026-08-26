@@ -42,6 +42,11 @@ export function portfolioEditPath(id: string): string {
 }
 
 /** Locale-prefixed portfolio startup detail, e.g. `/en/portfolio/acme`. */
-export function portfolioStartupPath(locale: Locale, slug: string): string {
-  return `/${locale}/portfolio/${slug}`;
+export function portfolioStartupPath(
+  locale: Locale,
+  slug: string,
+  fromPage = 1,
+): string {
+  const path = `/${locale}/portfolio/${slug}`;
+  return fromPage > 1 ? `${path}?fromPage=${fromPage}` : path;
 }

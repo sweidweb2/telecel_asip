@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { PortfolioPagination } from "@/components/marketing/portfolio-pagination";
@@ -36,10 +37,19 @@ export async function PortfolioPageContent({
   copy,
   page,
 }: PortfolioPageContentProps) {
-  const { items, total, totalPages, currentPage, pageSize } =
+  const { items, total, totalPages, pageSize } =
     await getActiveStartupsPage(page);
   const cta = copy.ctaSection;
   const labels = PAGINATION_LABELS[locale];
+
+  if (page > totalPages && total > 0) {
+    redirect(`${publicPath(locale, "portfolio")}?page=${totalPages}`);
+  }
+  if (page > 1 && total === 0) {
+    redirect(publicPath(locale, "portfolio"));
+  }
+
+  const currentPage = page;
 
   return (
     <main>
@@ -68,7 +78,11 @@ export async function PortfolioPageContent({
             <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
               {items.map((startup) => (
                 <li key={startup.id} className="min-w-0">
-                  <StartupCard startup={startup} locale={locale} />
+                  <StartupCard
+                    startup={startup}
+                    locale={locale}
+                    fromPage={currentPage}
+                  />
                 </li>
               ))}
             </ul>

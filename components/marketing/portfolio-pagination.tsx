@@ -1,6 +1,7 @@
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/pagination";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
+import { getPaginationItems } from "@/lib/pagination-window";
 import { cn } from "@/lib/utils";
 
 type PortfolioPaginationLabels = {
@@ -42,6 +44,7 @@ export function PortfolioPagination({
     .replace("{from}", String(from))
     .replace("{to}", String(to))
     .replace("{total}", String(total));
+  const pageItems = getPaginationItems(currentPage, totalPages);
 
   return (
     <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-between">
@@ -65,16 +68,20 @@ export function PortfolioPagination({
               />
             </PaginationItem>
 
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (page) => (
-                <PaginationItem key={page}>
+            {pageItems.map((item, index) =>
+              item === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={item}>
                   <PaginationLink
-                    href={pageHref(locale, page)}
-                    isActive={page === currentPage}
-                    aria-label={`Page ${page} of ${totalPages}`}
+                    href={pageHref(locale, item)}
+                    isActive={item === currentPage}
+                    aria-label={`Page ${item} of ${totalPages}`}
                     className="min-w-9"
                   >
-                    {page}
+                    {item}
                   </PaginationLink>
                 </PaginationItem>
               ),

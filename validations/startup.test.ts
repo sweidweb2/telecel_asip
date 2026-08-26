@@ -7,53 +7,114 @@ import {
   updateStartupSchema,
 } from "@/validations/startup";
 
-const validBase = {
+const validCore = {
   name: "Acme Health",
   slug: "acme-health",
   description: "A health-tech startup for African clinics.",
   status: "draft" as const,
   foundedAt: "2020-01-15",
-  details: {
-    websiteUrl: "https://example.com",
-    industry: "Health",
-    category: "SaaS",
-    location: "Lagos, Nigeria",
-    foundingYear: 2020,
-    team: "Founders and early engineers",
-    size: "1-10",
-    problem: "Clinics lack digital records.",
-    solution: "Lightweight EMR for low-bandwidth clinics.",
-    targetMarket: "Private clinics in West Africa",
-    businessModel: "SaaS subscription",
-    fundingGoal: 500000,
-    amountRaised: 120000,
-  },
+};
+
+const emptyDetails = {
+  websiteUrl: "",
+  industry: "",
+  category: "",
+  location: "",
+  foundingYear: "",
+  team: "",
+  size: "",
+  problem: "",
+  solution: "",
+  targetMarket: "",
+  businessModel: "",
+  fundingGoal: "",
+  amountRaised: "",
+};
+
+const validDetails = {
+  websiteUrl: "https://example.com",
+  industry: "Health",
+  category: "SaaS",
+  location: "Lagos, Nigeria",
+  foundingYear: 2020,
+  team: "Founders and early engineers",
+  size: "1-10",
+  problem: "Clinics lack digital records.",
+  solution: "Lightweight EMR for low-bandwidth clinics.",
+  targetMarket: "Private clinics in West Africa",
+  businessModel: "SaaS subscription",
+  fundingGoal: 500000,
+  amountRaised: 120000,
 };
 
 describe("createStartupSchema", () => {
-  it("accepts a valid startup payload", () => {
-    const result = createStartupSchema.safeParse(validBase);
+  it("accepts core fields with empty details", () => {
+    const result = createStartupSchema.safeParse({
+      ...validCore,
+      details: emptyDetails,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts core fields with filled details", () => {
+    const result = createStartupSchema.safeParse({
+      ...validCore,
+      details: validDetails,
+    });
     expect(result.success).toBe(true);
   });
 
   it("rejects empty name", () => {
-    const result = createStartupSchema.safeParse({ ...validBase, name: " " });
+    const result = createStartupSchema.safeParse({
+      ...validCore,
+      name: " ",
+      details: emptyDetails,
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects invalid slug", () => {
     const result = createStartupSchema.safeParse({
-      ...validBase,
+      ...validCore,
       slug: "Bad Slug!",
+      details: emptyDetails,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects amount raised above funding goal", () => {
+  it("allows empty foundedAt", () => {
     const result = createStartupSchema.safeParse({
-      ...validBase,
+      ...validCore,
+      foundedAt: "",
+      details: emptyDetails,
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("updateStartupSchema", () => {
+  it("requires a uuid id and details", () => {
+    const bad = updateStartupSchema.safeParse({
+      ...validCore,
+      id: "nope",
+      details: validDetails,
+    });
+    expect(bad.success).toBe(false);
+
+    const good = updateStartupSchema.safeParse({
+      ...validCore,
+      id: "11111111-1111-4111-8111-111111111111",
+      details: validDetails,
+    });
+    expect(good.success).toBe(true);
+  });
+
+  it("rejects amount raised above funding goal", () => {
+    const result = updateStartupSchema.safeParse({
+      ...validCore,
+      id: "11111111-1111-4111-8111-111111111111",
       details: {
-        ...validBase.details,
+        ...validDetails,
         fundingGoal: 100,
         amountRaised: 200,
       },
@@ -62,56 +123,22 @@ describe("createStartupSchema", () => {
   });
 
   it("rejects non-http website", () => {
-    const result = createStartupSchema.safeParse({
-      ...validBase,
-      details: { ...validBase.details, websiteUrl: "ftp://example.com" },
+    const result = updateStartupSchema.safeParse({
+      ...validCore,
+      id: "11111111-1111-4111-8111-111111111111",
+      details: { ...validDetails, websiteUrl: "ftp://example.com" },
     });
     expect(result.success).toBe(false);
   });
 
   it("allows empty optional details", () => {
-    const result = createStartupSchema.safeParse({
-      ...validBase,
+    const result = updateStartupSchema.safeParse({
+      ...validCore,
+      id: "11111111-1111-4111-8111-111111111111",
       foundedAt: "",
-      details: {
-        websiteUrl: "",
-        industry: "",
-        category: "",
-        location: "",
-        foundingYear: "",
-        team: "",
-        size: "",
-        problem: "",
-        solution: "",
-        targetMarket: "",
-        businessModel: "",
-        fundingGoal: "",
-        amountRaised: "",
-      },
+      details: emptyDetails,
     });
     expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.foundedAt === "" || result.data.foundedAt === undefined).toBe(
-        true,
-      );
-      expect(
-        result.data.details.fundingGoal === undefined ||
-          result.data.details.fundingGoal === null,
-      ).toBe(true);
-    }
-  });
-});
-
-describe("updateStartupSchema", () => {
-  it("requires a uuid id", () => {
-    const bad = updateStartupSchema.safeParse({ ...validBase, id: "nope" });
-    expect(bad.success).toBe(false);
-
-    const good = updateStartupSchema.safeParse({
-      ...validBase,
-      id: "11111111-1111-4111-8111-111111111111",
-    });
-    expect(good.success).toBe(true);
   });
 });
 
