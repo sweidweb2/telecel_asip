@@ -34,6 +34,8 @@ export async function generateMetadata({ params }: PageProps) {
     path: `/insights/${slug}`,
     title: `${article.title} — ASIP`,
     description: article.summary,
+    image: article.thumbnailUrl || undefined,
+    ogType: "article",
   });
 }
 

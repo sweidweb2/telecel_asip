@@ -33,9 +33,27 @@ describe("blog validations", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects featuring a draft", () => {
+    const result = createBlogSchema.safeParse({
+      ...valid,
+      isFeatured: true,
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("requires update id", () => {
     const result = updateBlogSchema.safeParse(valid);
     expect(result.success).toBe(false);
+  });
+
+  it("accepts update with id", () => {
+    const result = updateBlogSchema.safeParse({
+      ...valid,
+      id: "00000000-0000-4000-8000-000000000001",
+      status: "published",
+      isFeatured: true,
+    });
+    expect(result.success).toBe(true);
   });
 
   it("parses list query defaults", () => {
@@ -77,6 +95,7 @@ describe("toArticle", () => {
       author_avatar_url: null,
       reading_time_minutes: 5,
       published_at: "2025-01-10T12:00:00.000Z",
+      updated_at: "2025-01-11T12:00:00.000Z",
       is_featured: true,
     });
 
@@ -85,5 +104,7 @@ describe("toArticle", () => {
     expect(article.readingTime).toBe("5 min read");
     expect(article.bodyHtml).toBe("<p>Hi</p>");
     expect(article.isFeatured).toBe(true);
+    expect(article.datePublishedIso).toBe("2025-01-10T12:00:00.000Z");
+    expect(article.dateModifiedIso).toBe("2025-01-11T12:00:00.000Z");
   });
 });

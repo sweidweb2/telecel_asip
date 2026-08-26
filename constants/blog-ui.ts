@@ -8,10 +8,6 @@ export const BLOG_TAB_IDS = [
 
 export type BlogTabId = (typeof BLOG_TAB_IDS)[number];
 
-export const BLOG_SORT_IDS = ["recent", "popular", "viewed"] as const;
-
-export type BlogSortId = (typeof BLOG_SORT_IDS)[number];
-
 export function categoryToTabId(name: string): BlogTabId {
   switch (name) {
     case "Design":

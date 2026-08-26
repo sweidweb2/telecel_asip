@@ -514,11 +514,16 @@ export function BlogEditorForm({
                         id="blog-published"
                         checked={field.value === "published"}
                         disabled={isPending}
-                        onCheckedChange={(checked) =>
-                          field.onChange(
-                            checked === true ? "published" : "draft",
-                          )
-                        }
+                        onCheckedChange={(checked) => {
+                          const next =
+                            checked === true ? "published" : "draft";
+                          field.onChange(next);
+                          if (next === "draft") {
+                            setValue("isFeatured", false, {
+                              shouldDirty: true,
+                            });
+                          }
+                        }}
                         className="size-5"
                       />
                     )}
@@ -535,7 +540,7 @@ export function BlogEditorForm({
                       <Checkbox
                         id="blog-featured"
                         checked={field.value}
-                        disabled={isPending}
+                        disabled={isPending || status !== "published"}
                         onCheckedChange={(checked) =>
                           field.onChange(checked === true)
                         }
@@ -543,10 +548,22 @@ export function BlogEditorForm({
                       />
                     )}
                   />
-                  <Label htmlFor="blog-featured" className="font-normal">
+                  <Label
+                    htmlFor="blog-featured"
+                    className={
+                      status !== "published"
+                        ? "font-normal text-muted-foreground"
+                        : "font-normal"
+                    }
+                  >
                     Featured hero (only one at a time)
                   </Label>
                 </div>
+                {errors.isFeatured ? (
+                  <p className="text-sm text-destructive">
+                    {errors.isFeatured.message}
+                  </p>
+                ) : null}
               </CardContent>
             </Card>
 

@@ -33,6 +33,7 @@ const MESSAGES = {
   notFound: "Blog not found.",
   genericError: "Something went wrong. Please try again.",
   slugTaken: "That slug is already in use.",
+  featuredTaken: "Another post is already featured. Unfeature it first, or save again.",
   invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under the size limit.",
 } as const;
 
@@ -84,10 +85,18 @@ function refreshBlogPaths(slug?: string) {
   }
 }
 
-function isUniqueViolation(error: { code?: string; message?: string }) {
-  if (error.code === "23505") return true;
+function uniqueConstraintMessage(error: {
+  code?: string;
+  message?: string;
+}): string | null {
   const message = (error.message ?? "").toLowerCase();
-  return message.includes("blogs_slug") || message.includes("blogs_one_featured");
+  const isUnique =
+    error.code === "23505" ||
+    message.includes("blogs_slug") ||
+    message.includes("blogs_one_featured");
+  if (!isUnique) return null;
+  if (message.includes("blogs_one_featured")) return MESSAGES.featuredTaken;
+  return MESSAGES.slugTaken;
 }
 
 async function clearOtherFeatured(
@@ -149,8 +158,9 @@ export async function createBlog(
     .single();
 
   if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: MESSAGES.slugTaken };
+    const uniqueMessage = uniqueConstraintMessage(error);
+    if (uniqueMessage) {
+      return { status: "error", message: uniqueMessage };
     }
     return { status: "error", message: MESSAGES.genericError };
   }
@@ -179,6 +189,11 @@ export async function updateBlog(
 
   const { id, ...rest } = parsed.data;
   const fields = toRowFields(rest);
+
+  // Drafts cannot be featured; clear hero flag on unpublish.
+  if (fields.status === "draft") {
+    fields.is_featured = false;
+  }
 
   const { data: existing, error: existingError } = await session.supabase
     .from("blogs")
@@ -213,8 +228,9 @@ export async function updateBlog(
     .maybeSingle();
 
   if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: MESSAGES.slugTaken };
+    const uniqueMessage = uniqueConstraintMessage(error);
+    if (uniqueMessage) {
+      return { status: "error", message: uniqueMessage };
     }
     return { status: "error", message: MESSAGES.genericError };
   }

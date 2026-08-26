@@ -5,7 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import type { Article } from "@/types/article";
+import type { ArticleListItem } from "@/types/article";
 
 function authorInitials(name: string) {
   return name
@@ -17,7 +17,7 @@ function authorInitials(name: string) {
 }
 
 type BlogCardProps = {
-  article: Article;
+  article: ArticleListItem;
   locale: Locale;
 };
 

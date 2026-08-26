@@ -8,22 +8,11 @@ import { ArrowUpRight } from "lucide-react";
 import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  categoryToTabId,
-  type BlogSortId,
-  type BlogTabId,
-} from "@/constants/blog-ui";
+import { categoryToTabId, type BlogTabId } from "@/constants/blog-ui";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import type { Article } from "@/types/article";
+import type { ArticleListItem } from "@/types/article";
 
 function authorInitials(name: string) {
   return name
@@ -37,8 +26,8 @@ function authorInitials(name: string) {
 type BlogSectionProps = {
   locale: Locale;
   labels: BlogLabels;
-  articles: Article[];
-  featured?: Article;
+  articles: ArticleListItem[];
+  featured?: ArticleListItem;
 };
 
 function FeaturedPost({
@@ -48,7 +37,7 @@ function FeaturedPost({
 }: {
   locale: Locale;
   labels: BlogLabels;
-  article: Article;
+  article: ArticleListItem;
 }) {
   const href = insightPath(locale, article.slug);
 
@@ -148,23 +137,13 @@ export function BlogSection({
   featured,
 }: BlogSectionProps) {
   const [tab, setTab] = useState<BlogTabId>("all");
-  const [sortBy, setSortBy] = useState<BlogSortId>("recent");
 
   const filteredArticles = useMemo(() => {
-    const filtered =
-      tab === "all"
-        ? articles
-        : articles.filter(
-            (article) => categoryToTabId(article.category.name) === tab,
-          );
-
-    // Phase 1: popular/viewed share published order (already recent-first).
-    if (sortBy === "recent") {
-      return filtered;
-    }
-
-    return [...filtered].reverse();
-  }, [articles, tab, sortBy]);
+    if (tab === "all") return articles;
+    return articles.filter(
+      (article) => categoryToTabId(article.category.name) === tab,
+    );
+  }, [articles, tab]);
 
   return (
     <main>
@@ -189,57 +168,29 @@ export function BlogSection({
           <FeaturedPost locale={locale} labels={labels} article={featured} />
         ) : null}
 
-        <div className="flex flex-col items-stretch gap-6 md:flex-row md:items-end md:gap-8">
-          <Tabs
-            value={tab}
-            onValueChange={(value) => setTab(value as BlogTabId)}
-            className="min-w-0 w-full"
+        <Tabs
+          value={tab}
+          onValueChange={(value) => setTab(value as BlogTabId)}
+          className="min-w-0 w-full"
+        >
+          <TabsList
+            variant="line"
+            className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
           >
-            <TabsList
-              variant="line"
-              className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
-            >
-              {labels.tabs.map((item) => (
-                <TabsTrigger
-                  key={item.id}
-                  value={item.id}
-                  className="min-h-11 shrink-0 px-3"
-                >
-                  {item.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-
-          <div className="w-full shrink-0 md:max-w-44">
-            <Select
-              value={sortBy}
-              onValueChange={(value) => {
-                if (!value) return;
-                setSortBy(value as BlogSortId);
-              }}
-            >
-              <SelectTrigger
-                aria-label={labels.sortAriaLabel}
-                className="h-11 w-full min-h-11"
+            {labels.tabs.map((item) => (
+              <TabsTrigger
+                key={item.id}
+                value={item.id}
+                className="min-h-11 shrink-0 px-3"
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {labels.sortOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+                {item.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         {filteredArticles.length === 0 ? (
-          <p className="text-muted-foreground">
-            No published articles yet. Check back soon.
-          </p>
+          <p className="text-muted-foreground">{labels.emptyState}</p>
         ) : (
           <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
             {filteredArticles.map((article) => (

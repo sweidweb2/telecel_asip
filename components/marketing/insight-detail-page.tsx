@@ -10,7 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
-import type { Article } from "@/types/article";
+import type { Article, ArticleListItem } from "@/types/article";
 import { cn } from "@/lib/utils";
 
 function authorInitials(name: string) {
@@ -33,7 +33,7 @@ type InsightDetailLabels = {
 type InsightDetailPageProps = {
   locale: Locale;
   article: Article;
-  related: Article[];
+  related: ArticleListItem[];
   labels: InsightDetailLabels;
 };
 
@@ -51,7 +51,8 @@ export function InsightDetailPage({
     headline: article.title,
     description: article.summary,
     image: article.thumbnailUrl || undefined,
-    datePublished: article.publishedAt,
+    datePublished: article.datePublishedIso ?? undefined,
+    dateModified: article.dateModifiedIso ?? undefined,
     author: {
       "@type": "Person",
       name: article.author.name,
