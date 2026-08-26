@@ -43,8 +43,24 @@ export type AboutNarrativeBlockCopy = {
 
 export type MarketingContentSlug = Exclude<
   PublicPageSlug,
-  "contact" | "insights"
+  "contact" | "insights" | "terms" | "privacy"
 >;
+
+export type LegalPageSlug = "terms" | "privacy";
+
+export type LegalSection = {
+  title: string;
+  paragraphs: string[];
+};
+
+export type LegalPageCopy = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  lastUpdated: string;
+  notice: string;
+  sections: LegalSection[];
+};
 
 export type MarketingPageCopy = {
   eyebrow: string;

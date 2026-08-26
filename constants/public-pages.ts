@@ -8,6 +8,8 @@ export const PUBLIC_PAGE_SLUGS = [
   "apply",
   "contact",
   "faq",
+  "terms",
+  "privacy",
 ] as const;
 
 export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];

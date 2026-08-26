@@ -24,7 +24,7 @@ export type SiteFooterLabels = {
   socialHeading: string;
   social: FooterSocialLink[];
   copyright: string;
-  note: string;
+  legal: FooterLink[];
 };
 
 function links(
@@ -70,7 +70,10 @@ export function enFooterLabels(): SiteFooterLabels {
       { href: "https://www.youtube.com", label: "YouTube" },
     ],
     copyright: `© ${new Date().getFullYear()} Telecel Group. All rights reserved.`,
-    note: "Placeholder footer — replace social URLs and legal links when Telecel supplies them.",
+    legal: links("en", [
+      { slug: "terms", label: "Terms of Service" },
+      { slug: "privacy", label: "Privacy Policy" },
+    ]),
   };
 }
 
@@ -110,6 +113,9 @@ export function frFooterLabels(): SiteFooterLabels {
       { href: "https://www.youtube.com", label: "YouTube" },
     ],
     copyright: `© ${new Date().getFullYear()} Groupe Telecel. Tous droits réservés.`,
-    note: "Pied de page provisoire — remplacer les liens sociaux et légaux lorsque Telecel les fournira.",
+    legal: links("fr", [
+      { slug: "terms", label: "Conditions d’utilisation" },
+      { slug: "privacy", label: "Politique de confidentialité" },
+    ]),
   };
 }

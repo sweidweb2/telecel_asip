@@ -135,9 +135,22 @@ export function SiteFooter({ labels }: SiteFooterProps) {
 
         <Separator className="my-8" />
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">{labels.copyright}</p>
-          <p className="text-xs text-muted-foreground/80 italic">{labels.note}</p>
+          <nav
+            aria-label="Legal"
+            className="flex flex-wrap items-center gap-x-4 gap-y-1"
+          >
+            {labels.legal.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

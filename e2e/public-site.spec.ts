@@ -9,6 +9,8 @@ const publicSlugs = [
   "/apply",
   "/contact",
   "/faq",
+  "/terms",
+  "/privacy",
 ] as const;
 
 for (const locale of ["en", "fr"] as const) {
