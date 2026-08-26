@@ -168,6 +168,32 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 **How it works:** Keeps `updated_at` current. Active rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Logos live in Storage bucket `startups`. Related 1:1 row in `public.startup_details` cascades on delete.
 
+### `public.create_startup_with_details(p_core jsonb, p_details jsonb)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin portfolio create) |
+| **Returns** | One row: `id` (uuid), `slug` (text) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Creates a `startups` row and its 1:1 `startup_details` row in a single transaction (no orphan core row on details failure).
+
+**How it works:** Raises `42501` unless `is_admin()`. Inserts core fields from `p_core`, then details from `p_details` (null-safe text/number casts). Unique slug violations surface as Postgres `23505`.
+
+### `public.update_startup_with_details(p_id uuid, p_core jsonb, p_details jsonb)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin portfolio update) |
+| **Returns** | One row: `id` (uuid), `slug` (text), `previous_slug` (text) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Updates core + upserts details atomically; returns previous slug so callers can revalidate renamed public paths.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `startups`, then `INSERT … ON CONFLICT (startup_id) DO UPDATE` on `startup_details`.
+
 ### `public.startup_details`
 
 No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK/FK, `ON DELETE CASCADE`). Public SELECT only when the parent startup `status = active`. Admins CRUD via `is_admin()`.

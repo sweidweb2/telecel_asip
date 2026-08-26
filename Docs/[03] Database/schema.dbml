@@ -189,6 +189,7 @@ Table startups {
     (status, created_at) [name: 'startups_status_created_at_idx', note: 'created_at DESC']
     (created_at) [name: 'startups_created_at_idx', note: 'created_at DESC']
     name [type: gin, name: 'startups_name_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+    slug [type: gin, name: 'startups_slug_trgm_idx', note: 'pg_trgm gin_trgm_ops']
   }
 
   Note: '''

@@ -30,9 +30,6 @@ const DETAILS_COLUMNS =
 const PUBLIC_LIST_COLUMNS =
   "id, name, slug, logo_url, description, founded_at" as const;
 
-const PUBLIC_DETAILS_EMBED =
-  "website_url, industry, category, location, founding_year, team, size, problem, solution, target_market, business_model, funding_goal, amount_raised" as const;
-
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -169,48 +166,13 @@ export async function getActiveStartupsPage(
   )();
 }
 
-type PublicStartupRow = StartupPublicListItem & {
-  startup_details:
-    | {
-        website_url: string | null;
-        industry: string | null;
-        category: string | null;
-        location: string | null;
-        founding_year: number | null;
-        team: string | null;
-        size: string | null;
-        problem: string | null;
-        solution: string | null;
-        target_market: string | null;
-        business_model: string | null;
-        funding_goal: number | null;
-        amount_raised: number | null;
-      }
-    | {
-        website_url: string | null;
-        industry: string | null;
-        category: string | null;
-        location: string | null;
-        founding_year: number | null;
-        team: string | null;
-        size: string | null;
-        problem: string | null;
-        solution: string | null;
-        target_market: string | null;
-        business_model: string | null;
-        funding_goal: number | null;
-        amount_raised: number | null;
-      }[]
-    | null;
-};
-
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("startups")
-    .select(`${PUBLIC_LIST_COLUMNS}, startup_details(${PUBLIC_DETAILS_EMBED})`)
+    .select(PUBLIC_LIST_COLUMNS)
     .eq("slug", slug)
     .eq("status", "active")
     .maybeSingle();
@@ -218,41 +180,42 @@ async function fetchActiveStartupBySlug(
   if (error) throw error;
   if (!data) return null;
 
-  const row = data as PublicStartupRow;
-  const rawDetails = row.startup_details;
-  const details = Array.isArray(rawDetails) ? (rawDetails[0] ?? null) : rawDetails;
-
-  return {
-    id: row.id,
-    name: row.name,
-    slug: row.slug,
-    logo_url: row.logo_url,
-    description: row.description,
-    founded_at: row.founded_at,
-    details: details
-      ? {
-          website_url: details.website_url,
-          industry: details.industry,
-          category: details.category,
-          location: details.location,
-          founding_year: details.founding_year,
-          team: details.team,
-          size: details.size,
-          problem: details.problem,
-          solution: details.solution,
-          target_market: details.target_market,
-          business_model: details.business_model,
-          funding_goal: details.funding_goal,
-          amount_raised: details.amount_raised,
-        }
-      : null,
-  };
+  return data as StartupPublicDetail;
 }
 
 export function getActiveStartupBySlug(slug: string) {
   return unstable_cache(
     () => fetchActiveStartupBySlug(slug),
     ["active-startup-by-slug", slug],
+    { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+  )();
+}
+
+async function fetchRelatedActiveStartups(
+  slug: string,
+  limit: number,
+): Promise<StartupPublicListItem[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups")
+    .select(PUBLIC_LIST_COLUMNS)
+    .eq("status", "active")
+    .neq("slug", slug)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data ?? []) as StartupPublicListItem[];
+}
+
+export async function getRelatedActiveStartups(
+  slug: string,
+  limit = 3,
+): Promise<StartupPublicListItem[]> {
+  return unstable_cache(
+    () => fetchRelatedActiveStartups(slug, limit),
+    ["related-active-startups", slug, String(limit)],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
 }

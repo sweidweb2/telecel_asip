@@ -95,7 +95,10 @@ test.describe("portfolio startups cms", () => {
       await expect(page.getByRole("heading", { name })).toBeVisible({
         timeout: 20_000,
       });
-      await expect(page.getByText("Payments are fragmented.")).toBeVisible();
+      await expect(
+        page.getByText("E2E description for the portfolio startup CMS coverage."),
+      ).toBeVisible();
+      await expect(page.getByText("Payments are fragmented.")).toHaveCount(0);
 
       await page.goto("/dashboard/portfolio");
       await page.getByRole("link", { name: new RegExp(name) }).click();

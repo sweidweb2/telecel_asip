@@ -276,6 +276,28 @@ export type Database = {
           new_this_month: number
         }[]
       }
+      create_startup_with_details: {
+        Args: {
+          p_core: Json
+          p_details: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      update_startup_with_details: {
+        Args: {
+          p_id: string
+          p_core: Json
+          p_details: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+          previous_slug: string
+        }[]
+      }
     }
     Enums: {
       blog_status: "draft" | "published"

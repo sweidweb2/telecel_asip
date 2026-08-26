@@ -18,7 +18,10 @@ export function startupInitials(name: string): string {
 /**
  * Format a Postgres `date` (YYYY-MM-DD) without UTC timezone shift.
  */
-export function formatFoundedDate(value: string): string {
+export function formatFoundedDate(
+  value: string,
+  locale: "en" | "fr" = "en",
+): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
   if (!match) return value;
 
@@ -27,7 +30,7 @@ export function formatFoundedDate(value: string): string {
   const day = Number(match[3]);
   const date = new Date(year, month - 1, day);
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",

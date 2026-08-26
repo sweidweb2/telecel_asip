@@ -4,6 +4,7 @@ import { StartupDetailPageContent } from "@/components/marketing/startup-detail-
 import {
   getActiveStartupBySlug,
   getActiveStartupSlugRows,
+  getRelatedActiveStartups,
 } from "@/data/startups";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 import { parsePortfolioPageParam } from "@/validations/startup";
@@ -42,13 +43,17 @@ export default async function EnPortfolioStartupPage({
   const { slug } = await params;
   const query = await searchParams;
   const fromPage = parsePortfolioPageParam(query.fromPage);
-  const startup = await getActiveStartupBySlug(slug);
+  const [startup, related] = await Promise.all([
+    getActiveStartupBySlug(slug),
+    getRelatedActiveStartups(slug, 3),
+  ]);
   if (!startup) notFound();
 
   return (
     <StartupDetailPageContent
       locale="en"
       startup={startup}
+      related={related}
       fromPage={fromPage}
     />
   );

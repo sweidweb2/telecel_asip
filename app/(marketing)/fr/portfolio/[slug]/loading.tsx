@@ -3,12 +3,28 @@ import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
 
 function DetailFallback() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14 sm:px-6">
-      <Skeleton className="h-8 w-40" />
-      <Skeleton className="h-12 w-2/3 max-w-xl" />
-      <Skeleton className="aspect-[16/10] w-full max-w-3xl rounded-2xl" />
-      <Skeleton className="h-24 w-full max-w-2xl" />
-    </div>
+    <main>
+      <article className="pb-16 lg:pb-24">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
+          <Skeleton className="h-11 w-40" />
+          <div className="mt-6 max-w-3xl space-y-4 sm:mt-8">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full sm:h-12" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-4/5" />
+          </div>
+        </div>
+
+        <div className="mx-auto mt-8 w-full max-w-6xl px-4 sm:mt-10 sm:px-6">
+          <Skeleton className="aspect-[16/10] w-full rounded-2xl md:aspect-[2/1]" />
+        </div>
+
+        <div className="mx-auto mt-8 w-full max-w-6xl space-y-2 border-b px-4 pb-8 sm:mt-10 sm:px-6 lg:pb-10">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+      </article>
+    </main>
   );
 }
 

@@ -98,7 +98,7 @@ function emptyToNull(value: string | undefined | null): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function toStartupRow(input: CreateStartupInput | UpdateStartupInput) {
+function toStartupCoreJson(input: CreateStartupInput | UpdateStartupInput) {
   return {
     name: input.name,
     slug: input.slug,
@@ -108,12 +108,10 @@ function toStartupRow(input: CreateStartupInput | UpdateStartupInput) {
   };
 }
 
-function toDetailsRow(
-  startupId: string,
+function toDetailsJson(
   details: CreateStartupInput["details"] | UpdateStartupInput["details"],
 ) {
   return {
-    startup_id: startupId,
     website_url: emptyToNull(details.websiteUrl),
     industry: emptyToNull(details.industry),
     category: emptyToNull(details.category),
@@ -130,6 +128,30 @@ function toDetailsRow(
   };
 }
 
+function rpcErrorMessage(error: {
+  code?: string;
+  message?: string;
+}): string {
+  const unique = uniqueConstraintMessage(error);
+  if (unique) return unique;
+
+  const code = error.code ?? "";
+  const message = (error.message ?? "").toLowerCase();
+
+  if (code === "42501" || message.includes("not authorized")) {
+    return MESSAGES.unauthorized;
+  }
+  if (
+    code === "P0002" ||
+    message.includes("startup not found") ||
+    message.includes("no data")
+  ) {
+    return MESSAGES.notFound;
+  }
+
+  return MESSAGES.genericError;
+}
+
 export async function createStartup(
   input: CreateStartupInput,
 ): Promise<StartupActionResult> {
@@ -141,33 +163,24 @@ export async function createStartup(
   const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
-  const { data: startup, error: insertError } = await session.supabase
-    .from("startups")
-    .insert(toStartupRow(parsed.data))
-    .select("id, slug")
-    .single();
+  const { data, error } = await session.supabase.rpc(
+    "create_startup_with_details",
+    {
+      p_core: toStartupCoreJson(parsed.data),
+      p_details: toDetailsJson(parsed.data.details),
+    },
+  );
 
-  if (insertError || !startup) {
-    return {
-      status: "error",
-      message: uniqueConstraintMessage(insertError ?? {}) ?? MESSAGES.genericError,
-    };
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row?.id) {
+    return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  const { error: detailsError } = await session.supabase
-    .from("startup_details")
-    .insert(toDetailsRow(startup.id, parsed.data.details));
-
-  if (detailsError) {
-    await session.supabase.from("startups").delete().eq("id", startup.id);
-    return { status: "error", message: MESSAGES.genericError };
-  }
-
-  refreshStartupPaths(startup.slug);
+  refreshStartupPaths(row.slug);
   return {
     status: "success",
     message: MESSAGES.createSuccess,
-    id: startup.id,
+    id: row.id,
   };
 }
 
@@ -182,46 +195,26 @@ export async function updateStartup(
   const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+  const { data, error } = await session.supabase.rpc(
+    "update_startup_with_details",
+    {
+      p_id: parsed.data.id,
+      p_core: toStartupCoreJson(parsed.data),
+      p_details: toDetailsJson(parsed.data.details),
+    },
+  );
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  const { error: updateError } = await session.supabase
-    .from("startups")
-    .update(toStartupRow(parsed.data))
-    .eq("id", parsed.data.id);
-
-  if (updateError) {
-    return {
-      status: "error",
-      message: uniqueConstraintMessage(updateError) ?? MESSAGES.genericError,
-    };
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row?.id) {
+    return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  const detailsPayload = toDetailsRow(parsed.data.id, parsed.data.details);
-  const { error: detailsError } = await session.supabase
-    .from("startup_details")
-    .upsert(detailsPayload, { onConflict: "startup_id" });
-
-  if (detailsError) {
-    return { status: "error", message: MESSAGES.genericError };
+  refreshStartupPaths(row.slug);
+  if (row.previous_slug && row.previous_slug !== row.slug) {
+    refreshStartupPaths(row.previous_slug);
   }
 
-  refreshStartupPaths(parsed.data.slug);
-  if (existing.slug !== parsed.data.slug) {
-    refreshStartupPaths(existing.slug);
-  }
-
-  return { status: "success", message: MESSAGES.updateSuccess, id: parsed.data.id };
+  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
 }
 
 export async function deleteStartup(

@@ -48,4 +48,8 @@ describe("formatFoundedDate", () => {
   it("formats YYYY-MM-DD without UTC day shift", () => {
     expect(formatFoundedDate("2024-01-01")).toBe("Jan 1, 2024");
   });
+
+  it("formats with French locale when requested", () => {
+    expect(formatFoundedDate("2024-01-01", "fr")).toMatch(/2024/);
+  });
 });
