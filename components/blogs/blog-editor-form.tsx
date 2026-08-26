@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -91,7 +91,7 @@ export function BlogEditorForm({
 }: BlogEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const slugTouched = useRef(false);
+  const [slugTouched, setSlugTouched] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [pendingCover, setPendingCover] = useState<File | null>(null);
@@ -119,7 +119,6 @@ export function BlogEditorForm({
     handleSubmit,
     control,
     setValue,
-    watch,
     reset,
     clearErrors,
     formState: { errors },
@@ -139,26 +138,18 @@ export function BlogEditorForm({
     },
   });
 
-  const title = watch("title");
-  const categories = watch("categories");
-  const status = watch("status");
-  const isFeatured = watch("isFeatured");
+  const title = useWatch({ control, name: "title" });
+  const categories = useWatch({ control, name: "categories" });
+  const status = useWatch({ control, name: "status" });
+  const isFeatured = useWatch({ control, name: "isFeatured" });
 
-  useEffect(() => {
-    if (mode === "create" && !slugTouched.current && title) {
-      setValue("slug", slugifyTitle(title), { shouldValidate: false });
-    }
-  }, [mode, setValue, title]);
-
-  useEffect(() => {
-    if (!pendingCover) {
-      setPendingCoverPreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(pendingCover);
-    setPendingCoverPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [pendingCover]);
+  function replacePendingCover(file: File | null) {
+    setPendingCoverPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+    setPendingCover(file);
+  }
 
   function toggleCategory(name: string) {
     const next = categories.includes(name)
@@ -231,7 +222,7 @@ export function BlogEditorForm({
   function onPickCover(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
     if (mode === "create") {
-      setPendingCover(file);
+      replacePendingCover(file);
       return;
     }
     if (!blog || !file) return;
@@ -270,7 +261,7 @@ export function BlogEditorForm({
 
   function onRemoveCover() {
     if (mode === "create") {
-      setPendingCover(null);
+      replacePendingCover(null);
       if (coverInputRef.current) coverInputRef.current.value = "";
       return;
     }
@@ -312,8 +303,8 @@ export function BlogEditorForm({
 
   function continueCreating() {
     setCreatedBlogId(null);
-    slugTouched.current = false;
-    setPendingCover(null);
+    setSlugTouched(false);
+    replacePendingCover(null);
     setPendingAvatar(null);
     if (coverInputRef.current) coverInputRef.current.value = "";
     if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -400,7 +391,15 @@ export function BlogEditorForm({
                 placeholder="e.g. Improve your design skills"
                 disabled={isPending}
                 aria-invalid={Boolean(errors.title)}
-                {...register("title")}
+                {...register("title", {
+                  onChange: (event) => {
+                    if (mode === "create" && !slugTouched) {
+                      setValue("slug", slugifyTitle(event.target.value), {
+                        shouldValidate: false,
+                      });
+                    }
+                  },
+                })}
               />
               {errors.title ? (
                 <p className="text-sm text-destructive">{errors.title.message}</p>
@@ -421,7 +420,7 @@ export function BlogEditorForm({
                 aria-invalid={Boolean(errors.slug)}
                 {...register("slug", {
                   onChange: () => {
-                    slugTouched.current = true;
+                    setSlugTouched(true);
                   },
                 })}
               />

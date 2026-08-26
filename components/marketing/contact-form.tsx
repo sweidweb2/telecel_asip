@@ -2,7 +2,7 @@
 
 import { useRef, useTransition } from "react";
 import Script from "next/script";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -43,9 +43,9 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ContactMessageInput>({
     resolver: zodResolver(contactMessageSchemaFor(locale)),
@@ -59,7 +59,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
     },
   });
 
-  const turnstileToken = watch("turnstileToken");
+  const turnstileToken = useWatch({ control, name: "turnstileToken" });
 
   function clearTurnstileToken() {
     setValue("turnstileToken", "", { shouldValidate: false });

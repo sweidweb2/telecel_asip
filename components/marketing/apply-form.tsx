@@ -2,7 +2,7 @@
 
 import { useRef, useTransition } from "react";
 import Script from "next/script";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +42,6 @@ export function ApplyForm({ locale, labels }: ApplyFormProps) {
     control,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<InterestRegistrationInput>({
     resolver: zodResolver(interestRegistrationSchemaFor(locale)),
@@ -59,7 +58,7 @@ export function ApplyForm({ locale, labels }: ApplyFormProps) {
     },
   });
 
-  const turnstileToken = watch("turnstileToken");
+  const turnstileToken = useWatch({ control, name: "turnstileToken" });
 
   function clearTurnstileToken() {
     setValue("turnstileToken", "", { shouldValidate: false });
