@@ -167,6 +167,84 @@ Table blogs {
   '''
 }
 
+Enum startup_status {
+  draft
+  active
+  inactive
+}
+
+Table startups {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  slug text [not null, note: 'UNIQUE; URL-safe lowercase']
+  logo_url text [note: 'Storage bucket startups']
+  description text [not null]
+  status startup_status [not null, default: 'draft']
+  founded_at date
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (slug) [unique, name: 'startups_slug_uidx']
+    (status, created_at) [name: 'startups_status_created_at_idx', note: 'created_at DESC']
+    (created_at) [name: 'startups_created_at_idx', note: 'created_at DESC']
+    name [type: gin, name: 'startups_name_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+  }
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read active startups — SELECT USING (status = active)
+    - Admins can read all startups — SELECT USING (is_admin())
+    - Admins can insert/update/delete — is_admin()
+
+    Storage bucket (public read, admin write):
+    - startups — logo images
+
+    Trigger: startups_set_updated_at BEFORE UPDATE
+    English-only content phase 1; EN/FR public pages show the same startups.
+  '''
+}
+
+Table startup_details {
+  startup_id uuid [pk, not null, note: 'FK → startups(id) ON DELETE CASCADE']
+  website_url text
+  industry text
+  category text
+  location text
+  founding_year integer
+  team text
+  size text
+  problem text
+  solution text
+  target_market text
+  business_model text
+  funding_goal numeric
+  amount_raised numeric
+
+  Note: '''
+    RLS enabled. 1:1 extension of startups.
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read details when parent startup status = active
+    - Admins can read/insert/update/delete — is_admin()
+
+    CHECKs: founding_year 1900–2100; funding_goal/amount_raised >= 0;
+    amount_raised <= funding_goal when both set; length bounds on text fields.
+  '''
+}
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]
@@ -175,3 +253,4 @@ Table "auth.users" {
 }
 
 Ref: profiles.id > "auth.users".id [delete: cascade]
+Ref: startup_details.startup_id > startups.id [delete: cascade]

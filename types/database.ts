@@ -98,6 +98,101 @@ export type Database = {
         }
         Relationships: []
       }
+      startups: {
+        Row: {
+          created_at: string
+          description: string
+          founded_at: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["startup_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          founded_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          status?: Database["public"]["Enums"]["startup_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          founded_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["startup_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      startup_details: {
+        Row: {
+          amount_raised: number | null
+          business_model: string | null
+          category: string | null
+          founding_year: number | null
+          funding_goal: number | null
+          industry: string | null
+          location: string | null
+          problem: string | null
+          size: string | null
+          solution: string | null
+          startup_id: string
+          target_market: string | null
+          team: string | null
+          website_url: string | null
+        }
+        Insert: {
+          amount_raised?: number | null
+          business_model?: string | null
+          category?: string | null
+          founding_year?: number | null
+          funding_goal?: number | null
+          industry?: string | null
+          location?: string | null
+          problem?: string | null
+          size?: string | null
+          solution?: string | null
+          startup_id: string
+          target_market?: string | null
+          team?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          amount_raised?: number | null
+          business_model?: string | null
+          category?: string | null
+          founding_year?: number | null
+          funding_goal?: number | null
+          industry?: string | null
+          location?: string | null
+          problem?: string | null
+          size?: string | null
+          solution?: string | null
+          startup_id?: string
+          target_market?: string | null
+          team?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_details_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: true
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interest_registrations: {
         Row: {
           company_name: string
@@ -184,6 +279,7 @@ export type Database = {
     }
     Enums: {
       blog_status: "draft" | "published"
+      startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
@@ -313,6 +409,7 @@ export const Constants = {
   public: {
     Enums: {
       blog_status: ["draft", "published"],
+      startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],
     },
   },

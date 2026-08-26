@@ -148,3 +148,26 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Calls** | `public.set_blogs_updated_at()` |
 
 **How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Cover images live in Storage bucket `blogs`; author avatars in `auther`. Featured exclusivity is enforced by a partial unique index plus app-level clear-on-feature.
+
+### `public.startups`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_startups_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.startups_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.startups` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_startups_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. Active rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Logos live in Storage bucket `startups`. Related 1:1 row in `public.startup_details` cascades on delete.
+
+### `public.startup_details`
+
+No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK/FK, `ON DELETE CASCADE`). Public SELECT only when the parent startup `status = active`. Admins CRUD via `is_admin()`.

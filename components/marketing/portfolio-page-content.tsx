@@ -6,7 +6,7 @@ import { StartupCard } from "@/components/marketing/startup-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getPortfolioStartupsPage } from "@/data/portfolio-startups";
+import { getActiveStartupsPage } from "@/data/startups";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
 
@@ -15,11 +15,13 @@ const PAGINATION_LABELS = {
     showing: "Showing {from}–{to} of {total} startups",
     previous: "Previous",
     next: "Next",
+    empty: "No active startups to show yet.",
   },
   fr: {
     showing: "Affichage de {from} à {to} sur {total} startups",
     previous: "Précédent",
     next: "Suivant",
+    empty: "Aucune startup active à afficher pour le moment.",
   },
 } as const;
 
@@ -29,14 +31,15 @@ type PortfolioPageContentProps = {
   page: number;
 };
 
-export function PortfolioPageContent({
+export async function PortfolioPageContent({
   locale,
   copy,
   page,
 }: PortfolioPageContentProps) {
   const { items, total, totalPages, currentPage, pageSize } =
-    getPortfolioStartupsPage(locale, page);
+    await getActiveStartupsPage(page);
   const cta = copy.ctaSection;
+  const labels = PAGINATION_LABELS[locale];
 
   return (
     <main>
@@ -57,13 +60,19 @@ export function PortfolioPageContent({
             description={copy.sectionDescription}
           />
 
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
-            {items.map((startup) => (
-              <li key={startup.id} className="min-w-0">
-                <StartupCard startup={startup} />
-              </li>
-            ))}
-          </ul>
+          {items.length === 0 ? (
+            <p className="rounded-2xl border border-dashed px-6 py-12 text-center text-muted-foreground">
+              {labels.empty}
+            </p>
+          ) : (
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
+              {items.map((startup) => (
+                <li key={startup.id} className="min-w-0">
+                  <StartupCard startup={startup} locale={locale} />
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div className="mt-10 sm:mt-12">
             <PortfolioPagination
@@ -72,7 +81,7 @@ export function PortfolioPageContent({
               totalPages={totalPages}
               total={total}
               pageSize={pageSize}
-              labels={PAGINATION_LABELS[locale]}
+              labels={labels}
             />
           </div>
         </div>

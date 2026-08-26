@@ -1,7 +1,7 @@
 import { PortfolioPageContent } from "@/components/marketing/portfolio-page-content";
 import { marketingCopyFor } from "@/constants/marketing-copy";
-import { parsePortfolioPageParam } from "@/data/portfolio-startups";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
+import { parsePortfolioPageParam } from "@/validations/startup";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",

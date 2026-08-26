@@ -28,4 +28,4 @@ any scope boundaries (what's explicitly NOT included)>
   then UI, then error handling, then security/RLS, then testing — but no header
   labels unless the task is complex enough to need sections>
 □ <include RLS/security checks if the feature touches any database table>
-□ <include at least one automated test
+□ <include at least one automated testa
