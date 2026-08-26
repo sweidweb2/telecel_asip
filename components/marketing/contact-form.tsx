@@ -1,7 +1,12 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
+import { submitContactMessage } from "@/actions/contact-messages";
 import type { ContactLabels } from "@/components/marketing/contact-labels";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +19,48 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { Locale } from "@/constants/locales";
+import {
+  contactMessageSchemaFor,
+  type ContactMessageInput,
+} from "@/validations/contact-message";
 
 type ContactFormProps = {
+  locale: Locale;
   labels: ContactLabels;
 };
 
-export function ContactForm({ labels }: ContactFormProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+export function ContactForm({ locale, labels }: ContactFormProps) {
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactMessageInput>({
+    resolver: zodResolver(contactMessageSchemaFor(locale)),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  function onSubmit(values: ContactMessageInput) {
+    startTransition(async () => {
+      const result = await submitContactMessage(values);
+
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+
+      toast.success(result.message || labels.successToast);
+      reset();
+    });
   }
 
   return (
@@ -31,69 +70,106 @@ export function ContactForm({ labels }: ContactFormProps) {
         <CardDescription>{labels.formDescription}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="grid gap-4" onSubmit={handleSubmit}>
+        <form
+          className="grid gap-4"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="contact-name">{labels.nameLabel}</Label>
+              <Label htmlFor="contact-fullName">{labels.nameLabel}</Label>
               <Input
-                id="contact-name"
-                name="name"
+                id="contact-fullName"
                 type="text"
                 autoComplete="name"
                 placeholder={labels.namePlaceholder}
+                aria-invalid={Boolean(errors.fullName)}
+                disabled={isPending}
                 className="min-h-11"
+                {...register("fullName")}
               />
+              {errors.fullName ? (
+                <p className="text-sm text-destructive">
+                  {errors.fullName.message}
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="contact-phone">{labels.phoneFieldLabel}</Label>
               <Input
                 id="contact-phone"
-                name="phone"
                 type="tel"
                 autoComplete="tel"
                 placeholder={labels.phonePlaceholder}
+                aria-invalid={Boolean(errors.phone)}
+                disabled={isPending}
                 className="min-h-11"
+                {...register("phone")}
               />
+              {errors.phone ? (
+                <p className="text-sm text-destructive">{errors.phone.message}</p>
+              ) : null}
             </div>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="contact-email">
-              {labels.emailFieldLabel}{" "}
-              <span className="font-normal text-muted-foreground">
-                {labels.emailOptional}
-              </span>
-            </Label>
+            <Label htmlFor="contact-email">{labels.emailFieldLabel}</Label>
             <Input
               id="contact-email"
-              name="email"
               type="email"
               autoComplete="email"
               placeholder={labels.emailPlaceholder}
+              aria-invalid={Boolean(errors.email)}
+              disabled={isPending}
               className="min-h-11"
+              {...register("email")}
             />
+            {errors.email ? (
+              <p className="text-sm text-destructive">{errors.email.message}</p>
+            ) : null}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="contact-subject">{labels.subjectLabel}</Label>
             <Input
               id="contact-subject"
-              name="subject"
               type="text"
               placeholder={labels.subjectPlaceholder}
+              aria-invalid={Boolean(errors.subject)}
+              disabled={isPending}
               className="min-h-11"
+              {...register("subject")}
             />
+            {errors.subject ? (
+              <p className="text-sm text-destructive">{errors.subject.message}</p>
+            ) : null}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="contact-message">{labels.messageLabel}</Label>
             <Textarea
               id="contact-message"
-              name="message"
               rows={5}
               placeholder={labels.messagePlaceholder}
+              aria-invalid={Boolean(errors.message)}
+              disabled={isPending}
               className="min-h-32"
+              {...register("message")}
             />
+            {errors.message ? (
+              <p className="text-sm text-destructive">{errors.message.message}</p>
+            ) : null}
           </div>
-          <Button type="submit" className="min-h-11 w-full sm:w-auto">
-            {labels.submitLabel}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <Loader2Icon className="animate-spin" />
+                {labels.submittingLabel}
+              </>
+            ) : (
+              labels.submitLabel
+            )}
           </Button>
         </form>
       </CardContent>

@@ -1,5 +1,11 @@
-import { DashboardPageSkeleton } from "@/components/dashboard/page-skeleton";
+import { ContactMessagesPageSkeleton } from "@/components/contact-messages/contact-messages-page-skeleton";
+import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
 
 export default function ContactUsLoading() {
-  return <DashboardPageSkeleton />;
+  return (
+    <RouteSkeleton
+      name="dashboard-contact-us"
+      fallback={<ContactMessagesPageSkeleton />}
+    />
+  );
 }

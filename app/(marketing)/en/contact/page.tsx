@@ -17,7 +17,7 @@ export default function EnContactPage() {
       title="Contact us"
       description="Questions about the programme, partnerships or press — reach the ASIP team using the details below or send a message."
     >
-      <ContactSection labels={contactLabelsFor("en")} />
+      <ContactSection locale="en" labels={contactLabelsFor("en")} />
     </MarketingPageShell>
   );
 }

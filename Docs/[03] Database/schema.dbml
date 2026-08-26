@@ -79,6 +79,39 @@ Table interest_registrations {
   '''
 }
 
+Table contact_messages {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  full_name text [not null]
+  email text [not null]
+  phone text [not null]
+  subject text [not null]
+  message text [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (created_at) [name: 'contact_messages_created_at_idx', note: 'created_at DESC — admin lists']
+    (email) [name: 'contact_messages_email_idx']
+    (email, subject) [name: 'contact_messages_email_subject_uidx', note: 'UNIQUE lower(email), lower(subject)']
+  }
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - authenticated: SELECT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - no grants to anon (public cannot write via PostgREST)
+
+    Policies (authenticated):
+    - Admins can read contact messages — SELECT USING (is_admin())
+    - Admins can update contact messages — UPDATE USING/WITH CHECK (is_admin())
+    - Admins can delete contact messages — DELETE USING (is_admin())
+
+    Public inserts only via Server Action + service role client.
+    App validates with Zod before insert/update.
+  '''
+}
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]
