@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { authPath, publicPath, ROUTES } from "@/constants/routes";
+import { publicPath, ROUTES } from "@/constants/routes";
 
 export type NavItem = {
   href: string;
@@ -13,8 +13,7 @@ export type SiteNavLabels = {
   languageGroupLabel: string;
   menuLabel: string;
   dashboard: NavItem;
-  login: NavItem;
-  register: NavItem;
+  apply: NavItem;
 };
 
 const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
@@ -23,7 +22,6 @@ const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "programme", label: "Programme" },
   { slug: "portfolio", label: "Portfolio" },
   { slug: "insights", label: "Insights" },
-  { slug: "apply", label: "Apply" },
   { slug: "contact", label: "Contact" },
   { slug: "faq", label: "FAQ" },
 ];
@@ -38,8 +36,7 @@ export function enNavLabels(): SiteNavLabels {
       label,
     })),
     dashboard: { href: ROUTES.dashboard, label: "Dashboard" },
-    login: { href: authPath("en", "login"), label: "Login" },
-    register: { href: authPath("en", "signup"), label: "Register" },
+    apply: { href: publicPath("en", "apply"), label: "Apply" },
   };
 }
 
@@ -49,7 +46,6 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "programme", label: "Programme" },
   { slug: "portfolio", label: "Portefeuille" },
   { slug: "insights", label: "Perspectives" },
-  { slug: "apply", label: "Candidater" },
   { slug: "contact", label: "Contact" },
   { slug: "faq", label: "FAQ" },
 ];
@@ -64,8 +60,7 @@ export function frNavLabels(): SiteNavLabels {
       label,
     })),
     dashboard: { href: ROUTES.dashboard, label: "Tableau de bord" },
-    login: { href: authPath("fr", "login"), label: "Connexion" },
-    register: { href: authPath("fr", "signup"), label: "Inscription" },
+    apply: { href: publicPath("fr", "apply"), label: "Candidater" },
   };
 }
 

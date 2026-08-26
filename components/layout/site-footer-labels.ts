@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath } from "@/constants/routes";
+import { authPath, publicPath } from "@/constants/routes";
 
 export type FooterLink = {
   href: string;
@@ -60,6 +60,8 @@ export function enFooterLabels(): SiteFooterLabels {
     connect: [
       { href: publicPath("en", "contact"), label: "Contact" },
       { href: `${publicPath("en", "about")}#partners`, label: "Partner with us" },
+      { href: authPath("en", "login"), label: "Login" },
+      { href: authPath("en", "signup"), label: "Register" },
     ],
     socialHeading: "Follow",
     social: [
@@ -98,6 +100,8 @@ export function frFooterLabels(): SiteFooterLabels {
         href: `${publicPath("fr", "about")}#partners`,
         label: "Devenir partenaire",
       },
+      { href: authPath("fr", "login"), label: "Connexion" },
+      { href: authPath("fr", "signup"), label: "Inscription" },
     ],
     socialHeading: "Suivre",
     social: [
