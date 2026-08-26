@@ -23,4 +23,4 @@ const [projects, user] = await Promise.all([
 6. **Realtime** — only for rows that must be live; not the default.
 7. **Edge** — `export const runtime = 'edge'` on latency-sensitive routes/middleware when the Supabase client is compatible.
 8. **Forms & dates** — `react-hook-form` (uncontrolled). `date-fns` named imports only — never moment.js.
-9. **Route loading** — colocate `loading.tsx` with `page.tsx` and use shadcn `Skeleton`. Top-of-screen progress is `NextTopLoader` in the root layout, not per page.
+9. **Route loading** — colocate `loading.tsx` with `page.tsx` and use `RouteSkeleton` (boneyard-js) with a shadcn fallback until bones are captured (`npm run bones:build`). Top-of-screen progress is `NextTopLoader` in the root layout, not per page.

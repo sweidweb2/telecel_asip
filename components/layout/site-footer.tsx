@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentType } from "react";
 
 import type { SiteFooterLabels } from "@/components/layout/site-footer-labels";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -100,22 +100,19 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 {labels.social.map((item) => {
                   const Icon = SOCIAL_ICONS[item.label];
                   return (
-                    <Button
+                    <a
                       key={item.label}
-                      variant="ghost"
-                      size="icon"
-                      className="min-h-11 min-w-11"
-                      asChild
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={item.label}
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "min-h-11 min-w-11"
+                      )}
                     >
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={item.label}
-                      >
-                        {Icon ? <Icon className="size-4" /> : item.label}
-                      </a>
-                    </Button>
+                      {Icon ? <Icon className="size-4" /> : item.label}
+                    </a>
                   );
                 })}
               </div>

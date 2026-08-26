@@ -12,7 +12,7 @@ Allowed files: `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `global-err
 - If a component is used on more than one route, move it to `components/`
 - Pages fetch via `data/` in Server Components — never call Supabase here
 - Mutations go through `actions/`, not inline in pages
-- Every data-fetching route gets a colocated `loading.tsx` that renders shadcn `Skeleton`s. Next shows it automatically while the Server Component loads. Do not fake this with `useState` + Skeleton on first paint.
+- Every data-fetching route gets a colocated `loading.tsx` with `RouteSkeleton` (boneyard-js) and a shadcn fallback layout. Next shows it automatically while the Server Component loads. Do not fake this with `useState` + Skeleton on first paint.
 - Errors use the shared `ErrorScreen` / `RouteError` UI. Do not leave Next’s default error page.
   - `error.tsx` in each route group so the parent layout (navbar / sidebar) stays
   - `app/error.tsx` as a fallback
@@ -27,8 +27,8 @@ app/
 ├── (auth)/login/page.tsx
 ├── (dashboard)/projects/
 │   ├── page.tsx
-│   └── loading.tsx   ← Skeleton UI for this route
+│   └── loading.tsx   ← RouteSkeleton + shadcn fallback for this route
 └── api/webhooks/stripe/route.ts
 ```
 
-Top-of-screen progress on route changes is `NextTopLoader` in `app/layout.tsx`, not a per-route component.
+Top-of-screen progress on route changes is `NextTopLoader` in `app/layout.tsx`, not a per-route component. Keep `TooltipProvider` wrapped around `{children}` there as well (shadcn tooltip).

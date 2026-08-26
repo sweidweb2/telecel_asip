@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -12,33 +12,131 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string
+          phone: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message: string
+          phone: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string
+          phone?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      blogs: {
+        Row: {
+          author_avatar_url: string | null
+          author_name: string
+          body_html: string
+          categories: string[]
+          created_at: string
+          id: string
+          is_featured: boolean
+          published_at: string | null
+          reading_time_minutes: number
+          slug: string
+          status: Database["public"]["Enums"]["blog_status"]
+          summary: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_avatar_url?: string | null
+          author_name: string
+          body_html?: string
+          categories?: string[]
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          summary: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_avatar_url?: string | null
+          author_name?: string
+          body_html?: string
+          categories?: string[]
+          created_at?: string
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          summary?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      interest_registrations: {
+        Row: {
+          company_name: string
+          consent: boolean
+          country: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Insert: {
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Update: {
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          pitch?: string
+          sector?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -72,8 +170,20 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      get_user_stats: {
+        Args: never
+        Returns: {
+          total: number
+          admins: number
+          editors: number
+          viewers: number
+          new_this_week: number
+          new_this_month: number
+        }[]
+      }
     }
     Enums: {
+      blog_status: "draft" | "published"
       user_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
@@ -200,11 +310,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
+      blog_status: ["draft", "published"],
       user_role: ["admin", "editor", "viewer"],
     },
   },

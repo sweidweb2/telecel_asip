@@ -1,15 +1,28 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { BlogSection } from "@/components/marketing/blog-section";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
+import { getAllInsights, getFeaturedInsight } from "@/data/insights";
 
 export const metadata = buildMarketingMetadata({
   locale: "fr",
   path: "/insights",
-  title: "Perspectives — ASIP",
+  title: "Perspectives",
   description:
-    "Articles, actualités et études de cas du Programme africain d’initiative pour les startups.",
+    "Ressources et analyses du programme ASIP et de l’écosystème tech africain.",
 });
 
-export default function FrInsightsPage() {
-  return <BlogSection labels={blogLabelsFor("fr")} />;
+export default async function InsightsPageFr() {
+  const [articles, featured] = await Promise.all([
+    getAllInsights("fr"),
+    getFeaturedInsight("fr"),
+  ]);
+
+  return (
+    <BlogSection
+      locale="fr"
+      labels={blogLabelsFor("fr")}
+      articles={articles}
+      featured={featured}
+    />
+  );
 }

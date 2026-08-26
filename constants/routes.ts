@@ -11,6 +11,7 @@ export const ROUTES = {
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
   portfolio: "/dashboard/portfolio",
+  blogs: "/dashboard/blogs",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
   backup: "/dashboard/backup",
@@ -27,4 +28,9 @@ export function publicPath(locale: Locale, slug: PublicPageSlug = ""): string {
 /** Locale-prefixed auth path, e.g. `/fr/login`. */
 export function authPath(locale: Locale, page: AuthPage = "login"): string {
   return `/${locale}/${page}`;
+}
+
+/** Locale-prefixed insight detail path, e.g. `/en/insights/ux-review-presentations`. */
+export function insightPath(locale: Locale, slug: string): string {
+  return `/${locale}/insights/${slug}`;
 }

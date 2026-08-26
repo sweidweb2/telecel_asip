@@ -17,7 +17,7 @@ export default function FrContactPage() {
       title="Nous contacter"
       description="Questions sur le programme, les partenariats ou la presse — écrivez à l’équipe ASIP via les coordonnées ci-dessous ou envoyez un message."
     >
-      <ContactSection labels={contactLabelsFor("fr")} />
+      <ContactSection locale="fr" labels={contactLabelsFor("fr")} />
     </MarketingPageShell>
   );
 }

@@ -5,8 +5,6 @@ const publicSlugs = [
   "/about",
   "/programme",
   "/portfolio",
-  "/impact",
-  "/partners",
   "/insights",
   "/apply",
   "/contact",
@@ -44,5 +42,5 @@ test("mobile navigation remains usable", async ({ page }) => {
   await page.goto("/en");
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Register" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Apply" })).toBeVisible();
 });

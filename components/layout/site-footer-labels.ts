@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath } from "@/constants/routes";
+import { authPath, publicPath } from "@/constants/routes";
 
 export type FooterLink = {
   href: string;
@@ -49,19 +49,20 @@ export function enFooterLabels(): SiteFooterLabels {
       { slug: "", label: "Home" },
       { slug: "about", label: "About" },
       { slug: "portfolio", label: "Portfolio" },
-      { slug: "impact", label: "Impact" },
-      { slug: "partners", label: "Partners" },
       { slug: "insights", label: "Insights" },
     ]),
-    programme: links("en", [
-      { slug: "programme", label: "The programme" },
-      { slug: "apply", label: "Register interest" },
-      { slug: "faq", label: "FAQ" },
-    ]),
-    connect: links("en", [
-      { slug: "contact", label: "Contact" },
-      { slug: "partners", label: "Partner with us" },
-    ]),
+    programme: [
+      { href: publicPath("en", "programme"), label: "The programme" },
+      { href: `${publicPath("en", "programme")}#impact`, label: "Impact" },
+      { href: publicPath("en", "apply"), label: "Register interest" },
+      { href: publicPath("en", "faq"), label: "FAQ" },
+    ],
+    connect: [
+      { href: publicPath("en", "contact"), label: "Contact" },
+      { href: `${publicPath("en", "about")}#partners`, label: "Partner with us" },
+      { href: authPath("en", "login"), label: "Login" },
+      { href: authPath("en", "signup"), label: "Register" },
+    ],
     socialHeading: "Follow",
     social: [
       { href: "https://www.linkedin.com", label: "LinkedIn" },
@@ -85,19 +86,23 @@ export function frFooterLabels(): SiteFooterLabels {
       { slug: "", label: "Accueil" },
       { slug: "about", label: "À propos" },
       { slug: "portfolio", label: "Portefeuille" },
-      { slug: "impact", label: "Impact" },
-      { slug: "partners", label: "Partenaires" },
       { slug: "insights", label: "Perspectives" },
     ]),
-    programme: links("fr", [
-      { slug: "programme", label: "Le programme" },
-      { slug: "apply", label: "Manifestez votre intérêt" },
-      { slug: "faq", label: "FAQ" },
-    ]),
-    connect: links("fr", [
-      { slug: "contact", label: "Nous contacter" },
-      { slug: "partners", label: "Devenir partenaire" },
-    ]),
+    programme: [
+      { href: publicPath("fr", "programme"), label: "Le programme" },
+      { href: `${publicPath("fr", "programme")}#impact`, label: "Impact" },
+      { href: publicPath("fr", "apply"), label: "Manifestez votre intérêt" },
+      { href: publicPath("fr", "faq"), label: "FAQ" },
+    ],
+    connect: [
+      { href: publicPath("fr", "contact"), label: "Nous contacter" },
+      {
+        href: `${publicPath("fr", "about")}#partners`,
+        label: "Devenir partenaire",
+      },
+      { href: authPath("fr", "login"), label: "Connexion" },
+      { href: authPath("fr", "signup"), label: "Inscription" },
+    ],
     socialHeading: "Suivre",
     social: [
       { href: "https://www.linkedin.com", label: "LinkedIn" },

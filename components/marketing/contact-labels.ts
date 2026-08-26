@@ -13,13 +13,15 @@ export type ContactLabels = {
   phoneFieldLabel: string;
   phonePlaceholder: string;
   emailFieldLabel: string;
-  emailOptional: string;
   emailPlaceholder: string;
   subjectLabel: string;
   subjectPlaceholder: string;
   messageLabel: string;
   messagePlaceholder: string;
   submitLabel: string;
+  submittingLabel: string;
+  successToast: string;
+  turnstileHint: string;
 };
 
 const EN: ContactLabels = {
@@ -35,13 +37,15 @@ const EN: ContactLabels = {
   phoneFieldLabel: "Phone",
   phonePlaceholder: "Your phone number",
   emailFieldLabel: "Email",
-  emailOptional: "(optional)",
   emailPlaceholder: "you@example.com",
   subjectLabel: "Subject",
   subjectPlaceholder: "How can we help?",
   messageLabel: "Message",
-  messagePlaceholder: "Write your message",
+  messagePlaceholder: "Write your message (at least 20 characters)",
   submitLabel: "Send message",
+  submittingLabel: "Sending…",
+  successToast: "Thank you — your message has been sent.",
+  turnstileHint: "Complete the security check before sending.",
 };
 
 const FR: ContactLabels = {
@@ -59,13 +63,15 @@ const FR: ContactLabels = {
   phoneFieldLabel: "Téléphone",
   phonePlaceholder: "Votre numéro de téléphone",
   emailFieldLabel: "E-mail",
-  emailOptional: "(facultatif)",
   emailPlaceholder: "vous@exemple.com",
   subjectLabel: "Objet",
   subjectPlaceholder: "Comment pouvons-nous vous aider ?",
   messageLabel: "Message",
-  messagePlaceholder: "Écrivez votre message",
+  messagePlaceholder: "Écrivez votre message (au moins 20 caractères)",
   submitLabel: "Envoyer le message",
+  submittingLabel: "Envoi…",
+  successToast: "Merci — votre message a bien été envoyé.",
+  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 export function contactLabelsFor(locale: Locale): ContactLabels {

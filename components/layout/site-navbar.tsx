@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -22,22 +22,8 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-};
-
-const AUTH_LABELS: Record<
-  Locale,
-  { dashboard: string; login: string; register: string }
-> = {
-  en: {
-    dashboard: "Dashboard",
-    login: "Login",
-    register: "Register",
-  },
-  fr: {
-    dashboard: "Tableau de bord",
-    login: "Connexion",
-    register: "Inscription",
-  },
+  /** When true, show Dashboard; otherwise the primary Apply CTA. */
+  isAuthenticated?: boolean;
 };
 
 function isNavActive(pathname: string, href: string, locale: Locale) {
@@ -52,11 +38,13 @@ function LanguageToggle({
   pathname,
   groupLabel,
   className,
+  onLinkClick,
 }: {
   locale: Locale;
   pathname: string;
   groupLabel: string;
   className?: string;
+  onLinkClick?: () => void;
 }) {
   return (
     <div
@@ -72,10 +60,11 @@ function LanguageToggle({
             key={loc}
             href={href}
             hrefLang={loc}
+            onClick={onLinkClick}
             className={cn(
               "inline-flex min-h-11 min-w-11 items-center justify-center px-1.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground",
               isActive &&
-                "font-bold text-foreground underline underline-offset-4"
+                "font-bold text-foreground underline underline-offset-4",
             )}
             aria-current={isActive ? "true" : undefined}
           >
@@ -87,57 +76,48 @@ function LanguageToggle({
   );
 }
 
-export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
+export function SiteNavbar({
+  locale,
+  labels,
+  isAuthenticated = false,
+}: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const auth = AUTH_LABELS[locale];
   const dashboardHref = labels.dashboard?.href ?? ROUTES.dashboard;
-  const loginHref = labels.login?.href ?? ROUTES.login;
-  const registerHref = labels.register?.href ?? ROUTES.register;
-  const dashboardLabel = labels.dashboard?.label ?? auth.dashboard;
-  const loginLabel = labels.login?.label ?? auth.login;
-  const registerLabel = labels.register?.label ?? auth.register;
+  const applyHref = labels.apply.href;
+  const dashboardLabel = labels.dashboard?.label ?? "Dashboard";
+  const applyLabel = labels.apply.label;
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
 
-  const authLinks = (
-    <>
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
-        className={cn(
-          "min-h-11 justify-start lg:min-h-8",
-          pathname.startsWith(dashboardHref) && "bg-muted"
-        )}
-      >
-        <Link href={dashboardHref} onClick={() => setOpen(false)}>
-          {dashboardLabel}
-        </Link>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
-        className={cn(
-          "min-h-11 justify-start lg:min-h-8",
-          pathname === loginHref && "bg-muted"
-        )}
-      >
-        <Link href={loginHref} onClick={() => setOpen(false)}>
-          {loginLabel}
-        </Link>
-      </Button>
-      <Button size="sm" asChild className="min-h-11 lg:min-h-8">
-        <Link href={registerHref} onClick={() => setOpen(false)}>
-          {registerLabel}
-        </Link>
-      </Button>
-    </>
+  const ctaLink = isAuthenticated ? (
+    <Link
+      href={dashboardHref}
+      onClick={() => setOpen(false)}
+      className={cn(
+        buttonVariants({ size: "sm" }),
+        "min-h-11 w-full justify-center lg:min-h-8 lg:w-auto",
+        pathname.startsWith(dashboardHref) && "bg-muted",
+      )}
+    >
+      {dashboardLabel}
+    </Link>
+  ) : (
+    <Link
+      href={applyHref}
+      onClick={() => setOpen(false)}
+      className={cn(
+        buttonVariants({ size: "sm" }),
+        "min-h-11 w-full justify-center lg:min-h-8 lg:w-auto",
+        isNavActive(pathname, applyHref, locale) && "bg-muted",
+      )}
+    >
+      {applyLabel}
+    </Link>
   );
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="mx-auto grid h-14 w-full max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr]">
         {labels.brand ? (
           <Link
             href={labels.items[0]?.href ?? `/${locale}`}
@@ -145,55 +125,52 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           >
             {labels.brand}
           </Link>
-        ) : null}
+        ) : (
+          <div className="hidden lg:block" aria-hidden />
+        )}
 
-        {/* Desktop navigation */}
+        {/* Desktop navigation — centered link group */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-end gap-1 lg:flex"
+          className="hidden min-w-0 items-center justify-center gap-3 lg:flex xl:gap-4"
           aria-label="Primary"
         >
           {labels.items.map((item) => (
-            <Button
+            <Link
               key={item.href}
-              variant="ghost"
-              size="sm"
-              asChild
+              href={item.href}
               className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
                 isNavActive(pathname, item.href, locale) &&
-                  "bg-muted font-semibold"
+                  "bg-muted font-semibold",
               )}
             >
-              <Link href={item.href}>{item.label}</Link>
-            </Button>
+              {item.label}
+            </Link>
           ))}
-          <LanguageToggle
-            locale={locale}
-            pathname={pathname}
-            groupLabel={labels.languageGroupLabel}
-            className="ml-2 border-l pl-2"
-          />
-          <div className="ml-1 flex shrink-0 items-center gap-1 border-l pl-2">
-            {authLinks}
-          </div>
         </nav>
 
-        {/* Mobile / tablet: language + menu */}
-        <div className="ml-auto flex items-center gap-1 lg:hidden">
+        <div className="hidden items-center justify-end gap-2 lg:flex">
           <LanguageToggle
             locale={locale}
             pathname={pathname}
             groupLabel={labels.languageGroupLabel}
           />
+          <div className="flex shrink-0 items-center border-l pl-2">
+            {ctaLink}
+          </div>
+        </div>
+
+        {/* Mobile / tablet: menu only — language lives in the sheet */}
+        <div className="col-start-3 flex items-center justify-end lg:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="min-h-11 min-w-11"
-                aria-label={menuLabel}
-              >
-                <MenuIcon className="size-5" />
-              </Button>
+            <SheetTrigger
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "min-h-11 min-w-11",
+              )}
+              aria-label={menuLabel}
+            >
+              <MenuIcon className="size-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-sm">
               <SheetHeader className="border-b">
@@ -204,23 +181,34 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                 aria-label="Primary"
               >
                 {labels.items.map((item) => (
-                  <Button
+                  <Link
                     key={item.href}
-                    variant="ghost"
-                    asChild
+                    href={item.href}
+                    onClick={() => setOpen(false)}
                     className={cn(
+                      buttonVariants({ variant: "ghost" }),
                       "h-11 justify-start",
                       isNavActive(pathname, item.href, locale) &&
-                        "bg-muted font-semibold"
+                        "bg-muted font-semibold",
                     )}
                   >
-                    <Link href={item.href} onClick={() => setOpen(false)}>
-                      {item.label}
-                    </Link>
-                  </Button>
+                    {item.label}
+                  </Link>
                 ))}
                 <div className="my-2 border-t" />
-                <div className="flex flex-col gap-1">{authLinks}</div>
+                <div className="flex flex-col gap-2 px-1 py-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {labels.languageGroupLabel}
+                  </p>
+                  <LanguageToggle
+                    locale={locale}
+                    pathname={pathname}
+                    groupLabel={labels.languageGroupLabel}
+                    onLinkClick={() => setOpen(false)}
+                  />
+                </div>
+                <div className="my-2 border-t" />
+                <div className="flex flex-col gap-1">{ctaLink}</div>
               </nav>
             </SheetContent>
           </Sheet>
