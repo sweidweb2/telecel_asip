@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { format } from "date-fns";
-import { MailIcon } from "lucide-react";
+import { Loader2Icon, MailIcon } from "lucide-react";
 
 import { ContactMessageRowActions } from "@/components/contact-messages/contact-message-dialogs";
 import { ContactMessagesFilters } from "@/components/contact-messages/contact-messages-filters";
@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { ContactMessage } from "@/types/contact-message";
 import type { ContactMessageListQuery } from "@/validations/contact-message";
 
@@ -30,36 +31,36 @@ export function ContactMessagesTable({
   totalPages: number;
   query: ContactMessageListQuery;
 }) {
-  const [clientSearch, setClientSearch] = useState(query.search);
-  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
-
-  if (query.search !== prevQuerySearch) {
-    setPrevQuerySearch(query.search);
-    setClientSearch(query.search);
-  }
-
-  const onSearchChange = useCallback((value: string) => {
-    setClientSearch(value);
+  const [isSearchPending, setIsSearchPending] = useState(false);
+  const onPendingChange = useCallback((pending: boolean) => {
+    setIsSearchPending(pending);
   }, []);
-
-  const visibleMessages = useMemo(() => {
-    const term = clientSearch.trim().toLowerCase();
-    if (!term || term === query.search.toLowerCase()) return messages;
-    return messages.filter((row) => {
-      return (
-        row.full_name.toLowerCase().includes(term) ||
-        row.email.toLowerCase().includes(term) ||
-        row.subject.toLowerCase().includes(term)
-      );
-    });
-  }, [clientSearch, query.search, messages]);
 
   return (
     <Card className="min-w-0 gap-0 overflow-hidden py-0">
-      <ContactMessagesFilters query={query} onSearchChange={onSearchChange} />
+      <ContactMessagesFilters
+        query={query}
+        onPendingChange={onPendingChange}
+      />
 
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
+      <CardContent className="relative p-0">
+        {isSearchPending ? (
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center bg-background/60"
+            aria-busy="true"
+            aria-live="polite"
+          >
+            <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+            <span className="sr-only">Updating results</span>
+          </div>
+        ) : null}
+
+        <div
+          className={cn(
+            "overflow-x-auto transition-opacity",
+            isSearchPending && "pointer-events-none opacity-60",
+          )}
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -72,7 +73,7 @@ export function ContactMessagesTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visibleMessages.length === 0 ? (
+              {messages.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-48 text-center">
                     <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
@@ -88,7 +89,7 @@ export function ContactMessagesTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                visibleMessages.map((message) => (
+                messages.map((message) => (
                   <TableRow key={message.id}>
                     <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
                       {message.full_name}

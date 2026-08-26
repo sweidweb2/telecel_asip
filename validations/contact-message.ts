@@ -111,7 +111,7 @@ const contactMessageListQueryInputSchema = z.object({
     .string()
     .trim()
     .max(100, "Search must be 100 characters or fewer")
-    .regex(/^[^,%_().]*$/, "Search contains unsupported characters")
+    .regex(/^[^,%_()]*$/, "Search contains unsupported characters")
     .catch(""),
 });
 

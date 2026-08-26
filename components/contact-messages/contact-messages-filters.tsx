@@ -17,12 +17,12 @@ const SEARCH_DEBOUNCE_MS = 600;
 
 type ContactMessagesFiltersProps = {
   query: ContactMessageListQuery;
-  onSearchChange?: (value: string) => void;
+  onPendingChange?: (pending: boolean) => void;
 };
 
 export function ContactMessagesFilters({
   query,
-  onSearchChange,
+  onPendingChange,
 }: ContactMessagesFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,6 +36,10 @@ export function ContactMessagesFilters({
     setPrevQuerySearch(query.search);
     setSearch(query.search);
   }
+
+  useEffect(() => {
+    onPendingChange?.(isPending);
+  }, [isPending, onPendingChange]);
 
   useEffect(() => {
     return () => {
@@ -61,7 +65,6 @@ export function ContactMessagesFilters({
 
   function handleSearchChange(value: string) {
     setSearch(value);
-    onSearchChange?.(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       const nextSearch = value.trim();
@@ -103,7 +106,6 @@ export function ContactMessagesFilters({
           )}
           onClick={() => {
             setSearch("");
-            onSearchChange?.("");
           }}
         >
           <XIcon />

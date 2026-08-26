@@ -152,9 +152,6 @@ export async function submitInterestRegistration(
     return { status: "error", message: copy.rateLimited };
   }
 
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
-
   const admin = createAdminClient();
   const { error } = await admin.from("interest_registrations").insert({
     full_name: fullName,
@@ -173,6 +170,9 @@ export async function submitInterestRegistration(
     }
     return { status: "error", message: copy.genericError };
   }
+
+  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
+  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshRegistrationsRoute();
   return { status: "success", message: copy.success };

@@ -128,4 +128,4 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 ### `public.contact_messages`
 
-No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation. Admins list/update/delete via the session client under `is_admin()` RLS policies.
+No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation and in-memory rate limits (hits recorded only after a successful insert). Admins list/update/delete via the session client under `is_admin()` RLS policies. Length CHECKs mirror the Zod schema; there is no unique constraint on email/subject (follow-ups allowed).

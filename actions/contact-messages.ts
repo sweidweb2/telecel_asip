@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-import type { Locale } from "@/constants/locales";
 import { ROUTES } from "@/constants/routes";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
@@ -22,34 +21,32 @@ export type ContactMessageActionResult =
   | { status: "success"; message: string }
   | { status: "error"; message: string };
 
-const ACTION_MESSAGES = {
+/** Public marketing form copy (locale-aware). */
+const PUBLIC_MESSAGES = {
   en: {
     invalidDetails: "Please check the form and try again.",
     success: "Thank you — your message has been sent.",
     genericError: "Something went wrong. Please try again.",
-    updateSuccess: "Message updated successfully.",
-    deleteSuccess: "Message deleted successfully.",
-    unauthorized: "You do not have permission to manage contact messages.",
-    signedInRequired: "You must be signed in.",
-    notFound: "Message not found.",
     rateLimited: "Too many submissions. Please wait and try again later.",
-    duplicate: "You already sent a message with this subject from this email.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
     success: "Merci — votre message a bien été envoyé.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
-    updateSuccess: "Message mis à jour avec succès.",
-    deleteSuccess: "Message supprimé avec succès.",
-    unauthorized:
-      "Vous n’avez pas la permission de gérer les messages de contact.",
-    signedInRequired: "Vous devez être connecté.",
-    notFound: "Message introuvable.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
-    duplicate:
-      "Vous avez déjà envoyé un message avec ce sujet depuis cet e-mail.",
   },
+} as const;
+
+/** Dashboard admin copy (English-only). */
+const ADMIN_MESSAGES = {
+  invalidDetails: "Please check the form and try again.",
+  updateSuccess: "Message updated successfully.",
+  deleteSuccess: "Message deleted successfully.",
+  genericError: "Something went wrong. Please try again.",
+  unauthorized: "You do not have permission to manage contact messages.",
+  signedInRequired: "You must be signed in.",
+  notFound: "Message not found.",
 } as const;
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
@@ -63,8 +60,7 @@ type AdminSession =
     }
   | { status: "error"; message: string };
 
-async function authorizeAdmin(locale: Locale): Promise<AdminSession> {
-  const copy = ACTION_MESSAGES[locale];
+async function authorizeAdmin(): Promise<AdminSession> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -72,31 +68,15 @@ async function authorizeAdmin(locale: Locale): Promise<AdminSession> {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { status: "error", message: copy.signedInRequired };
+    return { status: "error", message: ADMIN_MESSAGES.signedInRequired };
   }
 
   const { data: isAdmin, error } = await supabase.rpc("is_admin");
   if (error || !isAdmin) {
-    return { status: "error", message: copy.unauthorized };
+    return { status: "error", message: ADMIN_MESSAGES.unauthorized };
   }
 
   return { status: "success", supabase };
-}
-
-function validationMessage(
-  error: { issues: { message: string }[] },
-  locale: Locale,
-): string {
-  return error.issues[0]?.message ?? ACTION_MESSAGES[locale].invalidDetails;
-}
-
-function isUniqueViolation(error: {
-  code?: string;
-  message?: string;
-}): boolean {
-  if (error.code === "23505") return true;
-  const message = (error.message ?? "").toLowerCase();
-  return message.includes("contact_messages_email_subject");
 }
 
 async function getClientIp(): Promise<string> {
@@ -117,7 +97,7 @@ export async function submitContactMessage(
   input: ContactMessageInput,
 ): Promise<ContactMessageActionResult> {
   const locale = await getRequestLocale();
-  const copy = ACTION_MESSAGES[locale];
+  const copy = PUBLIC_MESSAGES[locale];
   const parsed = contactMessageSchemaFor(locale).safeParse(input);
 
   if (!parsed.success) {
@@ -140,9 +120,6 @@ export async function submitContactMessage(
     return { status: "error", message: copy.rateLimited };
   }
 
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
-
   const admin = createAdminClient();
   const { error } = await admin.from("contact_messages").insert({
     full_name: fullName,
@@ -153,11 +130,11 @@ export async function submitContactMessage(
   });
 
   if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: copy.duplicate };
-    }
     return { status: "error", message: copy.genericError };
   }
+
+  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
+  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshContactUsRoute();
   return { status: "success", message: copy.success };
@@ -166,14 +143,16 @@ export async function submitContactMessage(
 export async function updateContactMessage(
   input: UpdateContactMessageInput,
 ): Promise<ContactMessageActionResult> {
-  const locale = await getRequestLocale();
-  const copy = ACTION_MESSAGES[locale];
   const parsed = updateContactMessageSchema.safeParse(input);
   if (!parsed.success) {
-    return { status: "error", message: validationMessage(parsed.error, locale) };
+    return {
+      status: "error",
+      message:
+        parsed.error.issues[0]?.message ?? ADMIN_MESSAGES.invalidDetails,
+    };
   }
 
-  const session = await authorizeAdmin(locale);
+  const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
   const { id, fullName, email, phone, subject, message } = parsed.data;
@@ -192,31 +171,30 @@ export async function updateContactMessage(
     .maybeSingle();
 
   if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: copy.duplicate };
-    }
-    return { status: "error", message: copy.genericError };
+    return { status: "error", message: ADMIN_MESSAGES.genericError };
   }
 
   if (!data) {
-    return { status: "error", message: copy.notFound };
+    return { status: "error", message: ADMIN_MESSAGES.notFound };
   }
 
   refreshContactUsRoute();
-  return { status: "success", message: copy.updateSuccess };
+  return { status: "success", message: ADMIN_MESSAGES.updateSuccess };
 }
 
 export async function deleteContactMessage(
   input: DeleteContactMessageInput,
 ): Promise<ContactMessageActionResult> {
-  const locale = await getRequestLocale();
-  const copy = ACTION_MESSAGES[locale];
   const parsed = deleteContactMessageSchema.safeParse(input);
   if (!parsed.success) {
-    return { status: "error", message: validationMessage(parsed.error, locale) };
+    return {
+      status: "error",
+      message:
+        parsed.error.issues[0]?.message ?? ADMIN_MESSAGES.invalidDetails,
+    };
   }
 
-  const session = await authorizeAdmin(locale);
+  const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -227,13 +205,13 @@ export async function deleteContactMessage(
     .maybeSingle();
 
   if (error) {
-    return { status: "error", message: copy.genericError };
+    return { status: "error", message: ADMIN_MESSAGES.genericError };
   }
 
   if (!data) {
-    return { status: "error", message: copy.notFound };
+    return { status: "error", message: ADMIN_MESSAGES.notFound };
   }
 
   refreshContactUsRoute();
-  return { status: "success", message: copy.deleteSuccess };
+  return { status: "success", message: ADMIN_MESSAGES.deleteSuccess };
 }

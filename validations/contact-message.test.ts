@@ -64,8 +64,13 @@ describe("parseContactMessageListQuery", () => {
     expect(query.search).toBe("ada");
   });
 
-  it("clears search containing a dot", () => {
-    const query = parseContactMessageListQuery({ search: "a.b" });
-    expect(query.search).toBe("");
+  it("keeps dots so email search works", () => {
+    const query = parseContactMessageListQuery({ search: "ada@x.com" });
+    expect(query.search).toBe("ada@x.com");
+  });
+
+  it("clears search containing PostgREST filter metacharacters", () => {
+    expect(parseContactMessageListQuery({ search: "a%b" }).search).toBe("");
+    expect(parseContactMessageListQuery({ search: "a_b" }).search).toBe("");
   });
 });
