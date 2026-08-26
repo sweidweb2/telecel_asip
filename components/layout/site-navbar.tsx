@@ -89,29 +89,24 @@ export function SiteNavbar({
   const applyLabel = labels.apply.label;
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
 
-  const ctaLink = isAuthenticated ? (
+  const isCtaActive = isAuthenticated
+    ? pathname.startsWith(dashboardHref)
+    : isNavActive(pathname, applyHref, locale);
+
+  const ctaLink = (
     <Link
-      href={dashboardHref}
+      href={isAuthenticated ? dashboardHref : applyHref}
       onClick={() => setOpen(false)}
+      aria-current={isCtaActive ? "page" : undefined}
       className={cn(
         buttonVariants({ size: "sm" }),
         "min-h-11 w-full justify-center lg:min-h-8 lg:w-auto",
-        pathname.startsWith(dashboardHref) && "bg-muted",
+        // Keep primary colors when selected — `bg-muted` washed out the CTA.
+        isCtaActive &&
+          "bg-primary font-semibold text-primary-foreground ring-2 ring-primary/40 ring-offset-2 ring-offset-background hover:bg-primary/90",
       )}
     >
-      {dashboardLabel}
-    </Link>
-  ) : (
-    <Link
-      href={applyHref}
-      onClick={() => setOpen(false)}
-      className={cn(
-        buttonVariants({ size: "sm" }),
-        "min-h-11 w-full justify-center lg:min-h-8 lg:w-auto",
-        isNavActive(pathname, applyHref, locale) && "bg-muted",
-      )}
-    >
-      {applyLabel}
+      {isAuthenticated ? dashboardLabel : applyLabel}
     </Link>
   );
 
