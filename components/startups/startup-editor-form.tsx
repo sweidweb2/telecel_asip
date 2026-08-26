@@ -317,15 +317,6 @@ export function StartupEditorForm({
             </Button>
           ) : null}
           <Button
-            type="button"
-            variant="outline"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-            onClick={() => router.push(ROUTES.portfolio)}
-          >
-            Cancel
-          </Button>
-          <Button
             type="submit"
             className="min-h-11 w-full sm:w-auto"
             disabled={isPending}
