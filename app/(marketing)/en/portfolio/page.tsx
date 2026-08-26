@@ -1,7 +1,7 @@
 import { PortfolioPageContent } from "@/components/marketing/portfolio-page-content";
 import { marketingCopyFor } from "@/constants/marketing-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
-import { parsePortfolioPageParam } from "@/validations/startup";
+import { parsePortfolioYearParam } from "@/validations/startup";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
@@ -11,18 +11,18 @@ export const metadata = buildMarketingMetadata({
 });
 
 type PageProps = {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ year?: string }>;
 };
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
-  const page = parsePortfolioPageParam(params.page);
+  const year = parsePortfolioYearParam(params.year);
 
   return (
     <PortfolioPageContent
       locale="en"
       copy={marketingCopyFor("en", "portfolio")}
-      page={page}
+      initialYear={year ?? "all"}
     />
   );
 }

@@ -166,6 +166,55 @@ export async function getActiveStartupsPage(
   )();
 }
 
+async function fetchAllActiveStartups(): Promise<StartupPublicListItem[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups")
+    .select(PUBLIC_LIST_COLUMNS)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as StartupPublicListItem[];
+}
+
+export const getAllActiveStartups = unstable_cache(
+  fetchAllActiveStartups,
+  ["all-active-startups"],
+  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+);
+
+async function fetchActiveStartupFoundedYears(): Promise<string[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups")
+    .select("founded_at")
+    .eq("status", "active")
+    .not("founded_at", "is", null);
+
+  if (error) throw error;
+
+  const years = new Set<string>();
+  for (const row of data ?? []) {
+    const foundedAt =
+      row && typeof row === "object" && "founded_at" in row
+        ? (row.founded_at as string | null)
+        : null;
+    if (!foundedAt) continue;
+    const match = /^(\d{4})/.exec(foundedAt);
+    if (match?.[1]) years.add(match[1]);
+  }
+
+  return [...years].sort((a, b) => Number(b) - Number(a));
+}
+
+export const getActiveStartupFoundedYears = unstable_cache(
+  fetchActiveStartupFoundedYears,
+  ["active-startup-founded-years"],
+  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+);
+
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {

@@ -5,13 +5,17 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { frNavLabels } from "@/components/layout/site-nav-labels";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { isAuthenticated } from "@/data/auth";
+import { getActiveStartupFoundedYears } from "@/data/startups";
 
 export default async function FrMarketingLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const loggedIn = await isAuthenticated();
+  const [loggedIn, startupYears] = await Promise.all([
+    isAuthenticated(),
+    getActiveStartupFoundedYears(),
+  ]);
 
   return (
     <>
@@ -19,6 +23,7 @@ export default async function FrMarketingLayout({
         locale="fr"
         labels={frNavLabels()}
         isAuthenticated={loggedIn}
+        startupYears={startupYears}
       />
       <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter labels={frFooterLabels()} />

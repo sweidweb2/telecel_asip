@@ -15,6 +15,13 @@ export function startupInitials(name: string): string {
   return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
+/** Extract YYYY from a Postgres `date` (YYYY-MM-DD) or ISO string. */
+export function foundedYearFromDate(value: string | null): string | null {
+  if (!value) return null;
+  const match = /^(\d{4})/.exec(value.trim());
+  return match?.[1] ?? null;
+}
+
 /**
  * Format a Postgres `date` (YYYY-MM-DD) without UTC timezone shift.
  */

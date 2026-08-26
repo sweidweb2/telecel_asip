@@ -211,3 +211,14 @@ export function parsePortfolioPageParam(
   if (!Number.isFinite(page) || page < 1) return 1;
   return Math.min(page, 10_000);
 }
+
+/** Public portfolio `?year=YYYY` — returns the year or null when absent/invalid. */
+export function parsePortfolioYearParam(
+  value: string | string[] | undefined,
+): string | null {
+  const raw = first(value)?.trim();
+  if (!raw || !/^\d{4}$/.test(raw)) return null;
+  const year = Number(raw);
+  if (year < 1900 || year > 2100) return null;
+  return raw;
+}

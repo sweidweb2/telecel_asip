@@ -1,55 +1,28 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
-import { PortfolioPagination } from "@/components/marketing/portfolio-pagination";
-import { StartupCard } from "@/components/marketing/startup-card";
+import { PageHero, Section } from "@/components/marketing/page-elements";
+import { PortfolioStartupsGrid } from "@/components/marketing/portfolio-startups-grid";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getActiveStartupsPage } from "@/data/startups";
+import { getAllActiveStartups } from "@/data/startups";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
-
-const PAGINATION_LABELS = {
-  en: {
-    showing: "Showing {from}–{to} of {total} startups",
-    previous: "Previous",
-    next: "Next",
-    empty: "No active startups to show yet.",
-  },
-  fr: {
-    showing: "Affichage de {from} à {to} sur {total} startups",
-    previous: "Précédent",
-    next: "Suivant",
-    empty: "Aucune startup active à afficher pour le moment.",
-  },
-} as const;
 
 type PortfolioPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
-  page: number;
+  /** From `?year=YYYY`, or `"all"`. */
+  initialYear?: string;
 };
 
 export async function PortfolioPageContent({
   locale,
   copy,
-  page,
+  initialYear = "all",
 }: PortfolioPageContentProps) {
-  const { items, total, totalPages, pageSize } =
-    await getActiveStartupsPage(page);
+  const startups = await getAllActiveStartups();
   const cta = copy.ctaSection;
-  const labels = PAGINATION_LABELS[locale];
-
-  if (page > totalPages && total > 0) {
-    redirect(`${publicPath(locale, "portfolio")}?page=${totalPages}`);
-  }
-  if (page > 1 && total === 0) {
-    redirect(publicPath(locale, "portfolio"));
-  }
-
-  const currentPage = page;
 
   return (
     <main>
@@ -59,46 +32,12 @@ export async function PortfolioPageContent({
         description={copy.description}
       />
 
-      <Section className="border-t">
-        <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
-
-        <div className="mt-10 sm:mt-12">
-          <SectionHeading
-            title={copy.sectionTitle}
-            description={copy.sectionDescription}
-          />
-
-          {items.length === 0 ? (
-            <p className="rounded-2xl border border-dashed px-6 py-12 text-center text-muted-foreground">
-              {labels.empty}
-            </p>
-          ) : (
-            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
-              {items.map((startup) => (
-                <li key={startup.id} className="min-w-0">
-                  <StartupCard
-                    startup={startup}
-                    locale={locale}
-                    fromPage={currentPage}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="mt-10 sm:mt-12">
-            <PortfolioPagination
-              locale={locale}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              total={total}
-              pageSize={pageSize}
-              labels={labels}
-            />
-          </div>
-        </div>
+      <Section className="border-t pt-8 sm:pt-10">
+        <PortfolioStartupsGrid
+          locale={locale}
+          startups={startups}
+          initialYear={initialYear}
+        />
       </Section>
 
       {cta ? (

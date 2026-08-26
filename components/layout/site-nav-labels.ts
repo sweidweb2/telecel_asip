@@ -19,9 +19,9 @@ export type SiteNavLabels = {
 const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Home" },
   { slug: "about", label: "About" },
-  { slug: "programme", label: "Programme" },
-  { slug: "portfolio", label: "Portfolio" },
-  { slug: "insights", label: "Insights" },
+  { slug: "programme", label: "Program" },
+  { slug: "portfolio", label: "Startups" },
+  { slug: "insights", label: "Life" },
   { slug: "contact", label: "Contact" },
   { slug: "faq", label: "FAQ" },
 ];
@@ -44,8 +44,8 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Accueil" },
   { slug: "about", label: "À propos" },
   { slug: "programme", label: "Programme" },
-  { slug: "portfolio", label: "Portefeuille" },
-  { slug: "insights", label: "Perspectives" },
+  { slug: "portfolio", label: "Startups" },
+  { slug: "insights", label: "Vie" },
   { slug: "contact", label: "Contact" },
   { slug: "faq", label: "FAQ" },
 ];

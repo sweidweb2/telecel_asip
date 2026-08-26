@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createStartupSchema,
   parsePortfolioPageParam,
+  parsePortfolioYearParam,
   parseStartupListQuery,
   updateStartupSchema,
 } from "@/validations/startup";
@@ -176,5 +177,18 @@ describe("parsePortfolioPageParam", () => {
 
   it("parses positive pages", () => {
     expect(parsePortfolioPageParam("3")).toBe(3);
+  });
+});
+
+describe("parsePortfolioYearParam", () => {
+  it("returns null for missing or invalid years", () => {
+    expect(parsePortfolioYearParam(undefined)).toBeNull();
+    expect(parsePortfolioYearParam("abc")).toBeNull();
+    expect(parsePortfolioYearParam("1899")).toBeNull();
+    expect(parsePortfolioYearParam("2101")).toBeNull();
+  });
+
+  it("returns a valid YYYY year", () => {
+    expect(parsePortfolioYearParam("2024")).toBe("2024");
   });
 });
