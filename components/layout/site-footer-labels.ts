@@ -25,6 +25,7 @@ export type SiteFooterLabels = {
   social: FooterSocialLink[];
   copyright: string;
   legal: FooterLink[];
+  login: FooterLink;
 };
 
 function links(
@@ -60,7 +61,6 @@ export function enFooterLabels(): SiteFooterLabels {
     connect: [
       { href: publicPath("en", "contact"), label: "Contact" },
       { href: `${publicPath("en", "about")}#partners`, label: "Partner with us" },
-      { href: authPath("en", "login"), label: "Login" },
       { href: authPath("en", "signup"), label: "Register" },
     ],
     socialHeading: "Follow",
@@ -74,6 +74,7 @@ export function enFooterLabels(): SiteFooterLabels {
       { slug: "terms", label: "Terms of Service" },
       { slug: "privacy", label: "Privacy Policy" },
     ]),
+    login: { href: authPath("en", "login"), label: "Login" },
   };
 }
 
@@ -103,7 +104,6 @@ export function frFooterLabels(): SiteFooterLabels {
         href: `${publicPath("fr", "about")}#partners`,
         label: "Devenir partenaire",
       },
-      { href: authPath("fr", "login"), label: "Connexion" },
       { href: authPath("fr", "signup"), label: "Inscription" },
     ],
     socialHeading: "Suivre",
@@ -117,5 +117,6 @@ export function frFooterLabels(): SiteFooterLabels {
       { slug: "terms", label: "Conditions d’utilisation" },
       { slug: "privacy", label: "Politique de confidentialité" },
     ]),
+    login: { href: authPath("fr", "login"), label: "Connexion" },
   };
 }

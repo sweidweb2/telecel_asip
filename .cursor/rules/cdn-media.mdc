@@ -1,0 +1,22 @@
+---
+description: CDN, storage, media caching, and image rules (always)
+alwaysApply: true
+---
+
+# CDN / media / storage
+
+Permanent rules for every feature that touches uploads, public media, or caching:
+
+1. **Versioned object paths** — uploaded replaceable media must use unique/versioned paths (e.g. `` `${entityId}/${nanoid(10)}.${ext}` ``). Never reuse the previous object key on replace.
+2. **No overwrite at the same URL** — never overwrite public media at the same public URL (`upsert: false`; upload new path, update DB, then delete the old object).
+3. **Long cache TTL when immutable** — public media with versioned paths must set long Storage `cacheControl` (e.g. `"31536000"`).
+4. **Private ≠ public URLs** — private media must never use `/storage/v1/object/public/...`. Use a private bucket + signed URLs (or equivalent) when that feature exists.
+5. **Server-side MIME + size** — validate MIME type and file size in Server Actions (and keep bucket `allowed_mime_types` / `file_size_limit` aligned). Do not trust the client alone.
+6. **Upload processing** — admin media uploads must go through `lib/media/process-image` (resize + WebP) before Storage. Keep those Server Actions on Node (Sharp is not Edge-safe).
+7. **DB/app cache invalidation** — after mutations, use this project’s tag/path strategy (`revalidateTag` + `revalidatePath` / entity cache tags). Do not invent a parallel invalidation layer.
+8. **`next/image`** — use for appropriate remote/local marketing and content images (with `sizes` + meaningful `alt`). Plain `<img>` is OK for local blob previews or where optimization is intentionally unnecessary.
+9. **No custom CDN by default** — do not introduce a custom CDN (extra domain, loader rewrite, purge API) unless there is a demonstrated production requirement.
+10. **No purge infra without a CDN** — do not add CDN purge webhooks/APIs unless a real custom CDN requiring purge is in use. Versioned paths + Storage TTL + Next tag/path revalidation are the default.
+11. **Marketing HTML Option A** — do not reintroduce auth-dependent marketing chrome (`isAuthenticated` in marketing layouts, Apply↔Dashboard nav swap, or client session peeks on public pages). Navbar stays Apply; Login lives in the footer. Middleware session refresh stays limited to dashboard + auth routes.
+
+Architecture notes: `Docs/[06] Documentation/[6.6] CDN and storage architecture.md`.

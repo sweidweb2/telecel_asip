@@ -14,11 +14,6 @@ export const getAuthUser = cache(async () => {
   return user;
 });
 
-export async function isAuthenticated() {
-  const user = await getAuthUser();
-  return user !== null;
-}
-
 /**
  * DB-backed admin check. Uses `is_admin()` only (auth.uid from JWT) —
  * skips a redundant getUser() round trip after middleware already refreshed the session.

@@ -25,3 +25,4 @@ const [projects, user] = await Promise.all([
 8. **Forms & dates** — `react-hook-form` (uncontrolled). `date-fns` named imports only — never moment.js.
 9. **Route loading** — colocate `loading.tsx` with `page.tsx` and use `RouteSkeleton` (boneyard-js) with a shadcn fallback until bones are captured (`npm run bones:build`). Top-of-screen progress is `NextTopLoader` in the root layout, not per page.
 10. **`next/image`** — marketing/content images should use `next/image` whenever practical. Plain `<img>` is allowed for local blob previews or components where optimization is intentionally unnecessary. Gradually fix existing avatars/images when touching that UI; do not stop feature work to convert every image.
+11. **Upload processing** — admin media uploads go through `lib/media/process-image` (resize + WebP) before Storage. Keep Server Actions on Node (Sharp is not Edge-safe).

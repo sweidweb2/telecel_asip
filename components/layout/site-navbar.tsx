@@ -24,15 +24,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { LOCALES, type Locale } from "@/constants/locales";
-import { publicPath, ROUTES } from "@/constants/routes";
+import { publicPath } from "@/constants/routes";
 import { swapLocaleInPath } from "@/lib/i18n/path";
 import { cn } from "@/lib/utils";
 
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-  /** When true, show Dashboard; otherwise the primary Apply CTA. */
-  isAuthenticated?: boolean;
   /** Founded years from active startups for the Startups hover menu. */
   startupYears?: string[];
 };
@@ -90,27 +88,22 @@ function LanguageToggle({
 export function SiteNavbar({
   locale,
   labels,
-  isAuthenticated = false,
   startupYears = [],
 }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const dashboardHref = labels.dashboard?.href ?? ROUTES.dashboard;
   const applyHref = labels.apply.href;
-  const dashboardLabel = labels.dashboard?.label ?? "Dashboard";
   const applyLabel = labels.apply.label;
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
   const portfolioHref = publicPath(locale, "portfolio");
   const allYearsLabel = locale === "fr" ? "Toutes les années" : "All years";
   const yearsHeading = locale === "fr" ? "Par année" : "By year";
 
-  const isCtaActive = isAuthenticated
-    ? pathname.startsWith(dashboardHref)
-    : isNavActive(pathname, applyHref, locale);
+  const isCtaActive = isNavActive(pathname, applyHref, locale);
 
   const ctaLink = (
     <Link
-      href={isAuthenticated ? dashboardHref : applyHref}
+      href={applyHref}
       onClick={() => setOpen(false)}
       aria-current={isCtaActive ? "page" : undefined}
       className={cn(
@@ -120,7 +113,7 @@ export function SiteNavbar({
           "bg-primary font-semibold text-primary-foreground ring-2 ring-primary/40 ring-offset-2 ring-offset-background hover:bg-primary/90",
       )}
     >
-      {isAuthenticated ? dashboardLabel : applyLabel}
+      {applyLabel}
     </Link>
   );
 

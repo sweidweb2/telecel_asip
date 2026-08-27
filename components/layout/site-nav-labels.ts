@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath, ROUTES } from "@/constants/routes";
+import { publicPath } from "@/constants/routes";
 
 export type NavItem = {
   href: string;
@@ -12,7 +12,6 @@ export type SiteNavLabels = {
   items: NavItem[];
   languageGroupLabel: string;
   menuLabel: string;
-  dashboard: NavItem;
   apply: NavItem;
 };
 
@@ -35,7 +34,6 @@ export function enNavLabels(): SiteNavLabels {
       href: publicPath("en", slug),
       label,
     })),
-    dashboard: { href: ROUTES.dashboard, label: "Dashboard" },
     apply: { href: publicPath("en", "apply"), label: "Apply" },
   };
 }
@@ -59,7 +57,6 @@ export function frNavLabels(): SiteNavLabels {
       href: publicPath("fr", slug),
       label,
     })),
-    dashboard: { href: ROUTES.dashboard, label: "Tableau de bord" },
     apply: { href: publicPath("fr", "apply"), label: "Candidater" },
   };
 }

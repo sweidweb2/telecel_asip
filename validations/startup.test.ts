@@ -91,6 +91,19 @@ describe("createStartupSchema", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it("accepts details after Server Action strips undefined number keys", () => {
+    // Client zodResolver turns "" → undefined; RSC omits those keys on the wire.
+    const { foundingYear, fundingGoal, amountRaised, ...rest } = emptyDetails;
+    void foundingYear;
+    void fundingGoal;
+    void amountRaised;
+    const result = createStartupSchema.safeParse({
+      ...validCore,
+      details: rest,
+    });
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("updateStartupSchema", () => {

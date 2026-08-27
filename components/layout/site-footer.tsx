@@ -137,20 +137,31 @@ export function SiteFooter({ labels }: SiteFooterProps) {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">{labels.copyright}</p>
-          <nav
-            aria-label="Legal"
-            className="flex flex-wrap items-center gap-x-4 gap-y-1"
-          >
-            {labels.legal.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <nav
+              aria-label="Legal"
+              className="flex flex-wrap items-center gap-x-4 gap-y-1"
+            >
+              {labels.legal.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <Link
+              href={labels.login.href}
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                "min-h-11 w-full justify-center sm:w-auto",
+              )}
+            >
+              {labels.login.label}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -9,23 +9,16 @@ import { ErrorScreen } from "@/components/layout/error-screen";
 import { SiteNavbar } from "@/components/layout/site-navbar";
 import { buttonVariants } from "@/components/ui/button";
 import { publicPath, ROUTES } from "@/constants/routes";
-import { isAuthenticated } from "@/data/auth";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Page not found",
 };
 
-export default async function NotFound() {
-  const loggedIn = await isAuthenticated();
-
+export default function NotFound() {
   return (
     <>
-      <SiteNavbar
-        locale="en"
-        labels={enNavLabels()}
-        isAuthenticated={loggedIn}
-      />
+      <SiteNavbar locale="en" labels={enNavLabels()} />
       <div className="flex flex-1 flex-col">
         <ErrorScreen
           icon={FileQuestionIcon}
@@ -39,21 +32,12 @@ export default async function NotFound() {
           >
             Go home
           </Link>
-          {loggedIn ? (
-            <Link
-              href={ROUTES.dashboard}
-              className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <Link
-              href={ROUTES.login}
-              className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-            >
-              Login
-            </Link>
-          )}
+          <Link
+            href={ROUTES.login}
+            className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+          >
+            Login
+          </Link>
         </ErrorScreen>
       </div>
       <SiteFooter labels={enFooterLabels()} />

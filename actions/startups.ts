@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
+import { processImageBuffer } from "@/lib/media/process-image";
 import { createClient } from "@/lib/supabase/server";
 import {
   createStartupSchema,
@@ -157,7 +158,10 @@ export async function createStartup(
 ): Promise<StartupActionResult> {
   const parsed = createStartupSchema.safeParse(input);
   if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
+    };
   }
 
   const session = await authorizeAdmin();
@@ -189,7 +193,10 @@ export async function updateStartup(
 ): Promise<StartupActionResult> {
   const parsed = updateStartupSchema.safeParse(input);
   if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
+    };
   }
 
   const session = await authorizeAdmin();
@@ -256,19 +263,6 @@ export async function deleteStartup(
   return { status: "success", message: MESSAGES.deleteSuccess };
 }
 
-function extensionForMime(mime: string): string {
-  switch (mime) {
-    case "image/png":
-      return "png";
-    case "image/webp":
-      return "webp";
-    case "image/gif":
-      return "gif";
-    default:
-      return "jpg";
-  }
-}
-
 function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {
   return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
@@ -319,14 +313,22 @@ export async function uploadStartupLogo(
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  const ext = extensionForMime(file.type);
-  const path = `${startupId}/${nanoid(10)}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  let processed;
+  try {
+    processed = await processImageBuffer(
+      Buffer.from(await file.arrayBuffer()),
+      "startupLogo",
+    );
+  } catch {
+    return { status: "error", message: MESSAGES.invalidImage };
+  }
+
+  const path = `${startupId}/${nanoid(10)}.${processed.extension}`;
 
   const { error: uploadError } = await session.supabase.storage
     .from(LOGO_BUCKET)
-    .upload(path, buffer, {
-      contentType: file.type,
+    .upload(path, processed.buffer, {
+      contentType: processed.contentType,
       upsert: false,
       cacheControl: LOGO_CACHE_CONTROL,
     });

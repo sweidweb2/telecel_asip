@@ -8,9 +8,17 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
+import sharp from "sharp";
 
 const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";
+
+// Keep in sync with lib/media/process-image.ts
+const WEBP_QUALITY = 80;
+const PRESET_MAX_WIDTH = {
+  blogCover: 1600,
+  blogAvatar: 512,
+};
 
 function dummyBody(title) {
   return [
@@ -179,31 +187,34 @@ const SEED_POSTS = [
   },
 ];
 
-function mimeFromUrl(url, contentType) {
-  if (contentType?.includes("png")) return { mime: "image/png", ext: "png" };
-  if (contentType?.includes("gif")) return { mime: "image/gif", ext: "gif" };
-  if (contentType?.includes("jpeg") || contentType?.includes("jpg")) {
-    return { mime: "image/jpeg", ext: "jpg" };
-  }
-  if (url.includes(".png")) return { mime: "image/png", ext: "png" };
-  return { mime: "image/webp", ext: "webp" };
-}
-
 async function downloadImage(url) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Download failed (${response.status}): ${url}`);
   }
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const { mime, ext } = mimeFromUrl(url, response.headers.get("content-type"));
-  return { buffer, mime, ext };
+  return Buffer.from(await response.arrayBuffer());
 }
 
-async function uploadImage(supabase, bucket, blogId, url) {
-  const { buffer, mime, ext } = await downloadImage(url);
-  const path = `${blogId}/${randomUUID().slice(0, 8)}.${ext}`;
+/** Mirror lib/media/process-image.ts (Sharp → WebP). */
+async function processImageBuffer(input, preset) {
+  const maxWidth = PRESET_MAX_WIDTH[preset];
+  const buffer = await sharp(input)
+    .rotate()
+    .resize({
+      width: maxWidth,
+      withoutEnlargement: true,
+    })
+    .webp({ quality: WEBP_QUALITY })
+    .toBuffer();
+  return buffer;
+}
+
+async function uploadImage(supabase, bucket, blogId, url, preset) {
+  const raw = await downloadImage(url);
+  const buffer = await processImageBuffer(raw, preset);
+  const path = `${blogId}/${randomUUID().slice(0, 8)}.webp`;
   const { error } = await supabase.storage.from(bucket).upload(path, buffer, {
-    contentType: mime,
+    contentType: "image/webp",
     upsert: true,
     cacheControl: "31536000",
   });
@@ -248,12 +259,14 @@ async function main() {
       COVER_BUCKET,
       blogId,
       post.thumbnailUrl,
+      "blogCover",
     );
     const authorAvatarUrl = await uploadImage(
       supabase,
       AUTHOR_BUCKET,
       blogId,
       post.authorAvatarUrl,
+      "blogAvatar",
     );
 
     const bodyHtml = bodyToHtml(dummyBody(post.bodyTitle));

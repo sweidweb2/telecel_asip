@@ -45,8 +45,14 @@ const optionalUrl = z
   .optional()
   .or(z.literal(""));
 
+/**
+ * Optional numeric fields from HTML inputs / Server Actions.
+ * Must be `.optional()` so missing keys are valid: after client Zod transforms
+ * empty values to `undefined`, RSC serialization strips those keys.
+ */
 const optionalNonNegativeNumber = z
-  .union([z.number(), z.string(), z.null(), z.undefined()])
+  .union([z.number(), z.string(), z.null()])
+  .optional()
   .transform((value, ctx) => {
     if (value === "" || value === null || value === undefined) return undefined;
     const n = typeof value === "number" ? value : Number(value);
@@ -62,7 +68,8 @@ const optionalNonNegativeNumber = z
   });
 
 const optionalFoundingYear = z
-  .union([z.number(), z.string(), z.null(), z.undefined()])
+  .union([z.number(), z.string(), z.null()])
+  .optional()
   .transform((value, ctx) => {
     if (value === "" || value === null || value === undefined) return undefined;
     const n = typeof value === "number" ? value : Number(value);

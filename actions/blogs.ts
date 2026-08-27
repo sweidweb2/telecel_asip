@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
+import { processImageBuffer } from "@/lib/media/process-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
@@ -291,19 +292,6 @@ export async function deleteBlog(
   return { status: "success", message: MESSAGES.deleteSuccess };
 }
 
-function extensionForMime(mime: string): string {
-  switch (mime) {
-    case "image/png":
-      return "png";
-    case "image/webp":
-      return "webp";
-    case "image/gif":
-      return "gif";
-    default:
-      return "jpg";
-  }
-}
-
 function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {
   return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
@@ -358,14 +346,23 @@ async function uploadImage(options: {
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  const ext = extensionForMime(file.type);
-  const path = `${blogId}/${nanoid(10)}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const preset = column === "thumbnail_url" ? "blogCover" : "blogAvatar";
+  let processed;
+  try {
+    processed = await processImageBuffer(
+      Buffer.from(await file.arrayBuffer()),
+      preset,
+    );
+  } catch {
+    return { status: "error", message: MESSAGES.invalidImage };
+  }
+
+  const path = `${blogId}/${nanoid(10)}.${processed.extension}`;
 
   const { error: uploadError } = await session.supabase.storage
     .from(bucket)
-    .upload(path, buffer, {
-      contentType: file.type,
+    .upload(path, processed.buffer, {
+      contentType: processed.contentType,
       upsert: false,
       cacheControl: MEDIA_CACHE_CONTROL,
     });
