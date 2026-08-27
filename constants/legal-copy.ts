@@ -74,14 +74,14 @@ const en: LegalCopy = {
         title: "2. Information we may collect",
         paragraphs: [
           "We may collect information you provide directly — such as name, email, organisation, country, and message content when you contact us or register interest.",
-          "We may also collect technical data such as device type, browser, approximate location, and pages visited, including via cookies or similar technologies where consent is required.",
+          "We may also collect technical data such as device type, browser, approximate location, and pages visited, including via cookies or similar technologies used to operate the site (for example language preference and session).",
         ],
       },
       {
         title: "3. How we use information",
         paragraphs: [
           "We use personal data to operate the site, respond to enquiries, administer programme applications, improve the experience, and meet legal or security obligations.",
-          "Marketing or analytics tools that are not strictly necessary will only run after you provide the required consent through our cookie preference controls.",
+          "We do not currently load third-party marketing or analytics scripts on this site. If that changes, this policy will be updated.",
         ],
       },
       {
@@ -95,7 +95,7 @@ const en: LegalCopy = {
         title: "5. Your choices and rights",
         paragraphs: [
           "Depending on applicable law, you may have rights to access, correct, delete, or restrict processing of your personal data, or to object to certain uses.",
-          "You can manage non-essential cookies through the site’s cookie preferences. To exercise privacy rights, contact us via the Contact page.",
+          "To exercise privacy rights, contact us via the Contact page.",
         ],
       },
       {
@@ -179,14 +179,14 @@ const fr: LegalCopy = {
         title: "2. Informations susceptibles d’être collectées",
         paragraphs: [
           "Nous pouvons collecter les informations que vous fournissez directement — nom, e-mail, organisation, pays et contenu des messages lorsque vous nous contactez ou manifestez votre intérêt.",
-          "Nous pouvons également collecter des données techniques telles que le type d’appareil, le navigateur, une localisation approximative et les pages consultées, y compris via des cookies ou technologies similaires lorsque le consentement est requis.",
+          "Nous pouvons également collecter des données techniques telles que le type d’appareil, le navigateur, une localisation approximative et les pages consultées, y compris via des cookies ou technologies similaires utilisés pour faire fonctionner le site (par exemple la langue préférée et la session).",
         ],
       },
       {
         title: "3. Comment nous utilisons les informations",
         paragraphs: [
           "Nous utilisons les données personnelles pour faire fonctionner le site, répondre aux demandes, administrer les candidatures, améliorer l’expérience et respecter nos obligations légales ou de sécurité.",
-          "Les outils marketing ou d’analyse non strictement nécessaires ne s’exécutent qu’après le consentement requis via les préférences de cookies du site.",
+          "Nous ne chargeons actuellement aucun script marketing ou d’analyse tiers sur ce site. Si cela change, cette politique sera mise à jour.",
         ],
       },
       {
@@ -200,7 +200,7 @@ const fr: LegalCopy = {
         title: "5. Vos choix et droits",
         paragraphs: [
           "Selon le droit applicable, vous pouvez disposer de droits d’accès, de rectification, de suppression ou de limitation du traitement de vos données, ou d’opposition à certains usages.",
-          "Vous pouvez gérer les cookies non essentiels via les préférences de cookies du site. Pour exercer vos droits, contactez-nous via la page Contact.",
+          "Pour exercer vos droits, contactez-nous via la page Contact.",
         ],
       },
       {
