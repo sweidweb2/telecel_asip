@@ -205,6 +205,7 @@ async function uploadImage(supabase, bucket, blogId, url) {
   const { error } = await supabase.storage.from(bucket).upload(path, buffer, {
     contentType: mime,
     upsert: true,
+    cacheControl: "31536000",
   });
   if (error) throw error;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;

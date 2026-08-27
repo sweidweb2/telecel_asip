@@ -41,6 +41,7 @@ const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";
 const COVER_MAX_BYTES = 5 * 1024 * 1024;
 const AUTHOR_MAX_BYTES = 2 * 1024 * 1024;
+const MEDIA_CACHE_CONTROL = "31536000";
 const ALLOWED_MIME = new Set([
   "image/jpeg",
   "image/png",
@@ -366,6 +367,7 @@ async function uploadImage(options: {
     .upload(path, buffer, {
       contentType: file.type,
       upsert: false,
+      cacheControl: MEDIA_CACHE_CONTROL,
     });
 
   if (uploadError) {
