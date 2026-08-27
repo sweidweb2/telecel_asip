@@ -32,14 +32,20 @@ function detectLocale(request: NextRequest): Locale {
 
 function withLocaleHeaders(
   response: NextResponse,
-  locale: Locale
+  locale: Locale,
+  request: NextRequest,
 ): NextResponse {
   response.headers.set(LOCALE_HEADER, locale);
-  response.cookies.set(LOCALE_COOKIE, locale, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
+  // Only Set-Cookie when the preferred locale changes — avoids blocking
+  // shared HTML CDN caching on every marketing response.
+  const existing = request.cookies.get(LOCALE_COOKIE)?.value;
+  if (existing !== locale) {
+    response.cookies.set(LOCALE_COOKIE, locale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
   return response;
 }
 
@@ -126,7 +132,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("next", pathname);
       const redirect = NextResponse.redirect(loginUrl);
       copyCookies(response, redirect);
-      return withLocaleHeaders(redirect, locale);
+      return withLocaleHeaders(redirect, locale, request);
     }
 
     if (isAuthPage(pathname) && userId) {
@@ -148,7 +154,7 @@ export async function middleware(request: NextRequest) {
         request: { headers: requestHeaders },
       });
       copyCookies(response, next);
-      return withLocaleHeaders(next, first);
+      return withLocaleHeaders(next, first, request);
     }
 
     response.headers.set(LOCALE_HEADER, locale);
@@ -161,7 +167,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === "/") {
     const redirect = NextResponse.redirect(new URL(`/${locale}`, request.url));
-    return withLocaleHeaders(redirect, locale);
+    return withLocaleHeaders(redirect, locale, request);
   }
 
   if (first && isLocale(first)) {
@@ -170,7 +176,7 @@ export async function middleware(request: NextRequest) {
     const next = NextResponse.next({
       request: { headers: requestHeaders },
     });
-    return withLocaleHeaders(next, first);
+    return withLocaleHeaders(next, first, request);
   }
 
   if (
@@ -181,7 +187,7 @@ export async function middleware(request: NextRequest) {
     const redirect = NextResponse.redirect(
       new URL(`/${locale}/${segments[0]}`, request.url)
     );
-    return withLocaleHeaders(redirect, locale);
+    return withLocaleHeaders(redirect, locale, request);
   }
 
   const response = NextResponse.next({ request });

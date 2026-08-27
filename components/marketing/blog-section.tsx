@@ -5,23 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
+import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { categoryToTabId, type BlogTabId } from "@/constants/blog-ui";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
 import type { ArticleListItem } from "@/types/article";
-
-function authorInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 type BlogSectionProps = {
   locale: Locale;
@@ -79,14 +70,10 @@ function FeaturedPost({
                     {labels.writtenBy}
                   </p>
                   <div className="flex items-center gap-2">
-                    <Avatar>
-                      {article.author.avatarUrl ? (
-                        <AvatarImage src={article.author.avatarUrl} alt="" />
-                      ) : null}
-                      <AvatarFallback>
-                        {authorInitials(article.author.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <AuthorAvatar
+                      name={article.author.name}
+                      src={article.author.avatarUrl}
+                    />
                     <p className="text-sm font-semibold text-white">
                       {article.author.name}
                     </p>

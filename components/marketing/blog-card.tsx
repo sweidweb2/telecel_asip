@@ -2,19 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
 import type { ArticleListItem } from "@/types/article";
-
-function authorInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 type BlogCardProps = {
   article: ArticleListItem;
@@ -52,12 +43,11 @@ export function BlogCard({ article, locale }: BlogCardProps) {
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Avatar size="sm">
-          {article.author.avatarUrl ? (
-            <AvatarImage src={article.author.avatarUrl} alt="" />
-          ) : null}
-          <AvatarFallback>{authorInitials(article.author.name)}</AvatarFallback>
-        </Avatar>
+        <AuthorAvatar
+          name={article.author.name}
+          src={article.author.avatarUrl}
+          size="sm"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{article.author.name}</p>
           <p className="text-sm text-muted-foreground">
