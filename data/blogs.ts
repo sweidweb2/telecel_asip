@@ -68,10 +68,7 @@ async function fetchBlogsPage(
 
 export async function getBlogsPageData(
   query: BlogListQuery,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "ok"; list: BlogListResult }
-> {
+): Promise<{ status: "forbidden" } | { status: "ok"; list: BlogListResult }> {
   const supabase = await createClient();
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
   if (adminError) throw adminError;
@@ -117,19 +114,6 @@ async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   return (data ?? []) as BlogPublicListItem[];
 }
 
-async function fetchFeaturedBlog(): Promise<BlogPublicListItem | null> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("blogs")
-    .select(PUBLIC_LIST_COLUMNS)
-    .eq("status", "published")
-    .eq("is_featured", true)
-    .maybeSingle();
-
-  if (error) throw error;
-  return (data as BlogPublicListItem | null) ?? null;
-}
-
 async function fetchPublishedBlogBySlug(slug: string): Promise<Blog | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
@@ -155,82 +139,28 @@ async function fetchPublishedBlogSlugRows(): Promise<BlogSlugRow[]> {
   return (data ?? []) as BlogSlugRow[];
 }
 
+/**
+ * Same-category posts first, topped up by recency — ranked in one statement by
+ * `get_related_published_blogs` rather than up to three sequential queries.
+ */
 async function fetchRelatedPublishedBlogs(
   slug: string,
   limit: number,
 ): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();
 
-  const { data: current, error: currentError } = await supabase
-    .from("blogs")
-    .select("id, slug, categories")
-    .eq("status", "published")
-    .eq("slug", slug)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("get_related_published_blogs", {
+    p_slug: slug,
+    p_limit: limit,
+  });
 
-  if (currentError) throw currentError;
-
-  const primary = current?.categories?.[0];
-  const results: BlogPublicListItem[] = [];
-
-  if (primary) {
-    const { data: sameCategory, error } = await supabase
-      .from("blogs")
-      .select(PUBLIC_LIST_COLUMNS)
-      .eq("status", "published")
-      .neq("slug", slug)
-      .contains("categories", [primary])
-      .order("published_at", { ascending: false, nullsFirst: false })
-      .order("id", { ascending: true })
-      .limit(limit);
-
-    if (error) throw error;
-    results.push(...((sameCategory ?? []) as BlogPublicListItem[]));
-  }
-
-  if (results.length >= limit) {
-    return results.slice(0, limit);
-  }
-
-  const excludeIds = [
-    ...(current?.id ? [current.id] : []),
-    ...results.map((row) => row.id),
-  ];
-  const remaining = limit - results.length;
-
-  let fallbackQuery = supabase
-    .from("blogs")
-    .select(PUBLIC_LIST_COLUMNS)
-    .eq("status", "published")
-    .neq("slug", slug)
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .order("id", { ascending: true })
-    .limit(remaining);
-
-  if (excludeIds.length > 0) {
-    fallbackQuery = fallbackQuery.not(
-      "id",
-      "in",
-      `(${excludeIds.join(",")})`,
-    );
-  }
-
-  const { data: extras, error: extrasError } = await fallbackQuery;
-  if (extrasError) throw extrasError;
-
-  results.push(...((extras ?? []) as BlogPublicListItem[]));
-  return results.slice(0, limit);
+  if (error) throw error;
+  return (data ?? []) as BlogPublicListItem[];
 }
 
 export const getPublishedBlogs = unstable_cache(
   fetchPublishedBlogs,
   ["published-blogs"],
-  { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
-);
-
-export const getFeaturedBlog = unstable_cache(
-  fetchFeaturedBlog,
-  ["featured-blog"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 

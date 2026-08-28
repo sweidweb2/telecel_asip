@@ -13,6 +13,7 @@ import type {
 } from "@/types/startup";
 import {
   STARTUP_PUBLIC_PAGE_SIZE,
+  type ActiveStartupFilters,
   type StartupListQuery,
 } from "@/validations/startup";
 
@@ -76,8 +77,7 @@ async function fetchStartupsPage(
 export async function getStartupsPageData(
   query: StartupListQuery,
 ): Promise<
-  | { status: "forbidden" }
-  | { status: "ok"; list: StartupListResult }
+  { status: "forbidden" } | { status: "ok"; list: StartupListResult }
 > {
   const supabase = await createClient();
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
@@ -100,15 +100,17 @@ export async function getStartupByIdForAdmin(
   if (adminError) throw adminError;
   if (!isAdmin) return { status: "forbidden" };
 
-  const [{ data: startup, error: startupError }, { data: details, error: detailsError }] =
-    await Promise.all([
-      supabase.from("startups").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
-      supabase
-        .from("startup_details")
-        .select(DETAILS_COLUMNS)
-        .eq("startup_id", id)
-        .maybeSingle(),
-    ]);
+  const [
+    { data: startup, error: startupError },
+    { data: details, error: detailsError },
+  ] = await Promise.all([
+    supabase.from("startups").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
+    supabase
+      .from("startup_details")
+      .select(DETAILS_COLUMNS)
+      .eq("startup_id", id)
+      .maybeSingle(),
+  ]);
 
   if (startupError) throw startupError;
   if (detailsError) throw detailsError;
@@ -128,16 +130,30 @@ export async function getStartupByIdForAdmin(
 async function fetchActiveStartupsPage(
   page: number,
   pageSize: number,
+  filters: ActiveStartupFilters,
 ): Promise<StartupPublicPageResult> {
   const supabase = createPublicClient();
   const safePage = Math.max(1, page);
   const from = (safePage - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, count, error } = await supabase
+  let request = supabase
     .from("startups")
     .select(PUBLIC_LIST_COLUMNS, { count: "exact" })
-    .eq("status", "active")
+    .eq("status", "active");
+
+  if (filters.year) {
+    // founded_at is a date; a half-open range keeps the column index usable.
+    request = request
+      .gte("founded_at", `${filters.year}-01-01`)
+      .lt("founded_at", `${Number(filters.year) + 1}-01-01`);
+  }
+
+  if (filters.search) {
+    request = request.ilike("name", `%${escapeIlikePattern(filters.search)}%`);
+  }
+
+  const { data, count, error } = await request
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -156,34 +172,29 @@ async function fetchActiveStartupsPage(
   };
 }
 
+/**
+ * One page of the public founders list, filtered in Postgres. Year and search
+ * come from the URL, so each combination is cached independently instead of
+ * shipping every active startup to the browser.
+ */
 export async function getActiveStartupsPage(
   page: number,
+  filters: ActiveStartupFilters = { year: null, search: "" },
 ): Promise<StartupPublicPageResult> {
+  // Page and year have a small, known set of values, so they are safe cache
+  // keys. A free-text search is attacker-controlled and would let anyone mint
+  // unbounded cache entries, so those queries go straight to Postgres — the
+  // gin_trgm index on `name` keeps them cheap.
+  if (filters.search) {
+    return fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters);
+  }
+
   return unstable_cache(
-    () => fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE),
-    ["active-startups-page", String(page)],
+    () => fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters),
+    ["active-startups-page", String(page), filters.year ?? "all"],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
 }
-
-async function fetchAllActiveStartups(): Promise<StartupPublicListItem[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups")
-    .select(PUBLIC_LIST_COLUMNS)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as StartupPublicListItem[];
-}
-
-export const getAllActiveStartups = unstable_cache(
-  fetchAllActiveStartups,
-  ["all-active-startups"],
-  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-);
 
 async function fetchActiveStartupFoundedYears(): Promise<string[]> {
   const supabase = createPublicClient();

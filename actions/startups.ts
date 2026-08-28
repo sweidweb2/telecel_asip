@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   createStartupSchema,
   deleteStartupSchema,
+  startupIdSchema,
   updateStartupSchema,
   type CreateStartupInput,
   type DeleteStartupInput,
@@ -248,8 +249,6 @@ export async function deleteStartup(
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-
   const { error: deleteError } = await session.supabase
     .from("startups")
     .delete()
@@ -258,6 +257,10 @@ export async function deleteStartup(
   if (deleteError) {
     return { status: "error", message: MESSAGES.genericError };
   }
+
+  // Storage only after the row is gone: a failure here leaks an orphan object
+  // instead of leaving a live row pointing at a deleted logo.
+  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
   refreshStartupPaths(existing.slug);
   return { status: "success", message: MESSAGES.deleteSuccess };
@@ -281,13 +284,26 @@ async function removeStorageUrlIfOwned(
 ) {
   const path = storagePathFromPublicUrl(url);
   if (!path) return;
-  await supabase.storage.from(LOGO_BUCKET).remove([path]);
+  const { error } = await supabase.storage.from(LOGO_BUCKET).remove([path]);
+  if (error) {
+    // Orphaned object — the DB is already consistent, so surface it for cleanup
+    // rather than failing the action.
+    console.error("Failed to remove storage object", {
+      bucket: LOGO_BUCKET,
+      path,
+      error,
+    });
+  }
 }
 
 export async function uploadStartupLogo(
   startupId: string,
   formData: FormData,
 ): Promise<StartupActionResult> {
+  if (!startupIdSchema.safeParse(startupId).success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
+
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return { status: "error", message: MESSAGES.invalidImage };
@@ -361,6 +377,10 @@ export async function uploadStartupLogo(
 export async function removeStartupLogo(
   startupId: string,
 ): Promise<StartupActionResult> {
+  if (!startupIdSchema.safeParse(startupId).success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
+
   const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
@@ -377,8 +397,6 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-
   const { error: updateError } = await session.supabase
     .from("startups")
     .update({ logo_url: null })
@@ -387,6 +405,8 @@ export async function removeStartupLogo(
   if (updateError) {
     return { status: "error", message: MESSAGES.genericError };
   }
+
+  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
   refreshStartupPaths(existing.slug);
   return { status: "success", message: MESSAGES.removeSuccess, id: startupId };

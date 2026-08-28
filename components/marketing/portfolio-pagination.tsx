@@ -18,9 +18,22 @@ type PortfolioPaginationLabels = {
   next: string;
 };
 
-function pageHref(locale: Locale, page: number) {
+/** Filters preserved across pages; empty/undefined values are dropped. */
+type PortfolioPaginationFilters = Record<string, string | undefined>;
+
+function pageHref(
+  locale: Locale,
+  page: number,
+  filters: PortfolioPaginationFilters,
+) {
   const base = publicPath(locale, "founders");
-  return page > 1 ? `${base}?page=${page}` : base;
+  const params = new URLSearchParams();
+  if (page > 1) params.set("page", String(page));
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) params.set(key, value);
+  }
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
 }
 
 export function PortfolioPagination({
@@ -30,6 +43,7 @@ export function PortfolioPagination({
   total,
   pageSize,
   labels,
+  filters = {},
 }: {
   locale: Locale;
   currentPage: number;
@@ -37,6 +51,7 @@ export function PortfolioPagination({
   total: number;
   pageSize: number;
   labels: PortfolioPaginationLabels;
+  filters?: PortfolioPaginationFilters;
 }) {
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
@@ -58,7 +73,9 @@ export function PortfolioPagination({
             <PaginationItem>
               <PaginationPrevious
                 href={
-                  currentPage > 1 ? pageHref(locale, currentPage - 1) : undefined
+                  currentPage > 1
+                    ? pageHref(locale, currentPage - 1, filters)
+                    : undefined
                 }
                 text={labels.previous}
                 aria-disabled={currentPage === 1}
@@ -76,7 +93,7 @@ export function PortfolioPagination({
               ) : (
                 <PaginationItem key={item}>
                   <PaginationLink
-                    href={pageHref(locale, item)}
+                    href={pageHref(locale, item, filters)}
                     isActive={item === currentPage}
                     aria-label={`Page ${item} of ${totalPages}`}
                     className="min-w-9"
@@ -91,7 +108,7 @@ export function PortfolioPagination({
               <PaginationNext
                 href={
                   currentPage < totalPages
-                    ? pageHref(locale, currentPage + 1)
+                    ? pageHref(locale, currentPage + 1, filters)
                     : undefined
                 }
                 text={labels.next}

@@ -1,27 +1,49 @@
 import Link from "next/link";
 
 import { PageHero, Section } from "@/components/marketing/page-elements";
+import { PortfolioPagination } from "@/components/marketing/portfolio-pagination";
 import { PortfolioStartupsGrid } from "@/components/marketing/portfolio-startups-grid";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getAllActiveStartups } from "@/data/startups";
+import {
+  getActiveStartupFoundedYears,
+  getActiveStartupsPage,
+} from "@/data/startups";
 import type { MarketingPageCopy } from "@/types/marketing-page";
+import type { ActiveStartupFilters } from "@/validations/startup";
 import { cn } from "@/lib/utils";
+
+const PAGINATION_LABELS = {
+  en: {
+    showing: "Showing {from}–{to} of {total}",
+    previous: "Previous",
+    next: "Next",
+  },
+  fr: {
+    showing: "Affichage de {from} à {to} sur {total}",
+    previous: "Précédent",
+    next: "Suivant",
+  },
+} as const;
 
 type PortfolioPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
-  /** From `?year=YYYY`, or `"all"`. */
-  initialYear?: string;
+  page?: number;
+  filters?: ActiveStartupFilters;
 };
 
 export async function PortfolioPageContent({
   locale,
   copy,
-  initialYear = "all",
+  page = 1,
+  filters = { year: null, search: "" },
 }: PortfolioPageContentProps) {
-  const startups = await getAllActiveStartups();
+  const [list, years] = await Promise.all([
+    getActiveStartupsPage(page, filters),
+    getActiveStartupFoundedYears(),
+  ]);
   const cta = copy.ctaSection;
 
   return (
@@ -35,9 +57,29 @@ export async function PortfolioPageContent({
       <Section className="border-t pt-8 sm:pt-10">
         <PortfolioStartupsGrid
           locale={locale}
-          startups={startups}
-          initialYear={initialYear}
+          startups={list.items}
+          total={list.total}
+          years={years}
+          year={filters.year ?? "all"}
+          search={filters.search}
         />
+
+        {list.total > 0 ? (
+          <div className="mt-10">
+            <PortfolioPagination
+              locale={locale}
+              currentPage={list.currentPage}
+              totalPages={list.totalPages}
+              total={list.total}
+              pageSize={list.pageSize}
+              labels={PAGINATION_LABELS[locale]}
+              filters={{
+                year: filters.year ?? undefined,
+                q: filters.search || undefined,
+              }}
+            />
+          </div>
+        ) : null}
       </Section>
 
       {cta ? (

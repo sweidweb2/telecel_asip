@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useTransition } from "react";
-import Script from "next/script";
+import { useCallback, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -9,6 +8,7 @@ import { toast } from "sonner";
 
 import { submitContactMessage } from "@/actions/contact-messages";
 import type { ContactLabels } from "@/components/marketing/contact-labels";
+import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Locale } from "@/constants/locales";
+import { useTurnstile } from "@/hooks/use-turnstile";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
-import type { TurnstileWidgetId } from "@/types/turnstile";
 import {
   contactMessageSchemaFor,
   type ContactMessageInput,
@@ -33,12 +33,8 @@ type ContactFormProps = {
   labels: ContactLabels;
 };
 
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
-
 export function ContactForm({ locale, labels }: ContactFormProps) {
   const [isPending, startTransition] = useTransition();
-  const turnstileContainer = useRef<HTMLDivElement>(null);
-  const turnstileWidgetId = useRef<TurnstileWidgetId | null>(null);
 
   const {
     register,
@@ -61,40 +57,14 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
 
   const turnstileToken = useWatch({ control, name: "turnstileToken" });
 
-  function clearTurnstileToken() {
-    setValue("turnstileToken", "", { shouldValidate: false });
-  }
-
-  function resetTurnstileWidget() {
-    if (turnstileWidgetId.current !== null && window.turnstile) {
-      window.turnstile.reset(turnstileWidgetId.current);
-    }
-    clearTurnstileToken();
-  }
-
-  function renderTurnstile() {
-    if (
-      !TURNSTILE_SITE_KEY ||
-      !turnstileContainer.current ||
-      !window.turnstile ||
-      turnstileWidgetId.current !== null
-    ) {
-      return;
-    }
-
-    turnstileWidgetId.current = window.turnstile.render(
-      turnstileContainer.current,
-      {
-        sitekey: TURNSTILE_SITE_KEY,
-        action: TURNSTILE_CONTACT_ACTION,
-        callback: (token) => {
-          setValue("turnstileToken", token, { shouldValidate: true });
-        },
-        "error-callback": clearTurnstileToken,
-        "expired-callback": clearTurnstileToken,
-      },
-    );
-  }
+  const turnstile = useTurnstile({
+    action: TURNSTILE_CONTACT_ACTION,
+    onTokenChange: useCallback(
+      (token: string) =>
+        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
+      [setValue],
+    ),
+  });
 
   function onSubmit(values: ContactMessageInput) {
     startTransition(async () => {
@@ -116,7 +86,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
           turnstileToken: "",
         });
       } finally {
-        resetTurnstileWidget();
+        turnstile.reset();
       }
     });
   }
@@ -128,13 +98,6 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
         <CardDescription>{labels.formDescription}</CardDescription>
       </CardHeader>
       <CardContent>
-        {TURNSTILE_SITE_KEY ? (
-          <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-            strategy="afterInteractive"
-            onReady={renderTurnstile}
-          />
-        ) : null}
         <form
           className="grid gap-4"
           onSubmit={handleSubmit(onSubmit)}
@@ -172,7 +135,9 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
                 {...register("phone")}
               />
               {errors.phone ? (
-                <p className="text-sm text-destructive">{errors.phone.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.phone.message}
+                </p>
               ) : null}
             </div>
           </div>
@@ -204,7 +169,9 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
               {...register("subject")}
             />
             {errors.subject ? (
-              <p className="text-sm text-destructive">{errors.subject.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.subject.message}
+              </p>
             ) : null}
           </div>
           <div className="grid gap-2">
@@ -219,27 +186,19 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
               {...register("message")}
             />
             {errors.message ? (
-              <p className="text-sm text-destructive">{errors.message.message}</p>
-            ) : null}
-          </div>
-          <div className="grid gap-2">
-            <input type="hidden" {...register("turnstileToken")} />
-            <div
-              ref={turnstileContainer}
-              className="min-h-16"
-              data-testid="contact-turnstile"
-            />
-            {!turnstileToken && !errors.turnstileToken ? (
-              <p className="text-sm text-muted-foreground">
-                {labels.turnstileHint}
-              </p>
-            ) : null}
-            {errors.turnstileToken ? (
               <p className="text-sm text-destructive">
-                {errors.turnstileToken.message}
+                {errors.message.message}
               </p>
             ) : null}
           </div>
+          <input type="hidden" {...register("turnstileToken")} />
+          <TurnstileField
+            turnstile={turnstile}
+            hasToken={Boolean(turnstileToken)}
+            hint={labels.turnstileHint}
+            error={errors.turnstileToken?.message}
+            testId="contact-turnstile"
+          />
           <Button
             type="submit"
             className="min-h-11 w-full sm:w-auto"

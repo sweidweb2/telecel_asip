@@ -84,9 +84,19 @@ export const deleteBlogSchema = z.object({
   id: z.uuid("Invalid blog id"),
 });
 
+export const blogIdSchema = z.uuid("Invalid blog id");
+
+export const BLOG_IMAGE_KINDS = ["thumbnail", "author"] as const;
+
+export const blogImageTargetSchema = z.object({
+  id: z.uuid("Invalid blog id"),
+  kind: z.enum(BLOG_IMAGE_KINDS),
+});
+
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
 export type DeleteBlogInput = z.infer<typeof deleteBlogSchema>;
+export type BlogImageTarget = z.infer<typeof blogImageTargetSchema>;
 
 const blogListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),

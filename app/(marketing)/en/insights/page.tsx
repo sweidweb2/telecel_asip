@@ -1,7 +1,7 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { BlogSection } from "@/components/marketing/blog-section";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
-import { getAllInsights, getFeaturedInsight } from "@/data/insights";
+import { getInsightsIndex } from "@/data/insights";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
@@ -12,10 +12,7 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function InsightsPageEn() {
-  const [articles, featured] = await Promise.all([
-    getAllInsights("en"),
-    getFeaturedInsight("en"),
-  ]);
+  const { articles, featured } = await getInsightsIndex("en");
 
   return (
     <BlogSection

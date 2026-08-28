@@ -6,7 +6,7 @@ import { ClipboardListIcon } from "lucide-react";
 
 import { RegistrationRowActions } from "@/components/registrations/registration-dialogs";
 import { RegistrationsFilters } from "@/components/registrations/registrations-filters";
-import { RegistrationsPagination } from "@/components/registrations/registrations-pagination";
+import { AdminPagination } from "@/components/dashboard/admin-pagination";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Table,
@@ -16,8 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ROUTES } from "@/constants/routes";
 import type { InterestRegistration } from "@/types/interest-registration";
-import type { InterestRegistrationListQuery } from "@/validations/interest-registration";
+import {
+  INTEREST_REGISTRATION_PAGE_SIZE,
+  type InterestRegistrationListQuery,
+} from "@/validations/interest-registration";
 
 export function RegistrationsTable({
   registrations,
@@ -124,10 +128,13 @@ export function RegistrationsTable({
       </CardContent>
 
       <CardFooter className="border-t bg-transparent px-4 py-3">
-        <RegistrationsPagination
-          query={query}
+        <AdminPagination
+          basePath={ROUTES.registrations}
+          page={query.page}
+          pageSize={INTEREST_REGISTRATION_PAGE_SIZE}
           total={total}
           totalPages={totalPages}
+          filters={{ search: query.search }}
         />
       </CardFooter>
     </Card>

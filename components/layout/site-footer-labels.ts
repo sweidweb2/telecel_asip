@@ -25,6 +25,8 @@ export type SiteFooterLabels = {
   social: FooterSocialLink[];
   copyright: string;
   legal: FooterLink[];
+  /** Dormant Apply page — reachable from the footer only until a cohort opens. */
+  apply: FooterLink;
   login: FooterLink;
 };
 
@@ -76,6 +78,7 @@ export function enFooterLabels(): SiteFooterLabels {
       { slug: "terms", label: "Terms of Service" },
       { slug: "privacy", label: "Privacy Policy" },
     ]),
+    apply: { href: publicPath("en", "apply"), label: "Apply" },
     login: { href: authPath("en", "login"), label: "Login" },
   };
 }
@@ -118,6 +121,7 @@ export function frFooterLabels(): SiteFooterLabels {
       { slug: "terms", label: "Conditions d’utilisation" },
       { slug: "privacy", label: "Politique de confidentialité" },
     ]),
+    apply: { href: publicPath("fr", "apply"), label: "Candidater" },
     login: { href: authPath("fr", "login"), label: "Connexion" },
   };
 }

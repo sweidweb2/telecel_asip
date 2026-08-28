@@ -53,7 +53,7 @@ test("mobile navigation remains usable", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("renamed portfolio URLs redirect to founders", async ({ page }) => {
-  await page.goto("/en/portfolio");
-  await expect(page).toHaveURL(/\/en\/founders$/);
+test("retired portfolio URLs are gone", async ({ page }) => {
+  const response = await page.goto("/en/portfolio");
+  expect(response?.status()).toBe(404);
 });

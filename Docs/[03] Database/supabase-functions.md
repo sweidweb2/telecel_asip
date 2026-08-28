@@ -27,12 +27,12 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 | --- | --- |
 | **Role** | RPC (admin Users page stats) |
 | **Returns** | One row: `total`, `admins`, `editors`, `viewers`, `new_this_week`, `new_this_month` (all `bigint`) |
-| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public` |
-| **Granted to** | `authenticated` |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, admin-only |
+| **Granted to** | `authenticated` (raises `42501` for non-admins) |
 
 **Details:** Replaces multiple head-count queries with one round-trip for dashboard stats.
 
-**How it works:** Single `SELECT` over `public.profiles` with `COUNT(*)` and filtered counts by role and by `created_at` vs UTC week/month truncations. Invoker means RLS still applies — callers only see counts for rows they can `SELECT` (admins see all; others effectively see their own row).
+**How it works:** Raises `42501` unless `is_admin()` (added 20260828191100 — previously any authenticated caller got RLS-filtered counts, which read as real totals but were not). Then a single `SELECT` over `public.profiles` with `COUNT(*)` and filtered counts by role and by `created_at` vs UTC week/month truncations. Invoker, so RLS still applies on top of the guard.
 
 ---
 
@@ -46,7 +46,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 **Details:** Creates the matching `public.profiles` row when a row is inserted into `auth.users`.
 
-**How it works:** Reads `raw_app_meta_data.app_role` (`admin` / `editor` / `viewer`); anything else (including public signup) becomes `viewer`. Copies `id`, `email`, and `raw_user_meta_data.full_name`. Public clients cannot write `app_metadata`, so only Admin API–created users can get elevated roles at insert time.
+**How it works:** Reads `raw_app_meta_data.app_role` (`admin` / `editor` / `viewer`); anything else (including public signup) becomes `viewer`. Copies `id`, `email`, and `raw_user_meta_data.full_name`. Public clients cannot write `app_metadata`, so only Admin API–created users can get elevated roles at insert time. The `profiles.role` column default is also `viewer` (20260828191000), so an insert that bypasses this trigger cannot silently create an admin.
 
 ---
 
@@ -147,7 +147,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_blogs_updated_at()` |
 
-**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Cover images live in Storage bucket `blogs`; author avatars in `auther`. Featured exclusivity is enforced by a partial unique index plus app-level clear-on-feature.
+**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Cover images live in Storage bucket `blogs`; author avatars in `auther`. Featured exclusivity is enforced by a partial unique index plus the unfeature step inside `create_blog_with_featured` / `update_blog_with_featured` (see below) — admin writes must go through those RPCs, not a direct INSERT/UPDATE.
 
 ### `public.startups`
 
@@ -193,6 +193,85 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 **Details:** Updates core + upserts details atomically; returns previous slug so callers can revalidate renamed public paths.
 
 **How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `startups`, then `INSERT … ON CONFLICT (startup_id) DO UPDATE` on `startup_details`.
+
+### `public.create_blog_with_featured(p_blog jsonb)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin blog create) |
+| **Returns** | One row: `id` (uuid), `slug` (text) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Unfeatures the current hero post and inserts the new post in a single transaction, so a failed insert can no longer leave the site with zero featured posts.
+
+**How it works:** Raises `42501` unless `is_admin()`. Forces `is_featured = false` when `status = 'draft'`. When the new row is featured, clears `is_featured` on all other rows first — `blogs_one_featured_uidx` is a non-deferrable partial unique index, so the old hero must go before the new one lands. Stamps `published_at = now()` when published. Unique slug violations surface as Postgres `23505`.
+
+### `public.update_blog_with_featured(p_id uuid, p_blog jsonb)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin blog update) |
+| **Returns** | One row: `id` (uuid), `slug` (text), `previous_slug` (text) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Same transactional unfeature-then-write as create; returns the previous slug so callers can revalidate renamed public paths.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the row (`FOR UPDATE`); raises `P0002` if missing. Drafts are forced unfeatured. Clears `is_featured` on every other row when this one is featured, then updates. `published_at` keeps its original value once set and is only stamped on the first publish.
+
+### `public.handle_auth_user_updated()`
+
+| | |
+| --- | --- |
+| **Role** | Trigger function (auth identity → profile) |
+| **Returns** | `trigger` |
+| **Security** | `SECURITY DEFINER`, `search_path = public` |
+| **Execute** | Revoked from `public`, `anon`, `authenticated` (trigger-only) |
+
+**Details:** Mirrors `auth.users.email` and `raw_user_meta_data.full_name` into `public.profiles` so the login identity and the CMS row cannot diverge.
+
+**How it works:** Runs inside the same transaction as the `auth.users` write, so the admin Users action makes one Auth call instead of an Auth call plus a separate profile write. A blank `full_name` falls back to the existing value. `role` is deliberately not synced: `prevent_unauthorized_profile_role_change` calls `is_admin()`, and `auth.uid()` is null on the GoTrue connection, so a role change here would raise `42501`. Role stays a session-client write.
+
+### `on_auth_user_updated`
+
+| | |
+| --- | --- |
+| **Role** | Auth → profile identity sync |
+| **Table** | `auth.users` |
+| **Timing** | `AFTER UPDATE OF email, raw_user_meta_data`, `FOR EACH ROW` |
+| **Calls** | `public.handle_auth_user_updated()` |
+
+**How it works:** Fires only when identity columns change, keeping `profiles.email` / `profiles.full_name` authoritative from Auth.
+
+### `public.get_related_published_blogs(p_slug text, p_limit integer default 3)`
+
+| | |
+| --- | --- |
+| **Role** | Related posts for the public Insights detail page |
+| **Returns** | `table` of the public blog list columns (no `body_html`) |
+| **Security** | `sql`, `stable`, **`security invoker`**, `search_path = public` |
+| **Grants** | `execute` to `anon`, `authenticated`, `service_role` |
+
+**Details:** Replaces the previous three sequential queries in `data/blogs.ts` (read the current post's categories → same-category posts → recency top-up excluding ids already seen).
+
+**How it works:** A CTE resolves the current post's first category. The main select scans published posts excluding `p_slug`, then orders by a rank expression — `0` when `categories @> array[primary_category]` (served by `blogs_categories_gin_idx`), else `1` — followed by `published_at desc nulls last, id`. The CTE is `left join`ed on true, so an unknown slug or a post with no categories degrades to a pure recency list instead of returning nothing. `security invoker` keeps the "Anyone can read published blogs" RLS policy in force, so drafts stay hidden from `anon`.
+
+---
+
+### `public.blog_categories_within_bounds(categories text[])`
+
+| | |
+| --- | --- |
+| **Role** | CHECK constraint helper for `public.blogs.categories` |
+| **Returns** | `boolean` |
+| **Security** | Plain `sql`, `immutable`, `parallel safe`, `search_path = pg_catalog` |
+
+**Details:** Backs `blogs_categories_item_len_chk`. Exists because a CHECK constraint cannot contain a subquery, and per-element bounds on a `text[]` need `unnest`.
+
+**How it works:** Unnests the array and returns `bool_and(char_length(category) between 1 and 40)`, defaulting to `true` for an empty or null array. Mirrors `BLOG_CATEGORY_MAX` in `validations/blog.ts`.
+
+---
 
 ### `public.startup_details`
 

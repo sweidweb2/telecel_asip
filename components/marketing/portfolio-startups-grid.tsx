@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { SearchIcon } from "lucide-react";
@@ -15,8 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Locale } from "@/constants/locales";
-import { foundedYearFromDate } from "@/lib/startup-display";
 import type { StartupPublicListItem } from "@/types/startup";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 const FILTER_LABELS = {
   en: {
@@ -41,58 +42,57 @@ const FILTER_LABELS = {
 
 type PortfolioStartupsGridProps = {
   locale: Locale;
+  /** Current page only — filtering and paging happen in Postgres. */
   startups: StartupPublicListItem[];
+  /** Matching rows across every page. */
+  total: number;
+  /** Founded years across all active startups, for the filter options. */
+  years: string[];
   /** From `?year=YYYY` — `"all"` when unset. */
-  initialYear?: string;
+  year?: string;
+  /** From `?q=`. */
+  search?: string;
 };
 
 export function PortfolioStartupsGrid({
   locale,
   startups,
-  initialYear = "all",
+  total,
+  years,
+  year = "all",
+  search = "",
 }: PortfolioStartupsGridProps) {
   const labels = FILTER_LABELS[locale];
   const router = useRouter();
   const pathname = usePathname();
-  const [nameQuery, setNameQuery] = useState("");
-  const [year, setYear] = useState(initialYear);
-  const deferredName = useDeferredValue(nameQuery);
+  const [nameQuery, setNameQuery] = useState(search);
+
+  const updateParams = useCallback(
+    (patch: { year?: string; q?: string }) => {
+      const next = { year, q: search, ...patch };
+      const params = new URLSearchParams();
+      if (next.year && next.year !== "all") params.set("year", next.year);
+      if (next.q) params.set("q", next.q);
+      // Any filter change invalidates the current page number.
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, search, year],
+  );
 
   useEffect(() => {
-    setYear(initialYear);
-  }, [initialYear]);
+    if (nameQuery === search) return;
+    const timer = setTimeout(
+      () => updateParams({ q: nameQuery }),
+      SEARCH_DEBOUNCE_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [nameQuery, search, updateParams]);
 
-  const years = useMemo(() => {
-    const values = new Set<string>();
-    for (const startup of startups) {
-      const value = foundedYearFromDate(startup.founded_at);
-      if (value) values.add(value);
-    }
-    return [...values].sort((a, b) => Number(b) - Number(a));
-  }, [startups]);
-
-  function updateYear(next: string) {
-    setYear(next);
-    const qs = next !== "all" ? `?year=${encodeURIComponent(next)}` : "";
-    router.replace(`${pathname}${qs}`, { scroll: false });
-  }
-
-  const filtered = useMemo(() => {
-    const query = deferredName.trim().toLowerCase();
-    return startups.filter((startup) => {
-      if (query && !startup.name.toLowerCase().includes(query)) {
-        return false;
-      }
-      if (year !== "all") {
-        if (foundedYearFromDate(startup.founded_at) !== year) return false;
-      }
-      return true;
-    });
-  }, [startups, deferredName, year]);
-
+  const hasFilters = year !== "all" || search !== "";
   const resultsLabel = (
-    filtered.length === 1 ? labels.results : labels.resultsPlural
-  ).replace("{count}", String(filtered.length));
+    total === 1 ? labels.results : labels.resultsPlural
+  ).replace("{count}", String(total));
 
   return (
     <div className="grid gap-6">
@@ -110,7 +110,7 @@ export function PortfolioStartupsGrid({
         <Select
           value={year}
           onValueChange={(value) => {
-            if (value) updateYear(value);
+            if (value) updateParams({ year: value });
           }}
         >
           <SelectTrigger
@@ -130,19 +130,15 @@ export function PortfolioStartupsGrid({
         </Select>
       </div>
 
-      {startups.length === 0 ? (
+      {total === 0 ? (
         <p className="rounded-2xl border border-dashed px-6 py-12 text-center text-muted-foreground">
-          {labels.emptyAll}
-        </p>
-      ) : filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed px-6 py-12 text-center text-muted-foreground">
-          {labels.empty}
+          {hasFilters ? labels.empty : labels.emptyAll}
         </p>
       ) : (
         <>
           <p className="text-sm text-muted-foreground">{resultsLabel}</p>
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
-            {filtered.map((startup) => (
+            {startups.map((startup) => (
               <li key={startup.id} className="min-w-0">
                 <StartupCard startup={startup} locale={locale} />
               </li>

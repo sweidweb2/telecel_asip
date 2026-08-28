@@ -12,7 +12,7 @@ Table profiles {
   id uuid [pk, not null, note: 'FK → auth.users(id) ON DELETE CASCADE']
   email text [not null]
   full_name text
-  role user_role [not null, default: 'admin', note: 'Column default admin; new rows from signup use handle_new_user (app_metadata.app_role, else viewer)']
+  role user_role [not null, default: 'viewer', note: 'Least-privilege column default; new rows from signup use handle_new_user (app_metadata.app_role, else viewer)']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
 
@@ -40,18 +40,22 @@ Table profiles {
     Role changes on own-profile UPDATE are blocked by trigger profiles_protect_role
     (only is_admin() may change role). Auth user create/delete via Admin API;
     profile insert via handle_new_user; delete via FK cascade.
+
+    email and full_name are owned by auth.users: trigger on_auth_user_updated
+    mirrors them into this table in the same transaction as the Auth write.
+    Admin actions must not write those two columns directly — only role.
   '''
 }
 
 Table interest_registrations {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  full_name text [not null]
-  email text [not null]
-  phone text [not null]
-  company_name text [not null]
-  sector text [not null, note: 'Free text for now']
-  country text [not null, note: 'Free text for now']
-  pitch text [not null]
+  full_name text [not null, note: 'CHECK char_length 2..100']
+  email text [not null, note: 'CHECK char_length 3..254']
+  phone text [not null, note: 'CHECK char_length 7..20']
+  company_name text [not null, note: 'CHECK char_length 2..120']
+  sector text [not null, note: 'Free text for now; CHECK char_length 2..80']
+  country text [not null, note: 'Free text for now; CHECK char_length 2..80']
+  pitch text [not null, note: 'CHECK char_length 20..1000']
   consent boolean [not null, note: 'CHECK (consent = true)']
   created_at timestamptz [not null, default: `now()`]
 
@@ -125,8 +129,8 @@ Table blogs {
   slug text [not null, note: 'UNIQUE; URL-safe lowercase']
   title text [not null]
   summary text [not null]
-  body_html text [not null, default: '']
-  categories text[] [not null, default: '{}', note: 'Free-text labels; first drives public tab filter']
+  body_html text [not null, default: '', note: 'CHECK char_length <= 200000']
+  categories text[] [not null, default: '{}', note: 'Free-text labels; first drives public tab filter. CHECK cardinality <= 8 and each label 1..40 chars via blog_categories_within_bounds()']
   thumbnail_url text [note: 'Storage bucket blogs']
   author_name text [not null]
   author_avatar_url text [note: 'Storage bucket auther']
@@ -163,6 +167,11 @@ Table blogs {
     - auther — author avatars
 
     Trigger: blogs_set_updated_at BEFORE UPDATE
+
+    Writes go through create_blog_with_featured / update_blog_with_featured.
+    Featured exclusivity is the partial unique index plus the unfeature step
+    inside those RPCs — not a separate app-level clear-then-write.
+
     English-only content phase 1; EN/FR public pages show the same posts.
   '''
 }

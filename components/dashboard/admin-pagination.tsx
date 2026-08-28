@@ -6,31 +6,43 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-import { USER_PAGE_SIZE, type UserListQuery } from "@/validations/users";
 
-function pageHref(query: UserListQuery, page: number): string {
-  const params = new URLSearchParams();
-  if (page > 1) params.set("page", String(page));
-  if (query.search) params.set("search", query.search);
-  if (query.role !== "all") params.set("role", query.role);
-  const qs = params.toString();
-  return qs ? `${ROUTES.users}?${qs}` : ROUTES.users;
-}
-
-export function UsersPagination({
-  query,
-  total,
-  totalPages,
-}: {
-  query: UserListQuery;
+type AdminPaginationProps = {
+  /** Dashboard route the pagination links back to, e.g. `ROUTES.users`. */
+  basePath: string;
+  page: number;
+  pageSize: number;
   total: number;
   totalPages: number;
-}) {
-  const current = Math.min(query.page, Math.max(totalPages, 1));
-  const from = total === 0 ? 0 : (current - 1) * USER_PAGE_SIZE + 1;
-  const to = Math.min(current * USER_PAGE_SIZE, total);
+  /** Filters preserved across pages; empty/undefined values are dropped. */
+  filters?: Record<string, string | undefined>;
+};
+
+/**
+ * Result counter plus prev/next controls shared by the admin list tables.
+ */
+export function AdminPagination({
+  basePath,
+  page,
+  pageSize,
+  total,
+  totalPages,
+  filters,
+}: AdminPaginationProps) {
+  const current = Math.min(page, Math.max(totalPages, 1));
+  const from = total === 0 ? 0 : (current - 1) * pageSize + 1;
+  const to = Math.min(current * pageSize, total);
+
+  function pageHref(target: number): string {
+    const params = new URLSearchParams();
+    if (target > 1) params.set("page", String(target));
+    for (const [key, value] of Object.entries(filters ?? {})) {
+      if (value) params.set(key, value);
+    }
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  }
 
   return (
     <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -43,14 +55,16 @@ export function UsersPagination({
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href={current > 1 ? pageHref(query, current - 1) : undefined}
+                href={current > 1 ? pageHref(current - 1) : undefined}
                 aria-disabled={current === 1}
-                className={cn(current === 1 && "pointer-events-none opacity-50")}
+                className={cn(
+                  current === 1 && "pointer-events-none opacity-50",
+                )}
               />
             </PaginationItem>
             <PaginationItem>
               <PaginationLink
-                href={pageHref(query, current)}
+                href={pageHref(current)}
                 isActive
                 aria-label={`Page ${current} of ${totalPages}`}
               >
@@ -59,11 +73,7 @@ export function UsersPagination({
             </PaginationItem>
             <PaginationItem>
               <PaginationNext
-                href={
-                  current < totalPages
-                    ? pageHref(query, current + 1)
-                    : undefined
-                }
+                href={current < totalPages ? pageHref(current + 1) : undefined}
                 aria-disabled={current === totalPages}
                 className={cn(
                   current === totalPages && "pointer-events-none opacity-50",

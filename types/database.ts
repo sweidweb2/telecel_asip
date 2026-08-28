@@ -298,6 +298,45 @@ export type Database = {
           previous_slug: string
         }[]
       }
+      create_blog_with_featured: {
+        Args: {
+          p_blog: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      update_blog_with_featured: {
+        Args: {
+          p_id: string
+          p_blog: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+          previous_slug: string
+        }[]
+      }
+      get_related_published_blogs: {
+        Args: {
+          p_slug: string
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          slug: string
+          title: string
+          summary: string
+          categories: string[]
+          thumbnail_url: string | null
+          author_name: string
+          author_avatar_url: string | null
+          reading_time_minutes: number
+          published_at: string | null
+          is_featured: boolean
+        }[]
+      }
     }
     Enums: {
       blog_status: "draft" | "published"

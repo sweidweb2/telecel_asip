@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const STARTUP_PAGE_SIZE = 12;
 export const STARTUP_PUBLIC_PAGE_SIZE = 6;
+export const PORTFOLIO_SEARCH_MAX = 100;
 
 export const STARTUP_NAME_MAX = 120;
 export const STARTUP_SLUG_MAX = 120;
@@ -135,7 +136,10 @@ export const startupCoreSchema = z.object({
     .string()
     .trim()
     .min(2, "Name must be at least 2 characters")
-    .max(STARTUP_NAME_MAX, `Name must be at most ${STARTUP_NAME_MAX} characters`),
+    .max(
+      STARTUP_NAME_MAX,
+      `Name must be at most ${STARTUP_NAME_MAX} characters`,
+    ),
   slug: slugSchema,
   description: z
     .string()
@@ -172,6 +176,8 @@ export const deleteStartupSchema = z.object({
   id: z.uuid("Invalid startup id"),
 });
 
+export const startupIdSchema = z.uuid("Invalid startup id");
+
 export type CreateStartupInput = z.infer<typeof createStartupSchema>;
 export type UpdateStartupInput = z.infer<typeof updateStartupSchema>;
 export type DeleteStartupInput = z.infer<typeof deleteStartupSchema>;
@@ -197,7 +203,9 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function parseStartupListQuery(input: RawSearchParams): StartupListQuery {
+export function parseStartupListQuery(
+  input: RawSearchParams,
+): StartupListQuery {
   const parsed = startupListQueryInputSchema.parse({
     page: first(input.page) ?? "1",
     search: first(input.search) ?? "",
@@ -228,4 +236,28 @@ export function parsePortfolioYearParam(
   const year = Number(raw);
   if (year < 1900 || year > 2100) return null;
   return raw;
+}
+
+/** Public founders `?q=` name search. Bounded so it cannot bloat cache keys. */
+export function parsePortfolioSearchParam(
+  value: string | string[] | undefined,
+): string {
+  return (first(value) ?? "").trim().slice(0, PORTFOLIO_SEARCH_MAX);
+}
+
+/** Server-side filters for the public founders list. */
+export type ActiveStartupFilters = {
+  /** `null` means every year. */
+  year: string | null;
+  /** Empty string means no name filter. */
+  search: string;
+};
+
+export function parseActiveStartupFilters(
+  input: RawSearchParams,
+): ActiveStartupFilters {
+  return {
+    year: parsePortfolioYearParam(input.year),
+    search: parsePortfolioSearchParam(input.q),
+  };
 }

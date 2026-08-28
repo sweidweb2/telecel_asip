@@ -22,6 +22,29 @@ const PUBLIC_STATIC_CACHE = "public, max-age=31536000, immutable";
 /** Dashboard / auth HTML — never shared-cache. */
 const PRIVATE_NO_STORE = "private, no-store";
 
+/**
+ * Baseline security headers for every response.
+ *
+ * `frame-ancestors` is sent as a one-directive CSP rather than a full policy:
+ * a script-src policy needs per-request nonces (Next inline bootstrap, Turnstile,
+ * TipTap) and would have to be introduced with report-only first.
+ */
+const SECURITY_HEADERS = [
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+];
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -46,6 +69,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: SECURITY_HEADERS,
+      },
       {
         source: "/:all*(svg|ico|png|jpg|jpeg|gif|webp)",
         headers: [
@@ -100,37 +127,6 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Cache-Control", value: PRIVATE_NO_STORE },
         ],
-      },
-    ];
-  },
-  async redirects() {
-    return [
-      // Portfolio was renamed to Founders; keep indexed URLs and shared links alive.
-      {
-        source: "/:locale(en|fr)/portfolio",
-        destination: "/:locale/founders",
-        permanent: true,
-      },
-      {
-        source: "/:locale(en|fr)/portfolio/:slug*",
-        destination: "/:locale/founders/:slug*",
-        permanent: true,
-      },
-      {
-        source: "/portfolio",
-        destination: "/en/founders",
-        permanent: true,
-      },
-      // Impact and Partners graduated from page sections to standalone pages.
-      {
-        source: "/impact",
-        destination: "/en/impact",
-        permanent: true,
-      },
-      {
-        source: "/partners",
-        destination: "/en/partners",
-        permanent: true,
       },
     ];
   },

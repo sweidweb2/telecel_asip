@@ -31,18 +31,18 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 | ID | Severity | Summary |
 |----|----------|---------|
-| H1 | High | Dashboard layout not admin-gated; public signup reaches admin shell |
+| H1 ✅ | High | Dashboard layout not admin-gated; public signup reaches admin shell |
 | H2 | High | `createUser` empty password → `"password"` |
 | H3 | High | Four dashboard routes are empty stubs (nav still links) |
-| H4 | High | Blog featured clear + write not transactional |
-| H5 | High | User Auth Admin update then profile update not atomic |
-| H6 | High | Storage `remove` before DB update/delete (blogs/startups) |
+| H4 ✅ | High | Blog featured clear + write not transactional |
+| H5 ✅ | High | User Auth Admin update then profile update not atomic |
+| H6 ✅ | High | Storage `remove` before DB update/delete (blogs/startups) |
 
 ---
 
 ## 3. Security Audit
 
-### H1 — Dashboard auth-only, not admin-only
+### H1 ✅ — Dashboard auth-only, not admin-only
 
 | | |
 |---|---|
@@ -62,7 +62,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | **Recommended fix** | Remove default; require strong password always. |
 | **Dependencies** | Users create dialog UX. |
 
-### M1 — `profiles.role` default `'admin'`
+### M1 ✅ — `profiles.role` default `'admin'`
 
 | | |
 |---|---|
@@ -89,7 +89,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | **Impact** | If reused on shared staging/prod, known admin password. |
 | **Recommended fix** | Env-only; fail closed when missing; rotate if ever used outside local. |
 
-### M4 — `createAdminClient` missing `server-only`
+### M4 ✅ — `createAdminClient` missing `server-only`
 
 | | |
 |---|---|
@@ -98,7 +98,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | **Impact** | Bundle leak of `SUPABASE_SERVICE_ROLE_KEY` if mis-imported. |
 | **Recommended fix** | `import "server-only"` at top. |
 
-### M5 — No app-level CSP / frame / HSTS in `next.config.ts`
+### M5 ✅ — No app-level CSP / frame / HSTS in `next.config.ts`
 
 | | |
 |---|---|
@@ -110,10 +110,10 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 ### Low security
 
-- Media upload/remove IDs not Zod-validated (`actions/blogs.ts`, `actions/startups.ts`).  
-- `actions/auth.ts` `mapAuthError` `.otherwise` can return raw Supabase messages.  
-- `updateUser` does not sync `app_metadata.app_role` (OK today because `is_admin()` uses profiles).  
-- `get_user_stats` executable by any authenticated user (RLS skews results for non-admins).
+- ✅ Media upload/remove IDs not Zod-validated (`actions/blogs.ts`, `actions/startups.ts`).  
+- ✅ `actions/auth.ts` `mapAuthError` `.otherwise` can return raw Supabase messages.  
+- ✅ `updateUser` does not sync `app_metadata.app_role` (OK today because `is_admin()` uses profiles).  
+- ✅ `get_user_stats` executable by any authenticated user (RLS skews results for non-admins).
 
 ### Needs verification
 
@@ -140,7 +140,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 ## 4. Functional / Business Logic Issues
 
-### H4 — Featured blog clear not transactional
+### H4 ✅ — Featured blog clear not transactional
 
 | | |
 |---|---|
@@ -149,7 +149,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | **Impact** | Marketing hero blank; concurrent races. |
 | **Recommended fix** | Transactional RPC (mirror startups pattern). |
 
-### H5 — User update split Auth ↔ profile
+### H5 ✅ — User update split Auth ↔ profile
 
 | | |
 |---|---|
@@ -185,8 +185,8 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | High | `dashboard/{page,analytics,settings,backup}/page.tsx` + nav | Empty stubs | Content or hide nav |
 | Medium | `getDashboardPageTitle` | Nested routes show title “Dashboard” | Longest-prefix match |
 | Medium | Sidebar / header | Hardcoded “Admin” / “AD” | Pass real profile |
-| Medium | Apply vs Contact forms | Duplicated Turnstile lifecycle | Shared hook/component |
-| Low | Admin list pagination ×3 | Near-identical | Shared component |
+| Medium ✅ | Apply vs Contact forms | Duplicated Turnstile lifecycle | Shared hook/component |
+| Low ✅ | Admin list pagination ×3 | Near-identical | Shared component |
 | Low | Locale `loading.tsx` | Plain Skeleton vs `RouteSkeleton` | Align when convenient |
 
 **Working:** Marketing responsive nav/sheet, error boundaries (`error.tsx` / `global-error` / `not-found`), empty states on CMS lists and public filters, RHF+Zod forms, no Radix/Zustand/TanStack Query on initial load.
@@ -197,11 +197,11 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 | Severity | Location | Problem | Fix |
 |----------|----------|---------|-----|
-| High | blogs/startups delete & remove image | Storage before DB | DB first, then storage; log cleanup failures |
-| Medium | `actions/blogs.ts` `updateBlog` | Old slug not revalidated | Mirror startups `previous_slug` |
+| High ✅ | blogs/startups delete & remove image | Storage before DB | DB first, then storage; log cleanup failures |
+| Medium ✅ | `actions/blogs.ts` `updateBlog` | Old slug not revalidated | Mirror startups `previous_slug` |
 | Medium | `actions/auth.ts` → `components/auth/auth-labels` | Wrong dependency direction | Move messages to `lib/` / `constants/` |
-| Medium | blogs/new, portfolio/new pages | Direct Supabase + `is_admin` | Use `data/auth` |
-| Low | `signOut` | Ignores Auth errors | Log then redirect |
+| Medium ✅ | blogs/new, portfolio/new pages | Direct Supabase + `is_admin` | Use `data/auth` |
+| Low ✅ | `signOut` | Ignores Auth errors | Log then redirect |
 
 **CRUD matrix:** Blogs, startups, users, registrations, contact — create/list/update/delete present. Missing dedicated admin `getById` for users/registrations/contact (list-driven UI only — Low).
 
@@ -213,9 +213,9 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 | Severity | Location | Problem | Fix |
 |----------|----------|---------|-----|
-| Medium | `profiles.role` default | `'admin'` | Migration → `'viewer'` |
-| Medium | `interest_registrations` | Zod lengths only; no CHECKs | Mirror contact length migration |
-| Low | blogs `body_html` / categories | No DB size CHECKs | Optional defense-in-depth |
+| Medium ✅ | `profiles.role` default | `'admin'` | Migration → `'viewer'` |
+| Medium ✅ | `interest_registrations` | Zod lengths only; no CHECKs | Mirror contact length migration |
+| Low ✅ | blogs `body_html` / categories | No DB size CHECKs | Optional defense-in-depth |
 | — | startups slug GIN trgm | Present | Keep |
 | — | RLS on all app tables | Present | Keep |
 
@@ -225,9 +225,9 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 
 | Severity | Location | Problem | Fix |
 |----------|----------|---------|-----|
-| Medium | `getAllActiveStartups` + client year filter | Full list in cache; `getActiveStartupsPage` unused | Server-filter or paginate |
-| Medium | `fetchRelatedPublishedBlogs` | Up to 3 sequential queries | Single query/RPC |
-| Medium | Insights index | Possible double-fetch when no featured | One helper returning list + featured |
+| Medium ✅ | `getAllActiveStartups` + client year filter | Full list in cache; `getActiveStartupsPage` unused | Server-filter or paginate |
+| Medium ✅ | `fetchRelatedPublishedBlogs` | Up to 3 sequential queries | Single query/RPC |
+| Medium ✅ | Insights index | Possible double-fetch when no featured | One helper returning list + featured |
 | Low | In-memory rate limit | Not a perf issue; scale/abuse | Redis later |
 
 **Working:** `unstable_cache` + tags on public blogs/startups; marketing `s-maxage` split; Sharp→WebP uploads; `Promise.all` on several detail pages.
@@ -241,7 +241,7 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 | Components → Supabase | None found — good |
 | Hooks → Supabase | None found — good |
 | Components → `data/` | `portfolio-page-content.tsx` (layering leak) |
-| Pages → Supabase | blogs/new, portfolio/new |
+| Pages → Supabase | ✅ fixed (blogs/new, portfolio/new now use `data/auth`) |
 | Actions → components | `actions/auth.ts` → auth-labels |
 | `ts-pattern` | Used in auth/users; uneven elsewhere |
 | Dead / stub code | Four empty dashboard pages; unused portfolio pagination data API |
@@ -254,10 +254,10 @@ No confirmed Critical (remote RCE / open service-role / anon write to CMS tables
 |------|--------|
 | Create/update Zod on CMS entities | Good |
 | Contact DB CHECKs | Good |
-| Interest DB CHECKs | Missing (Medium) |
-| Media id Zod | Missing (Low) |
-| Featured clear throws | Can surface unhandled Server Action error (High with H4) |
-| Auth unmapped errors | Raw message leak (Low) |
+| Interest DB CHECKs | ✅ Added |
+| Media id Zod | ✅ Added |
+| Featured clear throws | ✅ Handled by transactional RPC |
+| Auth unmapped errors | ✅ Logged; generic message shown |
 | Search list parsers escape PostgREST wildcards | Good |
 
 ---
@@ -336,39 +336,39 @@ Do **not** change without strong reason:
 ### P0 — Fix immediately
 
 1. **H2** — Remove `USER_DEFAULT_PASSWORD`; require strong passwords on create.  
-2. **H1** — Admin-gate dashboard layout (or close public signup / redirect viewers).  
-3. **M1** — Migration: `profiles.role` default → `viewer`.  
-4. **M4** — `import "server-only"` in `lib/supabase/admin.ts`.
+2. **H1** ✅ — Admin-gate dashboard layout (or close public signup / redirect viewers).  
+3. **M1** ✅ — Migration: `profiles.role` default → `viewer`.  
+4. **M4** ✅ — `import "server-only"` in `lib/supabase/admin.ts`.
 
 ### P1 — Fix before production
 
-5. **H4** — Blog featured clear + write RPC (transactional).  
-6. **H6** — DB-first then storage on delete/remove (blogs + startups).  
-7. **H5** — User update Auth↔profile consistency.  
+5. **H4** ✅ — Blog featured clear + write RPC (transactional).  
+6. **H6** ✅ — DB-first then storage on delete/remove (blogs + startups).  
+7. **H5** ✅ — User update Auth↔profile consistency.  
 8. **H3** — Ship or hide stub dashboard routes.  
 9. **M3** — Scrub seed/E2E credential defaults; env-only.  
-10. **Interest registration** length CHECKs.  
-11. **Blog** old-slug revalidation on rename.  
+10. ✅ **Interest registration** length CHECKs.  
+11. ✅ **Blog** old-slug revalidation on rename.  
 12. Apply/registrations **E2E**.  
-13. Confirm host security headers or add CSP/frame-ancestors.
+13. ✅ Confirm host security headers or add CSP/frame-ancestors.
 
 ### P2 — Important improvements
 
 14. Shared rate limiting (Redis).  
-15. Portfolio server-side year filter / pagination.  
-16. Related blogs single query; insights featured helper.  
-17. Architecture cleanups (`data/auth` in new pages; portfolio fetch in page; auth labels out of components).  
-18. Zod on media action IDs.  
+15. ✅ Portfolio server-side year filter / pagination.  
+16. ✅ Related blogs single query; insights featured helper.  
+17. Architecture cleanups (✅ `data/auth` in new pages; portfolio fetch in page; auth labels out of components).  
+18. ✅ Zod on media action IDs.  
 19. Real user identity in dashboard chrome.  
 20. Drop `--pass-with-no-tests` in CI; add non-admin-shell E2E.
 
 ### P3 — Nice-to-have
 
-21. Shared admin pagination + Turnstile hook.  
+21. ✅ Shared admin pagination + Turnstile hook.  
 22. Component Vitest for critical forms.  
 23. Package rename; boneyard → devDependency if safe.  
 24. Patch bumps (Next/TipTap/etc.).  
-25. Optional DB CHECKs for blog body/categories.  
+25. ✅ Optional DB CHECKs for blog body/categories.  
 26. Implement or remove editor/viewer role UI.  
 27. Public startup details if product wants them.
 

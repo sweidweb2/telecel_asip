@@ -6,7 +6,7 @@ import { Loader2Icon, MailIcon } from "lucide-react";
 
 import { ContactMessageRowActions } from "@/components/contact-messages/contact-message-dialogs";
 import { ContactMessagesFilters } from "@/components/contact-messages/contact-messages-filters";
-import { ContactMessagesPagination } from "@/components/contact-messages/contact-messages-pagination";
+import { AdminPagination } from "@/components/dashboard/admin-pagination";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Table,
@@ -17,8 +17,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/constants/routes";
 import type { ContactMessage } from "@/types/contact-message";
-import type { ContactMessageListQuery } from "@/validations/contact-message";
+import {
+  CONTACT_MESSAGE_PAGE_SIZE,
+  type ContactMessageListQuery,
+} from "@/validations/contact-message";
 
 export function ContactMessagesTable({
   messages,
@@ -118,10 +122,13 @@ export function ContactMessagesTable({
       </CardContent>
 
       <CardFooter className="border-t bg-transparent px-4 py-3">
-        <ContactMessagesPagination
-          query={query}
+        <AdminPagination
+          basePath={ROUTES.contactUs}
+          page={query.page}
+          pageSize={CONTACT_MESSAGE_PAGE_SIZE}
           total={total}
           totalPages={totalPages}
+          filters={{ search: query.search }}
         />
       </CardFooter>
     </Card>

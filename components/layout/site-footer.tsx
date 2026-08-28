@@ -153,6 +153,15 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               ))}
             </nav>
             <Link
+              href={labels.apply.href}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "min-h-11 w-full justify-center sm:w-auto",
+              )}
+            >
+              {labels.apply.label}
+            </Link>
+            <Link
               href={labels.login.href}
               className={cn(
                 buttonVariants({ size: "sm" }),
