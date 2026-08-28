@@ -123,12 +123,16 @@ export async function updateUser(
     };
   }
 
+  // Email and full name are written once, to Auth. The on_auth_user_updated
+  // trigger mirrors them into profiles in the same transaction, so the login
+  // identity and the CMS row cannot drift apart.
   const admin = createAdminClient();
   const { error: authError } = await admin.auth.admin.updateUserById(
     parsed.data.id,
     {
       email: parsed.data.email,
       user_metadata: { full_name: parsed.data.fullName },
+      app_metadata: { app_role: parsed.data.role },
     },
   );
 
@@ -139,13 +143,11 @@ export async function updateUser(
     };
   }
 
+  // Role lives only in profiles, and the protect-role trigger requires an admin
+  // session, so it stays on the session client.
   const { error: profileError } = await session.supabase
     .from("profiles")
-    .update({
-      email: parsed.data.email,
-      full_name: parsed.data.fullName,
-      role: parsed.data.role,
-    })
+    .update({ role: parsed.data.role })
     .eq("id", parsed.data.id);
 
   if (profileError) {

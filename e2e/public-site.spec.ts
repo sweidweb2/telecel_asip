@@ -4,11 +4,17 @@ const publicSlugs = [
   "",
   "/about",
   "/programme",
-  "/portfolio",
+  "/founders",
+  "/impact",
+  "/partners",
   "/insights",
+  "/register-interest",
+  "/alumni",
   "/apply",
   "/contact",
   "/faq",
+  "/terms",
+  "/privacy",
 ] as const;
 
 for (const locale of ["en", "fr"] as const) {
@@ -37,10 +43,25 @@ test("language switch preserves the current public page", async ({ page }) => {
   await expect(page).toHaveURL(/\/fr\/programme$/);
 });
 
+test("alumni is in the primary navigation", async ({ page }) => {
+  await page.goto("/en");
+  await expect(
+    page.locator("header").getByRole("link", { name: "Alumni" }),
+  ).toHaveAttribute("href", "/en/alumni");
+});
+
 test("mobile navigation remains usable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/en");
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Apply" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Register Interest" }),
+  ).toBeVisible();
+});
+
+test("retired portfolio URLs are gone", async ({ page }) => {
+  const response = await page.goto("/en/portfolio");
+  expect(response?.status()).toBe(404);
 });

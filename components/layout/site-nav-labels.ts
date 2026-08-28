@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath, ROUTES } from "@/constants/routes";
+import { publicPath } from "@/constants/routes";
 
 export type NavItem = {
   href: string;
@@ -12,18 +12,22 @@ export type SiteNavLabels = {
   items: NavItem[];
   languageGroupLabel: string;
   menuLabel: string;
-  dashboard: NavItem;
   apply: NavItem;
 };
 
+/**
+ * Primary navigation. `apply` stays unlinked until a cohort's Apply state
+ * is approved. Contact, FAQ, and legal pages live in the footer.
+ */
 const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Home" },
   { slug: "about", label: "About" },
   { slug: "programme", label: "Programme" },
-  { slug: "portfolio", label: "Portfolio" },
+  { slug: "founders", label: "Founders" },
+  { slug: "alumni", label: "Alumni" },
+  { slug: "impact", label: "Impact" },
+  { slug: "partners", label: "Partners" },
   { slug: "insights", label: "Insights" },
-  { slug: "contact", label: "Contact" },
-  { slug: "faq", label: "FAQ" },
 ];
 
 export function enNavLabels(): SiteNavLabels {
@@ -35,8 +39,10 @@ export function enNavLabels(): SiteNavLabels {
       href: publicPath("en", slug),
       label,
     })),
-    dashboard: { href: ROUTES.dashboard, label: "Dashboard" },
-    apply: { href: publicPath("en", "apply"), label: "Apply" },
+    apply: {
+      href: publicPath("en", "register-interest"),
+      label: "Register Interest",
+    },
   };
 }
 
@@ -44,10 +50,11 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Accueil" },
   { slug: "about", label: "À propos" },
   { slug: "programme", label: "Programme" },
-  { slug: "portfolio", label: "Portefeuille" },
+  { slug: "founders", label: "Fondateurs" },
+  { slug: "alumni", label: "Alumni" },
+  { slug: "impact", label: "Impact" },
+  { slug: "partners", label: "Partenaires" },
   { slug: "insights", label: "Perspectives" },
-  { slug: "contact", label: "Contact" },
-  { slug: "faq", label: "FAQ" },
 ];
 
 export function frNavLabels(): SiteNavLabels {
@@ -59,8 +66,10 @@ export function frNavLabels(): SiteNavLabels {
       href: publicPath("fr", slug),
       label,
     })),
-    dashboard: { href: ROUTES.dashboard, label: "Tableau de bord" },
-    apply: { href: publicPath("fr", "apply"), label: "Candidater" },
+    apply: {
+      href: publicPath("fr", "register-interest"),
+      label: "Manifester votre intérêt",
+    },
   };
 }
 

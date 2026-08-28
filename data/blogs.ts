@@ -6,6 +6,8 @@ import type {
   Blog,
   BlogListItem,
   BlogListResult,
+  BlogPublicListItem,
+  BlogSlugRow,
 } from "@/types/blog";
 import type { BlogListQuery } from "@/validations/blog";
 
@@ -17,8 +19,15 @@ const LIST_COLUMNS =
 const DETAIL_COLUMNS =
   "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at" as const;
 
-const PUBLIC_COLUMNS =
-  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, is_featured" as const;
+/** Public list / related / featured — no body_html. */
+const PUBLIC_LIST_COLUMNS =
+  "id, slug, title, summary, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, is_featured" as const;
+
+/** Public detail by slug — includes body + updated_at for SEO. */
+const PUBLIC_DETAIL_COLUMNS =
+  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, updated_at, is_featured" as const;
+
+const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -59,10 +68,7 @@ async function fetchBlogsPage(
 
 export async function getBlogsPageData(
   query: BlogListQuery,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "ok"; list: BlogListResult }
-> {
+): Promise<{ status: "forbidden" } | { status: "ok"; list: BlogListResult }> {
   const supabase = await createClient();
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
   if (adminError) throw adminError;
@@ -95,37 +101,24 @@ export async function getBlogByIdForAdmin(
   return { status: "ok", blog: data as Blog };
 }
 
-async function fetchPublishedBlogs(): Promise<Blog[]> {
+async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blogs")
-    .select(PUBLIC_COLUMNS)
+    .select(PUBLIC_LIST_COLUMNS)
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true });
 
   if (error) throw error;
-  return (data ?? []) as Blog[];
-}
-
-async function fetchFeaturedBlog(): Promise<Blog | null> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("blogs")
-    .select(PUBLIC_COLUMNS)
-    .eq("status", "published")
-    .eq("is_featured", true)
-    .maybeSingle();
-
-  if (error) throw error;
-  return (data as Blog | null) ?? null;
+  return (data ?? []) as BlogPublicListItem[];
 }
 
 async function fetchPublishedBlogBySlug(slug: string): Promise<Blog | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blogs")
-    .select(PUBLIC_COLUMNS)
+    .select(PUBLIC_DETAIL_COLUMNS)
     .eq("status", "published")
     .eq("slug", slug)
     .maybeSingle();
@@ -134,15 +127,46 @@ async function fetchPublishedBlogBySlug(slug: string): Promise<Blog | null> {
   return (data as Blog | null) ?? null;
 }
 
+async function fetchPublishedBlogSlugRows(): Promise<BlogSlugRow[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("blogs")
+    .select(PUBLIC_SLUG_COLUMNS)
+    .eq("status", "published")
+    .order("published_at", { ascending: false, nullsFirst: false });
+
+  if (error) throw error;
+  return (data ?? []) as BlogSlugRow[];
+}
+
+/**
+ * Same-category posts first, topped up by recency — ranked in one statement by
+ * `get_related_published_blogs` rather than up to three sequential queries.
+ */
+async function fetchRelatedPublishedBlogs(
+  slug: string,
+  limit: number,
+): Promise<BlogPublicListItem[]> {
+  const supabase = createPublicClient();
+
+  const { data, error } = await supabase.rpc("get_related_published_blogs", {
+    p_slug: slug,
+    p_limit: limit,
+  });
+
+  if (error) throw error;
+  return (data ?? []) as BlogPublicListItem[];
+}
+
 export const getPublishedBlogs = unstable_cache(
   fetchPublishedBlogs,
   ["published-blogs"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
-export const getFeaturedBlog = unstable_cache(
-  fetchFeaturedBlog,
-  ["featured-blog"],
+export const getPublishedBlogSlugRows = unstable_cache(
+  fetchPublishedBlogSlugRows,
+  ["published-blog-slug-rows"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
@@ -159,26 +183,15 @@ export async function getPublishedBlogBySlug(
 export async function getRelatedPublishedBlogs(
   slug: string,
   limit = 3,
-): Promise<Blog[]> {
-  const current = await getPublishedBlogBySlug(slug);
-  const all = await getPublishedBlogs();
-  if (!current) return all.filter((b) => b.slug !== slug).slice(0, limit);
-
-  const primary = current.categories[0];
-  const sameCategory = all.filter(
-    (blog) =>
-      blog.slug !== slug && primary && blog.categories.includes(primary),
-  );
-  if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
-
-  const extras = all.filter(
-    (blog) =>
-      blog.slug !== slug && !sameCategory.some((row) => row.id === blog.id),
-  );
-  return [...sameCategory, ...extras].slice(0, limit);
+): Promise<BlogPublicListItem[]> {
+  return unstable_cache(
+    async () => fetchRelatedPublishedBlogs(slug, limit),
+    ["related-published-blogs", slug, String(limit)],
+    { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
+  )();
 }
 
 export async function getPublishedBlogSlugs(): Promise<string[]> {
-  const blogs = await getPublishedBlogs();
-  return blogs.map((blog) => blog.slug);
+  const rows = await getPublishedBlogSlugRows();
+  return rows.map((row) => row.slug);
 }

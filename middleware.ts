@@ -32,14 +32,32 @@ function detectLocale(request: NextRequest): Locale {
 
 function withLocaleHeaders(
   response: NextResponse,
-  locale: Locale
+  locale: Locale,
+  request: NextRequest,
 ): NextResponse {
   response.headers.set(LOCALE_HEADER, locale);
-  response.cookies.set(LOCALE_COOKIE, locale, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
+  // Only Set-Cookie when the preferred locale changes — avoids blocking
+  // shared HTML CDN caching on every marketing response.
+  const existing = request.cookies.get(LOCALE_COOKIE)?.value;
+  if (existing !== locale) {
+    response.cookies.set(LOCALE_COOKIE, locale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+  return response;
+}
+
+/**
+ * Locale negotiation and auth checks read the locale cookie, `Accept-Language`
+ * and the Supabase session, so these redirects must never enter a shared cache:
+ * a stored 307 would pin the first visitor's language (or destination) for
+ * everyone hitting the same unprefixed URL.
+ */
+function withNoStore(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Vary", "Accept-Language, Cookie");
   return response;
 }
 
@@ -114,49 +132,65 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const { response, userId } = await refreshSupabaseSession(request);
   const locale = detectLocale(request);
+  const needsSession = isProtectedPath(pathname) || isAuthPage(pathname);
 
-  if (isProtectedPath(pathname) && !userId) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = authPath(locale, "login");
-    loginUrl.searchParams.set("next", pathname);
-    const redirect = NextResponse.redirect(loginUrl);
-    copyCookies(response, redirect);
-    return withLocaleHeaders(redirect, locale);
+  if (needsSession) {
+    const { response, userId } = await refreshSupabaseSession(request);
+
+    if (isProtectedPath(pathname) && !userId) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = authPath(locale, "login");
+      loginUrl.searchParams.set("next", pathname);
+      const redirect = NextResponse.redirect(loginUrl);
+      copyCookies(response, redirect);
+      return withNoStore(withLocaleHeaders(redirect, locale, request));
+    }
+
+    if (isAuthPage(pathname) && userId) {
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = ROUTES.dashboard;
+      dashboardUrl.search = "";
+      const redirect = NextResponse.redirect(dashboardUrl);
+      copyCookies(response, redirect);
+      return withNoStore(redirect);
+    }
+
+    // Auth page, logged out — continue with refreshed session cookies
+    const segments = pathname.split("/").filter(Boolean);
+    const first = segments[0];
+    if (first && isLocale(first)) {
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set(LOCALE_HEADER, first);
+      const next = NextResponse.next({
+        request: { headers: requestHeaders },
+      });
+      copyCookies(response, next);
+      return withLocaleHeaders(next, first, request);
+    }
+
+    response.headers.set(LOCALE_HEADER, locale);
+    return response;
   }
 
-  if (isAuthPage(pathname) && userId) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = ROUTES.dashboard;
-    dashboardUrl.search = "";
-    const redirect = NextResponse.redirect(dashboardUrl);
-    copyCookies(response, redirect);
-    return redirect;
-  }
-
+  // Marketing / public — locale only (no Supabase session refresh)
   const segments = pathname.split("/").filter(Boolean);
   const first = segments[0];
 
-  // Root → preferred locale home
   if (pathname === "/") {
     const redirect = NextResponse.redirect(new URL(`/${locale}`, request.url));
-    copyCookies(response, redirect);
-    return withLocaleHeaders(redirect, locale);
+    return withNoStore(withLocaleHeaders(redirect, locale, request));
   }
 
-  // Already on a locale route (marketing or localized auth)
   if (first && isLocale(first)) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(LOCALE_HEADER, first);
     const next = NextResponse.next({
       request: { headers: requestHeaders },
     });
-    copyCookies(response, next);
-    return withLocaleHeaders(next, first);
+    return withLocaleHeaders(next, first, request);
   }
 
-  // Bare marketing slug → /{locale}/{slug}
   if (
     segments.length === 1 &&
     segments[0] !== "" &&
@@ -165,11 +199,10 @@ export async function middleware(request: NextRequest) {
     const redirect = NextResponse.redirect(
       new URL(`/${locale}/${segments[0]}`, request.url)
     );
-    copyCookies(response, redirect);
-    return withLocaleHeaders(redirect, locale);
+    return withNoStore(withLocaleHeaders(redirect, locale, request));
   }
 
-  // Bare auth / dashboard / other — pass through with preferred locale
+  const response = NextResponse.next({ request });
   response.headers.set(LOCALE_HEADER, locale);
   return response;
 }

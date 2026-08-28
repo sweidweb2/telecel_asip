@@ -1,0 +1,1 @@
+Run Vitest, build the project, and check TypeScript and ESLint for errors. If any issues arise, fix them carefully, ensuring your changes do not introduce new problems or break existing functionality.

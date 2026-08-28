@@ -210,13 +210,18 @@ test.describe("admin users CRUD", () => {
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/users");
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
       await expect(
         page.getByRole("button", { name: "Create user" }),
       ).toHaveCount(0);
+
+      // Non-admins must never reach the admin shell, not even its chrome.
+      await page.goto("/dashboard");
+      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
+      await expect(page.locator("[data-slot='sidebar']")).toHaveCount(0);
 
       const viewerClient = createClient(supabaseUrl, anonKey, {
         auth: { autoRefreshToken: false, persistSession: false },

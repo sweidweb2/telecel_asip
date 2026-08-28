@@ -1,10 +1,39 @@
 import { cache } from "react";
 
+import { getAuthUser } from "@/data/auth";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, UserListResult, UserStats } from "@/types/profile";
+import type {
+  CurrentUserProfile,
+  Profile,
+  UserListResult,
+  UserStats,
+} from "@/types/profile";
 import type { UserListQuery } from "@/validations/users";
 
 const USER_COLUMNS = "id, email, full_name, role, created_at, updated_at" as const;
+
+const CURRENT_USER_COLUMNS = "id, email, full_name, role" as const;
+
+/**
+ * Signed-in user's own profile for the dashboard chrome.
+ * Memoized per request — the sidebar and the header both need it.
+ */
+export const getCurrentUserProfile = cache(
+  async (): Promise<CurrentUserProfile | null> => {
+    const authUser = await getAuthUser();
+    if (!authUser) return null;
+
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(CURRENT_USER_COLUMNS)
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+);
 
 export async function getUsers(query: UserListQuery): Promise<UserListResult> {
   const supabase = await createClient();

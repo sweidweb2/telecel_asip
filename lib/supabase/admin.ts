@@ -1,3 +1,7 @@
+// Build-time guard: importing this from a Client Component would ship
+// SUPABASE_SERVICE_ROLE_KEY to the browser.
+import 'server-only'
+
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 import type { Database } from '@/types/database'

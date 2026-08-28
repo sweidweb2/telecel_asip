@@ -15,7 +15,8 @@ export type ArticleCategory = {
   href: string;
 };
 
-export type Article = {
+/** Card / list / related — no HTML body. */
+export type ArticleListItem = {
   id: string;
   slug: string;
   title: string;
@@ -27,7 +28,13 @@ export type Article = {
   readingTime: string;
   author: ArticleAuthor;
   tags: ArticleTag[];
+  isFeatured?: boolean;
+};
+
+/** Detail page — includes body + ISO dates for SEO. */
+export type Article = ArticleListItem & {
   /** Sanitized HTML body for the detail page. */
   bodyHtml: string;
-  isFeatured?: boolean;
+  datePublishedIso: string | null;
+  dateModifiedIso: string | null;
 };

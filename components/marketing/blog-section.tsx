@@ -5,40 +5,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
+import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  categoryToTabId,
-  type BlogSortId,
-  type BlogTabId,
-} from "@/constants/blog-ui";
+import { categoryToTabId, type BlogTabId } from "@/constants/blog-ui";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import type { Article } from "@/types/article";
-
-function authorInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
+import type { ArticleListItem } from "@/types/article";
 
 type BlogSectionProps = {
   locale: Locale;
   labels: BlogLabels;
-  articles: Article[];
-  featured?: Article;
+  articles: ArticleListItem[];
+  featured?: ArticleListItem;
 };
 
 function FeaturedPost({
@@ -48,7 +28,7 @@ function FeaturedPost({
 }: {
   locale: Locale;
   labels: BlogLabels;
-  article: Article;
+  article: ArticleListItem;
 }) {
   const href = insightPath(locale, article.slug);
 
@@ -90,14 +70,10 @@ function FeaturedPost({
                     {labels.writtenBy}
                   </p>
                   <div className="flex items-center gap-2">
-                    <Avatar>
-                      {article.author.avatarUrl ? (
-                        <AvatarImage src={article.author.avatarUrl} alt="" />
-                      ) : null}
-                      <AvatarFallback>
-                        {authorInitials(article.author.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <AuthorAvatar
+                      name={article.author.name}
+                      src={article.author.avatarUrl}
+                    />
                     <p className="text-sm font-semibold text-white">
                       {article.author.name}
                     </p>
@@ -148,108 +124,52 @@ export function BlogSection({
   featured,
 }: BlogSectionProps) {
   const [tab, setTab] = useState<BlogTabId>("all");
-  const [sortBy, setSortBy] = useState<BlogSortId>("recent");
 
   const filteredArticles = useMemo(() => {
-    const filtered =
-      tab === "all"
-        ? articles
-        : articles.filter(
-            (article) => categoryToTabId(article.category.name) === tab,
-          );
-
-    // Phase 1: popular/viewed share published order (already recent-first).
-    if (sortBy === "recent") {
-      return filtered;
-    }
-
-    return [...filtered].reverse();
-  }, [articles, tab, sortBy]);
+    if (tab === "all") return articles;
+    return articles.filter(
+      (article) => categoryToTabId(article.category.name) === tab,
+    );
+  }, [articles, tab]);
 
   return (
-    <main>
-      <section className="py-10 sm:py-14 lg:py-16">
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-          <div className="flex w-full max-w-3xl flex-col">
-            <span className="text-sm font-semibold text-primary">
-              {labels.eyebrow}
-            </span>
-            <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              {labels.title}
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground sm:mt-6 sm:text-lg">
-              {labels.description}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="flex flex-col gap-12 md:gap-16">
+      {featured ? (
+        <FeaturedPost locale={locale} labels={labels} article={featured} />
+      ) : null}
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 sm:px-6 md:gap-16 lg:pb-24">
-        {featured ? (
-          <FeaturedPost locale={locale} labels={labels} article={featured} />
-        ) : null}
-
-        <div className="flex flex-col items-stretch gap-6 md:flex-row md:items-end md:gap-8">
-          <Tabs
-            value={tab}
-            onValueChange={(value) => setTab(value as BlogTabId)}
-            className="min-w-0 w-full"
-          >
-            <TabsList
-              variant="line"
-              className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setTab(value as BlogTabId)}
+        className="min-w-0 w-full"
+      >
+        <TabsList
+          variant="line"
+          className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
+        >
+          {labels.tabs.map((item) => (
+            <TabsTrigger
+              key={item.id}
+              value={item.id}
+              className="min-h-11 shrink-0 px-3"
             >
-              {labels.tabs.map((item) => (
-                <TabsTrigger
-                  key={item.id}
-                  value={item.id}
-                  className="min-h-11 shrink-0 px-3"
-                >
-                  {item.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+              {item.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
-          <div className="w-full shrink-0 md:max-w-44">
-            <Select
-              value={sortBy}
-              onValueChange={(value) => {
-                if (!value) return;
-                setSortBy(value as BlogSortId);
-              }}
-            >
-              <SelectTrigger
-                aria-label={labels.sortAriaLabel}
-                className="h-11 w-full min-h-11"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {labels.sortOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {filteredArticles.length === 0 ? (
-          <p className="text-muted-foreground">
-            No published articles yet. Check back soon.
-          </p>
-        ) : (
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <li key={article.id}>
-                <BlogCard locale={locale} article={article} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </main>
+      {filteredArticles.length === 0 ? (
+        <p className="text-muted-foreground">{labels.emptyState}</p>
+      ) : (
+        <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {filteredArticles.map((article) => (
+            <li key={article.id}>
+              <BlogCard locale={locale} article={article} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          enquiry_type: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id: string
           message: string
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id?: string
           message: string
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name?: string
           id?: string
           message?: string
@@ -97,6 +100,101 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      startups: {
+        Row: {
+          created_at: string
+          description: string
+          founded_at: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["startup_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          founded_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          status?: Database["public"]["Enums"]["startup_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          founded_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["startup_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      startup_details: {
+        Row: {
+          amount_raised: number | null
+          business_model: string | null
+          category: string | null
+          founding_year: number | null
+          funding_goal: number | null
+          industry: string | null
+          location: string | null
+          problem: string | null
+          size: string | null
+          solution: string | null
+          startup_id: string
+          target_market: string | null
+          team: string | null
+          website_url: string | null
+        }
+        Insert: {
+          amount_raised?: number | null
+          business_model?: string | null
+          category?: string | null
+          founding_year?: number | null
+          funding_goal?: number | null
+          industry?: string | null
+          location?: string | null
+          problem?: string | null
+          size?: string | null
+          solution?: string | null
+          startup_id: string
+          target_market?: string | null
+          team?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          amount_raised?: number | null
+          business_model?: string | null
+          category?: string | null
+          founding_year?: number | null
+          funding_goal?: number | null
+          industry?: string | null
+          location?: string | null
+          problem?: string | null
+          size?: string | null
+          solution?: string | null
+          startup_id?: string
+          target_market?: string | null
+          team?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_details_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: true
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       interest_registrations: {
         Row: {
@@ -181,9 +279,72 @@ export type Database = {
           new_this_month: number
         }[]
       }
+      create_startup_with_details: {
+        Args: {
+          p_core: Json
+          p_details: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      update_startup_with_details: {
+        Args: {
+          p_id: string
+          p_core: Json
+          p_details: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+          previous_slug: string
+        }[]
+      }
+      create_blog_with_featured: {
+        Args: {
+          p_blog: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      update_blog_with_featured: {
+        Args: {
+          p_id: string
+          p_blog: Json
+        }
+        Returns: {
+          id: string
+          slug: string
+          previous_slug: string
+        }[]
+      }
+      get_related_published_blogs: {
+        Args: {
+          p_slug: string
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          slug: string
+          title: string
+          summary: string
+          categories: string[]
+          thumbnail_url: string | null
+          author_name: string
+          author_avatar_url: string | null
+          reading_time_minutes: number
+          published_at: string | null
+          is_featured: boolean
+        }[]
+      }
     }
     Enums: {
       blog_status: "draft" | "published"
+      contact_enquiry_type: "founder" | "partner" | "media" | "general"
+      startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
@@ -313,6 +474,8 @@ export const Constants = {
   public: {
     Enums: {
       blog_status: ["draft", "published"],
+      contact_enquiry_type: ["founder", "partner", "media", "general"],
+      startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],
     },
   },

@@ -2,25 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
+import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { JsonLd } from "@/components/seo/json-ld";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
-import type { Article } from "@/types/article";
+import type { Article, ArticleListItem } from "@/types/article";
 import { cn } from "@/lib/utils";
-
-function authorInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 type InsightDetailLabels = {
   backToInsights: string;
@@ -33,7 +24,7 @@ type InsightDetailLabels = {
 type InsightDetailPageProps = {
   locale: Locale;
   article: Article;
-  related: Article[];
+  related: ArticleListItem[];
   labels: InsightDetailLabels;
 };
 
@@ -51,7 +42,8 @@ export function InsightDetailPage({
     headline: article.title,
     description: article.summary,
     image: article.thumbnailUrl || undefined,
-    datePublished: article.publishedAt,
+    datePublished: article.datePublishedIso ?? undefined,
+    dateModified: article.dateModifiedIso ?? undefined,
     author: {
       "@type": "Person",
       name: article.author.name,
@@ -109,14 +101,10 @@ export function InsightDetailPage({
               <div className="flex flex-col gap-2">
                 <p className="text-sm font-semibold">{labels.writtenBy}</p>
                 <div className="flex items-center gap-2">
-                  <Avatar>
-                    {article.author.avatarUrl ? (
-                      <AvatarImage src={article.author.avatarUrl} alt="" />
-                    ) : null}
-                    <AvatarFallback>
-                      {authorInitials(article.author.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <AuthorAvatar
+                    name={article.author.name}
+                    src={article.author.avatarUrl}
+                  />
                   <p className="text-sm font-semibold">{article.author.name}</p>
                 </div>
               </div>

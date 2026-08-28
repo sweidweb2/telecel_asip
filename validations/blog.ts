@@ -28,53 +28,75 @@ const categorySchema = z
   .min(1, "Category cannot be empty")
   .max(BLOG_CATEGORY_MAX, `Category must be at most ${BLOG_CATEGORY_MAX} characters`);
 
-export const blogFieldsSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(2, "Title must be at least 2 characters")
-    .max(BLOG_TITLE_MAX, `Title must be at most ${BLOG_TITLE_MAX} characters`),
-  slug: slugSchema,
-  summary: z
-    .string()
-    .trim()
-    .min(2, "Summary must be at least 2 characters")
-    .max(
-      BLOG_SUMMARY_MAX,
-      `Summary must be at most ${BLOG_SUMMARY_MAX} characters`,
-    ),
-  bodyHtml: z.string().max(BLOG_BODY_MAX, "Body is too long"),
-  categories: z
-    .array(categorySchema)
-    .max(
-      BLOG_CATEGORIES_MAX,
-      `At most ${BLOG_CATEGORIES_MAX} categories allowed`,
-    ),
-  authorName: z
-    .string()
-    .trim()
-    .min(2, "Author name must be at least 2 characters")
-    .max(
-      BLOG_AUTHOR_NAME_MAX,
-      `Author name must be at most ${BLOG_AUTHOR_NAME_MAX} characters`,
-    ),
-  status: z.enum(BLOG_STATUSES),
-  isFeatured: z.boolean(),
-});
+export const blogFieldsSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(2, "Title must be at least 2 characters")
+      .max(BLOG_TITLE_MAX, `Title must be at most ${BLOG_TITLE_MAX} characters`),
+    slug: slugSchema,
+    summary: z
+      .string()
+      .trim()
+      .min(2, "Summary must be at least 2 characters")
+      .max(
+        BLOG_SUMMARY_MAX,
+        `Summary must be at most ${BLOG_SUMMARY_MAX} characters`,
+      ),
+    bodyHtml: z.string().max(BLOG_BODY_MAX, "Body is too long"),
+    categories: z
+      .array(categorySchema)
+      .max(
+        BLOG_CATEGORIES_MAX,
+        `At most ${BLOG_CATEGORIES_MAX} categories allowed`,
+      ),
+    authorName: z
+      .string()
+      .trim()
+      .min(2, "Author name must be at least 2 characters")
+      .max(
+        BLOG_AUTHOR_NAME_MAX,
+        `Author name must be at most ${BLOG_AUTHOR_NAME_MAX} characters`,
+      ),
+    status: z.enum(BLOG_STATUSES),
+    isFeatured: z.boolean(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.isFeatured && value.status !== "published") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["isFeatured"],
+        message: "Only published posts can be featured.",
+      });
+    }
+  });
 
 export const createBlogSchema = blogFieldsSchema;
 
-export const updateBlogSchema = blogFieldsSchema.extend({
-  id: z.uuid("Invalid blog id"),
-});
+export const updateBlogSchema = blogFieldsSchema.and(
+  z.object({
+    id: z.uuid("Invalid blog id"),
+  }),
+);
 
 export const deleteBlogSchema = z.object({
   id: z.uuid("Invalid blog id"),
 });
 
+export const blogIdSchema = z.uuid("Invalid blog id");
+
+export const BLOG_IMAGE_KINDS = ["thumbnail", "author"] as const;
+
+export const blogImageTargetSchema = z.object({
+  id: z.uuid("Invalid blog id"),
+  kind: z.enum(BLOG_IMAGE_KINDS),
+});
+
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
 export type DeleteBlogInput = z.infer<typeof deleteBlogSchema>;
+export type BlogImageTarget = z.infer<typeof blogImageTargetSchema>;
 
 const blogListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),

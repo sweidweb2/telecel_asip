@@ -35,6 +35,7 @@ export type AuthActionMessages = {
   emailExists: string;
   weakPassword: string;
   emailNotConfirmed: string;
+  rateLimited: string;
   genericError: string;
   invalidSignupDetails: string;
   invalidLoginDetails: string;
@@ -115,6 +116,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     weakPassword:
       "Password is too weak. Use at least 8 characters with a letter and a number.",
     emailNotConfirmed: "Confirm your email before signing in.",
+    rateLimited: "Too many attempts. Please wait a moment and try again.",
     genericError: "Something went wrong. Please try again.",
     invalidSignupDetails: "Invalid signup details.",
     invalidLoginDetails: "Invalid login details.",
@@ -128,6 +130,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     weakPassword:
       "Mot de passe trop faible. Utilisez au moins 8 caractères avec une lettre et un chiffre.",
     emailNotConfirmed: "Confirmez votre e-mail avant de vous connecter.",
+    rateLimited: "Trop de tentatives. Patientez un instant puis réessayez.",
     genericError: "Une erreur s’est produite. Réessayez.",
     invalidSignupDetails: "Informations d’inscription invalides.",
     invalidLoginDetails: "Informations de connexion invalides.",

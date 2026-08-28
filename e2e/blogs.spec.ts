@@ -60,12 +60,20 @@ test.describe("blogs cms", () => {
       await page
         .getByLabel("Summary")
         .fill("E2E summary for the insights blog CMS coverage.");
-      await page.getByLabel("Author name").fill("E2E Author");
+      await page.getByLabel("Author", { exact: true }).fill("E2E Author");
       await page.locator(".ProseMirror").click();
       await page.keyboard.type(
         "This is the E2E body content for a published insight article.",
       );
       await page.getByRole("button", { name: "Create blog" }).click();
+
+      const createdDialog = page.getByRole("dialog");
+      await expect(
+        createdDialog.getByRole("heading", { name: "Blog created" }),
+      ).toBeVisible({ timeout: 20_000 });
+      await createdDialog
+        .getByRole("button", { name: "Edit this post" })
+        .click();
       await expect(page).toHaveURL(/\/dashboard\/blogs\/[0-9a-f-]+/, {
         timeout: 20_000,
       });

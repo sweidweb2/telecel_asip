@@ -1,22 +1,55 @@
 import {
-  getFeaturedBlog,
   getPublishedBlogBySlug,
+  getPublishedBlogSlugRows,
   getPublishedBlogSlugs,
   getPublishedBlogs,
   getRelatedPublishedBlogs,
 } from "@/data/blogs";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import { toArticle } from "@/types/blog";
-import type { Article } from "@/types/article";
+import { toArticle, toArticleList } from "@/types/blog";
+import type { Article, ArticleListItem } from "@/types/article";
+import type { BlogSlugRow } from "@/types/blog";
 
-export async function getAllInsights(locale: Locale = "en"): Promise<Article[]> {
+export type InsightsIndex = {
+  articles: ArticleListItem[];
+  featured?: ArticleListItem;
+};
+
+export async function getLatestInsights(
+  locale: Locale = "en",
+  limit = 3,
+): Promise<ArticleListItem[]> {
   const blogs = await getPublishedBlogs();
-  return blogs.map((blog) => toArticle(blog, locale));
+  return blogs.slice(0, limit).map((blog) => toArticleList(blog, locale));
+}
+
+/**
+ * Everything the Insights index renders, from a single published-blogs read.
+ * `is_featured` already travels with the list columns, so the featured post is
+ * picked in memory instead of costing a second query.
+ */
+export async function getInsightsIndex(
+  locale: Locale = "en",
+): Promise<InsightsIndex> {
+  const blogs = await getPublishedBlogs();
+
+  // At most one row can be featured (`blogs_one_featured_uidx`); newest
+  // published post is the fallback so the hero slot is never empty.
+  const featured = blogs.find((blog) => blog.is_featured) ?? blogs[0];
+
+  return {
+    articles: blogs.map((blog) => toArticleList(blog, locale)),
+    featured: featured ? toArticleList(featured, locale) : undefined,
+  };
 }
 
 export async function getInsightSlugs(): Promise<string[]> {
   return getPublishedBlogSlugs();
+}
+
+export async function getInsightSlugRows(): Promise<BlogSlugRow[]> {
+  return getPublishedBlogSlugRows();
 }
 
 export async function getInsightBySlug(
@@ -27,24 +60,13 @@ export async function getInsightBySlug(
   return blog ? toArticle(blog, locale) : undefined;
 }
 
-export async function getFeaturedInsight(
-  locale: Locale = "en",
-): Promise<Article | undefined> {
-  const featured = await getFeaturedBlog();
-  if (featured) return toArticle(featured, locale);
-
-  const blogs = await getPublishedBlogs();
-  const first = blogs[0];
-  return first ? toArticle(first, locale) : undefined;
-}
-
 export async function getRelatedInsights(
   slug: string,
   limit = 3,
   locale: Locale = "en",
-): Promise<Article[]> {
+): Promise<ArticleListItem[]> {
   const related = await getRelatedPublishedBlogs(slug, limit);
-  return related.map((blog) => toArticle(blog, locale));
+  return related.map((blog) => toArticleList(blog, locale));
 }
 
 export function insightHref(locale: Locale, slug: string): string {

@@ -1,16 +1,20 @@
 import type { MetadataRoute } from "next";
 
 import { LOCALES } from "@/constants/locales";
-import { PUBLIC_PAGE_SLUGS } from "@/constants/public-pages";
-import { getInsightSlugs } from "@/data/insights";
+import { INDEXABLE_PAGE_SLUGS } from "@/constants/public-pages";
+import { getInsightSlugRows } from "@/data/insights";
+import { getActiveStartupSlugRows } from "@/data/startups";
 import { localeUrl } from "@/lib/seo/alternates";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
-  const insightSlugs = await getInsightSlugs();
+  const [insightRows, startupRows] = await Promise.all([
+    getInsightSlugRows(),
+    getActiveStartupSlugRows(),
+  ]);
 
   for (const locale of LOCALES) {
-    for (const slug of PUBLIC_PAGE_SLUGS) {
+    for (const slug of INDEXABLE_PAGE_SLUGS) {
       const path = slug === "" ? "/" : `/${slug}`;
       entries.push({
         url: localeUrl(locale, path),
@@ -24,10 +28,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
 
-    for (const insightSlug of insightSlugs) {
-      const path = `/insights/${insightSlug}`;
+    for (const row of insightRows) {
+      const path = `/insights/${row.slug}`;
       entries.push({
         url: localeUrl(locale, path),
+        lastModified: row.updated_at ? new Date(row.updated_at) : undefined,
+        changeFrequency: "monthly",
+        priority: 0.7,
+        alternates: {
+          languages: Object.fromEntries(
+            LOCALES.map((loc) => [loc, localeUrl(loc, path)]),
+          ),
+        },
+      });
+    }
+
+    for (const row of startupRows) {
+      const path = `/founders/${row.slug}`;
+      entries.push({
+        url: localeUrl(locale, path),
+        lastModified: row.updated_at ? new Date(row.updated_at) : undefined,
         changeFrequency: "monthly",
         priority: 0.7,
         alternates: {

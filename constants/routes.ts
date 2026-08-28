@@ -11,6 +11,7 @@ export const ROUTES = {
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
   portfolio: "/dashboard/portfolio",
+  portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
@@ -33,4 +34,19 @@ export function authPath(locale: Locale, page: AuthPage = "login"): string {
 /** Locale-prefixed insight detail path, e.g. `/en/insights/ux-review-presentations`. */
 export function insightPath(locale: Locale, slug: string): string {
   return `/${locale}/insights/${slug}`;
+}
+
+/** Admin portfolio edit path, e.g. `/dashboard/portfolio/{id}`. */
+export function portfolioEditPath(id: string): string {
+  return `${ROUTES.portfolio}/${id}`;
+}
+
+/** Locale-prefixed founder/startup detail, e.g. `/en/founders/acme`. */
+export function founderStartupPath(
+  locale: Locale,
+  slug: string,
+  fromPage = 1,
+): string {
+  const path = `/${locale}/founders/${slug}`;
+  return fromPage > 1 ? `${path}?fromPage=${fromPage}` : path;
 }

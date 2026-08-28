@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
@@ -40,7 +40,19 @@ import {
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  CONTACT_ENQUIRY_ADMIN_LABELS,
+  CONTACT_ENQUIRY_TYPES,
+  type ContactEnquiryType,
+} from "@/constants/contact-enquiry";
 import type { ContactMessage } from "@/types/contact-message";
 import {
   CONTACT_MESSAGE_BODY_MAX,
@@ -60,6 +72,7 @@ function FormFieldError({ message }: { message?: string }) {
 function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
   return {
     id: message.id,
+    enquiryType: message.enquiry_type,
     fullName: message.full_name,
     email: message.email,
     phone: message.phone,
@@ -84,6 +97,10 @@ export function ContactMessageRowActions({
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
     defaultValues: editDefaults,
+  });
+  const enquiryType = useWatch({
+    control: form.control,
+    name: "enquiryType",
   });
 
   function handleEditOpen(next: boolean) {
@@ -146,6 +163,12 @@ export function ContactMessageRowActions({
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
             <div className="grid gap-1">
+              <dt className="text-muted-foreground">Enquiry route</dt>
+              <dd className="font-medium">
+                {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
+              </dd>
+            </div>
+            <div className="grid gap-1">
               <dt className="text-muted-foreground">Name</dt>
               <dd className="font-medium">{message.full_name}</dd>
             </div>
@@ -201,6 +224,41 @@ export function ContactMessageRowActions({
           >
             <input type="hidden" {...form.register("id")} />
             <FieldGroup>
+              <Field data-invalid={Boolean(form.formState.errors.enquiryType)}>
+                <Label htmlFor={`edit-enquiry-type-${message.id}`}>
+                  Enquiry route
+                </Label>
+                <Select
+                  value={enquiryType}
+                  onValueChange={(value) => {
+                    if (value) {
+                      form.setValue(
+                        "enquiryType",
+                        value as ContactEnquiryType,
+                        { shouldDirty: true },
+                      );
+                    }
+                  }}
+                  disabled={isUpdating}
+                >
+                  <SelectTrigger
+                    id={`edit-enquiry-type-${message.id}`}
+                    className="min-h-11 w-full"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONTACT_ENQUIRY_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {CONTACT_ENQUIRY_ADMIN_LABELS[type]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormFieldError
+                  message={form.formState.errors.enquiryType?.message}
+                />
+              </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.fullName)}>
                   <Label htmlFor={`edit-name-${message.id}`}>Full name</Label>

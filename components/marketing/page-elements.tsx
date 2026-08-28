@@ -2,13 +2,28 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function PageHero({ eyebrow, title, description }: { eyebrow?: string; title: string; description: string }) {
+export function PageHero({
+  eyebrow,
+  title,
+  description,
+  action,
+  children,
+}: {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  action?: ReactNode;
+  children?: ReactNode;
+}) {
+  const slot = children ?? action;
+
   return (
     <section className="border-b bg-muted/30">
       <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20">
         {eyebrow ? <p className="mb-3 text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">{eyebrow}</p> : null}
-        <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight sm:text-5xl">{title}</h1>
+        <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl">{title}</h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">{description}</p>
+        {slot ? <div className="mt-8">{slot}</div> : null}
       </div>
     </section>
   );

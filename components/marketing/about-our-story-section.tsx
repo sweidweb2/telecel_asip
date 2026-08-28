@@ -9,10 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import {
-  StoryStatCounter,
-  StoryStatsNotice,
-} from "@/components/marketing/story-stat-counter";
+import { StoryStatCounter } from "@/components/marketing/story-stat-counter";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
@@ -157,17 +154,24 @@ export function AboutOurStorySection({
             {story.eyebrow}
           </p>
         ) : null}
-        <h2 className="about-story-fade-up about-story-fade-up-delay-1 font-heading text-3xl font-semibold uppercase tracking-tight sm:text-4xl">
+        <h2 className="about-story-fade-up about-story-fade-up-delay-1 font-heading text-3xl font-semibold uppercase tracking-tight text-balance sm:text-4xl">
           {story.title}
         </h2>
         <span
           aria-hidden
           className="about-story-underline mx-auto mt-4 block h-1 w-16 rounded-full bg-primary"
         />
-        {story.paragraphs[0] ? (
-          <p className="about-story-fade-up about-story-fade-up-delay-2 mx-auto mt-6 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg sm:leading-8">
-            {story.paragraphs[0]}
-          </p>
+        {story.paragraphs.length > 0 ? (
+          <div className="about-story-fade-up about-story-fade-up-delay-2 mx-auto mt-6 flex max-w-3xl flex-col gap-5 sm:mt-8 sm:gap-6">
+            {story.paragraphs.map((paragraph) => (
+              <p
+                key={paragraph.slice(0, 48)}
+                className="text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
         ) : null}
       </div>
 
@@ -224,11 +228,6 @@ export function AboutOurStorySection({
       {story.stats && story.stats.length > 0 ? (
         <div className="mt-12 sm:mt-14 lg:mt-20">
           <StoryStatCounter stats={story.stats} />
-          {story.statsNotice ? (
-            <StoryStatsNotice className="mt-4">
-              {story.statsNotice}
-            </StoryStatsNotice>
-          ) : null}
         </div>
       ) : null}
 

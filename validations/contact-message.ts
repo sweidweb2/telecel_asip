@@ -1,8 +1,10 @@
 import { z } from "zod";
 
+import { CONTACT_ENQUIRY_TYPES } from "@/constants/contact-enquiry";
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
 
 type ContactMessageMessages = {
+  enquiryTypeInvalid: string;
   fullNameMin: string;
   fullNameMax: string;
   invalidEmail: string;
@@ -18,6 +20,7 @@ type ContactMessageMessages = {
 
 const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
   en: {
+    enquiryTypeInvalid: "Choose an enquiry route",
     fullNameMin: "Name must be at least 2 characters",
     fullNameMax: "Name must be at most 100 characters",
     invalidEmail: "Enter a valid email address",
@@ -32,6 +35,7 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     invalidId: "Invalid message id",
   },
   fr: {
+    enquiryTypeInvalid: "Choisissez un type de demande",
     fullNameMin: "Le nom doit contenir au moins 2 caractères",
     fullNameMax: "Le nom doit contenir au plus 100 caractères",
     invalidEmail: "Entrez une adresse e-mail valide",
@@ -58,6 +62,7 @@ export const CONTACT_MESSAGE_BODY_MAX = 2000;
 
 function contactMessageFieldsSchema(messages: ContactMessageMessages) {
   return {
+    enquiryType: z.enum(CONTACT_ENQUIRY_TYPES, messages.enquiryTypeInvalid),
     fullName: z
       .string()
       .trim()
@@ -118,6 +123,7 @@ export const deleteContactMessageSchema = z.object({
 
 const contactMessageListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
+  enquiryType: z.enum([...CONTACT_ENQUIRY_TYPES, "all"]).catch("all"),
   search: z
     .string()
     .trim()
@@ -143,6 +149,7 @@ export function parseContactMessageListQuery(
 ): ContactMessageListQuery {
   const parsed = contactMessageListQueryInputSchema.parse({
     page: first(input.page) ?? "1",
+    enquiryType: first(input.enquiryType) ?? "all",
     search: first(input.search) ?? "",
   });
 

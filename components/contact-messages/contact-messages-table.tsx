@@ -6,7 +6,8 @@ import { Loader2Icon, MailIcon } from "lucide-react";
 
 import { ContactMessageRowActions } from "@/components/contact-messages/contact-message-dialogs";
 import { ContactMessagesFilters } from "@/components/contact-messages/contact-messages-filters";
-import { ContactMessagesPagination } from "@/components/contact-messages/contact-messages-pagination";
+import { AdminPagination } from "@/components/dashboard/admin-pagination";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Table,
@@ -17,8 +18,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { CONTACT_ENQUIRY_ADMIN_LABELS } from "@/constants/contact-enquiry";
+import { ROUTES } from "@/constants/routes";
 import type { ContactMessage } from "@/types/contact-message";
-import type { ContactMessageListQuery } from "@/validations/contact-message";
+import {
+  CONTACT_MESSAGE_PAGE_SIZE,
+  type ContactMessageListQuery,
+} from "@/validations/contact-message";
 
 export function ContactMessagesTable({
   messages,
@@ -65,6 +71,7 @@ export function ContactMessagesTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="pl-4">Name</TableHead>
+                <TableHead>Route</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Subject</TableHead>
@@ -75,7 +82,7 @@ export function ContactMessagesTable({
             <TableBody>
               {messages.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-48 text-center">
+                  <TableCell colSpan={7} className="h-48 text-center">
                     <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
                       <span className="flex size-10 items-center justify-center rounded-full bg-muted">
                         <MailIcon className="size-5 text-muted-foreground" />
@@ -93,6 +100,11 @@ export function ContactMessagesTable({
                   <TableRow key={message.id}>
                     <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
                       {message.full_name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="whitespace-nowrap">
+                        {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
+                      </Badge>
                     </TableCell>
                     <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
                       {message.email}
@@ -118,10 +130,17 @@ export function ContactMessagesTable({
       </CardContent>
 
       <CardFooter className="border-t bg-transparent px-4 py-3">
-        <ContactMessagesPagination
-          query={query}
+        <AdminPagination
+          basePath={ROUTES.contactUs}
+          page={query.page}
+          pageSize={CONTACT_MESSAGE_PAGE_SIZE}
           total={total}
           totalPages={totalPages}
+          filters={{
+            search: query.search,
+            enquiryType:
+              query.enquiryType === "all" ? undefined : query.enquiryType,
+          }}
         />
       </CardFooter>
     </Card>

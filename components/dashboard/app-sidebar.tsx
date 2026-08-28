@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sidebar";
 import { DASHBOARD_NAV_ITEMS } from "@/constants/dashboard-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
+import type { DashboardAccount } from "@/types/profile";
 
 const NAV_ICONS: Record<(typeof DASHBOARD_NAV_ITEMS)[number]["href"], LucideIcon> =
   {
@@ -45,7 +46,7 @@ const NAV_ICONS: Record<(typeof DASHBOARD_NAV_ITEMS)[number]["href"], LucideIcon
     [ROUTES.settings]: SettingsIcon,
   };
 
-export function AppSidebar() {
+export function AppSidebar({ account }: { account: DashboardAccount }) {
   const pathname = usePathname();
 
   return (
@@ -96,13 +97,20 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip="Admin">
+            <SidebarMenuButton size="lg" tooltip={account.name}>
               <Avatar>
-                <AvatarFallback>AD</AvatarFallback>
+                <AvatarFallback>{account.initials}</AvatarFallback>
               </Avatar>
-              <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
-                Admin
-              </span>
+              <div className="grid min-w-0 flex-1 text-left group-data-[collapsible=icon]:hidden">
+                <span className="truncate text-sm font-medium">
+                  {account.name}
+                </span>
+                {account.email ? (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {account.email}
+                  </span>
+                ) : null}
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

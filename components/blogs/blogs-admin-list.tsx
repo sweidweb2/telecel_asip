@@ -69,6 +69,9 @@ export function BlogsAdminList({
           <div className="relative min-w-0 flex-1">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              // Submit reads FormData, so the field stays uncontrolled. The key
+              // remounts it when the URL query changes (back/forward, filters).
+              key={query.search}
               name="search"
               defaultValue={query.search}
               placeholder="Search title, slug, or author"

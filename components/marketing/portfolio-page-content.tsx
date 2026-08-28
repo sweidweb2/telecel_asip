@@ -1,23 +1,27 @@
 import Link from "next/link";
 
-import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
+import { PageHero, Section } from "@/components/marketing/page-elements";
 import { PortfolioPagination } from "@/components/marketing/portfolio-pagination";
-import { StartupCard } from "@/components/marketing/startup-card";
+import { PortfolioStartupsGrid } from "@/components/marketing/portfolio-startups-grid";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getPortfolioStartupsPage } from "@/data/portfolio-startups";
+import {
+  getActiveStartupFoundedYears,
+  getActiveStartupsPage,
+} from "@/data/startups";
 import type { MarketingPageCopy } from "@/types/marketing-page";
+import type { ActiveStartupFilters } from "@/validations/startup";
 import { cn } from "@/lib/utils";
 
 const PAGINATION_LABELS = {
   en: {
-    showing: "Showing {from}–{to} of {total} startups",
+    showing: "Showing {from}–{to} of {total}",
     previous: "Previous",
     next: "Next",
   },
   fr: {
-    showing: "Affichage de {from} à {to} sur {total} startups",
+    showing: "Affichage de {from} à {to} sur {total}",
     previous: "Précédent",
     next: "Suivant",
   },
@@ -26,16 +30,20 @@ const PAGINATION_LABELS = {
 type PortfolioPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
-  page: number;
+  page?: number;
+  filters?: ActiveStartupFilters;
 };
 
-export function PortfolioPageContent({
+export async function PortfolioPageContent({
   locale,
   copy,
-  page,
+  page = 1,
+  filters = { year: null, search: "" },
 }: PortfolioPageContentProps) {
-  const { items, total, totalPages, currentPage, pageSize } =
-    getPortfolioStartupsPage(locale, page);
+  const [list, years] = await Promise.all([
+    getActiveStartupsPage(page, filters),
+    getActiveStartupFoundedYears(),
+  ]);
   const cta = copy.ctaSection;
 
   return (
@@ -46,36 +54,32 @@ export function PortfolioPageContent({
         description={copy.description}
       />
 
-      <Section className="border-t">
-        <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
+      <Section className="border-t pt-8 sm:pt-10">
+        <PortfolioStartupsGrid
+          locale={locale}
+          startups={list.items}
+          total={list.total}
+          years={years}
+          year={filters.year ?? "all"}
+          search={filters.search}
+        />
 
-        <div className="mt-10 sm:mt-12">
-          <SectionHeading
-            title={copy.sectionTitle}
-            description={copy.sectionDescription}
-          />
-
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-8">
-            {items.map((startup) => (
-              <li key={startup.id} className="min-w-0">
-                <StartupCard startup={startup} />
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-10 sm:mt-12">
+        {list.total > 0 ? (
+          <div className="mt-10">
             <PortfolioPagination
               locale={locale}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              total={total}
-              pageSize={pageSize}
+              currentPage={list.currentPage}
+              totalPages={list.totalPages}
+              total={list.total}
+              pageSize={list.pageSize}
               labels={PAGINATION_LABELS[locale]}
+              filters={{
+                year: filters.year ?? undefined,
+                q: filters.search || undefined,
+              }}
             />
           </div>
-        </div>
+        ) : null}
       </Section>
 
       {cta ? (

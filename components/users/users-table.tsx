@@ -6,7 +6,7 @@ import { UserRoundSearchIcon } from "lucide-react";
 
 import { UserRowActions } from "@/components/users/user-dialogs";
 import { UsersFilters } from "@/components/users/users-filters";
-import { UsersPagination } from "@/components/users/users-pagination";
+import { AdminPagination } from "@/components/dashboard/admin-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -17,8 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ROUTES } from "@/constants/routes";
 import type { Profile } from "@/types/profile";
-import type { UserListQuery } from "@/validations/users";
+import { USER_PAGE_SIZE, type UserListQuery } from "@/validations/users";
 
 const ROLE_VARIANT = {
   admin: "default",
@@ -124,10 +125,16 @@ export function UsersTable({
       </CardContent>
 
       <CardFooter className="border-t bg-transparent px-4 py-3">
-        <UsersPagination
-          query={query}
+        <AdminPagination
+          basePath={ROUTES.users}
+          page={query.page}
+          pageSize={USER_PAGE_SIZE}
           total={total}
           totalPages={totalPages}
+          filters={{
+            search: query.search,
+            role: query.role === "all" ? undefined : query.role,
+          }}
         />
       </CardFooter>
     </Card>

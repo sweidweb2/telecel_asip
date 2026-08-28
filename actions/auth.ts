@@ -57,7 +57,21 @@ function mapAuthError(message: string, locale: Locale): string {
       P.when((value) => value.includes("email not confirmed")),
       () => copy.emailNotConfirmed
     )
-    .otherwise(() => message || copy.genericError);
+    .with(
+      P.when(
+        (value) =>
+          value.includes("rate limit") ||
+          value.includes("too many requests") ||
+          value.includes("over_request_rate_limit")
+      ),
+      () => copy.rateLimited
+    )
+    .otherwise(() => {
+      // Unmapped GoTrue messages can name internals or confirm account state.
+      // Log them for us; show the visitor a translated generic message.
+      console.error("[auth] unmapped Supabase auth error", message);
+      return copy.genericError;
+    });
 }
 
 function safeRedirectPath(path: string | undefined): string {
@@ -154,6 +168,13 @@ export async function signIn(
 export async function signOut(): Promise<void> {
   const locale = await getRequestLocale();
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+
+  // Still redirect on failure: the local cookies are cleared either way, so
+  // leaving the user on the dashboard would be worse than a stale server session.
+  if (error) {
+    console.error("[auth] signOut failed", error);
+  }
+
   redirect(authPath(locale, "login"));
 }

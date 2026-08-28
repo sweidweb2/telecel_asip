@@ -1,3 +1,6 @@
+import { AboutBeliefSection } from "@/components/marketing/about-belief-section";
+import { AboutCeoMessageSection } from "@/components/marketing/about-ceo-message-section";
+import { AboutJourneyTimeline } from "@/components/marketing/about-journey-timeline";
 import { AboutNarrativeSplitSection } from "@/components/marketing/about-narrative-split-section";
 import { AboutOurStorySection } from "@/components/marketing/about-our-story-section";
 import type { Locale } from "@/constants/locales";
@@ -18,20 +21,36 @@ export function AboutNarrativeSections({
     <div className="flex flex-col gap-14 sm:gap-16 lg:gap-20">
       <AboutOurStorySection locale={locale} story={narrative.story} />
       <AboutNarrativeSplitSection
+        id="mission"
+        eyebrow={narrative.mission.eyebrow}
+        title={narrative.mission.title}
+        paragraphs={narrative.mission.paragraphs}
+        imagePosition="right"
+        imageVariant="mission"
+        imageLabel={narrative.mission.imageLabel}
+      />
+      <AboutNarrativeSplitSection
         id="vision"
+        eyebrow={narrative.vision.eyebrow}
         title={narrative.vision.title}
         paragraphs={narrative.vision.paragraphs}
-        imagePosition="right"
+        imagePosition="left"
         imageVariant="vision"
         imageLabel={narrative.vision.imageLabel}
       />
+      <AboutBeliefSection belief={narrative.belief} />
+      <AboutJourneyTimeline timeline={narrative.timeline} />
+      {narrative.ceoMessage ? (
+        <AboutCeoMessageSection message={narrative.ceoMessage} />
+      ) : null}
       <AboutNarrativeSplitSection
-        id="mission"
-        title={narrative.mission.title}
-        paragraphs={narrative.mission.paragraphs}
-        imagePosition="left"
-        imageVariant="mission"
-        imageLabel={narrative.mission.imageLabel}
+        id="telecel"
+        eyebrow={narrative.telecel.eyebrow}
+        title={narrative.telecel.title}
+        paragraphs={narrative.telecel.paragraphs}
+        imagePosition="right"
+        imageVariant="telecel"
+        imageLabel={narrative.telecel.imageLabel}
       />
     </div>
   );

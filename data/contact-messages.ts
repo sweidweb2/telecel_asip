@@ -6,7 +6,7 @@ import type {
 import type { ContactMessageListQuery } from "@/validations/contact-message";
 
 const MESSAGE_COLUMNS =
-  "id, full_name, email, phone, subject, message, created_at" as const;
+  "id, enquiry_type, full_name, email, phone, subject, message, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -23,6 +23,10 @@ async function fetchContactMessages(
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
+
+  if (query.enquiryType !== "all") {
+    request = request.eq("enquiry_type", query.enquiryType);
+  }
 
   if (query.search) {
     request = request.or(

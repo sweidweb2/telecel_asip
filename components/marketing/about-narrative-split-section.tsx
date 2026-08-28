@@ -1,8 +1,8 @@
-import { Compass, Eye, type LucideIcon } from "lucide-react";
+import { Compass, Eye, Waypoints, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-type AboutNarrativeVisualVariant = "vision" | "mission";
+type AboutNarrativeVisualVariant = "vision" | "mission" | "telecel";
 
 const VISUAL_CONFIG: Record<
   AboutNarrativeVisualVariant,
@@ -16,10 +16,15 @@ const VISUAL_CONFIG: Record<
     Icon: Compass,
     gradient: "from-secondary/50 via-muted/70 to-primary/15",
   },
+  telecel: {
+    Icon: Waypoints,
+    gradient: "from-primary/25 via-muted/60 to-primary/10",
+  },
 };
 
 type AboutNarrativeSplitSectionProps = {
   id: string;
+  eyebrow?: string;
   title: string;
   paragraphs: string[];
   imagePosition: "left" | "right";
@@ -67,6 +72,7 @@ function NarrativeVisual({
 
 export function AboutNarrativeSplitSection({
   id,
+  eyebrow,
   title,
   paragraphs,
   imagePosition,
@@ -82,7 +88,12 @@ export function AboutNarrativeSplitSection({
     <section id={id} className="scroll-mt-20">
       <div className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12 xl:gap-16">
         <div className={cn("min-w-0", textOrder)}>
-          <h2 className="font-heading text-2xl font-semibold uppercase tracking-tight sm:text-3xl">
+          {eyebrow ? (
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {eyebrow}
+            </p>
+          ) : null}
+          <h2 className="font-heading text-2xl font-semibold uppercase tracking-tight text-balance sm:text-3xl">
             {title}
           </h2>
           <div className="mt-5 flex flex-col gap-5 sm:mt-6 sm:gap-6">

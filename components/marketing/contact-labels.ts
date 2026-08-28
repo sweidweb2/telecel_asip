@@ -1,6 +1,20 @@
+import type { ContactEnquiryType } from "@/constants/contact-enquiry";
 import type { Locale } from "@/constants/locales";
 
+export type ContactEnquiryRoute = {
+  id: ContactEnquiryType;
+  label: string;
+  /** Short description of what belongs on this route. */
+  microcopy: string;
+};
+
 export type ContactLabels = {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroDescription: string;
+  routesLegend: string;
+  routesHint: string;
+  routes: readonly ContactEnquiryRoute[];
   infoTitle: string;
   infoDescription: string;
   addressLabel: string;
@@ -8,6 +22,7 @@ export type ContactLabels = {
   phoneLabel: string;
   formTitle: string;
   formDescription: string;
+  enquiryTypeLabel: string;
   nameLabel: string;
   namePlaceholder: string;
   phoneFieldLabel: string;
@@ -25,6 +40,37 @@ export type ContactLabels = {
 };
 
 const EN: ContactLabels = {
+  heroEyebrow: "Contact",
+  heroTitle: "Start with the right conversation.",
+  heroDescription:
+    "Choose the route that best matches your objective and the ASIP team will direct your enquiry to the relevant owner.",
+  routesLegend: "Enquiry route",
+  routesHint: "Pick the route that matches your enquiry.",
+  routes: [
+    {
+      id: "founder",
+      label: "Founder enquiry",
+      microcopy:
+        "Questions about eligibility, applications, cohorts or portfolio support.",
+    },
+    {
+      id: "partner",
+      label: "Partner enquiry",
+      microcopy:
+        "Corporate, investor, technology, development or ecosystem collaboration.",
+    },
+    {
+      id: "media",
+      label: "Media enquiry",
+      microcopy:
+        "Interview requests, approved data, founder stories, imagery and event information.",
+    },
+    {
+      id: "general",
+      label: "General enquiry",
+      microcopy: "Use when none of the defined routes applies.",
+    },
+  ],
   infoTitle: "Contact details",
   infoDescription: "Reach the ASIP team by post, email or phone.",
   addressLabel: "Address",
@@ -32,6 +78,7 @@ const EN: ContactLabels = {
   phoneLabel: "Phone number",
   formTitle: "Send a message",
   formDescription: "Tell us how we can help. We will get back to you shortly.",
+  enquiryTypeLabel: "Enquiry route",
   nameLabel: "Name",
   namePlaceholder: "Your name",
   phoneFieldLabel: "Phone",
@@ -49,6 +96,37 @@ const EN: ContactLabels = {
 };
 
 const FR: ContactLabels = {
+  heroEyebrow: "Contact",
+  heroTitle: "Commencez par la bonne conversation.",
+  heroDescription:
+    "Choisissez le parcours qui correspond le mieux à votre objectif et l’équipe ASIP transmettra votre demande au bon interlocuteur.",
+  routesLegend: "Type de demande",
+  routesHint: "Choisissez le parcours qui correspond à votre demande.",
+  routes: [
+    {
+      id: "founder",
+      label: "Demande fondateur",
+      microcopy:
+        "Questions sur l’éligibilité, les candidatures, les cohortes ou l’accompagnement du portefeuille.",
+    },
+    {
+      id: "partner",
+      label: "Demande partenaire",
+      microcopy:
+        "Collaboration entreprise, investisseur, technologie, développement ou écosystème.",
+    },
+    {
+      id: "media",
+      label: "Demande presse",
+      microcopy:
+        "Demandes d’interview, données validées, histoires de fondateurs, images et informations sur les événements.",
+    },
+    {
+      id: "general",
+      label: "Demande générale",
+      microcopy: "À utiliser lorsqu’aucun des parcours définis ne s’applique.",
+    },
+  ],
   infoTitle: "Coordonnées",
   infoDescription:
     "Contactez l’équipe ASIP par courrier, e-mail ou téléphone.",
@@ -58,6 +136,7 @@ const FR: ContactLabels = {
   formTitle: "Envoyer un message",
   formDescription:
     "Dites-nous comment nous pouvons vous aider. Nous vous répondrons rapidement.",
+  enquiryTypeLabel: "Type de demande",
   nameLabel: "Nom",
   namePlaceholder: "Votre nom",
   phoneFieldLabel: "Téléphone",

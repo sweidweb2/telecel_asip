@@ -37,7 +37,8 @@ export function pageOpenGraph(
   locale: Locale,
   path: string,
   title: string,
-  description: string
+  description: string,
+  imageUrl = "/opengraph-image.png",
 ): NonNullable<Metadata["openGraph"]> {
   return {
     title,
@@ -49,10 +50,10 @@ export function pageOpenGraph(
     siteName: "ASIP",
     images: [
       {
-        url: "/opengraph-image.png",
+        url: imageUrl,
         width: 1200,
         height: 630,
-        alt: "ASIP — Africa Startup Initiative Program",
+        alt: title,
       },
     ],
   };

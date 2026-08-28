@@ -84,39 +84,67 @@ export function SiteFooter({ labels }: SiteFooterProps) {
   return (
     <footer className="mt-auto border-t bg-muted/30">
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:py-14">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
+        {/* 5 columns so the proposition gets 2 and the link lists sit right. */}
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
+          <div className="space-y-4 sm:col-span-2 lg:col-span-2 lg:pr-8">
             <p className="font-heading text-base font-semibold tracking-tight">
               {labels.brand}
             </p>
-            <p className="max-w-sm text-sm text-muted-foreground text-pretty">
-              {labels.tagline}
+            <p className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">
+              {labels.headline}
             </p>
-            <div className="space-y-2">
-              <p className="font-heading text-sm font-semibold tracking-tight">
-                {labels.socialHeading}
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {labels.social.map((item) => {
-                  const Icon = SOCIAL_ICONS[item.label];
-                  return (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={item.label}
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "min-h-11 min-w-11"
-                      )}
-                    >
-                      {Icon ? <Icon className="size-4" /> : item.label}
-                    </a>
-                  );
-                })}
-              </div>
+            <p className="max-w-md text-sm text-muted-foreground text-pretty">
+              {labels.statement}
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <a
+                href={labels.parent.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "min-h-11 w-full justify-center sm:w-auto",
+                )}
+              >
+                {labels.parent.label}
+              </a>
+              <Link
+                href={labels.contact.href}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "min-h-11 w-full justify-center sm:w-auto",
+                )}
+              >
+                {labels.contact.label}
+              </Link>
             </div>
+            {labels.social.length > 0 ? (
+              <div className="space-y-2">
+                <p className="font-heading text-sm font-semibold tracking-tight">
+                  {labels.socialHeading}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {labels.social.map((item) => {
+                    const Icon = SOCIAL_ICONS[item.label];
+                    return (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={item.label}
+                        className={cn(
+                          buttonVariants({ variant: "ghost", size: "icon" }),
+                          "min-h-11 min-w-11"
+                        )}
+                      >
+                        {Icon ? <Icon className="size-4" /> : item.label}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <FooterLinkList
@@ -135,9 +163,42 @@ export function SiteFooter({ labels }: SiteFooterProps) {
 
         <Separator className="my-8" />
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">{labels.copyright}</p>
-          <p className="text-xs text-muted-foreground/80 italic">{labels.note}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <nav
+              aria-label="Legal"
+              className="flex flex-wrap items-center gap-x-4 gap-y-1"
+            >
+              {labels.legal.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <Link
+              href={labels.apply.href}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "min-h-11 w-full justify-center sm:w-auto",
+              )}
+            >
+              {labels.apply.label}
+            </Link>
+            <Link
+              href={labels.login.href}
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                "min-h-11 w-full justify-center sm:w-auto",
+              )}
+            >
+              {labels.login.label}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

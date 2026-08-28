@@ -1,6 +1,5 @@
+import { ContactExperience } from "@/components/marketing/contact-experience";
 import { contactLabelsFor } from "@/components/marketing/contact-labels";
-import { ContactSection } from "@/components/marketing/contact-section";
-import { MarketingPageShell } from "@/components/marketing/page-shell";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -8,16 +7,9 @@ export const metadata = buildMarketingMetadata({
   path: "/contact",
   title: "Nous contacter — ASIP",
   description:
-    "Contactez l’équipe du Programme africain d’initiative pour les startups.",
+    "Choisissez un parcours fondateur, partenaire, presse ou général : l’équipe ASIP transmettra votre demande au bon interlocuteur.",
 });
 
 export default function FrContactPage() {
-  return (
-    <MarketingPageShell
-      title="Nous contacter"
-      description="Questions sur le programme, les partenariats ou la presse — écrivez à l’équipe ASIP via les coordonnées ci-dessous ou envoyez un message."
-    >
-      <ContactSection locale="fr" labels={contactLabelsFor("fr")} />
-    </MarketingPageShell>
-  );
+  return <ContactExperience locale="fr" labels={contactLabelsFor("fr")} />;
 }

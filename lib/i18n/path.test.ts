@@ -9,7 +9,7 @@ import { localeUrl, pageAlternates } from "@/lib/seo/alternates";
 
 describe("swapLocaleInPath", () => {
   it("swaps locale on nested paths", () => {
-    expect(swapLocaleInPath("/en/portfolio", "fr")).toBe("/fr/portfolio");
+    expect(swapLocaleInPath("/en/founders", "fr")).toBe("/fr/founders");
     expect(swapLocaleInPath("/fr/about", "en")).toBe("/en/about");
   });
 
@@ -19,7 +19,7 @@ describe("swapLocaleInPath", () => {
   });
 
   it("prefixes locale when missing", () => {
-    expect(swapLocaleInPath("/portfolio", "fr")).toBe("/fr/portfolio");
+    expect(swapLocaleInPath("/founders", "fr")).toBe("/fr/founders");
     expect(swapLocaleInPath("/", "en")).toBe("/en");
   });
 
@@ -57,12 +57,12 @@ describe("getLocaleFromPath", () => {
 
 describe("pageAlternates", () => {
   it("sets canonical and hreflang languages", () => {
-    const alt = pageAlternates("en", "/portfolio");
-    expect(alt.canonical).toBe(localeUrl("en", "/portfolio"));
+    const alt = pageAlternates("en", "/founders");
+    expect(alt.canonical).toBe(localeUrl("en", "/founders"));
     expect(alt.languages).toMatchObject({
-      en: localeUrl("en", "/portfolio"),
-      fr: localeUrl("fr", "/portfolio"),
-      "x-default": localeUrl("en", "/portfolio"),
+      en: localeUrl("en", "/founders"),
+      fr: localeUrl("fr", "/founders"),
+      "x-default": localeUrl("en", "/founders"),
     });
   });
 });

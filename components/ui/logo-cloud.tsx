@@ -12,18 +12,21 @@ export function LogoCloudGrid({ logos, className }: LogoCloudGridProps) {
   return (
     <ul
       className={cn(
-        "mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-8 sm:gap-x-14 sm:gap-y-10",
+        "mx-auto grid max-w-5xl grid-cols-2 items-center gap-x-8 gap-y-8 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-10 lg:grid-cols-4",
         className,
       )}
     >
       {logos.map((logo) => (
-        <li key={logo.name}>
+        <li
+          key={logo.name}
+          className="flex h-16 items-center justify-center sm:h-20"
+        >
           <Image
             src={logo.src}
             alt={`${logo.name} logo`}
-            width={120}
-            height={logo.height}
-            className={cn("w-fit dark:invert", logo.className ?? "h-5")}
+            width={200}
+            height={64}
+            className="h-auto max-h-10 w-auto max-w-[9.5rem] object-contain sm:max-h-12 sm:max-w-[11rem]"
           />
         </li>
       ))}
