@@ -5,9 +5,10 @@ import { parsePortfolioYearParam } from "@/validations/startup";
 
 export const metadata = buildMarketingMetadata({
   locale: "fr",
-  path: "/portfolio",
-  title: "Portefeuille — ASIP",
-  description: "Découvrez les entreprises de l’écosystème ASIP.",
+  path: "/founders",
+  title: "Fondateurs — ASIP",
+  description:
+    "Explorez les fondateurs et startups de l’écosystème ASIP par cohorte, pays et secteur.",
 });
 
 type PageProps = {
@@ -21,7 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <PortfolioPageContent
       locale="fr"
-      copy={marketingCopyFor("fr", "portfolio")}
+      copy={marketingCopyFor("fr", "founders")}
       initialYear={year ?? "all"}
     />
   );

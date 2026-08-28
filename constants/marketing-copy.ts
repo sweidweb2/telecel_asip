@@ -31,13 +31,7 @@ const en: MarketingCopy = {
     sectionDescription:
       "The programme is designed to help promising ventures strengthen their foundations, reach useful networks, and communicate their progress responsibly.",
     cards: [],
-    cta: { slug: "contact", label: "Become a partner" },
-    partnersSection: {
-      eyebrow: "Ecosystem",
-      title: "Partners",
-      description:
-        "Leading organizations across the ecosystem support ASIP founders.",
-    },
+    cta: { slug: "partners", label: "Meet our partners" },
     aboutNarrative: {
       story: {
         title: "Our story",
@@ -75,8 +69,7 @@ const en: MarketingCopy = {
             title: "Community impact",
             description:
               "Supporting startups whose ideas create measurable difference in African communities.",
-            slug: "programme",
-            hash: "impact",
+            slug: "impact",
             linkLabel: "Learn more",
           },
         ],
@@ -90,7 +83,7 @@ const en: MarketingCopy = {
         statsNotice: "Draft figures — final numbers require Telecel approval.",
         bottomCta: {
           title: "Ready to grow with ASIP?",
-          slug: "apply",
+          slug: "register-interest",
           label: "Register your interest",
         },
       },
@@ -146,43 +139,18 @@ const en: MarketingCopy = {
           "Relevant introductions and visibility help ventures prepare for their next stage.",
       },
     ],
-    cta: { slug: "apply", label: "Register your interest" },
-    impactSection: {
-      eyebrow: "Impact",
-      title: "Making progress visible and credible",
-      description:
-        "Impact reporting combines measurable outcomes with the founder and programme stories that explain them. Figures remain unpublished until reviewed and approved.",
-      notice:
-        "Figures will remain unpublished until they have been reviewed and approved.",
-      cards: [
-        {
-          title: "Ventures supported",
-          description:
-            "Participation and cohort figures will be reported from verified programme records.",
-        },
-        {
-          title: "Markets reached",
-          description:
-            "Portfolio expansion will be presented with clear definitions and reporting periods.",
-        },
-        {
-          title: "Founder outcomes",
-          description:
-            "Stories will connect business progress with lessons from each founder journey.",
-        },
-      ],
-    },
+    cta: { slug: "register-interest", label: "Register your interest" },
   },
-  portfolio: {
-    eyebrow: "Portfolio",
-    title: "Ventures across the ASIP ecosystem",
+  founders: {
+    eyebrow: "Founders",
+    title: "Founders and ventures across the ASIP ecosystem",
     description:
-      "Discover the companies supported by ASIP across cohorts, countries, and technology sectors.",
+      "Search the founders supported by ASIP across cohorts, countries, and technology sectors.",
     notice:
       "Profiles and performance information are published only after verification.",
-    sectionTitle: "A growing venture archive",
+    sectionTitle: "A growing founder archive",
     sectionDescription:
-      "The portfolio will make it easier to discover founders, understand their solutions, and follow their progress.",
+      "Search and filter to discover founders, understand their solutions, and follow their progress.",
     cards: [
       {
         title: "Across cohorts",
@@ -192,7 +160,7 @@ const en: MarketingCopy = {
       {
         title: "Across markets",
         description:
-          "See the countries and communities where portfolio companies are building.",
+          "See the countries and communities where ASIP founders are building.",
       },
       {
         title: "Across sectors",
@@ -200,15 +168,197 @@ const en: MarketingCopy = {
           "Discover solutions in financial services, health, climate, commerce, and more.",
       },
     ],
-    cta: { slug: "programme", label: "Explore our impact", hash: "impact" },
+    cta: { slug: "impact", label: "Explore our impact" },
     ctaSection: {
       title: "Explore our impact",
       description:
         "See how ASIP ventures contribute to communities across Africa — with verified reach, founder outcomes, and programme stories.",
-      slug: "programme",
-      hash: "impact",
+      slug: "impact",
       label: "Explore our impact",
     },
+  },
+  impact: {
+    eyebrow: "Impact",
+    title: "Seven years of impact",
+    description:
+      "Since 2019, ASIP has backed African technology founders and tracked what that support actually changed for their ventures and communities.",
+    notice:
+      "Figures remain unpublished until they have been reviewed and approved by Telecel.",
+    sectionTitle: "Making progress visible and credible",
+    sectionDescription:
+      "Impact reporting combines measurable outcomes with the founder and programme stories that explain them.",
+    cards: [
+      {
+        title: "Ventures supported",
+        description:
+          "Participation and cohort figures are reported from verified programme records.",
+      },
+      {
+        title: "Markets reached",
+        description:
+          "Ecosystem expansion is presented with clear definitions and reporting periods.",
+      },
+      {
+        title: "Founder outcomes",
+        description:
+          "Stories connect business progress with lessons from each founder journey.",
+      },
+    ],
+    statsSection: {
+      eyebrow: "Proof points",
+      title: "Seven years, measured",
+      description:
+        "A snapshot of what the programme has delivered across cohorts, markets, and founder outcomes.",
+      notice: "Draft figures — final numbers require Telecel approval.",
+      stats: [
+        { icon: "rocket", value: 50, suffix: "+", label: "Startups supported" },
+        { icon: "map-pin", value: 12, suffix: "+", label: "Markets reached" },
+        { icon: "users", value: 5, suffix: "+", label: "Programme cycles" },
+        { icon: "star", value: 95, suffix: "%", label: "Founder satisfaction" },
+      ],
+    },
+    ctaSection: {
+      title: "Meet the founders behind the numbers",
+      description:
+        "Every figure on this page comes from a venture with a team, a market, and a story worth reading.",
+      slug: "founders",
+      label: "Browse the founders",
+    },
+  },
+  partners: {
+    eyebrow: "Ecosystem",
+    title: "Partners and mentors behind ASIP",
+    description:
+      "Leading organizations, mentors, and ecosystem builders work with ASIP to give African founders access they could not reach alone.",
+    notice:
+      "Partner names, logos, and collaboration details require Telecel approval before publication.",
+    sectionTitle: "Ways to collaborate",
+    sectionDescription:
+      "Partnership takes several forms. Each one connects a founder to something they need next.",
+    cards: [
+      {
+        title: "Mentorship",
+        description:
+          "Share operating experience with founders through structured sessions and cohort workshops.",
+      },
+      {
+        title: "Market access",
+        description:
+          "Open routes to customers, distribution, and commercial pilots across African markets.",
+      },
+      {
+        title: "Capital and grants",
+        description:
+          "Connect ventures with investors, grant programmes, and follow-on funding pathways.",
+      },
+      {
+        title: "Technical support",
+        description:
+          "Provide infrastructure, tooling, or engineering expertise that accelerates product delivery.",
+      },
+      {
+        title: "Ecosystem programmes",
+        description:
+          "Co-design content, events, and community initiatives that reach founders at scale.",
+      },
+      {
+        title: "Visibility",
+        description:
+          "Amplify verified founder progress through your channels, media, and events.",
+      },
+    ],
+    partnersSection: {
+      eyebrow: "Ecosystem",
+      title: "Organizations supporting ASIP founders",
+      description:
+        "Leading organizations across the ecosystem support ASIP founders.",
+    },
+    ctaSection: {
+      title: "Partner with ASIP",
+      description:
+        "Tell us where your organization can add value and the ASIP team will follow up to discuss a fit.",
+      slug: "contact",
+      label: "Start a conversation",
+    },
+  },
+  alumni: {
+    eyebrow: "Alumni network",
+    title: "The ASIP alumni network",
+    description:
+      "Founders do not leave ASIP at the end of a cohort. The alumni network keeps them connected to peers, mentors, and opportunities.",
+    notice:
+      "The Alumni Network proposition is in preparation. This page is not yet linked from the main navigation.",
+    sectionTitle: "What alumni get",
+    sectionDescription:
+      "The network is designed around what founders say they need after the structured programme ends.",
+    cards: [
+      {
+        title: "Peer community",
+        description:
+          "Stay connected with founders from every cohort who are solving comparable problems.",
+      },
+      {
+        title: "Continued mentorship",
+        description:
+          "Keep access to mentors and operators as the venture moves into its next stage.",
+      },
+      {
+        title: "Investor introductions",
+        description:
+          "Reach follow-on capital through the ASIP and Telecel Group networks.",
+      },
+      {
+        title: "Market opportunities",
+        description:
+          "Hear about pilots, partnerships, and commercial routes across African markets.",
+      },
+      {
+        title: "Programme give-back",
+        description:
+          "Mentor incoming cohorts, speak at sessions, and shape how the programme evolves.",
+      },
+      {
+        title: "Visibility",
+        description:
+          "Feature in ASIP insights, events, and portfolio communications as milestones land.",
+      },
+    ],
+    ctaSection: {
+      title: "Already an ASIP founder?",
+      description:
+        "Get in touch and the team will keep you informed as the alumni network opens.",
+      slug: "contact",
+      label: "Contact the team",
+    },
+  },
+  "register-interest": {
+    eyebrow: "For founders",
+    title: "Register your interest",
+    description:
+      "Tell ASIP about your team, technology venture, market, and current stage.",
+    notice:
+      "Your submission is stored securely and reviewed by the ASIP team for each programme cycle.",
+    sectionTitle: "Prepare your venture profile",
+    sectionDescription:
+      "Before registering, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.",
+    cards: [
+      {
+        title: "Team",
+        description:
+          "Introduce the founders and the experience that prepares you to solve this problem.",
+      },
+      {
+        title: "Solution",
+        description:
+          "Explain the customer problem, your product, and what makes your approach relevant.",
+      },
+      {
+        title: "Progress",
+        description:
+          "Summarize traction, learning, current stage, and the next milestones you are pursuing.",
+      },
+    ],
+    cta: { slug: "contact", label: "Ask a question" },
   },
   apply: {
     eyebrow: "For founders", title: "Register your interest", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "Your submission is stored securely and reviewed by the ASIP team for each programme cycle.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
@@ -221,7 +371,7 @@ const en: MarketingCopy = {
     eyebrow: "FAQ",
     title: "Frequently asked questions",
     description:
-      "Practical information about the programme, applications, portfolio, and partnerships.",
+      "Practical information about the programme, applications, founders, and partnerships.",
     notice: "Programme-specific dates and criteria will be updated after approval.",
     sectionTitle: "What founders and partners ask",
     sectionDescription:
@@ -285,13 +435,7 @@ const fr: MarketingCopy = {
     sectionDescription:
       "Le programme aide les entreprises prometteuses à renforcer leurs bases, atteindre des réseaux utiles et communiquer leurs progrès de manière responsable.",
     cards: [],
-    cta: { slug: "contact", label: "Devenir partenaire" },
-    partnersSection: {
-      eyebrow: "Écosystème",
-      title: "Partenaires",
-      description:
-        "Des organisations de premier plan soutiennent les fondateurs ASIP.",
-    },
+    cta: { slug: "partners", label: "Découvrir nos partenaires" },
     aboutNarrative: {
       story: {
         title: "Notre histoire",
@@ -329,8 +473,7 @@ const fr: MarketingCopy = {
             title: "Impact communautaire",
             description:
               "Soutien aux startups dont les idées créent une différence mesurable dans les communautés africaines.",
-            slug: "programme",
-            hash: "impact",
+            slug: "impact",
             linkLabel: "En savoir plus",
           },
         ],
@@ -345,7 +488,7 @@ const fr: MarketingCopy = {
           "Chiffres provisoires — les données finales nécessitent l’approbation de Telecel.",
         bottomCta: {
           title: "Prêt à grandir avec ASIP ?",
-          slug: "apply",
+          slug: "register-interest",
           label: "Manifester votre intérêt",
         },
       },
@@ -401,43 +544,18 @@ const fr: MarketingCopy = {
           "Des introductions et une visibilité pertinentes préparent l’entreprise à sa prochaine étape.",
       },
     ],
-    cta: { slug: "apply", label: "Manifester votre intérêt" },
-    impactSection: {
-      eyebrow: "Impact",
-      title: "Rendre les progrès visibles et crédibles",
-      description:
-        "Le suivi d’impact associe les résultats mesurables aux histoires qui les expliquent. Les chiffres restent non publiés jusqu’à examen et approbation.",
-      notice:
-        "Les chiffres ne seront publiés qu’après examen et approbation.",
-      cards: [
-        {
-          title: "Entreprises accompagnées",
-          description:
-            "Les chiffres de participation proviendront des dossiers vérifiés du programme.",
-        },
-        {
-          title: "Marchés atteints",
-          description:
-            "L’expansion sera présentée avec des définitions et périodes de référence claires.",
-        },
-        {
-          title: "Résultats des fondateurs",
-          description:
-            "Les récits relieront les progrès aux enseignements de chaque parcours.",
-        },
-      ],
-    },
+    cta: { slug: "register-interest", label: "Manifester votre intérêt" },
   },
-  portfolio: {
-    eyebrow: "Portefeuille",
-    title: "Les entreprises de l’écosystème ASIP",
+  founders: {
+    eyebrow: "Fondateurs",
+    title: "Les fondateurs de l’écosystème ASIP",
     description:
-      "Découvrez les entreprises accompagnées par ASIP selon les cohortes, pays et secteurs technologiques.",
+      "Explorez les fondateurs accompagnés par ASIP selon les cohortes, pays et secteurs technologiques.",
     notice:
       "Les profils et résultats ne sont publiés qu’après vérification.",
-    sectionTitle: "Une archive d’entreprises en croissance",
+    sectionTitle: "Une archive de fondateurs en croissance",
     sectionDescription:
-      "Le portefeuille facilite la découverte des fondateurs, de leurs solutions et de leurs progrès.",
+      "Recherchez et filtrez pour découvrir les fondateurs, leurs solutions et leurs progrès.",
     cards: [
       {
         title: "Par cohorte",
@@ -447,7 +565,7 @@ const fr: MarketingCopy = {
       {
         title: "Par marché",
         description:
-          "Découvrez les pays et communautés où les entreprises construisent leurs solutions.",
+          "Découvrez les pays et communautés où les fondateurs ASIP construisent leurs solutions.",
       },
       {
         title: "Par secteur",
@@ -455,22 +573,210 @@ const fr: MarketingCopy = {
           "Explorez la finance, la santé, le climat, le commerce et d’autres domaines.",
       },
     ],
-    cta: { slug: "programme", label: "Découvrir notre impact", hash: "impact" },
+    cta: { slug: "impact", label: "Découvrir notre impact" },
     ctaSection: {
       title: "Découvrir notre impact",
       description:
         "Découvrez comment les entreprises ASIP contribuent aux communautés en Afrique — portée vérifiée, résultats des fondateurs et histoires du programme.",
-      slug: "programme",
-      hash: "impact",
+      slug: "impact",
       label: "Découvrir notre impact",
     },
+  },
+  impact: {
+    eyebrow: "Impact",
+    title: "Sept ans d’impact",
+    description:
+      "Depuis 2019, ASIP accompagne les fondateurs technologiques africains et mesure ce que ce soutien a réellement changé pour leurs entreprises et leurs communautés.",
+    notice:
+      "Les chiffres ne seront publiés qu’après examen et approbation par Telecel.",
+    sectionTitle: "Rendre les progrès visibles et crédibles",
+    sectionDescription:
+      "Le suivi d’impact associe les résultats mesurables aux histoires des fondateurs qui les expliquent.",
+    cards: [
+      {
+        title: "Entreprises accompagnées",
+        description:
+          "Les chiffres de participation proviennent des dossiers vérifiés du programme.",
+      },
+      {
+        title: "Marchés atteints",
+        description:
+          "L’expansion est présentée avec des définitions et périodes de référence claires.",
+      },
+      {
+        title: "Résultats des fondateurs",
+        description:
+          "Les récits relient les progrès aux enseignements de chaque parcours.",
+      },
+    ],
+    statsSection: {
+      eyebrow: "Chiffres clés",
+      title: "Sept ans, mesurés",
+      description:
+        "Un aperçu de ce que le programme a produit à travers les cohortes, les marchés et les parcours des fondateurs.",
+      notice:
+        "Chiffres provisoires — les données finales nécessitent l’approbation de Telecel.",
+      stats: [
+        { icon: "rocket", value: 50, suffix: "+", label: "Startups accompagnées" },
+        { icon: "map-pin", value: 12, suffix: "+", label: "Marchés atteints" },
+        { icon: "users", value: 5, suffix: "+", label: "Cycles du programme" },
+        {
+          icon: "star",
+          value: 95,
+          suffix: "%",
+          label: "Satisfaction des fondateurs",
+        },
+      ],
+    },
+    ctaSection: {
+      title: "Rencontrez les fondateurs derrière les chiffres",
+      description:
+        "Chaque chiffre de cette page correspond à une entreprise, une équipe, un marché et une histoire à découvrir.",
+      slug: "founders",
+      label: "Découvrir les fondateurs",
+    },
+  },
+  partners: {
+    eyebrow: "Écosystème",
+    title: "Les partenaires et mentors d’ASIP",
+    description:
+      "Des organisations de premier plan, des mentors et des acteurs de l’écosystème travaillent avec ASIP pour offrir aux fondateurs africains un accès qu’ils ne pourraient obtenir seuls.",
+    notice:
+      "Les noms, logos et modalités de collaboration nécessitent l’approbation de Telecel avant publication.",
+    sectionTitle: "Façons de collaborer",
+    sectionDescription:
+      "Le partenariat prend plusieurs formes. Chacune relie un fondateur à ce dont il a besoin ensuite.",
+    cards: [
+      {
+        title: "Mentorat",
+        description:
+          "Partagez votre expérience opérationnelle avec les fondateurs lors de sessions structurées et d’ateliers.",
+      },
+      {
+        title: "Accès au marché",
+        description:
+          "Ouvrez des voies vers les clients, la distribution et des pilotes commerciaux en Afrique.",
+      },
+      {
+        title: "Capital et subventions",
+        description:
+          "Reliez les entreprises aux investisseurs, aux subventions et aux financements de suivi.",
+      },
+      {
+        title: "Soutien technique",
+        description:
+          "Apportez infrastructure, outils ou expertise d’ingénierie pour accélérer le produit.",
+      },
+      {
+        title: "Programmes d’écosystème",
+        description:
+          "Co-construisez contenus, événements et initiatives communautaires à grande échelle.",
+      },
+      {
+        title: "Visibilité",
+        description:
+          "Relayez les progrès vérifiés des fondateurs via vos canaux, médias et événements.",
+      },
+    ],
+    partnersSection: {
+      eyebrow: "Écosystème",
+      title: "Les organisations qui soutiennent les fondateurs ASIP",
+      description:
+        "Des organisations de premier plan soutiennent les fondateurs ASIP.",
+    },
+    ctaSection: {
+      title: "Devenir partenaire d’ASIP",
+      description:
+        "Dites-nous où votre organisation peut apporter de la valeur et l’équipe ASIP vous recontactera.",
+      slug: "contact",
+      label: "Entamer la discussion",
+    },
+  },
+  alumni: {
+    eyebrow: "Réseau alumni",
+    title: "Le réseau alumni d’ASIP",
+    description:
+      "Les fondateurs ne quittent pas ASIP à la fin d’une cohorte. Le réseau alumni les garde connectés à leurs pairs, aux mentors et aux opportunités.",
+    notice:
+      "Le réseau alumni est en préparation. Cette page n’est pas encore liée depuis la navigation principale.",
+    sectionTitle: "Ce que le réseau apporte",
+    sectionDescription:
+      "Le réseau est conçu autour des besoins exprimés par les fondateurs après la fin du programme structuré.",
+    cards: [
+      {
+        title: "Communauté de pairs",
+        description:
+          "Restez en lien avec les fondateurs de chaque cohorte confrontés à des défis comparables.",
+      },
+      {
+        title: "Mentorat continu",
+        description:
+          "Conservez l’accès aux mentors et opérateurs à mesure que l’entreprise change d’étape.",
+      },
+      {
+        title: "Introductions investisseurs",
+        description:
+          "Accédez aux financements de suivi via les réseaux ASIP et Groupe Telecel.",
+      },
+      {
+        title: "Opportunités de marché",
+        description:
+          "Soyez informé des pilotes, partenariats et voies commerciales en Afrique.",
+      },
+      {
+        title: "Transmission",
+        description:
+          "Mentorez les nouvelles cohortes, intervenez lors des sessions et façonnez le programme.",
+      },
+      {
+        title: "Visibilité",
+        description:
+          "Apparaissez dans les contenus, événements et communications ASIP au fil de vos étapes clés.",
+      },
+    ],
+    ctaSection: {
+      title: "Déjà fondateur ASIP ?",
+      description:
+        "Contactez-nous et l’équipe vous tiendra informé de l’ouverture du réseau alumni.",
+      slug: "contact",
+      label: "Contacter l’équipe",
+    },
+  },
+  "register-interest": {
+    eyebrow: "Pour les fondateurs",
+    title: "Manifester votre intérêt",
+    description:
+      "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.",
+    notice:
+      "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.",
+    sectionTitle: "Préparez le profil de votre entreprise",
+    sectionDescription:
+      "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.",
+    cards: [
+      {
+        title: "Équipe",
+        description:
+          "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème.",
+      },
+      {
+        title: "Solution",
+        description:
+          "Expliquez le problème client, votre produit et la pertinence de votre approche.",
+      },
+      {
+        title: "Progrès",
+        description:
+          "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes.",
+      },
+    ],
+    cta: { slug: "contact", label: "Poser une question" },
   },
   apply: { eyebrow: "Pour les fondateurs", title: "Manifester votre intérêt", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
   faq: {
     eyebrow: "FAQ",
     title: "Questions fréquentes",
     description:
-      "Informations pratiques sur le programme, les candidatures, le portefeuille et les partenariats.",
+      "Informations pratiques sur le programme, les candidatures, les fondateurs et les partenariats.",
     notice: "Les dates et critères propres au programme seront actualisés après validation.",
     sectionTitle: "Les questions des fondateurs et partenaires",
     sectionDescription:

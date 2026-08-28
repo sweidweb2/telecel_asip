@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
@@ -31,7 +32,7 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-  /** Founded years from active startups for the Startups hover menu. */
+  /** Founded years from active startups for the Founders hover menu. */
   startupYears?: string[];
 };
 
@@ -95,7 +96,7 @@ export function SiteNavbar({
   const applyHref = labels.apply.href;
   const applyLabel = labels.apply.label;
   const menuLabel = labels.menuLabel ?? (locale === "fr" ? "Menu" : "Menu");
-  const portfolioHref = publicPath(locale, "portfolio");
+  const foundersHref = publicPath(locale, "founders");
   const allYearsLabel = locale === "fr" ? "Toutes les années" : "All years";
   const yearsHeading = locale === "fr" ? "Par année" : "By year";
 
@@ -120,16 +121,20 @@ export function SiteNavbar({
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto grid h-14 w-full max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr]">
-        {labels.brand ? (
-          <Link
-            href={labels.items[0]?.href ?? `/${locale}`}
-            className="font-heading shrink-0 text-sm font-semibold tracking-tight"
-          >
-            {labels.brand}
-          </Link>
-        ) : (
-          <div className="hidden lg:block" aria-hidden />
-        )}
+        <Link
+          href={labels.items[0]?.href ?? `/${locale}`}
+          className="flex min-w-0 shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <Image
+            src="/ASIP_LOGO.png"
+            alt={labels.brand ?? "Africa Startup Initiative"}
+            width={864}
+            height={289}
+            priority
+            sizes="(max-width: 1024px) 168px, 192px"
+            className="h-9 w-auto sm:h-10 dark:brightness-0 dark:invert"
+          />
+        </Link>
 
         <NavigationMenu
           className="hidden min-w-0 justify-center lg:flex"
@@ -138,9 +143,9 @@ export function SiteNavbar({
           <NavigationMenuList className="gap-1 xl:gap-2">
             {labels.items.map((item) => {
               const active = isNavActive(pathname, item.href, locale);
-              const isPortfolio = item.href === portfolioHref;
+              const isFounders = item.href === foundersHref;
 
-              if (isPortfolio && startupYears.length > 0) {
+              if (isFounders && startupYears.length > 0) {
                 return (
                   <NavigationMenuItem key={item.href}>
                     <NavigationMenuTrigger
@@ -155,10 +160,10 @@ export function SiteNavbar({
                       <ul className="grid w-44 gap-0.5 p-1">
                         <li>
                           <NavigationMenuLink
-                            render={<Link href={portfolioHref} />}
+                            render={<Link href={foundersHref} />}
                             active={
-                              pathname === portfolioHref ||
-                              pathname.startsWith(`${portfolioHref}/`)
+                              pathname === foundersHref ||
+                              pathname.startsWith(`${foundersHref}/`)
                             }
                             closeOnClick
                             className="min-h-9 px-2.5 py-2 font-medium"
@@ -171,7 +176,7 @@ export function SiteNavbar({
                             <NavigationMenuLink
                               render={
                                 <Link
-                                  href={`${portfolioHref}?year=${encodeURIComponent(year)}`}
+                                  href={`${foundersHref}?year=${encodeURIComponent(year)}`}
                                 />
                               }
                               closeOnClick
@@ -238,9 +243,9 @@ export function SiteNavbar({
               >
                 {labels.items.map((item) => {
                   const active = isNavActive(pathname, item.href, locale);
-                  const isPortfolio = item.href === portfolioHref;
+                  const isFounders = item.href === foundersHref;
 
-                  if (isPortfolio && startupYears.length > 0) {
+                  if (isFounders && startupYears.length > 0) {
                     return (
                       <div key={item.href} className="flex flex-col gap-1">
                         <Link
@@ -261,7 +266,7 @@ export function SiteNavbar({
                           {startupYears.map((year) => (
                             <Link
                               key={year}
-                              href={`${portfolioHref}?year=${encodeURIComponent(year)}`}
+                              href={`${foundersHref}?year=${encodeURIComponent(year)}`}
                               onClick={() => setOpen(false)}
                               className={cn(
                                 buttonVariants({ variant: "ghost" }),

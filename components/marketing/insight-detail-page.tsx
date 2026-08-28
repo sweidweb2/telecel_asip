@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import { BlogCard } from "@/components/marketing/blog-card";
+import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";

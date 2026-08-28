@@ -16,8 +16,6 @@ export function ProgrammePageContent({
   locale,
   copy,
 }: ProgrammePageContentProps) {
-  const impact = copy.impactSection;
-
   return (
     <main>
       <PageHero
@@ -59,31 +57,6 @@ export function ProgrammePageContent({
           </Link>
         ) : null}
       </Section>
-
-      {impact ? (
-        <Section id="impact" className="scroll-mt-20 border-t pb-16 sm:pb-20">
-          <SectionHeading
-            eyebrow={impact.eyebrow}
-            title={impact.title}
-            description={impact.description}
-          />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {impact.cards.map((card) => (
-              <article
-                key={card.title}
-                className="rounded-xl border p-5 sm:p-6"
-              >
-                <h3 className="font-heading text-lg font-semibold tracking-tight sm:text-xl">
-                  {card.title}
-                </h3>
-                <p className="mt-3 leading-7 text-muted-foreground">
-                  {card.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </Section>
-      ) : null}
     </main>
   );
 }

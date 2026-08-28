@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
 
-function PortfolioFallback() {
+function FoundersFallback() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14 sm:px-6">
       <Skeleton className="h-10 w-2/3 max-w-lg" />
@@ -15,8 +15,8 @@ function PortfolioFallback() {
   );
 }
 
-export default function PortfolioLoading() {
+export default function FoundersLoading() {
   return (
-    <RouteSkeleton name="marketing-portfolio" fallback={<PortfolioFallback />} />
+    <RouteSkeleton name="marketing-founders" fallback={<FoundersFallback />} />
   );
 }

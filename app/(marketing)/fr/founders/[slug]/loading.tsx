@@ -28,10 +28,10 @@ function DetailFallback() {
   );
 }
 
-export default function PortfolioDetailLoading() {
+export default function FounderDetailLoading() {
   return (
     <RouteSkeleton
-      name="marketing-portfolio-detail"
+      name="marketing-founder-detail"
       fallback={<DetailFallback />}
     />
   );

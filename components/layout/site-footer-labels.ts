@@ -49,18 +49,20 @@ export function enFooterLabels(): SiteFooterLabels {
     explore: links("en", [
       { slug: "", label: "Home" },
       { slug: "about", label: "About" },
-      { slug: "portfolio", label: "Portfolio" },
+      { slug: "founders", label: "Founders" },
       { slug: "insights", label: "Insights" },
     ]),
-    programme: [
-      { href: publicPath("en", "programme"), label: "The programme" },
-      { href: `${publicPath("en", "programme")}#impact`, label: "Impact" },
-      { href: publicPath("en", "apply"), label: "Register interest" },
-      { href: publicPath("en", "faq"), label: "FAQ" },
-    ],
+    programme: links("en", [
+      { slug: "programme", label: "The programme" },
+      { slug: "impact", label: "Impact" },
+      { slug: "register-interest", label: "Register interest" },
+      { slug: "faq", label: "FAQ" },
+    ]),
     connect: [
-      { href: publicPath("en", "contact"), label: "Contact" },
-      { href: `${publicPath("en", "about")}#partners`, label: "Partner with us" },
+      ...links("en", [
+        { slug: "contact", label: "Contact" },
+        { slug: "partners", label: "Partner with us" },
+      ]),
       { href: authPath("en", "signup"), label: "Register" },
     ],
     socialHeading: "Follow",
@@ -89,21 +91,20 @@ export function frFooterLabels(): SiteFooterLabels {
     explore: links("fr", [
       { slug: "", label: "Accueil" },
       { slug: "about", label: "À propos" },
-      { slug: "portfolio", label: "Portefeuille" },
+      { slug: "founders", label: "Fondateurs" },
       { slug: "insights", label: "Perspectives" },
     ]),
-    programme: [
-      { href: publicPath("fr", "programme"), label: "Le programme" },
-      { href: `${publicPath("fr", "programme")}#impact`, label: "Impact" },
-      { href: publicPath("fr", "apply"), label: "Manifestez votre intérêt" },
-      { href: publicPath("fr", "faq"), label: "FAQ" },
-    ],
+    programme: links("fr", [
+      { slug: "programme", label: "Le programme" },
+      { slug: "impact", label: "Impact" },
+      { slug: "register-interest", label: "Manifestez votre intérêt" },
+      { slug: "faq", label: "FAQ" },
+    ]),
     connect: [
-      { href: publicPath("fr", "contact"), label: "Nous contacter" },
-      {
-        href: `${publicPath("fr", "about")}#partners`,
-        label: "Devenir partenaire",
-      },
+      ...links("fr", [
+        { slug: "contact", label: "Nous contacter" },
+        { slug: "partners", label: "Devenir partenaire" },
+      ]),
       { href: authPath("fr", "signup"), label: "Inscription" },
     ],
     socialHeading: "Suivre",

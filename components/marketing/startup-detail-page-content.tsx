@@ -14,8 +14,8 @@ import type {
 import { cn } from "@/lib/utils";
 
 type StartupDetailLabels = {
-  backToPortfolio: string;
-  portfolio: string;
+  backToFounders: string;
+  founders: string;
   founded: string;
   moreStartups: string;
 };
@@ -29,21 +29,21 @@ type StartupDetailPageContentProps = {
 
 const LABELS: Record<Locale, StartupDetailLabels> = {
   en: {
-    backToPortfolio: "Back to portfolio",
-    portfolio: "Portfolio",
+    backToFounders: "Back to founders",
+    founders: "Founders",
     founded: "Founded",
     moreStartups: "More startups",
   },
   fr: {
-    backToPortfolio: "Retour au portefeuille",
-    portfolio: "Portefeuille",
+    backToFounders: "Retour aux fondateurs",
+    founders: "Fondateurs",
     founded: "Fondée",
     moreStartups: "Autres startups",
   },
 };
 
-function portfolioBackHref(locale: Locale, fromPage?: number) {
-  const base = publicPath(locale, "portfolio");
+function foundersBackHref(locale: Locale, fromPage?: number) {
+  const base = publicPath(locale, "founders");
   if (fromPage !== undefined && fromPage > 1) {
     return `${base}?page=${fromPage}`;
   }
@@ -66,14 +66,14 @@ export function StartupDetailPageContent({
       <article className="pb-16 lg:pb-24">
         <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
           <Link
-            href={portfolioBackHref(locale, fromPage)}
+            href={foundersBackHref(locale, fromPage)}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
               "min-h-11 gap-2 px-0 hover:bg-transparent",
             )}
           >
             <ArrowLeft className="size-4" />
-            {labels.backToPortfolio}
+            {labels.backToFounders}
           </Link>
         </div>
 
@@ -102,7 +102,7 @@ export function StartupDetailPageContent({
 
           <header className="mt-8 max-w-3xl sm:mt-10">
             <p className="text-sm font-semibold text-primary">
-              {labels.portfolio}
+              {labels.founders}
             </p>
             <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
               {startup.name}
@@ -128,13 +128,13 @@ export function StartupDetailPageContent({
                 {labels.moreStartups}
               </h2>
               <Link
-                href={publicPath(locale, "portfolio")}
+                href={publicPath(locale, "founders")}
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "sm" }),
                   "min-h-11 shrink-0 gap-1",
                 )}
               >
-                {labels.backToPortfolio}
+                {labels.backToFounders}
                 <ArrowUpRight className="size-4" />
               </Link>
             </div>

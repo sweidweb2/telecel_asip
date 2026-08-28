@@ -74,11 +74,11 @@ async function authorizeAdmin(): Promise<AdminSession> {
 function refreshStartupPaths(slug?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
   revalidatePath(ROUTES.portfolio);
-  revalidatePath("/en/portfolio");
-  revalidatePath("/fr/portfolio");
+  revalidatePath("/en/founders");
+  revalidatePath("/fr/founders");
   if (slug) {
-    revalidatePath(`/en/portfolio/${slug}`);
-    revalidatePath(`/fr/portfolio/${slug}`);
+    revalidatePath(`/en/founders/${slug}`);
+    revalidatePath(`/fr/founders/${slug}`);
   }
 }
 

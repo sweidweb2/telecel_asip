@@ -41,12 +41,12 @@ export function portfolioEditPath(id: string): string {
   return `${ROUTES.portfolio}/${id}`;
 }
 
-/** Locale-prefixed portfolio startup detail, e.g. `/en/portfolio/acme`. */
-export function portfolioStartupPath(
+/** Locale-prefixed founder/startup detail, e.g. `/en/founders/acme`. */
+export function founderStartupPath(
   locale: Locale,
   slug: string,
   fromPage = 1,
 ): string {
-  const path = `/${locale}/portfolio/${slug}`;
+  const path = `/${locale}/founders/${slug}`;
   return fromPage > 1 ? `${path}?fromPage=${fromPage}` : path;
 }

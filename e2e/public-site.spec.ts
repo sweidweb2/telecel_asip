@@ -4,8 +4,12 @@ const publicSlugs = [
   "",
   "/about",
   "/programme",
-  "/portfolio",
+  "/founders",
+  "/impact",
+  "/partners",
   "/insights",
+  "/register-interest",
+  "/alumni",
   "/apply",
   "/contact",
   "/faq",
@@ -44,5 +48,12 @@ test("mobile navigation remains usable", async ({ page }) => {
   await page.goto("/en");
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Apply" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Register Interest" }),
+  ).toBeVisible();
+});
+
+test("renamed portfolio URLs redirect to founders", async ({ page }) => {
+  await page.goto("/en/portfolio");
+  await expect(page).toHaveURL(/\/en\/founders$/);
 });

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import type { Locale } from "@/constants/locales";
-import { portfolioStartupPath } from "@/constants/routes";
+import { founderStartupPath } from "@/constants/routes";
 import { startupInitials } from "@/lib/startup-display";
 import type { StartupPublicListItem } from "@/types/startup";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export function StartupCard({
 }: StartupCardProps) {
   return (
     <Link
-      href={portfolioStartupPath(locale, startup.slug, fromPage)}
+      href={founderStartupPath(locale, startup.slug, fromPage)}
       className={cn(
         "group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm outline-none transition-shadow hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50",
         className,

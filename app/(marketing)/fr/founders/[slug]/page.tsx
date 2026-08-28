@@ -24,19 +24,19 @@ export async function generateMetadata({ params }: PageProps) {
   const startup = await getActiveStartupBySlug(slug);
 
   if (!startup) {
-    return { title: "Startup not found — ASIP" };
+    return { title: "Startup introuvable — ASIP" };
   }
 
   return buildMarketingMetadata({
-    locale: "en",
-    path: `/portfolio/${slug}`,
+    locale: "fr",
+    path: `/founders/${slug}`,
     title: `${startup.name} — ASIP`,
     description: startup.description,
     image: startup.logo_url || undefined,
   });
 }
 
-export default async function EnPortfolioStartupPage({
+export default async function FrFounderStartupPage({
   params,
   searchParams,
 }: PageProps) {
@@ -51,7 +51,7 @@ export default async function EnPortfolioStartupPage({
 
   return (
     <StartupDetailPageContent
-      locale="en"
+      locale="fr"
       startup={startup}
       related={related}
       fromPage={fromPage}

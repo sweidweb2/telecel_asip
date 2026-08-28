@@ -1,8 +1,11 @@
 import Link from "next/link";
 
 import { AboutPageContent } from "@/components/marketing/about-page-content";
+import { AlumniPageContent } from "@/components/marketing/alumni-page-content";
 import { ApplyPageContent } from "@/components/marketing/apply-page-content";
 import { FaqPageContent } from "@/components/marketing/faq-page-content";
+import { ImpactPageContent } from "@/components/marketing/impact-page-content";
+import { PartnersPageContent } from "@/components/marketing/partners-page-content";
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -62,7 +65,19 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
     return <ProgrammePageContent locale={locale} copy={copy} />;
   }
 
-  if (slug === "apply") {
+  if (slug === "impact") {
+    return <ImpactPageContent locale={locale} copy={copy} />;
+  }
+
+  if (slug === "partners") {
+    return <PartnersPageContent locale={locale} copy={copy} />;
+  }
+
+  if (slug === "alumni") {
+    return <AlumniPageContent locale={locale} copy={copy} />;
+  }
+
+  if (slug === "apply" || slug === "register-interest") {
     return <ApplyPageContent locale={locale} copy={copy} />;
   }
 

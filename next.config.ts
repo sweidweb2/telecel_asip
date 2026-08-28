@@ -66,7 +66,7 @@ const nextConfig: NextConfig = {
       },
       {
         source:
-          "/:locale(en|fr)/:slug(about|programme|portfolio|insights|apply|contact|faq|terms|privacy)",
+          "/:locale(en|fr)/:slug(about|programme|founders|impact|partners|insights|register-interest|alumni|apply|contact|faq|terms|privacy)",
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
@@ -78,7 +78,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:locale(en|fr)/portfolio/:slug*",
+        source: "/:locale(en|fr)/founders/:slug*",
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
@@ -105,19 +105,31 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Portfolio was renamed to Founders; keep indexed URLs and shared links alive.
       {
-        source: "/en/impact",
-        destination: "/en/programme#impact",
+        source: "/:locale(en|fr)/portfolio",
+        destination: "/:locale/founders",
         permanent: true,
       },
       {
-        source: "/fr/impact",
-        destination: "/fr/programme#impact",
+        source: "/:locale(en|fr)/portfolio/:slug*",
+        destination: "/:locale/founders/:slug*",
         permanent: true,
       },
+      {
+        source: "/portfolio",
+        destination: "/en/founders",
+        permanent: true,
+      },
+      // Impact and Partners graduated from page sections to standalone pages.
       {
         source: "/impact",
-        destination: "/en/programme#impact",
+        destination: "/en/impact",
+        permanent: true,
+      },
+      {
+        source: "/partners",
+        destination: "/en/partners",
         permanent: true,
       },
     ];

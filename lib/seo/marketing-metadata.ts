@@ -12,6 +12,8 @@ type BuildMarketingMetadataInput = {
   image?: string;
   /** Use Open Graph article type (insight detail pages). */
   ogType?: "website" | "article";
+  /** Routable but unlaunched pages (alumni, apply) stay out of the index. */
+  noIndex?: boolean;
 };
 
 export function buildMarketingMetadata({
@@ -21,12 +23,14 @@ export function buildMarketingMetadata({
   description,
   image,
   ogType = "website",
+  noIndex = false,
 }: BuildMarketingMetadataInput): Metadata {
   const imageUrl = image?.trim() || "/opengraph-image.png";
 
   return {
     title,
     description,
+    ...(noIndex ? { robots: { index: false, follow: false } } : {}),
     alternates: pageAlternates(locale, path),
     openGraph: {
       ...pageOpenGraph(locale, path, title, description, imageUrl),

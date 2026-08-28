@@ -77,7 +77,7 @@ test.describe("portfolio startups cms", () => {
         }),
       ).toBeVisible({ timeout: 20_000 });
 
-      const draftResponse = await page.goto(`/en/portfolio/${slug}`);
+      const draftResponse = await page.goto(`/en/founders/${slug}`);
       expect(draftResponse?.status()).toBe(404);
 
       await page.goto("/dashboard/portfolio");
@@ -91,7 +91,7 @@ test.describe("portfolio startups cms", () => {
         }),
       ).toBeVisible({ timeout: 20_000 });
 
-      await page.goto(`/en/portfolio/${slug}`);
+      await page.goto(`/en/founders/${slug}`);
       await expect(page.getByRole("heading", { name })).toBeVisible({
         timeout: 20_000,
       });
@@ -111,7 +111,7 @@ test.describe("portfolio startups cms", () => {
         }),
       ).toBeVisible({ timeout: 20_000 });
 
-      const inactiveResponse = await page.goto(`/en/portfolio/${slug}`);
+      const inactiveResponse = await page.goto(`/en/founders/${slug}`);
       expect(inactiveResponse?.status()).toBe(404);
 
       await page.goto("/dashboard/portfolio");

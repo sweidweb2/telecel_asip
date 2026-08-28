@@ -12,6 +12,13 @@ export type AboutStoryStatIcon =
   | "map-pin"
   | "star";
 
+export type MarketingStat = {
+  icon: AboutStoryStatIcon;
+  value: number;
+  suffix?: string;
+  label: string;
+};
+
 export type AboutStoryCopy = {
   title: string;
   paragraphs: string[];
@@ -24,12 +31,7 @@ export type AboutStoryCopy = {
     hash?: string;
     linkLabel?: string;
   }[];
-  stats?: {
-    icon: AboutStoryStatIcon;
-    value: number;
-    suffix?: string;
-    label: string;
-  }[];
+  stats?: MarketingStat[];
   imageCta?: { slug: PublicPageSlug; label: string };
   bottomCta?: { title: string; slug: PublicPageSlug; label: string };
   statsNotice?: string;
@@ -71,11 +73,19 @@ export type MarketingPageCopy = {
   sectionDescription: string;
   cards: { title: string; description: string }[];
   cta?: { slug: PublicPageSlug; label: string; hash?: string };
-  /** About page — partners logo cloud section. */
+  /** Partners page — logo cloud section. */
   partnersSection?: {
     eyebrow?: string;
     title: string;
     description?: string;
+  };
+  /** Impact page — animated proof-point counters. */
+  statsSection?: {
+    eyebrow?: string;
+    title: string;
+    description?: string;
+    notice?: string;
+    stats: MarketingStat[];
   };
   /** About page — story, vision, and mission narrative blocks. */
   aboutNarrative?: {
@@ -91,20 +101,12 @@ export type MarketingPageCopy = {
     label: string;
     items: { title: string; description: string }[];
   }[];
-  /** FAQ / portfolio — dedicated CTA block at the bottom. */
+  /** FAQ / founders / impact / partners — dedicated CTA block at the bottom. */
   ctaSection?: {
     title: string;
     description: string;
     slug: PublicPageSlug;
     label: string;
     hash?: string;
-  };
-  /** Programme page — impact metrics section. */
-  impactSection?: {
-    eyebrow?: string;
-    title: string;
-    description: string;
-    notice?: string;
-    cards: { title: string; description: string }[];
   };
 };

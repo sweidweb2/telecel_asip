@@ -19,7 +19,7 @@ type PortfolioPaginationLabels = {
 };
 
 function pageHref(locale: Locale, page: number) {
-  const base = publicPath(locale, "portfolio");
+  const base = publicPath(locale, "founders");
   return page > 1 ? `${base}?page=${page}` : base;
 }
 
