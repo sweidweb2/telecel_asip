@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
 
+import { LOCALES } from "./constants/locales";
+import { PUBLIC_PAGE_SLUGS } from "./constants/public-pages";
+
+/**
+ * Keeps the cached-route matchers in step with the routes that actually exist,
+ * so a newly added public page cannot silently ship without a cache header.
+ */
+const LOCALE_MATCHER = LOCALES.join("|");
+const PUBLIC_SLUG_MATCHER = PUBLIC_PAGE_SLUGS.filter(Boolean).join("|");
+
 function supabaseStorageHostname(): string | null {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!raw) return null;
@@ -21,6 +31,10 @@ const PUBLIC_STATIC_CACHE = "public, max-age=31536000, immutable";
 
 /** Dashboard / auth HTML — never shared-cache. */
 const PRIVATE_NO_STORE = "private, no-store";
+
+/** Crawler files — s-maxage matches the sitemap's 5m revalidate window. */
+const CRAWLER_FILE_CACHE =
+  "public, s-maxage=300, stale-while-revalidate=86400";
 
 /**
  * Baseline security headers for every response.
@@ -86,28 +100,39 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:locale(en|fr)",
+        source: `/:locale(${LOCALE_MATCHER})`,
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
       },
       {
-        source:
-          "/:locale(en|fr)/:slug(about|programme|founders|impact|partners|insights|register-interest|alumni|apply|contact|faq|terms|privacy)",
+        source: `/:locale(${LOCALE_MATCHER})/:slug(${PUBLIC_SLUG_MATCHER})`,
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
       },
       {
-        source: "/:locale(en|fr)/insights/:slug*",
+        source: `/:locale(${LOCALE_MATCHER})/insights/:slug*`,
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
       },
       {
-        source: "/:locale(en|fr)/founders/:slug*",
+        source: `/:locale(${LOCALE_MATCHER})/founders/:slug*`,
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
+        ],
+      },
+      {
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Cache-Control", value: CRAWLER_FILE_CACHE },
+        ],
+      },
+      {
+        source: "/robots.txt",
+        headers: [
+          { key: "Cache-Control", value: CRAWLER_FILE_CACHE },
         ],
       },
       {
@@ -117,7 +142,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:locale(en|fr)/:auth(login|signup|register)",
+        source: `/:locale(${LOCALE_MATCHER})/:auth(login|signup|register)`,
         headers: [
           { key: "Cache-Control", value: PRIVATE_NO_STORE },
         ],

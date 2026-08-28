@@ -49,6 +49,18 @@ function withLocaleHeaders(
   return response;
 }
 
+/**
+ * Locale negotiation and auth checks read the locale cookie, `Accept-Language`
+ * and the Supabase session, so these redirects must never enter a shared cache:
+ * a stored 307 would pin the first visitor's language (or destination) for
+ * everyone hitting the same unprefixed URL.
+ */
+function withNoStore(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Vary", "Accept-Language, Cookie");
+  return response;
+}
+
 function copyCookies(from: NextResponse, to: NextResponse): void {
   from.cookies.getAll().forEach((cookie) => {
     to.cookies.set(cookie.name, cookie.value);
@@ -132,7 +144,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("next", pathname);
       const redirect = NextResponse.redirect(loginUrl);
       copyCookies(response, redirect);
-      return withLocaleHeaders(redirect, locale, request);
+      return withNoStore(withLocaleHeaders(redirect, locale, request));
     }
 
     if (isAuthPage(pathname) && userId) {
@@ -141,7 +153,7 @@ export async function middleware(request: NextRequest) {
       dashboardUrl.search = "";
       const redirect = NextResponse.redirect(dashboardUrl);
       copyCookies(response, redirect);
-      return redirect;
+      return withNoStore(redirect);
     }
 
     // Auth page, logged out — continue with refreshed session cookies
@@ -167,7 +179,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === "/") {
     const redirect = NextResponse.redirect(new URL(`/${locale}`, request.url));
-    return withLocaleHeaders(redirect, locale, request);
+    return withNoStore(withLocaleHeaders(redirect, locale, request));
   }
 
   if (first && isLocale(first)) {
@@ -187,7 +199,7 @@ export async function middleware(request: NextRequest) {
     const redirect = NextResponse.redirect(
       new URL(`/${locale}/${segments[0]}`, request.url)
     );
-    return withLocaleHeaders(redirect, locale, request);
+    return withNoStore(withLocaleHeaders(redirect, locale, request));
   }
 
   const response = NextResponse.next({ request });
