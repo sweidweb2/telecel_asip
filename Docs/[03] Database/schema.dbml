@@ -119,6 +119,28 @@ Table contact_messages {
   '''
 }
 
+Table site_settings {
+  id smallint [pk, not null, default: 1, note: 'CHECK id = 1 — singleton row (site_settings_singleton_chk)']
+  open_applications boolean [not null, default: false, note: 'Drives the public CTA and the /apply ↔ /register-interest middleware redirect']
+  updated_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: UPDATE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read site settings — SELECT USING (true) for anon, authenticated
+    - Admins can update site settings — UPDATE USING/WITH CHECK (is_admin())
+
+    No INSERT/DELETE policy: the single row is seeded by the migration.
+    Trigger site_settings_set_updated_at maintains updated_at.
+  '''
+}
+
 Enum blog_status {
   draft
   published

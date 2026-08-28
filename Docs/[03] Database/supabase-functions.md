@@ -149,6 +149,25 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 **How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Cover images live in Storage bucket `blogs`; author avatars in `auther`. Featured exclusivity is enforced by a partial unique index plus the unfeature step inside `create_blog_with_featured` / `update_blog_with_featured` (see below) — admin writes must go through those RPCs, not a direct INSERT/UPDATE.
 
+### `public.site_settings`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_site_settings_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.site_settings_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.site_settings` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_site_settings_updated_at()` |
+
+**How it works:** Singleton row (`id = 1`, seeded by the migration) holding `open_applications`. Readable by anon and authenticated so the marketing navbar and middleware can route between `/apply` and `/register-interest`; only `is_admin()` may UPDATE, and there is no INSERT/DELETE policy.
+
 ### `public.startups`
 
 | Field | Value |

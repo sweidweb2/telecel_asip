@@ -47,6 +47,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          id: number
+          open_applications: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          open_applications?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          open_applications?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blogs: {
         Row: {
           author_avatar_url: string | null

@@ -93,6 +93,75 @@ function isProtectedPath(pathname: string): boolean {
   );
 }
 
+const APPLY_SLUG = "apply";
+const REGISTER_INTEREST_SLUG = "register-interest";
+const OPEN_APPLICATIONS_TTL_MS = 30_000;
+
+let openApplicationsCache: { value: boolean; expiresAt: number } | null = null;
+
+/**
+ * Reads the `open_applications` switch straight from PostgREST — middleware
+ * runs on the Edge runtime, so it cannot use `data/` or `unstable_cache`.
+ * Cached in memory per instance so the two gated routes stay fast; returns
+ * null when the setting cannot be read, in which case we do not redirect.
+ */
+async function readOpenApplications(): Promise<boolean | null> {
+  const now = Date.now();
+  if (openApplicationsCache && openApplicationsCache.expiresAt > now) {
+    return openApplicationsCache.value;
+  }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return null;
+
+  try {
+    const response = await fetch(
+      `${url}/rest/v1/site_settings?select=open_applications&id=eq.1`,
+      {
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+          Accept: "application/vnd.pgrst.object+json",
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) return null;
+
+    const row = (await response.json()) as { open_applications?: boolean };
+    const value = Boolean(row.open_applications);
+    openApplicationsCache = {
+      value,
+      expiresAt: now + OPEN_APPLICATIONS_TTL_MS,
+    };
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Keeps /apply and /register-interest mutually exclusive: whichever one the
+ * current `open_applications` setting disables redirects to the other.
+ */
+async function applicationRouteRedirect(
+  request: NextRequest,
+  locale: Locale,
+  slug: string,
+): Promise<NextResponse | null> {
+  const isOpen = await readOpenApplications();
+  if (isOpen === null) return null;
+
+  const target = isOpen ? APPLY_SLUG : REGISTER_INTEREST_SLUG;
+  if (slug === target) return null;
+
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.pathname = `/${locale}/${target}`;
+  return NextResponse.redirect(redirectUrl);
+}
+
 async function refreshSupabaseSession(request: NextRequest): Promise<{
   response: NextResponse;
   userId: string | null;
@@ -183,6 +252,17 @@ export async function middleware(request: NextRequest) {
   }
 
   if (first && isLocale(first)) {
+    const slug = segments[1];
+    if (
+      segments.length === 2 &&
+      (slug === APPLY_SLUG || slug === REGISTER_INTEREST_SLUG)
+    ) {
+      const redirect = await applicationRouteRedirect(request, first, slug);
+      if (redirect) {
+        return withNoStore(withLocaleHeaders(redirect, first, request));
+      }
+    }
+
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(LOCALE_HEADER, first);
     const next = NextResponse.next({
