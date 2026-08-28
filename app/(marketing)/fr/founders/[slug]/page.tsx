@@ -6,6 +6,7 @@ import {
   getActiveStartupSlugRows,
   getRelatedActiveStartups,
 } from "@/data/startups";
+import { safePrerenderList } from "@/lib/prerender-safe";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 import { parsePortfolioPageParam } from "@/validations/startup";
 
@@ -15,7 +16,9 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const rows = await getActiveStartupSlugRows();
+  const rows = await safePrerenderList("fr founder slugs", () =>
+    getActiveStartupSlugRows(),
+  );
   return rows.map((row) => ({ slug: row.slug }));
 }
 
