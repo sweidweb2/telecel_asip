@@ -27,8 +27,19 @@ export type StartupPublicListItem = Pick<
   "id" | "name" | "slug" | "logo_url" | "description" | "founded_at"
 >;
 
-/** Public detail shows main `startups` fields only — not `startup_details`. */
-export type StartupPublicDetail = StartupPublicListItem;
+/**
+ * Public detail: core startup fields plus the approved subset of
+ * `startup_details`. Funding figures and internal narrative fields
+ * (problem, solution, target market, business model) stay admin-only.
+ */
+export type StartupPublicDetails = Pick<
+  StartupDetails,
+  "industry" | "category" | "location" | "team"
+>;
+
+export type StartupPublicDetail = StartupPublicListItem & {
+  details: StartupPublicDetails | null;
+};
 
 export type StartupSlugRow = Pick<Startup, "slug" | "updated_at">;
 

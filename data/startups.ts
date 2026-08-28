@@ -31,6 +31,13 @@ const DETAILS_COLUMNS =
 const PUBLIC_LIST_COLUMNS =
   "id, name, slug, logo_url, description, founded_at" as const;
 
+/**
+ * Detail page adds the approved public subset of `startup_details`.
+ * Anon SELECT is allowed by RLS only while the parent startup is active.
+ */
+const PUBLIC_DETAIL_COLUMNS =
+  `${PUBLIC_LIST_COLUMNS}, startup_details(industry, category, location, team)` as const;
+
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -232,7 +239,7 @@ async function fetchActiveStartupBySlug(
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("startups")
-    .select(PUBLIC_LIST_COLUMNS)
+    .select(PUBLIC_DETAIL_COLUMNS)
     .eq("slug", slug)
     .eq("status", "active")
     .maybeSingle();
@@ -240,7 +247,13 @@ async function fetchActiveStartupBySlug(
   if (error) throw error;
   if (!data) return null;
 
-  return data as StartupPublicDetail;
+  // PostgREST returns the 1:1 embed as an object (or null when absent).
+  const { startup_details: details, ...core } = data;
+
+  return {
+    ...core,
+    details: (Array.isArray(details) ? (details[0] ?? null) : details) ?? null,
+  } as StartupPublicDetail;
 }
 
 export function getActiveStartupBySlug(slug: string) {

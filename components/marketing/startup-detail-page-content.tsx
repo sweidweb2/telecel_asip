@@ -17,6 +17,10 @@ type StartupDetailLabels = {
   backToFounders: string;
   founders: string;
   founded: string;
+  industry: string;
+  category: string;
+  location: string;
+  team: string;
   moreStartups: string;
 };
 
@@ -32,12 +36,20 @@ const LABELS: Record<Locale, StartupDetailLabels> = {
     backToFounders: "Back to founders",
     founders: "Founders",
     founded: "Founded",
+    industry: "Industry",
+    category: "Category",
+    location: "Location",
+    team: "Team",
     moreStartups: "More startups",
   },
   fr: {
     backToFounders: "Retour aux fondateurs",
     founders: "Fondateurs",
     founded: "Fondée",
+    industry: "Secteur",
+    category: "Catégorie",
+    location: "Localisation",
+    team: "Équipe",
     moreStartups: "Autres startups",
   },
 };
@@ -60,6 +72,18 @@ export function StartupDetailPageContent({
   const foundedLabel = startup.founded_at
     ? formatFoundedDate(startup.founded_at, locale)
     : null;
+
+  const details = startup.details;
+  const facts = [
+    { label: labels.founded, value: foundedLabel },
+    { label: labels.industry, value: details?.industry ?? null },
+    { label: labels.category, value: details?.category ?? null },
+    { label: labels.location, value: details?.location ?? null },
+  ].filter((fact): fact is { label: string; value: string } =>
+    Boolean(fact.value),
+  );
+
+  const team = details?.team?.trim() || null;
 
   return (
     <main>
@@ -110,15 +134,33 @@ export function StartupDetailPageContent({
             <p className="mt-4 text-base text-muted-foreground sm:mt-6 sm:text-lg">
               {startup.description}
             </p>
-            {foundedLabel ? (
-              <p className="mt-4 text-sm text-muted-foreground sm:mt-5">
-                <span className="font-semibold text-foreground">
-                  {labels.founded}:
-                </span>{" "}
-                {foundedLabel}
-              </p>
-            ) : null}
           </header>
+
+          {facts.length > 0 ? (
+            <dl className="mt-8 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-5 border-t pt-6 sm:mt-10 sm:grid-cols-2">
+              {facts.map((fact) => (
+                <div key={fact.label} className="min-w-0">
+                  <dt className="text-sm font-semibold text-foreground">
+                    {fact.label}
+                  </dt>
+                  <dd className="mt-1 text-sm text-muted-foreground">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
+          {team ? (
+            <section className="mt-10 max-w-3xl sm:mt-12">
+              <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
+                {labels.team}
+              </h2>
+              <p className="mt-3 text-base whitespace-pre-line text-muted-foreground">
+                {team}
+              </p>
+            </section>
+          ) : null}
         </div>
 
         {related.length > 0 ? (

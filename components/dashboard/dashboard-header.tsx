@@ -28,6 +28,7 @@ import { getDashboardPageTitle } from "@/constants/dashboard-nav";
 import { DEFAULT_LOCALE } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+import type { DashboardAccount } from "@/types/profile";
 
 const THEME_OPTIONS = [
   { value: "light", label: "Light", icon: SunIcon },
@@ -41,7 +42,7 @@ function useIsClient() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
-export function DashboardHeader() {
+export function DashboardHeader({ account }: { account: DashboardAccount }) {
   const pathname = usePathname();
   const title = getDashboardPageTitle(pathname);
   const [isPending, startTransition] = useTransition();
@@ -73,10 +74,19 @@ export function DashboardHeader() {
           aria-label="Open account menu"
         >
           <Avatar>
-            <AvatarFallback>AD</AvatarFallback>
+            <AvatarFallback>{account.initials}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48 min-w-48">
+        <DropdownMenuContent align="end" className="w-56 min-w-56">
+          <div className="grid px-2 py-1.5">
+            <span className="truncate text-sm font-medium">{account.name}</span>
+            {account.email ? (
+              <span className="truncate text-xs text-muted-foreground">
+                {account.email}
+              </span>
+            ) : null}
+          </div>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             className="min-h-11 cursor-pointer sm:min-h-8"
             render={<Link href={publicPath(DEFAULT_LOCALE)} />}
