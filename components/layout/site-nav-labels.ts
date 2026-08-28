@@ -16,8 +16,9 @@ export type SiteNavLabels = {
 };
 
 /**
- * Primary navigation. `apply` stays unlinked until a cohort's Apply state
- * is approved. Contact, FAQ, and legal pages live in the footer.
+ * Primary navigation. The CTA follows the `open_applications` site setting:
+ * Apply while a cohort is open, Register Interest otherwise. Contact, FAQ,
+ * and legal pages live in the footer.
  */
 const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Home" },
@@ -30,7 +31,7 @@ const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "insights", label: "Insights" },
 ];
 
-export function enNavLabels(): SiteNavLabels {
+export function enNavLabels(openApplications = false): SiteNavLabels {
   return {
     brand: "",
     languageGroupLabel: "Language",
@@ -39,10 +40,12 @@ export function enNavLabels(): SiteNavLabels {
       href: publicPath("en", slug),
       label,
     })),
-    apply: {
-      href: publicPath("en", "register-interest"),
-      label: "Register Interest",
-    },
+    apply: openApplications
+      ? { href: publicPath("en", "apply"), label: "Apply" }
+      : {
+          href: publicPath("en", "register-interest"),
+          label: "Register Interest",
+        },
   };
 }
 
@@ -57,7 +60,7 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "insights", label: "Perspectives" },
 ];
 
-export function frNavLabels(): SiteNavLabels {
+export function frNavLabels(openApplications = false): SiteNavLabels {
   return {
     brand: "",
     languageGroupLabel: "Langue",
@@ -66,13 +69,20 @@ export function frNavLabels(): SiteNavLabels {
       href: publicPath("fr", slug),
       label,
     })),
-    apply: {
-      href: publicPath("fr", "register-interest"),
-      label: "Manifester votre intérêt",
-    },
+    apply: openApplications
+      ? { href: publicPath("fr", "apply"), label: "Postuler" }
+      : {
+          href: publicPath("fr", "register-interest"),
+          label: "Manifester votre intérêt",
+        },
   };
 }
 
-export function navLabelsFor(locale: Locale): SiteNavLabels {
-  return locale === "fr" ? frNavLabels() : enNavLabels();
+export function navLabelsFor(
+  locale: Locale,
+  openApplications = false,
+): SiteNavLabels {
+  return locale === "fr"
+    ? frNavLabels(openApplications)
+    : enNavLabels(openApplications);
 }
