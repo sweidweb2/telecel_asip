@@ -10,6 +10,7 @@ import {
   getInsightSlugs,
   getRelatedInsights,
 } from "@/data/insights";
+import { safePrerenderList } from "@/lib/prerender-safe";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 type PageProps = {
@@ -17,7 +18,9 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const slugs = await getInsightSlugs();
+  const slugs = await safePrerenderList("en insight slugs", () =>
+    getInsightSlugs(),
+  );
   return slugs.map((slug) => ({ slug }));
 }
 

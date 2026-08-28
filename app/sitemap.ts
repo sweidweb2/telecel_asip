@@ -4,13 +4,14 @@ import { LOCALES } from "@/constants/locales";
 import { INDEXABLE_PAGE_SLUGS } from "@/constants/public-pages";
 import { getInsightSlugRows } from "@/data/insights";
 import { getActiveStartupSlugRows } from "@/data/startups";
+import { safePrerenderList } from "@/lib/prerender-safe";
 import { localeUrl } from "@/lib/seo/alternates";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
   const [insightRows, startupRows] = await Promise.all([
-    getInsightSlugRows(),
-    getActiveStartupSlugRows(),
+    safePrerenderList("sitemap insight slugs", () => getInsightSlugRows()),
+    safePrerenderList("sitemap startup slugs", () => getActiveStartupSlugRows()),
   ]);
 
   for (const locale of LOCALES) {
