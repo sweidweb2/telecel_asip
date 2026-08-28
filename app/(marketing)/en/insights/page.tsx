@@ -1,22 +1,25 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
-import { BlogSection } from "@/components/marketing/blog-section";
+import { InsightsPageContent } from "@/components/marketing/insights-page-content";
+import { insightsCopyFor } from "@/constants/insights-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 import { getInsightsIndex } from "@/data/insights";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/insights",
-  title: "Insights",
+  title: "ASIP Insights | Founder Stories and Portfolio Progress",
   description:
-    "Resources and insights from the ASIP programme and African tech ecosystem.",
+    "Read founder stories, portfolio news, programme updates and practical perspectives from across the ASIP ecosystem.",
 });
 
 export default async function InsightsPageEn() {
   const { articles, featured } = await getInsightsIndex("en");
+  const copy = insightsCopyFor("en");
 
   return (
-    <BlogSection
+    <InsightsPageContent
       locale="en"
+      copy={copy}
       labels={blogLabelsFor("en")}
       articles={articles}
       featured={featured}

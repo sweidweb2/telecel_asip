@@ -7,6 +7,7 @@ import {
 } from "@/validations/contact-message";
 
 const validInput = {
+  enquiryType: "partner",
   fullName: "Ada Lovelace",
   email: "ada@example.com",
   phone: "+233 20 123 4567",
@@ -20,6 +21,14 @@ describe("contactMessageSchema", () => {
   it("accepts a valid message", () => {
     const result = contactMessageSchema.safeParse(validInput);
     expect(result.success).toBe(true);
+  });
+
+  it("rejects an unknown enquiry route", () => {
+    const result = contactMessageSchema.safeParse({
+      ...validInput,
+      enquiryType: "investor",
+    });
+    expect(result.success).toBe(false);
   });
 
   it("rejects a missing email", () => {
@@ -84,5 +93,13 @@ describe("parseContactMessageListQuery", () => {
   it("clears search containing PostgREST filter metacharacters", () => {
     expect(parseContactMessageListQuery({ search: "a%b" }).search).toBe("");
     expect(parseContactMessageListQuery({ search: "a_b" }).search).toBe("");
+  });
+
+  it("keeps a known enquiry route and falls back to all otherwise", () => {
+    expect(parseContactMessageListQuery({ enquiryType: "media" }).enquiryType)
+      .toBe("media");
+    expect(parseContactMessageListQuery({ enquiryType: "nope" }).enquiryType)
+      .toBe("all");
+    expect(parseContactMessageListQuery({}).enquiryType).toBe("all");
   });
 });

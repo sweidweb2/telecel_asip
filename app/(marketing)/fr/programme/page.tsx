@@ -1,4 +1,17 @@
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
+import { programmeCopyFor } from "@/constants/programme-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
-export const metadata = buildMarketingMetadata({ locale: "fr", path: "/programme", title: "Programme — ASIP", description: "Découvrez le parcours ASIP conçu pour les fondateurs." });
-export default function Page() { return <MarketingContentPage locale="fr" slug="programme" />; }
+
+export const metadata = buildMarketingMetadata({
+  locale: "fr",
+  path: "/programme",
+  title: "Programme ASIP | Comment ça marche",
+  description:
+    "Découvrez le parcours fondateur ASIP, les bénéfices, les critères d’éligibilité, le processus de sélection et le statut actuel des candidatures.",
+});
+
+export default function Page() {
+  return (
+    <ProgrammePageContent locale="fr" copy={programmeCopyFor("fr")} />
+  );
+}

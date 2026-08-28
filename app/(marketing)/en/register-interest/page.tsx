@@ -4,9 +4,9 @@ import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/register-interest",
-  title: "Register interest — ASIP",
+  title: "Register Interest | ASIP",
   description:
-    "Tell ASIP about your team, technology venture, market, and current stage.",
+    "Register to receive confirmed ASIP application dates, eligibility criteria and programme updates when announced.",
 });
 
 export default function Page() {

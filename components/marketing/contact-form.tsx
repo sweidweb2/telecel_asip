@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useCallback, useEffect, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { submitContactMessage } from "@/actions/contact-messages";
 import type { ContactLabels } from "@/components/marketing/contact-labels";
+import { ContactRoutePicker } from "@/components/marketing/contact-route-picker";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { ContactEnquiryType } from "@/constants/contact-enquiry";
 import type { Locale } from "@/constants/locales";
 import { useTurnstile } from "@/hooks/use-turnstile";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
@@ -31,9 +33,17 @@ import {
 type ContactFormProps = {
   locale: Locale;
   labels: ContactLabels;
+  /** Owned by `ContactExperience` so the hero shortcuts can set it too. */
+  enquiryType: ContactEnquiryType;
+  onEnquiryTypeChange: (value: ContactEnquiryType) => void;
 };
 
-export function ContactForm({ locale, labels }: ContactFormProps) {
+export function ContactForm({
+  locale,
+  labels,
+  enquiryType,
+  onEnquiryTypeChange,
+}: ContactFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -46,6 +56,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
   } = useForm<ContactMessageInput>({
     resolver: zodResolver(contactMessageSchemaFor(locale)),
     defaultValues: {
+      enquiryType,
       fullName: "",
       email: "",
       phone: "",
@@ -56,6 +67,10 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
   });
 
   const turnstileToken = useWatch({ control, name: "turnstileToken" });
+
+  useEffect(() => {
+    setValue("enquiryType", enquiryType);
+  }, [enquiryType, setValue]);
 
   const turnstile = useTurnstile({
     action: TURNSTILE_CONTACT_ACTION,
@@ -78,6 +93,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
 
         toast.success(result.message || labels.successToast);
         reset({
+          enquiryType,
           fullName: "",
           email: "",
           phone: "",
@@ -103,6 +119,14 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
           onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
+          <ContactRoutePicker
+            routes={labels.routes}
+            value={enquiryType}
+            onChange={onEnquiryTypeChange}
+            legend={labels.routesLegend}
+            hint={labels.routesHint}
+            disabled={isPending}
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="contact-fullName">{labels.nameLabel}</Label>

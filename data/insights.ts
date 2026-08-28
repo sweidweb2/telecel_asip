@@ -16,6 +16,14 @@ export type InsightsIndex = {
   featured?: ArticleListItem;
 };
 
+export async function getLatestInsights(
+  locale: Locale = "en",
+  limit = 3,
+): Promise<ArticleListItem[]> {
+  const blogs = await getPublishedBlogs();
+  return blogs.slice(0, limit).map((blog) => toArticleList(blog, locale));
+}
+
 /**
  * Everything the Insights index renders, from a single published-blogs read.
  * `is_featured` already travels with the list columns, so the featured post is

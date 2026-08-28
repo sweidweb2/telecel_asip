@@ -20,7 +20,11 @@ export function LegalPageContent({ copy }: LegalPageContentProps) {
         <p className="mt-6 text-sm text-muted-foreground">{copy.lastUpdated}</p>
         <div className="mt-10 space-y-10">
           {copy.sections.map((section) => (
-            <article key={section.title} className="space-y-4">
+            <article
+              key={section.title}
+              id={section.id}
+              className="space-y-4 scroll-mt-24"
+            >
               <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
                 {section.title}
               </h2>

@@ -2,9 +2,6 @@ import type { Locale } from "@/constants/locales";
 import type { BlogTabId } from "@/constants/blog-ui";
 
 export type BlogLabels = {
-  eyebrow: string;
-  title: string;
-  description: string;
   writtenBy: string;
   publishedOn: string;
   fileUnder: string;
@@ -15,10 +12,6 @@ export type BlogLabels = {
 };
 
 const EN: BlogLabels = {
-  eyebrow: "Our blog",
-  title: "Resources and insights",
-  description:
-    "The latest industry news, interviews, technologies, and resources.",
   writtenBy: "Written by",
   publishedOn: "Published on",
   fileUnder: "File under",
@@ -35,10 +28,6 @@ const EN: BlogLabels = {
 };
 
 const FR: BlogLabels = {
-  eyebrow: "Notre blog",
-  title: "Ressources et analyses",
-  description:
-    "Les dernières actualités, interviews, technologies et ressources.",
   writtenBy: "Rédigé par",
   publishedOn: "Publié le",
   fileUnder: "Classé sous",

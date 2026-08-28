@@ -114,8 +114,15 @@ export async function submitContactMessage(
     };
   }
 
-  const { fullName, email, phone, subject, message, turnstileToken } =
-    parsed.data;
+  const {
+    enquiryType,
+    fullName,
+    email,
+    phone,
+    subject,
+    message,
+    turnstileToken,
+  } = parsed.data;
 
   const ip = await getClientIp();
   const turnstileOk = await verifyTurnstileToken({
@@ -139,6 +146,7 @@ export async function submitContactMessage(
 
   const admin = createAdminClient();
   const { error } = await admin.from("contact_messages").insert({
+    enquiry_type: enquiryType,
     full_name: fullName,
     email,
     phone,
@@ -172,11 +180,13 @@ export async function updateContactMessage(
   const session = await authorizeAdmin();
   if (session.status === "error") return session;
 
-  const { id, fullName, email, phone, subject, message } = parsed.data;
+  const { id, enquiryType, fullName, email, phone, subject, message } =
+    parsed.data;
 
   const { data, error } = await session.supabase
     .from("contact_messages")
     .update({
+      enquiry_type: enquiryType,
       full_name: fullName,
       email,
       phone,

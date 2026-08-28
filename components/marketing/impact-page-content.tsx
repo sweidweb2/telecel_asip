@@ -1,72 +1,145 @@
+import Link from "next/link";
+
 import {
   PageHero,
   Section,
   SectionHeading,
 } from "@/components/marketing/page-elements";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
-import {
-  StoryStatCounter,
-  StoryStatsNotice,
-} from "@/components/marketing/story-stat-counter";
+import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import type { MarketingPageCopy } from "@/types/marketing-page";
+import { publicPath } from "@/constants/routes";
+import type { ImpactPageCopy } from "@/types/marketing-page";
+import { cn } from "@/lib/utils";
 
 type ImpactPageContentProps = {
   locale: Locale;
-  copy: MarketingPageCopy;
+  copy: ImpactPageCopy;
 };
 
 export function ImpactPageContent({ locale, copy }: ImpactPageContentProps) {
-  const stats = copy.statsSection;
+  const { columns, rows } = copy.lenses;
 
   return (
     <main>
       <PageHero
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
-      />
-
-      {stats ? (
-        <Section className="border-t">
-          <SectionHeading
-            eyebrow={stats.eyebrow}
-            title={stats.title}
-            description={stats.description}
-            className="mx-auto mb-10 max-w-2xl text-center sm:mb-12"
-          />
-          <StoryStatCounter stats={stats.stats} />
-          {stats.notice ? (
-            <StoryStatsNotice className="mt-6">{stats.notice}</StoryStatsNotice>
-          ) : null}
-        </Section>
-      ) : null}
+        eyebrow={copy.hero.eyebrow}
+        title={copy.hero.title}
+        description={copy.hero.description}
+      >
+        <Link
+          href={publicPath(locale, copy.hero.cta.slug)}
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "min-h-11 w-full sm:w-auto",
+          )}
+        >
+          {copy.hero.cta.label}
+        </Link>
+      </PageHero>
 
       <Section className="border-t">
         <SectionHeading
-          title={copy.sectionTitle}
-          description={copy.sectionDescription}
+          eyebrow={copy.progress.eyebrow}
+          title={copy.progress.title}
+          description={copy.progress.description}
+          className="max-w-3xl"
         />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {copy.cards.map((card) => (
-            <article key={card.title} className="rounded-xl border p-5 sm:p-6">
-              <h3 className="font-heading text-lg font-semibold tracking-tight sm:text-xl">
-                {card.title}
+
+        <ul className="grid grid-cols-1 gap-4 md:hidden">
+          {rows.map((row) => (
+            <li key={row.id} className="rounded-xl border bg-card p-5 sm:p-6">
+              <h3 className="font-heading text-lg font-semibold tracking-tight">
+                {row.lens}
               </h3>
-              <p className="mt-3 leading-7 text-muted-foreground">
-                {card.description}
-              </p>
-            </article>
+              <dl className="mt-4 space-y-3 text-sm leading-6 sm:text-base sm:leading-7">
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    {columns.framing}
+                  </dt>
+                  <dd className="mt-1 text-muted-foreground">{row.framing}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    {columns.evidence}
+                  </dt>
+                  <dd className="mt-1 text-muted-foreground">{row.evidence}</dd>
+                </div>
+              </dl>
+            </li>
           ))}
+        </ul>
+
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+            <caption className="sr-only">{copy.progress.title}</caption>
+            <thead>
+              <tr className="border-b">
+                <th
+                  scope="col"
+                  className="pb-3 pr-4 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
+                >
+                  {columns.lens}
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 pb-3 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
+                >
+                  {columns.framing}
+                </th>
+                <th
+                  scope="col"
+                  className="pb-3 pl-4 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
+                >
+                  {columns.evidence}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} className="border-b last:border-b-0">
+                  <th
+                    scope="row"
+                    className="py-4 pr-4 align-top font-heading text-base font-semibold tracking-tight"
+                  >
+                    {row.lens}
+                  </th>
+                  <td className="px-4 py-4 align-top leading-6 text-muted-foreground">
+                    {row.framing}
+                  </td>
+                  <td className="py-4 pl-4 align-top leading-6 text-muted-foreground">
+                    {row.evidence}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+
         <p className="mt-8 rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
+          {copy.evidenceRule}
         </p>
       </Section>
 
-      {copy.ctaSection ? (
-        <PageCtaSection locale={locale} cta={copy.ctaSection} />
-      ) : null}
+      <Section className="border-t">
+        <SectionHeading
+          eyebrow={copy.caseStudy.eyebrow}
+          title={copy.caseStudy.title}
+        />
+        <figure className="rounded-xl border bg-card p-5 sm:p-8">
+          <figcaption className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {copy.caseStudy.templateLabel}
+          </figcaption>
+          <blockquote className="mt-4 max-w-3xl text-base leading-7 text-pretty sm:text-lg sm:leading-8">
+            {copy.caseStudy.body}
+          </blockquote>
+          <p className="mt-6 max-w-3xl text-sm leading-6 text-muted-foreground">
+            {copy.caseStudy.note}
+          </p>
+        </figure>
+      </Section>
+
+      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

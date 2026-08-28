@@ -19,18 +19,18 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: siteUrl(),
   title: {
-    default: "ASIP — Africa Startup Initiative Program",
+    default: "ASIP | African Founders, Technology & Impact",
     template: "%s",
   },
   description:
-    "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+    "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
   applicationName: "ASIP",
   openGraph: {
     type: "website",
     siteName: "ASIP",
-    title: "ASIP — Africa Startup Initiative Program",
+    title: "ASIP | African Founders, Technology & Impact",
     description:
-      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+      "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
     images: [
       {
         url: "/opengraph-image.png",
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ASIP — Africa Startup Initiative Program",
+    title: "ASIP | African Founders, Technology & Impact",
     description:
-      "Telecel Group’s Africa Startup Initiative Program supporting African technology ventures.",
+      "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
     images: ["/opengraph-image.png"],
   },
 };

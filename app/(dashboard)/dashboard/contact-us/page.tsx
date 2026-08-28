@@ -29,6 +29,9 @@ export default async function ContactUsPage({
       page: String(list.totalPages),
     });
     if (query.search) params.set("search", query.search);
+    if (query.enquiryType !== "all") {
+      params.set("enquiryType", query.enquiryType);
+    }
     redirect(`${ROUTES.contactUs}?${params.toString()}`);
   }
 

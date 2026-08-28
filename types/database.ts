@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          enquiry_type: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id: string
           message: string
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id?: string
           message: string
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name?: string
           id?: string
           message?: string
@@ -340,6 +343,7 @@ export type Database = {
     }
     Enums: {
       blog_status: "draft" | "published"
+      contact_enquiry_type: "founder" | "partner" | "media" | "general"
       startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
     }
@@ -470,6 +474,7 @@ export const Constants = {
   public: {
     Enums: {
       blog_status: ["draft", "published"],
+      contact_enquiry_type: ["founder", "partner", "media", "general"],
       startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],
     },

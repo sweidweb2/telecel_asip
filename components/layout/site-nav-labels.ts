@@ -16,15 +16,15 @@ export type SiteNavLabels = {
 };
 
 /**
- * Primary navigation. `alumni` and `apply` are intentionally absent: both pages
- * exist but stay unlinked until the Alumni Network and a cohort's Apply state
- * are approved. Contact, FAQ, and legal pages live in the footer.
+ * Primary navigation. `apply` stays unlinked until a cohort's Apply state
+ * is approved. Contact, FAQ, and legal pages live in the footer.
  */
 const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "", label: "Home" },
   { slug: "about", label: "About" },
   { slug: "programme", label: "Programme" },
   { slug: "founders", label: "Founders" },
+  { slug: "alumni", label: "Alumni" },
   { slug: "impact", label: "Impact" },
   { slug: "partners", label: "Partners" },
   { slug: "insights", label: "Insights" },
@@ -51,6 +51,7 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "about", label: "À propos" },
   { slug: "programme", label: "Programme" },
   { slug: "founders", label: "Fondateurs" },
+  { slug: "alumni", label: "Alumni" },
   { slug: "impact", label: "Impact" },
   { slug: "partners", label: "Partenaires" },
   { slug: "insights", label: "Perspectives" },

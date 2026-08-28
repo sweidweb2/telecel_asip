@@ -1,0 +1,42 @@
+---
+description: ASIP writing and brand voice for all user-facing copy (EN + FR)
+alwaysApply: true
+---
+
+# Content voice
+
+ASIP reads like a serious startup/business ecosystem — not an NGO, government, or CSR report. Every user-facing string (marketing pages, `*-labels.ts`, metadata, emails, toasts) follows this. Both `en` and `fr` copy must carry the same tone.
+
+| Use | Avoid |
+| --- | --- |
+| Real founders, businesses, problems, progress, results | NGO / government / CSR report register |
+| Concrete verbs: build, test, connect, commercialise, grow, scale | `empower`, `enable`, `support` with no stated outcome |
+| African confidence and global ambition | Framing founders as poor, helpless, or needing rescue |
+| Short, strong headlines backed by evidence | Long inspirational slogans with no proof |
+| Telecel as long-term supporter and connector | Claiming Telecel caused a founder's success |
+| Explicit status: Open / Closed / Register interest / Next chapter | Implying applications are open when no cohort is confirmed |
+
+## Rules
+
+1. **Say what happens.** If you write `empower`, `enable`, or `support`, name the actual activity or result instead.
+2. **Claims need evidence.** Numbers, named companies, or concrete milestones — or cut the claim.
+3. **Attribution stays honest.** Telecel connects, hosts, funds, and opens doors. It does not "create" founder outcomes.
+4. **Never state an unconfirmed cohort as open.** Default to the register-interest wording until a cohort is confirmed.
+
+## Examples
+
+```
+❌ ASIP is committed to empowering the next generation of African
+   entrepreneurs by providing support and opportunities.
+✅ ASIP helps founders test ideas, connect with customers, and turn
+   early-stage businesses into scalable companies.
+
+❌ Telecel is proud to empower and support Africa's most inspiring
+   entrepreneurs.
+✅ Telecel connects ASIP founders to networks, expertise and
+   opportunities that can help them grow.
+
+❌ Applications are now open for the 2026 ASIP cohort.
+✅ The next ASIP chapter is coming soon. Register your interest to
+   hear when applications open.
+```

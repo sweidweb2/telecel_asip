@@ -9,9 +9,9 @@ import {
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/founders",
-  title: "Founders — ASIP",
+  title: "ASIP Founders | Cohorts, Sectors and Markets",
   description:
-    "Search founders and startups across the ASIP ecosystem by cohort, country, and sector.",
+    "Explore African technology founders supported by ASIP across cohorts, countries, sectors and outcomes.",
 });
 
 type PageProps = {

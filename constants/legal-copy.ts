@@ -85,21 +85,29 @@ const en: LegalCopy = {
         ],
       },
       {
-        title: "4. Sharing and retention",
+        title: "4. Cookies and preferences",
+        id: "cookies",
+        paragraphs: [
+          "This site uses a small number of strictly necessary cookies: one remembers your language choice, and one keeps you signed in if you have an account. We do not set advertising or third-party analytics cookies, so there is currently nothing to opt out of.",
+          "You can clear or block cookies at any time in your browser settings. Blocking them means the site will not remember your language and you will not be able to stay signed in. If we add non-essential cookies later, we will ask for your consent first and provide controls here.",
+        ],
+      },
+      {
+        title: "5. Sharing and retention",
         paragraphs: [
           "We may share data with trusted service providers who help us host, analyse, or communicate (for example email or cloud infrastructure), under appropriate agreements.",
           "We retain personal data only as long as needed for the purposes above, or as required by law, then delete or anonymise it where practicable.",
         ],
       },
       {
-        title: "5. Your choices and rights",
+        title: "6. Your choices and rights",
         paragraphs: [
           "Depending on applicable law, you may have rights to access, correct, delete, or restrict processing of your personal data, or to object to certain uses.",
           "To exercise privacy rights, contact us via the Contact page.",
         ],
       },
       {
-        title: "6. Changes to this policy",
+        title: "7. Changes to this policy",
         paragraphs: [
           "We may update this Privacy Policy periodically. The “last updated” date above will change when a new version is published. Material changes may also be highlighted on the site.",
         ],
@@ -190,21 +198,29 @@ const fr: LegalCopy = {
         ],
       },
       {
-        title: "4. Partage et conservation",
+        title: "4. Cookies et préférences",
+        id: "cookies",
+        paragraphs: [
+          "Ce site utilise un petit nombre de cookies strictement nécessaires : l’un mémorise votre choix de langue, l’autre vous maintient connecté si vous avez un compte. Nous ne déposons aucun cookie publicitaire ni d’analyse tierce, il n’y a donc actuellement rien à refuser.",
+          "Vous pouvez effacer ou bloquer les cookies à tout moment dans les paramètres de votre navigateur. Les bloquer signifie que le site ne mémorisera pas votre langue et que vous ne pourrez pas rester connecté. Si nous ajoutons plus tard des cookies non essentiels, nous demanderons votre consentement au préalable et proposerons des contrôles ici.",
+        ],
+      },
+      {
+        title: "5. Partage et conservation",
         paragraphs: [
           "Nous pouvons partager des données avec des prestataires de confiance qui nous aident à héberger, analyser ou communiquer (par exemple e-mail ou infrastructure cloud), dans le cadre d’accords appropriés.",
           "Nous conservons les données personnelles uniquement aussi longtemps que nécessaire aux finalités ci-dessus, ou selon la loi, puis les supprimons ou les anonymisons lorsque c’est possible.",
         ],
       },
       {
-        title: "5. Vos choix et droits",
+        title: "6. Vos choix et droits",
         paragraphs: [
           "Selon le droit applicable, vous pouvez disposer de droits d’accès, de rectification, de suppression ou de limitation du traitement de vos données, ou d’opposition à certains usages.",
           "Pour exercer vos droits, contactez-nous via la page Contact.",
         ],
       },
       {
-        title: "6. Modifications de cette politique",
+        title: "7. Modifications de cette politique",
         paragraphs: [
           "Nous pouvons mettre à jour cette Politique de confidentialité périodiquement. La date de « dernière mise à jour » ci-dessus changera lors de la publication d’une nouvelle version. Les changements importants pourront aussi être signalés sur le site.",
         ],

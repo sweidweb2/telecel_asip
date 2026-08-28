@@ -1,14 +1,17 @@
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { ImpactPageContent } from "@/components/marketing/impact-page-content";
+import { impactCopyFor } from "@/constants/impact-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
   locale: "fr",
   path: "/impact",
-  title: "Impact — ASIP",
+  title: "Impact ASIP | Sept ans de progrès des fondateurs",
   description:
-    "Sept ans d’impact : chiffres vérifiés et résultats des fondateurs du programme ASIP.",
+    "Découvrez les résultats d’ASIP, appuyés par des preuves : fondateurs, marchés, emplois, partenariats et impact porté par la technologie.",
 });
 
 export default function Page() {
-  return <MarketingContentPage locale="fr" slug="impact" />;
+  return (
+    <ImpactPageContent locale="fr" copy={impactCopyFor("fr")} />
+  );
 }

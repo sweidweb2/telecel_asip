@@ -1,15 +1,16 @@
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { AlumniPageContent } from "@/components/marketing/alumni-page-content";
+import { alumniCopyFor } from "@/constants/alumni-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/alumni",
-  title: "Alumni network — ASIP",
+  title: "Alumni — ASIP",
   description:
-    "The ASIP alumni network keeps founders connected to peers, mentors, and opportunities after their cohort.",
+    "ASIP is building a stronger alumni experience designed to keep founders connected beyond the formal programme.",
   noIndex: true,
 });
 
 export default function Page() {
-  return <MarketingContentPage locale="en" slug="alumni" />;
+  return <AlumniPageContent locale="en" copy={alumniCopyFor("en")} />;
 }

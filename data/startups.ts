@@ -293,6 +293,33 @@ export async function getRelatedActiveStartups(
   )();
 }
 
+async function fetchSpotlightStartups(
+  limit: number,
+): Promise<StartupPublicListItem[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups")
+    .select(PUBLIC_LIST_COLUMNS)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data ?? []) as StartupPublicListItem[];
+}
+
+/** Newest active ventures for the home spotlight and outcome modules. */
+export async function getSpotlightStartups(
+  limit = 5,
+): Promise<StartupPublicListItem[]> {
+  return unstable_cache(
+    () => fetchSpotlightStartups(limit),
+    ["spotlight-startups", String(limit)],
+    { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+  )();
+}
+
 async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase

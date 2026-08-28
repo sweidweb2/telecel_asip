@@ -133,61 +133,43 @@ export function BlogSection({
   }, [articles, tab]);
 
   return (
-    <main>
-      <section className="py-10 sm:py-14 lg:py-16">
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-          <div className="flex w-full max-w-3xl flex-col">
-            <span className="text-sm font-semibold text-primary">
-              {labels.eyebrow}
-            </span>
-            <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              {labels.title}
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground sm:mt-6 sm:text-lg">
-              {labels.description}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="flex flex-col gap-12 md:gap-16">
+      {featured ? (
+        <FeaturedPost locale={locale} labels={labels} article={featured} />
+      ) : null}
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 sm:px-6 md:gap-16 lg:pb-24">
-        {featured ? (
-          <FeaturedPost locale={locale} labels={labels} article={featured} />
-        ) : null}
-
-        <Tabs
-          value={tab}
-          onValueChange={(value) => setTab(value as BlogTabId)}
-          className="min-w-0 w-full"
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setTab(value as BlogTabId)}
+        className="min-w-0 w-full"
+      >
+        <TabsList
+          variant="line"
+          className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
         >
-          <TabsList
-            variant="line"
-            className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
-          >
-            {labels.tabs.map((item) => (
-              <TabsTrigger
-                key={item.id}
-                value={item.id}
-                className="min-h-11 shrink-0 px-3"
-              >
-                {item.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+          {labels.tabs.map((item) => (
+            <TabsTrigger
+              key={item.id}
+              value={item.id}
+              className="min-h-11 shrink-0 px-3"
+            >
+              {item.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
-        {filteredArticles.length === 0 ? (
-          <p className="text-muted-foreground">{labels.emptyState}</p>
-        ) : (
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <li key={article.id}>
-                <BlogCard locale={locale} article={article} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </main>
+      {filteredArticles.length === 0 ? (
+        <p className="text-muted-foreground">{labels.emptyState}</p>
+      ) : (
+        <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {filteredArticles.map((article) => (
+            <li key={article.id}>
+              <BlogCard locale={locale} article={article} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

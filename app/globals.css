@@ -180,6 +180,20 @@
   }
 }
 
+@keyframes home-hero-drift {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-2%, -1%);
+  }
+}
+
+.home-hero-motion {
+  animation: home-hero-drift 22s ease-in-out infinite;
+}
+
 @keyframes about-story-float {
   0%,
   100% {
@@ -256,6 +270,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-hero-motion,
   .animate-scroll-horizontal,
   .animate-scroll-horizontal-reverse,
   .animate-fade-in-up,

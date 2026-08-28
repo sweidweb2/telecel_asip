@@ -1,14 +1,17 @@
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { PartnersPageContent } from "@/components/marketing/partners-page-content";
+import { partnersCopyFor } from "@/constants/partners-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
   path: "/partners",
-  title: "Partners — ASIP",
+  title: "Partner with ASIP | Connect with African Founders",
   description:
-    "Partners, mentors, and routes to collaborate with the ASIP ecosystem.",
+    "Work with ASIP to connect African founders with expertise, technology, capital, market access and practical opportunities.",
 });
 
 export default function Page() {
-  return <MarketingContentPage locale="en" slug="partners" />;
+  return (
+    <PartnersPageContent locale="en" copy={partnersCopyFor("en")} />
+  );
 }

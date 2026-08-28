@@ -2,6 +2,11 @@ import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
 import { authPath, publicPath } from "@/constants/routes";
 
+export const TELECEL_GROUP_URL = "https://www.telecelgroup.com";
+
+/** Matches the `id` on the privacy policy's cookies section. */
+const COOKIES_ANCHOR = "#cookies";
+
 export type FooterLink = {
   href: string;
   label: string;
@@ -14,7 +19,10 @@ export type FooterSocialLink = {
 
 export type SiteFooterLabels = {
   brand: string;
-  tagline: string;
+  /** Footer proposition headline. */
+  headline: string;
+  /** What ASIP is and what it connects founders to — no vague "support" claims. */
+  statement: string;
   exploreHeading: string;
   programmeHeading: string;
   connectHeading: string;
@@ -22,7 +30,15 @@ export type SiteFooterLabels = {
   programme: FooterLink[];
   connect: FooterLink[];
   socialHeading: string;
+  /**
+   * Only official, confirmed ASIP accounts belong here. Leave empty until a
+   * channel is verified — the footer hides the block when there are none.
+   */
   social: FooterSocialLink[];
+  /** Telecel Group corporate site (external). */
+  parent: FooterLink;
+  /** Primary footer CTA alongside the parent link. */
+  contact: FooterLink;
   copyright: string;
   legal: FooterLink[];
   /** Dormant Apply page — reachable from the footer only until a cohort opens. */
@@ -43,8 +59,9 @@ function links(
 export function enFooterLabels(): SiteFooterLabels {
   return {
     brand: "ASIP",
-    tagline:
-      "Africa Startup Initiative Program — Telecel Group’s platform for African technology ventures.",
+    headline: "African founders. Connected to opportunity.",
+    statement:
+      "ASIP is a Telecel Group Program connecting ambitious African technology founders to expertise, capital pathways, markets and relationships that help businesses grow.",
     exploreHeading: "Explore",
     programmeHeading: "Programme",
     connectHeading: "Connect",
@@ -68,16 +85,20 @@ export function enFooterLabels(): SiteFooterLabels {
       { href: authPath("en", "signup"), label: "Register" },
     ],
     socialHeading: "Follow",
-    social: [
-      { href: "https://www.linkedin.com", label: "LinkedIn" },
-      { href: "https://x.com", label: "X" },
-      { href: "https://www.youtube.com", label: "YouTube" },
-    ],
+    social: [],
+    parent: { href: TELECEL_GROUP_URL, label: "Telecel Group" },
+    contact: { href: publicPath("en", "contact"), label: "Contact ASIP" },
     copyright: `© ${new Date().getFullYear()} Telecel Group. All rights reserved.`,
-    legal: links("en", [
-      { slug: "terms", label: "Terms of Service" },
-      { slug: "privacy", label: "Privacy Policy" },
-    ]),
+    legal: [
+      ...links("en", [
+        { slug: "terms", label: "Terms of Service" },
+        { slug: "privacy", label: "Privacy Policy" },
+      ]),
+      {
+        href: `${publicPath("en", "privacy")}${COOKIES_ANCHOR}`,
+        label: "Cookie preferences",
+      },
+    ],
     apply: { href: publicPath("en", "apply"), label: "Apply" },
     login: { href: authPath("en", "login"), label: "Login" },
   };
@@ -86,8 +107,9 @@ export function enFooterLabels(): SiteFooterLabels {
 export function frFooterLabels(): SiteFooterLabels {
   return {
     brand: "ASIP",
-    tagline:
-      "Programme africain d’initiative pour les startups — la plateforme du Groupe Telecel pour les entreprises technologiques africaines.",
+    headline: "Des fondateurs africains. Connectés aux opportunités.",
+    statement:
+      "ASIP est un programme du Groupe Telecel qui connecte des fondateurs africains ambitieux de la tech à l’expertise, aux voies de financement, aux marchés et aux relations qui aident les entreprises à croître.",
     exploreHeading: "Explorer",
     programmeHeading: "Programme",
     connectHeading: "Contact",
@@ -111,16 +133,20 @@ export function frFooterLabels(): SiteFooterLabels {
       { href: authPath("fr", "signup"), label: "Inscription" },
     ],
     socialHeading: "Suivre",
-    social: [
-      { href: "https://www.linkedin.com", label: "LinkedIn" },
-      { href: "https://x.com", label: "X" },
-      { href: "https://www.youtube.com", label: "YouTube" },
-    ],
+    social: [],
+    parent: { href: TELECEL_GROUP_URL, label: "Groupe Telecel" },
+    contact: { href: publicPath("fr", "contact"), label: "Contacter ASIP" },
     copyright: `© ${new Date().getFullYear()} Groupe Telecel. Tous droits réservés.`,
-    legal: links("fr", [
-      { slug: "terms", label: "Conditions d’utilisation" },
-      { slug: "privacy", label: "Politique de confidentialité" },
-    ]),
+    legal: [
+      ...links("fr", [
+        { slug: "terms", label: "Conditions d’utilisation" },
+        { slug: "privacy", label: "Politique de confidentialité" },
+      ]),
+      {
+        href: `${publicPath("fr", "privacy")}${COOKIES_ANCHOR}`,
+        label: "Préférences de cookies",
+      },
+    ],
     apply: { href: publicPath("fr", "apply"), label: "Candidater" },
     login: { href: authPath("fr", "login"), label: "Connexion" },
   };

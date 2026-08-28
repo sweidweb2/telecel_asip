@@ -1,14 +1,17 @@
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { PartnersPageContent } from "@/components/marketing/partners-page-content";
+import { partnersCopyFor } from "@/constants/partners-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
   locale: "fr",
   path: "/partners",
-  title: "Partenaires — ASIP",
+  title: "Devenir partenaire d’ASIP | Rencontrer les fondateurs africains",
   description:
-    "Partenaires, mentors et façons de collaborer avec l’écosystème ASIP.",
+    "Travaillez avec ASIP pour relier les fondateurs africains à l’expertise, à la technologie, au capital, à l’accès marché et à des opportunités concrètes.",
 });
 
 export default function Page() {
-  return <MarketingContentPage locale="fr" slug="partners" />;
+  return (
+    <PartnersPageContent locale="fr" copy={partnersCopyFor("fr")} />
+  );
 }
