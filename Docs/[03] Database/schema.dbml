@@ -277,6 +277,86 @@ Table startup_details {
   '''
 }
 
+Enum partner_type {
+  corporate
+  investors
+  technology
+  development
+  mentors
+  media
+}
+
+Table partners {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null, note: 'CHECK length 2–120']
+  org text [note: 'CHECK length 2–160 when set; null for solo mentors']
+  type partner_type [not null]
+  contribution text [note: 'Role / contribution; CHECK length <= 2000']
+  is_active boolean [not null, default: true, note: 'false = historical partner']
+  logo_permission boolean [not null, default: false, note: 'Publication permission for the logo']
+  logo_url text [note: 'Storage bucket partners']
+  link text [note: 'CHECK http(s) URL, length <= 500']
+  sort_order integer [not null, default: 0, note: 'CHECK 0–10000']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (is_active, type, sort_order, name) [name: 'partners_active_type_sort_idx']
+    (created_at) [name: 'partners_created_at_idx', note: 'created_at DESC']
+    name [type: gin, name: 'partners_name_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+    org [type: gin, name: 'partners_org_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+  }
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - authenticated: SELECT, INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none (revoked in 20260829030000; reads go through partners_public)
+
+    Policies:
+    - Authenticated can read partners — SELECT TO authenticated USING (true)
+      (replaced "Anyone can read partners" in 20260829030000)
+    - Admins can insert/update/delete — is_admin()
+
+    logo_permission gates a column, not a row, so RLS cannot enforce it.
+    The partners_public view applies that gate instead, and anon reads only
+    the view. The public page renders an initials tile when logo_url is null.
+
+    Storage bucket (public read, admin write):
+    - partners — logo images (2 MB limit). Objects live under `{partner_id}/`
+      and the whole prefix is deleted with the row.
+
+    Trigger: partners_set_updated_at BEFORE UPDATE
+    English-only content phase 1; EN/FR public pages show the same partners.
+  '''
+}
+
+// View over partners for anonymous reads (migration 20260829030000).
+Table partners_public {
+  id uuid
+  name text
+  org text
+  type partner_type
+  link text
+  is_active boolean
+  sort_order integer
+  logo_url text [note: 'CASE WHEN logo_permission THEN logo_url END — null without permission']
+
+  Note: '''
+    VIEW, not a table: `create view public.partners_public as select ... from public.partners`.
+
+    Definer rights on purpose — anon has no SELECT on public.partners, so a
+    security_invoker view would return zero rows. Every partner row was already
+    world-readable under the old policy; the view only removes columns
+    (logo_permission and contribution are not projected).
+
+    Grants: SELECT to anon, authenticated.
+    Read by data/partners.ts getPublicPartners for the EN/FR public pages.
+  '''
+}
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]

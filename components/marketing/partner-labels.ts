@@ -1,0 +1,32 @@
+import type { Locale } from "@/constants/locales";
+
+export type PartnerLabels = {
+  historicalTitle: string;
+  historicalDescription: string;
+  emptyState: string;
+  visitPartner: string;
+  /** Heading for partner types that have no copy row yet. */
+  otherTitle: string;
+};
+
+const EN: PartnerLabels = {
+  historicalTitle: "Previous chapters",
+  historicalDescription:
+    "Organisations and mentors who worked with ASIP founders in earlier chapters.",
+  emptyState: "Partner listings are being updated. Check back soon.",
+  visitPartner: "Visit",
+  otherTitle: "Other partners",
+};
+
+const FR: PartnerLabels = {
+  historicalTitle: "Chapitres précédents",
+  historicalDescription:
+    "Organisations et mentors ayant travaillé avec les fondateurs ASIP lors des chapitres précédents.",
+  emptyState: "Les partenaires sont en cours de mise à jour. Revenez bientôt.",
+  visitPartner: "Visiter",
+  otherTitle: "Autres partenaires",
+};
+
+export function partnerLabelsFor(locale: Locale): PartnerLabels {
+  return locale === "fr" ? FR : EN;
+}

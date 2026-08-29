@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-import { LOCALES } from "./constants/locales";
+import { legacyRedirectRules } from "./constants/legacy-redirects";
+import { DEFAULT_LOCALE, LOCALES } from "./constants/locales";
 import { PUBLIC_PAGE_SLUGS } from "./constants/public-pages";
 
 /**
@@ -80,6 +81,10 @@ const nextConfig: NextConfig = {
           ]
         : []),
     ],
+  },
+  /** 301s from the retired ASIP site (map in `constants/legacy-redirects.ts`). */
+  async redirects() {
+    return legacyRedirectRules(DEFAULT_LOCALE);
   },
   async headers() {
     return [

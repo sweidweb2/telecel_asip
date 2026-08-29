@@ -6,9 +6,10 @@ import {
   SectionHeading,
 } from "@/components/marketing/page-elements";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
-import { LogoCloudGrid } from "@/components/ui/logo-cloud";
+import { partnerLabelsFor } from "@/components/marketing/partner-labels";
+import { PartnersNetwork } from "@/components/marketing/partners-network";
 import { buttonVariants } from "@/components/ui/button";
-import { PARTNER_LOGOS } from "@/constants/partner-logos";
+import { getPublicPartners } from "@/data/partners";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { PartnersPageCopy } from "@/types/marketing-page";
@@ -19,11 +20,13 @@ type PartnersPageContentProps = {
   copy: PartnersPageCopy;
 };
 
-export function PartnersPageContent({
+export async function PartnersPageContent({
   locale,
   copy,
 }: PartnersPageContentProps) {
   const { columns, rows } = copy.types;
+  const labels = partnerLabelsFor(locale);
+  const { active, historical } = await getPublicPartners();
 
   return (
     <main>
@@ -126,8 +129,23 @@ export function PartnersPageContent({
           title={copy.logos.title}
           className="mx-auto mb-10 max-w-2xl text-center sm:mb-12"
         />
-        <LogoCloudGrid logos={PARTNER_LOGOS} />
+        <PartnersNetwork locale={locale} partners={active} typeRows={rows} />
       </Section>
+
+      {historical.length > 0 ? (
+        <Section className="border-t">
+          <SectionHeading
+            title={labels.historicalTitle}
+            description={labels.historicalDescription}
+            className="mx-auto mb-10 max-w-2xl text-center sm:mb-12"
+          />
+          <PartnersNetwork
+            locale={locale}
+            partners={historical}
+            typeRows={rows}
+          />
+        </Section>
+      ) : null}
 
       <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>

@@ -4,6 +4,7 @@ export const IMAGE_PRESETS = {
   blogCover: { maxWidth: 1600 },
   blogAvatar: { maxWidth: 512 },
   startupLogo: { maxWidth: 512 },
+  partnerLogo: { maxWidth: 512 },
 } as const;
 
 export type ImagePreset = keyof typeof IMAGE_PRESETS;

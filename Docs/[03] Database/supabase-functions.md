@@ -295,3 +295,26 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 ### `public.startup_details`
 
 No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK/FK, `ON DELETE CASCADE`). Public SELECT only when the parent startup `status = active`. Admins CRUD via `is_admin()`.
+
+---
+
+### `public.partners`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_partners_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.partners_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.partners` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_partners_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — `partners` is a single flat table, so `actions/partners.ts` uses plain INSERT/UPDATE/DELETE. Every row is readable by anon/authenticated; admins CRUD via `is_admin()`. Logos live in Storage bucket `partners`.
+
+`logo_permission` is a column-level gate that RLS cannot express, so `data/partners.ts` nulls `logo_url` before returning public rows.

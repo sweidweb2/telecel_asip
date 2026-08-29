@@ -333,8 +333,9 @@ export type PartnerTypeId =
   | "media";
 
 /**
- * Partners public page. Logos in `public/partners` are shown as supplied;
- * publication permission remains a Telecel/legal check, not a page gate.
+ * Partners public page. Partner records come from the `partners` table; this
+ * copy supplies the surrounding prose and the per-type group labels, keyed by
+ * the same ids as the `partner_type` enum.
  */
 export type PartnersPageCopy = {
   hero: {

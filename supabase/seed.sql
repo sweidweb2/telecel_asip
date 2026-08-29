@@ -7,6 +7,18 @@
 
 create extension if not exists pgcrypto with schema extensions;
 
+-- Partners / mentors. Logos are uploaded through the admin panel, so seeded
+-- rows carry no logo_url; permission-granted rows fall back to a name tile.
+insert into public.partners (name, org, type, contribution, is_active, logo_permission, link, sort_order)
+values
+  ('Accelerator²', null, 'corporate', 'Corporate innovation briefs and pilots with ASIP founders.', true, true, 'https://example.com', 10),
+  ('FMO Ventures', 'FMO', 'investors', 'Investment-readiness dialogue and portfolio introductions.', true, true, 'https://example.com', 20),
+  ('AWS', 'Amazon Web Services', 'technology', 'Cloud credits, architecture reviews and technical workshops.', true, true, 'https://example.com', 30),
+  ('Startupbootcamp AfriTech', null, 'development', 'Sector programmes and cohort delivery across African markets.', true, false, null, 40),
+  ('Amina Diallo', null, 'mentors', '1:1 mentoring on go-to-market and early commercial traction.', true, false, null, 50),
+  ('VC4A', null, 'media', 'Ecosystem research and founder showcases.', false, true, 'https://example.com', 60)
+on conflict do nothing;
+
 do $$
 declare
   seed_user_id uuid := gen_random_uuid();

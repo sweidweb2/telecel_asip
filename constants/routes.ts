@@ -13,6 +13,7 @@ export const ROUTES = {
   portfolio: "/dashboard/portfolio",
   portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",
+  partners: "/dashboard/partners",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
   backup: "/dashboard/backup",
@@ -39,6 +40,11 @@ export function insightPath(locale: Locale, slug: string): string {
 /** Admin portfolio edit path, e.g. `/dashboard/portfolio/{id}`. */
 export function portfolioEditPath(id: string): string {
   return `${ROUTES.portfolio}/${id}`;
+}
+
+/** Admin partner detail path, e.g. `/dashboard/partners/{id}`. */
+export function partnerDetailPath(id: string): string {
+  return `${ROUTES.partners}/${id}`;
 }
 
 /** Locale-prefixed founder/startup detail, e.g. `/en/founders/acme`. */

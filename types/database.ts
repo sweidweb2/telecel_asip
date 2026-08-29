@@ -119,6 +119,51 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          contribution: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          link: string | null
+          logo_permission: boolean
+          logo_url: string | null
+          name: string
+          org: string | null
+          sort_order: number
+          type: Database["public"]["Enums"]["partner_type"]
+          updated_at: string
+        }
+        Insert: {
+          contribution?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          logo_permission?: boolean
+          logo_url?: string | null
+          name: string
+          org?: string | null
+          sort_order?: number
+          type: Database["public"]["Enums"]["partner_type"]
+          updated_at?: string
+        }
+        Update: {
+          contribution?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          logo_permission?: boolean
+          logo_url?: string | null
+          name?: string
+          org?: string | null
+          sort_order?: number
+          type?: Database["public"]["Enums"]["partner_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       startups: {
         Row: {
           created_at: string
@@ -282,7 +327,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      partners_public: {
+        Row: {
+          id: string
+          name: string
+          org: string | null
+          type: Database["public"]["Enums"]["partner_type"]
+          link: string | null
+          is_active: boolean
+          sort_order: number
+          logo_url: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
@@ -362,6 +419,13 @@ export type Database = {
     Enums: {
       blog_status: "draft" | "published"
       contact_enquiry_type: "founder" | "partner" | "media" | "general"
+      partner_type:
+        | "corporate"
+        | "investors"
+        | "technology"
+        | "development"
+        | "mentors"
+        | "media"
       startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
     }
@@ -493,6 +557,14 @@ export const Constants = {
     Enums: {
       blog_status: ["draft", "published"],
       contact_enquiry_type: ["founder", "partner", "media", "general"],
+      partner_type: [
+        "corporate",
+        "investors",
+        "technology",
+        "development",
+        "mentors",
+        "media",
+      ],
       startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],
     },
