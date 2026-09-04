@@ -22,12 +22,10 @@ export const PUBLIC_PAGE_SLUG_SET = new Set<string>(PUBLIC_PAGE_SLUGS);
 
 /**
  * Slugs kept out of the sitemap and search index.
- * `alumni` and `apply` are built and routable, but stay unlisted until the
- * Alumni Network operating model / launch and a cohort's Apply state are
- * formally approved.
+ * Apply remains routable while closed, but is excluded from discovery until
+ * a cohort is formally open. Alumni is a permanent public destination.
  */
 export const UNLISTED_PAGE_SLUGS = new Set<PublicPageSlug>([
-  "alumni",
   "apply",
 ]);
 

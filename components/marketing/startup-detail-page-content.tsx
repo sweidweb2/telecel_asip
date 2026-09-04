@@ -21,6 +21,11 @@ type StartupDetailLabels = {
   category: string;
   location: string;
   team: string;
+  cohort: string;
+  country: string;
+  sector: string;
+  outcome: string;
+  website: string;
   moreStartups: string;
 };
 
@@ -40,6 +45,11 @@ const LABELS: Record<Locale, StartupDetailLabels> = {
     category: "Category",
     location: "Location",
     team: "Team",
+    cohort: "Cohort",
+    country: "Country",
+    sector: "Sector",
+    outcome: "What they built next",
+    website: "Visit website",
     moreStartups: "More startups",
   },
   fr: {
@@ -50,6 +60,11 @@ const LABELS: Record<Locale, StartupDetailLabels> = {
     category: "Catégorie",
     location: "Localisation",
     team: "Équipe",
+    cohort: "Cohorte",
+    country: "Pays",
+    sector: "Secteur",
+    outcome: "La suite de leur parcours",
+    website: "Visiter le site",
     moreStartups: "Autres startups",
   },
 };
@@ -79,6 +94,9 @@ export function StartupDetailPageContent({
     { label: labels.industry, value: details?.industry ?? null },
     { label: labels.category, value: details?.category ?? null },
     { label: labels.location, value: details?.location ?? null },
+    { label: labels.cohort, value: details?.cohort ?? null },
+    { label: labels.country, value: details?.country_code ?? null },
+    { label: labels.sector, value: details?.sector ?? null },
   ].filter((fact): fact is { label: string; value: string } =>
     Boolean(fact.value),
   );
@@ -101,27 +119,29 @@ export function StartupDetailPageContent({
           </Link>
         </div>
 
-        <div className="mx-auto mt-6 w-full max-w-6xl px-4 sm:mt-8 sm:px-6">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted md:aspect-[2/1]">
-            {startup.logo_url ? (
+        <div className="mx-auto mt-6 w-full max-w-7xl px-5 sm:mt-8 sm:px-8 lg:px-10">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#14333b] md:aspect-[2/1]">
+            {startup.cover_image_url ? (
               <Image
-                src={startup.logo_url}
-                alt={startup.name}
+                src={startup.cover_image_url}
+                alt=""
                 fill
                 priority
                 className="object-cover"
+                style={{ objectPosition: `${startup.image_focal_x}% ${startup.image_focal_y}%` }}
                 sizes="(max-width: 1152px) 100vw, 1152px"
               />
             ) : (
               <div
                 aria-hidden
-                className="flex size-full items-center justify-center bg-gradient-to-br from-primary/15 via-muted to-primary/5"
+                className="flex size-full items-center justify-center bg-[#14333b]"
               >
-                <span className="font-heading text-4xl font-semibold tracking-tight text-primary/50 sm:text-5xl lg:text-6xl">
+                <span className="font-heading text-4xl font-semibold text-white/65 sm:text-5xl lg:text-6xl">
                   {startupInitials(startup.name)}
                 </span>
               </div>
             )}
+            {startup.logo_url ? <div className="absolute bottom-5 left-5 size-20 overflow-hidden rounded-lg border bg-white shadow-lg sm:bottom-8 sm:left-8 sm:size-24"><Image src={startup.logo_url} alt={`${startup.name} logo`} fill className="object-contain p-2" sizes="96px" /></div> : null}
           </div>
 
           <header className="mt-8 max-w-3xl sm:mt-10">
@@ -161,6 +181,10 @@ export function StartupDetailPageContent({
               </p>
             </section>
           ) : null}
+
+          {details?.founder_names?.length ? <section className="mt-10 max-w-3xl border-t pt-8"><h2 className="font-heading text-xl font-semibold sm:text-2xl">{labels.founders}</h2><p className="mt-3 text-lg text-muted-foreground">{details.founder_names.join(", ")}</p></section> : null}
+          {details?.public_outcome ? <section className="mt-10 max-w-3xl border-l-4 border-[#c14a9b] bg-muted/50 p-6 sm:mt-12 sm:p-8"><h2 className="font-heading text-2xl font-semibold">{labels.outcome}</h2><p className="mt-4 text-lg leading-8 text-muted-foreground">{details.public_outcome}</p></section> : null}
+          {details?.website_url ? <a href={details.website_url} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-8")}>{labels.website}<ArrowUpRight className="size-4" /></a> : null}
         </div>
 
         {related.length > 0 ? (

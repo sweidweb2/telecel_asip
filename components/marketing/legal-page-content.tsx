@@ -9,15 +9,14 @@ export function LegalPageContent({ copy }: LegalPageContentProps) {
   return (
     <main>
       <PageHero
+        variant="quiet"
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
       />
       <Section className="max-w-3xl">
-        <p className="rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
-        <p className="mt-6 text-sm text-muted-foreground">{copy.lastUpdated}</p>
+        {copy.notice ? <p className="border-l-2 border-primary pl-4 text-sm text-muted-foreground">{copy.notice}</p> : null}
+        <p className="text-sm text-muted-foreground">{copy.lastUpdated}</p>
         <div className="mt-10 space-y-10">
           {copy.sections.map((section) => (
             <article

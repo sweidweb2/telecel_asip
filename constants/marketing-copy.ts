@@ -83,7 +83,7 @@ const en: MarketingCopy = {
       mission: {
         eyebrow: "Mission",
         title: "Connect African innovation to opportunity.",
-        imageLabel: "Mission imagery — pending Telecel approval",
+        imageLabel: "ASIP founders and ecosystem leaders gathering in Dakar",
         paragraphs: [
           "Our mission is to identify and accelerate African technology ventures solving meaningful problems, connecting founders to practical expertise, capital pathways, market access and commercial relationships.",
         ],
@@ -91,7 +91,7 @@ const en: MarketingCopy = {
       vision: {
         eyebrow: "Vision",
         title: "From the continent, to the world.",
-        imageLabel: "Vision imagery — pending Telecel approval",
+        imageLabel: "The ASIP ecosystem in conversation in Dakar",
         paragraphs: [
           "We envision an Africa where category-defining technology companies are built from the continent, scale across borders and shape global progress.",
         ],
@@ -154,7 +154,7 @@ const en: MarketingCopy = {
       telecel: {
         eyebrow: "Telecel connection",
         title: "A Telecel Group Program, built on Connecting Energies.",
-        imageLabel: "Telecel connection imagery — pending Telecel approval",
+        imageLabel: "ASIP programme leaders and founders in Dakar",
         paragraphs: [
           "Telecel’s African legacy and digital ecosystem give ASIP a distinctive perspective: innovation matters most when it connects to people, businesses and markets. ASIP applies that same belief to founders, bringing different capabilities and relationships together around growth.",
         ],
@@ -163,7 +163,7 @@ const en: MarketingCopy = {
   },
   founders: {
     eyebrow: "Founders",
-    title: "Founders and ventures across the ASIP ecosystem",
+    title: "Meet the companies building Africa’s next chapter.",
     description:
       "Search the founders supported by ASIP across cohorts, countries, and technology sectors.",
     notice:
@@ -199,7 +199,7 @@ const en: MarketingCopy = {
   },
   "register-interest": {
     eyebrow: "For founders",
-    title: "Register your interest",
+    title: "Stay close to the next cohort.",
     description:
       "Tell ASIP about your team, technology venture, market, and current stage.",
     notice:
@@ -227,7 +227,7 @@ const en: MarketingCopy = {
     cta: { slug: "contact", label: "Ask a question" },
   },
   apply: {
-    eyebrow: "For founders", title: "Register your interest", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "Your submission is stored securely and reviewed by the ASIP team for each programme cycle.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
+    eyebrow: "For founders", title: "Build what Africa needs next.", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "Your submission is stored securely and reviewed by the ASIP team for each programme cycle.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
       { title: "Team", description: "Introduce the founders and the experience that prepares you to solve this problem." },
       { title: "Solution", description: "Explain the customer problem, your product, and what makes your approach relevant." },
       { title: "Progress", description: "Summarize traction, learning, current stage, and the next milestones you are pursuing." },
@@ -235,7 +235,7 @@ const en: MarketingCopy = {
   },
   faq: {
     eyebrow: "FAQ",
-    title: "Frequently asked questions",
+    title: "Questions, answered clearly.",
     description:
       "Practical information about the programme, applications, founders, and partnerships.",
     notice: "Cohort dates, eligibility and terms are published with each confirmed cohort.",
@@ -375,7 +375,7 @@ const fr: MarketingCopy = {
       mission: {
         eyebrow: "Mission",
         title: "Relier l’innovation africaine à l’opportunité.",
-        imageLabel: "Visuel Mission — en attente d’approbation Telecel",
+        imageLabel: "Fondateurs ASIP et acteurs de l’écosystème réunis à Dakar",
         paragraphs: [
           "Notre mission est d’identifier et d’accélérer les entreprises technologiques africaines qui résolvent des problèmes concrets, en connectant les fondateurs à une expertise pratique, des voies de capital, l’accès aux marchés et des relations commerciales.",
         ],
@@ -383,7 +383,7 @@ const fr: MarketingCopy = {
       vision: {
         eyebrow: "Vision",
         title: "Du continent, vers le monde.",
-        imageLabel: "Visuel Vision — en attente d’approbation Telecel",
+        imageLabel: "L’écosystème ASIP en conversation à Dakar",
         paragraphs: [
           "Nous imaginons une Afrique où des entreprises technologiques qui définissent leur catégorie sont bâties depuis le continent, se développent au-delà des frontières et façonnent le progrès mondial.",
         ],
@@ -444,7 +444,7 @@ const fr: MarketingCopy = {
       telecel: {
         eyebrow: "Lien Telecel",
         title: "Un programme du Groupe Telecel, bâti sur Connecting Energies.",
-        imageLabel: "Visuel Telecel — en attente d’approbation Telecel",
+        imageLabel: "Équipe du programme ASIP et fondateurs à Dakar",
         paragraphs: [
           "L’héritage africain de Telecel et son écosystème numérique donnent à ASIP une perspective distincte : l’innovation compte surtout lorsqu’elle se connecte aux personnes, aux entreprises et aux marchés. ASIP applique cette même conviction aux fondateurs, en rassemblant des capacités et des relations différentes autour de la croissance.",
         ],
@@ -453,7 +453,7 @@ const fr: MarketingCopy = {
   },
   founders: {
     eyebrow: "Fondateurs",
-    title: "Les fondateurs de l’écosystème ASIP",
+    title: "Les entreprises qui construisent le prochain chapitre de l’Afrique.",
     description:
       "Explorez les fondateurs accompagnés par ASIP selon les cohortes, pays et secteurs technologiques.",
     notice:
@@ -489,7 +489,7 @@ const fr: MarketingCopy = {
   },
   "register-interest": {
     eyebrow: "Pour les fondateurs",
-    title: "Manifester votre intérêt",
+    title: "Restez au plus près de la prochaine cohorte.",
     description:
       "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.",
     notice:
@@ -516,10 +516,10 @@ const fr: MarketingCopy = {
     ],
     cta: { slug: "contact", label: "Poser une question" },
   },
-  apply: { eyebrow: "Pour les fondateurs", title: "Manifester votre intérêt", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
+  apply: { eyebrow: "Pour les fondateurs", title: "Construisez ce dont l’Afrique a besoin.", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
   faq: {
     eyebrow: "FAQ",
-    title: "Questions fréquentes",
+    title: "Des réponses claires à vos questions.",
     description:
       "Informations pratiques sur le programme, les candidatures, les fondateurs et les partenariats.",
     notice: "Les dates, critères d’éligibilité et conditions sont publiés avec chaque cohorte confirmée.",

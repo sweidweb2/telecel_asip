@@ -5,9 +5,6 @@ import type { HomePageCopy } from "@/types/marketing-page";
  * Optional hero motion assets. Leave null until Telecel-approved footage
  * is in `public/media/home/`. Copy stays readable without them.
  */
-export const HOME_HERO_VIDEO_SRC: string | null = null;
-export const HOME_HERO_POSTER_SRC: string | null = null;
-
 const en: HomePageCopy = {
   hero: {
     eyebrow: "Africa Startup Initiative Program · A Telecel Group Program",
@@ -21,15 +18,8 @@ const en: HomePageCopy = {
     title: "Seven Years of Impact.",
     description:
       "ASIP started with a simple belief: African founders should have access to world-class opportunity without losing the local insight that makes their solutions matter. The strongest proof is what they have built since.",
-    metrics: [
-      { value: "10,000+", label: "Applications" },
-      { value: "50+", label: "Countries of founder reach" },
-      { value: "40+", label: "Startups supported" },
-      { value: "70%", label: "Women-led" },
-      { value: "~4,000", label: "Jobs" },
-    ],
-    notice:
-      "These figures are being verified — source, period and definitions will be confirmed before they are treated as final.",
+    metrics: [],
+    notice: "",
   },
   platform: {
     title: "From potential to progress.",
@@ -155,7 +145,7 @@ const fr: HomePageCopy = {
   hero: {
     eyebrow:
       "Programme africain d’initiative pour les startups · Un programme du Groupe Telecel",
-    title: "Fondateurs africains. Solutions concrètes. Un impact qui scale.",
+    title: "Fondateurs africains. Solutions concrètes. Un impact qui grandit.",
     description:
       "Depuis 2019, ASIP connecte des fondateurs technologiques africains à fort potentiel à l’expertise, aux voies de financement, à l’accès marché et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
@@ -165,15 +155,8 @@ const fr: HomePageCopy = {
     title: "Sept ans d’impact.",
     description:
       "ASIP est parti d’une conviction simple : les fondateurs africains doivent avoir accès à des opportunités de classe mondiale sans perdre l’ancrage local qui donne du poids à leurs solutions. La preuve la plus forte, c’est ce qu’ils ont construit depuis.",
-    metrics: [
-      { value: "10,000+", label: "Candidatures" },
-      { value: "50+", label: "Pays de portée fondateurs" },
-      { value: "40+", label: "Startups accompagnées" },
-      { value: "70%", label: "Dirigées par des femmes" },
-      { value: "~4,000", label: "Emplois" },
-    ],
-    notice:
-      "Ces chiffres sont en cours de vérification — sources, périodes et définitions seront confirmées avant d’être considérées comme définitives.",
+    metrics: [],
+    notice: "",
   },
   platform: {
     title: "Du potentiel au progrès.",

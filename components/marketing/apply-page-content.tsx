@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { publicPath } from "@/constants/routes";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,9 @@ export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
   return (
     <main>
       <PageHero
+        variant="split"
+        media={MARKETING_MEDIA.apply}
+        locale={locale}
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}

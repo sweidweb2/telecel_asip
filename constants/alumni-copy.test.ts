@@ -17,12 +17,12 @@ describe("alumniCopyFor", () => {
     expect(fr.hero.primaryCta.slug).toBe("founders");
     expect(en.hero.primaryCta.label).toBe("Explore the community");
     expect(fr.hero.title.length).toBeGreaterThan(0);
-    expect(en.notice.length).toBeGreaterThan(0);
+    expect(en.notice).toBe("");
   });
 });
 
 describe("alumni public activation", () => {
-  it("is linked from the primary nav and stays out of the sitemap", () => {
+  it("is linked from the primary nav and included in the sitemap", () => {
     for (const locale of ["en", "fr"] as const) {
       const items = navLabelsFor(locale).items;
       expect(items.some((item) => item.href.endsWith("/alumni"))).toBe(true);
@@ -30,6 +30,6 @@ describe("alumni public activation", () => {
         "Alumni",
       );
     }
-    expect(INDEXABLE_PAGE_SLUGS).not.toContain("alumni");
+    expect(INDEXABLE_PAGE_SLUGS).toContain("alumni");
   });
 });

@@ -3,6 +3,7 @@ import { BlogSection } from "@/components/marketing/blog-section";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { PageHero, Section } from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import type { ArticleListItem } from "@/types/article";
 import type { InsightsPageCopy } from "@/types/marketing-page";
 
@@ -26,6 +27,9 @@ export function InsightsPageContent({
   return (
     <main>
       <PageHero
+        variant="magazine"
+        media={MARKETING_MEDIA.insights}
+        locale={locale}
         eyebrow={copy.hero.eyebrow}
         title={copy.hero.title}
         description={copy.hero.description}

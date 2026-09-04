@@ -1,7 +1,7 @@
 import { FaqCtaSection } from "@/components/marketing/faq-cta-section";
 import { FaqTabsSection } from "@/components/marketing/faq-tabs-section";
 import FaqSection from "@/components/ui/habit-faq-scroller";
-import { Section } from "@/components/marketing/page-elements";
+import { PageHero, Section } from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import { buildFaqScrollerData } from "@/lib/marketing/build-faq-scroller-data";
 import type { MarketingPageCopy } from "@/types/marketing-page";
@@ -14,18 +14,8 @@ type FaqPageContentProps = {
 export function FaqPageContent({ locale, copy }: FaqPageContentProps) {
   return (
     <>
-      <Section className="pt-10 pb-8 sm:pt-12 sm:pb-10">
-        <header className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            {copy.eyebrow}
-          </p>
-          <h1 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            {copy.title}
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
-            {copy.description}
-          </p>
-        </header>
+      <PageHero variant="quiet" locale={locale} eyebrow={copy.eyebrow} title={copy.title} description={copy.description} />
+      <Section className="pt-12 pb-10 sm:pt-16 sm:pb-14">
         <FaqSection data={buildFaqScrollerData(copy)} />
       </Section>
 

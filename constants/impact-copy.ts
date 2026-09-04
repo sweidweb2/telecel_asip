@@ -11,7 +11,7 @@ import type { ImpactPageCopy } from "@/types/marketing-page";
 const en: ImpactPageCopy = {
   hero: {
     eyebrow: "Impact",
-    title: "The story is what happened next.",
+    title: "What founders built next.",
     description:
       "ASIP’s impact is measured by what founders build after the programme: stronger companies, better products, new markets, investment readiness, jobs, partnerships and technology that changes how people live and work.",
     cta: { slug: "founders", label: "Explore founder stories" },
@@ -91,7 +91,7 @@ const en: ImpactPageCopy = {
 const fr: ImpactPageCopy = {
   hero: {
     eyebrow: "Impact",
-    title: "L’histoire, c’est ce qui s’est passé ensuite.",
+    title: "Ce que les fondateurs ont construit ensuite.",
     description:
       "L’impact d’ASIP se mesure à ce que les fondateurs construisent après le programme : des entreprises plus solides, de meilleurs produits, de nouveaux marchés, une préparation à l’investissement, des emplois, des partenariats et des technologies qui changent la façon dont les gens vivent et travaillent.",
     cta: { slug: "founders", label: "Découvrir les histoires de fondateurs" },
@@ -156,7 +156,7 @@ const fr: ImpactPageCopy = {
   },
   caseStudy: {
     eyebrow: "Études de cas",
-    title: "D’un problème local à une solution qui scale.",
+    title: "D’un problème local à une solution capable de grandir.",
     templateLabel: "Canevas de récit",
     body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne connexion au bon moment.",
     note: "Les études de cas publiées remplacent chaque crochet par des faits vérifiés, propres au fondateur. Un texte générique de réussite n’est pas publié comme s’il s’agissait d’une vraie histoire.",

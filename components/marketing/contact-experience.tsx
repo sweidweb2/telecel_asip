@@ -11,6 +11,7 @@ import {
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 
 type ContactExperienceProps = {
   locale: Locale;
@@ -42,6 +43,9 @@ export function ContactExperience({ locale, labels }: ContactExperienceProps) {
   return (
     <main className="flex w-full flex-1 flex-col">
       <PageHero
+        variant="split-left"
+        media={MARKETING_MEDIA.contact}
+        locale={locale}
         eyebrow={labels.heroEyebrow}
         title={labels.heroTitle}
         description={labels.heroDescription}

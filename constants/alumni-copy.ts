@@ -59,8 +59,7 @@ const en: AlumniPageCopy = {
       },
     ],
   },
-  notice:
-    "The Alumni Network operating model, benefits and launch are still being confirmed.",
+  notice: "",
 };
 
 const fr: AlumniPageCopy = {
@@ -110,8 +109,7 @@ const fr: AlumniPageCopy = {
       },
     ],
   },
-  notice:
-    "Le fonctionnement, les bénéfices et le lancement du réseau alumni restent à confirmer.",
+  notice: "",
 };
 
 export function alumniCopyFor(locale: Locale): AlumniPageCopy {

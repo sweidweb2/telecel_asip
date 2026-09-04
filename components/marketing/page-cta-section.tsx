@@ -17,23 +17,27 @@ export function PageCtaSection({ locale, cta }: PageCtaSectionProps) {
   const href = `${publicPath(locale, cta.slug)}${cta.hash ? `#${cta.hash}` : ""}`;
 
   return (
-    <Section className="border-t pb-16 sm:pb-20 lg:pb-24">
-      <div className="rounded-2xl border bg-muted/40 px-6 py-10 text-center sm:px-10 sm:py-12">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-          {cta.title}
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-          {cta.description}
-        </p>
-        <Link
-          href={href}
-          className={cn(
-            buttonVariants(),
-            "mt-8 inline-flex min-h-11 w-full sm:w-auto",
-          )}
-        >
-          {cta.label}
-        </Link>
+    <Section className="border-t py-8 sm:py-10 lg:py-12">
+      <div className="grid items-center gap-7 border-l-4 border-[#dc395f] bg-[#14333b] px-6 py-8 text-white sm:px-8 lg:grid-cols-12 lg:px-10">
+        <div className="lg:col-span-8">
+          <h2 className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+            {cta.title}
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-white/68 sm:text-lg">
+            {cta.description}
+          </p>
+        </div>
+        <div className="lg:col-span-4 lg:text-right">
+          <Link
+            href={href}
+            className={cn(
+              buttonVariants(),
+              "inline-flex min-h-11 w-full sm:w-auto",
+            )}
+          >
+            {cta.label}
+          </Link>
+        </div>
       </div>
     </Section>
   );

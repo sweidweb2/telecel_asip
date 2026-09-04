@@ -4,6 +4,7 @@ export type StartupStatus = "draft" | "active" | "inactive";
 
 export type Startup = Tables<"startups">;
 export type StartupDetails = Tables<"startup_details">;
+export type StartupPublicRow = Tables<"startups_public">;
 
 export type StartupListItem = Pick<
   Startup,
@@ -23,8 +24,22 @@ export type StartupWithDetails = Startup & {
 };
 
 export type StartupPublicListItem = Pick<
-  Startup,
-  "id" | "name" | "slug" | "logo_url" | "description" | "founded_at"
+  StartupPublicRow,
+  | "id"
+  | "name"
+  | "slug"
+  | "logo_url"
+  | "description"
+  | "founded_at"
+  | "cohort"
+  | "country_code"
+  | "sector"
+  | "founder_names"
+  | "cover_image_url"
+  | "public_outcome"
+  | "featured"
+  | "image_focal_x"
+  | "image_focal_y"
 >;
 
 /**
@@ -33,8 +48,20 @@ export type StartupPublicListItem = Pick<
  * (problem, solution, target market, business model) stay admin-only.
  */
 export type StartupPublicDetails = Pick<
-  StartupDetails,
-  "industry" | "category" | "location" | "team"
+  StartupPublicRow,
+  | "website_url"
+  | "industry"
+  | "category"
+  | "location"
+  | "team"
+  | "cohort"
+  | "country_code"
+  | "sector"
+  | "founder_names"
+  | "cover_image_url"
+  | "public_outcome"
+  | "image_focal_x"
+  | "image_focal_y"
 >;
 
 export type StartupPublicDetail = StartupPublicListItem & {
@@ -55,4 +82,10 @@ export type StartupPublicPageResult = {
   totalPages: number;
   currentPage: number;
   pageSize: number;
+};
+
+export type StartupFilterOptions = {
+  cohorts: string[];
+  countries: string[];
+  sectors: string[];
 };

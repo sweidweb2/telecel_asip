@@ -11,8 +11,8 @@ describe("homeCopyFor", () => {
       fr.platform.steps.map((step) => step.id),
     );
     expect(en.platform.steps).toHaveLength(5);
-    expect(en.impactYears.metrics).toHaveLength(5);
-    expect(fr.impactYears.metrics).toHaveLength(5);
+    expect(en.impactYears.metrics).toHaveLength(0);
+    expect(fr.impactYears.metrics).toHaveLength(0);
     expect(en.ecosystem.roles.map((role) => role.id)).toEqual(
       fr.ecosystem.roles.map((role) => role.id),
     );

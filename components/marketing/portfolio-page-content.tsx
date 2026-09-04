@@ -5,9 +5,10 @@ import { PortfolioPagination } from "@/components/marketing/portfolio-pagination
 import { PortfolioStartupsGrid } from "@/components/marketing/portfolio-startups-grid";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { publicPath } from "@/constants/routes";
 import {
-  getActiveStartupFoundedYears,
+  getActiveStartupFilterOptions,
   getActiveStartupsPage,
 } from "@/data/startups";
 import type { MarketingPageCopy } from "@/types/marketing-page";
@@ -38,17 +39,20 @@ export async function PortfolioPageContent({
   locale,
   copy,
   page = 1,
-  filters = { year: null, search: "" },
+  filters = { cohort: null, country: null, sector: null, query: "" },
 }: PortfolioPageContentProps) {
-  const [list, years] = await Promise.all([
+  const [list, options] = await Promise.all([
     getActiveStartupsPage(page, filters),
-    getActiveStartupFoundedYears(),
+    getActiveStartupFilterOptions(),
   ]);
   const cta = copy.ctaSection;
 
   return (
     <main>
       <PageHero
+        variant="index"
+        media={MARKETING_MEDIA.founders}
+        locale={locale}
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
@@ -59,9 +63,8 @@ export async function PortfolioPageContent({
           locale={locale}
           startups={list.items}
           total={list.total}
-          years={years}
-          year={filters.year ?? "all"}
-          search={filters.search}
+          options={options}
+          filters={filters}
         />
 
         {list.total > 0 ? (
@@ -74,8 +77,10 @@ export async function PortfolioPageContent({
               pageSize={list.pageSize}
               labels={PAGINATION_LABELS[locale]}
               filters={{
-                year: filters.year ?? undefined,
-                q: filters.search || undefined,
+                cohort: filters.cohort ?? undefined,
+                country: filters.country ?? undefined,
+                sector: filters.sector ?? undefined,
+                q: filters.query || undefined,
               }}
             />
           </div>

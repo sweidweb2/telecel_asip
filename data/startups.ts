@@ -8,6 +8,7 @@ import type {
   StartupPublicDetail,
   StartupPublicListItem,
   StartupPublicPageResult,
+  StartupFilterOptions,
   StartupSlugRow,
   StartupWithDetails,
 } from "@/types/startup";
@@ -26,17 +27,17 @@ const DETAIL_COLUMNS =
   "id, name, slug, logo_url, description, status, founded_at, created_at, updated_at" as const;
 
 const DETAILS_COLUMNS =
-  "startup_id, website_url, industry, category, location, founding_year, team, size, problem, solution, target_market, business_model, funding_goal, amount_raised" as const;
+  "startup_id, website_url, industry, category, location, founding_year, team, size, problem, solution, target_market, business_model, funding_goal, amount_raised, cohort, country_code, sector, founder_names, cover_image_url, public_outcome, featured, image_focal_x, image_focal_y" as const;
 
 const PUBLIC_LIST_COLUMNS =
-  "id, name, slug, logo_url, description, founded_at" as const;
+  "id, name, slug, logo_url, description, founded_at, cohort, country_code, sector, founder_names, cover_image_url, public_outcome, featured, image_focal_x, image_focal_y" as const;
 
 /**
  * Detail page adds the approved public subset of `startup_details`.
  * Anon SELECT is allowed by RLS only while the parent startup is active.
  */
 const PUBLIC_DETAIL_COLUMNS =
-  `${PUBLIC_LIST_COLUMNS}, startup_details(industry, category, location, team)` as const;
+  `${PUBLIC_LIST_COLUMNS}, website_url, industry, category, location, team` as const;
 
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
@@ -145,23 +146,21 @@ async function fetchActiveStartupsPage(
   const to = from + pageSize - 1;
 
   let request = supabase
-    .from("startups")
-    .select(PUBLIC_LIST_COLUMNS, { count: "exact" })
-    .eq("status", "active");
+    .from("startups_public")
+    .select(PUBLIC_LIST_COLUMNS, { count: "exact" });
 
-  if (filters.year) {
-    // founded_at is a date; a half-open range keeps the column index usable.
-    request = request
-      .gte("founded_at", `${filters.year}-01-01`)
-      .lt("founded_at", `${Number(filters.year) + 1}-01-01`);
-  }
+  if (filters.cohort) request = request.eq("cohort", filters.cohort);
+  if (filters.country) request = request.eq("country_code", filters.country);
+  if (filters.sector) request = request.eq("sector", filters.sector);
 
-  if (filters.search) {
-    request = request.ilike("name", `%${escapeIlikePattern(filters.search)}%`);
+  if (filters.query) {
+    const pattern = escapeIlikePattern(filters.query);
+    request = request.or(`name.ilike.%${pattern}%,description.ilike.%${pattern}%`);
   }
 
   const { data, count, error } = await request
-    .order("created_at", { ascending: false })
+    .order("featured", { ascending: false })
+    .order("updated_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
 
@@ -186,29 +185,51 @@ async function fetchActiveStartupsPage(
  */
 export async function getActiveStartupsPage(
   page: number,
-  filters: ActiveStartupFilters = { year: null, search: "" },
+  filters: ActiveStartupFilters = { cohort: null, country: null, sector: null, query: "" },
 ): Promise<StartupPublicPageResult> {
   // Page and year have a small, known set of values, so they are safe cache
   // keys. A free-text search is attacker-controlled and would let anyone mint
   // unbounded cache entries, so those queries go straight to Postgres — the
   // gin_trgm index on `name` keeps them cheap.
-  if (filters.search) {
+  if (filters.query) {
     return fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters);
   }
 
   return unstable_cache(
     () => fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters),
-    ["active-startups-page", String(page), filters.year ?? "all"],
+    ["active-startups-page", String(page), filters.cohort ?? "all", filters.country ?? "all", filters.sector ?? "all"],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
 }
 
+async function fetchActiveStartupFilterOptions(): Promise<StartupFilterOptions> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups_public")
+    .select("cohort, country_code, sector");
+  if (error) throw error;
+
+  const unique = (key: "cohort" | "country_code" | "sector") =>
+    [...new Set((data ?? []).map((row) => row[key]).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b));
+
+  return {
+    cohorts: unique("cohort"),
+    countries: unique("country_code"),
+    sectors: unique("sector"),
+  };
+}
+
+export const getActiveStartupFilterOptions = unstable_cache(
+  fetchActiveStartupFilterOptions,
+  ["active-startup-filter-options"],
+  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+);
+
 async function fetchActiveStartupFoundedYears(): Promise<string[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("startups")
+    .from("startups_public")
     .select("founded_at")
-    .eq("status", "active")
     .not("founded_at", "is", null);
 
   if (error) throw error;
@@ -238,21 +259,19 @@ async function fetchActiveStartupBySlug(
 ): Promise<StartupPublicDetail | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("startups")
+    .from("startups_public")
     .select(PUBLIC_DETAIL_COLUMNS)
     .eq("slug", slug)
-    .eq("status", "active")
     .maybeSingle();
 
   if (error) throw error;
   if (!data) return null;
 
-  // PostgREST returns the 1:1 embed as an object (or null when absent).
-  const { startup_details: details, ...core } = data;
+  const { website_url, industry, category, location, team, ...core } = data;
 
   return {
     ...core,
-    details: (Array.isArray(details) ? (details[0] ?? null) : details) ?? null,
+    details: { ...core, website_url, industry, category, location, team },
   } as StartupPublicDetail;
 }
 
@@ -270,11 +289,10 @@ async function fetchRelatedActiveStartups(
 ): Promise<StartupPublicListItem[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("startups")
+    .from("startups_public")
     .select(PUBLIC_LIST_COLUMNS)
-    .eq("status", "active")
     .neq("slug", slug)
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
     .order("id", { ascending: true })
     .limit(limit);
 
@@ -298,10 +316,10 @@ async function fetchSpotlightStartups(
 ): Promise<StartupPublicListItem[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("startups")
+    .from("startups_public")
     .select(PUBLIC_LIST_COLUMNS)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
+    .order("featured", { ascending: false })
+    .order("updated_at", { ascending: false })
     .order("id", { ascending: true })
     .limit(limit);
 
@@ -323,9 +341,8 @@ export async function getSpotlightStartups(
 async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("startups")
+    .from("startups_public")
     .select(PUBLIC_SLUG_COLUMNS)
-    .eq("status", "active")
     .order("updated_at", { ascending: false });
 
   if (error) throw error;

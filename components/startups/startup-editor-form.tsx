@@ -94,6 +94,15 @@ function emptyDetails(): UpdateStartupInput["details"] {
     industry: "",
     category: "",
     location: "",
+    cohort: "",
+    countryCode: "",
+    sector: "",
+    founderNames: "",
+    coverImageUrl: "",
+    publicOutcome: "",
+    featured: false,
+    imageFocalX: 50,
+    imageFocalY: 50,
     foundingYear: undefined,
     team: "",
     size: "",
@@ -134,6 +143,15 @@ function defaultsFromStartup(startup?: StartupWithDetails): StartupFormValues {
       industry: d?.industry ?? "",
       category: d?.category ?? "",
       location: d?.location ?? "",
+      cohort: d?.cohort ?? "",
+      countryCode: d?.country_code ?? "",
+      sector: d?.sector ?? "",
+      founderNames: d?.founder_names?.join(", ") ?? "",
+      coverImageUrl: d?.cover_image_url ?? "",
+      publicOutcome: d?.public_outcome ?? "",
+      featured: d?.featured ?? false,
+      imageFocalX: d?.image_focal_x ?? 50,
+      imageFocalY: d?.image_focal_y ?? 50,
       foundingYear: d?.founding_year ?? undefined,
       team: d?.team ?? "",
       size: d?.size ?? "",
@@ -567,6 +585,25 @@ export function StartupEditorForm({
               </AccordionTrigger>
               <AccordionContent className="pb-0 pt-0">
                 <div className="grid gap-4 pt-3">
+          <section className="grid gap-4 border-b pb-6">
+            <div>
+              <h3 className="font-heading text-base font-semibold">Public profile</h3>
+              <p className="mt-1 text-sm text-muted-foreground">These fields appear exactly as entered on the public founder directory.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="grid gap-2"><FieldLabel htmlFor="cohort">Cohort</FieldLabel><Input id="cohort" placeholder="Cohort 4" disabled={isPending} {...form.register("details.cohort")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="countryCode">Country code</FieldLabel><Input id="countryCode" placeholder="GH" maxLength={2} className="uppercase" disabled={isPending} {...form.register("details.countryCode")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="sector">Sector</FieldLabel><Input id="sector" placeholder="Health technology" disabled={isPending} {...form.register("details.sector")} /></div>
+            </div>
+            <div className="grid gap-2"><FieldLabel htmlFor="founderNames" hint="Comma-separated">Founder names</FieldLabel><Input id="founderNames" placeholder="First Founder, Second Founder" disabled={isPending} {...form.register("details.founderNames")} /></div>
+            <div className="grid gap-2"><FieldLabel htmlFor="coverImageUrl">Cover image URL</FieldLabel><Input id="coverImageUrl" type="url" placeholder="https://" disabled={isPending} {...form.register("details.coverImageUrl")} /></div>
+            <div className="grid gap-2"><FieldLabel htmlFor="publicOutcome">Approved public outcome</FieldLabel><Textarea id="publicOutcome" className="min-h-24" disabled={isPending} {...form.register("details.publicOutcome")} /></div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <label className="flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-medium"><input type="checkbox" className="size-4 accent-primary" disabled={isPending} {...form.register("details.featured")} /> Featured profile</label>
+              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel><Input id="imageFocalX" type="number" min={0} max={100} disabled={isPending} {...form.register("details.imageFocalX")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalY">Image focus Y (%)</FieldLabel><Input id="imageFocalY" type="number" min={0} max={100} disabled={isPending} {...form.register("details.imageFocalY")} /></div>
+            </div>
+          </section>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
               <FieldLabel

@@ -205,11 +205,20 @@ export type Database = {
           amount_raised: number | null
           business_model: string | null
           category: string | null
+          cohort: string | null
+          country_code: string | null
+          cover_image_url: string | null
+          featured: boolean
+          founder_names: string[]
           founding_year: number | null
           funding_goal: number | null
+          image_focal_x: number
+          image_focal_y: number
           industry: string | null
           location: string | null
           problem: string | null
+          public_outcome: string | null
+          sector: string | null
           size: string | null
           solution: string | null
           startup_id: string
@@ -221,11 +230,20 @@ export type Database = {
           amount_raised?: number | null
           business_model?: string | null
           category?: string | null
+          cohort?: string | null
+          country_code?: string | null
+          cover_image_url?: string | null
+          featured?: boolean
+          founder_names?: string[]
           founding_year?: number | null
           funding_goal?: number | null
+          image_focal_x?: number
+          image_focal_y?: number
           industry?: string | null
           location?: string | null
           problem?: string | null
+          public_outcome?: string | null
+          sector?: string | null
           size?: string | null
           solution?: string | null
           startup_id: string
@@ -237,11 +255,20 @@ export type Database = {
           amount_raised?: number | null
           business_model?: string | null
           category?: string | null
+          cohort?: string | null
+          country_code?: string | null
+          cover_image_url?: string | null
+          featured?: boolean
+          founder_names?: string[]
           founding_year?: number | null
           funding_goal?: number | null
+          image_focal_x?: number
+          image_focal_y?: number
           industry?: string | null
           location?: string | null
           problem?: string | null
+          public_outcome?: string | null
+          sector?: string | null
           size?: string | null
           solution?: string | null
           startup_id?: string
@@ -337,6 +364,32 @@ export type Database = {
           is_active: boolean
           sort_order: number
           logo_url: string | null
+        }
+        Relationships: []
+      }
+      startups_public: {
+        Row: {
+          category: string | null
+          cohort: string | null
+          country_code: string | null
+          cover_image_url: string | null
+          description: string
+          featured: boolean
+          founder_names: string[]
+          founded_at: string | null
+          id: string
+          image_focal_x: number
+          image_focal_y: number
+          industry: string | null
+          location: string | null
+          logo_url: string | null
+          name: string
+          public_outcome: string | null
+          sector: string | null
+          slug: string
+          team: string | null
+          updated_at: string
+          website_url: string | null
         }
         Relationships: []
       }

@@ -11,7 +11,7 @@ import {
   isLocale,
   LOCALE_HEADER,
 } from "@/constants/locales";
-import { geistMono, geistSans } from "@/lib/fonts";
+import { geistMono, sora, sourceSans } from "@/lib/fonts";
 import { siteUrl } from "@/lib/seo/site";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -62,7 +62,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(
         "h-full",
         "antialiased",
-        geistSans.variable,
+        sourceSans.variable,
+        sora.variable,
         geistMono.variable,
         "font-sans"
       )}

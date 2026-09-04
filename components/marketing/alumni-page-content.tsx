@@ -15,6 +15,7 @@ import {
 } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { publicPath } from "@/constants/routes";
 import type {
   AlumniBenefitId,
@@ -59,6 +60,10 @@ export function AlumniPageContent({ locale, copy }: AlumniPageContentProps) {
   return (
     <main>
       <PageHero
+        variant="poster"
+        marker="ALUMNI"
+        media={MARKETING_MEDIA.alumni}
+        locale={locale}
         eyebrow={copy.hero.eyebrow}
         title={copy.hero.title}
         description={copy.hero.description}
@@ -96,9 +101,7 @@ export function AlumniPageContent({ locale, copy }: AlumniPageContentProps) {
       </Section>
 
       <Section className="border-t pb-16 sm:pb-20 lg:pb-24">
-        <p className="max-w-3xl rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
+        {copy.notice ? <p className="max-w-3xl border-l-2 border-primary pl-4 text-sm text-muted-foreground">{copy.notice}</p> : null}
         <div className="mt-10">
           <AlumniCta locale={locale} cta={copy.hero.primaryCta} />
         </div>

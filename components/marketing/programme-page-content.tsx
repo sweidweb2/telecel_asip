@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Brain,
   CircleCheck,
@@ -18,6 +19,7 @@ import {
 } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
+import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { publicPath } from "@/constants/routes";
 import type {
   ProgrammePageCopy,
@@ -64,7 +66,7 @@ function ProgrammeCtas({
         href={publicPath(locale, secondary.slug)}
         className={cn(
           buttonVariants({ variant: "outline", size: "lg" }),
-          "min-h-11 w-full sm:w-auto",
+          "min-h-11 w-full border-white/45 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
         )}
       >
         {secondary.label}
@@ -80,6 +82,10 @@ export function ProgrammePageContent({
   return (
     <main>
       <PageHero
+        variant="poster"
+        marker="01—05"
+        media={MARKETING_MEDIA.programme}
+        locale={locale}
         eyebrow={copy.hero.eyebrow}
         title={copy.hero.title}
         description={copy.hero.description}
@@ -93,21 +99,19 @@ export function ProgrammePageContent({
       />
 
       <Section className="border-t">
-        <SectionHeading
-          eyebrow={copy.audience.eyebrow}
-          title={copy.audience.title}
-          description={copy.audience.description}
-          className="mb-0 max-w-3xl"
-        />
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5"><SectionHeading eyebrow={copy.audience.eyebrow} title={copy.audience.title} description={copy.audience.description} className="mb-0" /></div>
+          <figure className="relative min-h-[24rem] overflow-hidden rounded-lg lg:col-span-7 lg:min-h-[32rem]"><Image src="/asip-media/programme-workshop.webp" alt={locale === "fr" ? "Atelier de selection et de travail du programme ASIP" : "ASIP selection and programme workshop"} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 58vw" /></figure>
+        </div>
       </Section>
 
       <Section className="border-t">
         <SectionHeading title={copy.journey.title} />
-        <ol className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="m-0 grid list-none grid-cols-1 border-t p-0 sm:grid-cols-2 lg:grid-cols-3">
           {copy.journey.steps.map((step, index) => (
             <li
               key={step.id}
-              className="rounded-xl border bg-card p-5 sm:p-6"
+              className="border-b p-6 sm:border-r"
             >
               <span
                 aria-hidden

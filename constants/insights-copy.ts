@@ -10,7 +10,7 @@ import type { InsightsPageCopy } from "@/types/marketing-page";
 const en: InsightsPageCopy = {
   hero: {
     eyebrow: "Insights",
-    title: "From the people building Africa’s next technology companies.",
+    title: "Stories, signals and lessons from the ecosystem.",
     description:
       "Founder stories, portfolio progress, programme news and practical perspectives from across the ASIP ecosystem.",
   },
@@ -69,8 +69,7 @@ const en: InsightsPageCopy = {
 const fr: InsightsPageCopy = {
   hero: {
     eyebrow: "Perspectives",
-    title:
-      "Par celles et ceux qui construisent les prochaines entreprises technologiques d’Afrique.",
+    title: "Récits, signaux et enseignements de l’écosystème.",
     description:
       "Récits de fondateurs, avancées du portefeuille, actualités du programme et regards concrets de l’écosystème ASIP.",
   },

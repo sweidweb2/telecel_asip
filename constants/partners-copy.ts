@@ -4,7 +4,7 @@ import type { PartnersPageCopy } from "@/types/marketing-page";
 const en: PartnersPageCopy = {
   hero: {
     eyebrow: "Partners & mentors",
-    title: "Back the builders. Open the right doors.",
+    title: "The right connection can change a company’s trajectory.",
     description:
       "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organisations to connect founders with practical expertise, capital, customers and markets.",
     cta: { slug: "contact", label: "Discuss a partnership" },
@@ -84,7 +84,7 @@ const en: PartnersPageCopy = {
 const fr: PartnersPageCopy = {
   hero: {
     eyebrow: "Partenaires et mentors",
-    title: "Soutenez les bâtisseurs. Ouvrez les bonnes portes.",
+    title: "La bonne connexion peut changer la trajectoire d’une entreprise.",
     description:
       "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour relier les fondateurs à une expertise concrète, du capital, des clients et des marchés.",
     cta: { slug: "contact", label: "Discuter d’un partenariat" },

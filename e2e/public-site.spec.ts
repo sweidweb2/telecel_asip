@@ -45,9 +45,11 @@ test("language switch preserves the current public page", async ({ page }) => {
 
 test("alumni is in the primary navigation", async ({ page }) => {
   await page.goto("/en");
-  await expect(
-    page.locator("header").getByRole("link", { name: "Alumni" }),
-  ).toHaveAttribute("href", "/en/alumni");
+  await page.getByRole("button", { name: "Founders" }).click();
+  await expect(page.getByRole("link", { name: "Alumni" }).last()).toHaveAttribute(
+    "href",
+    "/en/alumni",
+  );
 });
 
 test("mobile navigation remains usable", async ({ page }) => {
@@ -57,11 +59,23 @@ test("mobile navigation remains usable", async ({ page }) => {
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Register Interest" }),
+    page
+      .getByRole("navigation", { name: "Primary" })
+      .locator('a[href="/en/apply"], a[href="/en/register-interest"]'),
   ).toBeVisible();
 });
 
-test("retired portfolio URLs are gone", async ({ page }) => {
-  const response = await page.goto("/en/portfolio");
-  expect(response?.status()).toBe(404);
+test("tablet navigation keeps the primary routes visible", async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.goto("/en");
+  await expect(
+    page.locator("header").getByRole("link", { name: "About" }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Founders" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
+});
+
+test("retired portfolio URLs resolve to the founders directory", async ({ page }) => {
+  await page.goto("/en/portfolio");
+  await expect(page).toHaveURL(/\/en\/founders$/);
 });

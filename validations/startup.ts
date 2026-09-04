@@ -107,6 +107,18 @@ export const startupDetailsSchema = z
     industry: optionalText(STARTUP_TEXT_SHORT_MAX),
     category: optionalText(STARTUP_TEXT_SHORT_MAX),
     location: optionalText(STARTUP_LOCATION_MAX),
+    cohort: optionalText(40),
+    countryCode: optionalText(2).refine(
+      (value) => !value || /^[A-Za-z]{2}$/.test(value),
+      "Country code must contain two letters",
+    ),
+    sector: optionalText(STARTUP_TEXT_SHORT_MAX),
+    founderNames: optionalText(500),
+    coverImageUrl: optionalUrl,
+    publicOutcome: optionalText(STARTUP_TEAM_MAX),
+    featured: z.boolean().optional().default(false),
+    imageFocalX: z.coerce.number().min(0).max(100).optional().default(50),
+    imageFocalY: z.coerce.number().min(0).max(100).optional().default(50),
     foundingYear: optionalFoundingYear,
     team: optionalText(STARTUP_TEAM_MAX),
     size: optionalText(STARTUP_SIZE_MAX),
@@ -227,15 +239,12 @@ export function parsePortfolioPageParam(
   return Math.min(page, 10_000);
 }
 
-/** Public portfolio `?year=YYYY` — returns the year or null when absent/invalid. */
-export function parsePortfolioYearParam(
+function parsePublicFilterParam(
   value: string | string[] | undefined,
+  max = 100,
 ): string | null {
   const raw = first(value)?.trim();
-  if (!raw || !/^\d{4}$/.test(raw)) return null;
-  const year = Number(raw);
-  if (year < 1900 || year > 2100) return null;
-  return raw;
+  return raw ? raw.slice(0, max) : null;
 }
 
 /** Public founders `?q=` name search. Bounded so it cannot bloat cache keys. */
@@ -247,17 +256,19 @@ export function parsePortfolioSearchParam(
 
 /** Server-side filters for the public founders list. */
 export type ActiveStartupFilters = {
-  /** `null` means every year. */
-  year: string | null;
-  /** Empty string means no name filter. */
-  search: string;
+  cohort: string | null;
+  country: string | null;
+  sector: string | null;
+  query: string;
 };
 
 export function parseActiveStartupFilters(
   input: RawSearchParams,
 ): ActiveStartupFilters {
   return {
-    year: parsePortfolioYearParam(input.year),
-    search: parsePortfolioSearchParam(input.q),
+    cohort: parsePublicFilterParam(input.cohort, 40),
+    country: parsePublicFilterParam(input.country, 2)?.toUpperCase() ?? null,
+    sector: parsePublicFilterParam(input.sector),
+    query: parsePortfolioSearchParam(input.q),
   };
 }
