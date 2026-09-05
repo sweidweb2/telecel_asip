@@ -2,7 +2,10 @@
 
 import type { ReactNode } from "react";
 
-import { AdminPagination } from "@/components/dashboard/admin-pagination";
+import {
+  AdminPagination,
+  type AdminPaginationProps,
+} from "@/components/dashboard/admin-pagination";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Table,
@@ -12,14 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type AdminDataTablePagination = {
-  basePath: string;
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
-  filters?: Record<string, string | undefined>;
-};
+type AdminDataTablePagination = AdminPaginationProps;
 
 type AdminDataTableProps = {
   filters?: ReactNode;
@@ -69,7 +65,7 @@ export function AdminDataTable({
         </div>
       </CardContent>
 
-      <CardFooter className="border-t bg-transparent px-4 py-3">
+      <CardFooter className="w-full border-t bg-transparent px-4 py-3">
         <AdminPagination {...pagination} />
       </CardFooter>
     </Card>

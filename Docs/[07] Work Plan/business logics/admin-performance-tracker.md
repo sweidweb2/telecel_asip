@@ -72,7 +72,7 @@ Table: `public.admin_perf_events` (migration `20260905210000_admin_perf_events.s
 
 - Nav: System → Performance.
 - Flag off: explanation card; no writes from this page.
-- Flag on: last ~24h events (limit 200), client filters (type / cache / name), row → dialog with `meta` + same-`request_id` waterfall.
+- Flag on: last 24h events. Charts use up to 1000 newest window rows. The table is URL-paginated (10/25/50/100 per page, numbered pages) with type / cache / name filters. Row → dialog with `meta` + same-`request_id` waterfall.
 - Charts (recharts): slowest names hit vs miss avg, events over time, count by `event_type`, overall hit ratio.
 - Hygiene action: delete rows older than 7 days (`actions/admin-perf-events.ts`).
 

@@ -1,11 +1,21 @@
-import { isAdminPerfTrackingEnabled } from "@/lib/admin/perf";
-import { createClient } from "@/lib/supabase/server";
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-import type { Json } from "@/types/database";
-import type {
-  AdminPerfCacheStatus,
-  AdminPerfEventType,
+import {
+  isAdminPerfTrackingEnabled,
+  type AdminPerfCacheStatus,
+  type AdminPerfEventType,
 } from "@/lib/admin/perf";
+import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/types/database";
+import {
+  ADMIN_PERF_ANALYTICS_LIMIT,
+  ADMIN_PERF_SINCE_HOURS,
+  type AdminPerfListQuery,
+} from "@/validations/admin-perf-events";
 
 export type AdminPerfEventRow = {
   id: string;
@@ -21,14 +31,6 @@ export type AdminPerfEventRow = {
   ok: boolean;
   error_message: string | null;
   meta: Json;
-};
-
-export type AdminPerfListFilters = {
-  eventType?: AdminPerfEventType | "all";
-  cacheStatus?: AdminPerfCacheStatus | "all";
-  nameSearch?: string;
-  sinceHours?: number;
-  limit?: number;
 };
 
 export type AdminPerfNameStats = {
@@ -50,8 +52,33 @@ export type AdminPerfAnalytics = {
   overTime: { bucket: string; count: number; hit: number; miss: number }[];
 };
 
+type AdminPerfAnalyticsRow = {
+  event_type: AdminPerfEventType;
+  name: string;
+  duration_ms: number;
+  cache_status: AdminPerfCacheStatus;
+  created_at: string;
+};
+
+export type AdminPerfEventsListResult = {
+  events: AdminPerfEventRow[];
+  total: number;
+  totalPages: number;
+};
+
 const LIST_COLUMNS =
   "id, created_at, request_id, parent_id, event_type, name, route, duration_ms, db_ms, cache_status, ok, error_message, meta" as const;
+
+const ANALYTICS_COLUMNS =
+  "event_type, name, duration_ms, cache_status, created_at" as const;
+
+const EMPTY_ANALYTICS: AdminPerfAnalytics = {
+  total: 0,
+  hitRatio: 0,
+  byEventType: [],
+  slowest: [],
+  overTime: [],
+};
 
 function percentile(sorted: number[], p: number): number {
   if (sorted.length === 0) return 0;
@@ -62,16 +89,75 @@ function percentile(sorted: number[], p: number): number {
   return sorted[idx] ?? 0;
 }
 
+type ServerClient = Awaited<ReturnType<typeof createClient>>;
+
+function sinceIso(hours: number): string {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+}
+
+async function fetchPerfEventPage(
+  supabase: ServerClient,
+  query: AdminPerfListQuery,
+  since: string,
+): Promise<AdminPerfEventsListResult> {
+  const { from, to } = adminListRange(query.page, query.pageSize);
+
+  let request = supabase
+    .from("admin_perf_events")
+    .select(LIST_COLUMNS, { count: "exact" })
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(from, to);
+
+  if (query.eventType !== "all") {
+    request = request.eq("event_type", query.eventType);
+  }
+  if (query.cacheStatus !== "all") {
+    request = request.eq("cache_status", query.cacheStatus);
+  }
+  if (query.search) {
+    request = request.ilike("name", `%${escapeIlikePattern(query.search)}%`);
+  }
+
+  const { data, count, error } = await request;
+  if (error) throw error;
+
+  const total = count ?? 0;
+  return {
+    events: (data ?? []) as AdminPerfEventRow[],
+    total,
+    totalPages: adminListTotalPages(total, query.pageSize),
+  };
+}
+
+async function fetchPerfAnalytics(
+  supabase: ServerClient,
+  since: string,
+): Promise<AdminPerfAnalytics> {
+  const { data, count, error } = await supabase
+    .from("admin_perf_events")
+    .select(ANALYTICS_COLUMNS, { count: "exact" })
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(ADMIN_PERF_ANALYTICS_LIMIT);
+
+  if (error) throw error;
+
+  const rows = (data ?? []) as AdminPerfAnalyticsRow[];
+  return buildAnalytics(rows, count ?? rows.length);
+}
+
 /**
  * Admin-only perf event reads. Never wrap with traceAsync (no recursion).
  */
 export async function getAdminPerfEventsPageData(
-  filters: AdminPerfListFilters = {},
+  query: AdminPerfListQuery,
 ): Promise<
   | { status: "forbidden" }
   | {
       status: "ok";
-      events: AdminPerfEventRow[];
+      list: AdminPerfEventsListResult;
       analytics: AdminPerfAnalytics;
       trackingEnabled: boolean;
     }
@@ -82,48 +168,23 @@ export async function getAdminPerfEventsPageData(
   if (!trackingEnabled) {
     return {
       status: "ok",
-      events: [],
-      analytics: {
-        total: 0,
-        hitRatio: 0,
-        byEventType: [],
-        slowest: [],
-        overTime: [],
-      },
+      list: { events: [], total: 0, totalPages: 1 },
+      analytics: EMPTY_ANALYTICS,
       trackingEnabled: false,
     };
   }
 
   const supabase = await createClient();
-  const limit = Math.min(filters.limit ?? 200, 500);
-  const sinceHours = filters.sinceHours ?? 24;
-  const since = new Date(Date.now() - sinceHours * 60 * 60 * 1000).toISOString();
+  const since = sinceIso(ADMIN_PERF_SINCE_HOURS);
+  const [list, analytics] = await Promise.all([
+    fetchPerfEventPage(supabase, query, since),
+    fetchPerfAnalytics(supabase, since),
+  ]);
 
-  let request = supabase
-    .from("admin_perf_events")
-    .select(LIST_COLUMNS)
-    .gte("created_at", since)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (filters.eventType && filters.eventType !== "all") {
-    request = request.eq("event_type", filters.eventType);
-  }
-  if (filters.cacheStatus && filters.cacheStatus !== "all") {
-    request = request.eq("cache_status", filters.cacheStatus);
-  }
-  if (filters.nameSearch?.trim()) {
-    request = request.ilike("name", `%${filters.nameSearch.trim()}%`);
-  }
-
-  const { data, error } = await request;
-  if (error) throw error;
-
-  const events = (data ?? []) as AdminPerfEventRow[];
   return {
     status: "ok",
-    events,
-    analytics: buildAnalytics(events),
+    list,
+    analytics,
     trackingEnabled: true,
   };
 }
@@ -164,9 +225,9 @@ export async function getAdminPerfEventsByRequestIds(
   const { data, error } = await supabase
     .from("admin_perf_events")
     .select(LIST_COLUMNS)
-    .in("request_id", requestIds.slice(0, 40))
+    .in("request_id", requestIds.slice(0, 100))
     .order("created_at", { ascending: true })
-    .limit(800);
+    .limit(2000);
 
   if (error) throw error;
 
@@ -179,7 +240,10 @@ export async function getAdminPerfEventsByRequestIds(
   return { status: "ok", byRequestId };
 }
 
-function buildAnalytics(events: AdminPerfEventRow[]): AdminPerfAnalytics {
+function buildAnalytics(
+  events: AdminPerfAnalyticsRow[],
+  windowTotal: number,
+): AdminPerfAnalytics {
   const byType = new Map<string, number>();
   const byName = new Map<
     string,
@@ -237,7 +301,7 @@ function buildAnalytics(events: AdminPerfEventRow[]): AdminPerfAnalytics {
     .slice(0, 12);
 
   return {
-    total: events.length,
+    total: windowTotal,
     hitRatio: cacheable === 0 ? 0 : Math.round((hits / cacheable) * 1000) / 1000,
     byEventType: [...byType.entries()]
       .map(([eventType, count]) => ({ eventType, count }))

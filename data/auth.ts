@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { publicPath } from "@/constants/routes";
-import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 

@@ -1132,7 +1132,6 @@ export type Database = {
       cms_publish_status: "draft" | "published"
       cohort_programme_status: "closed" | "open" | "hold"
       contact_enquiry_type: "founder" | "partner" | "media" | "general"
-      inbox_status: "unread" | "reviewed" | "archived"
       event_format: "virtual" | "in_person" | "hybrid"
       evidence_permission:
         | "public"
@@ -1152,6 +1151,7 @@ export type Database = {
         | "commercialisation"
         | "jobs_capability"
         | "sector_outcomes"
+      inbox_status: "unread" | "reviewed" | "archived"
       partner_type:
         | "corporate"
         | "investors"
@@ -1296,7 +1296,6 @@ export const Constants = {
       cms_publish_status: ["draft", "published"],
       cohort_programme_status: ["closed", "open", "hold"],
       contact_enquiry_type: ["founder", "partner", "media", "general"],
-      inbox_status: ["unread", "reviewed", "archived"],
       event_format: ["virtual", "in_person", "hybrid"],
       evidence_permission: [
         "public",
@@ -1319,6 +1318,7 @@ export const Constants = {
         "jobs_capability",
         "sector_outcomes",
       ],
+      inbox_status: ["unread", "reviewed", "archived"],
       partner_type: [
         "corporate",
         "investors",

@@ -2,7 +2,7 @@
 
 **Enable:** set `ADMIN_PERF_TRACKING=true` in server env (see `.env.example`).
 
-**Read results:** `/dashboard/performance` — table, request waterfall dialog, charts.
+**Read results:** `/dashboard/performance` — paginated table (per-page limit + numbered pages), request waterfall dialog, charts.
 `cache_status=hit` means React.cache / request dedupe reused work; `miss` / `n_a` is real work.
 
 **Teardown:**

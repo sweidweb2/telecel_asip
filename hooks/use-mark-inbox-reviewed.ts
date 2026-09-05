@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "nextjs-toploader/app";
 
 import type { InboxStatus } from "@/constants/inbox";
@@ -29,7 +29,7 @@ export function useMarkInboxReviewed({
   const router = useRouter();
   const markedRef = useRef<string | null>(null);
 
-  function markIfUnread() {
+  const markIfUnread = useCallback(() => {
     if (inboxStatus !== "unread") return;
     if (markedRef.current === id) return;
     markedRef.current = id;
@@ -39,11 +39,11 @@ export function useMarkInboxReviewed({
         router.refresh();
       }
     });
-  }
+  }, [id, inboxStatus, updateAction, router]);
 
   useEffect(() => {
     if (isOpen) markIfUnread();
-  }, [isOpen, id, inboxStatus, updateAction]);
+  }, [isOpen, markIfUnread]);
 
   function onViewOpenChange(open: boolean) {
     if (open) markIfUnread();
