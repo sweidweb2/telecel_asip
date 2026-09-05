@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { getAdminResource } from "@/constants/admin-resources";
 import { getStartupsForStoryPicker } from "@/data/founder-stories";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
@@ -66,6 +68,9 @@ function refreshFounderStoryPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
+  // Detail HTML paths vary by startup slug; bust list + tag covers data cache.
+  revalidatePath("/en/founders", "layout");
+  revalidatePath("/fr/founders", "layout");
 }
 
 function normalizePermission(
@@ -125,7 +130,7 @@ export async function createFounderStory(
       }
       return { status: "success", id: row.id };
     },
-    refresh: () => refreshFounderStoryPaths(),
+    refresh: (_data, id) => refreshFounderStoryPaths(id),
   });
 }
 
@@ -195,6 +200,6 @@ export async function deleteFounderStory(
       }
       return { status: "success" };
     },
-    refresh: () => refreshFounderStoryPaths(),
+    refresh: (data) => refreshFounderStoryPaths(data.id),
   });
 }

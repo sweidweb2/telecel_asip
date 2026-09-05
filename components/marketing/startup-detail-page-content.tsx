@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
+import type { FounderStoryPublic } from "@/types/founder-story";
 import type {
   StartupPublicDetail,
   StartupPublicListItem,
@@ -43,10 +44,19 @@ function EmptySlot({ label }: { label: string }) {
   );
 }
 
+function StoryBody({ text }: { text: string }) {
+  return (
+    <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground sm:text-base">
+      {text}
+    </p>
+  );
+}
+
 type StartupDetailPageContentProps = {
   locale: Locale;
   startup: StartupPublicDetail;
   related: StartupPublicListItem[];
+  story: FounderStoryPublic | null;
   fromPage?: number;
 };
 
@@ -60,12 +70,13 @@ function foundersBackHref(locale: Locale, fromPage?: number) {
 
 /**
  * Founder profile template — dynamic per Founder (build spec §4).
- * Design wiped; prescribed story modules as skeleton holders.
+ * Story modules pull from published founder_stories when present.
  */
 export function StartupDetailPageContent({
   locale,
   startup,
   related,
+  story,
   fromPage,
 }: StartupDetailPageContentProps) {
   return (
@@ -98,26 +109,56 @@ export function StartupDetailPageContent({
       </section>
 
       <PageSection title="The problem" note="pulls Founder story">
-        <EmptySlot label="problem module" />
+        {story ? (
+          <StoryBody text={story.the_problem} />
+        ) : (
+          <EmptySlot label="problem module" />
+        )}
       </PageSection>
 
       <PageSection title="What they built" note="pulls Founder story">
-        <EmptySlot label="product / build module" />
+        {story ? (
+          <StoryBody text={story.what_they_built} />
+        ) : (
+          <EmptySlot label="product / build module" />
+        )}
       </PageSection>
 
       <PageSection title="ASIP connection" note="pulls Founder story">
-        <EmptySlot label="programme connection module" />
+        {story ? (
+          <StoryBody text={story.the_asip_connection} />
+        ) : (
+          <EmptySlot label="programme connection module" />
+        )}
       </PageSection>
 
       <PageSection title="Where they are now" note="pulls Founder story">
-        <EmptySlot label="outcome / progress module" />
+        {story ? (
+          <StoryBody text={story.where_they_are_now} />
+        ) : (
+          <EmptySlot label="outcome / progress module" />
+        )}
       </PageSection>
 
       <PageSection
         title="Founder perspective"
         note="quote permission required"
       >
-        <EmptySlot label="founder quote (only when permission = approved)" />
+        {story?.quote ? (
+          <blockquote className="space-y-3">
+            <p className="text-base leading-relaxed sm:text-lg">
+              “{story.quote.text}”
+            </p>
+            <footer className="text-sm text-muted-foreground">
+              — {story.quote.attribution_name}
+              {story.quote.attribution_title
+                ? `, ${story.quote.attribution_title}`
+                : null}
+            </footer>
+          </blockquote>
+        ) : (
+          <EmptySlot label="founder quote (only when permission = approved)" />
+        )}
       </PageSection>
 
       <PageSection title="Media gallery" note="Dynamic">

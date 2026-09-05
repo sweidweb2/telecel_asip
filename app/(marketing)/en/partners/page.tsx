@@ -1,4 +1,5 @@
 import { PartnersPageContent } from "@/components/marketing/partners-page-content";
+import { getPublicPartners } from "@/data/partners";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -9,6 +10,14 @@ export const metadata = buildMarketingMetadata({
     "Work with ASIP to connect African founders with expertise, technology, capital, market access and practical opportunities.",
 });
 
-export default function Page() {
-  return <PartnersPageContent locale="en" />;
+export default async function Page() {
+  const { active, historical } = await getPublicPartners();
+
+  return (
+    <PartnersPageContent
+      locale="en"
+      active={active}
+      historical={historical}
+    />
+  );
 }

@@ -60,28 +60,28 @@ export function HomeMapFlipperSection({ className }: { className?: string }) {
             </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="icon"
-              className="min-h-11 min-w-11 rounded-full"
+              className="min-h-11 min-w-11 rounded-full shadow-sm ring-1 ring-foreground/10"
               aria-label="Previous map region"
               disabled={!canPrev}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
             >
-              <ChevronLeftIcon />
+              <ChevronLeftIcon className="size-5" />
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="icon"
-              className="min-h-11 min-w-11 rounded-full"
+              className="min-h-11 min-w-11 rounded-full shadow-sm ring-1 ring-foreground/10"
               aria-label="Next map region"
               disabled={!canNext}
               onClick={() => setIndex((i) => Math.min(slides.length - 1, i + 1))}
             >
-              <ChevronRightIcon />
+              <ChevronRightIcon className="size-5" />
             </Button>
           </div>
         </div>

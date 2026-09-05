@@ -1,4 +1,5 @@
 import { ImpactPageContent } from "@/components/marketing/impact-page-content";
+import { getImpactPageMetrics } from "@/data/impact-metrics";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -9,6 +10,8 @@ export const metadata = buildMarketingMetadata({
     "See evidence-led ASIP outcomes across founders, markets, jobs, partnerships and technology-led impact.",
 });
 
-export default function Page() {
-  return <ImpactPageContent locale="en" />;
+export default async function Page() {
+  const metrics = await getImpactPageMetrics();
+
+  return <ImpactPageContent locale="en" metrics={metrics} />;
 }

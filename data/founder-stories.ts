@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import {
   adminListRange,
@@ -7,12 +8,14 @@ import {
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
   FounderStory,
   FounderStoryDetail,
   FounderStoryListItem,
   FounderStoryListResult,
+  FounderStoryPublic,
   StartupStoryOption,
 } from "@/types/founder-story";
 import {
@@ -30,6 +33,9 @@ const LIST_COLUMNS =
 
 const DETAIL_COLUMNS =
   "id, startup_id, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
+
+const PUBLIC_COLUMNS =
+  "the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -240,4 +246,63 @@ export async function getStartupsForStoryPicker(options?: {
       return { status: "ok", startups };
     },
   );
+}
+
+type PublicStoryRow = {
+  the_problem: string;
+  what_they_built: string;
+  the_asip_connection: string;
+  where_they_are_now: string;
+  founder_quote_text: string | null;
+  quote_attribution_name: string | null;
+  quote_attribution_title: string | null;
+  quote_date: string | null;
+  quote_permission_status: FounderStory["quote_permission_status"];
+};
+
+function toPublicStory(row: PublicStoryRow): FounderStoryPublic {
+  const hasGrantedQuote =
+    Boolean(row.founder_quote_text?.trim()) &&
+    row.quote_permission_status === "granted" &&
+    Boolean(row.quote_attribution_name?.trim());
+
+  return {
+    the_problem: row.the_problem,
+    what_they_built: row.what_they_built,
+    the_asip_connection: row.the_asip_connection,
+    where_they_are_now: row.where_they_are_now,
+    quote: hasGrantedQuote
+      ? {
+          text: row.founder_quote_text!.trim(),
+          attribution_name: row.quote_attribution_name!.trim(),
+          attribution_title: row.quote_attribution_title,
+          date: row.quote_date,
+        }
+      : null,
+  };
+}
+
+async function fetchPublishedFounderStoryByStartupId(
+  startupId: string,
+): Promise<FounderStoryPublic | null> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("founder_stories")
+    .select(PUBLIC_COLUMNS)
+    .eq("startup_id", startupId)
+    .eq("publish_status", "published")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  return toPublicStory(data as PublicStoryRow);
+}
+
+/** Cached published story for a founder profile page. */
+export function getPublishedFounderStoryByStartupId(startupId: string) {
+  return unstable_cache(
+    () => fetchPublishedFounderStoryByStartupId(startupId),
+    ["published-founder-story", startupId],
+    { tags: [FOUNDER_STORIES_CACHE_TAG], revalidate: 300 },
+  )();
 }

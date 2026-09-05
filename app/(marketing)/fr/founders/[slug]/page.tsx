@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { StartupDetailPageContent } from "@/components/marketing/startup-detail-page-content";
+import { getPublishedFounderStoryByStartupId } from "@/data/founder-stories";
 import {
   getActiveStartupBySlug,
   getActiveStartupSlugRows,
@@ -46,17 +47,20 @@ export default async function FrFounderStartupPage({
   const { slug } = await params;
   const query = await searchParams;
   const fromPage = parsePortfolioPageParam(query.fromPage);
-  const [startup, related] = await Promise.all([
-    getActiveStartupBySlug(slug),
-    getRelatedActiveStartups(slug, 3),
-  ]);
+  const startup = await getActiveStartupBySlug(slug);
   if (!startup) notFound();
+
+  const [related, story] = await Promise.all([
+    getRelatedActiveStartups(slug, 3),
+    getPublishedFounderStoryByStartupId(startup.id),
+  ]);
 
   return (
     <StartupDetailPageContent
       locale="fr"
       startup={startup}
       related={related}
+      story={story}
       fromPage={fromPage}
     />
   );

@@ -50,3 +50,16 @@ export type EventListResult = {
   total: number;
   totalPages: number;
 };
+
+/** Published events for future marketing surfaces. */
+export type EventPublicListItem = Pick<
+  Event,
+  | "id"
+  | "name"
+  | "event_date"
+  | "location"
+  | "format"
+  | "speakers"
+  | "outcomes"
+  | "updated_at"
+>;

@@ -96,11 +96,12 @@ export function EvidenceEditorForm({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [owners, setOwners] = useState<EvidenceOwnerOption[]>(initialOwners);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const [hasAppliedDefaultOwner, setHasAppliedDefaultOwner] = useState(
     Boolean(record?.owner_id || initialDefaultOwnerId),
   );
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(true);
+    useDebouncedOptionSearch(optionsEnabled);
 
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
     resolver: zodResolver(createEvidenceRecordSchema),
@@ -109,6 +110,8 @@ export function EvidenceEditorForm({
   });
 
   useEffect(() => {
+    if (!optionsEnabled) return;
+
     let cancelled = false;
 
     async function loadOptions() {
@@ -151,6 +154,7 @@ export function EvidenceEditorForm({
       cancelled = true;
     };
   }, [
+    optionsEnabled,
     debouncedSearch,
     form,
     record,
@@ -309,6 +313,7 @@ export function EvidenceEditorForm({
               id={`${formId}-owner-search`}
               value={optionSearch}
               onChange={(event) => setOptionSearch(event.target.value)}
+              onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search owners by name or email…"
               className="mb-2 min-h-11"
@@ -322,6 +327,9 @@ export function EvidenceEditorForm({
                 <Select
                   value={field.value || undefined}
                   onValueChange={(value) => field.onChange(value ?? "")}
+                  onOpenChange={(open) => {
+                    if (open) setOptionsEnabled(true);
+                  }}
                   disabled={isPending}
                 >
                   <SelectTrigger

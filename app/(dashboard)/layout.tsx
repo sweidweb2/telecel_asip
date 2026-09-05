@@ -6,10 +6,9 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { publicPath } from "@/constants/routes";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { getAdminShell } from "@/data/admin-shell";
 import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { getCurrentUserProfile } from "@/data/users";
 import { userDisplayName, userInitials } from "@/lib/user-display";
 import type { DashboardAccount } from "@/types/profile";
 
@@ -22,26 +21,21 @@ export default async function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  const { isAdmin, profile } = await traceAsync(
+  const shell = await traceAsync(
     "dashboardLayout",
-    { eventType: "layout", meta: { ops: ["isCurrentUserAdmin", "getCurrentUserProfile"] } },
-    async () => {
-      const [admin, userProfile] = await Promise.all([
-        isCurrentUserAdmin(),
-        getCurrentUserProfile(),
-      ]);
-      return { isAdmin: admin, profile: userProfile };
-    },
+    { eventType: "layout", meta: { ops: ["getAdminShell"] } },
+    () => getAdminShell(),
   );
 
-  if (!isAdmin) {
+  if (!shell.isAdmin) {
     redirect(publicPath(await getRequestLocale()));
   }
 
+  const email = shell.email ?? "";
   const account: DashboardAccount = {
-    name: profile ? userDisplayName(profile.full_name, profile.email) : "Admin",
-    email: profile?.email ?? "",
-    initials: profile ? userInitials(profile.full_name, profile.email) : "AD",
+    name: userDisplayName(shell.fullName, email),
+    email,
+    initials: userInitials(shell.fullName, email),
   };
 
   // Hint for nested spans in this request (pathname not always in headers).

@@ -1,4 +1,5 @@
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
+import { getPublishedCohorts } from "@/data/cohorts";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -9,6 +10,8 @@ export const metadata = buildMarketingMetadata({
     "Découvrez le parcours fondateur ASIP, les bénéfices, les critères d’éligibilité, le processus de sélection et le statut actuel des candidatures.",
 });
 
-export default function Page() {
-  return <ProgrammePageContent locale="fr" />;
+export default async function Page() {
+  const cohorts = await getPublishedCohorts();
+
+  return <ProgrammePageContent locale="fr" cohorts={cohorts} />;
 }

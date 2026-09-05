@@ -27,3 +27,18 @@ export type StartupStoryOption = {
   id: string;
   name: string;
 };
+
+/** Published founder narrative for marketing founder profiles. */
+export type FounderStoryPublic = {
+  the_problem: string;
+  what_they_built: string;
+  the_asip_connection: string;
+  where_they_are_now: string;
+  /** Only set when quote text exists and permission is granted. */
+  quote: {
+    text: string;
+    attribution_name: string;
+    attribution_title: string | null;
+    date: string | null;
+  } | null;
+};

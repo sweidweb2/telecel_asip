@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
+import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
@@ -52,9 +53,14 @@ const ALLOWED_MIME = new Set([
   "image/gif",
 ]);
 
-function refreshStartupPaths(slug?: string) {
+function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
+  // Insights embed related startup names — bust blog cache on rename/link changes.
+  revalidateTag(BLOGS_CACHE_TAG, "max");
   revalidatePath(ROUTES.portfolio);
+  if (id) {
+    revalidatePath(`${ROUTES.portfolio}/${id}`);
+  }
   revalidatePath("/en/founders");
   revalidatePath("/fr/founders");
   if (slug) {
@@ -151,7 +157,7 @@ export async function createStartup(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshStartupPaths(row.slug);
+  refreshStartupPaths(row.slug, row.id);
   return {
     status: "success",
     message: MESSAGES.createSuccess,
@@ -187,9 +193,9 @@ export async function updateStartup(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshStartupPaths(row.slug);
+  refreshStartupPaths(row.slug, row.id);
   if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshStartupPaths(row.previous_slug);
+    refreshStartupPaths(row.previous_slug, row.id);
   }
 
   return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
@@ -232,7 +238,7 @@ export async function deleteStartup(
       // instead of leaving a live row pointing at a deleted logo.
       await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-      refreshStartupPaths(existing.slug);
+      refreshStartupPaths(existing.slug, data.id);
       return { status: "success" };
     },
   });
@@ -350,7 +356,7 @@ export async function uploadStartupLogo(
       }
 
       await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-      refreshStartupPaths(existing.slug);
+      refreshStartupPaths(existing.slug, startupId);
       return {
         status: "success",
         message: MESSAGES.uploadSuccess,
@@ -394,6 +400,6 @@ export async function removeStartupLogo(
 
   await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-  refreshStartupPaths(existing.slug);
+  refreshStartupPaths(existing.slug, startupId);
   return { status: "success", message: MESSAGES.removeSuccess, id: startupId };
 }

@@ -91,9 +91,12 @@ const ALLOWED_MIME = new Set([
   "image/gif",
 ]);
 
-function refreshBlogPaths(slug?: string) {
+function refreshBlogPaths(slug?: string, id?: string) {
   revalidateTag(BLOGS_CACHE_TAG, "max");
   revalidatePath(ROUTES.blogs);
+  if (id) {
+    revalidatePath(`${ROUTES.blogs}/${id}`);
+  }
   revalidatePath("/en/insights");
   revalidatePath("/fr/insights");
   if (slug) {
@@ -175,7 +178,7 @@ export async function createBlog(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshBlogPaths(row.slug);
+  refreshBlogPaths(row.slug, row.id);
   return {
     status: "success",
     message: MESSAGES.createSuccess,
@@ -209,9 +212,9 @@ export async function updateBlog(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshBlogPaths(row.slug);
+  refreshBlogPaths(row.slug, row.id);
   if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshBlogPaths(row.previous_slug);
+    refreshBlogPaths(row.previous_slug, row.id);
   }
 
   return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
@@ -260,7 +263,7 @@ export async function deleteBlog(
         AUTHOR_BUCKET,
       );
 
-      refreshBlogPaths(existing.slug);
+      refreshBlogPaths(existing.slug, existing.id);
       return { status: "success" };
     },
   });
@@ -395,7 +398,7 @@ async function uploadImage(options: {
       }
 
       await removeStorageUrlIfOwned(session.supabase, previousUrl, bucket);
-      refreshBlogPaths(existing.slug);
+      refreshBlogPaths(existing.slug, blogId);
       return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
     },
   );
@@ -483,7 +486,7 @@ export async function removeBlogImage(
 
   await removeStorageUrlIfOwned(session.supabase, url, bucket);
 
-  refreshBlogPaths(existing.slug);
+  refreshBlogPaths(existing.slug, parsed.data.id);
   return {
     status: "success",
     message: MESSAGES.removeSuccess,

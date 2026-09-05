@@ -41,6 +41,14 @@ export async function getSiteSettings(): Promise<SiteSettingsPublic> {
   return getSiteSettingsCached();
 }
 
+/**
+ * Uncached read for the admin Settings form so the editor always sees the
+ * live row after navigation (public marketing still uses the 60s cache).
+ */
+export async function getSiteSettingsForAdmin(): Promise<SiteSettingsPublic> {
+  return fetchSiteSettings();
+}
+
 export async function getOpenApplications(): Promise<boolean> {
   const settings = await getSiteSettings();
   return settings.openApplications;

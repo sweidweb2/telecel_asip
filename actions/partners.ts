@@ -65,9 +65,10 @@ const PG_MESSAGES = {
   genericError: MESSAGES.genericError,
 };
 
-function refreshPartnerPaths() {
+function refreshPartnerPaths(id?: string) {
   refreshAdminResource({
     listPath: resource.listPath,
+    detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
   revalidatePath("/en/partners");
@@ -114,7 +115,7 @@ export async function createPartner(
       }
       return { status: "success", id: row.id };
     },
-    refresh: () => refreshPartnerPaths(),
+    refresh: (_data, id) => refreshPartnerPaths(id),
   });
 }
 
@@ -145,7 +146,7 @@ export async function updatePartner(
       }
       return { status: "success", id: row.id };
     },
-    refresh: () => refreshPartnerPaths(),
+    refresh: (_data, id) => refreshPartnerPaths(id),
   });
 }
 
@@ -189,7 +190,7 @@ export async function deletePartner(
 
       return { status: "success" };
     },
-    refresh: () => refreshPartnerPaths(),
+    refresh: (data) => refreshPartnerPaths(data.id),
   });
 }
 
@@ -329,7 +330,7 @@ export async function uploadPartnerLogo(
       }
 
       await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-      refreshPartnerPaths();
+      refreshPartnerPaths(partnerId);
       return {
         status: "success",
         message: MESSAGES.uploadSuccess,
@@ -373,6 +374,6 @@ export async function removePartnerLogo(
 
   await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-  refreshPartnerPaths();
+  refreshPartnerPaths(partnerId);
   return { status: "success", message: MESSAGES.removeSuccess, id: partnerId };
 }

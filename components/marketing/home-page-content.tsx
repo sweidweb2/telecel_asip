@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeLatestInsightsSection } from "@/components/marketing/home-latest-insights-section";
-import { HomeMapFlipperSection } from "@/components/marketing/home-map-flipper-section";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
@@ -116,8 +115,6 @@ export function HomePageContent({
           <EmptySlot label="Impact Metric rows for homepage display" />
         )}
       </HomeSection>
-
-      <HomeMapFlipperSection />
 
       <HomeSection title="Platform model">
         <EmptySlot label="Discover → Build → Connect → Commercialise → Scale" />

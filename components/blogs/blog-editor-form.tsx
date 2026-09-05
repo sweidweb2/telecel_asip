@@ -120,10 +120,13 @@ export function BlogEditorForm({
   const [startups, setStartups] = useState(initialStartups);
   const [cohorts, setCohorts] = useState(initialCohorts);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(true);
+    useDebouncedOptionSearch(optionsEnabled);
 
   useEffect(() => {
+    if (!optionsEnabled) return;
+
     let cancelled = false;
 
     async function loadOptions() {
@@ -154,7 +157,7 @@ export function BlogEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, blog?.startup_id, blog?.cohort_id]);
+  }, [optionsEnabled, debouncedSearch, blog?.startup_id, blog?.cohort_id]);
 
   const emptyCreateValues: CreateBlogInput = {
     title: "",
@@ -613,6 +616,7 @@ export function BlogEditorForm({
                   id="blog-link-search"
                   value={optionSearch}
                   onChange={(event) => setOptionSearch(event.target.value)}
+                  onFocus={() => setOptionsEnabled(true)}
                   maxLength={100}
                   placeholder="Search by name…"
                   className="min-h-11"
@@ -630,6 +634,9 @@ export function BlogEditorForm({
                       onValueChange={(value) =>
                         field.onChange(value && value.length > 0 ? value : null)
                       }
+                      onOpenChange={(open) => {
+                        if (open) setOptionsEnabled(true);
+                      }}
                       disabled={isPending || optionsLoading}
                     >
                       <SelectTrigger id="blog-startup" className="min-h-11 w-full">
@@ -680,6 +687,9 @@ export function BlogEditorForm({
                       onValueChange={(value) =>
                         field.onChange(value && value.length > 0 ? value : null)
                       }
+                      onOpenChange={(open) => {
+                        if (open) setOptionsEnabled(true);
+                      }}
                       disabled={isPending || optionsLoading}
                     >
                       <SelectTrigger id="blog-cohort" className="min-h-11 w-full">

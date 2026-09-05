@@ -36,6 +36,36 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 ---
 
+### `public.get_admin_shell()`
+
+| | |
+| --- | --- |
+| **Role** | RPC (dashboard layout chrome) |
+| **Returns** | One row: `is_admin` (boolean), `full_name` (text), `email` (text) |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** One round-trip for dashboard layout — admin gate + display name/email — instead of separate `is_admin()` and `profiles` selects.
+
+**How it works:** Selects `public.is_admin()` plus a `LEFT JOIN` on `profiles` for `auth.uid()`. Always returns a row; missing session/profile yields `is_admin = false` and null name/email so the layout can redirect. Added `20260905221000`.
+
+---
+
+### `public.get_admin_analytics()`
+
+| | |
+| --- | --- |
+| **Role** | RPC (CMS Analytics page) |
+| **Returns** | `jsonb` snapshot: `applications` / `registrations` / `contactMessages` inbox counts + `content` publish/status counts |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, admin-only |
+| **Granted to** | `authenticated` (raises `42501` for non-admins) |
+
+**Details:** Replaces ~32 exact head-count PostgREST queries on the Analytics page with one RPC.
+
+**How it works:** Raises `42501` unless `is_admin()`. Builds one `jsonb` with inbox totals/status/7d/30d windows (UTC `now() - interval`) and content counts matching prior TS filters (blog `status`, startup `active`, partner `is_active`, cohort/event/story `publish_status`, impact `verified`). Labels/hrefs stay in the app data layer. Added `20260905221100`.
+
+---
+
 ### `public.handle_new_user()`
 
 | | |

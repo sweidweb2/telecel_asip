@@ -1081,6 +1081,18 @@ export type Database = {
           title: string
         }[]
       }
+      get_admin_analytics: {
+        Args: never
+        Returns: Json
+      }
+      get_admin_shell: {
+        Args: never
+        Returns: {
+          email: string | null
+          full_name: string | null
+          is_admin: boolean
+        }[]
+      }
       get_user_stats: {
         Args: never
         Returns: {

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { SiteSettingsForm } from "@/components/settings/site-settings-form";
 import { requireAdmin } from "@/data/auth";
-import { getSiteSettings } from "@/data/settings";
+import { getSiteSettingsForAdmin } from "@/data/settings";
 
 export const metadata: Metadata = {
   title: "Settings | ASIP Admin",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   await requireAdmin();
 
-  const settings = await getSiteSettings();
+  const settings = await getSiteSettingsForAdmin();
 
   return (
     <AdminListPageShell

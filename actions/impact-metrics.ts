@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { getAdminResource } from "@/constants/admin-resources";
 import { listEvidenceOptionsForAdmin } from "@/data/impact-metrics";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
@@ -62,6 +64,10 @@ function refreshImpactMetricPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
+  revalidatePath("/en");
+  revalidatePath("/fr");
+  revalidatePath("/en/impact");
+  revalidatePath("/fr/impact");
 }
 
 function toImpactMetricRow(
@@ -177,6 +183,6 @@ export async function deleteImpactMetric(
       }
       return { status: "success" };
     },
-    refresh: () => refreshImpactMetricPaths(),
+    refresh: (data) => refreshImpactMetricPaths(data.id),
   });
 }

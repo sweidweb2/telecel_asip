@@ -87,8 +87,9 @@ export function ImpactMetricEditorForm({
     initialOptions,
   );
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(true);
+    useDebouncedOptionSearch(optionsEnabled);
 
   const form = useForm<
     ImpactMetricFormValues,
@@ -101,6 +102,8 @@ export function ImpactMetricEditorForm({
   });
 
   useEffect(() => {
+    if (!optionsEnabled) return;
+
     let cancelled = false;
 
     async function loadOptions() {
@@ -131,7 +134,7 @@ export function ImpactMetricEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, metric?.evidence_id]);
+  }, [optionsEnabled, debouncedSearch, metric?.evidence_id]);
 
   const {
     register,
@@ -298,6 +301,7 @@ export function ImpactMetricEditorForm({
               id="impact-evidence-search"
               value={optionSearch}
               onChange={(event) => setOptionSearch(event.target.value)}
+              onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search evidence by source…"
               className="mb-2 min-h-11"
@@ -311,6 +315,9 @@ export function ImpactMetricEditorForm({
                 <Select
                   value={field.value || undefined}
                   onValueChange={(value) => field.onChange(value ?? "")}
+                  onOpenChange={(open) => {
+                    if (open) setOptionsEnabled(true);
+                  }}
                   disabled={isPending}
                 >
                   <SelectTrigger

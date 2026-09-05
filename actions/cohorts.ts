@@ -1,6 +1,9 @@
 "use server";
 
+import { revalidatePath, revalidateTag } from "next/cache";
+
 import { getAdminResource } from "@/constants/admin-resources";
+import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { getCohortLinkOptionsForAdmin } from "@/data/cohorts";
 import {
   refreshAdminResource,
@@ -69,6 +72,10 @@ function refreshCohortPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
+  // Insights embed related cohort labels — bust blog cache on rename/link changes.
+  revalidateTag(BLOGS_CACHE_TAG, "max");
+  revalidatePath("/en/programme");
+  revalidatePath("/fr/programme");
 }
 
 function toCohortJson(input: CreateCohortInput) {
@@ -111,7 +118,7 @@ export async function createCohort(
       }
       return { status: "success", id: row.id };
     },
-    refresh: () => refreshCohortPaths(),
+    refresh: (_data, id) => refreshCohortPaths(id),
   });
 }
 
@@ -180,6 +187,6 @@ export async function deleteCohort(
       }
       return { status: "success" };
     },
-    refresh: () => refreshCohortPaths(),
+    refresh: (data) => refreshCohortPaths(data.id),
   });
 }

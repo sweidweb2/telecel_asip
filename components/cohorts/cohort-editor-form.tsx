@@ -149,8 +149,9 @@ export function CohortEditorForm({
   const [partners, setPartners] = useState(initialPartners);
   const [startups, setStartups] = useState(initialStartups);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(true);
+    useDebouncedOptionSearch(optionsEnabled);
 
   const form = useForm<CreateCohortInput>({
     resolver: zodResolver(createCohortSchema),
@@ -169,6 +170,8 @@ export function CohortEditorForm({
   });
 
   useEffect(() => {
+    if (!optionsEnabled) return;
+
     let cancelled = false;
 
     async function loadOptions() {
@@ -199,7 +202,7 @@ export function CohortEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch]);
+  }, [optionsEnabled, debouncedSearch]);
 
   const {
     register,
@@ -434,6 +437,7 @@ export function CohortEditorForm({
               id="cohort-link-search"
               value={optionSearch}
               onChange={(event) => setOptionSearch(event.target.value)}
+              onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search by name…"
               className="min-h-11"

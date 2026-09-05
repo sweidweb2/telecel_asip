@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import type { Locale } from "@/constants/locales";
 import { impactCopyFor } from "@/constants/impact-copy";
+import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 
 function PageSection({
   title,
@@ -38,13 +39,17 @@ function EmptySlot({ label }: { label: string }) {
 
 type ImpactPageContentProps = {
   locale: Locale;
+  metrics?: ImpactMetricPublicItem[];
 };
 
 /**
  * Impact marketing page — static + dynamic (build spec §4).
- * Framing copy + case study template (dynamic per founder).
+ * Verified metrics fill the proof strip until full design lands.
  */
-export function ImpactPageContent({ locale }: ImpactPageContentProps) {
+export function ImpactPageContent({
+  locale,
+  metrics = [],
+}: ImpactPageContentProps) {
   const copy = impactCopyFor(locale);
 
   return (
@@ -63,8 +68,21 @@ export function ImpactPageContent({ locale }: ImpactPageContentProps) {
         </div>
       </section>
 
-      <PageSection title="Seven Years of Impact" note="Static framing">
-        <EmptySlot label="narrative progress module (no unverified metrics)" />
+      <PageSection title="Seven Years of Impact" note="Verified metrics">
+        {metrics.length > 0 ? (
+          <ul className="space-y-3 text-sm sm:text-base">
+            {metrics.map((metric) => (
+              <li key={metric.id}>
+                <span className="font-medium">{metric.value}</span>
+                {metric.unit ? ` ${metric.unit}` : null}
+                {" — "}
+                {metric.claim_label}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptySlot label="narrative progress module (no unverified metrics)" />
+        )}
       </PageSection>
 
       <PageSection title="Impact lenses" note="Static framing">

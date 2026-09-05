@@ -33,3 +33,15 @@ export type EvidenceOption = {
   primary_source: string;
   status: ImpactPublishStatus;
 };
+
+/** Verified metrics safe for marketing (Home / Impact). */
+export type ImpactMetricPublicItem = Pick<
+  ImpactMetric,
+  | "id"
+  | "claim_label"
+  | "value"
+  | "unit"
+  | "impact_lens"
+  | "display_locations"
+  | "updated_at"
+>;

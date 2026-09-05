@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import {
   adminListRange,
@@ -7,12 +8,14 @@ import {
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceOption,
   ImpactMetric,
   ImpactMetricListItem,
   ImpactMetricListResult,
+  ImpactMetricPublicItem,
 } from "@/types/impact-metric";
 import {
   impactMetricIdSchema,
@@ -27,10 +30,16 @@ const LIST_COLUMNS =
 const DETAIL_COLUMNS =
   "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at, evidence_records(primary_source)" as const;
 
+const PUBLIC_COLUMNS =
+  "id, claim_label, value, unit, impact_lens, display_locations, updated_at" as const;
+
 const EVIDENCE_OPTION_COLUMNS = "id, primary_source, status" as const;
 
 /** Upper bound so the evidence Select stays bounded. */
 const EVIDENCE_OPTIONS_LIMIT = 100;
+
+/** Cap public verified list so anon reads stay bounded. */
+const PUBLIC_LIMIT = 100;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -209,4 +218,41 @@ export async function listEvidenceOptionsForAdmin(
       };
     },
   );
+}
+
+async function fetchVerifiedImpactMetrics(): Promise<ImpactMetricPublicItem[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("impact_metrics")
+    .select(PUBLIC_COLUMNS)
+    .eq("publish_status", "verified")
+    .order("updated_at", { ascending: false })
+    .limit(PUBLIC_LIMIT);
+
+  if (error) throw error;
+  return (data ?? []) as ImpactMetricPublicItem[];
+}
+
+/** Cached verified metrics for Home / Impact marketing. */
+export const getVerifiedImpactMetrics = unstable_cache(
+  fetchVerifiedImpactMetrics,
+  ["verified-impact-metrics"],
+  { tags: [IMPACT_METRICS_CACHE_TAG], revalidate: 300 },
+);
+
+/** Homepage strip — only metrics tagged `homepage_module_02`. */
+export async function getHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> {
+  const metrics = await getVerifiedImpactMetrics();
+  return metrics.filter((metric) =>
+    metric.display_locations?.includes("homepage_module_02"),
+  );
+}
+
+/** Impact page — metrics tagged `impact_page`, else all verified. */
+export async function getImpactPageMetrics(): Promise<ImpactMetricPublicItem[]> {
+  const metrics = await getVerifiedImpactMetrics();
+  const tagged = metrics.filter((metric) =>
+    metric.display_locations?.includes("impact_page"),
+  );
+  return tagged.length > 0 ? tagged : metrics;
 }

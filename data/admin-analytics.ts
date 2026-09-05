@@ -1,10 +1,8 @@
-import { subDays } from "date-fns";
-
 import { ROUTES } from "@/constants/routes";
-import { gateAdminPageData } from "@/lib/admin/admin-list-query";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
-
-type ServerClient = Awaited<ReturnType<typeof createClient>>;
+import type { Json } from "@/types/database";
 
 export type InboxPipelineStats = {
   total: number;
@@ -31,194 +29,152 @@ export type AdminAnalytics = {
   content: ContentSnapshotRow[];
 };
 
-type AnalyticsTable =
-  | "applications"
-  | "interest_registrations"
-  | "contact_messages"
-  | "blogs"
-  | "startups"
-  | "partners"
-  | "cohorts"
-  | "events"
-  | "founder_stories"
-  | "impact_metrics";
-
-type HeadCountBuilder = {
-  eq: (column: string, value: string | boolean) => HeadCountBuilder;
-  neq: (column: string, value: string) => HeadCountBuilder;
-  gte: (column: string, value: string) => HeadCountBuilder;
+type InboxPayload = {
+  total?: number;
+  unread?: number;
+  reviewed?: number;
+  archived?: number;
+  last7Days?: number;
+  last30Days?: number;
 };
 
-async function countRows(
-  supabase: ServerClient,
-  table: AnalyticsTable,
-  filter?: (query: HeadCountBuilder) => HeadCountBuilder,
-): Promise<number> {
-  const base = supabase
-    .from(table)
-    .select("id", { count: "exact", head: true }) as unknown as HeadCountBuilder;
+type ContentPayload = {
+  blogsPublished?: number;
+  blogsDraft?: number;
+  startupsActive?: number;
+  startupsOther?: number;
+  partnersActive?: number;
+  partnersHistorical?: number;
+  cohortsPublished?: number;
+  cohortsDraft?: number;
+  eventsPublished?: number;
+  eventsDraft?: number;
+  storiesPublished?: number;
+  storiesDraft?: number;
+  metricsVerified?: number;
+  metricsOther?: number;
+};
 
-  const query = filter ? filter(base) : base;
-  const { count, error } = await (query as unknown as PromiseLike<{
-    count: number | null;
-    error: { message?: string; code?: string } | null;
-  }>);
+type AnalyticsPayload = {
+  applications?: InboxPayload;
+  registrations?: InboxPayload;
+  contactMessages?: InboxPayload;
+  content?: ContentPayload;
+};
 
-  if (error) {
-    throw new Error(
-      `Analytics count failed on ${table}: ${error.message || error.code || "unknown error"}`,
-    );
+function asNumber(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
   }
-
-  return count ?? 0;
+  return 0;
 }
 
-async function inboxStats(
-  supabase: ServerClient,
-  table: "applications" | "interest_registrations" | "contact_messages",
-): Promise<InboxPipelineStats> {
-  const since7 = subDays(new Date(), 7).toISOString();
-  const since30 = subDays(new Date(), 30).toISOString();
-
-  const [total, unread, reviewed, archived, last7Days, last30Days] =
-    await Promise.all([
-      countRows(supabase, table),
-      countRows(supabase, table, (q) => q.eq("inbox_status", "unread")),
-      countRows(supabase, table, (q) => q.eq("inbox_status", "reviewed")),
-      countRows(supabase, table, (q) => q.eq("inbox_status", "archived")),
-      countRows(supabase, table, (q) => q.gte("created_at", since7)),
-      countRows(supabase, table, (q) => q.gte("created_at", since30)),
-    ]);
-
-  return { total, unread, reviewed, archived, last7Days, last30Days };
+function mapInbox(payload: InboxPayload | undefined): InboxPipelineStats {
+  return {
+    total: asNumber(payload?.total),
+    unread: asNumber(payload?.unread),
+    reviewed: asNumber(payload?.reviewed),
+    archived: asNumber(payload?.archived),
+    last7Days: asNumber(payload?.last7Days),
+    last30Days: asNumber(payload?.last30Days),
+  };
 }
 
-async function fetchContentSnapshot(
-  supabase: ServerClient,
-): Promise<ContentSnapshotRow[]> {
-  const [
-    blogsPublished,
-    blogsDraft,
-    startupsActive,
-    startupsOther,
-    partnersActive,
-    partnersHistorical,
-    cohortsPublished,
-    cohortsDraft,
-    eventsPublished,
-    eventsDraft,
-    storiesPublished,
-    storiesDraft,
-    metricsVerified,
-    metricsOther,
-  ] = await Promise.all([
-    countRows(supabase, "blogs", (q) => q.eq("status", "published")),
-    countRows(supabase, "blogs", (q) => q.eq("status", "draft")),
-    countRows(supabase, "startups", (q) => q.eq("status", "active")),
-    countRows(supabase, "startups", (q) => q.neq("status", "active")),
-    countRows(supabase, "partners", (q) => q.eq("is_active", true)),
-    countRows(supabase, "partners", (q) => q.eq("is_active", false)),
-    countRows(supabase, "cohorts", (q) => q.eq("publish_status", "published")),
-    countRows(supabase, "cohorts", (q) => q.eq("publish_status", "draft")),
-    countRows(supabase, "events", (q) => q.eq("publish_status", "published")),
-    countRows(supabase, "events", (q) => q.eq("publish_status", "draft")),
-    countRows(supabase, "founder_stories", (q) =>
-      q.eq("publish_status", "published"),
-    ),
-    countRows(supabase, "founder_stories", (q) =>
-      q.eq("publish_status", "draft"),
-    ),
-    // impact_metrics.publish_status is evidence_status (verified/pending/…), not draft/published
-    countRows(supabase, "impact_metrics", (q) =>
-      q.eq("publish_status", "verified"),
-    ),
-    countRows(supabase, "impact_metrics", (q) =>
-      q.neq("publish_status", "verified"),
-    ),
-  ]);
-
+function mapContent(payload: ContentPayload | undefined): ContentSnapshotRow[] {
   return [
     {
       label: "Blogs",
       href: ROUTES.blogs,
-      primary: blogsPublished,
+      primary: asNumber(payload?.blogsPublished),
       primaryLabel: "Published",
-      secondary: blogsDraft,
+      secondary: asNumber(payload?.blogsDraft),
       secondaryLabel: "Draft",
     },
     {
       label: "Portfolio",
       href: ROUTES.portfolio,
-      primary: startupsActive,
+      primary: asNumber(payload?.startupsActive),
       primaryLabel: "Active",
-      secondary: startupsOther,
+      secondary: asNumber(payload?.startupsOther),
       secondaryLabel: "Draft / inactive",
     },
     {
       label: "Partners",
       href: ROUTES.partners,
-      primary: partnersActive,
+      primary: asNumber(payload?.partnersActive),
       primaryLabel: "Active",
-      secondary: partnersHistorical,
+      secondary: asNumber(payload?.partnersHistorical),
       secondaryLabel: "Historical",
     },
     {
       label: "Cohorts",
       href: ROUTES.cohorts,
-      primary: cohortsPublished,
+      primary: asNumber(payload?.cohortsPublished),
       primaryLabel: "Published",
-      secondary: cohortsDraft,
+      secondary: asNumber(payload?.cohortsDraft),
       secondaryLabel: "Draft",
     },
     {
       label: "Events",
       href: ROUTES.events,
-      primary: eventsPublished,
+      primary: asNumber(payload?.eventsPublished),
       primaryLabel: "Published",
-      secondary: eventsDraft,
+      secondary: asNumber(payload?.eventsDraft),
       secondaryLabel: "Draft",
     },
     {
       label: "Founder stories",
       href: ROUTES.founderStories,
-      primary: storiesPublished,
+      primary: asNumber(payload?.storiesPublished),
       primaryLabel: "Published",
-      secondary: storiesDraft,
+      secondary: asNumber(payload?.storiesDraft),
       secondaryLabel: "Draft",
     },
     {
       label: "Impact metrics",
       href: ROUTES.impactMetrics,
-      primary: metricsVerified,
+      primary: asNumber(payload?.metricsVerified),
       primaryLabel: "Verified",
-      secondary: metricsOther,
+      secondary: asNumber(payload?.metricsOther),
       secondaryLabel: "Other",
     },
   ];
 }
 
+/**
+ * CMS Analytics snapshot via `get_admin_analytics` (one DB round-trip).
+ * Labels/hrefs stay in TS; RPC returns counts only.
+ */
 export async function getAdminAnalytics(): Promise<
   { status: "forbidden" } | { status: "ok"; analytics: AdminAnalytics }
 > {
-  return gateAdminPageData(
-    async (supabase) => {
-      const [applications, registrations, contactMessages, content] =
-        await Promise.all([
-          inboxStats(supabase, "applications"),
-          inboxStats(supabase, "interest_registrations"),
-          inboxStats(supabase, "contact_messages"),
-          fetchContentSnapshot(supabase),
-        ]);
+  return traceAsync(
+    "getAdminAnalytics",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+
+      const supabase = await createClient();
+      const { data, error } = await supabase.rpc("get_admin_analytics");
+
+      if (error) {
+        if (error.code === "42501") return { status: "forbidden" };
+        throw error;
+      }
+
+      const payload = (data ?? {}) as AnalyticsPayload & Json;
 
       return {
+        status: "ok",
         analytics: {
-          applications,
-          registrations,
-          contactMessages,
-          content,
+          applications: mapInbox(payload.applications),
+          registrations: mapInbox(payload.registrations),
+          contactMessages: mapInbox(payload.contactMessages),
+          content: mapContent(payload.content),
         },
       };
     },
-    { name: "getAdminAnalytics" },
   );
 }

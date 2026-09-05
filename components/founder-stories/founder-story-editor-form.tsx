@@ -102,11 +102,12 @@ export function FounderStoryEditorForm({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [startups, setStartups] = useState(initialStartups);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(mode === "create");
+    useDebouncedOptionSearch(mode === "create" && optionsEnabled);
 
   useEffect(() => {
-    if (mode !== "create") return;
+    if (mode !== "create" || !optionsEnabled) return;
 
     let cancelled = false;
 
@@ -137,7 +138,7 @@ export function FounderStoryEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [mode, debouncedSearch]);
+  }, [mode, optionsEnabled, debouncedSearch]);
 
   const {
     register,
@@ -218,6 +219,7 @@ export function FounderStoryEditorForm({
                   id="startup-search"
                   value={optionSearch}
                   onChange={(event) => setOptionSearch(event.target.value)}
+                  onFocus={() => setOptionsEnabled(true)}
                   maxLength={100}
                   placeholder="Search startups…"
                   className="mb-2 min-h-11"

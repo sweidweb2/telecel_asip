@@ -85,8 +85,9 @@ export function EventEditorForm({
   const [startupOptions, setStartupOptions] =
     useState<EventStartupOption[]>(initialOptions);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(true);
+    useDebouncedOptionSearch(optionsEnabled);
 
   const form = useForm<EventFormValues, unknown, CreateEventInput>({
     resolver: zodResolver(
@@ -97,6 +98,8 @@ export function EventEditorForm({
   });
 
   useEffect(() => {
+    if (!optionsEnabled) return;
+
     let cancelled = false;
 
     async function loadOptions() {
@@ -127,7 +130,7 @@ export function EventEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, event?.startup_ids]);
+  }, [optionsEnabled, debouncedSearch, event?.startup_ids]);
 
   function onSubmit(values: CreateEventInput) {
     startTransition(async () => {
@@ -419,6 +422,7 @@ export function EventEditorForm({
               id="event-startup-search"
               value={optionSearch}
               onChange={(changeEvent) => setOptionSearch(changeEvent.target.value)}
+              onFocus={() => setOptionsEnabled(true)}
               disabled={isPending}
               maxLength={100}
               placeholder="Search startups…"

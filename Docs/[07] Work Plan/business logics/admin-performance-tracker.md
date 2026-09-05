@@ -120,3 +120,18 @@ Queried `public.admin_perf_events` after CMS use with `ADMIN_PERF_TRACKING=true`
 **Not a tracker bug:** concurrent ById miss+hit can show similar `duration_ms` (both await the same in-flight promise). Sequential hits (e.g. blog ById ~75 ms hit) show the cheap path.
 
 **Perf signals (for CMS work, not tracker defects):** layout/list cold paths up to ~2.6 s; `uploadPartnerLogo` ~2.3 s; one contact list request summed ~7.8 s across spans — investigate separately if UX still feels slow.
+
+---
+
+### Shell / analytics RPC (2026-09-05)
+
+High-impact follow-up from the live table signals:
+
+| Change | Expected tracker signal |
+| --- | --- |
+| Layout uses `get_admin_shell` via `getAdminShell()` | `dashboardLayout` → one round-trip (`ops: ["getAdminShell"]`) instead of `is_admin` ∥ profile |
+| Analytics uses `get_admin_analytics` | Single `getAdminAnalytics` `data_read` span; no ~32 count fan-out |
+| Editor option loads | No `option_load` on editor mount; first load on search/picker focus |
+| Inbox ILIKE | Trigram GIN indexes only (no app change); measure search lists after migrate |
+
+Measure with **`npm run build && npm run start`** and `ADMIN_PERF_TRACKING=true` — not `next dev` / Turbopack — so timings are comparable.

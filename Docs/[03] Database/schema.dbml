@@ -76,6 +76,9 @@ Table interest_registrations {
     (email) [name: 'interest_registrations_email_idx']
     (email, company_name) [name: 'interest_registrations_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
     (inbox_status, created_at) [name: 'interest_registrations_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
+    full_name [type: gin, name: 'interest_registrations_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    email [type: gin, name: 'interest_registrations_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    company_name [type: gin, name: 'interest_registrations_company_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
   }
 
   Note: '''
@@ -119,6 +122,9 @@ Table applications {
     (email) [name: 'applications_email_idx']
     (email, company_name) [name: 'applications_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
     (inbox_status, created_at) [name: 'applications_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
+    full_name [type: gin, name: 'applications_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    email [type: gin, name: 'applications_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    company_name [type: gin, name: 'applications_company_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
   }
 
   Note: '''
@@ -160,6 +166,9 @@ Table contact_messages {
     (email) [name: 'contact_messages_email_idx']
     (enquiry_type, created_at) [name: 'contact_messages_enquiry_type_idx', note: 'created_at DESC — admin inbox filter']
     (inbox_status, created_at) [name: 'contact_messages_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
+    full_name [type: gin, name: 'contact_messages_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    email [type: gin, name: 'contact_messages_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
+    subject [type: gin, name: 'contact_messages_subject_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
   }
 
   Note: '''
@@ -613,11 +622,13 @@ Table impact_metrics {
     RLS enabled. Impact Metric content type (CMS Phase 2).
 
     Grants:
+    - anon: SELECT
     - authenticated: SELECT, INSERT, UPDATE, DELETE
     - service_role: SELECT, INSERT, UPDATE, DELETE
-    - anon: none (public SELECT deferred to Phase 6)
 
-    Policies (authenticated):
+    Policies:
+    - Anyone can read verified impact metrics — SELECT TO anon,
+      authenticated USING (publish_status = 'verified')
     - Admins can read/insert/update/delete — is_admin()
 
     Trigger: impact_metrics_set_updated_at BEFORE UPDATE
