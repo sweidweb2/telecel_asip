@@ -1,5 +1,9 @@
 import { cache } from "react";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -16,35 +20,45 @@ import {
 
 export const FOUNDER_STORIES_CACHE_TAG = "founder-stories";
 
+/** Cap startup picker so editor pages stay bounded. */
+const STORY_PICKER_LIMIT = 500;
+
+/** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
+const DETAIL_LINK_LIMIT = 500;
+
 const LIST_COLUMNS =
-  "id, startup_id, the_problem, publish_status, quote_permission_status, founder_quote_text, created_at, updated_at, startups!inner(name)" as const;
+  "id, publish_status, quote_permission_status, updated_at, startups!inner(name)" as const;
 
 const DETAIL_COLUMNS =
   "id, startup_id, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
+type StoryListRow = {
+  id: string;
+  publish_status: FounderStory["publish_status"];
+  quote_permission_status: FounderStory["quote_permission_status"];
+  updated_at: string;
+  startups: { name: string } | { name: string }[] | null;
+};
+
 type StoryRowWithStartup = FounderStory & {
   startups: { name: string } | { name: string }[] | null;
 };
 
 function startupNameFromJoin(
-  startups: StoryRowWithStartup["startups"],
+  startups: StoryListRow["startups"],
 ): string {
   if (!startups) return "";
   if (Array.isArray(startups)) return startups[0]?.name ?? "";
   return startups.name ?? "";
 }
 
-function toListItem(row: StoryRowWithStartup): FounderStoryListItem {
+function toListItem(row: StoryListRow): FounderStoryListItem {
   return {
     id: row.id,
-    startup_id: row.startup_id,
-    the_problem: row.the_problem,
     publish_status: row.publish_status,
     quote_permission_status: row.quote_permission_status,
-    founder_quote_text: row.founder_quote_text,
-    created_at: row.created_at,
     updated_at: row.updated_at,
     startup_name: startupNameFromJoin(row.startups),
   };
@@ -62,8 +76,7 @@ async function fetchFounderStoriesPage(
   supabase: ServerClient,
   query: FounderStoryListQuery,
 ): Promise<FounderStoryListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("founder_stories")
@@ -86,9 +99,9 @@ async function fetchFounderStoriesPage(
 
   const total = count ?? 0;
   return {
-    stories: ((data ?? []) as unknown as StoryRowWithStartup[]).map(toListItem),
+    stories: ((data ?? []) as unknown as StoryListRow[]).map(toListItem),
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -145,6 +158,7 @@ export const getFounderStoryByIdForAdmin = cache(
 /**
  * Startups available for a new story picker. Excludes startups that already
  * have a story, unless `includeStartupId` is passed (edit mode).
+ * Taken-id lookup is scoped to the candidate startup page (not unbounded).
  */
 export async function getStartupsForStoryPicker(options?: {
   includeStartupId?: string;
@@ -157,26 +171,51 @@ export async function getStartupsForStoryPicker(options?: {
   if (adminError) throw adminError;
   if (!isAdmin) return { status: "forbidden" };
 
-  const [startupsResult, takenResult] = await Promise.all([
-    supabase
-      .from("startups")
-      .select("id, name")
-      .order("name", { ascending: true }),
-    supabase.from("founder_stories").select("startup_id"),
-  ]);
+  const includeId = options?.includeStartupId;
+
+  const startupsResult = await supabase
+    .from("startups")
+    .select("id, name")
+    .order("name", { ascending: true })
+    .limit(STORY_PICKER_LIMIT);
 
   if (startupsResult.error) throw startupsResult.error;
+
+  let candidates = (startupsResult.data ?? []) as StartupStoryOption[];
+
+  if (includeId && !candidates.some((row) => row.id === includeId)) {
+    const includedResult = await supabase
+      .from("startups")
+      .select("id, name")
+      .eq("id", includeId)
+      .maybeSingle();
+    if (includedResult.error) throw includedResult.error;
+    if (includedResult.data) {
+      candidates = [includedResult.data as StartupStoryOption, ...candidates];
+    }
+  }
+
+  const candidateIds = candidates.map((row) => row.id);
+  if (candidateIds.length === 0) {
+    return { status: "ok", startups: [] };
+  }
+
+  const takenResult = await supabase
+    .from("founder_stories")
+    .select("startup_id")
+    .in("startup_id", candidateIds)
+    .limit(DETAIL_LINK_LIMIT);
+
   if (takenResult.error) throw takenResult.error;
 
   const taken = new Set(
     (takenResult.data ?? []).map((row) => row.startup_id as string),
   );
-  const includeId = options?.includeStartupId;
 
-  const startups = (startupsResult.data ?? []).filter((row) => {
+  const startups = candidates.filter((row) => {
     if (includeId && row.id === includeId) return true;
     return !taken.has(row.id);
-  }) as StartupStoryOption[];
+  });
 
   return { status: "ok", startups };
 }

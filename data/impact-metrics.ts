@@ -1,5 +1,9 @@
 import { cache } from "react";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -16,7 +20,7 @@ import {
 export const IMPACT_METRICS_CACHE_TAG = "impact-metrics";
 
 const LIST_COLUMNS =
-  "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at, evidence_records(primary_source)" as const;
+  "id, claim_label, value, unit, impact_lens, evidence_id, publish_status, updated_at, evidence_records(primary_source)" as const;
 
 const DETAIL_COLUMNS =
   "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at" as const;
@@ -44,8 +48,7 @@ async function fetchImpactMetricsPage(
   supabase: ServerClient,
   query: ImpactMetricListQuery,
 ): Promise<ImpactMetricListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("impact_metrics")
@@ -76,7 +79,7 @@ async function fetchImpactMetricsPage(
   return {
     metrics: ((data ?? []) as ListRow[]).map(toListItem),
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 

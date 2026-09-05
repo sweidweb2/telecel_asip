@@ -627,8 +627,11 @@ Table founder_stories {
     - Admins can insert/update/delete — is_admin()
 
     CHECK founder_stories_quote_block_chk: non-empty founder_quote_text
-    requires attribution name + quote_permission_status. Publish-time
-    "must be granted" is enforced in Zod (drafts may keep pending).
+    requires attribution name + quote_permission_status.
+
+    CHECK founder_stories_published_quote_granted_chk: when publish_status =
+    published and quote text is non-empty, quote_permission_status must be
+    granted (drafts may keep pending/denied). Also enforced in Zod.
 
     Additive to startups / startup_details — does not replace problem/solution.
     Evidence M2M (founder_story_evidence) deferred on purpose for Phase 4

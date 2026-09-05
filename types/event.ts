@@ -6,7 +6,21 @@ export type CmsPublishStatus = "draft" | "published";
 
 export type Event = Tables<"events">;
 
+/** Lean list row — table columns only. */
 export type EventListItem = Pick<
+  Event,
+  | "id"
+  | "name"
+  | "event_date"
+  | "location"
+  | "format"
+  | "publish_status"
+  | "created_at"
+  | "updated_at"
+>;
+
+/** Detail / edit payload including heavy fields and startup links. */
+export type EventDetail = Pick<
   Event,
   | "id"
   | "name"
@@ -20,11 +34,8 @@ export type EventListItem = Pick<
   | "created_at"
   | "updated_at"
 > & {
-  /** Loaded with the admin list so row edit does not wipe links. */
   startup_ids: string[];
 };
-
-export type EventDetail = EventListItem;
 
 export type EventListResult = {
   events: EventListItem[];

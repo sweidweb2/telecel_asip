@@ -1,11 +1,11 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-
-import { ROUTES } from "@/constants/routes";
-import { COHORTS_CACHE_TAG } from "@/data/cohorts";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import { getAdminResource } from "@/constants/admin-resources";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import {
   createCohortSchema,
   deleteCohortSchema,
@@ -15,9 +15,9 @@ import {
   type UpdateCohortInput,
 } from "@/validations/cohort";
 
-export type CohortActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type CohortActionResult = AdminActionResult;
+
+const resource = getAdminResource("cohorts");
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage cohorts.",
@@ -39,9 +39,12 @@ const PG_MESSAGES = {
   uniqueConstraint: "cohorts_year_public_label",
 };
 
-function refreshCohortPaths() {
-  revalidateTag(COHORTS_CACHE_TAG, "max");
-  revalidatePath(ROUTES.cohorts);
+function refreshCohortPaths(id?: string) {
+  refreshAdminResource({
+    listPath: resource.listPath,
+    detailPath: id ? `${resource.listPath}/${id}` : undefined,
+    cacheTags: resource.cacheTags,
+  });
 }
 
 function toCohortJson(input: CreateCohortInput) {
@@ -60,108 +63,99 @@ function toCohortJson(input: CreateCohortInput) {
 export async function createCohort(
   input: CreateCohortInput,
 ): Promise<CohortActionResult> {
-  const parsed = createCohortSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: createCohortSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_cohort_with_links",
+        {
+          p_cohort: toCohortJson(data),
+          p_partner_ids: data.partnerIds,
+          p_startup_ids: data.startupIds,
+        },
+      );
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc("create_cohort_with_links", {
-    p_cohort: toCohortJson(parsed.data),
-    p_partner_ids: parsed.data.partnerIds,
-    p_startup_ids: parsed.data.startupIds,
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", pgError: error ?? {} };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: () => refreshCohortPaths(),
   });
-
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return {
-      status: "error",
-      message: mapPgActionError(error ?? {}, PG_MESSAGES),
-    };
-  }
-
-  refreshCohortPaths();
-  return {
-    status: "success",
-    message: MESSAGES.createSuccess,
-    id: row.id,
-  };
 }
 
 export async function updateCohort(
   input: UpdateCohortInput,
 ): Promise<CohortActionResult> {
-  const parsed = updateCohortSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updateCohortSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { id, ...rest } = data;
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_cohort_with_links",
+        {
+          p_id: id,
+          p_cohort: toCohortJson(rest),
+          p_partner_ids: rest.partnerIds,
+          p_startup_ids: rest.startupIds,
+        },
+      );
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { id, ...rest } = parsed.data;
-
-  const { data, error } = await session.supabase.rpc("update_cohort_with_links", {
-    p_id: id,
-    p_cohort: toCohortJson(rest),
-    p_partner_ids: rest.partnerIds,
-    p_startup_ids: rest.startupIds,
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", pgError: error ?? {} };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshCohortPaths(id),
   });
-
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return {
-      status: "error",
-      message: mapPgActionError(error ?? {}, PG_MESSAGES),
-    };
-  }
-
-  refreshCohortPaths();
-  revalidatePath(`${ROUTES.cohorts}/${id}`);
-  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
 }
 
 export async function deleteCohort(
   input: DeleteCohortInput,
 ): Promise<CohortActionResult> {
-  const parsed = deleteCohortSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: deleteCohortSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: existing } = await session.supabase
+        .from("cohorts")
+        .select("id")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing } = await session.supabase
-    .from("cohorts")
-    .select("id")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error } = await session.supabase
+        .from("cohorts")
+        .delete()
+        .eq("id", data.id);
 
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  const { error } = await session.supabase
-    .from("cohorts")
-    .delete()
-    .eq("id", parsed.data.id);
-
-  if (error) {
-    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
-  }
-
-  refreshCohortPaths();
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      if (error) {
+        return { status: "error", pgError: error };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshCohortPaths(),
+  });
 }

@@ -4,6 +4,10 @@ import {
   CMS_PUBLISH_STATUSES,
   type CmsPublishStatus,
 } from "@/constants/cms-publish";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 export {
   CMS_PUBLISH_STATUSES,
@@ -141,21 +145,11 @@ export type CohortListQuery = z.infer<typeof cohortListQueryInputSchema> & {
   pageSize: typeof COHORT_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseCohortListQuery(input: RawSearchParams): CohortListQuery {
-  const parsed = cohortListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: cohortListQueryInputSchema,
     pageSize: COHORT_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "", status: "all" },
+  });
 }

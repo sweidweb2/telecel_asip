@@ -7,6 +7,10 @@ import { ROUTES } from "@/constants/routes";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
@@ -23,9 +27,7 @@ import {
   type UpdateBlogInput,
 } from "@/validations/blog";
 
-export type BlogActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type BlogActionResult = AdminActionResult;
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage blogs.",
@@ -179,51 +181,50 @@ export async function updateBlog(
 export async function deleteBlog(
   input: DeleteBlogInput,
 ): Promise<BlogActionResult> {
-  const parsed = deleteBlogSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: deleteBlogSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: existing } = await session.supabase
+        .from("blogs")
+        .select("id, slug, thumbnail_url, author_avatar_url")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing } = await session.supabase
-    .from("blogs")
-    .select("id, slug, thumbnail_url, author_avatar_url")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error } = await session.supabase
+        .from("blogs")
+        .delete()
+        .eq("id", data.id);
 
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (error) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const { error } = await session.supabase
-    .from("blogs")
-    .delete()
-    .eq("id", parsed.data.id);
+      // Storage only after the row is gone: a failure here leaks an orphan object
+      // instead of leaving a live row pointing at a deleted image.
+      await removeStorageUrlIfOwned(
+        session.supabase,
+        existing.thumbnail_url,
+        COVER_BUCKET,
+      );
+      await removeStorageUrlIfOwned(
+        session.supabase,
+        existing.author_avatar_url,
+        AUTHOR_BUCKET,
+      );
 
-  if (error) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-
-  // Storage only after the row is gone: a failure here leaks an orphan object
-  // instead of leaving a live row pointing at a deleted image.
-  await removeStorageUrlIfOwned(
-    session.supabase,
-    existing.thumbnail_url,
-    COVER_BUCKET,
-  );
-  await removeStorageUrlIfOwned(
-    session.supabase,
-    existing.author_avatar_url,
-    AUTHOR_BUCKET,
-  );
-
-  refreshBlogPaths(existing.slug);
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      refreshBlogPaths(existing.slug);
+      return { status: "success" };
+    },
+  });
 }
 
 function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {

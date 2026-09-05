@@ -5,20 +5,16 @@ export type ImpactPublishStatus = Enums<"evidence_status">;
 
 export type ImpactMetric = Tables<"impact_metrics">;
 
+/** Lean list row — table columns only. */
 export type ImpactMetricListItem = Pick<
   ImpactMetric,
   | "id"
   | "claim_label"
   | "value"
   | "unit"
-  | "period_start"
-  | "period_end"
-  | "geography"
   | "impact_lens"
-  | "display_locations"
   | "evidence_id"
   | "publish_status"
-  | "created_at"
   | "updated_at"
 > & {
   /** Joined from `evidence_records.primary_source` for admin table display. */

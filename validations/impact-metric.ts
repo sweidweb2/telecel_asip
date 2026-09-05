@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const IMPACT_METRIC_PAGE_SIZE = 20;
 
 export const IMPACT_CLAIM_LABEL_MAX = 200;
@@ -153,21 +158,18 @@ export type ImpactMetricListQuery = z.infer<
   pageSize: typeof IMPACT_METRIC_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseImpactMetricListQuery(
   input: RawSearchParams,
 ): ImpactMetricListQuery {
-  const parsed = impactMetricListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    lens: first(input.lens) ?? "all",
-    publishStatus: first(input.publishStatus) ?? "all",
+  return parseAdminListQuery({
+    input,
+    schema: impactMetricListQueryInputSchema,
+    pageSize: IMPACT_METRIC_PAGE_SIZE,
+    defaults: {
+      page: "1",
+      search: "",
+      lens: "all",
+      publishStatus: "all",
+    },
   });
-
-  return { ...parsed, pageSize: IMPACT_METRIC_PAGE_SIZE };
 }

@@ -5,16 +5,10 @@ export type QuotePermissionStatus = "granted" | "pending" | "denied";
 
 export type FounderStory = Tables<"founder_stories">;
 
+/** Lean list row — table columns only (no long narrative fields). */
 export type FounderStoryListItem = Pick<
   FounderStory,
-  | "id"
-  | "startup_id"
-  | "the_problem"
-  | "publish_status"
-  | "quote_permission_status"
-  | "founder_quote_text"
-  | "created_at"
-  | "updated_at"
+  "id" | "publish_status" | "quote_permission_status" | "updated_at"
 > & {
   startup_name: string;
 };

@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { ImpactMetricFormDialog } from "@/components/impact-metrics/impact-metric-form-dialog";
 import { ImpactMetricsTable } from "@/components/impact-metrics/impact-metrics-table";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
+import { getImpactMetricsPageData } from "@/data/impact-metrics";
 import {
-  getImpactMetricsPageData,
-  listEvidenceOptionsForAdmin,
-} from "@/data/impact-metrics";
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseImpactMetricListQuery } from "@/validations/impact-metric";
 
+const resource = getAdminResource("impactMetrics");
+
 export const metadata: Metadata = {
-  title: "Impact metrics | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type ImpactMetricsPageProps = {
@@ -22,53 +25,31 @@ export default async function ImpactMetricsPage({
   searchParams,
 }: ImpactMetricsPageProps) {
   const query = parseImpactMetricListQuery(await searchParams);
-  const [result, evidenceResult] = await Promise.all([
-    getImpactMetricsPageData(query),
-    listEvidenceOptionsForAdmin(),
-  ]);
-
-  if (result.status === "forbidden" || evidenceResult.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
-
-  const { list } = result;
-  const evidenceOptions = evidenceResult.options;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({ page: String(list.totalPages) });
-    if (query.search) params.set("search", query.search);
-    if (query.lens !== "all") params.set("lens", query.lens);
-    if (query.publishStatus !== "all") {
-      params.set("publishStatus", query.publishStatus);
-    }
-    redirect(`${ROUTES.impactMetrics}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getImpactMetricsPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        lens: q.lens !== "all" ? q.lens : undefined,
+        publishStatus:
+          q.publishStatus !== "all" ? q.publishStatus : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            Impact metrics
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Evidence-backed claims for Home and Impact. Only verified metrics
-            may go live later.
-          </p>
-        </div>
-        <ImpactMetricFormDialog
-          mode="create"
-          evidenceOptions={evidenceOptions}
-        />
-      </div>
-
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+      actions={<ImpactMetricFormDialog mode="create" />}
+    >
       <ImpactMetricsTable
         metrics={list.metrics}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
-        evidenceOptions={evidenceOptions}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

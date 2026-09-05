@@ -9,8 +9,14 @@ import { toast } from "sonner";
 
 import {
   createImpactMetric,
+  loadImpactEvidenceOptions,
   updateImpactMetric,
 } from "@/actions/impact-metrics";
+import {
+  ADMIN_FORM_PAIR_FIELD,
+  ADMIN_FORM_PAIR_ROW,
+  AdminFormFieldLabel,
+} from "@/components/dashboard/admin-form-layout";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -38,6 +43,7 @@ import {
 } from "@/constants/impact-metric-labels";
 import type {
   EvidenceOption,
+  ImpactMetric,
   ImpactMetricListItem,
 } from "@/types/impact-metric";
 import {
@@ -52,30 +58,7 @@ import {
   type ImpactMetricFormValues,
 } from "@/validations/impact-metric";
 
-const PAIR_ROW =
-  "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-x-5 sm:gap-y-2";
-const PAIR_FIELD = "sm:row-span-3 sm:grid sm:grid-rows-subgrid";
-
-function FieldLabelRow({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: React.ReactNode;
-  hint: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-        {hint}
-      </span>
-    </div>
-  );
-}
-
-function defaultsFor(metric?: ImpactMetricListItem): ImpactMetricFormValues {
+function defaultsFor(metric?: ImpactMetric): ImpactMetricFormValues {
   return {
     claimLabel: metric?.claim_label ?? "",
     value: metric?.value ?? "",
@@ -92,8 +75,9 @@ function defaultsFor(metric?: ImpactMetricListItem): ImpactMetricFormValues {
 
 type ImpactMetricFormDialogProps = {
   mode: "create" | "edit";
-  metric?: ImpactMetricListItem;
-  evidenceOptions: EvidenceOption[];
+  metric?: ImpactMetric;
+  /** Preloaded options (detail edit). Create dialog loads on open when omitted. */
+  evidenceOptions?: EvidenceOption[];
   triggerRender?: React.ReactElement;
   triggerContent?: React.ReactNode;
 };
@@ -101,7 +85,7 @@ type ImpactMetricFormDialogProps = {
 export function ImpactMetricFormDialog({
   mode,
   metric,
-  evidenceOptions,
+  evidenceOptions: initialOptions,
   triggerRender,
   triggerContent,
 }: ImpactMetricFormDialogProps) {
@@ -109,6 +93,10 @@ export function ImpactMetricFormDialog({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [evidenceOptions, setEvidenceOptions] = useState<EvidenceOption[]>(
+    initialOptions ?? [],
+  );
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const form = useForm<
     ImpactMetricFormValues,
@@ -120,9 +108,32 @@ export function ImpactMetricFormDialog({
     defaultValues: defaultsFor(metric),
   });
 
-  function handleOpenChange(next: boolean) {
+  async function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) form.reset(defaultsFor(metric));
+    if (!next) return;
+
+    form.reset(defaultsFor(metric));
+
+    if (initialOptions) {
+      setEvidenceOptions(initialOptions);
+      return;
+    }
+
+    setOptionsLoading(true);
+    try {
+      const result = await loadImpactEvidenceOptions();
+      if (result.status === "error") {
+        toast.error(result.message);
+        setEvidenceOptions([]);
+        return;
+      }
+      setEvidenceOptions(result.options);
+    } catch {
+      toast.error("Could not load evidence options. Please try again.");
+      setEvidenceOptions([]);
+    } finally {
+      setOptionsLoading(false);
+    }
   }
 
   function onSubmit(values: CreateImpactMetricInput) {
@@ -176,12 +187,12 @@ export function ImpactMetricFormDialog({
         >
           <FieldGroup>
             <Field data-invalid={!!form.formState.errors.claimLabel}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-claim`}
                 hint={`2–${IMPACT_CLAIM_LABEL_MAX}`}
               >
                 Claim label
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Input
                 id={`${formId}-claim`}
                 maxLength={IMPACT_CLAIM_LABEL_MAX}
@@ -193,17 +204,17 @@ export function ImpactMetricFormDialog({
               </FieldError>
             </Field>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.value}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-value`}
                   hint={`Max ${IMPACT_VALUE_MAX}`}
                 >
                   Value
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-value`}
                   maxLength={IMPACT_VALUE_MAX}
@@ -214,15 +225,15 @@ export function ImpactMetricFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.unit}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-unit`}
                   hint={`Optional · max ${IMPACT_UNIT_MAX}`}
                 >
                   Unit
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-unit`}
                   maxLength={IMPACT_UNIT_MAX}
@@ -233,14 +244,14 @@ export function ImpactMetricFormDialog({
               </Field>
             </div>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.periodStart}
               >
-                <FieldLabelRow htmlFor={`${formId}-start`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-start`} hint="Required">
                   Period start
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-start`}
                   type="date"
@@ -253,12 +264,12 @@ export function ImpactMetricFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.periodEnd}
               >
-                <FieldLabelRow htmlFor={`${formId}-end`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-end`} hint="Required">
                   Period end
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-end`}
                   type="date"
@@ -272,9 +283,9 @@ export function ImpactMetricFormDialog({
             </div>
 
             <Field data-invalid={!!form.formState.errors.evidenceId}>
-              <FieldLabelRow htmlFor={`${formId}-evidence`} hint="Required">
+              <AdminFormFieldLabel htmlFor={`${formId}-evidence`} hint="Required">
                 Evidence record
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Controller
                 control={form.control}
                 name="evidenceId"
@@ -288,7 +299,13 @@ export function ImpactMetricFormDialog({
                       className="w-full min-h-11 sm:min-h-8"
                       aria-invalid={!!form.formState.errors.evidenceId}
                     >
-                      <SelectValue placeholder="Select evidence" />
+                      <SelectValue
+                        placeholder={
+                          optionsLoading
+                            ? "Loading evidence…"
+                            : "Select evidence"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {evidenceOptions.map((option) => (
@@ -305,14 +322,14 @@ export function ImpactMetricFormDialog({
               </FieldError>
             </Field>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.publishStatus}
               >
-                <FieldLabelRow htmlFor={`${formId}-status`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-status`} hint="Required">
                   Publish status
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="publishStatus"
@@ -345,12 +362,12 @@ export function ImpactMetricFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.impactLens}
               >
-                <FieldLabelRow htmlFor={`${formId}-lens`} hint="Optional">
+                <AdminFormFieldLabel htmlFor={`${formId}-lens`} hint="Optional">
                   Impact lens
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="impactLens"
@@ -387,12 +404,12 @@ export function ImpactMetricFormDialog({
             </div>
 
             <Field data-invalid={!!form.formState.errors.geography}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-geography`}
                 hint={`Optional · max ${IMPACT_GEOGRAPHY_MAX}`}
               >
                 Geography
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Input
                 id={`${formId}-geography`}
                 maxLength={IMPACT_GEOGRAPHY_MAX}
@@ -405,12 +422,12 @@ export function ImpactMetricFormDialog({
             </Field>
 
             <Field data-invalid={!!form.formState.errors.displayLocations}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-locations`}
                 hint="One per line"
               >
                 Display locations
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-locations`}
                 rows={3}
@@ -437,7 +454,7 @@ export function ImpactMetricFormDialog({
           <Button
             type="submit"
             form={formId}
-            disabled={isPending || evidenceOptions.length === 0}
+            disabled={isPending || optionsLoading || evidenceOptions.length === 0}
             className="min-h-11 w-full sm:min-h-8 sm:w-auto"
           >
             {isPending ? (

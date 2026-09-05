@@ -4,6 +4,10 @@ import {
   CMS_PUBLISH_STATUSES,
   type CmsPublishStatus,
 } from "@/constants/cms-publish";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 export {
   CMS_PUBLISH_STATUSES,
@@ -181,18 +185,11 @@ export type EventListQuery = z.infer<typeof eventListQueryInputSchema> & {
   pageSize: typeof EVENT_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseEventListQuery(input: RawSearchParams): EventListQuery {
-  const parsed = eventListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
+  return parseAdminListQuery({
+    input,
+    schema: eventListQueryInputSchema,
+    pageSize: EVENT_PAGE_SIZE,
+    defaults: { page: "1", search: "", status: "all" },
   });
-
-  return { ...parsed, pageSize: EVENT_PAGE_SIZE };
 }

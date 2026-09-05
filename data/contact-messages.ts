@@ -1,3 +1,8 @@
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ContactMessage,
@@ -14,8 +19,7 @@ async function fetchContactMessages(
   supabase: ServerClient,
   query: ContactMessageListQuery,
 ): Promise<ContactMessageListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("contact_messages")
@@ -41,7 +45,7 @@ async function fetchContactMessages(
   return {
     messages: (data ?? []) as ContactMessage[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -51,12 +55,8 @@ export async function getContactMessagesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ContactMessageListResult }
 > {
-  const supabase = await createClient();
-
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const list = await fetchContactMessages(supabase, query);
-  return { status: "ok", list };
+  return gateAdminPageData(async (supabase) => {
+    const list = await fetchContactMessages(supabase, query);
+    return { list };
+  });
 }

@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useTransition } from "react";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon, SearchIcon } from "lucide-react";
 
 import { BlogAdminCard } from "@/components/blogs/blog-admin-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ROUTES } from "@/constants/routes";
+import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import type { BlogListItem } from "@/types/blog";
 import type { BlogListQuery } from "@/validations/blog";
 
@@ -33,21 +36,22 @@ export function BlogsAdminList({
   query,
 }: BlogsAdminListProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  function updateParams(patch: Record<string, string>) {
-    const params = new URLSearchParams();
-    const next = {
-      page: String(query.page),
+  const searchParams = useSearchParams();
+  const [isPagePending, startPageTransition] = useTransition();
+  const { search, isPending, navigate, handleSearchChange } =
+    useAdminListFilters({
+      basePath: ROUTES.blogs,
       search: query.search,
-      status: query.status,
-      ...patch,
-    };
-    if (next.page !== "1") params.set("page", next.page);
-    if (next.search) params.set("search", next.search);
-    if (next.status !== "all") params.set("status", next.status);
-    const qs = params.toString();
-    startTransition(() => {
+    });
+
+  const busy = isPending || isPagePending;
+
+  function goToPage(page: number) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (page <= 1) next.delete("page");
+    else next.set("page", String(page));
+    const qs = next.toString();
+    startPageTransition(() => {
       router.push(qs ? `${ROUTES.blogs}?${qs}` : ROUTES.blogs);
     });
   }
@@ -55,37 +59,32 @@ export function BlogsAdminList({
   return (
     <div className="grid gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <form
-          className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const form = new FormData(event.currentTarget);
-            updateParams({
-              search: String(form.get("search") ?? "").trim(),
-              page: "1",
-            });
-          }}
-        >
+        <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
+            <Label htmlFor="blogs-search" className="sr-only">
+              Search blogs
+            </Label>
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              // Submit reads FormData, so the field stays uncontrolled. The key
-              // remounts it when the URL query changes (back/forward, filters).
-              key={query.search}
-              name="search"
-              defaultValue={query.search}
+              id="blogs-search"
+              type="search"
+              value={search}
+              onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="Search title, slug, or author"
+              maxLength={100}
+              autoComplete="off"
               className="min-h-11 pl-9"
-              disabled={isPending}
             />
+            {isPending ? (
+              <Loader2Icon className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            ) : null}
           </div>
           <Select
             value={query.status}
             onValueChange={(value) => {
-              if (!value) return;
-              updateParams({ status: value, page: "1" });
+              if (value) navigate({ status: value });
             }}
-            disabled={isPending}
+            disabled={busy}
           >
             <SelectTrigger className="min-h-11 w-full sm:w-44">
               <SelectValue placeholder="Status" />
@@ -96,10 +95,7 @@ export function BlogsAdminList({
               <SelectItem value="published">Published</SelectItem>
             </SelectContent>
           </Select>
-          <Button type="submit" variant="secondary" className="min-h-11">
-            Search
-          </Button>
-        </form>
+        </div>
         <Button
           className="min-h-11 w-full sm:w-auto"
           nativeButton={false}
@@ -146,10 +142,8 @@ export function BlogsAdminList({
             type="button"
             variant="outline"
             className="min-h-11"
-            disabled={isPending || query.page <= 1}
-            onClick={() =>
-              updateParams({ page: String(Math.max(1, query.page - 1)) })
-            }
+            disabled={busy || query.page <= 1}
+            onClick={() => goToPage(Math.max(1, query.page - 1))}
           >
             Previous
           </Button>
@@ -160,12 +154,8 @@ export function BlogsAdminList({
             type="button"
             variant="outline"
             className="min-h-11"
-            disabled={isPending || query.page >= totalPages}
-            onClick={() =>
-              updateParams({
-                page: String(Math.min(totalPages, query.page + 1)),
-              })
-            }
+            disabled={busy || query.page >= totalPages}
+            onClick={() => goToPage(Math.min(totalPages, query.page + 1))}
           >
             Next
           </Button>

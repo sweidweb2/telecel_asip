@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { CreateUserDialog } from "@/components/users/user-dialogs";
 import { UserStatsCards } from "@/components/users/user-stats";
 import { UsersTable } from "@/components/users/users-table";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
 import { getUsersPageData } from "@/data/users";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseUserListQuery } from "@/validations/users";
 
+const resource = getAdminResource("users");
+
 export const metadata: Metadata = {
-  title: "Users | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type UsersPageProps = {
@@ -18,35 +24,23 @@ type UsersPageProps = {
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
   const query = parseUserListQuery(await searchParams);
-  const result = await getUsersPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list, stats } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({
-      page: String(list.totalPages),
-    });
-    if (query.search) params.set("search", query.search);
-    if (query.role !== "all") params.set("role", query.role);
-    redirect(`${ROUTES.users}?${params.toString()}`);
-  }
+  const { list, stats } = await loadAdminListPage({
+    query,
+    fetchPage: getUsersPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        role: q.role !== "all" ? q.role : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            Users
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create accounts and manage profile access across the CMS.
-          </p>
-        </div>
-        <CreateUserDialog />
-      </div>
-
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+      actions={<CreateUserDialog />}
+    >
       <UserStatsCards stats={stats} />
 
       <UsersTable
@@ -55,6 +49,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

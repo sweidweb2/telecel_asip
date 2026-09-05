@@ -4,18 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { ClipboardListIcon } from "lucide-react";
 
+import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { RegistrationRowActions } from "@/components/registrations/registration-dialogs";
 import { RegistrationsFilters } from "@/components/registrations/registrations-filters";
-import { AdminPagination } from "@/components/dashboard/admin-pagination";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import type { InterestRegistration } from "@/types/interest-registration";
 import {
@@ -59,84 +51,69 @@ export function RegistrationsTable({
   }, [clientSearch, query.search, registrations]);
 
   return (
-    <Card className="min-w-0 gap-0 overflow-hidden py-0">
-      <RegistrationsFilters query={query} onSearchChange={onSearchChange} />
-
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-4">Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Sector</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleRegistrations.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-48 text-center">
-                    <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-                      <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-                        <ClipboardListIcon className="size-5 text-muted-foreground" />
-                      </span>
-                      <p className="font-medium">No registrations found</p>
-                      <p className="text-sm text-muted-foreground">
-                        Try changing the search, or wait for new interest
-                        submissions from the apply form.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                visibleRegistrations.map((registration) => (
-                  <TableRow key={registration.id}>
-                    <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
-                      {registration.full_name}
-                    </TableCell>
-                    <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
-                      {registration.email}
-                    </TableCell>
-                    <TableCell className="max-w-[10rem] truncate sm:max-w-[14rem]">
-                      {registration.company_name}
-                    </TableCell>
-                    <TableCell className="max-w-[8rem] truncate">
-                      {registration.sector}
-                    </TableCell>
-                    <TableCell className="max-w-[8rem] truncate">
-                      {registration.country}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {format(
-                        new Date(registration.created_at),
-                        "MMM d, yyyy",
-                      )}
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <RegistrationRowActions registration={registration} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+    <AdminDataTable
+      filters={
+        <RegistrationsFilters query={query} onSearchChange={onSearchChange} />
+      }
+      header={
+        <TableRow>
+          <TableHead className="pl-4">Name</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Company</TableHead>
+          <TableHead>Sector</TableHead>
+          <TableHead>Country</TableHead>
+          <TableHead>Submitted</TableHead>
+          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+        </TableRow>
+      }
+      isEmpty={visibleRegistrations.length === 0}
+      emptyColSpan={7}
+      empty={
+        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
+          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
+            <ClipboardListIcon className="size-5 text-muted-foreground" />
+          </span>
+          <p className="font-medium">No registrations found</p>
+          <p className="text-sm text-muted-foreground">
+            Try changing the search, or wait for new interest submissions from
+            the apply form.
+          </p>
         </div>
-      </CardContent>
-
-      <CardFooter className="border-t bg-transparent px-4 py-3">
-        <AdminPagination
-          basePath={ROUTES.registrations}
-          page={query.page}
-          pageSize={INTEREST_REGISTRATION_PAGE_SIZE}
-          total={total}
-          totalPages={totalPages}
-          filters={{ search: query.search }}
-        />
-      </CardFooter>
-    </Card>
+      }
+      pagination={{
+        basePath: ROUTES.registrations,
+        page: query.page,
+        pageSize: INTEREST_REGISTRATION_PAGE_SIZE,
+        total,
+        totalPages,
+        filters: { search: query.search },
+      }}
+    >
+      {visibleRegistrations.map((registration) => (
+        <TableRow key={registration.id}>
+          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+            {registration.full_name}
+          </TableCell>
+          <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
+            {registration.email}
+          </TableCell>
+          <TableCell className="max-w-[10rem] truncate sm:max-w-[14rem]">
+            {registration.company_name}
+          </TableCell>
+          <TableCell className="max-w-[8rem] truncate">
+            {registration.sector}
+          </TableCell>
+          <TableCell className="max-w-[8rem] truncate">
+            {registration.country}
+          </TableCell>
+          <TableCell className="whitespace-nowrap text-muted-foreground">
+            {format(new Date(registration.created_at), "MMM d, yyyy")}
+          </TableCell>
+          <TableCell className="pr-4">
+            <RegistrationRowActions registration={registration} />
+          </TableCell>
+        </TableRow>
+      ))}
+    </AdminDataTable>
   );
 }

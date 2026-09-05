@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { StartupsAdminList } from "@/components/startups/startups-admin-list";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
 import { getStartupsPageData } from "@/data/startups";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseStartupListQuery } from "@/validations/startup";
 
+const resource = getAdminResource("portfolio");
+
 export const metadata: Metadata = {
-  title: "Portfolio | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type PortfolioPageProps = {
@@ -18,38 +24,28 @@ export default async function PortfolioAdminPage({
   searchParams,
 }: PortfolioPageProps) {
   const query = parseStartupListQuery(await searchParams);
-  const result = await getStartupsPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({
-      page: String(list.totalPages),
-    });
-    if (query.search) params.set("search", query.search);
-    if (query.status !== "all") params.set("status", query.status);
-    redirect(`${ROUTES.portfolio}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getStartupsPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        status: q.status !== "all" ? q.status : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="min-w-0">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          Portfolio
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage startups shown on the public portfolio. Only active startups
-          are visible publicly.
-        </p>
-      </div>
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+    >
       <StartupsAdminList
         startups={list.startups}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

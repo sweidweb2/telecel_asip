@@ -1,5 +1,9 @@
 import { cache } from "react";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -13,9 +17,15 @@ import { eventIdSchema, type EventListQuery } from "@/validations/event";
 export const EVENTS_CACHE_TAG = "events";
 
 const LIST_COLUMNS =
+  "id, name, event_date, location, format, publish_status, created_at, updated_at" as const;
+
+const DETAIL_COLUMNS =
   "id, name, event_date, location, format, speakers, assets, outcomes, publish_status, created_at, updated_at" as const;
 
 const STARTUP_OPTIONS_LIMIT = 500;
+
+/** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
+const DETAIL_LINK_LIMIT = 500;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -23,8 +33,7 @@ async function fetchEventsPage(
   supabase: ServerClient,
   query: EventListQuery,
 ): Promise<EventListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("events")
@@ -46,33 +55,11 @@ async function fetchEventsPage(
   const { data, count, error } = await request;
   if (error) throw error;
 
-  const rows = data ?? [];
-  const eventIds = rows.map((row) => row.id);
-  const startupIdsByEvent = new Map<string, string[]>();
-
-  if (eventIds.length > 0) {
-    const { data: links, error: linksError } = await supabase
-      .from("event_startups")
-      .select("event_id, startup_id")
-      .in("event_id", eventIds);
-
-    if (linksError) throw linksError;
-
-    for (const link of links ?? []) {
-      const existing = startupIdsByEvent.get(link.event_id) ?? [];
-      existing.push(link.startup_id);
-      startupIdsByEvent.set(link.event_id, existing);
-    }
-  }
-
   const total = count ?? 0;
   return {
-    events: rows.map((row) => ({
-      ...(row as Omit<EventListItem, "startup_ids">),
-      startup_ids: startupIdsByEvent.get(row.id) ?? [],
-    })),
+    events: (data ?? []) as EventListItem[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -109,11 +96,12 @@ export const getEventByIdForAdmin = cache(
     if (!isAdmin) return { status: "forbidden" };
 
     const [eventResult, linksResult] = await Promise.all([
-      supabase.from("events").select(LIST_COLUMNS).eq("id", id).maybeSingle(),
+      supabase.from("events").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
       supabase
         .from("event_startups")
         .select("startup_id")
-        .eq("event_id", id),
+        .eq("event_id", id)
+        .limit(DETAIL_LINK_LIMIT),
     ]);
 
     if (eventResult.error) throw eventResult.error;
@@ -123,7 +111,7 @@ export const getEventByIdForAdmin = cache(
     return {
       status: "ok",
       event: {
-        ...(eventResult.data as EventListItem),
+        ...(eventResult.data as Omit<EventDetail, "startup_ids">),
         startup_ids: (linksResult.data ?? []).map((row) => row.startup_id),
       },
     };

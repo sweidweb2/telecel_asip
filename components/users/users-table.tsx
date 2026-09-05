@@ -4,19 +4,11 @@ import { useCallback, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { UserRoundSearchIcon } from "lucide-react";
 
+import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { UserRowActions } from "@/components/users/user-dialogs";
 import { UsersFilters } from "@/components/users/users-filters";
-import { AdminPagination } from "@/components/dashboard/admin-pagination";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import type { Profile } from "@/types/profile";
 import { USER_PAGE_SIZE, type UserListQuery } from "@/validations/users";
@@ -61,82 +53,65 @@ export function UsersTable({
   }, [clientSearch, query.search, users]);
 
   return (
-    <Card className="min-w-0 gap-0 overflow-hidden py-0">
-      <UsersFilters query={query} onSearchChange={onSearchChange} />
-
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-4">Full name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleUsers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-48 text-center">
-                    <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-                      <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-                        <UserRoundSearchIcon className="size-5 text-muted-foreground" />
-                      </span>
-                      <p className="font-medium">No users found</p>
-                      <p className="text-sm text-muted-foreground">
-                        Try changing the search or role filter, or create a new
-                        user.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                visibleUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
-                      {user.full_name || "—"}
-                    </TableCell>
-                    <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
-                      {user.email}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={ROLE_VARIANT[user.role]}>
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {format(new Date(user.created_at), "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {format(new Date(user.updated_at), "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <UserRowActions user={user} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+    <AdminDataTable
+      filters={<UsersFilters query={query} onSearchChange={onSearchChange} />}
+      header={
+        <TableRow>
+          <TableHead className="pl-4">Full name</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Role</TableHead>
+          <TableHead>Created</TableHead>
+          <TableHead>Updated</TableHead>
+          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+        </TableRow>
+      }
+      isEmpty={visibleUsers.length === 0}
+      emptyColSpan={6}
+      empty={
+        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
+          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
+            <UserRoundSearchIcon className="size-5 text-muted-foreground" />
+          </span>
+          <p className="font-medium">No users found</p>
+          <p className="text-sm text-muted-foreground">
+            Try changing the search or role filter, or create a new user.
+          </p>
         </div>
-      </CardContent>
-
-      <CardFooter className="border-t bg-transparent px-4 py-3">
-        <AdminPagination
-          basePath={ROUTES.users}
-          page={query.page}
-          pageSize={USER_PAGE_SIZE}
-          total={total}
-          totalPages={totalPages}
-          filters={{
-            search: query.search,
-            role: query.role === "all" ? undefined : query.role,
-          }}
-        />
-      </CardFooter>
-    </Card>
+      }
+      pagination={{
+        basePath: ROUTES.users,
+        page: query.page,
+        pageSize: USER_PAGE_SIZE,
+        total,
+        totalPages,
+        filters: {
+          search: query.search,
+          role: query.role === "all" ? undefined : query.role,
+        },
+      }}
+    >
+      {visibleUsers.map((user) => (
+        <TableRow key={user.id}>
+          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+            {user.full_name || "—"}
+          </TableCell>
+          <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
+            {user.email}
+          </TableCell>
+          <TableCell>
+            <Badge variant={ROLE_VARIANT[user.role]}>{user.role}</Badge>
+          </TableCell>
+          <TableCell className="whitespace-nowrap text-muted-foreground">
+            {format(new Date(user.created_at), "MMM d, yyyy")}
+          </TableCell>
+          <TableCell className="whitespace-nowrap text-muted-foreground">
+            {format(new Date(user.updated_at), "MMM d, yyyy")}
+          </TableCell>
+          <TableCell className="pr-4">
+            <UserRowActions user={user} />
+          </TableCell>
+        </TableRow>
+      ))}
+    </AdminDataTable>
   );
 }

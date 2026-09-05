@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import {
+  firstSearchParam,
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const STARTUP_PAGE_SIZE = 12;
 export const STARTUP_PUBLIC_PAGE_SIZE = 6;
 export const PORTFOLIO_SEARCH_MAX = 100;
@@ -209,31 +215,21 @@ export type StartupListQuery = z.infer<typeof startupListQueryInputSchema> & {
   pageSize: typeof STARTUP_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseStartupListQuery(
   input: RawSearchParams,
 ): StartupListQuery {
-  const parsed = startupListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: startupListQueryInputSchema,
     pageSize: STARTUP_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "", status: "all" },
+  });
 }
 
 export function parsePortfolioPageParam(
   value: string | string[] | undefined,
 ): number {
-  const raw = first(value) ?? "1";
+  const raw = firstSearchParam(value) ?? "1";
   const page = Number.parseInt(raw, 10);
   if (!Number.isFinite(page) || page < 1) return 1;
   return Math.min(page, 10_000);
@@ -243,7 +239,7 @@ function parsePublicFilterParam(
   value: string | string[] | undefined,
   max = 100,
 ): string | null {
-  const raw = first(value)?.trim();
+  const raw = firstSearchParam(value)?.trim();
   return raw ? raw.slice(0, max) : null;
 }
 
@@ -251,7 +247,7 @@ function parsePublicFilterParam(
 export function parsePortfolioSearchParam(
   value: string | string[] | undefined,
 ): string {
-  return (first(value) ?? "").trim().slice(0, PORTFOLIO_SEARCH_MAX);
+  return (firstSearchParam(value) ?? "").trim().slice(0, PORTFOLIO_SEARCH_MAX);
 }
 
 /** Server-side filters for the public founders list. */

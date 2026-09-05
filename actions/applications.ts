@@ -1,11 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-import type { Locale } from "@/constants/locales";
-import { ROUTES } from "@/constants/routes";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { getAdminResource } from "@/constants/admin-resources";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -20,9 +22,9 @@ import {
   type UpdateApplicationInput,
 } from "@/validations/application";
 
-export type ApplicationActionResult =
-  | { status: "success"; message: string }
-  | { status: "error"; message: string };
+export type ApplicationActionResult = AdminActionResult;
+
+const resource = getAdminResource("applications");
 
 const ACTION_MESSAGES = {
   en: {
@@ -60,13 +62,6 @@ const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_PER_IP = 5;
 const RATE_LIMIT_PER_EMAIL = 3;
 
-function validationMessage(
-  error: { issues: { message: string }[] },
-  locale: Locale,
-): string {
-  return error.issues[0]?.message ?? ACTION_MESSAGES[locale].invalidDetails;
-}
-
 function isUniqueViolation(error: {
   code?: string;
   message?: string;
@@ -87,7 +82,7 @@ async function getClientIp(): Promise<string> {
 }
 
 function refreshApplicationsRoute() {
-  revalidatePath(ROUTES.applications);
+  refreshAdminResource({ listPath: resource.listPath });
 }
 
 export async function submitApplication(
@@ -163,50 +158,54 @@ export async function updateApplication(
 ): Promise<ApplicationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
-  const parsed = updateApplicationSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: validationMessage(parsed.error, locale) };
-  }
 
-  const session = await authorizeAdmin(ACTION_MESSAGES[locale]);
-  if (session.status === "error") return session;
+  return runAdminMutation({
+    schema: updateApplicationSchema,
+    input,
+    messages: {
+      unauthorized: copy.unauthorized,
+      signedInRequired: copy.signedInRequired,
+      invalidDetails: copy.invalidDetails,
+      success: copy.updateSuccess,
+      genericError: copy.genericError,
+      notFound: copy.notFound,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("applications")
+        .update({
+          full_name: data.fullName,
+          founder_role: data.founderRole,
+          email: data.email,
+          phone: data.phone,
+          country: data.country,
+          linkedin: data.linkedin,
+          company_name: data.companyName,
+          website: data.website,
+          company_country: data.companyCountry,
+          sector: data.sector,
+          problem_product: data.problemProduct,
+          traction: data.traction,
+          programme_fit: data.programmeFit,
+          comms_opt_in: data.commsOptIn,
+        })
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const data = parsed.data;
-  const { data: row, error } = await session.supabase
-    .from("applications")
-    .update({
-      full_name: data.fullName,
-      founder_role: data.founderRole,
-      email: data.email,
-      phone: data.phone,
-      country: data.country,
-      linkedin: data.linkedin,
-      company_name: data.companyName,
-      website: data.website,
-      company_country: data.companyCountry,
-      sector: data.sector,
-      problem_product: data.problemProduct,
-      traction: data.traction,
-      programme_fit: data.programmeFit,
-      comms_opt_in: data.commsOptIn,
-    })
-    .eq("id", data.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: copy.duplicate };
-    }
-    return { status: "error", message: copy.genericError };
-  }
-
-  if (!row) {
-    return { status: "error", message: copy.notFound };
-  }
-
-  refreshApplicationsRoute();
-  return { status: "success", message: copy.updateSuccess };
+      if (error) {
+        if (isUniqueViolation(error)) {
+          return { status: "error", message: copy.duplicate };
+        }
+        return { status: "error", message: copy.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: copy.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshApplicationsRoute(),
+  });
 }
 
 export async function deleteApplication(
@@ -214,29 +213,34 @@ export async function deleteApplication(
 ): Promise<ApplicationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
-  const parsed = deleteApplicationSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: validationMessage(parsed.error, locale) };
-  }
 
-  const session = await authorizeAdmin(ACTION_MESSAGES[locale]);
-  if (session.status === "error") return session;
+  return runAdminMutation({
+    schema: deleteApplicationSchema,
+    input,
+    messages: {
+      unauthorized: copy.unauthorized,
+      signedInRequired: copy.signedInRequired,
+      invalidDetails: copy.invalidDetails,
+      success: copy.deleteSuccess,
+      genericError: copy.genericError,
+      notFound: copy.notFound,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("applications")
+        .delete()
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const { data, error } = await session.supabase
-    .from("applications")
-    .delete()
-    .eq("id", parsed.data.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    return { status: "error", message: copy.genericError };
-  }
-
-  if (!data) {
-    return { status: "error", message: copy.notFound };
-  }
-
-  refreshApplicationsRoute();
-  return { status: "success", message: copy.deleteSuccess };
+      if (error) {
+        return { status: "error", message: copy.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: copy.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshApplicationsRoute(),
+  });
 }

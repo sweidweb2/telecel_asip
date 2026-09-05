@@ -1,111 +1,79 @@
-import Link from "next/link";
-import {
-  Eye,
-  Handshake,
-  HeartHandshake,
-  MessagesSquare,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import type { ReactNode } from "react";
 
-import {
-  PageHero,
-  Section,
-  SectionHeading,
-} from "@/components/marketing/page-elements";
-import { buttonVariants } from "@/components/ui/button";
-import type { Locale } from "@/constants/locales";
-import { MARKETING_MEDIA } from "@/constants/marketing-media";
-import { publicPath } from "@/constants/routes";
-import type {
-  AlumniBenefitId,
-  AlumniPageCopy,
-} from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
-
-const BENEFIT_ICONS: Record<AlumniBenefitId, LucideIcon> = {
-  community: Users,
-  learning: MessagesSquare,
-  opportunities: Handshake,
-  visibility: Eye,
-  "give-back": HeartHandshake,
-};
-
-type AlumniPageContentProps = {
-  locale: Locale;
-  copy: AlumniPageCopy;
-};
-
-function AlumniCta({
-  locale,
-  cta,
+function PageSection({
+  title,
+  note,
+  children,
 }: {
-  locale: Locale;
-  cta: AlumniPageCopy["hero"]["primaryCta"];
+  title: string;
+  note?: string;
+  children?: ReactNode;
 }) {
   return (
-    <Link
-      href={publicPath(locale, cta.slug)}
-      className={cn(
-        buttonVariants({ size: "lg" }),
-        "min-h-11 w-full sm:w-auto",
-      )}
-    >
-      {cta.label}
-    </Link>
+    <section className="border-b border-border px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {note ? `${title} · ${note}` : title}
+        </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
+          {title}
+        </h2>
+        <div className="mt-4 min-h-24 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+          {children}
+        </div>
+      </div>
+    </section>
   );
 }
 
-export function AlumniPageContent({ locale, copy }: AlumniPageContentProps) {
+function EmptySlot({ label }: { label: string }) {
+  return (
+    <p className="text-sm text-muted-foreground">Skeleton holder — {label}</p>
+  );
+}
+
+/**
+ * Alumni marketing page — built but hidden (build spec §4).
+ * Draft in CMS; publish only on formal approval. Keep noindex / sitemap-excluded.
+ */
+export function AlumniPageContent() {
   return (
     <main>
-      <PageHero
-        variant="poster"
-        marker="ALUMNI"
-        media={MARKETING_MEDIA.alumni}
-        locale={locale}
-        eyebrow={copy.hero.eyebrow}
-        title={copy.hero.title}
-        description={copy.hero.description}
-        action={<AlumniCta locale={locale} cta={copy.hero.primaryCta} />}
-      />
-
-      <Section id="community" className="scroll-mt-20 border-t">
-        <SectionHeading
-          title={copy.purpose.title}
-          description={copy.purpose.description}
-          className="max-w-3xl"
-        />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {copy.benefits.items.map((item) => {
-            const Icon = BENEFIT_ICONS[item.id];
-
-            return (
-              <article
-                key={item.id}
-                className="rounded-xl border bg-card p-5 sm:p-6"
-              >
-                <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="size-5" aria-hidden />
-                </div>
-                <h3 className="font-heading text-lg font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                  {item.description}
-                </p>
-              </article>
-            );
-          })}
+      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Alumni · Built, hidden · Draft in CMS — publish only on formal
+            approval
+          </p>
+          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            Alumni
+          </h1>
+          <div className="mt-6 min-h-32 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+            <EmptySlot label="HOLD hero copy + community CTA" />
+          </div>
         </div>
-      </Section>
+      </section>
 
-      <Section className="border-t pb-16 sm:pb-20 lg:pb-24">
-        {copy.notice ? <p className="max-w-3xl border-l-2 border-primary pl-4 text-sm text-muted-foreground">{copy.notice}</p> : null}
-        <div className="mt-10">
-          <AlumniCta locale={locale} cta={copy.hero.primaryCta} />
-        </div>
-      </Section>
+      <PageSection
+        title="Purpose"
+        note="Draft in CMS — publish only on formal approval"
+      >
+        <EmptySlot label="alumni purpose / after-the-cohort module" />
+      </PageSection>
+
+      <PageSection
+        title="Proposed benefits"
+        note="Draft in CMS — publish only on formal approval"
+      >
+        <EmptySlot label="5 proposed benefit items (HOLD)" />
+      </PageSection>
+
+      <PageSection
+        title="Activation notice"
+        note="Built, hidden until formal approval"
+      >
+        <EmptySlot label="hold notice + activation runbook gate" />
+      </PageSection>
     </main>
   );
 }

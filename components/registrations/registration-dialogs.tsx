@@ -5,28 +5,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
-import {
-  EyeIcon,
-  Loader2Icon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { EyeIcon, Loader2Icon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   deleteInterestRegistration,
   updateInterestRegistration,
 } from "@/actions/interest-registrations";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -88,9 +75,7 @@ export function RegistrationRowActions({
   const router = useRouter();
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
-  const [isDeleting, startDelete] = useTransition();
   const editDefaults = toEditDefaults(registration);
   const form = useForm<UpdateInterestRegistrationInput>({
     resolver: zodResolver(updateInterestRegistrationSchema),
@@ -119,25 +104,6 @@ export function RegistrationRowActions({
     });
   }
 
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deleteInterestRegistration({
-          id: registration.id,
-        });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        router.refresh();
-      } catch {
-        toast.error("The registration could not be deleted. Please try again.");
-      }
-    });
-  }
-
   return (
     <div className="flex items-center justify-end gap-0.5">
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
@@ -160,50 +126,30 @@ export function RegistrationRowActions({
             <DialogDescription>Registration details</DialogDescription>
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Email</dt>
-              <dd className="break-all font-medium">{registration.email}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Phone</dt>
-              <dd className="font-medium">{registration.phone}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Company</dt>
-              <dd className="font-medium">{registration.company_name}</dd>
-            </div>
+            <AdminDetailRow label="Email">{registration.email}</AdminDetailRow>
+            <AdminDetailRow label="Phone">{registration.phone}</AdminDetailRow>
+            <AdminDetailRow label="Company">
+              {registration.company_name}
+            </AdminDetailRow>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Sector</dt>
-                <dd className="font-medium">{registration.sector}</dd>
-              </div>
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Country</dt>
-                <dd className="font-medium">{registration.country}</dd>
-              </div>
+              <AdminDetailRow label="Sector">
+                {registration.sector}
+              </AdminDetailRow>
+              <AdminDetailRow label="Country">
+                {registration.country}
+              </AdminDetailRow>
             </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Pitch</dt>
-              <dd className="whitespace-pre-wrap font-medium">
-                {registration.pitch}
-              </dd>
-            </div>
+            <AdminDetailRow label="Pitch">{registration.pitch}</AdminDetailRow>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Consent</dt>
-                <dd className="font-medium">
-                  {registration.consent ? "Yes" : "No"}
-                </dd>
-              </div>
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Submitted</dt>
-                <dd className="font-medium">
-                  {format(
-                    new Date(registration.created_at),
-                    "MMM d, yyyy HH:mm",
-                  )}
-                </dd>
-              </div>
+              <AdminDetailRow label="Consent">
+                {registration.consent ? "Yes" : "No"}
+              </AdminDetailRow>
+              <AdminDetailRow label="Submitted">
+                {format(
+                  new Date(registration.created_at),
+                  "MMM d, yyyy HH:mm",
+                )}
+              </AdminDetailRow>
             </div>
           </dl>
           <DialogFooter showCloseButton />
@@ -463,45 +409,22 @@ export function RegistrationRowActions({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${registration.full_name}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete registration?</AlertDialogTitle>
-            <AlertDialogDescription className="break-all">
-              This permanently deletes the interest registration from{" "}
-              {registration.full_name} ({registration.email}). This cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminRowDelete
+        deleteAction={() =>
+          deleteInterestRegistration({ id: registration.id })
+        }
+        fallbackError="The registration could not be deleted. Please try again."
+        title="Delete registration?"
+        description={
+          <>
+            This permanently deletes the interest registration from{" "}
+            {registration.full_name} ({registration.email}). This cannot be
+            undone.
+          </>
+        }
+        confirmLabel="Delete"
+        triggerLabel={`Delete ${registration.full_name}`}
+      />
     </div>
   );
 }

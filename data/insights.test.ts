@@ -16,7 +16,7 @@ describe("blog helpers used by insights", () => {
       title: "UX review presentations",
       summary: "How do you create compelling presentations?",
       body_html: "<p>Hello</p>",
-      categories: ["Design"],
+      categories: ["Founder Stories"],
       thumbnail_url: null,
       author_name: "Olivia Rhye",
       author_avatar_url: null,
@@ -27,7 +27,7 @@ describe("blog helpers used by insights", () => {
     });
 
     expect(article.slug).toBe("ux-review-presentations");
-    expect(article.category.name).toBe("Design");
+    expect(article.category.name).toBe("Founder Stories");
     expect(article.bodyHtml).toContain("Hello");
     expect(article.datePublishedIso).toBe("2025-01-20T00:00:00.000Z");
   });
@@ -38,7 +38,7 @@ describe("blog helpers used by insights", () => {
       slug: "list-item",
       title: "List",
       summary: "Summary",
-      categories: ["Product"],
+      categories: ["Portfolio News"],
       thumbnail_url: null,
       author_name: "Ada",
       author_avatar_url: null,

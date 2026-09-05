@@ -684,7 +684,9 @@ export function BlogEditorForm({
             <CardHeader className="border-b">
               <CardTitle>Categories</CardTitle>
               <p className="text-xs text-muted-foreground">
-                up to {BLOG_CATEGORIES_MAX} · each max {BLOG_CATEGORY_MAX} chars
+                Prefer an Insights stream as the first category so the public
+                feed filters correctly · up to {BLOG_CATEGORIES_MAX} · each max{" "}
+                {BLOG_CATEGORY_MAX} chars
               </p>
             </CardHeader>
             <CardContent className="grid gap-3">

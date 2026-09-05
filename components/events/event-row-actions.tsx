@@ -1,72 +1,67 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "nextjs-toploader/app";
+import Link from "next/link";
 import { PencilIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { deleteEvent } from "@/actions/events";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { EventFormDialog } from "@/components/events/event-form-dialog";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/constants/routes";
-import type { EventListItem, EventStartupOption } from "@/types/event";
+import { eventDetailPath, ROUTES } from "@/constants/routes";
+import type { EventDetail, EventListItem, EventStartupOption } from "@/types/event";
 
 type EventRowActionsProps = {
-  event: EventListItem;
-  startupOptions: EventStartupOption[];
+  event: EventListItem | EventDetail;
+  /** When set with an EventDetail, enables inline edit. List rows omit this. */
+  startupOptions?: EventStartupOption[];
   redirectOnDelete?: boolean;
 };
+
+function isEventDetail(
+  event: EventListItem | EventDetail,
+): event is EventDetail {
+  return "startup_ids" in event;
+}
 
 export function EventRowActions({
   event,
   startupOptions,
   redirectOnDelete = false,
 }: EventRowActionsProps) {
-  const router = useRouter();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [isDeleting, startDelete] = useTransition();
-
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deleteEvent({ id: event.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        if (redirectOnDelete) {
-          router.push(ROUTES.events);
-          return;
-        }
-        router.refresh();
-      } catch {
-        toast.error("The event could not be deleted. Please try again.");
-      }
-    });
-  }
+  const canInlineEdit = Boolean(startupOptions) && isEventDetail(event);
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <EventFormDialog
-        mode="edit"
-        event={event}
-        startupOptions={startupOptions}
-        triggerRender={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Edit ${event.name}`}
-          />
-        }
-        triggerContent={<PencilIcon />}
-      />
+      {canInlineEdit ? (
+        <EventFormDialog
+          mode="edit"
+          event={event}
+          startupOptions={startupOptions}
+          triggerRender={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Edit ${event.name}`}
+            />
+          }
+          triggerContent={<PencilIcon />}
+        />
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Edit ${event.name}`}
+          nativeButton={false}
+          render={<Link href={eventDetailPath(event.id)} />}
+        >
+          <PencilIcon />
+        </Button>
+      )}
 
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
+      <AdminRowDelete
+        deleteAction={() => deleteEvent({ id: event.id })}
+        redirectTo={redirectOnDelete ? ROUTES.events : undefined}
+        fallbackError="The event could not be deleted. Please try again."
         title="Delete event?"
         description={
           <>
@@ -76,8 +71,6 @@ export function EventRowActions({
         }
         confirmLabel="Delete event"
         triggerLabel={`Delete ${event.name}`}
-        isPending={isDeleting}
-        onConfirm={onDelete}
       />
     </div>
   );

@@ -1,5 +1,10 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -10,9 +15,18 @@ import type {
   CohortListResult,
   CohortPublicListItem,
 } from "@/types/cohort";
-import type { CohortListQuery } from "@/validations/cohort";
+import { cohortIdSchema, type CohortListQuery } from "@/validations/cohort";
 
 export const COHORTS_CACHE_TAG = "cohorts";
+
+/** Cap multi-select option lists so editor pages stay bounded. */
+const LINK_OPTIONS_LIMIT = 500;
+
+/** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
+const DETAIL_LINK_LIMIT = 500;
+
+/** Cap public published list so anon reads stay bounded. */
+const PUBLIC_LIMIT = 500;
 
 const LIST_COLUMNS =
   "id, year, public_label, programme_dates_start, programme_dates_end, programme_status, publish_status, created_at, updated_at" as const;
@@ -29,8 +43,7 @@ async function fetchCohortsPage(
   supabase: ServerClient,
   query: CohortListQuery,
 ): Promise<CohortListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("cohorts")
@@ -54,7 +67,7 @@ async function fetchCohortsPage(
   return {
     cohorts: (data ?? []) as CohortListItem[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -62,58 +75,68 @@ export async function getCohortsPageData(
   query: CohortListQuery,
 ): Promise<{ status: "forbidden" } | { status: "ok"; list: CohortListResult }> {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
 
-  const list = await fetchCohortsPage(supabase, query);
+  const [adminResult, list] = await Promise.all([
+    supabase.rpc("is_admin"),
+    fetchCohortsPage(supabase, query),
+  ]);
+
+  if (adminResult.error) throw adminResult.error;
+  if (!adminResult.data) return { status: "forbidden" };
+
   return { status: "ok", list };
 }
 
-export async function getCohortByIdForAdmin(
-  id: string,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "not_found" }
-  | { status: "ok"; cohort: CohortAdminDetail }
-> {
-  const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+export const getCohortByIdForAdmin = cache(
+  async (
+    id: string,
+  ): Promise<
+    | { status: "forbidden" }
+    | { status: "not_found" }
+    | { status: "ok"; cohort: CohortAdminDetail }
+  > => {
+    if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
-  const { data, error } = await supabase
-    .from("cohorts")
-    .select(DETAIL_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
+    const supabase = await createClient();
+    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
+    if (adminError) throw adminError;
+    if (!isAdmin) return { status: "forbidden" };
 
-  if (error) throw error;
-  if (!data) return { status: "not_found" };
+    const { data, error } = await supabase
+      .from("cohorts")
+      .select(DETAIL_COLUMNS)
+      .eq("id", id)
+      .maybeSingle();
 
-  const [partnersResult, startupsResult] = await Promise.all([
-    supabase
-      .from("cohort_partners")
-      .select("partner_id")
-      .eq("cohort_id", id),
-    supabase
-      .from("cohort_startups")
-      .select("startup_id")
-      .eq("cohort_id", id),
-  ]);
+    if (error) throw error;
+    if (!data) return { status: "not_found" };
 
-  if (partnersResult.error) throw partnersResult.error;
-  if (startupsResult.error) throw startupsResult.error;
+    const [partnersResult, startupsResult] = await Promise.all([
+      supabase
+        .from("cohort_partners")
+        .select("partner_id")
+        .eq("cohort_id", id)
+        .limit(DETAIL_LINK_LIMIT),
+      supabase
+        .from("cohort_startups")
+        .select("startup_id")
+        .eq("cohort_id", id)
+        .limit(DETAIL_LINK_LIMIT),
+    ]);
 
-  return {
-    status: "ok",
-    cohort: {
-      ...(data as Cohort),
-      partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
-      startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
-    },
-  };
-}
+    if (partnersResult.error) throw partnersResult.error;
+    if (startupsResult.error) throw startupsResult.error;
+
+    return {
+      status: "ok",
+      cohort: {
+        ...(data as Cohort),
+        partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
+        startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
+      },
+    };
+  },
+);
 
 /** Narrow id/name lists for the cohort editor multi-selects. */
 export async function getCohortLinkOptionsForAdmin(): Promise<
@@ -133,11 +156,13 @@ export async function getCohortLinkOptionsForAdmin(): Promise<
     supabase
       .from("partners")
       .select("id, name")
-      .order("name", { ascending: true }),
+      .order("name", { ascending: true })
+      .limit(LINK_OPTIONS_LIMIT),
     supabase
       .from("startups")
       .select("id, name")
-      .order("name", { ascending: true }),
+      .order("name", { ascending: true })
+      .limit(LINK_OPTIONS_LIMIT),
   ]);
 
   if (partnersResult.error) throw partnersResult.error;
@@ -157,7 +182,8 @@ async function fetchPublishedCohorts(): Promise<CohortPublicListItem[]> {
     .select(PUBLIC_LIST_COLUMNS)
     .eq("publish_status", "published")
     .order("year", { ascending: false })
-    .order("public_label", { ascending: true });
+    .order("public_label", { ascending: true })
+    .limit(PUBLIC_LIMIT);
 
   if (error) throw error;
   return (data ?? []) as CohortPublicListItem[];

@@ -1,12 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "nextjs-toploader/app";
 import { PencilIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { deletePartner } from "@/actions/partners";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { PartnerFormDialog } from "@/components/partners/partner-form-dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
@@ -21,31 +18,6 @@ export function PartnerRowActions({
   partner,
   redirectOnDelete = false,
 }: PartnerRowActionsProps) {
-  const router = useRouter();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [isDeleting, startDelete] = useTransition();
-
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deletePartner({ id: partner.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        if (redirectOnDelete) {
-          router.push(ROUTES.partners);
-          return;
-        }
-        router.refresh();
-      } catch {
-        toast.error("The partner could not be deleted. Please try again.");
-      }
-    });
-  }
-
   return (
     <div className="flex items-center justify-end gap-0.5">
       <PartnerFormDialog
@@ -61,9 +33,10 @@ export function PartnerRowActions({
         triggerContent={<PencilIcon />}
       />
 
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
+      <AdminRowDelete
+        deleteAction={() => deletePartner({ id: partner.id })}
+        redirectTo={redirectOnDelete ? ROUTES.partners : undefined}
+        fallbackError="The partner could not be deleted. Please try again."
         title="Delete partner?"
         description={
           <>
@@ -73,8 +46,6 @@ export function PartnerRowActions({
         }
         confirmLabel="Delete partner"
         triggerLabel={`Delete ${partner.name}`}
-        isPending={isDeleting}
-        onConfirm={onDelete}
       />
     </div>
   );

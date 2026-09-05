@@ -1,3 +1,8 @@
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
 import { createClient } from "@/lib/supabase/server";
 import type {
   InterestRegistration,
@@ -14,8 +19,7 @@ async function fetchInterestRegistrations(
   supabase: ServerClient,
   query: InterestRegistrationListQuery,
 ): Promise<InterestRegistrationListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("interest_registrations")
@@ -37,25 +41,18 @@ async function fetchInterestRegistrations(
   return {
     registrations: (data ?? []) as InterestRegistration[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
-/**
- * Admin gate then list. Shared client avoids duplicate createClient round trips.
- */
 export async function getInterestRegistrationsPageData(
   query: InterestRegistrationListQuery,
 ): Promise<
   | { status: "forbidden" }
   | { status: "ok"; list: InterestRegistrationListResult }
 > {
-  const supabase = await createClient();
-
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const list = await fetchInterestRegistrations(supabase, query);
-  return { status: "ok", list };
+  return gateAdminPageData(async (supabase) => {
+    const list = await fetchInterestRegistrations(supabase, query);
+    return { list };
+  });
 }

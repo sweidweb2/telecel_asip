@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 type InterestRegistrationMessages = {
   fullNameMin: string;
@@ -214,24 +218,15 @@ export type InterestRegistrationListQuery = z.infer<
   pageSize: typeof INTEREST_REGISTRATION_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseInterestRegistrationListQuery(
   input: RawSearchParams,
 ): InterestRegistrationListQuery {
-  const parsed = interestRegistrationListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: interestRegistrationListQueryInputSchema,
     pageSize: INTEREST_REGISTRATION_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "" },
+  });
 }
 
 export type UpdateInterestRegistrationInput = z.infer<

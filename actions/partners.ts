@@ -1,13 +1,17 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { nanoid } from "nanoid";
 
-import { ROUTES } from "@/constants/routes";
-import { PARTNERS_CACHE_TAG } from "@/data/partners";
+import { getAdminResource } from "@/constants/admin-resources";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import { processImageBuffer } from "@/lib/media/process-image";
 import {
   publicObjectUrl,
@@ -24,9 +28,9 @@ import {
   type UpdatePartnerInput,
 } from "@/validations/partner";
 
-export type PartnerActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type PartnerActionResult = AdminActionResult;
+
+const resource = getAdminResource("partners");
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage partners.",
@@ -61,8 +65,10 @@ const PG_MESSAGES = {
 };
 
 function refreshPartnerPaths() {
-  revalidateTag(PARTNERS_CACHE_TAG, "max");
-  revalidatePath(ROUTES.partners);
+  refreshAdminResource({
+    listPath: resource.listPath,
+    cacheTags: resource.cacheTags,
+  });
   revalidatePath("/en/partners");
   revalidatePath("/fr/partners");
 }
@@ -87,102 +93,103 @@ function writeErrorMessage(error: { code?: string; message?: string }): string {
 export async function createPartner(
   input: CreatePartnerInput,
 ): Promise<PartnerActionResult> {
-  const parsed = createPartnerSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: createPartnerSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("partners")
+        .insert(toPartnerRow(data))
+        .select("id")
+        .single();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase
-    .from("partners")
-    .insert(toPartnerRow(parsed.data))
-    .select("id")
-    .single();
-
-  if (error || !data?.id) {
-    return { status: "error", message: writeErrorMessage(error ?? {}) };
-  }
-
-  refreshPartnerPaths();
-  return { status: "success", message: MESSAGES.createSuccess, id: data.id };
+      if (error || !row?.id) {
+        return { status: "error", pgError: error ?? {} };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: () => refreshPartnerPaths(),
+  });
 }
 
 export async function updatePartner(
   input: UpdatePartnerInput,
 ): Promise<PartnerActionResult> {
-  const parsed = updatePartnerSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updatePartnerSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("partners")
+        .update(toPartnerRow(data))
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase
-    .from("partners")
-    .update(toPartnerRow(parsed.data))
-    .eq("id", parsed.data.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    return { status: "error", message: writeErrorMessage(error) };
-  }
-  if (!data?.id) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  refreshPartnerPaths();
-  return { status: "success", message: MESSAGES.updateSuccess, id: data.id };
+      if (error) {
+        return { status: "error", pgError: error };
+      }
+      if (!row?.id) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: () => refreshPartnerPaths(),
+  });
 }
 
 export async function deletePartner(
   input: DeletePartnerInput,
 ): Promise<PartnerActionResult> {
-  const parsed = deletePartnerSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return runAdminMutation({
+    schema: deletePartnerSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: existing, error: existingError } = await session.supabase
+        .from("partners")
+        .select("id, logo_url")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("partners")
-    .select("id, logo_url")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error: deleteError } = await session.supabase
+        .from("partners")
+        .delete()
+        .eq("id", data.id);
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (deleteError) {
+        return { status: "error", pgError: deleteError };
+      }
 
-  const { error: deleteError } = await session.supabase
-    .from("partners")
-    .delete()
-    .eq("id", parsed.data.id);
+      // Storage only after the row is gone: a failure here leaks an orphan object
+      // instead of leaving a live row pointing at a deleted logo.
+      await removePartnerStorageFolder(session.supabase, data.id);
 
-  if (deleteError) {
-    return { status: "error", message: writeErrorMessage(deleteError) };
-  }
-
-  // Storage only after the row is gone: a failure here leaks an orphan object
-  // instead of leaving a live row pointing at a deleted logo.
-  await removePartnerStorageFolder(session.supabase, parsed.data.id);
-
-  refreshPartnerPaths();
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      return { status: "success" };
+    },
+    refresh: () => refreshPartnerPaths(),
+  });
 }
 
 async function removeStoragePaths(

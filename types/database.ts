@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -39,6 +39,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          comms_opt_in: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at: string
+          email: string
+          founder_role: string
+          full_name: string
+          id: string
+          linkedin: string
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          website: string
+        }
+        Insert: {
+          comms_opt_in?: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          founder_role: string
+          full_name: string
+          id?: string
+          linkedin: string
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          website: string
+        }
+        Update: {
+          comms_opt_in?: boolean
+          company_country?: string
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          founder_role?: string
+          full_name?: string
+          id?: string
+          linkedin?: string
+          phone?: string
+          problem_product?: string
+          programme_fit?: string
+          sector?: string
+          traction?: string
+          website?: string
+        }
+        Relationships: []
+      }
       blogs: {
         Row: {
           author_avatar_url: string | null
@@ -556,66 +616,6 @@ export type Database = {
         }
         Relationships: []
       }
-      applications: {
-        Row: {
-          comms_opt_in: boolean
-          company_country: string
-          company_name: string
-          consent: boolean
-          country: string
-          created_at: string
-          email: string
-          founder_role: string
-          full_name: string
-          id: string
-          linkedin: string
-          phone: string
-          problem_product: string
-          programme_fit: string
-          sector: string
-          traction: string
-          website: string
-        }
-        Insert: {
-          comms_opt_in?: boolean
-          company_country: string
-          company_name: string
-          consent: boolean
-          country: string
-          created_at?: string
-          email: string
-          founder_role: string
-          full_name: string
-          id?: string
-          linkedin: string
-          phone: string
-          problem_product: string
-          programme_fit: string
-          sector: string
-          traction: string
-          website: string
-        }
-        Update: {
-          comms_opt_in?: boolean
-          company_country?: string
-          company_name?: string
-          consent?: boolean
-          country?: string
-          created_at?: string
-          email?: string
-          founder_role?: string
-          full_name?: string
-          id?: string
-          linkedin?: string
-          phone?: string
-          problem_product?: string
-          programme_fit?: string
-          sector?: string
-          traction?: string
-          website?: string
-        }
-        Relationships: []
-      }
       partners: {
         Row: {
           contribution: string | null
@@ -920,10 +920,7 @@ export type Database = {
         }[]
       }
       create_event_with_links: {
-        Args: {
-          p_event: Json
-          p_startup_ids?: string[]
-        }
+        Args: { p_event: Json; p_startup_ids?: string[] }
         Returns: {
           id: string
         }[]
@@ -983,11 +980,7 @@ export type Database = {
         }[]
       }
       update_event_with_links: {
-        Args: {
-          p_event: Json
-          p_id: string
-          p_startup_ids?: string[]
-        }
+        Args: { p_event: Json; p_id: string; p_startup_ids?: string[] }
         Returns: {
           id: string
         }[]

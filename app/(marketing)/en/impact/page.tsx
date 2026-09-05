@@ -1,5 +1,4 @@
 import { ImpactPageContent } from "@/components/marketing/impact-page-content";
-import { impactCopyFor } from "@/constants/impact-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -11,7 +10,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function Page() {
-  return (
-    <ImpactPageContent locale="en" copy={impactCopyFor("en")} />
-  );
+  return <ImpactPageContent />;
 }

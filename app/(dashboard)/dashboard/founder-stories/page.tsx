@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { FounderStoriesTable } from "@/components/founder-stories/founder-stories-table";
 import { Button } from "@/components/ui/button";
+import { getAdminResource } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
 import { getFounderStoriesPageData } from "@/data/founder-stories";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseFounderStoryListQuery } from "@/validations/founder-story";
 
+const resource = getAdminResource("founderStories");
+
 export const metadata: Metadata = {
-  title: "Founder stories | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type FounderStoriesPageProps = {
@@ -21,31 +28,22 @@ export default async function FounderStoriesPage({
   searchParams,
 }: FounderStoriesPageProps) {
   const query = parseFounderStoryListQuery(await searchParams);
-  const result = await getFounderStoriesPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({ page: String(list.totalPages) });
-    if (query.search) params.set("search", query.search);
-    if (query.status !== "all") params.set("status", query.status);
-    redirect(`${ROUTES.founderStories}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getFounderStoriesPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        status: q.status !== "all" ? q.status : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            Founder stories
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Narrative modules for founder profiles. Public wiring lands in a
-            later phase.
-          </p>
-        </div>
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+      actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
           nativeButton={false}
@@ -54,14 +52,14 @@ export default async function FounderStoriesPage({
           <PlusIcon className="size-4" />
           New story
         </Button>
-      </div>
-
+      }
+    >
       <FounderStoriesTable
         stories={list.stories}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

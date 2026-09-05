@@ -1,5 +1,4 @@
 import { AlumniPageContent } from "@/components/marketing/alumni-page-content";
-import { alumniCopyFor } from "@/constants/alumni-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -12,5 +11,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function Page() {
-  return <AlumniPageContent locale="fr" copy={alumniCopyFor("fr")} />;
+  return <AlumniPageContent />;
 }

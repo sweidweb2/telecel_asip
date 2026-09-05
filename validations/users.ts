@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const USER_ROLES = ["admin", "editor", "viewer"] as const;
 /** Fixed page size — not configurable via URL or UI. */
 export const USER_PAGE_SIZE = 10;
@@ -76,23 +81,13 @@ export type UserListQuery = z.infer<typeof userListQueryInputSchema> & {
   pageSize: typeof USER_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseUserListQuery(input: RawSearchParams): UserListQuery {
-  const parsed = userListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    role: first(input.role) ?? "all",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: userListQueryInputSchema,
     pageSize: USER_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "", role: "all" },
+  });
 }
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;

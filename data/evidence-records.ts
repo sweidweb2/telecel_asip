@@ -1,8 +1,13 @@
 import { cache } from "react";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+} from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  EvidenceDetail,
   EvidenceListItem,
   EvidenceListResult,
   EvidenceOwnerOption,
@@ -14,6 +19,9 @@ import {
 } from "@/validations/evidence-record";
 
 const LIST_COLUMNS =
+  "id, primary_source, measurement_period_start, measurement_period_end, owner_id, status, permission, owner:profiles!evidence_records_owner_id_fkey(id, email, full_name)" as const;
+
+const DETAIL_COLUMNS =
   "id, primary_source, source_file_url, measurement_period_start, measurement_period_end, owner_id, status, last_verified_date, permission, review_date, created_at, updated_at, owner:profiles!evidence_records_owner_id_fkey(id, email, full_name)" as const;
 
 const OWNER_OPTION_LIMIT = 200;
@@ -31,8 +39,7 @@ async function fetchEvidencePage(
   supabase: ServerClient,
   query: EvidenceListQuery,
 ): Promise<EvidenceListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("evidence_records")
@@ -68,7 +75,7 @@ async function fetchEvidencePage(
   return {
     records,
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -93,7 +100,7 @@ export async function getEvidenceRecordsPageData(
 type EvidenceDetailResult =
   | { status: "forbidden" }
   | { status: "not_found" }
-  | { status: "ok"; record: EvidenceListItem };
+  | { status: "ok"; record: EvidenceDetail };
 
 export const getEvidenceRecordByIdForAdmin = cache(
   async (id: string): Promise<EvidenceDetailResult> => {
@@ -108,7 +115,7 @@ export const getEvidenceRecordByIdForAdmin = cache(
 
     const { data, error } = await supabase
       .from("evidence_records")
-      .select(LIST_COLUMNS)
+      .select(DETAIL_COLUMNS)
       .eq("id", id)
       .maybeSingle();
 

@@ -11,7 +11,22 @@ export type EvidenceOwnerOption = {
   full_name: string | null;
 };
 
+/** Lean list row — table columns only. */
 export type EvidenceListItem = Pick<
+  EvidenceRecord,
+  | "id"
+  | "primary_source"
+  | "measurement_period_start"
+  | "measurement_period_end"
+  | "owner_id"
+  | "status"
+  | "permission"
+> & {
+  owner: EvidenceOwnerOption | null;
+};
+
+/** Full record for detail / edit. */
+export type EvidenceDetail = Pick<
   EvidenceRecord,
   | "id"
   | "primary_source"

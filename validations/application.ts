@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 type ApplicationMessages = {
   fullNameMin: string;
@@ -219,24 +223,15 @@ export type ApplicationListQuery = z.infer<
   pageSize: typeof APPLICATION_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseApplicationListQuery(
   input: RawSearchParams,
 ): ApplicationListQuery {
-  const parsed = applicationListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: applicationListQueryInputSchema,
     pageSize: APPLICATION_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "" },
+  });
 }
 
 export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;

@@ -1,5 +1,4 @@
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
-import { programmeCopyFor } from "@/constants/programme-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -11,7 +10,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function Page() {
-  return (
-    <ProgrammePageContent locale="fr" copy={programmeCopyFor("fr")} />
-  );
+  return <ProgrammePageContent />;
 }

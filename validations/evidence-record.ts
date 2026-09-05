@@ -4,6 +4,10 @@ import {
   EVIDENCE_PERMISSIONS,
   EVIDENCE_STATUSES,
 } from "@/constants/evidence-labels";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 export const EVIDENCE_PAGE_SIZE = 20;
 export const EVIDENCE_PRIMARY_SOURCE_MAX = 2000;
@@ -97,21 +101,18 @@ export type EvidenceListQuery = z.infer<typeof evidenceListQueryInputSchema> & {
   pageSize: typeof EVIDENCE_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseEvidenceListQuery(
   input: RawSearchParams,
 ): EvidenceListQuery {
-  const parsed = evidenceListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
-    permission: first(input.permission) ?? "all",
+  return parseAdminListQuery({
+    input,
+    schema: evidenceListQueryInputSchema,
+    pageSize: EVIDENCE_PAGE_SIZE,
+    defaults: {
+      page: "1",
+      search: "",
+      status: "all",
+      permission: "all",
+    },
   });
-
-  return { ...parsed, pageSize: EVIDENCE_PAGE_SIZE };
 }

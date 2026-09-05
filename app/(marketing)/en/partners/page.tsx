@@ -1,5 +1,4 @@
 import { PartnersPageContent } from "@/components/marketing/partners-page-content";
-import { partnersCopyFor } from "@/constants/partners-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -11,7 +10,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function Page() {
-  return (
-    <PartnersPageContent locale="en" copy={partnersCopyFor("en")} />
-  );
+  return <PartnersPageContent />;
 }

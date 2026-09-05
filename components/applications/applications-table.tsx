@@ -6,16 +6,8 @@ import { FileTextIcon } from "lucide-react";
 
 import { ApplicationRowActions } from "@/components/applications/application-row-actions";
 import { ApplicationsFilters } from "@/components/applications/applications-filters";
-import { AdminPagination } from "@/components/dashboard/admin-pagination";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import type { Application } from "@/types/application";
 import {
@@ -58,78 +50,65 @@ export function ApplicationsTable({
   }, [applications, clientSearch, query.search]);
 
   return (
-    <Card className="min-w-0 gap-0 overflow-hidden py-0">
-      <ApplicationsFilters query={query} onSearchChange={onSearchChange} />
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-4">Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Startup</TableHead>
-                <TableHead>Sector</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visible.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-48 text-center">
-                    <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-                      <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-                        <FileTextIcon className="size-5 text-muted-foreground" />
-                      </span>
-                      <p className="font-medium">No applications found</p>
-                      <p className="text-sm text-muted-foreground">
-                        Official Apply submissions will appear here. Leads stay
-                        under Registrations.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                visible.map((application) => (
-                  <TableRow key={application.id}>
-                    <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
-                      {application.full_name}
-                    </TableCell>
-                    <TableCell className="max-w-[12rem] truncate text-muted-foreground">
-                      {application.email}
-                    </TableCell>
-                    <TableCell className="max-w-[10rem] truncate">
-                      {application.company_name}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {application.sector}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {format(
-                        new Date(application.created_at),
-                        "MMM d, yyyy",
-                      )}
-                    </TableCell>
-                    <TableCell className="pr-4">
-                      <ApplicationRowActions application={application} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+    <AdminDataTable
+      filters={
+        <ApplicationsFilters query={query} onSearchChange={onSearchChange} />
+      }
+      header={
+        <TableRow>
+          <TableHead className="pl-4">Name</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Startup</TableHead>
+          <TableHead>Sector</TableHead>
+          <TableHead>Submitted</TableHead>
+          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+        </TableRow>
+      }
+      isEmpty={visible.length === 0}
+      emptyColSpan={6}
+      empty={
+        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
+          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
+            <FileTextIcon className="size-5 text-muted-foreground" />
+          </span>
+          <p className="font-medium">No applications found</p>
+          <p className="text-sm text-muted-foreground">
+            Official Apply submissions will appear here. Leads stay under
+            Registrations.
+          </p>
         </div>
-      </CardContent>
-      <CardFooter className="border-t bg-transparent px-4 py-3">
-        <AdminPagination
-          basePath={ROUTES.applications}
-          page={query.page}
-          pageSize={APPLICATION_PAGE_SIZE}
-          total={total}
-          totalPages={totalPages}
-          filters={{ search: query.search }}
-        />
-      </CardFooter>
-    </Card>
+      }
+      pagination={{
+        basePath: ROUTES.applications,
+        page: query.page,
+        pageSize: APPLICATION_PAGE_SIZE,
+        total,
+        totalPages,
+        filters: { search: query.search },
+      }}
+    >
+      {visible.map((application) => (
+        <TableRow key={application.id}>
+          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+            {application.full_name}
+          </TableCell>
+          <TableCell className="max-w-[12rem] truncate text-muted-foreground">
+            {application.email}
+          </TableCell>
+          <TableCell className="max-w-[10rem] truncate">
+            {application.company_name}
+          </TableCell>
+          <TableCell className="whitespace-nowrap">
+            {application.sector}
+          </TableCell>
+          <TableCell className="whitespace-nowrap text-muted-foreground">
+            {format(new Date(application.created_at), "MMM d, yyyy")}
+          </TableCell>
+          <TableCell className="pr-4">
+            <ApplicationRowActions application={application} />
+          </TableCell>
+        </TableRow>
+      ))}
+    </AdminDataTable>
   );
 }

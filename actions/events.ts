@@ -1,12 +1,16 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-
-import { ROUTES } from "@/constants/routes";
-import { EVENTS_CACHE_TAG } from "@/data/events";
+import { getAdminResource } from "@/constants/admin-resources";
+import { getEventStartupOptions } from "@/data/events";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
+import type { EventStartupOption } from "@/types/event";
 import {
   createEventSchema,
   deleteEventSchema,
@@ -16,9 +20,9 @@ import {
   type UpdateEventInput,
 } from "@/validations/event";
 
-export type EventActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type EventActionResult = AdminActionResult;
+
+const resource = getAdminResource("events");
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage events.",
@@ -31,6 +35,18 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
+/** Lazy option load for the create dialog (list page skips eager fetch). */
+export async function loadEventStartupOptions(): Promise<
+  | { status: "ok"; options: EventStartupOption[] }
+  | { status: "error"; message: string }
+> {
+  const result = await getEventStartupOptions();
+  if (result.status === "forbidden") {
+    return { status: "error", message: MESSAGES.unauthorized };
+  }
+  return { status: "ok", options: result.options };
+}
+
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,
   notFound: MESSAGES.notFound,
@@ -38,11 +54,11 @@ const PG_MESSAGES = {
 };
 
 function refreshEventPaths(eventId?: string) {
-  revalidateTag(EVENTS_CACHE_TAG, "max");
-  revalidatePath(ROUTES.events);
-  if (eventId) {
-    revalidatePath(`${ROUTES.events}/${eventId}`);
-  }
+  refreshAdminResource({
+    listPath: resource.listPath,
+    detailPath: eventId ? `${resource.listPath}/${eventId}` : undefined,
+    cacheTags: resource.cacheTags,
+  });
 }
 
 function toEventJson(input: CreateEventInput | UpdateEventInput) {
@@ -126,39 +142,38 @@ export async function updateEvent(
 export async function deleteEvent(
   input: DeleteEventInput,
 ): Promise<EventActionResult> {
-  const parsed = deleteEventSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return runAdminMutation({
+    schema: deleteEventSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: existing, error: existingError } = await session.supabase
+        .from("events")
+        .select("id")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("events")
-    .select("id")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error: deleteError } = await session.supabase
+        .from("events")
+        .delete()
+        .eq("id", data.id);
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  const { error: deleteError } = await session.supabase
-    .from("events")
-    .delete()
-    .eq("id", parsed.data.id);
-
-  if (deleteError) {
-    return {
-      status: "error",
-      message: mapPgActionError(deleteError, PG_MESSAGES),
-    };
-  }
-
-  refreshEventPaths();
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      if (deleteError) {
+        return { status: "error", pgError: deleteError };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshEventPaths(),
+  });
 }

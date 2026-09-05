@@ -9,8 +9,14 @@ import { toast } from "sonner";
 
 import {
   createEvidenceRecord,
+  loadEvidenceFormOptions,
   updateEvidenceRecord,
 } from "@/actions/evidence-records";
+import {
+  ADMIN_FORM_PAIR_FIELD,
+  ADMIN_FORM_PAIR_ROW,
+  AdminFormFieldLabel,
+} from "@/components/dashboard/admin-form-layout";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -39,7 +44,7 @@ import {
   EVIDENCE_STATUSES,
 } from "@/constants/evidence-labels";
 import type {
-  EvidenceListItem,
+  EvidenceDetail,
   EvidenceOwnerOption,
 } from "@/types/evidence-record";
 import {
@@ -50,36 +55,13 @@ import {
   type EvidenceFormValues,
 } from "@/validations/evidence-record";
 
-const PAIR_ROW =
-  "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-x-5 sm:gap-y-2";
-const PAIR_FIELD = "sm:row-span-3 sm:grid sm:grid-rows-subgrid";
-
-function FieldLabelRow({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: React.ReactNode;
-  hint: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-        {hint}
-      </span>
-    </div>
-  );
-}
-
 function ownerLabel(owner: EvidenceOwnerOption): string {
   const name = owner.full_name?.trim();
   return name ? `${name} (${owner.email})` : owner.email;
 }
 
 function defaultsFor(
-  record: EvidenceListItem | undefined,
+  record: EvidenceDetail | undefined,
   defaultOwnerId: string,
 ): EvidenceFormValues {
   return {
@@ -97,9 +79,10 @@ function defaultsFor(
 
 type EvidenceFormDialogProps = {
   mode: "create" | "edit";
-  record?: EvidenceListItem;
-  owners: EvidenceOwnerOption[];
-  defaultOwnerId: string;
+  record?: EvidenceDetail;
+  /** Preloaded options (detail edit). Create dialog loads on open when omitted. */
+  owners?: EvidenceOwnerOption[];
+  defaultOwnerId?: string;
   triggerRender?: React.ReactElement;
   triggerContent?: React.ReactNode;
 };
@@ -107,8 +90,8 @@ type EvidenceFormDialogProps = {
 export function EvidenceFormDialog({
   mode,
   record,
-  owners,
-  defaultOwnerId,
+  owners: initialOwners,
+  defaultOwnerId: initialDefaultOwnerId = "",
   triggerRender,
   triggerContent,
 }: EvidenceFormDialogProps) {
@@ -116,17 +99,49 @@ export function EvidenceFormDialog({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [owners, setOwners] = useState<EvidenceOwnerOption[]>(
+    initialOwners ?? [],
+  );
+  const [defaultOwnerId, setDefaultOwnerId] = useState(initialDefaultOwnerId);
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
     resolver: zodResolver(createEvidenceRecordSchema),
     mode: "onBlur",
-    defaultValues: defaultsFor(record, defaultOwnerId),
+    defaultValues: defaultsFor(record, initialDefaultOwnerId),
   });
 
-  function handleOpenChange(next: boolean) {
+  async function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) {
-      form.reset(defaultsFor(record, defaultOwnerId));
+    if (!next) return;
+
+    if (initialOwners) {
+      setOwners(initialOwners);
+      setDefaultOwnerId(initialDefaultOwnerId);
+      form.reset(defaultsFor(record, initialDefaultOwnerId));
+      return;
+    }
+
+    setOptionsLoading(true);
+    try {
+      const result = await loadEvidenceFormOptions();
+      if (result.status === "error") {
+        toast.error(result.message);
+        setOwners([]);
+        setDefaultOwnerId("");
+        form.reset(defaultsFor(record, ""));
+        return;
+      }
+      setOwners(result.owners);
+      setDefaultOwnerId(result.defaultOwnerId);
+      form.reset(defaultsFor(record, result.defaultOwnerId));
+    } catch {
+      toast.error("Could not load owners. Please try again.");
+      setOwners([]);
+      setDefaultOwnerId("");
+      form.reset(defaultsFor(record, ""));
+    } finally {
+      setOptionsLoading(false);
     }
   }
 
@@ -181,12 +196,12 @@ export function EvidenceFormDialog({
         >
           <FieldGroup>
             <Field data-invalid={!!form.formState.errors.primarySource}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-primary-source`}
                 hint={`2–${EVIDENCE_PRIMARY_SOURCE_MAX} chars`}
               >
                 Primary source
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-primary-source`}
                 rows={3}
@@ -200,12 +215,12 @@ export function EvidenceFormDialog({
             </Field>
 
             <Field data-invalid={!!form.formState.errors.sourceFileUrl}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-source-url`}
                 hint="Optional http(s)"
               >
                 Source file URL
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Input
                 id={`${formId}-source-url`}
                 type="url"
@@ -220,17 +235,17 @@ export function EvidenceFormDialog({
               </FieldError>
             </Field>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.measurementPeriodStart}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-period-start`}
                   hint="Required"
                 >
                   Period start
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-period-start`}
                   type="date"
@@ -245,12 +260,12 @@ export function EvidenceFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.measurementPeriodEnd}
               >
-                <FieldLabelRow htmlFor={`${formId}-period-end`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-period-end`} hint="Required">
                   Period end
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-period-end`}
                   type="date"
@@ -264,9 +279,9 @@ export function EvidenceFormDialog({
             </div>
 
             <Field data-invalid={!!form.formState.errors.ownerId}>
-              <FieldLabelRow htmlFor={`${formId}-owner`} hint="Required">
+              <AdminFormFieldLabel htmlFor={`${formId}-owner`} hint="Required">
                 Owner
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Controller
                 control={form.control}
                 name="ownerId"
@@ -280,7 +295,11 @@ export function EvidenceFormDialog({
                       className="w-full min-h-11 sm:min-h-8"
                       aria-invalid={!!form.formState.errors.ownerId}
                     >
-                      <SelectValue placeholder="Select owner" />
+                      <SelectValue
+                        placeholder={
+                          optionsLoading ? "Loading owners…" : "Select owner"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {owners.map((owner) => (
@@ -295,14 +314,14 @@ export function EvidenceFormDialog({
               <FieldError>{form.formState.errors.ownerId?.message}</FieldError>
             </Field>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.status}
               >
-                <FieldLabelRow htmlFor={`${formId}-status`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-status`} hint="Required">
                   Status
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="status"
@@ -334,12 +353,12 @@ export function EvidenceFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.permission}
               >
-                <FieldLabelRow htmlFor={`${formId}-permission`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-permission`} hint="Required">
                   Permission
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="permission"
@@ -373,17 +392,17 @@ export function EvidenceFormDialog({
               </Field>
             </div>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.lastVerifiedDate}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-last-verified`}
                   hint="Required"
                 >
                   Last verified
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-last-verified`}
                   type="date"
@@ -396,12 +415,12 @@ export function EvidenceFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={!!form.formState.errors.reviewDate}
               >
-                <FieldLabelRow htmlFor={`${formId}-review`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-review`} hint="Required">
                   Review date
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-review`}
                   type="date"
@@ -429,7 +448,7 @@ export function EvidenceFormDialog({
           <Button
             type="submit"
             form={formId}
-            disabled={isPending || owners.length === 0}
+            disabled={isPending || optionsLoading || owners.length === 0}
             className="min-h-11 w-full sm:min-h-8 sm:w-auto"
           >
             {isPending ? (

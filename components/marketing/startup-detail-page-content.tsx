@@ -1,72 +1,53 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-import { StartupCard } from "@/components/marketing/startup-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { formatFoundedDate, startupInitials } from "@/lib/startup-display";
 import type {
   StartupPublicDetail,
   StartupPublicListItem,
 } from "@/types/startup";
 import { cn } from "@/lib/utils";
 
-type StartupDetailLabels = {
-  backToFounders: string;
-  founders: string;
-  founded: string;
-  industry: string;
-  category: string;
-  location: string;
-  team: string;
-  cohort: string;
-  country: string;
-  sector: string;
-  outcome: string;
-  website: string;
-  moreStartups: string;
-};
+function PageSection({
+  title,
+  note,
+  children,
+}: {
+  title: string;
+  note?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <section className="border-b border-border px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {note ? `${title} · ${note}` : title}
+        </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
+          {title}
+        </h2>
+        <div className="mt-4 min-h-24 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EmptySlot({ label }: { label: string }) {
+  return (
+    <p className="text-sm text-muted-foreground">Skeleton holder — {label}</p>
+  );
+}
 
 type StartupDetailPageContentProps = {
   locale: Locale;
   startup: StartupPublicDetail;
   related: StartupPublicListItem[];
   fromPage?: number;
-};
-
-const LABELS: Record<Locale, StartupDetailLabels> = {
-  en: {
-    backToFounders: "Back to founders",
-    founders: "Founders",
-    founded: "Founded",
-    industry: "Industry",
-    category: "Category",
-    location: "Location",
-    team: "Team",
-    cohort: "Cohort",
-    country: "Country",
-    sector: "Sector",
-    outcome: "What they built next",
-    website: "Visit website",
-    moreStartups: "More startups",
-  },
-  fr: {
-    backToFounders: "Retour aux fondateurs",
-    founders: "Fondateurs",
-    founded: "Fondée",
-    industry: "Secteur",
-    category: "Catégorie",
-    location: "Localisation",
-    team: "Équipe",
-    cohort: "Cohorte",
-    country: "Pays",
-    sector: "Secteur",
-    outcome: "La suite de leur parcours",
-    website: "Visiter le site",
-    moreStartups: "Autres startups",
-  },
 };
 
 function foundersBackHref(locale: Locale, fromPage?: number) {
@@ -77,143 +58,83 @@ function foundersBackHref(locale: Locale, fromPage?: number) {
   return base;
 }
 
+/**
+ * Founder profile template — dynamic per Founder (build spec §4).
+ * Design wiped; prescribed story modules as skeleton holders.
+ */
 export function StartupDetailPageContent({
   locale,
   startup,
   related,
   fromPage,
 }: StartupDetailPageContentProps) {
-  const labels = LABELS[locale];
-  const foundedLabel = startup.founded_at
-    ? formatFoundedDate(startup.founded_at, locale)
-    : null;
-
-  const details = startup.details;
-  const facts = [
-    { label: labels.founded, value: foundedLabel },
-    { label: labels.industry, value: details?.industry ?? null },
-    { label: labels.category, value: details?.category ?? null },
-    { label: labels.location, value: details?.location ?? null },
-    { label: labels.cohort, value: details?.cohort ?? null },
-    { label: labels.country, value: details?.country_code ?? null },
-    { label: labels.sector, value: details?.sector ?? null },
-  ].filter((fact): fact is { label: string; value: string } =>
-    Boolean(fact.value),
-  );
-
-  const team = details?.team?.trim() || null;
-
   return (
     <main>
-      <article className="pb-16 lg:pb-24">
-        <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
+      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl">
           <Link
             href={foundersBackHref(locale, fromPage)}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
-              "min-h-11 gap-2 px-0 hover:bg-transparent",
+              "mb-6 min-h-11 gap-2 px-0 hover:bg-transparent",
             )}
           >
             <ArrowLeft className="size-4" />
-            {labels.backToFounders}
+            {locale === "fr" ? "Retour aux fondateurs" : "Back to founders"}
           </Link>
-        </div>
-
-        <div className="mx-auto mt-6 w-full max-w-7xl px-5 sm:mt-8 sm:px-8 lg:px-10">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#14333b] md:aspect-[2/1]">
-            {startup.cover_image_url ? (
-              <Image
-                src={startup.cover_image_url}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                style={{ objectPosition: `${startup.image_focal_x}% ${startup.image_focal_y}%` }}
-                sizes="(max-width: 1152px) 100vw, 1152px"
-              />
-            ) : (
-              <div
-                aria-hidden
-                className="flex size-full items-center justify-center bg-[#14333b]"
-              >
-                <span className="font-heading text-4xl font-semibold text-white/65 sm:text-5xl lg:text-6xl">
-                  {startupInitials(startup.name)}
-                </span>
-              </div>
-            )}
-            {startup.logo_url ? <div className="absolute bottom-5 left-5 size-20 overflow-hidden rounded-lg border bg-white shadow-lg sm:bottom-8 sm:left-8 sm:size-24"><Image src={startup.logo_url} alt={`${startup.name} logo`} fill className="object-contain p-2" sizes="96px" /></div> : null}
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Founder profile · Dynamic per Founder
+          </p>
+          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            {startup.name}
+          </h1>
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            {startup.description}
+          </p>
+          <div className="mt-6 min-h-24 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+            <EmptySlot label="cover, logo, and identity facts" />
           </div>
-
-          <header className="mt-8 max-w-3xl sm:mt-10">
-            <p className="text-sm font-semibold text-primary">
-              {labels.founders}
-            </p>
-            <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              {startup.name}
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground sm:mt-6 sm:text-lg">
-              {startup.description}
-            </p>
-          </header>
-
-          {facts.length > 0 ? (
-            <dl className="mt-8 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-5 border-t pt-6 sm:mt-10 sm:grid-cols-2">
-              {facts.map((fact) => (
-                <div key={fact.label} className="min-w-0">
-                  <dt className="text-sm font-semibold text-foreground">
-                    {fact.label}
-                  </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground">
-                    {fact.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
-
-          {team ? (
-            <section className="mt-10 max-w-3xl sm:mt-12">
-              <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
-                {labels.team}
-              </h2>
-              <p className="mt-3 text-base whitespace-pre-line text-muted-foreground">
-                {team}
-              </p>
-            </section>
-          ) : null}
-
-          {details?.founder_names?.length ? <section className="mt-10 max-w-3xl border-t pt-8"><h2 className="font-heading text-xl font-semibold sm:text-2xl">{labels.founders}</h2><p className="mt-3 text-lg text-muted-foreground">{details.founder_names.join(", ")}</p></section> : null}
-          {details?.public_outcome ? <section className="mt-10 max-w-3xl border-l-4 border-[#c14a9b] bg-muted/50 p-6 sm:mt-12 sm:p-8"><h2 className="font-heading text-2xl font-semibold">{labels.outcome}</h2><p className="mt-4 text-lg leading-8 text-muted-foreground">{details.public_outcome}</p></section> : null}
-          {details?.website_url ? <a href={details.website_url} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-8")}>{labels.website}<ArrowUpRight className="size-4" /></a> : null}
         </div>
+      </section>
 
+      <PageSection title="The problem" note="pulls Founder story">
+        <EmptySlot label="problem module" />
+      </PageSection>
+
+      <PageSection title="What they built" note="pulls Founder story">
+        <EmptySlot label="product / build module" />
+      </PageSection>
+
+      <PageSection title="ASIP connection" note="pulls Founder story">
+        <EmptySlot label="programme connection module" />
+      </PageSection>
+
+      <PageSection title="Where they are now" note="pulls Founder story">
+        <EmptySlot label="outcome / progress module" />
+      </PageSection>
+
+      <PageSection
+        title="Founder perspective"
+        note="quote permission required"
+      >
+        <EmptySlot label="founder quote (only when permission = approved)" />
+      </PageSection>
+
+      <PageSection title="Media gallery" note="Dynamic">
+        <EmptySlot label="approved media gallery" />
+      </PageSection>
+
+      <PageSection title="Related founders" note="pulls Founder">
         {related.length > 0 ? (
-          <section className="mx-auto mt-16 w-full max-w-6xl px-4 sm:mt-20 sm:px-6">
-            <div className="flex items-end justify-between gap-4">
-              <h2 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-                {labels.moreStartups}
-              </h2>
-              <Link
-                href={publicPath(locale, "founders")}
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "sm" }),
-                  "min-h-11 shrink-0 gap-1",
-                )}
-              >
-                {labels.backToFounders}
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </div>
-            <ul className="mt-8 grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <li key={item.id}>
-                  <StartupCard locale={locale} startup={item} />
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-      </article>
+          <ul className="space-y-2 text-sm">
+            {related.map((item) => (
+              <li key={item.id}>{item.name}</li>
+            ))}
+          </ul>
+        ) : (
+          <EmptySlot label="related founder cards" />
+        )}
+      </PageSection>
     </main>
   );
 }

@@ -5,28 +5,15 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
-import {
-  EyeIcon,
-  Loader2Icon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { EyeIcon, Loader2Icon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   deleteContactMessage,
   updateContactMessage,
 } from "@/actions/contact-messages";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -90,9 +77,7 @@ export function ContactMessageRowActions({
   const router = useRouter();
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
-  const [isDeleting, startDelete] = useTransition();
   const editDefaults = toEditDefaults(message);
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
@@ -125,23 +110,6 @@ export function ContactMessageRowActions({
     });
   }
 
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deleteContactMessage({ id: message.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        router.refresh();
-      } catch {
-        toast.error("The message could not be deleted. Please try again.");
-      }
-    });
-  }
-
   return (
     <div className="flex items-center justify-end gap-0.5">
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
@@ -162,36 +130,16 @@ export function ContactMessageRowActions({
             <DialogDescription>Contact message details</DialogDescription>
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Enquiry route</dt>
-              <dd className="font-medium">
-                {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
-              </dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Name</dt>
-              <dd className="font-medium">{message.full_name}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Email</dt>
-              <dd className="break-all font-medium">{message.email}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Phone</dt>
-              <dd className="font-medium">{message.phone}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Message</dt>
-              <dd className="whitespace-pre-wrap font-medium">
-                {message.message}
-              </dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Submitted</dt>
-              <dd className="font-medium">
-                {format(new Date(message.created_at), "MMM d, yyyy HH:mm")}
-              </dd>
-            </div>
+            <AdminDetailRow label="Enquiry route">
+              {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
+            </AdminDetailRow>
+            <AdminDetailRow label="Name">{message.full_name}</AdminDetailRow>
+            <AdminDetailRow label="Email">{message.email}</AdminDetailRow>
+            <AdminDetailRow label="Phone">{message.phone}</AdminDetailRow>
+            <AdminDetailRow label="Message">{message.message}</AdminDetailRow>
+            <AdminDetailRow label="Submitted">
+              {format(new Date(message.created_at), "MMM d, yyyy HH:mm")}
+            </AdminDetailRow>
           </dl>
           <DialogFooter showCloseButton />
         </DialogContent>
@@ -358,44 +306,19 @@ export function ContactMessageRowActions({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${message.subject}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete message?</AlertDialogTitle>
-            <AlertDialogDescription className="break-all">
-              This permanently deletes the message from {message.full_name} (
-              {message.email}). This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminRowDelete
+        deleteAction={() => deleteContactMessage({ id: message.id })}
+        fallbackError="The message could not be deleted. Please try again."
+        title="Delete message?"
+        description={
+          <>
+            This permanently deletes the message from {message.full_name} (
+            {message.email}). This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        triggerLabel={`Delete ${message.subject}`}
+      />
     </div>
   );
 }

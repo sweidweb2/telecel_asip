@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { CONTACT_ENQUIRY_TYPES } from "@/constants/contact-enquiry";
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
 
 type ContactMessageMessages = {
   enquiryTypeInvalid: string;
@@ -138,25 +142,15 @@ export type ContactMessageListQuery = z.infer<
   pageSize: typeof CONTACT_MESSAGE_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseContactMessageListQuery(
   input: RawSearchParams,
 ): ContactMessageListQuery {
-  const parsed = contactMessageListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    enquiryType: first(input.enquiryType) ?? "all",
-    search: first(input.search) ?? "",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: contactMessageListQueryInputSchema,
     pageSize: CONTACT_MESSAGE_PAGE_SIZE,
-  };
+    defaults: { page: "1", enquiryType: "all", search: "" },
+  });
 }
 
 export type UpdateContactMessageInput = z.infer<

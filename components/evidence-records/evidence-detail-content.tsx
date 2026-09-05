@@ -16,7 +16,7 @@ import {
   EVIDENCE_STATUS_LABELS,
 } from "@/constants/evidence-labels";
 import type {
-  EvidenceListItem,
+  EvidenceDetail,
   EvidenceOwnerOption,
 } from "@/types/evidence-record";
 
@@ -49,7 +49,7 @@ export function EvidenceDetailContent({
   owners,
   defaultOwnerId,
 }: {
-  record: EvidenceListItem;
+  record: EvidenceDetail;
   owners: EvidenceOwnerOption[];
   defaultOwnerId: string;
 }) {

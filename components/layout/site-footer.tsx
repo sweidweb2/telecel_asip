@@ -184,7 +184,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               href={labels.apply.href}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "min-h-11 w-full justify-center sm:w-auto",
+                "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
               )}
             >
               {labels.apply.label}

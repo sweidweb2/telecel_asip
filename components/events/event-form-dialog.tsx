@@ -7,7 +7,12 @@ import { useRouter } from "nextjs-toploader/app";
 import { Loader2Icon, PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { createEvent, updateEvent } from "@/actions/events";
+import { createEvent, loadEventStartupOptions, updateEvent } from "@/actions/events";
+import {
+  ADMIN_FORM_PAIR_FIELD,
+  ADMIN_FORM_PAIR_ROW,
+  AdminFormFieldLabel,
+} from "@/components/dashboard/admin-form-layout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -21,7 +26,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -46,29 +50,6 @@ import {
   type EventFormValues,
 } from "@/validations/event";
 
-const PAIR_ROW =
-  "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-x-5 sm:gap-y-2";
-const PAIR_FIELD = "sm:row-span-3 sm:grid sm:grid-rows-subgrid";
-
-function FieldLabelRow({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: React.ReactNode;
-  hint: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-        {hint}
-      </span>
-    </div>
-  );
-}
-
 function defaultsFor(event?: EventDetail): EventFormValues {
   return {
     name: event?.name ?? "",
@@ -86,7 +67,8 @@ function defaultsFor(event?: EventDetail): EventFormValues {
 type EventFormDialogProps = {
   mode: "create" | "edit";
   event?: EventDetail;
-  startupOptions: EventStartupOption[];
+  /** Preloaded options (detail edit). Create dialog loads on open when omitted. */
+  startupOptions?: EventStartupOption[];
   triggerRender?: React.ReactElement;
   triggerContent?: React.ReactNode;
   onSaved?: () => void;
@@ -95,7 +77,7 @@ type EventFormDialogProps = {
 export function EventFormDialog({
   mode,
   event,
-  startupOptions,
+  startupOptions: initialOptions,
   triggerRender,
   triggerContent,
   onSaved,
@@ -104,6 +86,10 @@ export function EventFormDialog({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [startupOptions, setStartupOptions] = useState<EventStartupOption[]>(
+    initialOptions ?? [],
+  );
+  const [optionsLoading, setOptionsLoading] = useState(false);
 
   const form = useForm<EventFormValues, unknown, CreateEventInput>({
     resolver: zodResolver(
@@ -113,10 +99,31 @@ export function EventFormDialog({
     defaultValues: defaultsFor(event),
   });
 
-  function handleOpenChange(next: boolean) {
+  async function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) {
-      form.reset(defaultsFor(event));
+    if (!next) return;
+
+    form.reset(defaultsFor(event));
+
+    if (initialOptions) {
+      setStartupOptions(initialOptions);
+      return;
+    }
+
+    setOptionsLoading(true);
+    try {
+      const result = await loadEventStartupOptions();
+      if (result.status === "error") {
+        toast.error(result.message);
+        setStartupOptions([]);
+        return;
+      }
+      setStartupOptions(result.options);
+    } catch {
+      toast.error("Could not load startups. Please try again.");
+      setStartupOptions([]);
+    } finally {
+      setOptionsLoading(false);
     }
   }
 
@@ -177,12 +184,12 @@ export function EventFormDialog({
         <form id={formId} onSubmit={form.handleSubmit(onSubmit)} noValidate>
           <FieldGroup>
             <Field data-invalid={Boolean(errors.name)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-name`}
                 hint={`Required · 2–${EVENT_NAME_MAX} chars`}
               >
                 Name
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Input
                 id={`${formId}-name`}
                 disabled={isPending}
@@ -197,14 +204,14 @@ export function EventFormDialog({
               ) : null}
             </Field>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={Boolean(errors.eventDate)}
               >
-                <FieldLabelRow htmlFor={`${formId}-date`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-date`} hint="Required">
                   Event date
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-date`}
                   type="date"
@@ -219,12 +226,12 @@ export function EventFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={Boolean(errors.publishStatus)}
               >
-                <FieldLabelRow htmlFor={`${formId}-status`} hint="Required">
+                <AdminFormFieldLabel htmlFor={`${formId}-status`} hint="Required">
                   Publish status
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="publishStatus"
@@ -258,17 +265,17 @@ export function EventFormDialog({
               </Field>
             </div>
 
-            <div className={PAIR_ROW}>
+            <div className={ADMIN_FORM_PAIR_ROW}>
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={Boolean(errors.location)}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-location`}
                   hint={`Optional · max ${EVENT_LOCATION_MAX}`}
                 >
                   Location
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-location`}
                   disabled={isPending}
@@ -283,12 +290,12 @@ export function EventFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={Boolean(errors.format)}
               >
-                <FieldLabelRow htmlFor={`${formId}-format`} hint="Optional">
+                <AdminFormFieldLabel htmlFor={`${formId}-format`} hint="Optional">
                   Format
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="format"
@@ -328,12 +335,12 @@ export function EventFormDialog({
             </div>
 
             <Field data-invalid={Boolean(errors.speakers)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-speakers`}
                 hint={`Optional · one per line · max ${EVENT_SPEAKER_MAX} chars each`}
               >
                 Speakers
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-speakers`}
                 rows={3}
@@ -352,12 +359,12 @@ export function EventFormDialog({
             </Field>
 
             <Field data-invalid={Boolean(errors.assets)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-assets`}
                 hint={`Optional · one http(s) URL per line · max ${EVENT_ASSET_URL_MAX}`}
               >
                 Assets
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-assets`}
                 rows={3}
@@ -376,12 +383,12 @@ export function EventFormDialog({
             </Field>
 
             <Field data-invalid={Boolean(errors.outcomes)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-outcomes`}
                 hint={`Optional · max ${EVENT_OUTCOMES_MAX} chars`}
               >
                 Outcomes
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-outcomes`}
                 rows={4}
@@ -397,14 +404,19 @@ export function EventFormDialog({
             </Field>
 
             <Field data-invalid={Boolean(errors.startupIds)}>
-              <FieldLabelRow htmlFor={`${formId}-startups`} hint="Optional">
+              <AdminFormFieldLabel htmlFor={`${formId}-startups`} hint="Optional">
                 Linked startups
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <div
                 id={`${formId}-startups`}
                 className="max-h-48 space-y-2 overflow-y-auto rounded-lg border p-3"
               >
-                {startupOptions.length === 0 ? (
+                {optionsLoading ? (
+                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2Icon className="size-4 animate-spin" />
+                    Loading startups…
+                  </p>
+                ) : startupOptions.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No startups in the portfolio yet.
                   </p>
@@ -459,7 +471,11 @@ export function EventFormDialog({
           >
             Cancel
           </Button>
-          <Button type="submit" form={formId} disabled={isPending}>
+          <Button
+            type="submit"
+            form={formId}
+            disabled={isPending || optionsLoading}
+          >
             {isPending ? (
               <Loader2Icon className="animate-spin" />
             ) : mode === "create" ? (

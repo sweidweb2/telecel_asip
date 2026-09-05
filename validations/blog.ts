@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const BLOG_PAGE_SIZE = 12;
 export const BLOG_TITLE_MAX = 200;
 export const BLOG_SUMMARY_MAX = 500;
@@ -113,21 +118,11 @@ export type BlogListQuery = z.infer<typeof blogListQueryInputSchema> & {
   pageSize: typeof BLOG_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseBlogListQuery(input: RawSearchParams): BlogListQuery {
-  const parsed = blogListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: blogListQueryInputSchema,
     pageSize: BLOG_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "", status: "all" },
+  });
 }

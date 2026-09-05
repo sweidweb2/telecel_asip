@@ -1,72 +1,71 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "nextjs-toploader/app";
+import Link from "next/link";
 import { PencilIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { deleteImpactMetric } from "@/actions/impact-metrics";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { ImpactMetricFormDialog } from "@/components/impact-metrics/impact-metric-form-dialog";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/constants/routes";
-import type { EvidenceOption, ImpactMetricListItem } from "@/types/impact-metric";
+import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
+import type {
+  EvidenceOption,
+  ImpactMetric,
+  ImpactMetricListItem,
+} from "@/types/impact-metric";
 
 type ImpactMetricRowActionsProps = {
-  metric: ImpactMetricListItem;
-  evidenceOptions: EvidenceOption[];
+  metric: ImpactMetricListItem | ImpactMetric;
+  /** When set with a full metric, enables inline edit. List rows omit this. */
+  evidenceOptions?: EvidenceOption[];
   redirectOnDelete?: boolean;
 };
+
+function isFullMetric(
+  metric: ImpactMetricListItem | ImpactMetric,
+): metric is ImpactMetric {
+  return "period_start" in metric && "display_locations" in metric;
+}
 
 export function ImpactMetricRowActions({
   metric,
   evidenceOptions,
   redirectOnDelete = false,
 }: ImpactMetricRowActionsProps) {
-  const router = useRouter();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [isDeleting, startDelete] = useTransition();
-
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deleteImpactMetric({ id: metric.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        if (redirectOnDelete) {
-          router.push(ROUTES.impactMetrics);
-          return;
-        }
-        router.refresh();
-      } catch {
-        toast.error("The impact metric could not be deleted. Please try again.");
-      }
-    });
-  }
+  const canInlineEdit = Boolean(evidenceOptions) && isFullMetric(metric);
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <ImpactMetricFormDialog
-        mode="edit"
-        metric={metric}
-        evidenceOptions={evidenceOptions}
-        triggerRender={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Edit ${metric.claim_label}`}
-          />
-        }
-        triggerContent={<PencilIcon />}
-      />
+      {canInlineEdit ? (
+        <ImpactMetricFormDialog
+          mode="edit"
+          metric={metric}
+          evidenceOptions={evidenceOptions}
+          triggerRender={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Edit ${metric.claim_label}`}
+            />
+          }
+          triggerContent={<PencilIcon />}
+        />
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Edit ${metric.claim_label}`}
+          nativeButton={false}
+          render={<Link href={impactMetricDetailPath(metric.id)} />}
+        >
+          <PencilIcon />
+        </Button>
+      )}
 
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
+      <AdminRowDelete
+        deleteAction={() => deleteImpactMetric({ id: metric.id })}
+        redirectTo={redirectOnDelete ? ROUTES.impactMetrics : undefined}
+        fallbackError="The impact metric could not be deleted. Please try again."
         title="Delete impact metric?"
         description={
           <>
@@ -76,8 +75,6 @@ export function ImpactMetricRowActions({
         }
         confirmLabel="Delete metric"
         triggerLabel={`Delete ${metric.claim_label}`}
-        isPending={isDeleting}
-        onConfirm={onDelete}
       />
     </div>
   );

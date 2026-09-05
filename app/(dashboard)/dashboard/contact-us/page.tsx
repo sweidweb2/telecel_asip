@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { ContactMessagesTable } from "@/components/contact-messages/contact-messages-table";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
 import { getContactMessagesPageData } from "@/data/contact-messages";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseContactMessageListQuery } from "@/validations/contact-message";
 
+const resource = getAdminResource("contactUs");
+
 export const metadata: Metadata = {
-  title: "Contact us | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type ContactUsPageProps = {
@@ -18,40 +24,28 @@ export default async function ContactUsPage({
   searchParams,
 }: ContactUsPageProps) {
   const query = parseContactMessageListQuery(await searchParams);
-  const result = await getContactMessagesPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({
-      page: String(list.totalPages),
-    });
-    if (query.search) params.set("search", query.search);
-    if (query.enquiryType !== "all") {
-      params.set("enquiryType", query.enquiryType);
-    }
-    redirect(`${ROUTES.contactUs}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getContactMessagesPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        enquiryType: q.enquiryType !== "all" ? q.enquiryType : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="min-w-0">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          Contact us
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Review and manage messages submitted from the public contact form.
-        </p>
-      </div>
-
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+    >
       <ContactMessagesTable
         messages={list.messages}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

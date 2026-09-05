@@ -1,5 +1,10 @@
 import { unstable_cache } from "next/cache";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -35,8 +40,7 @@ async function fetchBlogsPage(
   supabase: ServerClient,
   query: BlogListQuery,
 ): Promise<BlogListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("blogs")
@@ -62,20 +66,17 @@ async function fetchBlogsPage(
   return {
     blogs: (data ?? []) as BlogListItem[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
 export async function getBlogsPageData(
   query: BlogListQuery,
 ): Promise<{ status: "forbidden" } | { status: "ok"; list: BlogListResult }> {
-  const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const list = await fetchBlogsPage(supabase, query);
-  return { status: "ok", list };
+  return gateAdminPageData(async (supabase) => {
+    const list = await fetchBlogsPage(supabase, query);
+    return { list };
+  });
 }
 
 export async function getBlogByIdForAdmin(

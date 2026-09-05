@@ -8,6 +8,10 @@ import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -20,9 +24,7 @@ import {
   type UpdateStartupInput,
 } from "@/validations/startup";
 
-export type StartupActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type StartupActionResult = AdminActionResult;
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage startups.",
@@ -195,42 +197,44 @@ export async function updateStartup(
 export async function deleteStartup(
   input: DeleteStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = deleteStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return runAdminMutation({
+    schema: deleteStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: existing, error: existingError } = await session.supabase
+        .from("startups")
+        .select("id, slug, logo_url")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug, logo_url")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error: deleteError } = await session.supabase
+        .from("startups")
+        .delete()
+        .eq("id", data.id);
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (deleteError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const { error: deleteError } = await session.supabase
-    .from("startups")
-    .delete()
-    .eq("id", parsed.data.id);
+      // Storage only after the row is gone: a failure here leaks an orphan object
+      // instead of leaving a live row pointing at a deleted logo.
+      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-  if (deleteError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-
-  // Storage only after the row is gone: a failure here leaks an orphan object
-  // instead of leaving a live row pointing at a deleted logo.
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-
-  refreshStartupPaths(existing.slug);
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      refreshStartupPaths(existing.slug);
+      return { status: "success" };
+    },
+  });
 }
 
 function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {

@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { CohortsAdminList } from "@/components/cohorts/cohorts-admin-list";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
 import { getCohortsPageData } from "@/data/cohorts";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseCohortListQuery } from "@/validations/cohort";
 
+const resource = getAdminResource("cohorts");
+
 export const metadata: Metadata = {
-  title: "Cohorts | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type CohortsPageProps = {
@@ -16,39 +22,28 @@ type CohortsPageProps = {
 
 export default async function CohortsPage({ searchParams }: CohortsPageProps) {
   const query = parseCohortListQuery(await searchParams);
-  const result = await getCohortsPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({
-      page: String(list.totalPages),
-    });
-    if (query.search) params.set("search", query.search);
-    if (query.status !== "all") params.set("status", query.status);
-    redirect(`${ROUTES.cohorts}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getCohortsPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        status: q.status !== "all" ? q.status : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="min-w-0">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          Cohorts
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage programme years, publish status, and linked partners and
-          founders.
-        </p>
-      </div>
-
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+    >
       <CohortsAdminList
         cohorts={list.cohorts}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

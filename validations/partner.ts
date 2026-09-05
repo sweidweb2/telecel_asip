@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const PARTNER_PAGE_SIZE = 20;
 
 export const PARTNER_NAME_MAX = 120;
@@ -123,21 +128,13 @@ export type PartnerListQuery = z.infer<typeof partnerListQueryInputSchema> & {
   pageSize: typeof PARTNER_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parsePartnerListQuery(
   input: RawSearchParams,
 ): PartnerListQuery {
-  const parsed = partnerListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    type: first(input.type) ?? "all",
-    status: first(input.status) ?? "all",
+  return parseAdminListQuery({
+    input,
+    schema: partnerListQueryInputSchema,
+    pageSize: PARTNER_PAGE_SIZE,
+    defaults: { page: "1", search: "", type: "all", status: "all" },
   });
-
-  return { ...parsed, pageSize: PARTNER_PAGE_SIZE };
 }

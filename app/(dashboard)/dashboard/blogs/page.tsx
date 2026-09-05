@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { BlogsAdminList } from "@/components/blogs/blogs-admin-list";
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
 import { getBlogsPageData } from "@/data/blogs";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { parseBlogListQuery } from "@/validations/blog";
 
+const resource = getAdminResource("blogs");
+
 export const metadata: Metadata = {
-  title: "Blogs | ASIP Admin",
+  title: resource.metaTitle,
 };
 
 type BlogsPageProps = {
@@ -16,38 +22,28 @@ type BlogsPageProps = {
 
 export default async function BlogsPage({ searchParams }: BlogsPageProps) {
   const query = parseBlogListQuery(await searchParams);
-  const result = await getBlogsPageData(query);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-
-  const { list } = result;
-
-  if (query.page > list.totalPages) {
-    const params = new URLSearchParams({
-      page: String(list.totalPages),
-    });
-    if (query.search) params.set("search", query.search);
-    if (query.status !== "all") params.set("status", query.status);
-    redirect(`${ROUTES.blogs}?${params.toString()}`);
-  }
+  const { list } = await loadAdminListPage({
+    query,
+    fetchPage: getBlogsPageData,
+    listPath: resource.listPath,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, {
+        search: q.search || undefined,
+        status: q.status !== "all" ? q.status : undefined,
+      }),
+  });
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="min-w-0">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          Blogs
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create and manage Insights articles shown on the public site.
-        </p>
-      </div>
-
+    <AdminListPageShell
+      title={resource.pageTitle}
+      description={resource.description}
+    >
       <BlogsAdminList
         blogs={list.blogs}
         total={list.total}
         totalPages={list.totalPages}
         query={query}
       />
-    </main>
+    </AdminListPageShell>
   );
 }

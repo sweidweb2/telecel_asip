@@ -1,5 +1,10 @@
 import { unstable_cache } from "next/cache";
 
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -98,8 +103,7 @@ async function fetchStartupsPage(
   supabase: ServerClient,
   query: StartupListQuery,
 ): Promise<StartupListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("startups")
@@ -124,7 +128,7 @@ async function fetchStartupsPage(
   return {
     startups: (data ?? []) as StartupListItem[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -133,13 +137,10 @@ export async function getStartupsPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: StartupListResult }
 > {
-  const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const list = await fetchStartupsPage(supabase, query);
-  return { status: "ok", list };
+  return gateAdminPageData(async (supabase) => {
+    const list = await fetchStartupsPage(supabase, query);
+    return { list };
+  });
 }
 
 export async function getStartupByIdForAdmin(

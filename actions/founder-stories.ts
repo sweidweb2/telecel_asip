@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-
-import { ROUTES } from "@/constants/routes";
-import { FOUNDER_STORIES_CACHE_TAG } from "@/data/founder-stories";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { getAdminResource } from "@/constants/admin-resources";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
-import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import {
   createFounderStorySchema,
   deleteFounderStorySchema,
@@ -16,9 +16,9 @@ import {
   type UpdateFounderStoryInput,
 } from "@/validations/founder-story";
 
-export type FounderStoryActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type FounderStoryActionResult = AdminActionResult;
+
+const resource = getAdminResource("founderStories");
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage founder stories.",
@@ -40,9 +40,12 @@ const PG_MESSAGES = {
   uniqueConstraint: "founder_stories_startup_id",
 };
 
-function refreshFounderStoryPaths() {
-  revalidateTag(FOUNDER_STORIES_CACHE_TAG, "max");
-  revalidatePath(ROUTES.founderStories);
+function refreshFounderStoryPaths(id?: string) {
+  refreshAdminResource({
+    listPath: resource.listPath,
+    detailPath: id ? `${resource.listPath}/${id}` : undefined,
+    cacheTags: resource.cacheTags,
+  });
 }
 
 function normalizePermission(
@@ -82,100 +85,96 @@ function toFounderStoryRow(
 export async function createFounderStory(
   input: CreateFounderStoryInput,
 ): Promise<FounderStoryActionResult> {
-  const parsed = createFounderStorySchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: createFounderStorySchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("founder_stories")
+        .insert(toFounderStoryRow(data))
+        .select("id")
+        .single();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase
-    .from("founder_stories")
-    .insert(toFounderStoryRow(parsed.data))
-    .select("id")
-    .single();
-
-  if (error || !data?.id) {
-    return {
-      status: "error",
-      message: mapPgActionError(error ?? {}, PG_MESSAGES),
-    };
-  }
-
-  refreshFounderStoryPaths();
-  return { status: "success", message: MESSAGES.createSuccess, id: data.id };
+      if (error || !row?.id) {
+        return { status: "error", pgError: error ?? {} };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: () => refreshFounderStoryPaths(),
+  });
 }
 
 export async function updateFounderStory(
   input: UpdateFounderStoryInput,
 ): Promise<FounderStoryActionResult> {
-  const parsed = updateFounderStorySchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updateFounderStorySchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("founder_stories")
+        .update(toFounderStoryRow(data))
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase
-    .from("founder_stories")
-    .update(toFounderStoryRow(parsed.data))
-    .eq("id", parsed.data.id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
-  }
-  if (!data?.id) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  refreshFounderStoryPaths();
-  revalidatePath(`${ROUTES.founderStories}/${data.id}`);
-  return { status: "success", message: MESSAGES.updateSuccess, id: data.id };
+      if (error) {
+        return { status: "error", pgError: error };
+      }
+      if (!row?.id) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshFounderStoryPaths(id),
+  });
 }
 
 export async function deleteFounderStory(
   input: DeleteFounderStoryInput,
 ): Promise<FounderStoryActionResult> {
-  const parsed = deleteFounderStorySchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return runAdminMutation({
+    schema: deleteFounderStorySchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    execute: async (session, data) => {
+      const { data: existing, error: existingError } = await session.supabase
+        .from("founder_stories")
+        .select("id")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("founder_stories")
-    .select("id")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error: deleteError } = await session.supabase
+        .from("founder_stories")
+        .delete()
+        .eq("id", data.id);
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
-
-  const { error: deleteError } = await session.supabase
-    .from("founder_stories")
-    .delete()
-    .eq("id", parsed.data.id);
-
-  if (deleteError) {
-    return { status: "error", message: mapPgActionError(deleteError, PG_MESSAGES) };
-  }
-
-  refreshFounderStoryPaths();
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      if (deleteError) {
+        return { status: "error", pgError: deleteError };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshFounderStoryPaths(),
+  });
 }

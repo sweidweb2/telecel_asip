@@ -23,6 +23,11 @@ import {
   uploadPartnerLogo,
 } from "@/actions/partners";
 import {
+  ADMIN_FORM_PAIR_FIELD,
+  ADMIN_FORM_PAIR_ROW,
+  AdminFormFieldLabel,
+} from "@/components/dashboard/admin-form-layout";
+import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -81,34 +86,6 @@ type PartnerFormDialogProps = {
   /** Called after a successful write, before the router refresh. */
   onSaved?: () => void;
 };
-
-/**
- * Two-column row whose children share label / control / error tracks, so a
- * label that wraps in one column never pushes its sibling's input out of line.
- */
-const PAIR_ROW =
-  "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-x-5 sm:gap-y-2";
-const PAIR_FIELD = "sm:row-span-3 sm:grid sm:grid-rows-subgrid";
-
-/** Label with the field's own constraints spelled out beside it. */
-function FieldLabelRow({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: React.ReactNode;
-  hint: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-        {hint}
-      </span>
-    </div>
-  );
-}
 
 function defaultsFor(partner?: PartnerListItem): PartnerFormValues {
   return {
@@ -280,14 +257,14 @@ export function PartnerFormDialog({
 
         <form id={formId} onSubmit={form.handleSubmit(onSubmit)} noValidate>
           <FieldGroup>
-            <div className={PAIR_ROW}>
-              <Field className={PAIR_FIELD} data-invalid={Boolean(errors.name)}>
-                <FieldLabelRow
+            <div className={ADMIN_FORM_PAIR_ROW}>
+              <Field className={ADMIN_FORM_PAIR_FIELD} data-invalid={Boolean(errors.name)}>
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-name`}
                   hint={`Required · 2–${PARTNER_NAME_MAX} chars`}
                 >
                   Name
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-name`}
                   disabled={isPending}
@@ -302,13 +279,13 @@ export function PartnerFormDialog({
                 ) : null}
               </Field>
 
-              <Field className={PAIR_FIELD} data-invalid={Boolean(errors.org)}>
-                <FieldLabelRow
+              <Field className={ADMIN_FORM_PAIR_FIELD} data-invalid={Boolean(errors.org)}>
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-org`}
                   hint={`Optional · 2–${PARTNER_ORG_MAX} chars`}
                 >
                   Organisation
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-org`}
                   disabled={isPending}
@@ -323,11 +300,11 @@ export function PartnerFormDialog({
               </Field>
             </div>
 
-            <div className={PAIR_ROW}>
-              <Field className={PAIR_FIELD} data-invalid={Boolean(errors.type)}>
-                <FieldLabelRow htmlFor={`${formId}-type`} hint="Required">
+            <div className={ADMIN_FORM_PAIR_ROW}>
+              <Field className={ADMIN_FORM_PAIR_FIELD} data-invalid={Boolean(errors.type)}>
+                <AdminFormFieldLabel htmlFor={`${formId}-type`} hint="Required">
                   Type
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Controller
                   control={form.control}
                   name="type"
@@ -361,15 +338,15 @@ export function PartnerFormDialog({
               </Field>
 
               <Field
-                className={PAIR_FIELD}
+                className={ADMIN_FORM_PAIR_FIELD}
                 data-invalid={Boolean(errors.sortOrder)}
               >
-                <FieldLabelRow
+                <AdminFormFieldLabel
                   htmlFor={`${formId}-sort`}
                   hint={`Optional · 0–${PARTNER_SORT_ORDER_MAX} · lowest first`}
                 >
                   Display order
-                </FieldLabelRow>
+                </AdminFormFieldLabel>
                 <Input
                   id={`${formId}-sort`}
                   type="number"
@@ -387,12 +364,12 @@ export function PartnerFormDialog({
             </div>
 
             <Field data-invalid={Boolean(errors.link)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-link`}
                 hint={`Optional · http(s):// · max ${PARTNER_LINK_MAX} chars`}
               >
                 Link
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Input
                 id={`${formId}-link`}
                 type="url"
@@ -409,12 +386,12 @@ export function PartnerFormDialog({
             </Field>
 
             <Field data-invalid={Boolean(errors.contribution)}>
-              <FieldLabelRow
+              <AdminFormFieldLabel
                 htmlFor={`${formId}-contribution`}
                 hint={`Optional · max ${PARTNER_CONTRIBUTION_MAX} chars`}
               >
                 Role / contribution
-              </FieldLabelRow>
+              </AdminFormFieldLabel>
               <Textarea
                 id={`${formId}-contribution`}
                 rows={4}

@@ -53,11 +53,6 @@ export function ImpactMetricDetailContent({
   evidenceOptions: EvidenceOption[];
   evidencePrimarySource: string | null;
 }) {
-  const listItem = {
-    ...metric,
-    evidence_primary_source: evidencePrimarySource,
-  };
-
   return (
     <div className="grid min-w-0 gap-6 lg:grid-cols-3">
       <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
@@ -77,7 +72,7 @@ export function ImpactMetricDetailContent({
 
             <div className="flex shrink-0 items-center gap-2 sm:mt-1">
               <ImpactMetricRowActions
-                metric={listItem}
+                metric={metric}
                 evidenceOptions={evidenceOptions}
                 redirectOnDelete
               />
