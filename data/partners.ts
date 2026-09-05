@@ -139,7 +139,9 @@ type PublicRow = Pick<
   "id" | "name" | "org" | "type" | "link" | "logo_url" | "is_active"
 >;
 
-function toPublicItem(row: PublicRow): PartnerPublicItem {
+function toPublicItem(row: PublicRow): PartnerPublicItem | null {
+  if (!row.id || !row.name || !row.type) return null;
+
   return {
     id: row.id,
     name: row.name,
@@ -166,7 +168,9 @@ async function fetchPublicPartners(): Promise<PartnerPublicGroups> {
   const historical: PartnerPublicItem[] = [];
 
   for (const row of rows) {
-    (row.is_active ? active : historical).push(toPublicItem(row));
+    const item = toPublicItem(row);
+    if (!item) continue;
+    (row.is_active ? active : historical).push(item);
   }
 
   return { active, historical };

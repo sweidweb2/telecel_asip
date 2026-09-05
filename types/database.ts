@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -10,61 +10,35 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
-      contact_messages: {
-        Row: {
-          created_at: string
-          email: string
-          enquiry_type: Database["public"]["Enums"]["contact_enquiry_type"]
-          full_name: string
-          id: string
-          message: string
-          phone: string
-          subject: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
-          full_name: string
-          id?: string
-          message: string
-          phone: string
-          subject: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
-          full_name?: string
-          id?: string
-          message?: string
-          phone?: string
-          subject?: string
-        }
-        Relationships: []
-      }
-      site_settings: {
-        Row: {
-          id: number
-          open_applications: boolean
-          updated_at: string
-        }
-        Insert: {
-          id?: number
-          open_applications?: boolean
-          updated_at?: string
-        }
-        Update: {
-          id?: number
-          open_applications?: boolean
-          updated_at?: string
-        }
-        Relationships: []
-      }
       blogs: {
         Row: {
           author_avatar_url: string | null
@@ -116,48 +90,6 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      cohorts: {
-        Row: {
-          created_at: string
-          id: string
-          media_url: string | null
-          programme_dates_end: string | null
-          programme_dates_start: string | null
-          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
-          public_label: string
-          publish_status: Database["public"]["Enums"]["cms_publish_status"]
-          summary: string | null
-          updated_at: string
-          year: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          media_url?: string | null
-          programme_dates_end?: string | null
-          programme_dates_start?: string | null
-          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
-          public_label: string
-          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
-          summary?: string | null
-          updated_at?: string
-          year: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          media_url?: string | null
-          programme_dates_end?: string | null
-          programme_dates_start?: string | null
-          programme_status?: Database["public"]["Enums"]["cohort_programme_status"]
-          public_label?: string
-          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
-          summary?: string | null
-          updated_at?: string
-          year?: number
         }
         Relationships: []
       }
@@ -235,116 +167,117 @@ export type Database = {
           },
         ]
       }
-      founder_stories: {
+      cohorts: {
         Row: {
           created_at: string
-          founder_quote_text: string | null
           id: string
+          media_url: string | null
+          programme_dates_end: string | null
+          programme_dates_start: string | null
+          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label: string
           publish_status: Database["public"]["Enums"]["cms_publish_status"]
-          quote_attribution_name: string | null
-          quote_attribution_title: string | null
-          quote_date: string | null
-          quote_permission_status: Database["public"]["Enums"]["quote_permission_status"] | null
-          startup_id: string
-          the_asip_connection: string
-          the_problem: string
+          summary: string | null
           updated_at: string
-          what_they_built: string
-          where_they_are_now: string
+          year: number
         }
         Insert: {
           created_at?: string
-          founder_quote_text?: string | null
           id?: string
+          media_url?: string | null
+          programme_dates_end?: string | null
+          programme_dates_start?: string | null
+          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label: string
           publish_status?: Database["public"]["Enums"]["cms_publish_status"]
-          quote_attribution_name?: string | null
-          quote_attribution_title?: string | null
-          quote_date?: string | null
-          quote_permission_status?: Database["public"]["Enums"]["quote_permission_status"] | null
-          startup_id: string
-          the_asip_connection: string
-          the_problem: string
+          summary?: string | null
           updated_at?: string
-          what_they_built: string
-          where_they_are_now: string
+          year: number
         }
         Update: {
           created_at?: string
-          founder_quote_text?: string | null
           id?: string
+          media_url?: string | null
+          programme_dates_end?: string | null
+          programme_dates_start?: string | null
+          programme_status?: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label?: string
           publish_status?: Database["public"]["Enums"]["cms_publish_status"]
-          quote_attribution_name?: string | null
-          quote_attribution_title?: string | null
-          quote_date?: string | null
-          quote_permission_status?: Database["public"]["Enums"]["quote_permission_status"] | null
-          startup_id?: string
-          the_asip_connection?: string
-          the_problem?: string
+          summary?: string | null
           updated_at?: string
-          what_they_built?: string
-          where_they_are_now?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          enquiry_type: Database["public"]["Enums"]["contact_enquiry_type"]
+          full_name: string
+          id: string
+          message: string
+          phone: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
+          full_name: string
+          id?: string
+          message: string
+          phone: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
+          full_name?: string
+          id?: string
+          message?: string
+          phone?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      event_startups: {
+        Row: {
+          event_id: string
+          startup_id: string
+        }
+        Insert: {
+          event_id: string
+          startup_id: string
+        }
+        Update: {
+          event_id?: string
+          startup_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "founder_stories_startup_id_fkey"
+            foreignKeyName: "event_startups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_startups_startup_id_fkey"
             columns: ["startup_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "startups"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "founder_stories_startup_id_fkey"
+            foreignKeyName: "event_startups_startup_id_fkey"
             columns: ["startup_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "startups_public"
             referencedColumns: ["id"]
           },
         ]
-      }
-      partners: {
-        Row: {
-          contribution: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          link: string | null
-          logo_permission: boolean
-          logo_url: string | null
-          name: string
-          org: string | null
-          sort_order: number
-          type: Database["public"]["Enums"]["partner_type"]
-          updated_at: string
-        }
-        Insert: {
-          contribution?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          link?: string | null
-          logo_permission?: boolean
-          logo_url?: string | null
-          name: string
-          org?: string | null
-          sort_order?: number
-          type: Database["public"]["Enums"]["partner_type"]
-          updated_at?: string
-        }
-        Update: {
-          contribution?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          link?: string | null
-          logo_permission?: boolean
-          logo_url?: string | null
-          name?: string
-          org?: string | null
-          sort_order?: number
-          type?: Database["public"]["Enums"]["partner_type"]
-          updated_at?: string
-        }
-        Relationships: []
       }
       events: {
         Row: {
@@ -387,36 +320,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      event_startups: {
-        Row: {
-          event_id: string
-          startup_id: string
-        }
-        Insert: {
-          event_id: string
-          startup_id: string
-        }
-        Update: {
-          event_id?: string
-          startup_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_startups_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_startups_startup_id_fkey"
-            columns: ["startup_id"]
-            isOneToOne: false
-            referencedRelation: "startups"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       evidence_records: {
         Row: {
@@ -467,6 +370,78 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_stories: {
+        Row: {
+          created_at: string
+          founder_quote_text: string | null
+          id: string
+          publish_status: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name: string | null
+          quote_attribution_title: string | null
+          quote_date: string | null
+          quote_permission_status:
+            | Database["public"]["Enums"]["quote_permission_status"]
+            | null
+          startup_id: string
+          the_asip_connection: string
+          the_problem: string
+          updated_at: string
+          what_they_built: string
+          where_they_are_now: string
+        }
+        Insert: {
+          created_at?: string
+          founder_quote_text?: string | null
+          id?: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name?: string | null
+          quote_attribution_title?: string | null
+          quote_date?: string | null
+          quote_permission_status?:
+            | Database["public"]["Enums"]["quote_permission_status"]
+            | null
+          startup_id: string
+          the_asip_connection: string
+          the_problem: string
+          updated_at?: string
+          what_they_built: string
+          where_they_are_now: string
+        }
+        Update: {
+          created_at?: string
+          founder_quote_text?: string | null
+          id?: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name?: string | null
+          quote_attribution_title?: string | null
+          quote_date?: string | null
+          quote_permission_status?:
+            | Database["public"]["Enums"]["quote_permission_status"]
+            | null
+          startup_id?: string
+          the_asip_connection?: string
+          the_problem?: string
+          updated_at?: string
+          what_they_built?: string
+          where_they_are_now?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_stories_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_stories_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups_public"
             referencedColumns: ["id"]
           },
         ]
@@ -527,38 +502,131 @@ export type Database = {
           },
         ]
       }
-      startups: {
+      interest_registrations: {
         Row: {
+          company_name: string
+          consent: boolean
+          country: string
           created_at: string
-          description: string
-          founded_at: string | null
+          email: string
+          full_name: string
           id: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Insert: {
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          pitch: string
+          sector: string
+        }
+        Update: {
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          pitch?: string
+          sector?: string
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          contribution: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          link: string | null
+          logo_permission: boolean
           logo_url: string | null
           name: string
-          slug: string
-          status: Database["public"]["Enums"]["startup_status"]
+          org: string | null
+          sort_order: number
+          type: Database["public"]["Enums"]["partner_type"]
+          updated_at: string
+        }
+        Insert: {
+          contribution?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          logo_permission?: boolean
+          logo_url?: string | null
+          name: string
+          org?: string | null
+          sort_order?: number
+          type: Database["public"]["Enums"]["partner_type"]
+          updated_at?: string
+        }
+        Update: {
+          contribution?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          logo_permission?: boolean
+          logo_url?: string | null
+          name?: string
+          org?: string | null
+          sort_order?: number
+          type?: Database["public"]["Enums"]["partner_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
-          description: string
-          founded_at?: string | null
-          id?: string
-          logo_url?: string | null
-          name: string
-          slug: string
-          status?: Database["public"]["Enums"]["startup_status"]
+          email: string
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string
-          founded_at?: string | null
+          email?: string
+          full_name?: string | null
           id?: string
-          logo_url?: string | null
-          name?: string
-          slug?: string
-          status?: Database["public"]["Enums"]["startup_status"]
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: number
+          open_applications: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          open_applications?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          open_applications?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -647,70 +715,47 @@ export type Database = {
             referencedRelation: "startups"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "startup_details_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: true
+            referencedRelation: "startups_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      interest_registrations: {
-        Row: {
-          company_name: string
-          consent: boolean
-          country: string
-          created_at: string
-          email: string
-          full_name: string
-          id: string
-          phone: string
-          pitch: string
-          sector: string
-        }
-        Insert: {
-          company_name: string
-          consent: boolean
-          country: string
-          created_at?: string
-          email: string
-          full_name: string
-          id?: string
-          phone: string
-          pitch: string
-          sector: string
-        }
-        Update: {
-          company_name?: string
-          consent?: boolean
-          country?: string
-          created_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          phone?: string
-          pitch?: string
-          sector?: string
-        }
-        Relationships: []
-      }
-      profiles: {
+      startups: {
         Row: {
           created_at: string
-          email: string
-          full_name: string | null
+          description: string
+          founded_at: string | null
           id: string
-          role: Database["public"]["Enums"]["user_role"]
+          logo_url: string | null
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["startup_status"]
           updated_at: string
         }
         Insert: {
           created_at?: string
-          email: string
-          full_name?: string | null
-          id: string
-          role?: Database["public"]["Enums"]["user_role"]
+          description: string
+          founded_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          status?: Database["public"]["Enums"]["startup_status"]
           updated_at?: string
         }
         Update: {
           created_at?: string
-          email?: string
-          full_name?: string | null
+          description?: string
+          founded_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["startup_status"]
           updated_at?: string
         }
         Relationships: []
@@ -719,14 +764,34 @@ export type Database = {
     Views: {
       partners_public: {
         Row: {
-          id: string
-          name: string
-          org: string | null
-          type: Database["public"]["Enums"]["partner_type"]
+          id: string | null
+          is_active: boolean | null
           link: string | null
-          is_active: boolean
-          sort_order: number
           logo_url: string | null
+          name: string | null
+          org: string | null
+          sort_order: number | null
+          type: Database["public"]["Enums"]["partner_type"] | null
+        }
+        Insert: {
+          id?: string | null
+          is_active?: boolean | null
+          link?: string | null
+          logo_url?: never
+          name?: string | null
+          org?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["partner_type"] | null
+        }
+        Update: {
+          id?: string | null
+          is_active?: boolean | null
+          link?: string | null
+          logo_url?: never
+          name?: string | null
+          org?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["partner_type"] | null
         }
         Relationships: []
       }
@@ -736,99 +801,37 @@ export type Database = {
           cohort: string | null
           country_code: string | null
           cover_image_url: string | null
-          description: string
-          featured: boolean
-          founder_names: string[]
+          description: string | null
+          featured: boolean | null
           founded_at: string | null
-          id: string
-          image_focal_x: number
-          image_focal_y: number
+          founder_names: string[] | null
+          id: string | null
+          image_focal_x: number | null
+          image_focal_y: number | null
           industry: string | null
           location: string | null
           logo_url: string | null
-          name: string
+          name: string | null
           public_outcome: string | null
           sector: string | null
-          slug: string
+          slug: string | null
           team: string | null
-          updated_at: string
+          updated_at: string | null
           website_url: string | null
         }
         Relationships: []
       }
     }
     Functions: {
-      is_admin: { Args: never; Returns: boolean }
-      get_user_stats: {
-        Args: never
-        Returns: {
-          total: number
-          admins: number
-          editors: number
-          viewers: number
-          new_this_week: number
-          new_this_month: number
-        }[]
-      }
-      create_startup_with_details: {
-        Args: {
-          p_core: Json
-          p_details: Json
-        }
-        Returns: {
-          id: string
-          slug: string
-        }[]
-      }
-      update_startup_with_details: {
-        Args: {
-          p_id: string
-          p_core: Json
-          p_details: Json
-        }
-        Returns: {
-          id: string
-          slug: string
-          previous_slug: string
-        }[]
+      blog_categories_within_bounds: {
+        Args: { categories: string[] }
+        Returns: boolean
       }
       create_blog_with_featured: {
-        Args: {
-          p_blog: Json
-        }
+        Args: { p_blog: Json }
         Returns: {
           id: string
           slug: string
-        }[]
-      }
-      update_blog_with_featured: {
-        Args: {
-          p_id: string
-          p_blog: Json
-        }
-        Returns: {
-          id: string
-          slug: string
-          previous_slug: string
-        }[]
-      }
-      get_related_published_blogs: {
-        Args: {
-          p_slug: string
-          p_limit?: number
-        }
-        Returns: {
-          id: string
-          slug: string
-          title: string
-          summary: string
-          categories: string[]
-          thumbnail_url: string | null
-          author_name: string
-          author_avatar_url: string | null
-          reading_time_minutes: number
-          published_at: string | null
-          is_featured: boolean
         }[]
       }
       create_cohort_with_links: {
@@ -841,15 +844,66 @@ export type Database = {
           id: string
         }[]
       }
+      create_startup_with_details: {
+        Args: { p_core: Json; p_details: Json }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      get_related_published_blogs: {
+        Args: { p_limit?: number; p_slug: string }
+        Returns: {
+          author_avatar_url: string
+          author_name: string
+          categories: string[]
+          id: string
+          is_featured: boolean
+          published_at: string
+          reading_time_minutes: number
+          slug: string
+          summary: string
+          thumbnail_url: string
+          title: string
+        }[]
+      }
+      get_user_stats: {
+        Args: never
+        Returns: {
+          admins: number
+          editors: number
+          new_this_month: number
+          new_this_week: number
+          total: number
+          viewers: number
+        }[]
+      }
+      is_admin: { Args: never; Returns: boolean }
+      update_blog_with_featured: {
+        Args: { p_blog: Json; p_id: string }
+        Returns: {
+          id: string
+          previous_slug: string
+          slug: string
+        }[]
+      }
       update_cohort_with_links: {
         Args: {
-          p_id: string
           p_cohort: Json
+          p_id: string
           p_partner_ids?: string[]
           p_startup_ids?: string[]
         }
         Returns: {
           id: string
+        }[]
+      }
+      update_startup_with_details: {
+        Args: { p_core: Json; p_details: Json; p_id: string }
+        Returns: {
+          id: string
+          previous_slug: string
+          slug: string
         }[]
       }
     }
@@ -858,6 +912,7 @@ export type Database = {
       cms_publish_status: "draft" | "published"
       cohort_programme_status: "closed" | "open" | "hold"
       contact_enquiry_type: "founder" | "partner" | "media" | "general"
+      event_format: "virtual" | "in_person" | "hybrid"
       evidence_permission:
         | "public"
         | "internal_only"
@@ -869,7 +924,6 @@ export type Database = {
         | "outdated"
         | "disputed"
         | "not_for_publication"
-      event_format: "virtual" | "in_person" | "hybrid"
       impact_lens:
         | "pipeline"
         | "inclusion"
@@ -902,12 +956,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -931,11 +985,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -956,11 +1010,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -981,11 +1035,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -998,11 +1052,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1012,12 +1066,16 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       blog_status: ["draft", "published"],
       cms_publish_status: ["draft", "published"],
       cohort_programme_status: ["closed", "open", "hold"],
       contact_enquiry_type: ["founder", "partner", "media", "general"],
+      event_format: ["virtual", "in_person", "hybrid"],
       evidence_permission: [
         "public",
         "internal_only",
@@ -1031,7 +1089,6 @@ export const Constants = {
         "disputed",
         "not_for_publication",
       ],
-      event_format: ["virtual", "in_person", "hybrid"],
       impact_lens: [
         "pipeline",
         "inclusion",

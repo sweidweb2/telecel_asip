@@ -107,10 +107,10 @@
 - [x] ✅ Build Hero + [Discuss a partnership] CTA
 - [x] ✅ Build Partner Proposition module
 - [x] ✅ Build Partner Type table/module — 6 types each with value + engagement examples — `constants/partners-copy.ts`
-- [ ] Build Partner/Mentor content type fields (Section 16): name, org, type, role/contribution, active/historical, logo permission flag, link — no table; logos are a static constant
+- [x] ✅ Build Partner/Mentor content type fields (Section 16): name, org, type, role/contribution, active/historical, logo permission flag, link — 🟡 `partners` table + admin CRUD at `/dashboard/partners`; field shape differs from planned (`org`/`contribution`/`is_active`/`logo_permission` boolean vs full enum/draft-publish); marketing logos may still use static constants where not CMS-driven
 - [ ] Confirm logo usage: current or approved historical partners only — no inferring permission from old decks
 - [x] ✅ Page-level SEO: meta title/description from Section 15
-- [ ] Page-level QA: verify every displayed partner logo has a logged permission flag = approved — no permission flag exists to check
+- [ ] Page-level QA: verify every displayed partner logo has a logged permission flag = approved — 🟡 `partners.logo_permission` boolean exists; confirm public surfaces only show logos when granted
 
 ## 11. Alumni Experience (build now, hold public activation)
 - [x] ✅ Build full page/template as draft/hidden (not in primary nav) — 🟡 page is built, `noindex` and sitemap-excluded, **but it is currently linked in `SiteNavbar`** and must be pulled out
@@ -158,7 +158,7 @@
 - [x] ✅ XML sitemap (excludes Alumni/Apply while hidden) + robots.txt — 🟡 `app/sitemap.ts` + `app/robots.ts` done with hreflang; Search Console submission/verification not done
 
 ## 16. CMS Content Model & Data Fields (sitewide, cross-page)
-- [ ] Build all 7 content types exactly as specified — 🟡 only Founder/startup and Article exist; Founder story, Cohort/year, Impact metric, Partner/mentor and Event are missing
+- [ ] Build all 7 content types exactly as specified — 🟡 Founder = `startups` + `startup_details`, Article = `blogs`, Partner/mentor = `partners` (CRUD live); still missing: Founder story, Cohort/year, Impact metric, Event (+ Evidence Register)
 - [ ] Build the 8 Internal Evidence fields as a reusable field-group attached to every claim-bearing content type — not built anywhere
 - [ ] Set CMS permissions: editors draft; only Guy moves Evidence status to "verified"/publish; Eleanor gets view-only exec preview — 🟡 `user_role` enum has admin/editor/viewer but every policy checks `is_admin()` only
 - [ ] Build editorial workflow: Draft → Pending Evidence Review → Approved → Published — 🟡 only draft/published (blogs) and draft/active/inactive (startups)
@@ -235,5 +235,5 @@ The gate dates in Section 18 (24 Aug → 10 Sep) were written before today. Sinc
 2. **No form delivery** — register-interest and contact submissions sit in the database with no inbox or CRM routing (§13, §14).
 3. **Alumni is linked in the navbar** despite being a HOLD page (§02, §11, §17, §19).
 4. **Analytics + cookie consent missing**, and there is no Legal/DPO review of consent/retention (§21).
-5. **Missing content types** — cohort, impact metric, partner/mentor, event; founder profile lacks the 7 prescribed story fields (§08, §10, §16).
+5. **Missing content types** — cohort, impact metric, event, founder stories; founder profile lacks the 7 prescribed story fields (§08, §16). Partner/mentor is done (`partners`).
 6. **Legacy 301 redirect map shipped but unverified against the PDF inventory**, no a11y/CWV tooling, no handover package (README, CMS training, backups, credentials, launch checklist) (§15, §19, §21).

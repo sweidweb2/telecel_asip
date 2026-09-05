@@ -8,10 +8,33 @@ Notes on conventions used below:
 - `PK` = Primary Key, `FK` = Foreign Key (relation to another table)
 - `req` = required field, `opt` = optional field
 - Field types are generic (map to whatever the chosen CMS/DB supports: text, richtext, enum/select, date, boolean, number, media/file, relation)
+- Field lists below remain the **planned / gap target**. Integrated Postgres names and “do not alter” decisions are locked in [`[1] ASIP-CMS-Missing-Tables-Phased-Plan.md`](./[1]%20ASIP-CMS-Missing-Tables-Phased-Plan.md) §2.
+
+### Implementation mapping (locked)
+
+Do **not** invent parallel tables. New FKs use the integrated IDs: `startups.id`, `profiles.id`, `partners.id`, `blogs.id`.
+
+| Planned (this doc) | Integrated today | Status |
+|---|---|---|
+| `founders` | `startups` + 1:1 `startup_details` | Built — do not rename |
+| `founder_stories` | — | Missing (Phase 4); FK → `startups.id` |
+| `cohorts` | — | Missing (Phase 3); M2M → `partners`, `startups` |
+| `impact_metrics` | — | Missing (Phase 2) |
+| `evidence_records` | — | Missing (Phase 1); `owner` → `profiles.id` |
+| `partners` | `partners` | Built — column shape differs (see phased plan §2.3) |
+| `articles` | `blogs` | Built — do not rename |
+| `events` | — | Missing (Phase 5); M2M → `startups` |
+| `leads` | `interest_registrations` | Built — fewer fields |
+| `applications` | — | Not built; gated by `site_settings.open_applications` |
+| `admin_users` | `profiles` + `user_role` | Built — RLS via `is_admin()` only |
+| `site_config` | `site_settings` | Partial — `open_applications` only today |
+| `nav_items` | Code constants + middleware | No CMS nav table |
+| `contact_routes` | `contact_enquiry_type` on `contact_messages` | Enquiry type stored; inbox routing not stored |
+| Taxonomies / `newsletter_subscribers` | Free text / enums / — | Out of Phases 1–5 |
 
 ---
 
-## 1. `founders` (Founder / Startup)
+## 1. `founders` (Founder / Startup) — integrated: `startups` + `startup_details`
 
 Core directory entity — powers the Founders listing, filters, and profile pages.
 
@@ -37,14 +60,14 @@ Core directory entity — powers the Founders listing, filters, and profile page
 
 ---
 
-## 2. `founder_stories` (linked to `founders`)
+## 2. `founder_stories` (linked to `founders`) — FK target integrated: `startups.id`
 
-One-to-one (or one-to-many if a founder gets updated stories over time) with `founders`.
+One-to-one (or one-to-many if a founder gets updated stories over time) with `founders` (implement as `startup_id` → `startups`).
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
 | id | PK | — | |
-| founder_id | FK → `founders` | req | |
+| founder_id | FK → `founders` | req | Implement as FK → `startups` |
 | the_problem | richtext (60–90 words) | req | Section 08 |
 | what_they_built | richtext | req | |
 | the_asip_connection | richtext | req | Specific support received |
@@ -59,7 +82,7 @@ One-to-one (or one-to-many if a founder gets updated stories over time) with `fo
 
 ---
 
-## 3. `cohorts` (Cohort / Year)
+## 3. `cohorts` (Cohort / Year) — not yet built; M2M → `partners`, `startups`
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -69,7 +92,7 @@ One-to-one (or one-to-many if a founder gets updated stories over time) with `fo
 | programme_dates | date range | opt | VERIFY before publish |
 | programme_status | enum: closed / open / hold | req | |
 | partners | relation → `partners` (multi) | opt | |
-| selected_founders | relation → `founders` (multi) | opt | |
+| selected_founders | relation → `founders` (multi) | opt | Implement as M2M → `startups` |
 | summary | richtext | opt | |
 | related_events | relation → `events` (multi) | opt | |
 | media | media | opt | |
@@ -77,7 +100,7 @@ One-to-one (or one-to-many if a founder gets updated stories over time) with `fo
 
 ---
 
-## 4. `impact_metrics` (Impact Metric)
+## 4. `impact_metrics` (Impact Metric) — not yet built
 
 Every homepage/Impact-page number must come from this table — never hardcoded copy.
 
@@ -96,7 +119,7 @@ Every homepage/Impact-page number must come from this table — never hardcoded 
 
 ---
 
-## 5. `evidence_records` (Governance Layer)
+## 5. `evidence_records` (Governance Layer) — not yet built; `owner` → `profiles.id`
 
 Standalone table referenced by `impact_metrics`, `founder_stories`, and any other claim-bearing content.
 
@@ -105,7 +128,7 @@ Standalone table referenced by `impact_metrics`, `founder_stories`, and any othe
 | id | PK (Evidence ID) | — | Auto-generated |
 | primary_source | text/file upload | req | |
 | measurement_period | date range | req | |
-| owner | relation → `admin_users` | req | Person accountable |
+| owner | relation → `admin_users` | req | Implement as FK → `profiles` |
 | status | enum: verified / pending / outdated / disputed / not for publication | req | |
 | last_verified_date | date | req | |
 | permission | enum: public / internal only / partner approval required / legal review required | req | |
@@ -114,7 +137,9 @@ Standalone table referenced by `impact_metrics`, `founder_stories`, and any othe
 
 ---
 
-## 6. `partners` (Partner / Mentor)
+## 6. `partners` (Partner / Mentor) — integrated: `partners` (columns differ)
+
+Built today with different column names/shapes (`org`, `contribution`, `is_active`, `logo_permission` boolean, no separate `publish_status`). Planned fields below remain the gap target — do not alter the live table in Phases 1–5. See phased plan §2.3.
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -131,9 +156,9 @@ Standalone table referenced by `impact_metrics`, `founder_stories`, and any othe
 
 ---
 
-## 7. `articles` (Article / Case Study)
+## 7. `articles` (Article / Case Study) — integrated: `blogs`
 
-Powers `/insights/` listing and article template, plus Impact page case studies.
+Powers `/insights/` listing and article template, plus Impact page case studies. Live table is `blogs` — do not rename. Optional later FKs target `startups` / `cohorts` only if approved.
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -142,7 +167,7 @@ Powers `/insights/` listing and article template, plus Impact page case studies.
 | author | text | req | |
 | publish_date | date | req | |
 | category | enum: Founder Stories / Portfolio News / Programme Updates / Founder Resources / Partner Perspectives | req | Section 12 content streams |
-| related_founder | FK → `founders` | opt | |
+| related_founder | FK → `founders` | opt | Implement as FK → `startups` if added |
 | related_cohort | FK → `cohorts` | opt | |
 | body_content | richtext | req | |
 | sources | repeatable text/url | opt | |
@@ -153,7 +178,7 @@ Powers `/insights/` listing and article template, plus Impact page case studies.
 
 ---
 
-## 8. `events`
+## 8. `events` — not yet built; M2M → `startups`
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -163,16 +188,16 @@ Powers `/insights/` listing and article template, plus Impact page case studies.
 | location | text | opt | |
 | format | enum: virtual / in-person / hybrid | opt | |
 | speakers | repeatable text | opt | |
-| founder_participants | relation → `founders` (multi) | opt | |
+| founder_participants | relation → `founders` (multi) | opt | Implement as M2M → `startups` |
 | assets | media (multi) | opt | |
 | outcomes | richtext | opt | |
 | publish_status | enum: draft / published | req | |
 
 ---
 
-## 9. `leads` (Register Interest submissions)
+## 9. `leads` (Register Interest submissions) — integrated: `interest_registrations`
 
-Read-only submissions table — not editable "content," but needs a data table + export.
+Read-only submissions table — not editable "content," but needs a data table + export. Live table has fewer fields; do not reshape into full `leads` in Phases 1–5.
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -195,9 +220,9 @@ Read-only submissions table — not editable "content," but needs a data table +
 
 ---
 
-## 10. `applications` (Apply submissions)
+## 10. `applications` (Apply submissions) — not built
 
-Separate table from `leads` — no auto-migration between the two (per Guy's confirmation).
+Separate table from `leads` / `interest_registrations` — no auto-migration between the two (per Guy's confirmation).
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -234,7 +259,7 @@ Separate table from `leads` — no auto-migration between the two (per Guy's con
 
 ---
 
-## 11. Taxonomies (editable lists, no dev ticket needed)
+## 11. Taxonomies (editable lists, no dev ticket needed) — not in Phases 1–5
 
 ### `sectors`
 | Field | Type | Notes |
@@ -264,7 +289,7 @@ Separate table from `leads` — no auto-migration between the two (per Guy's con
 
 ---
 
-## 12. `admin_users`
+## 12. `admin_users` — integrated: `profiles` + `user_role`
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -278,15 +303,15 @@ Separate table from `leads` — no auto-migration between the two (per Guy's con
 
 ---
 
-## 13. `site_config` (Global Config / Singleton table)
+## 13. `site_config` (Global Config / Singleton table) — integrated: `site_settings` (partial)
 
-Not a repeatable content type — one row/object holding global toggles and blocks.
+Not a repeatable content type — one row/object holding global toggles and blocks. Live table today only has `open_applications` (maps to planned `application_status`). Alumni/CEO/banner/newsletter CMS fields are still gaps.
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
-| application_status | enum: closed / open | req | Master toggle — drives Register Interest vs Apply everywhere |
-| alumni_visibility | enum: hidden / published | req | |
-| ceo_message_visibility | enum: hidden / published | req | |
+| application_status | enum: closed / open | req | Master toggle — drives Register Interest vs Apply everywhere; live: `site_settings.open_applications` |
+| alumni_visibility | enum: hidden / published | req | Future — not in `site_settings` yet |
+| ceo_message_visibility | enum: hidden / published | req | Future |
 | ceo_message_text | richtext | opt | Populated only when approved |
 | ceo_message_media | media | opt | |
 | newsletter_signup_enabled | boolean | req | Off by default until privacy/routing/owner confirmed |
@@ -300,7 +325,7 @@ Not a repeatable content type — one row/object holding global toggles and bloc
 
 ---
 
-## 14. `nav_items` (Navigation Manager)
+## 14. `nav_items` (Navigation Manager) — not built (code constants + middleware)
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -314,7 +339,9 @@ Not a repeatable content type — one row/object holding global toggles and bloc
 
 ---
 
-## 15. `contact_routes` (Forms Manager — Contact form)
+## 15. `contact_routes` (Forms Manager — Contact form) — integrated: `contact_enquiry_type` on `contact_messages`
+
+Enquiry type is stored on each message; destination inbox / routing_email is not stored as a CMS table yet.
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -325,7 +352,7 @@ Not a repeatable content type — one row/object holding global toggles and bloc
 
 ---
 
-## 16. `newsletter_subscribers` (only if/when activated)
+## 16. `newsletter_subscribers` (only if/when activated) — not in Phases 1–5
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
@@ -339,28 +366,30 @@ Not a repeatable content type — one row/object holding global toggles and bloc
 
 ## Relationship Summary (quick reference)
 
-- `founders` 1—1 (or 1—many) `founder_stories`
-- `founders` many—many `cohorts`
-- `founders` many—many `outcome_tags`
+Planned names on the left; **implement FKs against integrated tables**.
+
+- `founders` / `startups` 1—1 (or 1—many) `founder_stories`
+- `founders` / `startups` many—many `cohorts`
+- `founders` / `startups` many—many `outcome_tags` (taxonomy not built)
 - `founder_stories` many—many `evidence_records`
 - `impact_metrics` many—1 `evidence_records`
-- `articles` many—1 `founders`, many—1 `cohorts`
-- `events` many—many `founders`
-- `cohorts` many—many `partners`, many—many `founders`, many—many `events`
-- `leads` and `applications` are standalone (no FK relation to each other — intentional, per Guy)
-- `nav_items` reads from `site_config.application_status` and `site_config.alumni_visibility` to resolve conditional visibility
+- `articles` / `blogs` many—1 `startups`, many—1 `cohorts` (FKs not on `blogs` yet)
+- `events` many—many `startups`
+- `cohorts` many—many `partners`, many—many `startups`, many—many `events`
+- `leads` / `interest_registrations` and `applications` are standalone (no FK relation to each other — intentional, per Guy)
+- `nav_items` (if built) would read from `site_settings.open_applications` and future alumni visibility; today Apply gate is middleware + code nav
 
 ---
 
 ## Publish-Gate Rules (must be enforced at the system level, not editorial reminders)
 
-1. `impact_metrics.publish_status ≠ "verified"` → **must not render** on live site.
-2. `founder_stories.quote_permission_status ≠ "granted"` → quote must not render (story can still publish without the quote block).
-3. `partners.logo_permission_status ≠ "granted"` → logo must not render (partner can still be listed by name/type if approved otherwise).
-4. `site_config.alumni_visibility = "hidden"` → `/alumni/` not indexed, not in nav, ideally not publicly reachable at all.
-5. `site_config.ceo_message_visibility = "hidden"` → module not rendered on `/about/`.
-6. `applications` table only accepts submissions when `site_config.application_status = "open"`; `leads` table only accepts submissions when `= "closed"`.
+1. `impact_metrics.publish_status ≠ "verified"` → **must not render** on live site. (Table not built yet.)
+2. `founder_stories.quote_permission_status ≠ "granted"` → quote must not render (story can still publish without the quote block). (Table not built yet.)
+3. **Live today:** `partners.logo_permission` is false / not granted → logo must not render (partner can still be listed by name/type if approved otherwise). Planned enum `logo_permission_status` is a future gap.
+4. **Future:** `site_config.alumni_visibility = "hidden"` → `/alumni/` not indexed, not in nav. Today: code/`noindex`; no CMS alumni toggle on `site_settings`.
+5. **Future:** `site_config.ceo_message_visibility = "hidden"` → module not rendered on `/about/`.
+6. **Live today:** Apply accepts submissions only when `site_settings.open_applications` is true; Register Interest / `interest_registrations` when closed. Planned names: `site_config.application_status` + `applications` / `leads` tables.
 
 ---
 
-*This schema operationalizes Section 16 (CMS Content Model) of the master text pack and Section 3/7 of the Technical Build Spec into implementation-ready tables. Field types are indicative — Mahdi to map to the actual CMS/database engine chosen (Section 1 of Technical Build Spec).*
+*This schema operationalizes Section 16 (CMS Content Model) of the master text pack and Section 3/7 of the Technical Build Spec. Planned field lists remain the gap target; integrated Postgres names and phase order are locked in [`[1] ASIP-CMS-Missing-Tables-Phased-Plan.md`](./[1]%20ASIP-CMS-Missing-Tables-Phased-Plan.md).*

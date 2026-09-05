@@ -79,6 +79,22 @@ Both states/templates must be built now so Apply can be activated later with **z
 
 **Global config**: `application_status` toggle (open/closed) — drives homepage banner, nav, and form rendering.
 
+### Built vs planned (implementation)
+
+Do **not** create parallel content types. Map product names to integrated Postgres tables (see [`ASIP-CMS-Database-Schema.md`](./ASIP-CMS-Database-Schema.md) mapping + [`[1] ASIP-CMS-Missing-Tables-Phased-Plan.md`](./[1]%20ASIP-CMS-Missing-Tables-Phased-Plan.md) §2):
+
+| Spec content type | Integrated table / status |
+|---|---|
+| Founder/Startup | `startups` + `startup_details` — CRUD live (`/dashboard/portfolio`) |
+| Article/Case Study | `blogs` — CRUD live (`/dashboard/blogs`) |
+| Partner/Mentor | `partners` — CRUD live (`/dashboard/partners`); field shape differs from planned |
+| Lead | `interest_registrations` — admin RUD at `/dashboard/registrations` |
+| Application status toggle | `site_settings.open_applications` (not a separate `application_status` column) |
+| Contact enquiry routing | `contact_enquiry_type` on `contact_messages` — type stored; inbox email routing still open |
+| Admin users | `profiles` + `user_role` |
+| Founder Story, Cohort/Year, Impact Metric, Event, Evidence | Missing — Phases 1–5 of the phased plan |
+| Application submissions | Not built — gated by `open_applications` on routes only |
+
 ---
 
 ## 4. Page Templates
@@ -138,6 +154,8 @@ Both states/templates must be built now so Apply can be activated later with **z
 ### 7.2 Content Type Editors
 
 Full CRUD interface for each type in §3 (Founder/Startup, Founder Story, Cohort/Year, Impact Metric, Partner/Mentor, Article/Case Study, Event, Lead, Application).
+
+**Already live:** Founder/Startup → `/dashboard/portfolio` (`startups`); Article → `/dashboard/blogs`; Partner → `/dashboard/partners`; Lead → `/dashboard/registrations` (`interest_registrations`). Remaining editors follow the phased plan (evidence, impact metrics, cohorts, founder stories, events) — do not rename or duplicate the integrated tables.
 
 ### 7.3 Evidence/Governance Layer
 

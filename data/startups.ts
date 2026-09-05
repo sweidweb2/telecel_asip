@@ -48,6 +48,56 @@ function escapeIlikePattern(value: string): string {
   return value.replace(/[%_]/g, "\\$&");
 }
 
+/**
+ * Views type every column as nullable. Map to the domain shape the UI expects,
+ * dropping any row that is missing required identity fields.
+ */
+function toPublicListItem(row: {
+  id: string | null;
+  name: string | null;
+  slug: string | null;
+  logo_url: string | null;
+  description: string | null;
+  founded_at: string | null;
+  cohort: string | null;
+  country_code: string | null;
+  sector: string | null;
+  founder_names: string[] | null;
+  cover_image_url: string | null;
+  public_outcome: string | null;
+  featured: boolean | null;
+  image_focal_x: number | null;
+  image_focal_y: number | null;
+}): StartupPublicListItem | null {
+  if (!row.id || !row.name || !row.slug || row.description == null) return null;
+
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    logo_url: row.logo_url,
+    description: row.description,
+    founded_at: row.founded_at,
+    cohort: row.cohort,
+    country_code: row.country_code,
+    sector: row.sector,
+    founder_names: row.founder_names ?? [],
+    cover_image_url: row.cover_image_url,
+    public_outcome: row.public_outcome,
+    featured: row.featured ?? false,
+    image_focal_x: row.image_focal_x ?? 50,
+    image_focal_y: row.image_focal_y ?? 50,
+  };
+}
+
+function mapPublicListItems(
+  rows: Parameters<typeof toPublicListItem>[0][],
+): StartupPublicListItem[] {
+  return rows
+    .map(toPublicListItem)
+    .filter((item): item is StartupPublicListItem => item !== null);
+}
+
 async function fetchStartupsPage(
   supabase: ServerClient,
   query: StartupListQuery,
@@ -170,7 +220,7 @@ async function fetchActiveStartupsPage(
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return {
-    items: (data ?? []) as StartupPublicListItem[],
+    items: mapPublicListItems(data ?? []),
     total,
     totalPages,
     currentPage: safePage,
@@ -267,12 +317,27 @@ async function fetchActiveStartupBySlug(
   if (error) throw error;
   if (!data) return null;
 
-  const { website_url, industry, category, location, team, ...core } = data;
+  const core = toPublicListItem(data);
+  if (!core) return null;
 
   return {
     ...core,
-    details: { ...core, website_url, industry, category, location, team },
-  } as StartupPublicDetail;
+    details: {
+      website_url: data.website_url,
+      industry: data.industry,
+      category: data.category,
+      location: data.location,
+      team: data.team,
+      cohort: core.cohort,
+      country_code: core.country_code,
+      sector: core.sector,
+      founder_names: core.founder_names,
+      cover_image_url: core.cover_image_url,
+      public_outcome: core.public_outcome,
+      image_focal_x: core.image_focal_x,
+      image_focal_y: core.image_focal_y,
+    },
+  };
 }
 
 export function getActiveStartupBySlug(slug: string) {
@@ -297,7 +362,7 @@ async function fetchRelatedActiveStartups(
     .limit(limit);
 
   if (error) throw error;
-  return (data ?? []) as StartupPublicListItem[];
+  return mapPublicListItems(data ?? []);
 }
 
 export async function getRelatedActiveStartups(
@@ -324,7 +389,7 @@ async function fetchSpotlightStartups(
     .limit(limit);
 
   if (error) throw error;
-  return (data ?? []) as StartupPublicListItem[];
+  return mapPublicListItems(data ?? []);
 }
 
 /** Newest active ventures for the home spotlight and outcome modules. */
@@ -346,7 +411,10 @@ async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
     .order("updated_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as StartupSlugRow[];
+  return (data ?? []).flatMap((row) => {
+    if (!row.slug) return [];
+    return [{ slug: row.slug, updated_at: row.updated_at ?? new Date(0).toISOString() }];
+  });
 }
 
 export const getActiveStartupSlugRows = unstable_cache(
