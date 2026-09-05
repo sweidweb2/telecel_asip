@@ -5,12 +5,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { HOME_ORBIT_LOGOS } from "@/constants/home-orbit-logos";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
 
 type HomeNextChapterSectionProps = {
   locale: Locale;
   copy: HomePageCopy["nextChapter"];
+  openApplications: boolean;
   className?: string;
 };
 
@@ -24,9 +26,10 @@ type HomeNextChapterSectionProps = {
 export function HomeNextChapterSection({
   locale,
   copy,
+  openApplications,
   className,
 }: HomeNextChapterSectionProps) {
-  const primaryHref = publicPath(locale, copy.primaryCta.slug);
+  const intake = intakeCtaFor(locale, openApplications);
   const secondaryHref = publicPath(locale, copy.secondaryCta.slug);
 
   return (
@@ -82,13 +85,13 @@ export function HomeNextChapterSection({
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center sm:gap-4">
             <Link
-              href={primaryHref}
+              href={intake.href}
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "min-h-11 w-full rounded-full px-8 sm:w-auto",
               )}
             >
-              {copy.primaryCta.label}
+              {intake.label}
             </Link>
             <Link
               href={secondaryHref}

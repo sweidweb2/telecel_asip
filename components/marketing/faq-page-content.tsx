@@ -15,7 +15,7 @@ export function FaqPageContent({ locale, copy }: FaqPageContentProps) {
   return (
     <>
       <Section className="pt-10 pb-10 sm:pt-14 sm:pb-14 lg:pt-16">
-        <FaqSection data={buildFaqScrollerData(copy)} />
+        <FaqSection data={buildFaqScrollerData(copy)} showHeading />
       </Section>
 
       <Section className="border-t py-10 sm:py-12">

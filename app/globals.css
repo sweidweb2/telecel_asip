@@ -148,6 +148,14 @@
 }
 
 @layer base {
+  /*
+   * Public routes force light via ThemeProvider. Keep native UI (forms,
+   * scrollbars) on the light palette whenever `.dark` is not on <html>.
+   */
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

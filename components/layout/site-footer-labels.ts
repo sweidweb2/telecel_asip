@@ -41,7 +41,7 @@ export type SiteFooterLabels = {
   contact: FooterLink;
   copyright: string;
   legal: FooterLink[];
-  /** Dormant Apply page — reachable from the footer only until a cohort opens. */
+  /** Primary footer CTA — follows open_applications (Register Interest ↔ Apply). */
   apply: FooterLink;
   login: FooterLink;
 };
@@ -56,7 +56,7 @@ function links(
   }));
 }
 
-export function enFooterLabels(): SiteFooterLabels {
+export function enFooterLabels(openApplications = false): SiteFooterLabels {
   return {
     brand: "ASIP",
     headline: "African founders. Connected to opportunity.",
@@ -74,7 +74,9 @@ export function enFooterLabels(): SiteFooterLabels {
     programme: links("en", [
       { slug: "programme", label: "The programme" },
       { slug: "impact", label: "Impact" },
-      { slug: "register-interest", label: "Register interest" },
+      openApplications
+        ? { slug: "apply", label: "Apply to ASIP" }
+        : { slug: "register-interest", label: "Register interest" },
       { slug: "faq", label: "FAQ" },
     ]),
     connect: [
@@ -99,12 +101,17 @@ export function enFooterLabels(): SiteFooterLabels {
         label: "Cookie preferences",
       },
     ],
-    apply: { href: publicPath("en", "apply"), label: "Apply" },
+    apply: openApplications
+      ? { href: publicPath("en", "apply"), label: "Apply to ASIP" }
+      : {
+          href: publicPath("en", "register-interest"),
+          label: "Register interest",
+        },
     login: { href: authPath("en", "login"), label: "Login" },
   };
 }
 
-export function frFooterLabels(): SiteFooterLabels {
+export function frFooterLabels(openApplications = false): SiteFooterLabels {
   return {
     brand: "ASIP",
     headline: "Des fondateurs africains. Connectés aux opportunités.",
@@ -122,7 +129,9 @@ export function frFooterLabels(): SiteFooterLabels {
     programme: links("fr", [
       { slug: "programme", label: "Le programme" },
       { slug: "impact", label: "Impact" },
-      { slug: "register-interest", label: "Manifestez votre intérêt" },
+      openApplications
+        ? { slug: "apply", label: "Postuler à ASIP" }
+        : { slug: "register-interest", label: "Manifestez votre intérêt" },
       { slug: "faq", label: "FAQ" },
     ]),
     connect: [
@@ -147,7 +156,12 @@ export function frFooterLabels(): SiteFooterLabels {
         label: "Préférences de cookies",
       },
     ],
-    apply: { href: publicPath("fr", "apply"), label: "Candidater" },
+    apply: openApplications
+      ? { href: publicPath("fr", "apply"), label: "Postuler à ASIP" }
+      : {
+          href: publicPath("fr", "register-interest"),
+          label: "Manifester mon intérêt",
+        },
     login: { href: authPath("fr", "login"), label: "Connexion" },
   };
 }

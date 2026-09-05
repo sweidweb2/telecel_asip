@@ -16,16 +16,13 @@ export default async function EnMarketingLayout({
 
   return (
     <>
-      <SiteNavbar
-        locale="en"
-        labels={enNavLabels(openApplications)}
-      />
+      <SiteNavbar locale="en" labels={enNavLabels(openApplications)} />
       <ApplicationStatusBanner
         locale="en"
         openApplications={openApplications}
       />
       <div className="flex flex-1 flex-col">{children}</div>
-      <SiteFooter labels={enFooterLabels()} />
+      <SiteFooter labels={enFooterLabels(openApplications)} />
     </>
   );
 }

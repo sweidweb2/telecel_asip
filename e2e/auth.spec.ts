@@ -78,9 +78,57 @@ async function createConfirmedUser(
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
+    app_metadata: { app_role: "admin" },
   });
 
   if (error) throw error;
+}
+
+async function promoteUserToAdmin(email: string) {
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  });
+  if (error) throw error;
+
+  const user = data.users.find(
+    (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
+  );
+  if (!user) {
+    throw new Error(`User not found for admin promotion: ${email}`);
+  }
+
+  const password = "Testpass1";
+  const fullName =
+    (user.user_metadata?.full_name as string | undefined) ?? "E2E Admin";
+
+  // profiles.role updates are blocked for service_role by the protect trigger
+  // (is_admin() is false without a JWT subject). Recreate via handle_new_user
+  // with app_metadata.app_role so the profile is inserted as admin.
+  const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
+  if (deleteError) throw deleteError;
+
+  const { data: created, error: createError } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName },
+    app_metadata: { app_role: "admin" },
+  });
+  if (createError) throw createError;
+
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", created.user!.id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (profile?.role !== "admin") {
+    throw new Error(
+      `Expected promoted profile role admin, got ${profile?.role ?? "missing"}`,
+    );
+  }
 }
 
 async function deleteUserByEmail(email: string) {
@@ -145,7 +193,7 @@ test.describe("auth", () => {
             const text = await page
               .locator("[data-sonner-toast][data-type='error']")
               .textContent();
-            if (/email rate limit exceeded/i.test(text ?? "")) {
+            if (/email rate limit exceeded|too many attempts/i.test(text ?? "")) {
               return "rate-limited" as const;
             }
 
@@ -159,17 +207,21 @@ test.describe("auth", () => {
         } else {
           await createConfirmedUser(email, password, fullName);
         }
-
-        await page.goto("/en/login");
-        await page.getByLabel("Email").fill(email);
-        await page.getByLabel("Password").fill(password);
-        await page.getByRole("button", { name: "Sign in" }).click();
-        await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
       }
 
+      // Self-serve signups are viewers; promote so /dashboard is reachable.
+      await promoteUserToAdmin(email);
+
+      await page.context().clearCookies();
+      await page.goto("/en/login?next=%2Fdashboard");
+      await page.getByLabel("Email").fill(email);
+      await page.getByLabel("Password").fill(password);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 30_000 });
+
       await expect(
-        page.getByRole("heading", { name: /dashboard/i })
-      ).toBeVisible();
+        page.getByRole("heading", { name: "Dashboard", exact: true }),
+      ).toBeVisible({ timeout: 20_000 });
 
       await page.getByRole("button", { name: "Open account menu" }).click();
       await page.getByRole("menuitem", { name: /log out/i }).click();

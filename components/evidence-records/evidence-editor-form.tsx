@@ -96,7 +96,9 @@ export function EvidenceEditorForm({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [owners, setOwners] = useState<EvidenceOwnerOption[]>(initialOwners);
   const [optionsLoading, setOptionsLoading] = useState(false);
-  const [optionsEnabled, setOptionsEnabled] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(
+    mode === "create" || Boolean(record?.owner_id),
+  );
   const [hasAppliedDefaultOwner, setHasAppliedDefaultOwner] = useState(
     Boolean(record?.owner_id || initialDefaultOwnerId),
   );
@@ -135,9 +137,10 @@ export function EvidenceEditorForm({
           result.defaultOwnerId
         ) {
           setHasAppliedDefaultOwner(true);
-          form.reset(
-            defaultsFor(record, initialDefaultOwnerId || result.defaultOwnerId),
-          );
+          form.setValue("ownerId", result.defaultOwnerId, {
+            shouldDirty: false,
+            shouldValidate: false,
+          });
         }
       } catch {
         if (!cancelled) {

@@ -16,16 +16,13 @@ export default async function FrMarketingLayout({
 
   return (
     <>
-      <SiteNavbar
-        locale="fr"
-        labels={frNavLabels(openApplications)}
-      />
+      <SiteNavbar locale="fr" labels={frNavLabels(openApplications)} />
       <ApplicationStatusBanner
         locale="fr"
         openApplications={openApplications}
       />
       <div className="flex flex-1 flex-col">{children}</div>
-      <SiteFooter labels={frFooterLabels()} />
+      <SiteFooter labels={frFooterLabels(openApplications)} />
     </>
   );
 }

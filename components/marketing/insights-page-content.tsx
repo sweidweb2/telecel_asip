@@ -24,6 +24,14 @@ export function InsightsPageContent({
   return (
     <main>
       <Section>
+        <div className="mb-10 max-w-3xl sm:mb-12">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+            {labels.pageTitle}
+          </h1>
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
+            {labels.pageDescription}
+          </p>
+        </div>
         <BlogSection
           locale={locale}
           labels={labels}

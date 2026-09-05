@@ -103,9 +103,9 @@ export default function FaqSection({
     >
       {showHeading ? (
         <div className="z-10 flex max-w-2xl flex-col items-center gap-4 text-center sm:gap-6">
-          <h2 className="animate-fade-in-up font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+          <h1 className="animate-fade-in-up font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
             {data.mainTitle}
-          </h2>
+          </h1>
           <p className="animate-fade-in-up text-base text-muted-foreground [animation-delay:200ms] sm:text-lg">
             {data.mainSubtitle}
           </p>

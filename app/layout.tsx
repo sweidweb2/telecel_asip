@@ -72,7 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <BoneyardSetup />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

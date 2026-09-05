@@ -71,8 +71,9 @@ export function SiteSettingsForm({
                 Applications open
               </Label>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When on, the public CTA and status banner promote Apply. When
-                off, they promote Register Interest. Both pages stay live;
+                When on, the public navbar promotes Apply and a status banner
+                appears under the nav. When off, the navbar promotes Register
+                Interest and the banner is hidden. Both pages stay live;
                 submissions still go to separate Leads and Applications tables.
               </p>
             </div>

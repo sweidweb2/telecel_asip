@@ -2,6 +2,8 @@ import type { Locale } from "@/constants/locales";
 import type { BlogTabId } from "@/constants/blog-ui";
 
 export type BlogLabels = {
+  pageTitle: string;
+  pageDescription: string;
   writtenBy: string;
   publishedOn: string;
   fileUnder: string;
@@ -13,6 +15,9 @@ export type BlogLabels = {
 };
 
 const EN: BlogLabels = {
+  pageTitle: "Insights",
+  pageDescription:
+    "Founder stories, portfolio news, programme updates and practical perspectives from across the ASIP ecosystem.",
   writtenBy: "Written by",
   publishedOn: "Published on",
   fileUnder: "File under",
@@ -31,6 +36,9 @@ const EN: BlogLabels = {
 };
 
 const FR: BlogLabels = {
+  pageTitle: "Perspectives",
+  pageDescription:
+    "Histoires de fondateurs, actualités du portefeuille, mises à jour du programme et perspectives concrètes de l’écosystème ASIP.",
   writtenBy: "Rédigé par",
   publishedOn: "Publié le",
   fileUnder: "Classé sous",

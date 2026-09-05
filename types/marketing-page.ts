@@ -410,6 +410,10 @@ export type ImpactPageCopy = {
     description: string;
   };
   lenses: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    footnote: string;
     columns: {
       lens: string;
       framing: string;
@@ -419,6 +423,7 @@ export type ImpactPageCopy = {
       id: ImpactLensId;
       lens: string;
       framing: string;
+      /** Internal CMS note — not rendered on the public page. */
       evidence: string;
     }[];
   };

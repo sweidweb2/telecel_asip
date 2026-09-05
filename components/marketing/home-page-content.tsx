@@ -22,6 +22,7 @@ type HomePageContentProps = {
   metrics: HomeImpactMetric[];
   founders: StartupPublicListItem[];
   articles: ArticleListItem[];
+  openApplications: boolean;
 };
 
 function HomeSection({
@@ -63,6 +64,7 @@ export function HomePageContent({
   metrics,
   founders,
   articles,
+  openApplications,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
 
@@ -144,7 +146,11 @@ export function HomePageContent({
         <EmptySlot label="Telecel connection copy and CTA" />
       </HomeSection>
 
-      <HomeNextChapterSection locale={locale} copy={copy.nextChapter} />
+      <HomeNextChapterSection
+        locale={locale}
+        copy={copy.nextChapter}
+        openApplications={openApplications}
+      />
 
       <HomeLatestInsightsSection
         locale={locale}

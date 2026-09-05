@@ -136,7 +136,7 @@ export function InsightDetailPage({
 
         <div className="mx-auto mt-8 w-full max-w-3xl px-4 sm:mt-10 sm:px-6">
           <div
-            className="prose prose-neutral dark:prose-invert max-w-none text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8"
+            className="prose prose-neutral max-w-none text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8"
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
 

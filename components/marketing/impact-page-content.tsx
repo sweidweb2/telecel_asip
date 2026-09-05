@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { ImpactLensesSection } from "@/components/marketing/impact-lenses-section";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import type { Locale } from "@/constants/locales";
 import { impactCopyFor } from "@/constants/impact-copy";
@@ -85,9 +86,7 @@ export function ImpactPageContent({
         )}
       </PageSection>
 
-      <PageSection title="Impact lenses" note="Static framing">
-        <EmptySlot label="6 lenses with public framing + evidence-needed fields" />
-      </PageSection>
+      <ImpactLensesSection lenses={copy.lenses} />
 
       <PageSection
         title="Case study template"

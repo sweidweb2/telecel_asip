@@ -178,11 +178,6 @@ export function PartnerEditorForm({
           ? await uploadPendingLogo(result.id)
           : true;
 
-        if (mode === "create" && result.id) {
-          router.push(partnerDetailPath(result.id));
-        }
-        router.refresh();
-
         if (logoUploaded) {
           toast.success(result.message);
         } else {
@@ -192,6 +187,11 @@ export function PartnerEditorForm({
               : "Partner saved, but the logo could not be uploaded. Try again.",
           );
         }
+
+        if (mode === "create" && result.id) {
+          router.push(partnerDetailPath(result.id));
+        }
+        router.refresh();
       } catch {
         toast.error("The partner could not be saved. Please try again.");
       }

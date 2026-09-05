@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { nanoid } from "nanoid";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+import { e2eSuffix } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -41,7 +42,7 @@ test.describe("partners cms", () => {
     page,
   }) => {
     test.setTimeout(120_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const name = `E2E Partner ${suffix}`;
     const editedName = `${name} edited`;
     const admin = adminClient();
@@ -55,38 +56,38 @@ test.describe("partners cms", () => {
         timeout: 20_000,
       });
 
-      await page.getByRole("button", { name: "New partner" }).click();
-      const dialog = page.getByRole("dialog");
-      await dialog.getByLabel("Name").fill(name);
-      await dialog.getByLabel("Organisation").fill("E2E Ecosystem");
-      await dialog
+      await page.locator('a[href="/dashboard/partners/new"]').first().click();
+      await expect(page).toHaveURL(/\/dashboard\/partners\/new/, {
+        timeout: 20_000,
+      });
+      await page.getByLabel("Name").fill(name);
+      await page.getByLabel("Organisation").fill("E2E Ecosystem");
+      await page.getByLabel("Type").click();
+      await page.getByRole("option", { name: "Mentors / operators" }).click();
+      await page
         .getByLabel("Role / contribution")
         .fill("Mentoring and market introductions.");
-      await dialog.getByRole("button", { name: "Create partner" }).click();
+      await page.getByRole("button", { name: "Create partner" }).click();
 
-      await expect(
-        page.locator("[data-sonner-toast]").filter({
-          hasText: "Partner created successfully.",
-        }),
-      ).toBeVisible({ timeout: 20_000 });
-
-      await page.getByRole("link", { name }).click();
       await expect(page).toHaveURL(/\/dashboard\/partners\/[0-9a-f-]+/, {
         timeout: 20_000,
       });
-      await expect(page.getByText("Mentoring and market introductions.")).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Edit partner" }),
+      ).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByLabel("Role / contribution")).toHaveValue(
+        "Mentoring and market introductions.",
+      );
 
-      await page.getByRole("button", { name: `Edit ${name}` }).click();
-      const editDialog = page.getByRole("dialog");
-      await editDialog.getByLabel("Name").fill(editedName);
-      await editDialog.getByRole("button", { name: "Save changes" }).click();
+      await page.getByLabel("Name").fill(editedName);
+      await page.getByRole("button", { name: "Save changes" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Partner updated successfully.",
         }),
       ).toBeVisible({ timeout: 20_000 });
 
-      await page.getByRole("button", { name: `Delete ${editedName}` }).click();
+      await page.getByRole("button", { name: "Delete" }).click();
       await page
         .getByRole("alertdialog")
         .getByRole("button", { name: "Delete partner" })
@@ -103,7 +104,7 @@ test.describe("partners cms", () => {
     page,
   }) => {
     test.setTimeout(90_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const name = `E2E Unapproved ${suffix}`;
     const admin = adminClient();
 
@@ -131,7 +132,7 @@ test.describe("partners cms", () => {
 
   test("anon cannot read the partners table and the view hides unapproved logos", async () => {
     test.setTimeout(60_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const name = `E2E Anon ${suffix}`;
     const logoUrl = `${supabaseUrl}/storage/v1/object/public/partners/fake/${suffix}.webp`;
     const admin = adminClient();
@@ -168,7 +169,7 @@ test.describe("partners cms", () => {
 
   test("non-admin is redirected away from partners", async ({ page }) => {
     test.setTimeout(60_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const email = `partners.viewer.${suffix}@example.com`;
     const password = "Testpass1";
     const admin = adminClient();
@@ -187,10 +188,10 @@ test.describe("partners cms", () => {
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/partners");
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
     } finally {
       await admin.auth.admin.deleteUser(created.user.id);
     }

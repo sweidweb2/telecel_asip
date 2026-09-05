@@ -1,5 +1,6 @@
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
 import { getPublishedCohorts } from "@/data/cohorts";
+import { getOpenApplications } from "@/data/settings";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -11,7 +12,16 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function Page() {
-  const cohorts = await getPublishedCohorts();
+  const [cohorts, openApplications] = await Promise.all([
+    getPublishedCohorts(),
+    getOpenApplications(),
+  ]);
 
-  return <ProgrammePageContent locale="fr" cohorts={cohorts} />;
+  return (
+    <ProgrammePageContent
+      locale="fr"
+      cohorts={cohorts}
+      openApplications={openApplications}
+    />
+  );
 }

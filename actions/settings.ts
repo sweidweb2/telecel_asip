@@ -60,11 +60,17 @@ export async function updateSiteSettings(
   }
 
   revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
-  // Marketing layouts + insights page read settings via tagged cache.
+  // Marketing layouts + pages that read open_applications.
   revalidatePath("/en", "layout");
   revalidatePath("/fr", "layout");
+  revalidatePath("/en");
+  revalidatePath("/fr");
+  revalidatePath("/en/programme");
+  revalidatePath("/fr/programme");
   revalidatePath("/en/insights");
   revalidatePath("/fr/insights");
+  revalidatePath("/en/apply");
+  revalidatePath("/fr/apply");
   revalidatePath(ROUTES.settings);
 
   return { status: "success", message: MESSAGES.updateSuccess };

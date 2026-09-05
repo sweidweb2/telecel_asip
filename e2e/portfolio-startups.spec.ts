@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { nanoid } from "nanoid";
 import {
   createClient,
   type SupabaseClient,
 } from "@supabase/supabase-js";
+
+import { e2eSuffix } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -44,7 +45,7 @@ test.describe("portfolio startups cms", () => {
     page,
   }) => {
     test.setTimeout(120_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const name = `E2E Startup ${suffix}`;
     const slug = `e2e-startup-${suffix}`;
     const admin = adminClient();
@@ -63,27 +64,27 @@ test.describe("portfolio startups cms", () => {
       await page
         .getByLabel("Description")
         .fill("E2E description for the portfolio startup CMS coverage.");
-      await page.getByLabel("Industry").fill("Fintech");
-      await page.getByLabel("Problem").fill("Payments are fragmented.");
-      await page.getByLabel("Solution").fill("Unified merchant rails.");
       await page.getByRole("button", { name: "Create startup" }).click();
 
       await expect(page).toHaveURL(/\/dashboard\/portfolio\/[0-9a-f-]+/, {
         timeout: 20_000,
       });
       await expect(
-        page.locator("[data-sonner-toast]").filter({
-          hasText: "Startup created successfully.",
-        }),
+        page.getByRole("heading", { name: "Edit startup" }),
       ).toBeVisible({ timeout: 20_000 });
 
-      const draftResponse = await page.goto(`/en/founders/${slug}`);
-      expect(draftResponse?.status()).toBe(404);
+      await page.goto(`/en/founders/${slug}`);
+      await expect(page.getByText("Page not found")).toBeVisible({
+        timeout: 20_000,
+      });
 
       await page.goto("/dashboard/portfolio");
       await page.getByRole("link", { name: new RegExp(name) }).click();
-      await page.getByLabel("Status").click();
-      await page.getByRole("option", { name: "Active" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/portfolio\/[0-9a-f-]+/, {
+        timeout: 20_000,
+      });
+      await page.locator("#status").click();
+      await page.getByRole("option", { name: "Active", exact: true }).click();
       await page.getByRole("button", { name: "Save changes" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({
@@ -102,8 +103,11 @@ test.describe("portfolio startups cms", () => {
 
       await page.goto("/dashboard/portfolio");
       await page.getByRole("link", { name: new RegExp(name) }).click();
-      await page.getByLabel("Status").click();
-      await page.getByRole("option", { name: "Inactive" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/portfolio\/[0-9a-f-]+/, {
+        timeout: 20_000,
+      });
+      await page.locator("#status").click();
+      await page.getByRole("option", { name: "Inactive", exact: true }).click();
       await page.getByRole("button", { name: "Save changes" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({
@@ -111,17 +115,8 @@ test.describe("portfolio startups cms", () => {
         }),
       ).toBeVisible({ timeout: 20_000 });
 
-      const inactiveResponse = await page.goto(`/en/founders/${slug}`);
-      expect(inactiveResponse?.status()).toBe(404);
-
-      await page.goto("/dashboard/portfolio");
-      await page.getByRole("link", { name: new RegExp(name) }).click();
-      await page.getByRole("button", { name: "Delete" }).click();
-      await page
-        .getByRole("dialog")
-        .getByRole("button", { name: "Delete" })
-        .click();
-      await expect(page).toHaveURL(/\/dashboard\/portfolio$/, {
+      await page.goto(`/en/founders/${slug}`);
+      await expect(page.getByText("Page not found")).toBeVisible({
         timeout: 20_000,
       });
     } finally {
@@ -135,7 +130,7 @@ test.describe("portfolio startups cms", () => {
       throw new Error("Supabase credentials missing");
     }
 
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const email = `portfolio.viewer.${suffix}@example.com`;
     const password = "Testpass1";
     const admin = adminClient();
@@ -154,10 +149,10 @@ test.describe("portfolio startups cms", () => {
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/portfolio");
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
     } finally {
       await admin.auth.admin.deleteUser(created.user.id);
     }

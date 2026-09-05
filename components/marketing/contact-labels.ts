@@ -9,6 +9,8 @@ export type ContactEnquiryRoute = {
 };
 
 export type ContactLabels = {
+  pageTitle: string;
+  pageDescription: string;
   routesLegend: string;
   routesHint: string;
   routes: readonly ContactEnquiryRoute[];
@@ -40,6 +42,9 @@ export type ContactLabels = {
 };
 
 const EN: ContactLabels = {
+  pageTitle: "Contact us",
+  pageDescription:
+    "Choose a founder, partner, media or general enquiry route and the ASIP team will direct it to the relevant owner.",
   routesLegend: "Enquiry route",
   routesHint: "Pick the route that matches your enquiry.",
   routes: [
@@ -96,6 +101,9 @@ const EN: ContactLabels = {
 };
 
 const FR: ContactLabels = {
+  pageTitle: "Nous contacter",
+  pageDescription:
+    "Choisissez une demande fondateur, partenaire, presse ou générale et l’équipe ASIP la dirigera vers le bon interlocuteur.",
   routesLegend: "Type de demande",
   routesHint: "Choisissez le parcours qui correspond à votre demande.",
   routes: [

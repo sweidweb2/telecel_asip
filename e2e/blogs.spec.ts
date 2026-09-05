@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { nanoid } from "nanoid";
 import {
   createClient,
   type SupabaseClient,
 } from "@supabase/supabase-js";
+
+import { e2eSuffix } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -41,7 +42,7 @@ test.describe("blogs cms", () => {
     page,
   }) => {
     test.setTimeout(120_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const title = `E2E Blog ${suffix}`;
     const slug = `e2e-blog-${suffix}`;
     const admin = adminClient();
@@ -55,12 +56,13 @@ test.describe("blogs cms", () => {
         timeout: 20_000,
       });
 
-      await page.getByLabel("Title").fill(title);
+      await page.getByLabel("Title", { exact: true }).fill(title);
       await page.getByLabel("Slug").fill(slug);
       await page
         .getByLabel("Summary")
         .fill("E2E summary for the insights blog CMS coverage.");
       await page.getByLabel("Author", { exact: true }).fill("E2E Author");
+      await page.getByRole("button", { name: "Founder Stories" }).click();
       await page.locator(".ProseMirror").click();
       await page.keyboard.type(
         "This is the E2E body content for a published insight article.",
@@ -79,12 +81,23 @@ test.describe("blogs cms", () => {
       });
 
       // Draft must not be publicly readable.
-      const draftResponse = await page.goto(`/en/insights/${slug}`);
-      expect(draftResponse?.status()).toBe(404);
+      // Next.js App Router can serve not-found UI with HTTP 200 in dev — assert content.
+      const { data: draftRow, error: draftLookupError } = await admin
+        .from("blogs")
+        .select("status")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (draftLookupError) throw draftLookupError;
+      expect(draftRow?.status).toBe("draft");
+
+      await page.goto(`/en/insights/${slug}`);
+      await expect(page.getByText("Page not found")).toBeVisible({
+        timeout: 20_000,
+      });
 
       await page.goto("/dashboard/blogs");
       await page.getByRole("link", { name: new RegExp(title) }).click();
-      await page.getByLabel("Published (visible on Insights)").click();
+      await page.getByRole("checkbox", { name: "Published (visible on Insights)" }).click();
       await page.getByRole("button", { name: "Save changes" }).click();
       await expect(
         page.locator("[data-sonner-toast]").filter({
@@ -107,7 +120,7 @@ test.describe("blogs cms", () => {
       throw new Error("Supabase credentials missing");
     }
 
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const email = `blog.viewer.${suffix}@example.com`;
     const password = "Testpass1";
     const admin = adminClient();
@@ -126,10 +139,10 @@ test.describe("blogs cms", () => {
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/blogs");
-      await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
     } finally {
       await admin.auth.admin.deleteUser(created.user.id);
     }

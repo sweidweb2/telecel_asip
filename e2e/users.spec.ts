@@ -144,7 +144,7 @@ test.describe("admin users CRUD", () => {
       await expect(row).toBeVisible();
       await row.getByRole("button", { name: `View ${email}` }).click();
       await expect(page.getByRole("dialog").getByText(email)).toBeVisible();
-      await page.getByRole("button", { name: "Close" }).click();
+      await page.getByRole("button", { name: "Close", exact: true }).first().click();
 
       await row.getByRole("button", { name: `Edit ${email}` }).click();
       const editDialog = page.getByRole("dialog");
@@ -158,14 +158,14 @@ test.describe("admin users CRUD", () => {
       ).toBeVisible({ timeout: 20_000 });
       await expect(
         page.getByRole("row").filter({ hasText: email }),
-      ).toContainText("admin");
+      ).toContainText("Users E2E Admin");
 
       await page
         .getByRole("row")
         .filter({ hasText: email })
         .getByRole("button", { name: `Delete ${email}` })
         .click();
-      const deleteDialog = page.getByRole("dialog");
+      const deleteDialog = page.getByRole("alertdialog");
       await expect(deleteDialog.getByText(/cannot be undone/i)).toBeVisible();
       await deleteDialog
         .getByRole("button", { name: "Delete user", exact: true })
