@@ -318,3 +318,136 @@ No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK
 **How it works:** Keeps `updated_at` current. No write RPCs — `partners` is a single flat table, so `actions/partners.ts` uses plain INSERT/UPDATE/DELETE. Every row is readable by anon/authenticated; admins CRUD via `is_admin()`. Logos live in Storage bucket `partners`.
 
 `logo_permission` is a column-level gate that RLS cannot express, so `data/partners.ts` nulls `logo_url` before returning public rows.
+
+---
+
+### `public.cohorts`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_cohorts_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.cohorts_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.cohorts` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_cohorts_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Junction tables `cohort_partners` and `cohort_startups` cascade on delete. Prefer the write RPCs below so links stay in the same transaction as the cohort row. Reuses shared `cms_publish_status` when already created by another CMS migration.
+
+### `public.create_cohort_with_links(p_cohort jsonb, p_partner_ids uuid[], p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin cohort create) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Inserts a `cohorts` row and partner/startup junction rows in one transaction.
+
+**How it works:** Raises `42501` unless `is_admin()`. Inserts core fields from `p_cohort` (null-safe dates/text), then inserts each id from `p_partner_ids` / `p_startup_ids`. Unique `(year, public_label)` violations surface as Postgres `23505`.
+
+### `public.update_cohort_with_links(p_id uuid, p_cohort jsonb, p_partner_ids uuid[], p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin cohort update) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Updates the cohort and fully replaces both junction sets atomically.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `cohorts`, deletes existing junction rows for `p_id`, then re-inserts from the uuid arrays.
+
+---
+
+### `public.events`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_events_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.events_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.events` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_events_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — `events` is a flat table plus `event_startups` junction, so `actions/events.ts` uses plain INSERT/UPDATE/DELETE and replaces junction rows after each write. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Assets are URL strings only (no Storage bucket in Phase 5).
+
+---
+
+### `public.event_startups`
+
+No RPCs, functions, or triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to both parents. Public SELECT only when the related event is published. Admins CRUD via `is_admin()`.
+
+---
+
+### `public.founder_stories`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_founder_stories_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.founder_stories_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.founder_stories` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_founder_stories_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — flat table with a unique `startup_id` FK, so `actions/founder-stories.ts` uses plain INSERT/UPDATE/DELETE. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Quote permission for public rendering is an app-layer gate (Phase 6), not RLS.
+
+### `public.evidence_records`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_evidence_records_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.evidence_records_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.evidence_records` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_evidence_records_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — admin CRUD via `actions/evidence-records.ts` and `is_admin()` RLS. Governance-only: no anon grants. Live metrics (Phase 2+) must only reference rows with `status = verified`.
+
+### `public.impact_metrics`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_impact_metrics_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.impact_metrics_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.impact_metrics` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_impact_metrics_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — admin CRUD via `actions/impact-metrics.ts` and `is_admin()` RLS. Admin-only until Phase 6 (no anon grants). `publish_status` reuses `evidence_status`; only `verified` may render on the live site.

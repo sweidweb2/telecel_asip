@@ -1,0 +1,480 @@
+"use client";
+
+import { useId, useState, useTransition } from "react";
+import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "nextjs-toploader/app";
+import { Loader2Icon, PencilIcon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+
+import { createEvent, updateEvent } from "@/actions/events";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import type { EventDetail, EventStartupOption } from "@/types/event";
+import {
+  CMS_PUBLISH_STATUSES,
+  CMS_PUBLISH_STATUS_LABELS,
+  createEventSchema,
+  EVENT_ASSET_URL_MAX,
+  EVENT_FORMAT_LABELS,
+  EVENT_FORMATS,
+  EVENT_LOCATION_MAX,
+  EVENT_NAME_MAX,
+  EVENT_OUTCOMES_MAX,
+  EVENT_SPEAKER_MAX,
+  type CreateEventInput,
+  type EventFormValues,
+} from "@/validations/event";
+
+const PAIR_ROW =
+  "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-x-5 sm:gap-y-2";
+const PAIR_FIELD = "sm:row-span-3 sm:grid sm:grid-rows-subgrid";
+
+function FieldLabelRow({
+  htmlFor,
+  children,
+  hint,
+}: {
+  htmlFor: string;
+  children: React.ReactNode;
+  hint: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+      <Label htmlFor={htmlFor}>{children}</Label>
+      <span className="text-[0.6875rem] leading-4 text-muted-foreground">
+        {hint}
+      </span>
+    </div>
+  );
+}
+
+function defaultsFor(event?: EventDetail): EventFormValues {
+  return {
+    name: event?.name ?? "",
+    eventDate: event?.event_date ?? "",
+    location: event?.location ?? "",
+    format: event?.format ?? "",
+    speakers: (event?.speakers ?? []).join("\n"),
+    assets: (event?.assets ?? []).join("\n"),
+    outcomes: event?.outcomes ?? "",
+    publishStatus: event?.publish_status ?? "draft",
+    startupIds: event?.startup_ids ?? [],
+  };
+}
+
+type EventFormDialogProps = {
+  mode: "create" | "edit";
+  event?: EventDetail;
+  startupOptions: EventStartupOption[];
+  triggerRender?: React.ReactElement;
+  triggerContent?: React.ReactNode;
+  onSaved?: () => void;
+};
+
+export function EventFormDialog({
+  mode,
+  event,
+  startupOptions,
+  triggerRender,
+  triggerContent,
+  onSaved,
+}: EventFormDialogProps) {
+  const formId = useId();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const form = useForm<EventFormValues, unknown, CreateEventInput>({
+    resolver: zodResolver(
+      createEventSchema,
+    ) as Resolver<EventFormValues, unknown, CreateEventInput>,
+    mode: "onBlur",
+    defaultValues: defaultsFor(event),
+  });
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) {
+      form.reset(defaultsFor(event));
+    }
+  }
+
+  function onSubmit(values: CreateEventInput) {
+    startTransition(async () => {
+      try {
+        const result =
+          mode === "create"
+            ? await createEvent(values)
+            : await updateEvent({ ...values, id: event!.id });
+
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+
+        setOpen(false);
+        onSaved?.();
+        router.refresh();
+        toast.success(result.message);
+      } catch {
+        toast.error("The event could not be saved. Please try again.");
+      }
+    });
+  }
+
+  const errors = form.formState.errors;
+  const selectedIds =
+    useWatch({ control: form.control, name: "startupIds" }) ?? [];
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger
+        render={
+          triggerRender ?? (
+            <Button className="min-h-11 w-full sm:min-h-8 sm:w-auto" />
+          )
+        }
+      >
+        {triggerContent ?? (
+          <>
+            <PlusIcon />
+            New event
+          </>
+        )}
+      </DialogTrigger>
+
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "New event" : "Edit event"}
+          </DialogTitle>
+          <DialogDescription>
+            Name, date, format, speakers, assets, and linked startups.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form id={formId} onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <FieldGroup>
+            <Field data-invalid={Boolean(errors.name)}>
+              <FieldLabelRow
+                htmlFor={`${formId}-name`}
+                hint={`Required · 2–${EVENT_NAME_MAX} chars`}
+              >
+                Name
+              </FieldLabelRow>
+              <Input
+                id={`${formId}-name`}
+                disabled={isPending}
+                required
+                maxLength={EVENT_NAME_MAX}
+                placeholder="Event name"
+                aria-invalid={Boolean(errors.name)}
+                {...form.register("name")}
+              />
+              {errors.name ? (
+                <FieldError>{errors.name.message}</FieldError>
+              ) : null}
+            </Field>
+
+            <div className={PAIR_ROW}>
+              <Field
+                className={PAIR_FIELD}
+                data-invalid={Boolean(errors.eventDate)}
+              >
+                <FieldLabelRow htmlFor={`${formId}-date`} hint="Required">
+                  Event date
+                </FieldLabelRow>
+                <Input
+                  id={`${formId}-date`}
+                  type="date"
+                  disabled={isPending}
+                  required
+                  aria-invalid={Boolean(errors.eventDate)}
+                  {...form.register("eventDate")}
+                />
+                {errors.eventDate ? (
+                  <FieldError>{errors.eventDate.message}</FieldError>
+                ) : null}
+              </Field>
+
+              <Field
+                className={PAIR_FIELD}
+                data-invalid={Boolean(errors.publishStatus)}
+              >
+                <FieldLabelRow htmlFor={`${formId}-status`} hint="Required">
+                  Publish status
+                </FieldLabelRow>
+                <Controller
+                  control={form.control}
+                  name="publishStatus"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        if (value) field.onChange(value);
+                      }}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger
+                        id={`${formId}-status`}
+                        className="min-h-11 w-full sm:min-h-9"
+                      >
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CMS_PUBLISH_STATUSES.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {CMS_PUBLISH_STATUS_LABELS[status]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.publishStatus ? (
+                  <FieldError>{errors.publishStatus.message}</FieldError>
+                ) : null}
+              </Field>
+            </div>
+
+            <div className={PAIR_ROW}>
+              <Field
+                className={PAIR_FIELD}
+                data-invalid={Boolean(errors.location)}
+              >
+                <FieldLabelRow
+                  htmlFor={`${formId}-location`}
+                  hint={`Optional · max ${EVENT_LOCATION_MAX}`}
+                >
+                  Location
+                </FieldLabelRow>
+                <Input
+                  id={`${formId}-location`}
+                  disabled={isPending}
+                  maxLength={EVENT_LOCATION_MAX}
+                  placeholder="City or venue"
+                  aria-invalid={Boolean(errors.location)}
+                  {...form.register("location")}
+                />
+                {errors.location ? (
+                  <FieldError>{errors.location.message}</FieldError>
+                ) : null}
+              </Field>
+
+              <Field
+                className={PAIR_FIELD}
+                data-invalid={Boolean(errors.format)}
+              >
+                <FieldLabelRow htmlFor={`${formId}-format`} hint="Optional">
+                  Format
+                </FieldLabelRow>
+                <Controller
+                  control={form.control}
+                  name="format"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || "none"}
+                      onValueChange={(value) => {
+                        if (!value || value === "none") {
+                          field.onChange("");
+                          return;
+                        }
+                        field.onChange(value);
+                      }}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger
+                        id={`${formId}-format`}
+                        className="min-h-11 w-full sm:min-h-9"
+                      >
+                        <SelectValue placeholder="Select format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No format</SelectItem>
+                        {EVENT_FORMATS.map((format) => (
+                          <SelectItem key={format} value={format}>
+                            {EVENT_FORMAT_LABELS[format]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.format ? (
+                  <FieldError>{errors.format.message}</FieldError>
+                ) : null}
+              </Field>
+            </div>
+
+            <Field data-invalid={Boolean(errors.speakers)}>
+              <FieldLabelRow
+                htmlFor={`${formId}-speakers`}
+                hint={`Optional · one per line · max ${EVENT_SPEAKER_MAX} chars each`}
+              >
+                Speakers
+              </FieldLabelRow>
+              <Textarea
+                id={`${formId}-speakers`}
+                rows={3}
+                disabled={isPending}
+                placeholder={"Amina Diallo\nKwame Mensah"}
+                aria-invalid={Boolean(errors.speakers)}
+                {...form.register("speakers")}
+              />
+              {errors.speakers ? (
+                <FieldError>
+                  {typeof errors.speakers.message === "string"
+                    ? errors.speakers.message
+                    : "Invalid speakers"}
+                </FieldError>
+              ) : null}
+            </Field>
+
+            <Field data-invalid={Boolean(errors.assets)}>
+              <FieldLabelRow
+                htmlFor={`${formId}-assets`}
+                hint={`Optional · one http(s) URL per line · max ${EVENT_ASSET_URL_MAX}`}
+              >
+                Assets
+              </FieldLabelRow>
+              <Textarea
+                id={`${formId}-assets`}
+                rows={3}
+                disabled={isPending}
+                placeholder="https://example.com/deck.pdf"
+                aria-invalid={Boolean(errors.assets)}
+                {...form.register("assets")}
+              />
+              {errors.assets ? (
+                <FieldError>
+                  {typeof errors.assets.message === "string"
+                    ? errors.assets.message
+                    : "Invalid assets"}
+                </FieldError>
+              ) : null}
+            </Field>
+
+            <Field data-invalid={Boolean(errors.outcomes)}>
+              <FieldLabelRow
+                htmlFor={`${formId}-outcomes`}
+                hint={`Optional · max ${EVENT_OUTCOMES_MAX} chars`}
+              >
+                Outcomes
+              </FieldLabelRow>
+              <Textarea
+                id={`${formId}-outcomes`}
+                rows={4}
+                disabled={isPending}
+                maxLength={EVENT_OUTCOMES_MAX}
+                placeholder="What happened after the event."
+                aria-invalid={Boolean(errors.outcomes)}
+                {...form.register("outcomes")}
+              />
+              {errors.outcomes ? (
+                <FieldError>{errors.outcomes.message}</FieldError>
+              ) : null}
+            </Field>
+
+            <Field data-invalid={Boolean(errors.startupIds)}>
+              <FieldLabelRow htmlFor={`${formId}-startups`} hint="Optional">
+                Linked startups
+              </FieldLabelRow>
+              <div
+                id={`${formId}-startups`}
+                className="max-h-48 space-y-2 overflow-y-auto rounded-lg border p-3"
+              >
+                {startupOptions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No startups in the portfolio yet.
+                  </p>
+                ) : (
+                  startupOptions.map((startup) => {
+                    const checked = selectedIds.includes(startup.id);
+                    return (
+                      <label
+                        key={startup.id}
+                        className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-1 sm:min-h-8"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          disabled={isPending}
+                          onCheckedChange={(next) => {
+                            const isOn = next === true;
+                            const current = form.getValues("startupIds");
+                            form.setValue(
+                              "startupIds",
+                              isOn
+                                ? [...current, startup.id]
+                                : current.filter((id) => id !== startup.id),
+                              { shouldDirty: true, shouldValidate: true },
+                            );
+                          }}
+                        />
+                        <span className="min-w-0 truncate text-sm">
+                          {startup.name}
+                        </span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+              {errors.startupIds ? (
+                <FieldError>
+                  {typeof errors.startupIds.message === "string"
+                    ? errors.startupIds.message
+                    : "Invalid startup selection"}
+                </FieldError>
+              ) : null}
+            </Field>
+          </FieldGroup>
+        </form>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" form={formId} disabled={isPending}>
+            {isPending ? (
+              <Loader2Icon className="animate-spin" />
+            ) : mode === "create" ? (
+              <PlusIcon />
+            ) : (
+              <PencilIcon />
+            )}
+            {isPending
+              ? "Saving…"
+              : mode === "create"
+                ? "Create event"
+                : "Save changes"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

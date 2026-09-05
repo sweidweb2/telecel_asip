@@ -119,6 +119,188 @@ export type Database = {
         }
         Relationships: []
       }
+      cohorts: {
+        Row: {
+          created_at: string
+          id: string
+          media_url: string | null
+          programme_dates_end: string | null
+          programme_dates_start: string | null
+          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label: string
+          publish_status: Database["public"]["Enums"]["cms_publish_status"]
+          summary: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          programme_dates_end?: string | null
+          programme_dates_start?: string | null
+          programme_status: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          summary?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          programme_dates_end?: string | null
+          programme_dates_start?: string | null
+          programme_status?: Database["public"]["Enums"]["cohort_programme_status"]
+          public_label?: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          summary?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      cohort_partners: {
+        Row: {
+          cohort_id: string
+          partner_id: string
+        }
+        Insert: {
+          cohort_id: string
+          partner_id: string
+        }
+        Update: {
+          cohort_id?: string
+          partner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cohort_partners_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohort_partners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohort_partners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cohort_startups: {
+        Row: {
+          cohort_id: string
+          startup_id: string
+        }
+        Insert: {
+          cohort_id: string
+          startup_id: string
+        }
+        Update: {
+          cohort_id?: string
+          startup_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cohort_startups_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohort_startups_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cohort_startups_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_stories: {
+        Row: {
+          created_at: string
+          founder_quote_text: string | null
+          id: string
+          publish_status: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name: string | null
+          quote_attribution_title: string | null
+          quote_date: string | null
+          quote_permission_status: Database["public"]["Enums"]["quote_permission_status"] | null
+          startup_id: string
+          the_asip_connection: string
+          the_problem: string
+          updated_at: string
+          what_they_built: string
+          where_they_are_now: string
+        }
+        Insert: {
+          created_at?: string
+          founder_quote_text?: string | null
+          id?: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name?: string | null
+          quote_attribution_title?: string | null
+          quote_date?: string | null
+          quote_permission_status?: Database["public"]["Enums"]["quote_permission_status"] | null
+          startup_id: string
+          the_asip_connection: string
+          the_problem: string
+          updated_at?: string
+          what_they_built: string
+          where_they_are_now: string
+        }
+        Update: {
+          created_at?: string
+          founder_quote_text?: string | null
+          id?: string
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          quote_attribution_name?: string | null
+          quote_attribution_title?: string | null
+          quote_date?: string | null
+          quote_permission_status?: Database["public"]["Enums"]["quote_permission_status"] | null
+          startup_id?: string
+          the_asip_connection?: string
+          the_problem?: string
+          updated_at?: string
+          what_they_built?: string
+          where_they_are_now?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_stories_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: true
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_stories_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: true
+            referencedRelation: "startups_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           contribution: string | null
@@ -163,6 +345,187 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      events: {
+        Row: {
+          assets: string[]
+          created_at: string
+          event_date: string
+          format: Database["public"]["Enums"]["event_format"] | null
+          id: string
+          location: string | null
+          name: string
+          outcomes: string | null
+          publish_status: Database["public"]["Enums"]["cms_publish_status"]
+          speakers: string[]
+          updated_at: string
+        }
+        Insert: {
+          assets?: string[]
+          created_at?: string
+          event_date: string
+          format?: Database["public"]["Enums"]["event_format"] | null
+          id?: string
+          location?: string | null
+          name: string
+          outcomes?: string | null
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          speakers?: string[]
+          updated_at?: string
+        }
+        Update: {
+          assets?: string[]
+          created_at?: string
+          event_date?: string
+          format?: Database["public"]["Enums"]["event_format"] | null
+          id?: string
+          location?: string | null
+          name?: string
+          outcomes?: string | null
+          publish_status?: Database["public"]["Enums"]["cms_publish_status"]
+          speakers?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      event_startups: {
+        Row: {
+          event_id: string
+          startup_id: string
+        }
+        Insert: {
+          event_id: string
+          startup_id: string
+        }
+        Update: {
+          event_id?: string
+          startup_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_startups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_startups_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evidence_records: {
+        Row: {
+          created_at: string
+          id: string
+          last_verified_date: string
+          measurement_period_end: string
+          measurement_period_start: string
+          owner_id: string
+          permission: Database["public"]["Enums"]["evidence_permission"]
+          primary_source: string
+          review_date: string
+          source_file_url: string | null
+          status: Database["public"]["Enums"]["evidence_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_verified_date: string
+          measurement_period_end: string
+          measurement_period_start: string
+          owner_id: string
+          permission: Database["public"]["Enums"]["evidence_permission"]
+          primary_source: string
+          review_date: string
+          source_file_url?: string | null
+          status?: Database["public"]["Enums"]["evidence_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_verified_date?: string
+          measurement_period_end?: string
+          measurement_period_start?: string
+          owner_id?: string
+          permission?: Database["public"]["Enums"]["evidence_permission"]
+          primary_source?: string
+          review_date?: string
+          source_file_url?: string | null
+          status?: Database["public"]["Enums"]["evidence_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_records_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      impact_metrics: {
+        Row: {
+          claim_label: string
+          created_at: string
+          display_locations: string[] | null
+          evidence_id: string
+          geography: string | null
+          id: string
+          impact_lens: Database["public"]["Enums"]["impact_lens"] | null
+          period_end: string
+          period_start: string
+          publish_status: Database["public"]["Enums"]["evidence_status"]
+          unit: string | null
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          claim_label: string
+          created_at?: string
+          display_locations?: string[] | null
+          evidence_id: string
+          geography?: string | null
+          id?: string
+          impact_lens?: Database["public"]["Enums"]["impact_lens"] | null
+          period_end: string
+          period_start: string
+          publish_status?: Database["public"]["Enums"]["evidence_status"]
+          unit?: string | null
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          claim_label?: string
+          created_at?: string
+          display_locations?: string[] | null
+          evidence_id?: string
+          geography?: string | null
+          id?: string
+          impact_lens?: Database["public"]["Enums"]["impact_lens"] | null
+          period_end?: string
+          period_start?: string
+          publish_status?: Database["public"]["Enums"]["evidence_status"]
+          unit?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_metrics_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_records"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       startups: {
         Row: {
@@ -468,10 +831,52 @@ export type Database = {
           is_featured: boolean
         }[]
       }
+      create_cohort_with_links: {
+        Args: {
+          p_cohort: Json
+          p_partner_ids?: string[]
+          p_startup_ids?: string[]
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      update_cohort_with_links: {
+        Args: {
+          p_id: string
+          p_cohort: Json
+          p_partner_ids?: string[]
+          p_startup_ids?: string[]
+        }
+        Returns: {
+          id: string
+        }[]
+      }
     }
     Enums: {
       blog_status: "draft" | "published"
+      cms_publish_status: "draft" | "published"
+      cohort_programme_status: "closed" | "open" | "hold"
       contact_enquiry_type: "founder" | "partner" | "media" | "general"
+      evidence_permission:
+        | "public"
+        | "internal_only"
+        | "partner_approval_required"
+        | "legal_review_required"
+      evidence_status:
+        | "verified"
+        | "pending"
+        | "outdated"
+        | "disputed"
+        | "not_for_publication"
+      event_format: "virtual" | "in_person" | "hybrid"
+      impact_lens:
+        | "pipeline"
+        | "inclusion"
+        | "business_growth"
+        | "commercialisation"
+        | "jobs_capability"
+        | "sector_outcomes"
       partner_type:
         | "corporate"
         | "investors"
@@ -479,6 +884,7 @@ export type Database = {
         | "development"
         | "mentors"
         | "media"
+      quote_permission_status: "granted" | "pending" | "denied"
       startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
     }
@@ -609,7 +1015,31 @@ export const Constants = {
   public: {
     Enums: {
       blog_status: ["draft", "published"],
+      cms_publish_status: ["draft", "published"],
+      cohort_programme_status: ["closed", "open", "hold"],
       contact_enquiry_type: ["founder", "partner", "media", "general"],
+      evidence_permission: [
+        "public",
+        "internal_only",
+        "partner_approval_required",
+        "legal_review_required",
+      ],
+      evidence_status: [
+        "verified",
+        "pending",
+        "outdated",
+        "disputed",
+        "not_for_publication",
+      ],
+      event_format: ["virtual", "in_person", "hybrid"],
+      impact_lens: [
+        "pipeline",
+        "inclusion",
+        "business_growth",
+        "commercialisation",
+        "jobs_capability",
+        "sector_outcomes",
+      ],
       partner_type: [
         "corporate",
         "investors",
@@ -618,6 +1048,7 @@ export const Constants = {
         "mentors",
         "media",
       ],
+      quote_permission_status: ["granted", "pending", "denied"],
       startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],
     },

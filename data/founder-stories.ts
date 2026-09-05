@@ -1,0 +1,185 @@
+import { cache } from "react";
+
+import { createClient } from "@/lib/supabase/server";
+import type {
+  FounderStory,
+  FounderStoryDetail,
+  FounderStoryListItem,
+  FounderStoryListResult,
+  StartupStoryOption,
+} from "@/types/founder-story";
+import {
+  founderStoryIdSchema,
+  type FounderStoryListQuery,
+} from "@/validations/founder-story";
+
+export const FOUNDER_STORIES_CACHE_TAG = "founder-stories";
+
+const LIST_COLUMNS =
+  "id, startup_id, the_problem, publish_status, quote_permission_status, founder_quote_text, created_at, updated_at, startups!inner(name)" as const;
+
+const DETAIL_COLUMNS =
+  "id, startup_id, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
+
+type ServerClient = Awaited<ReturnType<typeof createClient>>;
+
+type StoryRowWithStartup = FounderStory & {
+  startups: { name: string } | { name: string }[] | null;
+};
+
+function escapeIlikePattern(value: string): string {
+  return value.replace(/[\\%_"]/g, "\\$&");
+}
+
+function startupNameFromJoin(
+  startups: StoryRowWithStartup["startups"],
+): string {
+  if (!startups) return "";
+  if (Array.isArray(startups)) return startups[0]?.name ?? "";
+  return startups.name ?? "";
+}
+
+function toListItem(row: StoryRowWithStartup): FounderStoryListItem {
+  return {
+    id: row.id,
+    startup_id: row.startup_id,
+    the_problem: row.the_problem,
+    publish_status: row.publish_status,
+    quote_permission_status: row.quote_permission_status,
+    founder_quote_text: row.founder_quote_text,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    startup_name: startupNameFromJoin(row.startups),
+  };
+}
+
+function toDetail(row: StoryRowWithStartup): FounderStoryDetail {
+  const { startups, ...story } = row;
+  return {
+    ...story,
+    startup_name: startupNameFromJoin(startups),
+  };
+}
+
+async function fetchFounderStoriesPage(
+  supabase: ServerClient,
+  query: FounderStoryListQuery,
+): Promise<FounderStoryListResult> {
+  const from = (query.page - 1) * query.pageSize;
+  const to = from + query.pageSize - 1;
+
+  let request = supabase
+    .from("founder_stories")
+    .select(LIST_COLUMNS, { count: "exact" })
+    .order("updated_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range(from, to);
+
+  if (query.status !== "all") {
+    request = request.eq("publish_status", query.status);
+  }
+
+  if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
+    request = request.ilike("startups.name", `%${pattern}%`);
+  }
+
+  const { data, count, error } = await request;
+  if (error) throw error;
+
+  const total = count ?? 0;
+  return {
+    stories: ((data ?? []) as unknown as StoryRowWithStartup[]).map(toListItem),
+    total,
+    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+  };
+}
+
+export async function getFounderStoriesPageData(
+  query: FounderStoryListQuery,
+): Promise<
+  { status: "forbidden" } | { status: "ok"; list: FounderStoryListResult }
+> {
+  const supabase = await createClient();
+
+  const [adminResult, list] = await Promise.all([
+    supabase.rpc("is_admin"),
+    fetchFounderStoriesPage(supabase, query),
+  ]);
+
+  if (adminResult.error) throw adminResult.error;
+  if (!adminResult.data) return { status: "forbidden" };
+
+  return { status: "ok", list };
+}
+
+type FounderStoryDetailResult =
+  | { status: "forbidden" }
+  | { status: "not_found" }
+  | { status: "ok"; story: FounderStoryDetail };
+
+export const getFounderStoryByIdForAdmin = cache(
+  async (id: string): Promise<FounderStoryDetailResult> => {
+    if (!founderStoryIdSchema.safeParse(id).success) {
+      return { status: "not_found" };
+    }
+
+    const supabase = await createClient();
+    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
+    if (adminError) throw adminError;
+    if (!isAdmin) return { status: "forbidden" };
+
+    const { data, error } = await supabase
+      .from("founder_stories")
+      .select(DETAIL_COLUMNS)
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return { status: "not_found" };
+
+    return {
+      status: "ok",
+      story: toDetail(data as unknown as StoryRowWithStartup),
+    };
+  },
+);
+
+/**
+ * Startups available for a new story picker. Excludes startups that already
+ * have a story, unless `includeStartupId` is passed (edit mode).
+ */
+export async function getStartupsForStoryPicker(options?: {
+  includeStartupId?: string;
+}): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; startups: StartupStoryOption[] }
+> {
+  const supabase = await createClient();
+  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
+  if (adminError) throw adminError;
+  if (!isAdmin) return { status: "forbidden" };
+
+  const [startupsResult, takenResult] = await Promise.all([
+    supabase
+      .from("startups")
+      .select("id, name")
+      .order("name", { ascending: true }),
+    supabase.from("founder_stories").select("startup_id"),
+  ]);
+
+  if (startupsResult.error) throw startupsResult.error;
+  if (takenResult.error) throw takenResult.error;
+
+  const taken = new Set(
+    (takenResult.data ?? []).map((row) => row.startup_id as string),
+  );
+  const includeId = options?.includeStartupId;
+
+  const startups = (startupsResult.data ?? []).filter((row) => {
+    if (includeId && row.id === includeId) return true;
+    return !taken.has(row.id);
+  }) as StartupStoryOption[];
+
+  return { status: "ok", startups };
+}

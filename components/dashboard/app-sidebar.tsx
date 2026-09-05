@@ -4,15 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3Icon,
+  BookOpenIcon,
   BriefcaseIcon,
+  CalendarIcon,
+  ChartColumnIcon,
   DatabaseBackupIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
   NewspaperIcon,
   SettingsIcon,
+  ShieldCheckIcon,
   UserPlusIcon,
   UsersIcon,
+  UsersRoundIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,7 +46,12 @@ const NAV_ICONS: Record<(typeof DASHBOARD_NAV_ITEMS)[number]["href"], LucideIcon
     [ROUTES.registrations]: UserPlusIcon,
     [ROUTES.portfolio]: BriefcaseIcon,
     [ROUTES.blogs]: NewspaperIcon,
+    [ROUTES.cohorts]: UsersRoundIcon,
     [ROUTES.partners]: HandshakeIcon,
+    [ROUTES.founderStories]: BookOpenIcon,
+    [ROUTES.evidence]: ShieldCheckIcon,
+    [ROUTES.impactMetrics]: ChartColumnIcon,
+    [ROUTES.events]: CalendarIcon,
     [ROUTES.contactUs]: MailIcon,
     [ROUTES.analytics]: BarChart3Icon,
     [ROUTES.backup]: DatabaseBackupIcon,

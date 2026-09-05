@@ -357,6 +357,321 @@ Table partners_public {
   '''
 }
 
+Enum evidence_status {
+  verified
+  pending
+  outdated
+  disputed
+  not_for_publication
+}
+
+Enum evidence_permission {
+  public
+  internal_only
+  partner_approval_required
+  legal_review_required
+}
+
+Table evidence_records {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  primary_source text [not null, note: 'CHECK length 2–2000']
+  source_file_url text [note: 'Optional pasted http(s) URL; CHECK length <= 500; no Storage bucket in Phase 1']
+  measurement_period_start date [not null]
+  measurement_period_end date [not null, note: 'CHECK end >= start']
+  owner_id uuid [not null, note: 'FK → profiles(id) ON DELETE RESTRICT']
+  status evidence_status [not null, default: 'pending']
+  last_verified_date date [not null]
+  permission evidence_permission [not null]
+  review_date date [not null]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (created_at) [name: 'evidence_records_created_at_idx', note: 'created_at DESC']
+    (status) [name: 'evidence_records_status_idx']
+    (owner_id) [name: 'evidence_records_owner_id_idx']
+    primary_source [type: gin, name: 'evidence_records_primary_source_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+  }
+
+  Note: '''
+    RLS enabled. Governance / Evidence Register (CMS Phase 1).
+
+    Grants:
+    - authenticated: SELECT, INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none
+
+    Policies (authenticated):
+    - Admins can read/insert/update/delete — is_admin()
+
+    Trigger: evidence_records_set_updated_at BEFORE UPDATE
+    Live metrics (Phase 2+) must only use status = verified.
+  '''
+}
+
+Enum impact_lens {
+  pipeline
+  inclusion
+  business_growth
+  commercialisation
+  jobs_capability
+  sector_outcomes
+}
+
+Table impact_metrics {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  claim_label text [not null, note: 'CHECK length 2–200']
+  value text [not null, note: 'CHECK length 1–80; supports "10,000+", "70%"']
+  unit text [note: 'CHECK length 1–40 when set']
+  period_start date [not null]
+  period_end date [not null, note: 'CHECK end >= start']
+  geography text [note: 'CHECK length 2–120 when set']
+  impact_lens impact_lens
+  display_locations text[] [note: 'e.g. homepage_module_02, impact_page']
+  evidence_id uuid [not null, note: 'FK → evidence_records(id) ON DELETE RESTRICT']
+  publish_status evidence_status [not null, default: 'pending', note: 'Only verified may render live (Phase 6)']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (publish_status, impact_lens) [name: 'impact_metrics_publish_lens_idx']
+    (created_at) [name: 'impact_metrics_created_at_idx', note: 'created_at DESC']
+    (evidence_id) [name: 'impact_metrics_evidence_id_idx']
+    claim_label [type: gin, name: 'impact_metrics_claim_label_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+  }
+
+  Note: '''
+    RLS enabled. Impact Metric content type (CMS Phase 2).
+
+    Grants:
+    - authenticated: SELECT, INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none (public SELECT deferred to Phase 6)
+
+    Policies (authenticated):
+    - Admins can read/insert/update/delete — is_admin()
+
+    Trigger: impact_metrics_set_updated_at BEFORE UPDATE
+    publish_status reuses evidence_status; only verified may render live.
+  '''
+}
+
+Enum event_format {
+  virtual
+  in_person
+  hybrid
+}
+
+Enum cms_publish_status {
+  draft
+  published
+}
+
+Enum quote_permission_status {
+  granted
+  pending
+  denied
+}
+
+Table founder_stories {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  startup_id uuid [not null, note: 'FK → startups(id) ON DELETE CASCADE; UNIQUE — one story per startup']
+  the_problem text [not null, note: 'CHECK char_length 2..4000']
+  what_they_built text [not null, note: 'CHECK char_length 2..4000']
+  the_asip_connection text [not null, note: 'CHECK char_length 2..4000']
+  where_they_are_now text [not null, note: 'CHECK char_length 2..4000']
+  founder_quote_text text [note: 'CHECK char_length <= 2000 when set']
+  quote_attribution_name text [note: 'Required when quote present; CHECK 2..120']
+  quote_attribution_title text [note: 'CHECK 2..160 when set']
+  quote_date date
+  quote_permission_status quote_permission_status [note: 'Required when quote present']
+  publish_status cms_publish_status [not null, default: 'draft']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (startup_id) [unique, name: 'founder_stories_startup_id_uidx']
+    (publish_status, updated_at) [name: 'founder_stories_publish_status_updated_at_idx', note: 'updated_at DESC']
+  }
+
+  Note: '''
+    RLS enabled. Phase 4 CMS founder stories (owns cms_publish_status enum).
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read published founder stories — SELECT USING (publish_status = published)
+    - Admins can read all founder stories — SELECT USING (is_admin())
+    - Admins can insert/update/delete — is_admin()
+
+    CHECK founder_stories_quote_block_chk: non-empty founder_quote_text
+    requires attribution name + quote_permission_status. Publish-time
+    "must be granted" is enforced in Zod (drafts may keep pending).
+
+    Additive to startups / startup_details — does not replace problem/solution.
+    Evidence M2M (founder_story_evidence) deferred on purpose for Phase 4
+    (evidence_records exists; junction not wired in admin yet).
+
+    Trigger: founder_stories_set_updated_at BEFORE UPDATE
+    English-only content phase 1; EN/FR public pages show the same stories.
+  '''
+}
+
+Table events {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null, note: 'CHECK length 2–200']
+  event_date date [not null, note: 'Not named date — reserved-ish']
+  location text [note: 'CHECK length 1–200 when set']
+  format event_format
+  speakers text[] [not null, default: `'{}'`]
+  assets text[] [not null, default: `'{}'`, note: 'http(s) URLs; no storage bucket yet']
+  outcomes text [note: 'CHECK length <= 5000']
+  publish_status cms_publish_status [not null, default: 'draft']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (publish_status, event_date) [name: 'events_publish_status_event_date_idx', note: 'event_date DESC']
+    (event_date) [name: 'events_event_date_idx', note: 'event_date DESC']
+    (created_at) [name: 'events_created_at_idx', note: 'created_at DESC']
+    name [type: gin, name: 'events_name_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+  }
+
+  Note: '''
+    RLS enabled. Phase 5 CMS events table.
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read published events — publish_status = published
+    - Admins can read all / insert / update / delete — is_admin()
+
+    Trigger: events_set_updated_at BEFORE UPDATE
+    No write RPCs — actions/events.ts uses plain INSERT/UPDATE/DELETE
+    plus replace on event_startups. Assets are URL strings only (no bucket).
+    Reuses cms_publish_status from Phase 4 (founder_stories).
+  '''
+}
+
+Table event_startups {
+  event_id uuid [not null, note: 'FK → events(id) ON DELETE CASCADE']
+  startup_id uuid [not null, note: 'FK → startups(id) ON DELETE CASCADE']
+
+  indexes {
+    (event_id, startup_id) [pk]
+    (startup_id) [name: 'event_startups_startup_id_idx']
+    (event_id) [name: 'event_startups_event_id_idx']
+  }
+
+  Note: '''
+    RLS enabled. M2M junction: events ↔ startups (founder participants).
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read rows whose event is published
+    - Admins can read all / insert / update / delete — is_admin()
+
+    cohort_events out of Phase 5 app scope (locked plan); add when wiring cohort admin.
+  '''
+}
+
+Enum cohort_programme_status {
+  closed
+  open
+  hold
+}
+
+Table cohorts {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  year integer [not null, note: 'CHECK 1900–2100']
+  public_label text [not null, note: 'CHECK length 2–160; UNIQUE with year']
+  programme_dates_start date [note: 'VERIFY before publish (editorial)']
+  programme_dates_end date [note: 'CHECK >= start when both set']
+  programme_status cohort_programme_status [not null]
+  summary text [note: 'CHECK length <= 5000']
+  media_url text [note: 'Plain https URL; CHECK length <= 500; bucket later']
+  publish_status cms_publish_status [not null, default: 'draft']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (year, public_label) [unique, name: 'cohorts_year_public_label_uidx']
+    (publish_status, year) [name: 'cohorts_publish_status_year_idx', note: 'year DESC']
+    (created_at) [name: 'cohorts_created_at_idx', note: 'created_at DESC']
+  }
+
+  Note: '''
+    RLS enabled.
+
+    Grants:
+    - anon, authenticated: SELECT
+    - authenticated: INSERT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+
+    Policies:
+    - Anyone can read published cohorts — SELECT USING (publish_status = published)
+    - Admins can read all / insert / update / delete — is_admin()
+
+    Trigger: cohorts_set_updated_at BEFORE UPDATE
+    Write RPCs: create_cohort_with_links, update_cohort_with_links
+    Do not ALTER startups/partners for cohort FKs — M2M junctions only.
+  '''
+}
+
+Table cohort_partners {
+  cohort_id uuid [not null]
+  partner_id uuid [not null]
+
+  indexes {
+    (cohort_id, partner_id) [pk]
+    (partner_id) [name: 'cohort_partners_partner_id_idx']
+  }
+
+  Note: '''
+    RLS enabled. Composite PK.
+
+    Grants: same pattern as cohorts (anon/authenticated SELECT; authenticated write; service_role full).
+
+    Policies:
+    - Anyone can read partners of published cohorts — EXISTS parent publish_status = published
+    - Admins can read all / insert / update / delete — is_admin()
+
+    ON DELETE CASCADE from cohorts and partners.
+  '''
+}
+
+Table cohort_startups {
+  cohort_id uuid [not null]
+  startup_id uuid [not null]
+
+  indexes {
+    (cohort_id, startup_id) [pk]
+    (startup_id) [name: 'cohort_startups_startup_id_idx']
+  }
+
+  Note: '''
+    RLS enabled. Composite PK. Planned founders → startups.id.
+
+    Grants: same pattern as cohort_partners.
+
+    Policies:
+    - Anyone can read startups of published cohorts — EXISTS parent publish_status = published
+    - Admins can read all / insert / update / delete — is_admin()
+
+    ON DELETE CASCADE from cohorts and startups.
+  '''
+}
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]
@@ -366,3 +681,12 @@ Table "auth.users" {
 
 Ref: profiles.id > "auth.users".id [delete: cascade]
 Ref: startup_details.startup_id > startups.id [delete: cascade]
+Ref: founder_stories.startup_id > startups.id [delete: cascade]
+Ref: cohort_partners.cohort_id > cohorts.id [delete: cascade]
+Ref: cohort_partners.partner_id > partners.id [delete: cascade]
+Ref: cohort_startups.cohort_id > cohorts.id [delete: cascade]
+Ref: cohort_startups.startup_id > startups.id [delete: cascade]
+Ref: event_startups.event_id > events.id [delete: cascade]
+Ref: event_startups.startup_id > startups.id [delete: cascade]
+Ref: evidence_records.owner_id > profiles.id [delete: restrict]
+Ref: impact_metrics.evidence_id > evidence_records.id [delete: restrict]
