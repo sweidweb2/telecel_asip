@@ -1,24 +1,12 @@
-import { cache } from "react";
 import { redirect } from "next/navigation";
 
 import { publicPath } from "@/constants/routes";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-import { createClient } from "@/lib/supabase/server";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
+export { getAuthUser } from "@/lib/admin/get-auth-user";
 export { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-
-/** Returns the signed-in Auth user, or null when logged out. */
-export const getAuthUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) return null;
-  return user;
-});
 
 /**
  * Admin gate for dashboard routes. Sends non-admins (including self-serve

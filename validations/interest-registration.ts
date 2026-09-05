@@ -5,6 +5,7 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import { inboxListFilterSchema } from "@/validations/inbox";
 
 type InterestRegistrationMessages = {
   fullNameMin: string;
@@ -210,6 +211,7 @@ const interestRegistrationListQueryInputSchema = z.object({
     .max(100, "Search must be 100 characters or fewer")
     .regex(/^[^,%_().]*$/, "Search contains unsupported characters")
     .catch(""),
+  inboxStatus: inboxListFilterSchema,
 });
 
 export type InterestRegistrationListQuery = z.infer<
@@ -225,7 +227,7 @@ export function parseInterestRegistrationListQuery(
     input,
     schema: interestRegistrationListQueryInputSchema,
     pageSize: INTEREST_REGISTRATION_PAGE_SIZE,
-    defaults: { page: "1", search: "" },
+    defaults: { page: "1", search: "", inboxStatus: "inbox" },
   });
 }
 

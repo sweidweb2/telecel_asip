@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useRef, useState, useTransition } from "react";
 
-const SEARCH_DEBOUNCE_MS = 800;
+const SEARCH_DEBOUNCE_MS = 400;
 
 type UseAdminListFiltersArgs = {
   basePath: string;

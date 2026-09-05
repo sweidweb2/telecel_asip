@@ -2,10 +2,15 @@
 
 import { EyeIcon } from "lucide-react";
 
-import { deleteApplication } from "@/actions/applications";
+import {
+  deleteApplication,
+  updateApplicationInboxStatus,
+} from "@/actions/applications";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import type { Application } from "@/types/application";
 
@@ -28,12 +34,23 @@ export function ApplicationRowActions({
   onViewOpenChange?: (open: boolean) => void;
 }) {
   const isControlled = onViewOpenChange !== undefined;
+  const { onViewOpenChange: markReviewedOnOpen } = useMarkInboxReviewed({
+    id: application.id,
+    inboxStatus: application.inbox_status,
+    updateAction: updateApplicationInboxStatus,
+    isOpen: isControlled ? viewOpen : undefined,
+  });
+
+  function handleViewOpenChange(open: boolean) {
+    onViewOpenChange?.(open);
+    markReviewedOnOpen(open);
+  }
 
   return (
     <div className="flex items-center justify-end gap-0.5">
       <Dialog
         open={isControlled ? viewOpen : undefined}
-        onOpenChange={onViewOpenChange}
+        onOpenChange={handleViewOpenChange}
       >
         <DialogTrigger
           render={
@@ -56,6 +73,9 @@ export function ApplicationRowActions({
             </DialogDescription>
           </DialogHeader>
           <dl className="grid gap-4">
+            <AdminDetailRow label="Status">
+              <InboxStatusBadge status={application.inbox_status} />
+            </AdminDetailRow>
             <AdminDetailRow label="Role">{application.founder_role}</AdminDetailRow>
             <AdminDetailRow label="Email">{application.email}</AdminDetailRow>
             <AdminDetailRow label="Phone">{application.phone}</AdminDetailRow>
@@ -98,6 +118,12 @@ export function ApplicationRowActions({
           </dl>
         </DialogContent>
       </Dialog>
+
+      <AdminInboxArchiveButton
+        id={application.id}
+        inboxStatus={application.inbox_status}
+        updateAction={updateApplicationInboxStatus}
+      />
 
       <AdminRowDelete
         deleteAction={() => deleteApplication({ id: application.id })}

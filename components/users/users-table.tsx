@@ -20,6 +20,12 @@ const ROLE_VARIANT = {
   viewer: "outline",
 } as const;
 
+const ROLE_LABELS = {
+  admin: "Admin",
+  editor: "Editor",
+  viewer: "Viewer",
+} as const;
+
 export function UsersTable({
   users,
   total,
@@ -80,7 +86,9 @@ export function UsersTable({
             {user.email}
           </TableCell>
           <TableCell>
-            <Badge variant={ROLE_VARIANT[user.role]}>{user.role}</Badge>
+            <Badge variant={ROLE_VARIANT[user.role]}>
+              {ROLE_LABELS[user.role]}
+            </Badge>
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
             {formatAdminDate(user.created_at)}

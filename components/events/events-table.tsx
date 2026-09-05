@@ -52,7 +52,9 @@ export function EventsTable({
         <AdminEmptyState
           icon={CalendarIcon}
           title="No events found"
-          description="Try changing the filters, or create a new event from the header."
+          description="Try changing the filters, or create a new event."
+          createHref={ROUTES.eventsNew}
+          createLabel="New event"
         />
       }
       pagination={{

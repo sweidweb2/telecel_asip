@@ -1,3 +1,5 @@
+import { getAuthUser } from "@/lib/admin/get-auth-user";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthorizeAdminMessages = {
@@ -15,25 +17,24 @@ export type AdminSession =
 
 /**
  * Session + `is_admin()` gate for dashboard Server Actions.
- * Callers pass entity-specific unauthorized / signed-in copy.
+ * Uses request-cached auth helpers; callers pass entity-specific copy.
  */
 export async function authorizeAdmin(
   messages: AuthorizeAdminMessages,
 ): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const [user, isAdmin] = await Promise.all([
+    getAuthUser(),
+    isCurrentUserAdmin(),
+  ]);
 
-  if (userError || !user) {
+  if (!user) {
     return { status: "error", message: messages.signedInRequired };
   }
 
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
+  if (!isAdmin) {
     return { status: "error", message: messages.unauthorized };
   }
 
+  const supabase = await createClient();
   return { status: "success", userId: user.id, supabase };
 }

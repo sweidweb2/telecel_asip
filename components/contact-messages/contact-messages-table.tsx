@@ -7,6 +7,7 @@ import { ContactMessageRowActions } from "@/components/contact-messages/contact-
 import { ContactMessagesFilters } from "@/components/contact-messages/contact-messages-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { CONTACT_ENQUIRY_ADMIN_LABELS } from "@/constants/contact-enquiry";
@@ -37,21 +38,22 @@ export function ContactMessagesTable({
       header={
         <TableRow>
           <TableHead className="pl-4">Name</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Route</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Subject</TableHead>
           <TableHead>Submitted</TableHead>
-          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+          <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={messages.length === 0}
-      emptyColSpan={7}
+      emptyColSpan={8}
       empty={
         <AdminEmptyState
           icon={MailIcon}
           title="No messages found"
-          description="Try changing the search, or wait for new submissions from the contact form."
+          description="Try changing the search or inbox filter, or wait for new submissions from the contact form."
         />
       }
       pagination={{
@@ -64,6 +66,8 @@ export function ContactMessagesTable({
           search: query.search,
           enquiryType:
             query.enquiryType === "all" ? undefined : query.enquiryType,
+          inboxStatus:
+            query.inboxStatus === "inbox" ? undefined : query.inboxStatus,
         },
       }}
     >
@@ -75,6 +79,9 @@ export function ContactMessagesTable({
         >
           <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
             {message.full_name}
+          </TableCell>
+          <TableCell>
+            <InboxStatusBadge status={message.inbox_status} />
           </TableCell>
           <TableCell>
             <Badge variant="secondary" className="whitespace-nowrap">

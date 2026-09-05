@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { EventFormDialog } from "@/components/events/event-form-dialog";
 import { EventsTable } from "@/components/events/events-table";
+import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import {
   adminListClampParams,
   loadAdminListPage,
@@ -38,7 +41,16 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     <AdminListPageShell
       title={resource.pageTitle}
       description={resource.description}
-      actions={<EventFormDialog mode="create" />}
+      actions={
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          nativeButton={false}
+          render={<Link href={ROUTES.eventsNew} />}
+        >
+          <PlusIcon className="size-4" />
+          New event
+        </Button>
+      }
     >
       <EventsTable
         events={list.events}

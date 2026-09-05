@@ -44,7 +44,7 @@ describe("getDashboardPageTitle", () => {
     expect(getDashboardPageTitle(`${ROUTES.portfolio}/new`)).toBe("Portfolio");
   });
 
-  it("titles coming-soon routes that are not in the sidebar", () => {
+  it("titles Analytics and Backup from System nav", () => {
     expect(getDashboardPageTitle(ROUTES.analytics)).toBe("Analytics");
     expect(getDashboardPageTitle(ROUTES.backup)).toBe("Backup");
   });

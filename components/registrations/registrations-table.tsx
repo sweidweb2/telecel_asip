@@ -5,6 +5,7 @@ import { ClipboardListIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { RegistrationRowActions } from "@/components/registrations/registration-dialogs";
 import { RegistrationsFilters } from "@/components/registrations/registrations-filters";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -35,21 +36,22 @@ export function RegistrationsTable({
       header={
         <TableRow>
           <TableHead className="pl-4">Name</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Company</TableHead>
           <TableHead>Sector</TableHead>
           <TableHead>Country</TableHead>
           <TableHead>Submitted</TableHead>
-          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+          <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={registrations.length === 0}
-      emptyColSpan={7}
+      emptyColSpan={8}
       empty={
         <AdminEmptyState
           icon={ClipboardListIcon}
           title="No registrations found"
-          description="Try changing the search, or wait for new interest submissions."
+          description="Try changing the search or inbox filter, or wait for new interest submissions."
         />
       }
       pagination={{
@@ -58,7 +60,11 @@ export function RegistrationsTable({
         pageSize: INTEREST_REGISTRATION_PAGE_SIZE,
         total,
         totalPages,
-        filters: { search: query.search },
+        filters: {
+          search: query.search,
+          inboxStatus:
+            query.inboxStatus === "inbox" ? undefined : query.inboxStatus,
+        },
       }}
     >
       {registrations.map((registration) => (
@@ -69,6 +75,9 @@ export function RegistrationsTable({
         >
           <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
             {registration.full_name}
+          </TableCell>
+          <TableCell>
+            <InboxStatusBadge status={registration.inbox_status} />
           </TableCell>
           <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
             {registration.email}

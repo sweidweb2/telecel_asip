@@ -230,13 +230,15 @@ export function StartupEditorForm({
         if (pendingLogo && result.id) {
           const formData = new FormData();
           formData.set("file", pendingLogo);
+          const uploadToast = toast.loading("Uploading image…");
           const upload = await uploadStartupLogo(result.id, formData);
           if (upload.status === "error") {
-            toast.error(upload.message);
+            toast.error(upload.message, { id: uploadToast });
             router.push(`${ROUTES.portfolio}/${result.id}`);
             router.refresh();
             return;
           }
+          toast.dismiss(uploadToast);
         }
         toast.success(result.message);
         router.push(
@@ -263,11 +265,13 @@ export function StartupEditorForm({
       if (pendingLogo) {
         const formData = new FormData();
         formData.set("file", pendingLogo);
+        const uploadToast = toast.loading("Uploading image…");
         const upload = await uploadStartupLogo(startup.id, formData);
         if (upload.status === "error") {
-          toast.error(upload.message);
+          toast.error(upload.message, { id: uploadToast });
           return;
         }
+        toast.dismiss(uploadToast);
         setPendingLogo(null);
         if (pendingLogoPreview) URL.revokeObjectURL(pendingLogoPreview);
         setPendingLogoPreview(null);

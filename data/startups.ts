@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
 import {
@@ -21,6 +22,7 @@ import type {
 } from "@/types/startup";
 import {
   STARTUP_PUBLIC_PAGE_SIZE,
+  startupIdSchema,
   type ActiveStartupFilters,
   type StartupListQuery,
 } from "@/validations/startup";
@@ -144,42 +146,54 @@ export async function getStartupsPageData(
   });
 }
 
-export async function getStartupByIdForAdmin(
-  id: string,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "not_found" }
-  | { status: "ok"; startup: StartupWithDetails }
-> {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+/**
+ * Deduped per request: `generateMetadata` and the page body both need the same
+ * startup.
+ */
+export const getStartupByIdForAdmin = cache(
+  async (
+    id: string,
+  ): Promise<
+    | { status: "forbidden" }
+    | { status: "not_found" }
+    | { status: "ok"; startup: StartupWithDetails }
+  > => {
+    if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
-  const [
-    { data: startup, error: startupError },
-    { data: details, error: detailsError },
-  ] = await Promise.all([
-    supabase.from("startups").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
-    supabase
-      .from("startup_details")
-      .select(DETAILS_COLUMNS)
-      .eq("startup_id", id)
-      .maybeSingle(),
-  ]);
+    const supabase = await createClient();
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  if (startupError) throw startupError;
-  if (detailsError) throw detailsError;
-  if (!startup) return { status: "not_found" };
+    const [
+      { data: startup, error: startupError },
+      { data: details, error: detailsError },
+    ] = await Promise.all([
+      supabase
+        .from("startups")
+        .select(DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle(),
+      supabase
+        .from("startup_details")
+        .select(DETAILS_COLUMNS)
+        .eq("startup_id", id)
+        .maybeSingle(),
+    ]);
 
-  return {
-    status: "ok",
-    startup: {
-      ...(startup as StartupListItem & {
-        status: StartupWithDetails["status"];
-      }),
-      details: details ?? null,
-    } as StartupWithDetails,
-  };
-}
+    if (startupError) throw startupError;
+    if (detailsError) throw detailsError;
+    if (!startup) return { status: "not_found" };
+
+    return {
+      status: "ok",
+      startup: {
+        ...(startup as StartupListItem & {
+          status: StartupWithDetails["status"];
+        }),
+        details: details ?? null,
+      } as StartupWithDetails,
+    };
+  },
+);
 
 const BLOG_PICKER_LIMIT = 100;
 

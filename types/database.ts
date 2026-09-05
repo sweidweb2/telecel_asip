@@ -51,6 +51,7 @@ export type Database = {
           founder_role: string
           full_name: string
           id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
           linkedin: string
           phone: string
           problem_product: string
@@ -70,6 +71,7 @@ export type Database = {
           founder_role: string
           full_name: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin: string
           phone: string
           problem_product: string
@@ -89,6 +91,7 @@ export type Database = {
           founder_role?: string
           full_name?: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string
           phone?: string
           problem_product?: string
@@ -313,6 +316,7 @@ export type Database = {
           enquiry_type: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
           message: string
           phone: string
           subject: string
@@ -323,6 +327,7 @@ export type Database = {
           enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           message: string
           phone: string
           subject: string
@@ -333,6 +338,7 @@ export type Database = {
           enquiry_type?: Database["public"]["Enums"]["contact_enquiry_type"]
           full_name?: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           message?: string
           phone?: string
           subject?: string
@@ -611,6 +617,7 @@ export type Database = {
           founder_role: string | null
           full_name: string
           id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
           linkedin: string | null
           phone: string
           pitch: string | null
@@ -628,6 +635,7 @@ export type Database = {
           founder_role?: string | null
           full_name: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
           phone: string
           pitch?: string | null
@@ -645,6 +653,7 @@ export type Database = {
           founder_role?: string | null
           full_name?: string
           id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
           phone?: string
           pitch?: string | null
@@ -1067,6 +1076,7 @@ export type Database = {
       cms_publish_status: "draft" | "published"
       cohort_programme_status: "closed" | "open" | "hold"
       contact_enquiry_type: "founder" | "partner" | "media" | "general"
+      inbox_status: "unread" | "reviewed" | "archived"
       event_format: "virtual" | "in_person" | "hybrid"
       evidence_permission:
         | "public"
@@ -1230,6 +1240,7 @@ export const Constants = {
       cms_publish_status: ["draft", "published"],
       cohort_programme_status: ["closed", "open", "hold"],
       contact_enquiry_type: ["founder", "partner", "media", "general"],
+      inbox_status: ["unread", "reviewed", "archived"],
       event_format: ["virtual", "in_person", "hybrid"],
       evidence_permission: [
         "public",

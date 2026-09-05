@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { PartnerDetailContent } from "@/components/partners/partner-detail-content";
+import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,13 +14,13 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { getPartnerByIdForAdmin } from "@/data/partners";
 
-type PartnerDetailPageProps = {
+type EditPartnerPageProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({
   params,
-}: PartnerDetailPageProps): Promise<Metadata> {
+}: EditPartnerPageProps): Promise<Metadata> {
   const { id } = await params;
   const result = await getPartnerByIdForAdmin(id);
   if (result.status !== "ok") {
@@ -29,9 +29,9 @@ export async function generateMetadata({
   return { title: `${result.partner.name} | ASIP Admin` };
 }
 
-export default async function PartnerDetailPage({
+export default async function EditPartnerPage({
   params,
-}: PartnerDetailPageProps) {
+}: EditPartnerPageProps) {
   const { id } = await params;
   const result = await getPartnerByIdForAdmin(id);
 
@@ -56,7 +56,12 @@ export default async function PartnerDetailPage({
         </BreadcrumbList>
       </Breadcrumb>
 
-      <PartnerDetailContent partner={result.partner} />
+      <PartnerEditorForm
+        mode="edit"
+        partner={result.partner}
+        heading="Edit partner"
+        description="Update partner details, activity status, and logo publication permission."
+      />
     </main>
   );
 }

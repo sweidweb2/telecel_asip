@@ -264,18 +264,24 @@ export function BlogEditorForm({
         if (result.id && pendingCover) {
           const formData = new FormData();
           formData.set("file", pendingCover);
+          const uploadToast = toast.loading("Uploading image…");
           const upload = await uploadBlogThumbnail(result.id, formData);
           if (upload.status === "error") {
-            toast.error(upload.message);
+            toast.error(upload.message, { id: uploadToast });
+          } else {
+            toast.dismiss(uploadToast);
           }
         }
 
         if (result.id && pendingAvatar) {
           const formData = new FormData();
           formData.set("file", pendingAvatar);
+          const uploadToast = toast.loading("Uploading image…");
           const upload = await uploadAuthorAvatar(result.id, formData);
           if (upload.status === "error") {
-            toast.error(upload.message);
+            toast.error(upload.message, { id: uploadToast });
+          } else {
+            toast.dismiss(uploadToast);
           }
         }
 
@@ -323,12 +329,13 @@ export function BlogEditorForm({
     const formData = new FormData();
     formData.set("file", file);
     startTransition(async () => {
+      const uploadToast = toast.loading("Uploading image…");
       const result = await uploadBlogThumbnail(blog.id, formData);
       if (result.status === "error") {
-        toast.error(result.message);
+        toast.error(result.message, { id: uploadToast });
         return;
       }
-      toast.success(result.message);
+      toast.success(result.message, { id: uploadToast });
       router.refresh();
     });
   }
@@ -343,12 +350,13 @@ export function BlogEditorForm({
     const formData = new FormData();
     formData.set("file", file);
     startTransition(async () => {
+      const uploadToast = toast.loading("Uploading image…");
       const result = await uploadAuthorAvatar(blog.id, formData);
       if (result.status === "error") {
-        toast.error(result.message);
+        toast.error(result.message, { id: uploadToast });
         return;
       }
-      toast.success(result.message);
+      toast.success(result.message, { id: uploadToast });
       router.refresh();
     });
   }

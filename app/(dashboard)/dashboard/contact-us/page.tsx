@@ -32,6 +32,7 @@ export default async function ContactUsPage({
       adminListClampParams(totalPages, {
         search: q.search || undefined,
         enquiryType: q.enquiryType !== "all" ? q.enquiryType : undefined,
+        inboxStatus: q.inboxStatus !== "inbox" ? q.inboxStatus : undefined,
       }),
   });
 

@@ -100,4 +100,11 @@ describe("parseApplicationListQuery", () => {
     const query = parseApplicationListQuery({ search: "a.b" });
     expect(query.search).toBe("");
   });
+
+  it("defaults inbox filter to inbox and accepts unread", () => {
+    expect(parseApplicationListQuery({}).inboxStatus).toBe("inbox");
+    expect(parseApplicationListQuery({ inboxStatus: "unread" }).inboxStatus).toBe(
+      "unread",
+    );
+  });
 });

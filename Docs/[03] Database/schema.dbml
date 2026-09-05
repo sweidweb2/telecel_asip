@@ -8,6 +8,12 @@ Enum user_role {
   viewer
 }
 
+Enum inbox_status {
+  unread
+  reviewed
+  archived
+}
+
 Table profiles {
   id uuid [pk, not null, note: 'FK → auth.users(id) ON DELETE CASCADE']
   email text [not null]
@@ -62,12 +68,14 @@ Table interest_registrations {
   pitch text [note: 'Optional short note; CHECK 20..1000 when set']
   consent boolean [not null, note: 'CHECK (consent = true)']
   comms_opt_in boolean [not null, default: false]
+  inbox_status inbox_status [not null, default: 'unread', note: 'Admin triage: unread → reviewed → archived']
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
     (created_at) [name: 'interest_registrations_created_at_idx', note: 'created_at DESC — admin lists']
     (email) [name: 'interest_registrations_email_idx']
     (email, company_name) [name: 'interest_registrations_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
+    (inbox_status, created_at) [name: 'interest_registrations_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
   }
 
   Note: '''
@@ -103,12 +111,14 @@ Table applications {
   programme_fit text [not null, note: 'CHECK 20..2000']
   consent boolean [not null, note: 'CHECK (consent = true)']
   comms_opt_in boolean [not null, default: false]
+  inbox_status inbox_status [not null, default: 'unread', note: 'Admin triage: unread → reviewed → archived']
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
     (created_at) [name: 'applications_created_at_idx', note: 'created_at DESC']
     (email) [name: 'applications_email_idx']
     (email, company_name) [name: 'applications_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
+    (inbox_status, created_at) [name: 'applications_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
   }
 
   Note: '''
@@ -142,12 +152,14 @@ Table contact_messages {
   subject text [not null, note: 'CHECK char_length between 2 and 120']
   message text [not null, note: 'CHECK char_length between 20 and 2000']
   enquiry_type contact_enquiry_type [not null, default: 'general', note: 'Founder / partner / media routing; general is the catch-all']
+  inbox_status inbox_status [not null, default: 'unread', note: 'Admin triage: unread → reviewed → archived']
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
     (created_at) [name: 'contact_messages_created_at_idx', note: 'created_at DESC — admin lists']
     (email) [name: 'contact_messages_email_idx']
     (enquiry_type, created_at) [name: 'contact_messages_enquiry_type_idx', note: 'created_at DESC — admin inbox filter']
+    (inbox_status, created_at) [name: 'contact_messages_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
   }
 
   Note: '''

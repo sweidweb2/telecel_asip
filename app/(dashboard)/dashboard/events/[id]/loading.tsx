@@ -1,11 +1,11 @@
+import { EventsPageSkeleton } from "@/components/events/events-page-skeleton";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
-import { EventDetailSkeleton } from "@/components/events/events-page-skeleton";
 
-export default function EventDetailLoading() {
+export default function EditEventLoading() {
   return (
     <RouteSkeleton
-      name="dashboard-events-detail"
-      fallback={<EventDetailSkeleton />}
+      name="dashboard-events-edit"
+      fallback={<EventsPageSkeleton />}
     />
   );
 }

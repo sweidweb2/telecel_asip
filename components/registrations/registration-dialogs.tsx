@@ -10,10 +10,13 @@ import { toast } from "sonner";
 import {
   deleteInterestRegistration,
   updateInterestRegistration,
+  updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatAdminDateTime } from "@/lib/admin-format";
+import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { InterestRegistration } from "@/types/interest-registration";
 import {
   INTEREST_REGISTRATION_COMPANY_MAX,
@@ -88,6 +92,18 @@ export function RegistrationRowActions({
   const setViewOpen = isViewControlled
     ? onViewOpenChange!
     : setUncontrolledViewOpen;
+  const { onViewOpenChange: markReviewedOnOpen } = useMarkInboxReviewed({
+    id: registration.id,
+    inboxStatus: registration.inbox_status,
+    updateAction: updateInterestRegistrationInboxStatus,
+    isOpen: viewOpen,
+  });
+
+  function handleViewOpenChange(open: boolean) {
+    setViewOpen(open);
+    markReviewedOnOpen(open);
+  }
+
   const editDefaults = toEditDefaults(registration);
   const form = useForm<UpdateInterestRegistrationInput>({
     resolver: zodResolver(updateInterestRegistrationSchema),
@@ -118,7 +134,7 @@ export function RegistrationRowActions({
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+      <Dialog open={viewOpen} onOpenChange={handleViewOpenChange}>
         <DialogTrigger
           render={
             <Button
@@ -139,6 +155,9 @@ export function RegistrationRowActions({
             <DialogDescription>Registration details</DialogDescription>
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
+            <AdminDetailRow label="Status">
+              <InboxStatusBadge status={registration.inbox_status} />
+            </AdminDetailRow>
             <AdminDetailRow label="Email">{registration.email}</AdminDetailRow>
             <AdminDetailRow label="Phone">{registration.phone}</AdminDetailRow>
             <AdminDetailRow label="Company">
@@ -165,6 +184,12 @@ export function RegistrationRowActions({
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
+
+      <AdminInboxArchiveButton
+        id={registration.id}
+        inboxStatus={registration.inbox_status}
+        updateAction={updateInterestRegistrationInboxStatus}
+      />
 
       <Dialog open={editOpen} onOpenChange={handleEditOpen}>
         <DialogTrigger

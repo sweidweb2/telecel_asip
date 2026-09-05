@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { ImpactMetricFormDialog } from "@/components/impact-metrics/impact-metric-form-dialog";
 import { ImpactMetricsTable } from "@/components/impact-metrics/impact-metrics-table";
+import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import { getImpactMetricsPageData } from "@/data/impact-metrics";
 import {
   adminListClampParams,
@@ -42,7 +45,16 @@ export default async function ImpactMetricsPage({
     <AdminListPageShell
       title={resource.pageTitle}
       description={resource.description}
-      actions={<ImpactMetricFormDialog mode="create" />}
+      actions={
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          nativeButton={false}
+          render={<Link href={ROUTES.impactMetricsNew} />}
+        >
+          <PlusIcon className="size-4" />
+          New metric
+        </Button>
+      }
     >
       <ImpactMetricsTable
         metrics={list.metrics}

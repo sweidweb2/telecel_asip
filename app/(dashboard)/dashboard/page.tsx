@@ -15,7 +15,6 @@ import {
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
 import { requireAdmin } from "@/data/auth";
 import { cn } from "@/lib/utils";
@@ -92,7 +91,7 @@ export default async function DashboardPage() {
   return (
     <AdminListPageShell
       title="Dashboard"
-      description="Jump into a CMS section. Analytics and backup are not linked yet."
+      description="Jump into a CMS section. Analytics and Backup live under System in the sidebar."
     >
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {QUICK_LINKS.map((item) => {
@@ -122,16 +121,6 @@ export default async function DashboardPage() {
           );
         })}
       </ul>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Not in the sidebar yet</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Analytics and Backup stay off the nav until they ship. Direct URLs
-          show a coming-soon page.
-        </CardContent>
-      </Card>
     </AdminListPageShell>
   );
 }

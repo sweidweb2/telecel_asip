@@ -13,7 +13,6 @@ export type DashboardNavGroup = {
 
 /**
  * Sidebar destinations that are live, grouped for scanability.
- * Analytics / Backup stay as routes with Coming soon pages but are not linked.
  */
 export const DASHBOARD_NAV_GROUPS = [
   {
@@ -62,6 +61,8 @@ export const DASHBOARD_NAV_GROUPS = [
     label: "System",
     items: [
       { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.users },
+      { title: "Analytics", href: ROUTES.analytics },
+      { title: "Backup", href: ROUTES.backup },
       { title: "Settings", href: ROUTES.settings },
     ],
   },
@@ -71,11 +72,8 @@ export const DASHBOARD_NAV_GROUPS = [
 export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] =
   DASHBOARD_NAV_GROUPS.flatMap((group) => [...group.items]);
 
-/** Extra titles for routes that exist but are not in the sidebar. */
-const DASHBOARD_EXTRA_TITLES: Record<string, string> = {
-  [ROUTES.analytics]: "Analytics",
-  [ROUTES.backup]: "Backup",
-};
+/** Extra titles for routes that exist but are not primary nav items. */
+const DASHBOARD_EXTRA_TITLES: Record<string, string> = {};
 
 /**
  * Whether a sidebar item should show as active for the current pathname.

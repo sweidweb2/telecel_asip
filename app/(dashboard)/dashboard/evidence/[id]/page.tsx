@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { EvidenceDetailContent } from "@/components/evidence-records/evidence-detail-content";
+import { EvidenceEditorForm } from "@/components/evidence-records/evidence-editor-form";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,16 +12,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { getCurrentUserProfile } from "@/data/users";
 import { getEvidenceRecordByIdForAdmin } from "@/data/evidence-records";
 
-type EvidenceDetailPageProps = {
+type EditEvidencePageProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({
   params,
-}: EvidenceDetailPageProps): Promise<Metadata> {
+}: EditEvidencePageProps): Promise<Metadata> {
   const { id } = await params;
   const result = await getEvidenceRecordByIdForAdmin(id);
   if (result.status !== "ok") {
@@ -34,20 +33,16 @@ export async function generateMetadata({
   return { title: `${title} | ASIP Admin` };
 }
 
-export default async function EvidenceDetailPage({
+export default async function EditEvidencePage({
   params,
-}: EvidenceDetailPageProps) {
+}: EditEvidencePageProps) {
   const { id } = await params;
-
-  const [result, profile] = await Promise.all([
-    getEvidenceRecordByIdForAdmin(id),
-    getCurrentUserProfile(),
-  ]);
+  const result = await getEvidenceRecordByIdForAdmin(id);
 
   if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
 
-  const seedOwner = result.record.owner
+  const seedOwners = result.record.owner
     ? [
         {
           id: result.record.owner.id,
@@ -56,12 +51,10 @@ export default async function EvidenceDetailPage({
         },
       ]
     : [];
-  const defaultOwnerId =
-    result.record.owner_id || profile?.id || seedOwner[0]?.id || "";
-  const crumb =
+  const pageLabel =
     result.record.primary_source.length > 48
       ? `${result.record.primary_source.slice(0, 48)}…`
-      : result.record.primary_source;
+      : result.record.primary_source.trim() || "Edit evidence";
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -75,16 +68,18 @@ export default async function EvidenceDetailPage({
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {crumb}
+              {pageLabel}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
-      <EvidenceDetailContent
+      <EvidenceEditorForm
+        mode="edit"
         record={result.record}
-        owners={seedOwner}
-        defaultOwnerId={defaultOwnerId}
+        owners={seedOwners}
+        defaultOwnerId={result.record.owner_id}
+        heading="Edit evidence record"
+        description="Update source details, verification status, and ownership. Only verified status may back live numbers later."
       />
     </main>
   );

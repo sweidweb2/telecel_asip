@@ -3,6 +3,7 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ContactMessage,
@@ -11,7 +12,7 @@ import type {
 import type { ContactMessageListQuery } from "@/validations/contact-message";
 
 const MESSAGE_COLUMNS =
-  "id, enquiry_type, full_name, email, phone, subject, message, created_at" as const;
+  "id, enquiry_type, full_name, email, phone, subject, message, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -27,6 +28,8 @@ async function fetchContactMessages(
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
+
+  request = applyInboxStatusFilter(request, query.inboxStatus);
 
   if (query.enquiryType !== "all") {
     request = request.eq("enquiry_type", query.enquiryType);

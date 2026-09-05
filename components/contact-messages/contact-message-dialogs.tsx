@@ -10,10 +10,13 @@ import { toast } from "sonner";
 import {
   deleteContactMessage,
   updateContactMessage,
+  updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,6 +44,7 @@ import {
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
 import { formatAdminDateTime } from "@/lib/admin-format";
+import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { ContactMessage } from "@/types/contact-message";
 import {
   CONTACT_MESSAGE_BODY_MAX,
@@ -90,6 +94,18 @@ export function ContactMessageRowActions({
   const setViewOpen = isViewControlled
     ? onViewOpenChange!
     : setUncontrolledViewOpen;
+  const { onViewOpenChange: markReviewedOnOpen } = useMarkInboxReviewed({
+    id: message.id,
+    inboxStatus: message.inbox_status,
+    updateAction: updateContactMessageInboxStatus,
+    isOpen: viewOpen,
+  });
+
+  function handleViewOpenChange(open: boolean) {
+    setViewOpen(open);
+    markReviewedOnOpen(open);
+  }
+
   const editDefaults = toEditDefaults(message);
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
@@ -124,7 +140,7 @@ export function ContactMessageRowActions({
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+      <Dialog open={viewOpen} onOpenChange={handleViewOpenChange}>
         <DialogTrigger
           render={
             <Button
@@ -143,6 +159,9 @@ export function ContactMessageRowActions({
             <DialogDescription>Contact message details</DialogDescription>
           </DialogHeader>
           <dl className="grid gap-3 text-sm">
+            <AdminDetailRow label="Status">
+              <InboxStatusBadge status={message.inbox_status} />
+            </AdminDetailRow>
             <AdminDetailRow label="Enquiry route">
               {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
             </AdminDetailRow>
@@ -157,6 +176,12 @@ export function ContactMessageRowActions({
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
+
+      <AdminInboxArchiveButton
+        id={message.id}
+        inboxStatus={message.inbox_status}
+        updateAction={updateContactMessageInboxStatus}
+      />
 
       <Dialog open={editOpen} onOpenChange={handleEditOpen}>
         <DialogTrigger

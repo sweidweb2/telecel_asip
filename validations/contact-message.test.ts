@@ -102,4 +102,11 @@ describe("parseContactMessageListQuery", () => {
       .toBe("all");
     expect(parseContactMessageListQuery({}).enquiryType).toBe("all");
   });
+
+  it("defaults inbox filter to inbox", () => {
+    expect(parseContactMessageListQuery({}).inboxStatus).toBe("inbox");
+    expect(
+      parseContactMessageListQuery({ inboxStatus: "archived" }).inboxStatus,
+    ).toBe("archived");
+  });
 });

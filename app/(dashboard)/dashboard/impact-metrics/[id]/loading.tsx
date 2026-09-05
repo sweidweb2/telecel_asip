@@ -1,11 +1,11 @@
+import { ImpactMetricEditorSkeleton } from "@/components/impact-metrics/impact-metrics-page-skeleton";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
-import { ImpactMetricDetailSkeleton } from "@/components/impact-metrics/impact-metrics-page-skeleton";
 
-export default function ImpactMetricDetailLoading() {
+export default function EditImpactMetricLoading() {
   return (
     <RouteSkeleton
-      name="dashboard-impact-metric-detail"
-      fallback={<ImpactMetricDetailSkeleton />}
+      name="dashboard-impact-metrics-edit"
+      fallback={<ImpactMetricEditorSkeleton />}
     />
   );
 }

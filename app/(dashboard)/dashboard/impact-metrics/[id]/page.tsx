@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { ImpactMetricDetailContent } from "@/components/impact-metrics/impact-metric-detail-content";
+import { ImpactMetricEditorForm } from "@/components/impact-metrics/impact-metric-editor-form";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,13 +14,13 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { getImpactMetricByIdForAdmin } from "@/data/impact-metrics";
 
-type ImpactMetricDetailPageProps = {
+type EditImpactMetricPageProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({
   params,
-}: ImpactMetricDetailPageProps): Promise<Metadata> {
+}: EditImpactMetricPageProps): Promise<Metadata> {
   const { id } = await params;
   const result = await getImpactMetricByIdForAdmin(id);
   if (result.status !== "ok") {
@@ -29,14 +29,16 @@ export async function generateMetadata({
   return { title: `${result.metric.claim_label} | ASIP Admin` };
 }
 
-export default async function ImpactMetricDetailPage({
+export default async function EditImpactMetricPage({
   params,
-}: ImpactMetricDetailPageProps) {
+}: EditImpactMetricPageProps) {
   const { id } = await params;
   const result = await getImpactMetricByIdForAdmin(id);
 
   if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
+
+  const pageLabel = result.metric.claim_label.trim() || "Edit metric";
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -50,15 +52,16 @@ export default async function ImpactMetricDetailPage({
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {result.metric.claim_label}
+              {pageLabel}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
-      <ImpactMetricDetailContent
+      <ImpactMetricEditorForm
+        mode="edit"
         metric={result.metric}
-        evidencePrimarySource={result.evidencePrimarySource}
+        heading="Edit impact metric"
+        description="Update the claim, measurement window, evidence link, and publish status."
       />
     </main>
   );

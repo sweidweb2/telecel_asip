@@ -3,6 +3,7 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Application,
@@ -11,7 +12,7 @@ import type {
 import type { ApplicationListQuery } from "@/validations/application";
 
 const APPLICATION_COLUMNS =
-  "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, problem_product, traction, programme_fit, consent, comms_opt_in, created_at" as const;
+  "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, problem_product, traction, programme_fit, consent, comms_opt_in, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -27,6 +28,8 @@ async function fetchApplications(
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
+
+  request = applyInboxStatusFilter(request, query.inboxStatus);
 
   if (query.search) {
     request = request.or(

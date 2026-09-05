@@ -21,6 +21,10 @@ import {
   type InterestRegistrationInput,
   type UpdateInterestRegistrationInput,
 } from "@/validations/interest-registration";
+import {
+  updateInboxStatusSchema,
+  type UpdateInboxStatusInput,
+} from "@/validations/inbox";
 
 export type InterestRegistrationActionResult = AdminActionResult;
 
@@ -33,6 +37,7 @@ const ACTION_MESSAGES = {
     genericError: "Something went wrong. Please try again.",
     updateSuccess: "Registration updated successfully.",
     deleteSuccess: "Registration deleted successfully.",
+    inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage registrations.",
     signedInRequired: "You must be signed in.",
     notFound: "Registration not found.",
@@ -48,6 +53,7 @@ const ACTION_MESSAGES = {
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     updateSuccess: "Candidature mise à jour avec succès.",
     deleteSuccess: "Candidature supprimée avec succès.",
+    inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
     unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
     signedInRequired: "Vous devez être connecté.",
     notFound: "Candidature introuvable.",
@@ -259,6 +265,43 @@ export async function deleteInterestRegistration(
       const { data: row, error } = await session.supabase
         .from("interest_registrations")
         .delete()
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        return { status: "error", message: copy.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: copy.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshRegistrationsRoute(),
+  });
+}
+
+export async function updateInterestRegistrationInboxStatus(
+  input: UpdateInboxStatusInput,
+): Promise<InterestRegistrationActionResult> {
+  const locale = await getRequestLocale();
+  const copy = ACTION_MESSAGES[locale];
+
+  return runAdminMutation({
+    schema: updateInboxStatusSchema,
+    input,
+    messages: {
+      unauthorized: copy.unauthorized,
+      signedInRequired: copy.signedInRequired,
+      invalidDetails: copy.invalidDetails,
+      success: copy.inboxStatusSuccess,
+      genericError: copy.genericError,
+      notFound: copy.notFound,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("interest_registrations")
+        .update({ inbox_status: data.inboxStatus })
         .eq("id", data.id)
         .select("id")
         .maybeSingle();

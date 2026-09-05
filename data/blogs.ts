@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
 import {
@@ -16,7 +17,7 @@ import type {
   BlogPublicListItem,
   BlogSlugRow,
 } from "@/types/blog";
-import type { BlogListQuery } from "@/validations/blog";
+import { blogIdSchema, type BlogListQuery } from "@/validations/blog";
 
 export const BLOGS_CACHE_TAG = "blogs";
 
@@ -81,26 +82,34 @@ export async function getBlogsPageData(
   });
 }
 
-export async function getBlogByIdForAdmin(
-  id: string,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "not_found" }
-  | { status: "ok"; blog: Blog }
-> {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+/**
+ * Deduped per request: `generateMetadata` and the page body both need the same
+ * blog.
+ */
+export const getBlogByIdForAdmin = cache(
+  async (
+    id: string,
+  ): Promise<
+    | { status: "forbidden" }
+    | { status: "not_found" }
+    | { status: "ok"; blog: Blog }
+  > => {
+    if (!blogIdSchema.safeParse(id).success) return { status: "not_found" };
 
-  const { data, error } = await supabase
-    .from("blogs")
-    .select(DETAIL_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
+    const supabase = await createClient();
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  if (error) throw error;
-  if (!data) return { status: "not_found" };
-  return { status: "ok", blog: data as Blog };
-}
+    const { data, error } = await supabase
+      .from("blogs")
+      .select(DETAIL_COLUMNS)
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return { status: "not_found" };
+    return { status: "ok", blog: data as Blog };
+  },
+);
 
 async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();

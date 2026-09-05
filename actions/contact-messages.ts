@@ -23,6 +23,10 @@ import {
   type DeleteContactMessageInput,
   type UpdateContactMessageInput,
 } from "@/validations/contact-message";
+import {
+  updateInboxStatusSchema,
+  type UpdateInboxStatusInput,
+} from "@/validations/inbox";
 
 export type ContactMessageActionResult = AdminActionResult;
 
@@ -53,6 +57,7 @@ const ADMIN_MESSAGES = {
   invalidDetails: "Please check the form and try again.",
   updateSuccess: "Message updated successfully.",
   deleteSuccess: "Message deleted successfully.",
+  inboxStatusSuccess: "Inbox status updated.",
   genericError: "Something went wrong. Please try again.",
   unauthorized: "You do not have permission to manage contact messages.",
   signedInRequired: "You must be signed in.",
@@ -193,6 +198,36 @@ export async function deleteContactMessage(
       const { data: row, error } = await session.supabase
         .from("contact_messages")
         .delete()
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        return { status: "error", message: ADMIN_MESSAGES.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: ADMIN_MESSAGES.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshContactUsRoute(),
+  });
+}
+
+export async function updateContactMessageInboxStatus(
+  input: UpdateInboxStatusInput,
+): Promise<ContactMessageActionResult> {
+  return runAdminMutation({
+    schema: updateInboxStatusSchema,
+    input,
+    messages: {
+      ...ADMIN_MESSAGES,
+      success: ADMIN_MESSAGES.inboxStatusSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("contact_messages")
+        .update({ inbox_status: data.inboxStatus })
         .eq("id", data.id)
         .select("id")
         .maybeSingle();

@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { requireAdmin } from "@/data/auth";
+import { publicPath } from "@/constants/routes";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { getCurrentUserProfile } from "@/data/users";
 import { userDisplayName, userInitials } from "@/lib/user-display";
 import type { DashboardAccount } from "@/types/profile";
@@ -18,9 +21,15 @@ export default async function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  await requireAdmin();
+  const [isAdmin, profile] = await Promise.all([
+    isCurrentUserAdmin(),
+    getCurrentUserProfile(),
+  ]);
 
-  const profile = await getCurrentUserProfile();
+  if (!isAdmin) {
+    redirect(publicPath(await getRequestLocale()));
+  }
+
   const account: DashboardAccount = {
     name: profile ? userDisplayName(profile.full_name, profile.email) : "Admin",
     email: profile?.email ?? "",

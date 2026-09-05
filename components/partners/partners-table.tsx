@@ -72,7 +72,9 @@ export function PartnersTable({
         <AdminEmptyState
           icon={HandshakeIcon}
           title="No partners found"
-          description="Try changing the filters, or create a new partner from the header."
+          description="Try changing the filters, or create a new partner."
+          createHref={ROUTES.partnersNew}
+          createLabel="New partner"
         />
       }
       pagination={{

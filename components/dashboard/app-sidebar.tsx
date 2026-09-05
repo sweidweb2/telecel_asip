@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3Icon,
   BookOpenIcon,
   BriefcaseIcon,
   CalendarIcon,
   ChartColumnIcon,
   ClipboardListIcon,
+  DatabaseBackupIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
@@ -52,6 +54,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.impactMetrics]: ChartColumnIcon,
   [ROUTES.events]: CalendarIcon,
   [ROUTES.contactUs]: MailIcon,
+  [ROUTES.analytics]: BarChart3Icon,
+  [ROUTES.backup]: DatabaseBackupIcon,
   [ROUTES.settings]: SettingsIcon,
 };
 

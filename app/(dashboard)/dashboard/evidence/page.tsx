@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { EvidenceFormDialog } from "@/components/evidence-records/evidence-form-dialog";
 import { EvidenceRecordsTable } from "@/components/evidence-records/evidence-records-table";
+import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import { getEvidenceRecordsPageData } from "@/data/evidence-records";
 import {
   adminListClampParams,
@@ -39,7 +42,16 @@ export default async function EvidencePage({ searchParams }: EvidencePageProps) 
     <AdminListPageShell
       title={resource.pageTitle}
       description={resource.description}
-      actions={<EvidenceFormDialog mode="create" />}
+      actions={
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          nativeButton={false}
+          render={<Link href={ROUTES.evidenceNew} />}
+        >
+          <PlusIcon className="size-4" />
+          New evidence
+        </Button>
+      }
     >
       <EvidenceRecordsTable
         records={list.records}

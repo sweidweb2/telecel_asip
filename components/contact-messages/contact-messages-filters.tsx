@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminInboxStatusFilter } from "@/components/dashboard/admin-inbox-status-filter";
 import {
   CONTACT_ENQUIRY_ADMIN_LABELS,
   CONTACT_ENQUIRY_TYPES,
@@ -28,7 +29,10 @@ export function ContactMessagesFilters({
       search: query.search,
     });
 
-  const hasFilters = query.search !== "" || query.enquiryType !== "all";
+  const hasFilters =
+    query.search !== "" ||
+    query.enquiryType !== "all" ||
+    query.inboxStatus !== "inbox";
 
   return (
     <AdminFilterBar
@@ -42,6 +46,14 @@ export function ContactMessagesFilters({
       clearHref={ROUTES.contactUs}
       onClear={clearSearchLocal}
     >
+      <AdminInboxStatusFilter
+        id="contact-messages-inbox-status"
+        value={query.inboxStatus}
+        disabled={isPending}
+        onChange={(value) =>
+          navigate({ inboxStatus: value === "inbox" ? "" : value })
+        }
+      />
       <Label htmlFor="contact-messages-enquiry-type" className="sr-only">
         Enquiry route
       </Label>

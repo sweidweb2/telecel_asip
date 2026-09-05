@@ -22,8 +22,7 @@ type PageCtaSectionProps = {
 };
 
 /**
- * Shared closing CTA — illustration + headline + support + pill button.
- * Used on Apply, FAQ, Founders, Impact, Partners, Programme, Alumni, About.
+ * Shared closing CTA — full-width waves + centered headline / support / pill.
  */
 export function PageCtaSection({ locale, cta, className }: PageCtaSectionProps) {
   const href = `${publicPath(locale, cta.slug)}${cta.hash ? `#${cta.hash}` : ""}`;
@@ -31,24 +30,24 @@ export function PageCtaSection({ locale, cta, className }: PageCtaSectionProps) 
   return (
     <section
       className={cn(
-        "border-t border-border bg-background px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24",
+        "border-t border-border bg-background py-8 sm:py-10 lg:py-12",
         className,
       )}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
-        <CtaStartupIllustration className="mb-8 h-auto w-full max-w-sm sm:mb-10 sm:max-w-md" />
+      <CtaStartupIllustration className="mb-4 h-auto w-full sm:mb-5" />
 
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-4 text-center sm:px-6 lg:px-8">
         <h2 className="max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl">
           {cta.title}
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-8">
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-muted-foreground sm:mt-3.5 sm:text-lg sm:leading-8">
           {cta.description}
         </p>
         <Link
           href={href}
           className={cn(
             buttonVariants({ size: "lg" }),
-            "mt-8 min-h-11 rounded-full px-8 sm:mt-10",
+            "mt-4 min-h-11 rounded-full px-8 sm:mt-5",
           )}
         >
           {cta.label}

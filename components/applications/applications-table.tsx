@@ -7,6 +7,7 @@ import { ApplicationRowActions } from "@/components/applications/application-row
 import { ApplicationsFilters } from "@/components/applications/applications-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
@@ -35,20 +36,21 @@ export function ApplicationsTable({
       header={
         <TableRow>
           <TableHead className="pl-4">Name</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Startup</TableHead>
           <TableHead>Sector</TableHead>
           <TableHead>Submitted</TableHead>
-          <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
+          <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={applications.length === 0}
-      emptyColSpan={6}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={FileTextIcon}
           title="No applications found"
-          description="Try changing the search. Official Apply submissions appear here; leads stay under Registrations."
+          description="Try changing the search or inbox filter. Official Apply submissions appear here; leads stay under Registrations."
         />
       }
       pagination={{
@@ -57,7 +59,11 @@ export function ApplicationsTable({
         pageSize: APPLICATION_PAGE_SIZE,
         total,
         totalPages,
-        filters: { search: query.search },
+        filters: {
+          search: query.search,
+          inboxStatus:
+            query.inboxStatus === "inbox" ? undefined : query.inboxStatus,
+        },
       }}
     >
       {applications.map((application) => (
@@ -68,6 +74,9 @@ export function ApplicationsTable({
         >
           <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
             {application.full_name}
+          </TableCell>
+          <TableCell>
+            <InboxStatusBadge status={application.inbox_status} />
           </TableCell>
           <TableCell className="max-w-[12rem] truncate text-muted-foreground">
             {application.email}

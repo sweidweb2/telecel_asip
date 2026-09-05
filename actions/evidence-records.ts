@@ -37,7 +37,7 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
-/** Lazy option load for the create dialog (list page skips eager fetch). */
+/** Lazy option load for the evidence editor (owner searchable select). */
 export async function loadEvidenceFormOptions(
   search = "",
   includeOwnerId?: string | null,

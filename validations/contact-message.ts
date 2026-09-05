@@ -6,6 +6,7 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import { inboxListFilterSchema } from "@/validations/inbox";
 
 type ContactMessageMessages = {
   enquiryTypeInvalid: string;
@@ -134,6 +135,7 @@ const contactMessageListQueryInputSchema = z.object({
     .max(100, "Search must be 100 characters or fewer")
     .regex(/^[^,%_()]*$/, "Search contains unsupported characters")
     .catch(""),
+  inboxStatus: inboxListFilterSchema,
 });
 
 export type ContactMessageListQuery = z.infer<
@@ -149,7 +151,12 @@ export function parseContactMessageListQuery(
     input,
     schema: contactMessageListQueryInputSchema,
     pageSize: CONTACT_MESSAGE_PAGE_SIZE,
-    defaults: { page: "1", enquiryType: "all", search: "" },
+    defaults: {
+      page: "1",
+      enquiryType: "all",
+      search: "",
+      inboxStatus: "inbox",
+    },
   });
 }
 

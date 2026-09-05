@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { BarChart3Icon } from "lucide-react";
+import { redirect } from "next/navigation";
 
-import { AdminComingSoon } from "@/components/dashboard/admin-coming-soon";
-import { requireAdmin } from "@/data/auth";
+import { AdminAnalyticsDashboard } from "@/components/dashboard/admin-analytics-dashboard";
+import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { ROUTES } from "@/constants/routes";
+import { getAdminAnalytics } from "@/data/admin-analytics";
 
 export const metadata: Metadata = {
   title: "Analytics | ASIP Admin",
 };
 
 export default async function AnalyticsPage() {
-  await requireAdmin();
+  const result = await getAdminAnalytics();
+  if (result.status === "forbidden") redirect(ROUTES.dashboard);
 
   return (
-    <AdminComingSoon
+    <AdminListPageShell
       title="Analytics"
-      description="Programme and site metrics will land here in a later phase."
-      icon={BarChart3Icon}
-    />
+      description="Pipeline inbox volume and content publish snapshot from the live CMS database."
+    >
+      <AdminAnalyticsDashboard analytics={result.analytics} />
+    </AdminListPageShell>
   );
 }

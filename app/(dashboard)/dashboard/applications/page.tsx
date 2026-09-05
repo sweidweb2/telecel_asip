@@ -31,6 +31,7 @@ export default async function ApplicationsPage({
     buildClampParams: (q, totalPages) =>
       adminListClampParams(totalPages, {
         search: q.search || undefined,
+        inboxStatus: q.inboxStatus !== "inbox" ? q.inboxStatus : undefined,
       }),
   });
 
