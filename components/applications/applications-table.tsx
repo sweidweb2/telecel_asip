@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { format } from "date-fns";
+import { useState } from "react";
 import { FileTextIcon } from "lucide-react";
 
 import { ApplicationRowActions } from "@/components/applications/application-row-actions";
 import { ApplicationsFilters } from "@/components/applications/applications-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
+import { formatAdminDate } from "@/lib/admin-format";
 import type { Application } from "@/types/application";
 import {
   APPLICATION_PAGE_SIZE,
@@ -26,34 +27,11 @@ export function ApplicationsTable({
   totalPages: number;
   query: ApplicationListQuery;
 }) {
-  const [clientSearch, setClientSearch] = useState(query.search);
-  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
-
-  if (query.search !== prevQuerySearch) {
-    setPrevQuerySearch(query.search);
-    setClientSearch(query.search);
-  }
-
-  const onSearchChange = useCallback((value: string) => {
-    setClientSearch(value);
-  }, []);
-
-  const visible = useMemo(() => {
-    const term = clientSearch.trim().toLowerCase();
-    if (!term || term === query.search.toLowerCase()) return applications;
-    return applications.filter(
-      (row) =>
-        row.full_name.toLowerCase().includes(term) ||
-        row.email.toLowerCase().includes(term) ||
-        row.company_name.toLowerCase().includes(term),
-    );
-  }, [applications, clientSearch, query.search]);
+  const [viewId, setViewId] = useState<string | null>(null);
 
   return (
     <AdminDataTable
-      filters={
-        <ApplicationsFilters query={query} onSearchChange={onSearchChange} />
-      }
+      filters={<ApplicationsFilters query={query} />}
       header={
         <TableRow>
           <TableHead className="pl-4">Name</TableHead>
@@ -64,19 +42,14 @@ export function ApplicationsTable({
           <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
-      isEmpty={visible.length === 0}
+      isEmpty={applications.length === 0}
       emptyColSpan={6}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <FileTextIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No applications found</p>
-          <p className="text-sm text-muted-foreground">
-            Official Apply submissions will appear here. Leads stay under
-            Registrations.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={FileTextIcon}
+          title="No applications found"
+          description="Try changing the search. Official Apply submissions appear here; leads stay under Registrations."
+        />
       }
       pagination={{
         basePath: ROUTES.applications,
@@ -87,8 +60,12 @@ export function ApplicationsTable({
         filters: { search: query.search },
       }}
     >
-      {visible.map((application) => (
-        <TableRow key={application.id}>
+      {applications.map((application) => (
+        <TableRow
+          key={application.id}
+          className="cursor-pointer"
+          onClick={() => setViewId(application.id)}
+        >
           <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
             {application.full_name}
           </TableCell>
@@ -102,10 +79,19 @@ export function ApplicationsTable({
             {application.sector}
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
-            {format(new Date(application.created_at), "MMM d, yyyy")}
+            {formatAdminDate(application.created_at)}
           </TableCell>
-          <TableCell className="pr-4">
-            <ApplicationRowActions application={application} />
+          <TableCell
+            className="pr-4"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <ApplicationRowActions
+              application={application}
+              viewOpen={viewId === application.id}
+              onViewOpenChange={(open) =>
+                setViewId(open ? application.id : null)
+              }
+            />
           </TableCell>
         </TableRow>
       ))}

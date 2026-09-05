@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import {
   CalendarIcon,
   ChartColumnIcon,
@@ -18,7 +17,8 @@ import {
   IMPACT_PUBLISH_STATUS_LABELS,
 } from "@/constants/impact-metric-labels";
 import { evidenceDetailPath } from "@/constants/routes";
-import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
+import { formatAdminDate, formatAdminDateTime } from "@/lib/admin-format";
+import type { ImpactMetric } from "@/types/impact-metric";
 
 function Stat({
   icon: Icon,
@@ -46,11 +46,9 @@ function Stat({
 
 export function ImpactMetricDetailContent({
   metric,
-  evidenceOptions,
   evidencePrimarySource,
 }: {
   metric: ImpactMetric;
-  evidenceOptions: EvidenceOption[];
   evidencePrimarySource: string | null;
 }) {
   return (
@@ -71,11 +69,7 @@ export function ImpactMetricDetailContent({
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:mt-1">
-              <ImpactMetricRowActions
-                metric={metric}
-                evidenceOptions={evidenceOptions}
-                redirectOnDelete
-              />
+              <ImpactMetricRowActions metric={metric} redirectOnDelete />
             </div>
           </CardHeader>
 
@@ -101,9 +95,9 @@ export function ImpactMetricDetailContent({
 
             <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Stat icon={CalendarIcon} label="Measurement period">
-                {format(new Date(metric.period_start), "MMM d, yyyy")}
+                {formatAdminDate(metric.period_start)}
                 {" – "}
-                {format(new Date(metric.period_end), "MMM d, yyyy")}
+                {formatAdminDate(metric.period_end)}
               </Stat>
 
               <Stat icon={MapPinIcon} label="Geography">
@@ -135,11 +129,11 @@ export function ImpactMetricDetailContent({
               </Stat>
 
               <Stat icon={CalendarIcon} label="Created">
-                {format(new Date(metric.created_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(metric.created_at)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Last updated">
-                {format(new Date(metric.updated_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(metric.updated_at)}
               </Stat>
             </dl>
           </CardContent>

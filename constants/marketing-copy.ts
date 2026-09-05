@@ -31,6 +31,13 @@ const en: MarketingCopy = {
       "From Barcelona in 2019 to the 2026 next chapter — how ASIP connects African founders to knowledge, capital pathways, markets and relationships.",
     cards: [],
     cta: { slug: "founders", label: "Explore the founders" },
+    ctaSection: {
+      title: "Meet the founders building Africa’s next chapter.",
+      description:
+        "Explore ventures across ASIP cohorts — real companies, markets and progress.",
+      slug: "founders",
+      label: "Explore the founders",
+    },
     aboutNarrative: {
       story: {
         title: "Launched in Barcelona. Built for Africa.",
@@ -225,6 +232,13 @@ const en: MarketingCopy = {
       },
     ],
     cta: { slug: "contact", label: "Ask a question" },
+    ctaSection: {
+      title: "Building a venture is already hard enough.",
+      description:
+        "Questions about eligibility, timing, or fit? Reach the ASIP team before you submit.",
+      slug: "contact",
+      label: "Ask a question",
+    },
   },
   apply: {
     eyebrow: "For founders", title: "Build what Africa needs next.", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "Your submission is stored securely and reviewed by the ASIP team for each programme cycle.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
@@ -232,6 +246,13 @@ const en: MarketingCopy = {
       { title: "Solution", description: "Explain the customer problem, your product, and what makes your approach relevant." },
       { title: "Progress", description: "Summarize traction, learning, current stage, and the next milestones you are pursuing." },
     ], cta: { slug: "contact", label: "Ask a question" },
+    ctaSection: {
+      title: "Building a venture is already hard enough.",
+      description:
+        "Need clarity on the cohort, criteria, or what to include? Ask ASIP before you start the application.",
+      slug: "contact",
+      label: "Ask a question",
+    },
   },
   faq: {
     eyebrow: "FAQ",
@@ -323,6 +344,13 @@ const fr: MarketingCopy = {
       "De Barcelone en 2019 au prochain chapitre 2026 — comment ASIP relie les fondateurs africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
     cards: [],
     cta: { slug: "founders", label: "Découvrir les fondateurs" },
+    ctaSection: {
+      title: "Rencontrez les fondateurs qui construisent le prochain chapitre de l’Afrique.",
+      description:
+        "Explorez des entreprises issues des cohortes ASIP — des sociétés, des marchés et des progrès concrets.",
+      slug: "founders",
+      label: "Découvrir les fondateurs",
+    },
     aboutNarrative: {
       story: {
         title: "Lancé à Barcelone. Bâti pour l’Afrique.",
@@ -515,8 +543,23 @@ const fr: MarketingCopy = {
       },
     ],
     cta: { slug: "contact", label: "Poser une question" },
+    ctaSection: {
+      title: "Construire une entreprise est déjà assez difficile.",
+      description:
+        "Des questions sur l’éligibilité, le calendrier ou l’adéquation ? Contactez l’équipe ASIP avant d’envoyer votre dossier.",
+      slug: "contact",
+      label: "Poser une question",
+    },
   },
-  apply: { eyebrow: "Pour les fondateurs", title: "Construisez ce dont l’Afrique a besoin.", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" } },
+  apply: { eyebrow: "Pour les fondateurs", title: "Construisez ce dont l’Afrique a besoin.", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" },
+    ctaSection: {
+      title: "Construire une entreprise est déjà assez difficile.",
+      description:
+        "Besoin de clarté sur la cohorte, les critères ou le contenu attendu ? Demandez à ASIP avant de commencer.",
+      slug: "contact",
+      label: "Poser une question",
+    },
+  },
   faq: {
     eyebrow: "FAQ",
     title: "Des réponses claires à vos questions.",

@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { getActiveStartupsPage } from "@/data/startups";
+import type { Locale } from "@/constants/locales";
+import { marketingCopyFor } from "@/constants/marketing-copy";
 import type { ActiveStartupFilters } from "@/validations/startup";
 
 function PageSection({
@@ -36,6 +39,7 @@ function EmptySlot({ label }: { label: string }) {
 }
 
 type PortfolioPageContentProps = {
+  locale: Locale;
   page?: number;
   filters?: ActiveStartupFilters;
 };
@@ -45,11 +49,13 @@ type PortfolioPageContentProps = {
  * Filters + listing pull Founder; design wiped to skeleton holders.
  */
 export async function PortfolioPageContent({
+  locale,
   page = 1,
   filters = { cohort: null, country: null, sector: null, query: "" },
 }: PortfolioPageContentProps) {
   const list = await getActiveStartupsPage(page, filters);
   const founders = list.items;
+  const copy = marketingCopyFor(locale, "founders");
 
   return (
     <main>
@@ -91,9 +97,9 @@ export async function PortfolioPageContent({
         ) : null}
       </PageSection>
 
-      <PageSection title="Directory CTA" note="Dynamic">
-        <EmptySlot label="closing CTA (register interest / contact)" />
-      </PageSection>
+      {copy.ctaSection ? (
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
+      ) : null}
     </main>
   );
 }

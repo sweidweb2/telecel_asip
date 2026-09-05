@@ -32,7 +32,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   users: {
     id: "users",
     listPath: ROUTES.users,
-    navTitle: "Manage users",
+    navTitle: "Users",
     pageTitle: "Users",
     description: "Create accounts and manage profile access across the CMS.",
     metaTitle: "Users | ASIP Admin",
@@ -40,7 +40,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   registrations: {
     id: "registrations",
     listPath: ROUTES.registrations,
-    navTitle: "Manage registrations",
+    navTitle: "Registrations",
     pageTitle: "Registrations",
     description:
       "Review and manage Register Interest leads. Official Apply submissions live under Applications.",
@@ -49,7 +49,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   applications: {
     id: "applications",
     listPath: ROUTES.applications,
-    navTitle: "Manage applications",
+    navTitle: "Applications",
     pageTitle: "Applications",
     description:
       "Official Apply submissions. Separate from Register Interest leads — there is no automatic conversion.",
@@ -58,7 +58,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   portfolio: {
     id: "portfolio",
     listPath: ROUTES.portfolio,
-    navTitle: "Manage portfolio",
+    navTitle: "Portfolio",
     pageTitle: "Portfolio",
     description:
       "Manage startups shown on the public portfolio. Only active startups are visible publicly.",
@@ -68,7 +68,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   blogs: {
     id: "blogs",
     listPath: ROUTES.blogs,
-    navTitle: "Manage blogs",
+    navTitle: "Blogs",
     pageTitle: "Blogs",
     description: "Create and manage Insights articles shown on the public site.",
     metaTitle: "Blogs | ASIP Admin",
@@ -77,7 +77,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   cohorts: {
     id: "cohorts",
     listPath: ROUTES.cohorts,
-    navTitle: "Manage cohorts",
+    navTitle: "Cohorts",
     pageTitle: "Cohorts",
     description:
       "Manage programme years, publish status, and linked partners and founders.",
@@ -87,7 +87,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   partners: {
     id: "partners",
     listPath: ROUTES.partners,
-    navTitle: "Manage partners",
+    navTitle: "Partners",
     pageTitle: "Partners",
     description: "Partners and mentors shown on the public partners page.",
     metaTitle: "Partners | ASIP Admin",
@@ -96,7 +96,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   founderStories: {
     id: "founderStories",
     listPath: ROUTES.founderStories,
-    navTitle: "Manage founder stories",
+    navTitle: "Founder stories",
     pageTitle: "Founder stories",
     description:
       "Narrative modules for founder profiles. Public wiring lands in a later phase.",
@@ -106,7 +106,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   evidence: {
     id: "evidence",
     listPath: ROUTES.evidence,
-    navTitle: "Manage evidence",
+    navTitle: "Evidence",
     pageTitle: "Evidence",
     description: "Internal evidence register for claims and impact metrics.",
     metaTitle: "Evidence | ASIP Admin",
@@ -114,7 +114,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   impactMetrics: {
     id: "impactMetrics",
     listPath: ROUTES.impactMetrics,
-    navTitle: "Manage impact metrics",
+    navTitle: "Impact metrics",
     pageTitle: "Impact metrics",
     description:
       "Evidence-backed claims for Home and Impact. Only verified metrics may go live later.",
@@ -124,7 +124,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   events: {
     id: "events",
     listPath: ROUTES.events,
-    navTitle: "Manage events",
+    navTitle: "Events",
     pageTitle: "Events",
     description: "Programme events, speakers, assets, and linked startups.",
     metaTitle: "Events | ASIP Admin",
@@ -133,7 +133,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   contactUs: {
     id: "contactUs",
     listPath: ROUTES.contactUs,
-    navTitle: "Manage contact us",
+    navTitle: "Contact us",
     pageTitle: "Contact us",
     description:
       "Review and manage messages submitted from the public contact form.",

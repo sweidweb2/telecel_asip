@@ -125,6 +125,13 @@ const en: ProgrammePageCopy = {
     notice:
       "Official cohort criteria, dates, format and terms are published when applications open.",
   },
+  ctaSection: {
+    title: "Ready for the next chapter?",
+    description:
+      "Register interest for updates, or explore founders who have already built through ASIP.",
+    slug: "register-interest",
+    label: "Register interest",
+  },
 };
 
 const fr: ProgrammePageCopy = {
@@ -243,6 +250,13 @@ const fr: ProgrammePageCopy = {
     ],
     notice:
       "Les critères, dates, format et conditions officiels de chaque cohorte sont publiés à l’ouverture des candidatures.",
+  },
+  ctaSection: {
+    title: "Prêt pour le prochain chapitre ?",
+    description:
+      "Manifestez votre intérêt pour les mises à jour, ou explorez les fondateurs déjà passés par ASIP.",
+    slug: "register-interest",
+    label: "Manifester votre intérêt",
   },
 };
 

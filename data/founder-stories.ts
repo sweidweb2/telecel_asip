@@ -24,9 +24,6 @@ export const FOUNDER_STORIES_CACHE_TAG = "founder-stories";
 /** Cap startup picker so editor pages stay bounded. */
 const STORY_PICKER_LIMIT = 100;
 
-/** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
-const DETAIL_LINK_LIMIT = 500;
-
 const LIST_COLUMNS =
   "id, publish_status, quote_permission_status, updated_at, startups!inner(name)" as const;
 
@@ -160,6 +157,7 @@ export const getFounderStoryByIdForAdmin = cache(
  */
 export async function getStartupsForStoryPicker(options?: {
   includeStartupId?: string;
+  search?: string;
 }): Promise<
   | { status: "forbidden" }
   | { status: "ok"; startups: StartupStoryOption[] }
@@ -168,12 +166,20 @@ export async function getStartupsForStoryPicker(options?: {
   if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
   const includeId = options?.includeStartupId;
+  const term = (options?.search ?? "").trim().slice(0, 100);
 
-  const startupsResult = await supabase
+  let startupsQuery = supabase
     .from("startups")
     .select("id, name")
     .order("name", { ascending: true })
     .limit(STORY_PICKER_LIMIT);
+
+  if (term) {
+    const pattern = escapeIlikePattern(term);
+    startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
+  }
+
+  const startupsResult = await startupsQuery;
 
   if (startupsResult.error) throw startupsResult.error;
 
@@ -200,7 +206,7 @@ export async function getStartupsForStoryPicker(options?: {
     .from("founder_stories")
     .select("startup_id")
     .in("startup_id", candidateIds)
-    .limit(DETAIL_LINK_LIMIT);
+    .limit(STORY_PICKER_LIMIT);
 
   if (takenResult.error) throw takenResult.error;
 

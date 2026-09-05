@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import type { Locale } from "@/constants/locales";
+import { programmeCopyFor } from "@/constants/programme-copy";
+
 function PageSection({
   title,
   note,
@@ -32,11 +36,17 @@ function EmptySlot({ label }: { label: string }) {
   );
 }
 
+type ProgrammePageContentProps = {
+  locale: Locale;
+};
+
 /**
  * Programme marketing page — mostly static (build spec §4).
  * Cohort-conditional CTA noted; design wiped for the next pass.
  */
-export function ProgrammePageContent() {
+export function ProgrammePageContent({ locale }: ProgrammePageContentProps) {
+  const copy = programmeCopyFor(locale);
+
   return (
     <main>
       <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -69,9 +79,7 @@ export function ProgrammePageContent() {
         <EmptySlot label="general eligibility list; swap for cohort-specific criteria when Apply opens" />
       </PageSection>
 
-      <PageSection title="Programme CTA" note="Cohort-conditional CTA">
-        <EmptySlot label="closing CTAs driven by open_applications / cohort state" />
-      </PageSection>
+      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

@@ -26,7 +26,7 @@ const DETAIL_COLUMNS =
 const STARTUP_OPTIONS_LIMIT = 100;
 
 /** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
-const DETAIL_LINK_LIMIT = 500;
+const DETAIL_LINK_LIMIT = 200;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -97,7 +97,7 @@ export const getEventByIdForAdmin = cache(
       supabase.from("events").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
       supabase
         .from("event_startups")
-        .select("startup_id")
+        .select("startup_id, startups(id, name)")
         .eq("event_id", id)
         .limit(DETAIL_LINK_LIMIT),
     ]);
@@ -106,11 +106,29 @@ export const getEventByIdForAdmin = cache(
     if (linksResult.error) throw linksResult.error;
     if (!eventResult.data) return { status: "not_found" };
 
+    const linked_startups: EventStartupOption[] = [];
+    const startup_ids: string[] = [];
+    for (const row of linksResult.data ?? []) {
+      startup_ids.push(row.startup_id);
+      const startup = row.startups as
+        | EventStartupOption
+        | EventStartupOption[]
+        | null;
+      const named = Array.isArray(startup) ? startup[0] : startup;
+      if (named?.id && named.name) {
+        linked_startups.push({ id: named.id, name: named.name });
+      }
+    }
+
     return {
       status: "ok",
       event: {
-        ...(eventResult.data as Omit<EventDetail, "startup_ids">),
-        startup_ids: (linksResult.data ?? []).map((row) => row.startup_id),
+        ...(eventResult.data as Omit<
+          EventDetail,
+          "startup_ids" | "linked_startups"
+        >),
+        startup_ids,
+        linked_startups,
       },
     };
   },
@@ -122,6 +140,7 @@ export const getEventByIdForAdmin = cache(
  */
 export async function getEventStartupOptions(
   search = "",
+  includeIds: string[] = [],
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EventStartupOption[] }
 > {
@@ -143,8 +162,25 @@ export async function getEventStartupOptions(
   const { data, error } = await request;
   if (error) throw error;
 
+  let options = (data ?? []) as EventStartupOption[];
+  const missingIds = includeIds.filter(
+    (id) => id && !options.some((row) => row.id === id),
+  );
+  if (missingIds.length > 0) {
+    const included = await supabase
+      .from("startups")
+      .select("id, name")
+      .in("id", missingIds)
+      .limit(STARTUP_OPTIONS_LIMIT);
+    if (included.error) throw included.error;
+    options = [
+      ...((included.data ?? []) as EventStartupOption[]),
+      ...options,
+    ];
+  }
+
   return {
     status: "ok",
-    options: (data ?? []) as EventStartupOption[],
+    options,
   };
 }

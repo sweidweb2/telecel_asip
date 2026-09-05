@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   createFounderStory,
   deleteFounderStory,
+  loadStoryStartupOptions,
   updateFounderStory,
 } from "@/actions/founder-stories";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
@@ -26,18 +27,21 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/constants/routes";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type {
   FounderStoryDetail,
   StartupStoryOption,
 } from "@/types/founder-story";
 import {
   CMS_PUBLISH_STATUSES,
+  CMS_PUBLISH_STATUS_LABELS,
   createFounderStorySchema,
   FOUNDER_STORY_ATTRIBUTION_NAME_MAX,
   FOUNDER_STORY_ATTRIBUTION_TITLE_MAX,
   FOUNDER_STORY_NARRATIVE_MAX,
   FOUNDER_STORY_QUOTE_MAX,
   QUOTE_PERMISSION_STATUSES,
+  QUOTE_PERMISSION_STATUS_LABELS,
   type CreateFounderStoryInput,
   type FounderStoryFormValues,
 } from "@/validations/founder-story";
@@ -45,7 +49,8 @@ import {
 type FounderStoryEditorFormProps = {
   mode: "create" | "edit";
   story?: FounderStoryDetail;
-  startups: StartupStoryOption[];
+  /** Seed for edit (locked startup). Create loads lazily. */
+  startups?: StartupStoryOption[];
   heading: string;
   description: string;
 };
@@ -88,13 +93,51 @@ function defaultsFor(story?: FounderStoryDetail): FounderStoryFormValues {
 export function FounderStoryEditorForm({
   mode,
   story,
-  startups,
+  startups: initialStartups = [],
   heading,
   description,
 }: FounderStoryEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [startups, setStartups] = useState(initialStartups);
+  const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(mode === "create");
+
+  useEffect(() => {
+    if (mode !== "create") return;
+
+    let cancelled = false;
+
+    async function loadOptions() {
+      setOptionsLoading(true);
+      try {
+        const result = await loadStoryStartupOptions({
+          search: debouncedSearch,
+        });
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          setStartups([]);
+          return;
+        }
+        setStartups(result.startups);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load startups. Please try again.");
+          setStartups([]);
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, debouncedSearch]);
 
   const {
     register,
@@ -170,6 +213,18 @@ export function FounderStoryEditorForm({
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="grid gap-2 sm:col-span-2">
               <FieldLabel htmlFor="startupId">Startup</FieldLabel>
+              {mode === "create" ? (
+                <Input
+                  id="startup-search"
+                  value={optionSearch}
+                  onChange={(event) => setOptionSearch(event.target.value)}
+                  maxLength={100}
+                  placeholder="Search startups…"
+                  className="mb-2 min-h-11"
+                  disabled={isPending}
+                  aria-label="Search startups"
+                />
+              ) : null}
               <Controller
                 control={control}
                 name="startupId"
@@ -177,14 +232,21 @@ export function FounderStoryEditorForm({
                   <Select
                     value={field.value || undefined}
                     onValueChange={(value) => field.onChange(value ?? "")}
-                    disabled={isPending || mode === "edit" || startups.length === 0}
+                    disabled={
+                      isPending ||
+                      mode === "edit" ||
+                      optionsLoading ||
+                      (mode === "create" && startups.length === 0)
+                    }
                   >
                     <SelectTrigger id="startupId" className="min-h-11 w-full">
                       <SelectValue
                         placeholder={
-                          startups.length === 0
-                            ? "No startups available"
-                            : "Select a startup"
+                          optionsLoading
+                            ? "Loading startups…"
+                            : startups.length === 0
+                              ? "No startups available"
+                              : "Select a startup"
                         }
                       />
                     </SelectTrigger>
@@ -229,7 +291,7 @@ export function FounderStoryEditorForm({
                     <SelectContent>
                       {CMS_PUBLISH_STATUSES.map((status) => (
                         <SelectItem key={status} value={status}>
-                          {status === "draft" ? "Draft" : "Published"}
+                          {CMS_PUBLISH_STATUS_LABELS[status]}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -437,7 +499,7 @@ export function FounderStoryEditorForm({
                       <SelectContent>
                         {QUOTE_PERMISSION_STATUSES.map((status) => (
                           <SelectItem key={status} value={status}>
-                            {status}
+                            {QUOTE_PERMISSION_STATUS_LABELS[status]}
                           </SelectItem>
                         ))}
                       </SelectContent>

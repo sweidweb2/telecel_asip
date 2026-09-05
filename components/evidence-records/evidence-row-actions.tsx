@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PencilIcon } from "lucide-react";
 
 import { deleteEvidenceRecord } from "@/actions/evidence-records";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { EvidenceFormDialog } from "@/components/evidence-records/evidence-form-dialog";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import type {
 
 type EvidenceRowActionsProps = {
   record: EvidenceListItem | EvidenceDetail;
-  /** When set with a full detail record, enables inline edit. List rows omit this. */
+  /** Optional seed; dialog lazy-loads / searches the rest. */
   owners?: EvidenceOwnerOption[];
   defaultOwnerId?: string;
   redirectOnDelete?: boolean;
@@ -31,7 +32,7 @@ function isEvidenceDetail(
 export function EvidenceRowActions({
   record,
   owners,
-  defaultOwnerId,
+  defaultOwnerId = "",
   redirectOnDelete = false,
 }: EvidenceRowActionsProps) {
   const title =
@@ -41,18 +42,17 @@ export function EvidenceRowActions({
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      {isEvidenceDetail(record) &&
-      owners !== undefined &&
-      defaultOwnerId !== undefined ? (
+      {isEvidenceDetail(record) ? (
         <EvidenceFormDialog
           mode="edit"
           record={record}
           owners={owners}
-          defaultOwnerId={defaultOwnerId}
+          defaultOwnerId={defaultOwnerId || record.owner_id}
           triggerRender={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${title}`}
             />
           }
@@ -61,7 +61,8 @@ export function EvidenceRowActions({
       ) : (
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
+          className={ADMIN_ICON_BUTTON_CLASS}
           aria-label={`Edit ${title}`}
           nativeButton={false}
           render={<Link href={evidenceDetailPath(record.id)} />}

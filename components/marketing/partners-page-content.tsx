@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import type { Locale } from "@/constants/locales";
+import { partnersCopyFor } from "@/constants/partners-copy";
+
 function PageSection({
   title,
   note,
@@ -32,11 +36,17 @@ function EmptySlot({ label }: { label: string }) {
   );
 }
 
+type PartnersPageContentProps = {
+  locale: Locale;
+};
+
 /**
  * Partners marketing page — mostly static template (build spec §4).
  * Design wiped; section shells only until the next design pass.
  */
-export function PartnersPageContent() {
+export function PartnersPageContent({ locale }: PartnersPageContentProps) {
+  const copy = partnersCopyFor(locale);
+
   return (
     <main>
       <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -65,9 +75,7 @@ export function PartnersPageContent() {
         <EmptySlot label="active / historical partner logos" />
       </PageSection>
 
-      <PageSection title="Partnership CTA" note="Mostly static">
-        <EmptySlot label="discuss a partnership closing CTA" />
-      </PageSection>
+      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

@@ -7,10 +7,8 @@ import type { ApplicationListQuery } from "@/validations/application";
 
 export function ApplicationsFilters({
   query,
-  onSearchChange,
 }: {
   query: ApplicationListQuery;
-  onSearchChange?: (value: string) => void;
 }) {
   const { search, isPending, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
@@ -20,16 +18,6 @@ export function ApplicationsFilters({
 
   const hasFilters = query.search !== "";
 
-  function onSearchInput(value: string) {
-    onSearchChange?.(value);
-    handleSearchChange(value);
-  }
-
-  function onClear() {
-    clearSearchLocal();
-    onSearchChange?.("");
-  }
-
   return (
     <AdminFilterBar
       searchId="applications-search"
@@ -37,10 +25,10 @@ export function ApplicationsFilters({
       searchPlaceholder="Filter by name, email, or startup…"
       search={search}
       isPending={isPending}
-      onSearchChange={onSearchInput}
+      onSearchChange={handleSearchChange}
       hasFilters={hasFilters}
       clearHref={ROUTES.applications}
-      onClear={onClear}
+      onClear={clearSearchLocal}
     />
   );
 }

@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import type { Locale } from "@/constants/locales";
+import { alumniCopyFor } from "@/constants/alumni-copy";
+
 function PageSection({
   title,
   note,
@@ -32,11 +36,17 @@ function EmptySlot({ label }: { label: string }) {
   );
 }
 
+type AlumniPageContentProps = {
+  locale: Locale;
+};
+
 /**
  * Alumni marketing page — built but hidden (build spec §4).
  * Draft in CMS; publish only on formal approval. Keep noindex / sitemap-excluded.
  */
-export function AlumniPageContent() {
+export function AlumniPageContent({ locale }: AlumniPageContentProps) {
+  const copy = alumniCopyFor(locale);
+
   return (
     <main>
       <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -74,6 +84,8 @@ export function AlumniPageContent() {
       >
         <EmptySlot label="hold notice + activation runbook gate" />
       </PageSection>
+
+      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
-import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { EventRowActions } from "@/components/events/event-row-actions";
 import { EventsFilters } from "@/components/events/events-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
+import { formatAdminDate } from "@/lib/admin-format";
 import type { EventListItem } from "@/types/event";
 import {
   CMS_PUBLISH_STATUS_LABELS,
@@ -18,14 +19,6 @@ import {
   EVENT_PAGE_SIZE,
   type EventListQuery,
 } from "@/validations/event";
-
-function formatEventDate(value: string) {
-  try {
-    return format(parseISO(value), "d MMM yyyy");
-  } catch {
-    return value;
-  }
-}
 
 export function EventsTable({
   events,
@@ -56,15 +49,11 @@ export function EventsTable({
       isEmpty={events.length === 0}
       emptyColSpan={6}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <CalendarIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No events found</p>
-          <p className="text-sm text-muted-foreground">
-            Try changing the filters, or create a new event.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={CalendarIcon}
+          title="No events found"
+          description="Try changing the filters, or create a new event from the header."
+        />
       }
       pagination={{
         basePath: ROUTES.events,
@@ -95,7 +84,7 @@ export function EventsTable({
             </Link>
           </TableCell>
           <TableCell className="whitespace-nowrap">
-            {formatEventDate(event.event_date)}
+            {formatAdminDate(event.event_date)}
           </TableCell>
           <TableCell className="whitespace-nowrap">
             {event.format ? EVENT_FORMAT_LABELS[event.format] : "—"}

@@ -3,7 +3,6 @@
 import { useId, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
 import { EyeIcon, Loader2Icon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import {
   updateInterestRegistration,
 } from "@/actions/interest-registrations";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { formatAdminDateTime } from "@/lib/admin-format";
 import type { InterestRegistration } from "@/types/interest-registration";
 import {
   INTEREST_REGISTRATION_COMPANY_MAX,
@@ -68,14 +69,25 @@ function toEditDefaults(
 
 export function RegistrationRowActions({
   registration,
+  viewOpen: controlledViewOpen,
+  onViewOpenChange,
 }: {
   registration: InterestRegistration;
+  viewOpen?: boolean;
+  onViewOpenChange?: (open: boolean) => void;
 }) {
   const editFormId = useId();
   const router = useRouter();
-  const [viewOpen, setViewOpen] = useState(false);
+  const [uncontrolledViewOpen, setUncontrolledViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
+  const isViewControlled = onViewOpenChange !== undefined;
+  const viewOpen = isViewControlled
+    ? Boolean(controlledViewOpen)
+    : uncontrolledViewOpen;
+  const setViewOpen = isViewControlled
+    ? onViewOpenChange!
+    : setUncontrolledViewOpen;
   const editDefaults = toEditDefaults(registration);
   const form = useForm<UpdateInterestRegistrationInput>({
     resolver: zodResolver(updateInterestRegistrationSchema),
@@ -111,7 +123,8 @@ export function RegistrationRowActions({
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`View ${registration.full_name}`}
             />
           }
@@ -145,10 +158,7 @@ export function RegistrationRowActions({
                 {registration.consent ? "Yes" : "No"}
               </AdminDetailRow>
               <AdminDetailRow label="Submitted">
-                {format(
-                  new Date(registration.created_at),
-                  "MMM d, yyyy HH:mm",
-                )}
+                {formatAdminDateTime(registration.created_at)}
               </AdminDetailRow>
             </div>
           </dl>
@@ -161,7 +171,8 @@ export function RegistrationRowActions({
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${registration.full_name}`}
             />
           }

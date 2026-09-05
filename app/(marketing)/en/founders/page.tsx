@@ -22,6 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <PortfolioPageContent
+      locale="en"
       page={parsePortfolioPageParam(params.page)}
       filters={parseActiveStartupFilters(params)}
     />

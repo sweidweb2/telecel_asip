@@ -13,10 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
 import { getCurrentUserProfile } from "@/data/users";
-import {
-  getEvidenceOwnerOptions,
-  getEvidenceRecordByIdForAdmin,
-} from "@/data/evidence-records";
+import { getEvidenceRecordByIdForAdmin } from "@/data/evidence-records";
 
 type EvidenceDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -42,19 +39,25 @@ export default async function EvidenceDetailPage({
 }: EvidenceDetailPageProps) {
   const { id } = await params;
 
-  const [result, ownersResult, profile] = await Promise.all([
+  const [result, profile] = await Promise.all([
     getEvidenceRecordByIdForAdmin(id),
-    getEvidenceOwnerOptions(),
     getCurrentUserProfile(),
   ]);
 
-  if (result.status === "forbidden" || ownersResult.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
+  if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
 
-  const owners = ownersResult.owners;
-  const defaultOwnerId = profile?.id ?? owners[0]?.id ?? "";
+  const seedOwner = result.record.owner
+    ? [
+        {
+          id: result.record.owner.id,
+          email: result.record.owner.email,
+          full_name: result.record.owner.full_name,
+        },
+      ]
+    : [];
+  const defaultOwnerId =
+    result.record.owner_id || profile?.id || seedOwner[0]?.id || "";
   const crumb =
     result.record.primary_source.length > 48
       ? `${result.record.primary_source.slice(0, 48)}…`
@@ -80,7 +83,7 @@ export default async function EvidenceDetailPage({
 
       <EvidenceDetailContent
         record={result.record}
-        owners={owners}
+        owners={seedOwner}
         defaultOwnerId={defaultOwnerId}
       />
     </main>

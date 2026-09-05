@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { ApplyForm } from "@/components/marketing/apply-form";
 import { applyLabelsFor } from "@/components/marketing/apply-labels";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section, SectionHeading } from "@/components/marketing/page-elements";
 import {
   Card,
@@ -10,11 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
 import type { MarketingPageCopy } from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
 
 type ApplyPageContentProps = {
   locale: Locale;
@@ -79,19 +75,12 @@ export function ApplyPageContent({
               </article>
             ))}
           </div>
-          {copy.cta ? (
-            <Link
-              href={publicPath(locale, copy.cta.slug)}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "mt-8 min-h-11 w-full sm:w-auto",
-              )}
-            >
-              {copy.cta.label}
-            </Link>
-          ) : null}
         </div>
       </Section>
+
+      {copy.ctaSection ? (
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
+      ) : null}
     </main>
   );
 }

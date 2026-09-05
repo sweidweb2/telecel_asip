@@ -60,8 +60,9 @@ export async function updateSiteSettings(
   }
 
   revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
-  // The CTA lives in both marketing layouts, so refresh the whole public tree.
-  revalidatePath("/", "layout");
+  // Marketing layouts + insights page read settings via tagged cache.
+  revalidatePath("/en", "layout");
+  revalidatePath("/fr", "layout");
   revalidatePath("/en/insights");
   revalidatePath("/fr/insights");
   revalidatePath(ROUTES.settings);

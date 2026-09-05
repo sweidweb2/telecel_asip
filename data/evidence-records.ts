@@ -20,7 +20,7 @@ import {
 } from "@/validations/evidence-record";
 
 const LIST_COLUMNS =
-  "id, primary_source, measurement_period_start, measurement_period_end, owner_id, status, permission, owner:profiles!evidence_records_owner_id_fkey(id, email, full_name)" as const;
+  "id, primary_source, measurement_period_start, measurement_period_end, owner_id, status, permission, owner:profiles!evidence_records_owner_id_fkey(email, full_name)" as const;
 
 const DETAIL_COLUMNS =
   "id, primary_source, source_file_url, measurement_period_start, measurement_period_end, owner_id, status, last_verified_date, permission, review_date, created_at, updated_at, owner:profiles!evidence_records_owner_id_fkey(id, email, full_name)" as const;
@@ -29,7 +29,19 @@ const OWNER_OPTION_LIMIT = 100;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
-function normalizeOwner(
+function normalizeListOwner(
+  owner:
+    | Pick<EvidenceOwnerOption, "email" | "full_name">
+    | Array<Pick<EvidenceOwnerOption, "email" | "full_name">>
+    | null,
+): Pick<EvidenceOwnerOption, "email" | "full_name"> | null {
+  if (!owner) return null;
+  const row = Array.isArray(owner) ? (owner[0] ?? null) : owner;
+  if (!row) return null;
+  return { email: row.email, full_name: row.full_name };
+}
+
+function normalizeDetailOwner(
   owner: EvidenceOwnerOption | EvidenceOwnerOption[] | null,
 ): EvidenceOwnerOption | null {
   if (!owner) return null;
@@ -67,8 +79,11 @@ async function fetchEvidencePage(
 
   const records = (data ?? []).map((row) => ({
     ...row,
-    owner: normalizeOwner(
-      row.owner as EvidenceOwnerOption | EvidenceOwnerOption[] | null,
+    owner: normalizeListOwner(
+      row.owner as
+        | Pick<EvidenceOwnerOption, "email" | "full_name">
+        | Array<Pick<EvidenceOwnerOption, "email" | "full_name">>
+        | null,
     ),
   })) as EvidenceListItem[];
 
@@ -126,7 +141,7 @@ export const getEvidenceRecordByIdForAdmin = cache(
         ...(data as EvidenceRecord & {
           owner: EvidenceOwnerOption | EvidenceOwnerOption[] | null;
         }),
-        owner: normalizeOwner(
+        owner: normalizeDetailOwner(
           data.owner as EvidenceOwnerOption | EvidenceOwnerOption[] | null,
         ),
       },
@@ -140,6 +155,7 @@ export const getEvidenceRecordByIdForAdmin = cache(
  */
 export async function getEvidenceOwnerOptions(
   search = "",
+  includeOwnerId?: string | null,
 ): Promise<
   { status: "forbidden" } | { status: "ok"; owners: EvidenceOwnerOption[] }
 > {
@@ -164,5 +180,18 @@ export async function getEvidenceOwnerOptions(
   const { data, error } = await request;
   if (error) throw error;
 
-  return { status: "ok", owners: (data ?? []) as EvidenceOwnerOption[] };
+  let owners = (data ?? []) as EvidenceOwnerOption[];
+  if (includeOwnerId && !owners.some((row) => row.id === includeOwnerId)) {
+    const included = await supabase
+      .from("profiles")
+      .select("id, email, full_name")
+      .eq("id", includeOwnerId)
+      .maybeSingle();
+    if (included.error) throw included.error;
+    if (included.data) {
+      owners = [included.data as EvidenceOwnerOption, ...owners];
+    }
+  }
+
+  return { status: "ok", owners };
 }

@@ -12,10 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import {
-  getEventByIdForAdmin,
-  getEventStartupOptions,
-} from "@/data/events";
+import { getEventByIdForAdmin } from "@/data/events";
 
 type EventDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -36,14 +33,9 @@ export default async function EventDetailPage({
   params,
 }: EventDetailPageProps) {
   const { id } = await params;
-  const [result, optionsResult] = await Promise.all([
-    getEventByIdForAdmin(id),
-    getEventStartupOptions(),
-  ]);
+  const result = await getEventByIdForAdmin(id);
 
-  if (result.status === "forbidden" || optionsResult.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
+  if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
 
   return (
@@ -64,10 +56,7 @@ export default async function EventDetailPage({
         </BreadcrumbList>
       </Breadcrumb>
 
-      <EventDetailContent
-        event={result.event}
-        startupOptions={optionsResult.options}
-      />
+      <EventDetailContent event={result.event} />
     </main>
   );
 }

@@ -181,6 +181,51 @@ export async function getStartupByIdForAdmin(
   };
 }
 
+const BLOG_PICKER_LIMIT = 100;
+
+/** Startups for the blog editor related-founder select (not story-exclusive). */
+export async function getStartupsForBlogPicker(
+  search = "",
+  includeStartupId?: string | null,
+): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; startups: { id: string; name: string }[] }
+> {
+  const supabase = await createClient();
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+
+  const term = search.trim().slice(0, 100);
+  let request = supabase
+    .from("startups")
+    .select("id, name")
+    .order("name", { ascending: true })
+    .limit(BLOG_PICKER_LIMIT);
+
+  if (term) {
+    const pattern = escapeIlikePattern(term);
+    request = request.ilike("name", `%${pattern}%`);
+  }
+
+  const { data, error } = await request;
+  if (error) throw error;
+
+  let startups = (data ?? []) as { id: string; name: string }[];
+
+  if (includeStartupId && !startups.some((row) => row.id === includeStartupId)) {
+    const included = await supabase
+      .from("startups")
+      .select("id, name")
+      .eq("id", includeStartupId)
+      .maybeSingle();
+    if (included.error) throw included.error;
+    if (included.data) {
+      startups = [included.data as { id: string; name: string }, ...startups];
+    }
+  }
+
+  return { status: "ok", startups };
+}
+
 async function fetchActiveStartupsPage(
   page: number,
   pageSize: number,

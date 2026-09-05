@@ -13,8 +13,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
 import { getBlogByIdForAdmin } from "@/data/blogs";
-import { getCohortsForBlogPicker } from "@/data/cohorts";
-import { getStartupsForStoryPicker } from "@/data/founder-stories";
 
 type EditBlogPageProps = {
   params: Promise<{ id: string }>;
@@ -33,20 +31,10 @@ export async function generateMetadata({
 
 export default async function EditBlogPage({ params }: EditBlogPageProps) {
   const { id } = await params;
-  const [result, startupsResult, cohortsResult] = await Promise.all([
-    getBlogByIdForAdmin(id),
-    getStartupsForStoryPicker(),
-    getCohortsForBlogPicker(),
-  ]);
+  const result = await getBlogByIdForAdmin(id);
 
   if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
-  if (
-    startupsResult.status === "forbidden" ||
-    cohortsResult.status === "forbidden"
-  ) {
-    redirect(ROUTES.dashboard);
-  }
 
   const pageLabel = result.blog.title.trim() || "Edit blog";
 
@@ -70,8 +58,6 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
       <BlogEditorForm
         mode="edit"
         blog={result.blog}
-        startups={startupsResult.startups}
-        cohorts={cohortsResult.cohorts}
         heading="Edit blog"
         description="Update content, publish status, featured hero, and images."
       />

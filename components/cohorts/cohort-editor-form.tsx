@@ -43,8 +43,8 @@ import {
 type CohortEditorFormProps = {
   mode: "create" | "edit";
   cohort?: CohortAdminDetail;
-  partners: CohortLinkOption[];
-  startups: CohortLinkOption[];
+  partners?: CohortLinkOption[];
+  startups?: CohortLinkOption[];
   heading: string;
   description: string;
 };
@@ -138,8 +138,8 @@ function LinkCheckboxList({
 export function CohortEditorForm({
   mode,
   cohort,
-  partners: initialPartners,
-  startups: initialStartups,
+  partners: initialPartners = [],
+  startups: initialStartups = [],
   heading,
   description,
 }: CohortEditorFormProps) {
@@ -169,12 +169,6 @@ export function CohortEditorForm({
   });
 
   useEffect(() => {
-    if (!debouncedSearch) {
-      setPartners(initialPartners);
-      setStartups(initialStartups);
-      return;
-    }
-
     let cancelled = false;
 
     async function loadOptions() {
@@ -205,7 +199,7 @@ export function CohortEditorForm({
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, initialPartners, initialStartups]);
+  }, [debouncedSearch]);
 
   const {
     register,

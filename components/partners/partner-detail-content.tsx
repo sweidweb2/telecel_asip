@@ -1,20 +1,24 @@
 import Image from "next/image";
-import { format } from "date-fns";
 import {
   ArrowUpDownIcon,
   CalendarIcon,
   CheckCircle2Icon,
   ExternalLinkIcon,
   LinkIcon,
+  PencilIcon,
   ShieldAlertIcon,
   ShieldCheckIcon,
 } from "lucide-react";
 
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
+import { PartnerFormDialog } from "@/components/partners/partner-form-dialog";
 import { PartnerLogoManager } from "@/components/partners/partner-logo-manager";
 import { PartnerRowActions } from "@/components/partners/partner-row-actions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatAdminDateTime } from "@/lib/admin-format";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { startupInitials } from "@/lib/startup-display";
 import type { PartnerListItem } from "@/types/partner";
@@ -81,7 +85,25 @@ export function PartnerDetailContent({ partner }: { partner: PartnerListItem }) 
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:mt-1">
-              <PartnerRowActions partner={partner} redirectOnDelete />
+              <PartnerRowActions
+                partner={partner}
+                redirectOnDelete
+                editSlot={
+                  <PartnerFormDialog
+                    mode="edit"
+                    partner={partner}
+                    triggerRender={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={ADMIN_ICON_BUTTON_CLASS}
+                        aria-label={`Edit ${partner.name}`}
+                      />
+                    }
+                    triggerContent={<PencilIcon />}
+                  />
+                }
+              />
             </div>
           </CardHeader>
 
@@ -137,11 +159,11 @@ export function PartnerDetailContent({ partner }: { partner: PartnerListItem }) 
               </Stat>
 
               <Stat icon={CalendarIcon} label="Created">
-                {format(new Date(partner.created_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(partner.created_at)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Last updated">
-                {format(new Date(partner.updated_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(partner.updated_at)}
               </Stat>
             </dl>
           </CardContent>

@@ -108,14 +108,12 @@ export function EventFormDialog({
     let cancelled = false;
 
     async function loadOptions() {
-      if (!debouncedSearch && initialOptions) {
-        setStartupOptions(initialOptions);
-        return;
-      }
-
       setOptionsLoading(true);
       try {
-        const result = await loadEventStartupOptions(debouncedSearch);
+        const result = await loadEventStartupOptions(
+          debouncedSearch,
+          event?.startup_ids ?? [],
+        );
         if (cancelled) return;
         if (result.status === "error") {
           toast.error(result.message);
@@ -137,7 +135,7 @@ export function EventFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, debouncedSearch, initialOptions]);
+  }, [open, debouncedSearch, event?.startup_ids]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);

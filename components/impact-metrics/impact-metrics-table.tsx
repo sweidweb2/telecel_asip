@@ -5,6 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { ChartColumnIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { ImpactMetricRowActions } from "@/components/impact-metrics/impact-metric-row-actions";
 import { ImpactMetricsFilters } from "@/components/impact-metrics/impact-metrics-filters";
 import { Badge } from "@/components/ui/badge";
@@ -60,15 +61,11 @@ export function ImpactMetricsTable({
       isEmpty={metrics.length === 0}
       emptyColSpan={6}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <ChartColumnIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No impact metrics found</p>
-          <p className="text-sm text-muted-foreground">
-            Try changing the filters, or create a new metric.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={ChartColumnIcon}
+          title="No impact metrics found"
+          description="Try changing the filters, or create a new metric from the header."
+        />
       }
       pagination={{
         basePath: ROUTES.impactMetrics,

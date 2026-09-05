@@ -59,7 +59,9 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-4" />
-      <h1 className="min-w-0 truncate text-sm font-medium">{title}</h1>
+      <h1 className="min-w-0 truncate font-heading text-base font-semibold tracking-tight">
+        {title}
+      </h1>
       <DropdownMenu>
         {/*
           Base UI Menu Trigger already renders a <button>.

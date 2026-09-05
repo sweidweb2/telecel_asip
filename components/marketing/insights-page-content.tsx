@@ -1,9 +1,7 @@
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { BlogSection } from "@/components/marketing/blog-section";
-import {
-  NewsletterSignupSection,
-  newsletterSignupLabelsFor,
-} from "@/components/marketing/newsletter-signup-section";
+import { newsletterSignupLabelsFor } from "@/components/marketing/newsletter-signup-labels";
+import { NewsletterSignupSection } from "@/components/marketing/newsletter-signup-section";
 import { Section } from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import type { ArticleListItem } from "@/types/article";

@@ -37,11 +37,12 @@ const MESSAGES = {
 /** Lazy option load for the create dialog (list page skips eager fetch). */
 export async function loadImpactEvidenceOptions(
   search = "",
+  includeEvidenceId?: string | null,
 ): Promise<
   | { status: "ok"; options: EvidenceOption[] }
   | { status: "error"; message: string }
 > {
-  const result = await listEvidenceOptionsForAdmin(search);
+  const result = await listEvidenceOptionsForAdmin(search, includeEvidenceId);
   if (result.status === "forbidden") {
     return { status: "error", message: MESSAGES.unauthorized };
   }

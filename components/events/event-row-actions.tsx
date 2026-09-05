@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PencilIcon } from "lucide-react";
 
 import { deleteEvent } from "@/actions/events";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { EventFormDialog } from "@/components/events/event-form-dialog";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import type { EventDetail, EventListItem, EventStartupOption } from "@/types/eve
 
 type EventRowActionsProps = {
   event: EventListItem | EventDetail;
-  /** When set with an EventDetail, enables inline edit. List rows omit this. */
+  /** Optional seed; dialog lazy-loads / searches the rest. */
   startupOptions?: EventStartupOption[];
   redirectOnDelete?: boolean;
 };
@@ -28,7 +29,7 @@ export function EventRowActions({
   startupOptions,
   redirectOnDelete = false,
 }: EventRowActionsProps) {
-  const canInlineEdit = Boolean(startupOptions) && isEventDetail(event);
+  const canInlineEdit = isEventDetail(event);
 
   return (
     <div className="flex items-center justify-end gap-0.5">
@@ -40,7 +41,8 @@ export function EventRowActions({
           triggerRender={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${event.name}`}
             />
           }
@@ -49,7 +51,8 @@ export function EventRowActions({
       ) : (
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
+          className={ADMIN_ICON_BUTTON_CLASS}
           aria-label={`Edit ${event.name}`}
           nativeButton={false}
           render={<Link href={eventDetailPath(event.id)} />}

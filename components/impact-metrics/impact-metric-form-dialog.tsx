@@ -113,14 +113,12 @@ export function ImpactMetricFormDialog({
     let cancelled = false;
 
     async function loadOptions() {
-      if (!debouncedSearch && initialOptions) {
-        setEvidenceOptions(initialOptions);
-        return;
-      }
-
       setOptionsLoading(true);
       try {
-        const result = await loadImpactEvidenceOptions(debouncedSearch);
+        const result = await loadImpactEvidenceOptions(
+          debouncedSearch,
+          metric?.evidence_id,
+        );
         if (cancelled) return;
         if (result.status === "error") {
           toast.error(result.message);
@@ -142,7 +140,7 @@ export function ImpactMetricFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, debouncedSearch, initialOptions]);
+  }, [open, debouncedSearch, metric?.evidence_id]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);

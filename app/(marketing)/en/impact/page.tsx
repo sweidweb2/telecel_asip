@@ -10,5 +10,5 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default function Page() {
-  return <ImpactPageContent />;
+  return <ImpactPageContent locale="en" />;
 }

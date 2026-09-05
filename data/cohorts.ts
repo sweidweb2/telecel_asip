@@ -25,7 +25,7 @@ export const COHORTS_CACHE_TAG = "cohorts";
 const LINK_OPTIONS_LIMIT = 100;
 
 /** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
-const DETAIL_LINK_LIMIT = 500;
+const DETAIL_LINK_LIMIT = 200;
 
 /** Cap public published list so anon reads stay bounded. */
 const PUBLIC_LIMIT = 500;
@@ -200,29 +200,53 @@ async function fetchPublishedCohorts(): Promise<CohortPublicListItem[]> {
 }
 
 /** Narrow id/label list for the blog editor related-cohort select. */
-export async function getCohortsForBlogPicker(): Promise<
+export async function getCohortsForBlogPicker(
+  search = "",
+  includeCohortId?: string | null,
+): Promise<
   | { status: "forbidden" }
   | { status: "ok"; cohorts: { id: string; label: string }[] }
 > {
   const supabase = await createClient();
   if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const { data, error } = await supabase
+  const term = search.trim().slice(0, 100);
+  let request = supabase
     .from("cohorts")
     .select("id, public_label")
     .order("year", { ascending: false })
     .order("public_label", { ascending: true })
     .limit(LINK_OPTIONS_LIMIT);
 
+  if (term) {
+    const pattern = escapeIlikePattern(term);
+    request = request.ilike("public_label", `%${pattern}%`);
+  }
+
+  const { data, error } = await request;
   if (error) throw error;
 
-  return {
-    status: "ok",
-    cohorts: (data ?? []).map((row) => ({
-      id: row.id,
-      label: row.public_label,
-    })),
-  };
+  let cohorts = (data ?? []).map((row) => ({
+    id: row.id,
+    label: row.public_label,
+  }));
+
+  if (includeCohortId && !cohorts.some((row) => row.id === includeCohortId)) {
+    const included = await supabase
+      .from("cohorts")
+      .select("id, public_label")
+      .eq("id", includeCohortId)
+      .maybeSingle();
+    if (included.error) throw included.error;
+    if (included.data) {
+      cohorts = [
+        { id: included.data.id, label: included.data.public_label },
+        ...cohorts,
+      ];
+    }
+  }
+
+  return { status: "ok", cohorts };
 }
 
 /** Cached public list for Phase 6 marketing wiring. */

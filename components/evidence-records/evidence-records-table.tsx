@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
-import { format } from "date-fns";
 import { ShieldCheckIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { EvidenceRecordsFilters } from "@/components/evidence-records/evidence-records-filters";
 import { EvidenceRowActions } from "@/components/evidence-records/evidence-row-actions";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import {
   EVIDENCE_STATUS_LABELS,
 } from "@/constants/evidence-labels";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
+import { formatAdminDate } from "@/lib/admin-format";
 import type { EvidenceListItem } from "@/types/evidence-record";
 import {
   EVIDENCE_PAGE_SIZE,
@@ -56,15 +57,11 @@ export function EvidenceRecordsTable({
       isEmpty={records.length === 0}
       emptyColSpan={6}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <ShieldCheckIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No evidence records found</p>
-          <p className="text-sm text-muted-foreground">
-            Try changing the filters, or create a new evidence record.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={ShieldCheckIcon}
+          title="No evidence records found"
+          description="Try changing the filters, or create a new evidence record from the header."
+        />
       }
       pagination={{
         basePath: ROUTES.evidence,
@@ -120,9 +117,9 @@ export function EvidenceRecordsTable({
             </span>
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
-            {format(new Date(record.measurement_period_start), "MMM d, yyyy")}
+            {formatAdminDate(record.measurement_period_start)}
             {" – "}
-            {format(new Date(record.measurement_period_end), "MMM d, yyyy")}
+            {formatAdminDate(record.measurement_period_end)}
           </TableCell>
           <TableCell
             className="pr-4 whitespace-nowrap"

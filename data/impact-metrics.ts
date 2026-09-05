@@ -24,7 +24,7 @@ const LIST_COLUMNS =
   "id, claim_label, value, unit, impact_lens, evidence_id, publish_status, updated_at, evidence_records(primary_source)" as const;
 
 const DETAIL_COLUMNS =
-  "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at" as const;
+  "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at, evidence_records(primary_source)" as const;
 
 const EVIDENCE_OPTION_COLUMNS = "id, primary_source, status" as const;
 
@@ -104,7 +104,11 @@ export async function getImpactMetricsPageData(
 type ImpactMetricDetailResult =
   | { status: "forbidden" }
   | { status: "not_found" }
-  | { status: "ok"; metric: ImpactMetric };
+  | {
+      status: "ok";
+      metric: ImpactMetric;
+      evidencePrimarySource: string | null;
+    };
 
 /**
  * Deduped per request: `generateMetadata` and the page body both need the same
@@ -128,7 +132,15 @@ export const getImpactMetricByIdForAdmin = cache(
     if (error) throw error;
     if (!data) return { status: "not_found" };
 
-    return { status: "ok", metric: data as ImpactMetric };
+    const { evidence_records: _evidenceJoin, ...metric } = data as ImpactMetric & {
+      evidence_records: { primary_source: string } | null;
+    };
+
+    return {
+      status: "ok",
+      metric: metric as ImpactMetric,
+      evidencePrimarySource: _evidenceJoin?.primary_source ?? null,
+    };
   },
 );
 
@@ -138,6 +150,7 @@ export const getImpactMetricByIdForAdmin = cache(
  */
 export async function listEvidenceOptionsForAdmin(
   search = "",
+  includeEvidenceId?: string | null,
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EvidenceOption[] }
 > {
@@ -159,8 +172,24 @@ export async function listEvidenceOptionsForAdmin(
   const { data, error } = await request;
   if (error) throw error;
 
+  let options = (data ?? []) as EvidenceOption[];
+  if (
+    includeEvidenceId &&
+    !options.some((row) => row.id === includeEvidenceId)
+  ) {
+    const included = await supabase
+      .from("evidence_records")
+      .select(EVIDENCE_OPTION_COLUMNS)
+      .eq("id", includeEvidenceId)
+      .maybeSingle();
+    if (included.error) throw included.error;
+    if (included.data) {
+      options = [included.data as EvidenceOption, ...options];
+    }
+  }
+
   return {
     status: "ok",
-    options: (data ?? []) as EvidenceOption[],
+    options,
   };
 }

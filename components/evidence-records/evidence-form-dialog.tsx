@@ -120,14 +120,12 @@ export function EvidenceFormDialog({
     let cancelled = false;
 
     async function loadOptions() {
-      if (!debouncedSearch && initialOwners) {
-        setOwners(initialOwners);
-        return;
-      }
-
       setOptionsLoading(true);
       try {
-        const result = await loadEvidenceFormOptions(debouncedSearch);
+        const result = await loadEvidenceFormOptions(
+          debouncedSearch,
+          record?.owner_id,
+        );
         if (cancelled) return;
         if (result.status === "error") {
           toast.error(result.message);
@@ -137,7 +135,12 @@ export function EvidenceFormDialog({
         setOwners(result.owners);
         if (needsInitialResetRef.current && !debouncedSearch) {
           needsInitialResetRef.current = false;
-          form.reset(defaultsFor(record, result.defaultOwnerId));
+          form.reset(
+            defaultsFor(
+              record,
+              initialDefaultOwnerId || result.defaultOwnerId,
+            ),
+          );
         }
       } catch {
         if (!cancelled) {
@@ -153,7 +156,7 @@ export function EvidenceFormDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, debouncedSearch, initialOwners, form, record]);
+  }, [open, debouncedSearch, form, record, initialDefaultOwnerId]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -162,8 +165,7 @@ export function EvidenceFormDialog({
       return;
     }
     needsInitialResetRef.current = true;
-    if (initialOwners) {
-      setOwners(initialOwners);
+    if (record) {
       form.reset(defaultsFor(record, initialDefaultOwnerId));
       needsInitialResetRef.current = false;
     }

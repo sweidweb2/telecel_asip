@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { CohortsAdminList } from "@/components/cohorts/cohorts-admin-list";
+import { CohortsTable } from "@/components/cohorts/cohorts-table";
+import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import { getCohortsPageData } from "@/data/cohorts";
 import {
   adminListClampParams,
@@ -37,8 +41,18 @@ export default async function CohortsPage({ searchParams }: CohortsPageProps) {
     <AdminListPageShell
       title={resource.pageTitle}
       description={resource.description}
+      actions={
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          nativeButton={false}
+          render={<Link href={ROUTES.cohortsNew} />}
+        >
+          <PlusIcon className="size-4" />
+          New cohort
+        </Button>
+      }
     >
-      <CohortsAdminList
+      <CohortsTable
         cohorts={list.cohorts}
         total={list.total}
         totalPages={list.totalPages}

@@ -4,6 +4,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
+import { BLOGS_CACHE_TAG } from "@/data/blogs";
+import { getCohortsForBlogPicker } from "@/data/cohorts";
+import { getStartupsForBlogPicker } from "@/data/startups";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
@@ -14,7 +17,6 @@ import {
 import { processImageBuffer } from "@/lib/media/process-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
-import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import {
   blogIdSchema,
   blogImageTargetSchema,
@@ -44,6 +46,37 @@ const MESSAGES = {
   featuredTaken: "Another post is already featured. Unfeature it first, or save again.",
   invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under the size limit.",
 } as const;
+
+/** Lazy searchable options for blog related-founder / cohort selects. */
+export async function loadBlogLinkOptions(input?: {
+  search?: string;
+  includeStartupId?: string | null;
+  includeCohortId?: string | null;
+}): Promise<
+  | {
+      status: "ok";
+      startups: { id: string; name: string }[];
+      cohorts: { id: string; label: string }[];
+    }
+  | { status: "error"; message: string }
+> {
+  const search = input?.search ?? "";
+  const [startupsResult, cohortsResult] = await Promise.all([
+    getStartupsForBlogPicker(search, input?.includeStartupId),
+    getCohortsForBlogPicker(search, input?.includeCohortId),
+  ]);
+  if (
+    startupsResult.status === "forbidden" ||
+    cohortsResult.status === "forbidden"
+  ) {
+    return { status: "error", message: MESSAGES.unauthorized };
+  }
+  return {
+    status: "ok",
+    startups: startupsResult.startups,
+    cohorts: cohortsResult.cohorts,
+  };
+}
 
 const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";

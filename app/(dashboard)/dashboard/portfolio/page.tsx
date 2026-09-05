@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { StartupsAdminList } from "@/components/startups/startups-admin-list";
+import { StartupsTable } from "@/components/startups/startups-table";
+import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import { getStartupsPageData } from "@/data/startups";
 import {
   adminListClampParams,
@@ -39,8 +43,18 @@ export default async function PortfolioAdminPage({
     <AdminListPageShell
       title={resource.pageTitle}
       description={resource.description}
+      actions={
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          nativeButton={false}
+          render={<Link href={ROUTES.portfolioNew} />}
+        >
+          <PlusIcon className="size-4" />
+          New startup
+        </Button>
+      }
     >
-      <StartupsAdminList
+      <StartupsTable
         startups={list.startups}
         total={list.total}
         totalPages={list.totalPages}

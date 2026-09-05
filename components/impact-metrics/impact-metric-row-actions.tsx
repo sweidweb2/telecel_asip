@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PencilIcon } from "lucide-react";
 
 import { deleteImpactMetric } from "@/actions/impact-metrics";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { ImpactMetricFormDialog } from "@/components/impact-metrics/impact-metric-form-dialog";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import type {
 
 type ImpactMetricRowActionsProps = {
   metric: ImpactMetricListItem | ImpactMetric;
-  /** When set with a full metric, enables inline edit. List rows omit this. */
+  /** Optional seed; dialog lazy-loads / searches the rest. */
   evidenceOptions?: EvidenceOption[];
   redirectOnDelete?: boolean;
 };
@@ -32,7 +33,7 @@ export function ImpactMetricRowActions({
   evidenceOptions,
   redirectOnDelete = false,
 }: ImpactMetricRowActionsProps) {
-  const canInlineEdit = Boolean(evidenceOptions) && isFullMetric(metric);
+  const canInlineEdit = isFullMetric(metric);
 
   return (
     <div className="flex items-center justify-end gap-0.5">
@@ -44,7 +45,8 @@ export function ImpactMetricRowActions({
           triggerRender={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${metric.claim_label}`}
             />
           }
@@ -53,7 +55,8 @@ export function ImpactMetricRowActions({
       ) : (
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
+          className={ADMIN_ICON_BUTTON_CLASS}
           aria-label={`Edit ${metric.claim_label}`}
           nativeButton={false}
           render={<Link href={impactMetricDetailPath(metric.id)} />}

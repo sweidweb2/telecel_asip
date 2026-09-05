@@ -12,10 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import {
-  getCohortByIdForAdmin,
-  getCohortLinkOptionsForAdmin,
-} from "@/data/cohorts";
+import { getCohortByIdForAdmin } from "@/data/cohorts";
 
 type EditCohortPageProps = {
   params: Promise<{ id: string }>;
@@ -34,15 +31,9 @@ export async function generateMetadata({
 
 export default async function EditCohortPage({ params }: EditCohortPageProps) {
   const { id } = await params;
+  const result = await getCohortByIdForAdmin(id);
 
-  const [result, options] = await Promise.all([
-    getCohortByIdForAdmin(id),
-    getCohortLinkOptionsForAdmin(),
-  ]);
-
-  if (result.status === "forbidden" || options.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
+  if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
 
   const pageLabel = result.cohort.public_label.trim() || "Edit cohort";
@@ -67,8 +58,6 @@ export default async function EditCohortPage({ params }: EditCohortPageProps) {
       <CohortEditorForm
         mode="edit"
         cohort={result.cohort}
-        partners={options.partners}
-        startups={options.startups}
         heading="Edit cohort"
         description="Update programme details, publish status, and linked partners and founders."
       />

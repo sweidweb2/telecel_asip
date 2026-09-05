@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,15 +17,11 @@ import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import type { ContactMessageListQuery } from "@/validations/contact-message";
 
-type ContactMessagesFiltersProps = {
-  query: ContactMessageListQuery;
-  onPendingChange?: (pending: boolean) => void;
-};
-
 export function ContactMessagesFilters({
   query,
-  onPendingChange,
-}: ContactMessagesFiltersProps) {
+}: {
+  query: ContactMessageListQuery;
+}) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
       basePath: ROUTES.contactUs,
@@ -35,10 +29,6 @@ export function ContactMessagesFilters({
     });
 
   const hasFilters = query.search !== "" || query.enquiryType !== "all";
-
-  useEffect(() => {
-    onPendingChange?.(isPending);
-  }, [isPending, onPendingChange]);
 
   return (
     <AdminFilterBar

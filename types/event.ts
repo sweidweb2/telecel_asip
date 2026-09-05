@@ -19,6 +19,12 @@ export type EventListItem = Pick<
   | "updated_at"
 >;
 
+/** Narrow option for the admin startup multi-select. */
+export type EventStartupOption = {
+  id: string;
+  name: string;
+};
+
 /** Detail / edit payload including heavy fields and startup links. */
 export type EventDetail = Pick<
   Event,
@@ -35,16 +41,12 @@ export type EventDetail = Pick<
   | "updated_at"
 > & {
   startup_ids: string[];
+  /** Names for linked startups (detail display only). */
+  linked_startups: EventStartupOption[];
 };
 
 export type EventListResult = {
   events: EventListItem[];
   total: number;
   totalPages: number;
-};
-
-/** Narrow option for the admin startup multi-select. */
-export type EventStartupOption = {
-  id: string;
-  name: string;
 };

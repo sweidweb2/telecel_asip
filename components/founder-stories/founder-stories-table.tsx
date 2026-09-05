@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { BookOpenIcon } from "lucide-react";
-import { format } from "date-fns";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { FounderStoriesFilters } from "@/components/founder-stories/founder-stories-filters";
 import { FounderStoryRowActions } from "@/components/founder-stories/founder-story-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
+import { formatAdminDate } from "@/lib/admin-format";
 import type { FounderStoryListItem } from "@/types/founder-story";
 import {
+  CMS_PUBLISH_STATUS_LABELS,
   FOUNDER_STORY_PAGE_SIZE,
+  QUOTE_PERMISSION_STATUS_LABELS,
   type FounderStoryListQuery,
 } from "@/validations/founder-story";
 
@@ -45,15 +48,13 @@ export function FounderStoriesTable({
       isEmpty={stories.length === 0}
       emptyColSpan={5}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <BookOpenIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No founder stories found</p>
-          <p className="text-sm text-muted-foreground">
-            Try changing the filters, or create a new story.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={BookOpenIcon}
+          title="No founder stories found"
+          description="Try changing the filters, or create a new story."
+          createHref={ROUTES.founderStoriesNew}
+          createLabel="New story"
+        />
       }
       pagination={{
         basePath: ROUTES.founderStories,
@@ -89,14 +90,16 @@ export function FounderStoriesTable({
                 story.publish_status === "published" ? "default" : "secondary"
               }
             >
-              {story.publish_status}
+              {CMS_PUBLISH_STATUS_LABELS[story.publish_status]}
             </Badge>
           </TableCell>
           <TableCell className="text-muted-foreground">
-            {story.quote_permission_status ?? "—"}
+            {story.quote_permission_status
+              ? QUOTE_PERMISSION_STATUS_LABELS[story.quote_permission_status]
+              : "—"}
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
-            {format(new Date(story.updated_at), "d MMM yyyy")}
+            {formatAdminDate(story.updated_at)}
           </TableCell>
           <TableCell
             className="pr-4 text-right"

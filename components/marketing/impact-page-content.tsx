@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import type { Locale } from "@/constants/locales";
+import { impactCopyFor } from "@/constants/impact-copy";
+
 function PageSection({
   title,
   note,
@@ -32,11 +36,17 @@ function EmptySlot({ label }: { label: string }) {
   );
 }
 
+type ImpactPageContentProps = {
+  locale: Locale;
+};
+
 /**
  * Impact marketing page — static + dynamic (build spec §4).
  * Framing copy + case study template (dynamic per founder).
  */
-export function ImpactPageContent() {
+export function ImpactPageContent({ locale }: ImpactPageContentProps) {
+  const copy = impactCopyFor(locale);
+
   return (
     <main>
       <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -72,9 +82,7 @@ export function ImpactPageContent() {
         <EmptySlot label="publish guard: source, period, owner, last-verified, permission" />
       </PageSection>
 
-      <PageSection title="Impact CTA" note="Static">
-        <EmptySlot label="closing CTA to founders / register interest" />
-      </PageSection>
+      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

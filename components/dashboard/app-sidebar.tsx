@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3Icon,
   BookOpenIcon,
   BriefcaseIcon,
   CalendarIcon,
   ChartColumnIcon,
   ClipboardListIcon,
-  DatabaseBackupIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
@@ -22,11 +20,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -36,31 +32,30 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { DASHBOARD_NAV_ITEMS } from "@/constants/dashboard-nav";
+import {
+  DASHBOARD_NAV_GROUPS,
+  isDashboardNavActive,
+} from "@/constants/dashboard-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
-import type { DashboardAccount } from "@/types/profile";
 
-const NAV_ICONS: Record<(typeof DASHBOARD_NAV_ITEMS)[number]["href"], LucideIcon> =
-  {
-    [ROUTES.dashboard]: LayoutDashboardIcon,
-    [ROUTES.users]: UsersIcon,
-    [ROUTES.registrations]: UserPlusIcon,
-    [ROUTES.applications]: ClipboardListIcon,
-    [ROUTES.portfolio]: BriefcaseIcon,
-    [ROUTES.blogs]: NewspaperIcon,
-    [ROUTES.cohorts]: UsersRoundIcon,
-    [ROUTES.partners]: HandshakeIcon,
-    [ROUTES.founderStories]: BookOpenIcon,
-    [ROUTES.evidence]: ShieldCheckIcon,
-    [ROUTES.impactMetrics]: ChartColumnIcon,
-    [ROUTES.events]: CalendarIcon,
-    [ROUTES.contactUs]: MailIcon,
-    [ROUTES.analytics]: BarChart3Icon,
-    [ROUTES.backup]: DatabaseBackupIcon,
-    [ROUTES.settings]: SettingsIcon,
-  };
+const NAV_ICONS: Record<string, LucideIcon> = {
+  [ROUTES.dashboard]: LayoutDashboardIcon,
+  [ROUTES.users]: UsersIcon,
+  [ROUTES.registrations]: UserPlusIcon,
+  [ROUTES.applications]: ClipboardListIcon,
+  [ROUTES.portfolio]: BriefcaseIcon,
+  [ROUTES.blogs]: NewspaperIcon,
+  [ROUTES.cohorts]: UsersRoundIcon,
+  [ROUTES.partners]: HandshakeIcon,
+  [ROUTES.founderStories]: BookOpenIcon,
+  [ROUTES.evidence]: ShieldCheckIcon,
+  [ROUTES.impactMetrics]: ChartColumnIcon,
+  [ROUTES.events]: CalendarIcon,
+  [ROUTES.contactUs]: MailIcon,
+  [ROUTES.settings]: SettingsIcon,
+};
 
-export function AppSidebar({ account }: { account: DashboardAccount }) {
+export function AppSidebar() {
   const pathname = usePathname();
 
   return (
@@ -84,51 +79,32 @@ export function AppSidebar({ account }: { account: DashboardAccount }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Admin</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {DASHBOARD_NAV_ITEMS.map((item) => {
-                const Icon = NAV_ICONS[item.href];
+        {DASHBOARD_NAV_GROUPS.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const Icon = NAV_ICONS[item.href];
 
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      render={<Link href={item.href} />}
-                      isActive={pathname === item.href}
-                      tooltip={item.title}
-                    >
-                      <Icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        render={<Link href={item.href} />}
+                        isActive={isDashboardNavActive(pathname, item.href)}
+                        tooltip={item.title}
+                      >
+                        {Icon ? <Icon /> : null}
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip={account.name}>
-              <Avatar>
-                <AvatarFallback>{account.initials}</AvatarFallback>
-              </Avatar>
-              <div className="grid min-w-0 flex-1 text-left group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm font-medium">
-                  {account.name}
-                </span>
-                {account.email ? (
-                  <span className="truncate text-xs text-muted-foreground">
-                    {account.email}
-                  </span>
-                ) : null}
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

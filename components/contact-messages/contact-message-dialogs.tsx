@@ -3,7 +3,6 @@
 import { useId, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
 import { EyeIcon, Loader2Icon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import {
   updateContactMessage,
 } from "@/actions/contact-messages";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +40,7 @@ import {
   CONTACT_ENQUIRY_TYPES,
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
+import { formatAdminDateTime } from "@/lib/admin-format";
 import type { ContactMessage } from "@/types/contact-message";
 import {
   CONTACT_MESSAGE_BODY_MAX,
@@ -70,14 +71,25 @@ function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
 
 export function ContactMessageRowActions({
   message,
+  viewOpen: controlledViewOpen,
+  onViewOpenChange,
 }: {
   message: ContactMessage;
+  viewOpen?: boolean;
+  onViewOpenChange?: (open: boolean) => void;
 }) {
   const editFormId = useId();
   const router = useRouter();
-  const [viewOpen, setViewOpen] = useState(false);
+  const [uncontrolledViewOpen, setUncontrolledViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
+  const isViewControlled = onViewOpenChange !== undefined;
+  const viewOpen = isViewControlled
+    ? Boolean(controlledViewOpen)
+    : uncontrolledViewOpen;
+  const setViewOpen = isViewControlled
+    ? onViewOpenChange!
+    : setUncontrolledViewOpen;
   const editDefaults = toEditDefaults(message);
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
@@ -117,7 +129,8 @@ export function ContactMessageRowActions({
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`View ${message.subject}`}
             />
           }
@@ -138,7 +151,7 @@ export function ContactMessageRowActions({
             <AdminDetailRow label="Phone">{message.phone}</AdminDetailRow>
             <AdminDetailRow label="Message">{message.message}</AdminDetailRow>
             <AdminDetailRow label="Submitted">
-              {format(new Date(message.created_at), "MMM d, yyyy HH:mm")}
+              {formatAdminDateTime(message.created_at)}
             </AdminDetailRow>
           </dl>
           <DialogFooter showCloseButton />
@@ -150,7 +163,8 @@ export function ContactMessageRowActions({
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${message.subject}`}
             />
           }

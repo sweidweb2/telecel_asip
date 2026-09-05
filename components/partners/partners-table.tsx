@@ -6,6 +6,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { HandshakeIcon, ImageOffIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { PartnerRowActions } from "@/components/partners/partner-row-actions";
 import { PartnersFilters } from "@/components/partners/partners-filters";
 import { Badge } from "@/components/ui/badge";
@@ -68,15 +69,11 @@ export function PartnersTable({
       isEmpty={partners.length === 0}
       emptyColSpan={7}
       empty={
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-2 whitespace-normal">
-          <span className="flex size-10 items-center justify-center rounded-full bg-muted">
-            <HandshakeIcon className="size-5 text-muted-foreground" />
-          </span>
-          <p className="font-medium">No partners found</p>
-          <p className="text-sm text-muted-foreground">
-            Try changing the filters, or create a new partner.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={HandshakeIcon}
+          title="No partners found"
+          description="Try changing the filters, or create a new partner from the header."
+        />
       }
       pagination={{
         basePath: ROUTES.partners,

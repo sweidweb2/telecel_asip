@@ -1,9 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 type AdminListPageSkeletonProps = {
-  /** Approximate title width. */
-  titleWidthClass?: string;
-  /** Approximate subtitle width. */
+  /** Approximate subtitle / description width. */
   subtitleWidthClass?: string;
   /** Show the primary CTA skeleton in the header. */
   showHeaderAction?: boolean;
@@ -13,13 +11,14 @@ type AdminListPageSkeletonProps = {
   columnCount?: number;
   /** Number of table rows. */
   rowCount?: number;
+  /** @deprecated Title lives in the dashboard header; ignored. */
+  titleWidthClass?: string;
 };
 
 /**
  * Shared shadcn fallback for admin CMS list pages until boneyard bones exist.
  */
 export function AdminListPageSkeleton({
-  titleWidthClass = "w-40",
   subtitleWidthClass = "w-72",
   showHeaderAction = true,
   filterControlCount = 1,
@@ -28,13 +27,10 @@ export function AdminListPageSkeleton({
 }: AdminListPageSkeletonProps) {
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 space-y-2">
-          <Skeleton className={`h-8 ${titleWidthClass}`} />
-          <Skeleton className={`h-4 max-w-full ${subtitleWidthClass}`} />
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <Skeleton className={`h-4 max-w-full ${subtitleWidthClass}`} />
         {showHeaderAction ? (
-          <Skeleton className="h-11 w-full sm:h-8 sm:w-36" />
+          <Skeleton className="h-11 w-full shrink-0 sm:h-8 sm:w-36" />
         ) : null}
       </div>
 

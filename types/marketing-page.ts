@@ -220,6 +220,12 @@ export type AlumniPageCopy = {
   };
   /** Visitor-facing hold: the network is not confirmed as live. */
   notice: string;
+  ctaSection: {
+    title: string;
+    description: string;
+    slug: PublicPageSlug;
+    label: string;
+  };
 };
 
 export type ProgrammePageCopy = {
@@ -256,6 +262,12 @@ export type ProgrammePageCopy = {
     items: string[];
     /** Visitor-facing: exact criteria land when a cohort opens. */
     notice: string;
+  };
+  ctaSection: {
+    title: string;
+    description: string;
+    slug: PublicPageSlug;
+    label: string;
   };
 };
 

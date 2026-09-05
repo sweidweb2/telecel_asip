@@ -33,6 +33,15 @@ export const QUOTE_PERMISSION_STATUSES = [
 export type QuotePermissionStatusInput =
   (typeof QUOTE_PERMISSION_STATUSES)[number];
 
+export const QUOTE_PERMISSION_STATUS_LABELS: Record<
+  QuotePermissionStatusInput,
+  string
+> = {
+  granted: "Granted",
+  pending: "Pending",
+  denied: "Denied",
+};
+
 const narrativeField = (label: string) =>
   z
     .string()

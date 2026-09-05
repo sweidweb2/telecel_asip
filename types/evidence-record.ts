@@ -22,7 +22,7 @@ export type EvidenceListItem = Pick<
   | "status"
   | "permission"
 > & {
-  owner: EvidenceOwnerOption | null;
+  owner: Pick<EvidenceOwnerOption, "email" | "full_name"> | null;
 };
 
 /** Full record for detail / edit. */

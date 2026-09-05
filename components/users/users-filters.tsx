@@ -13,13 +13,7 @@ import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import type { UserListQuery } from "@/validations/users";
 
-type UsersFiltersProps = {
-  query: UserListQuery;
-  /** Instant client-side filter (does not hit the server). */
-  onSearchChange?: (value: string) => void;
-};
-
-export function UsersFilters({ query, onSearchChange }: UsersFiltersProps) {
+export function UsersFilters({ query }: { query: UserListQuery }) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
       basePath: ROUTES.users,
@@ -28,16 +22,6 @@ export function UsersFilters({ query, onSearchChange }: UsersFiltersProps) {
 
   const hasFilters = query.search !== "" || query.role !== "all";
 
-  function onSearchInput(value: string) {
-    onSearchChange?.(value);
-    handleSearchChange(value);
-  }
-
-  function onClear() {
-    clearSearchLocal();
-    onSearchChange?.("");
-  }
-
   return (
     <AdminFilterBar
       searchId="users-search"
@@ -45,10 +29,10 @@ export function UsersFilters({ query, onSearchChange }: UsersFiltersProps) {
       searchPlaceholder="Filter by name or email…"
       search={search}
       isPending={isPending}
-      onSearchChange={onSearchInput}
+      onSearchChange={handleSearchChange}
       hasFilters={hasFilters}
       clearHref={ROUTES.users}
-      onClear={onClear}
+      onClear={clearSearchLocal}
     >
       <Label htmlFor="users-role" className="sr-only">
         Role

@@ -12,10 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import {
-  getImpactMetricByIdForAdmin,
-  listEvidenceOptionsForAdmin,
-} from "@/data/impact-metrics";
+import { getImpactMetricByIdForAdmin } from "@/data/impact-metrics";
 
 type ImpactMetricDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -36,20 +33,10 @@ export default async function ImpactMetricDetailPage({
   params,
 }: ImpactMetricDetailPageProps) {
   const { id } = await params;
-  const [result, evidenceResult] = await Promise.all([
-    getImpactMetricByIdForAdmin(id),
-    listEvidenceOptionsForAdmin(),
-  ]);
+  const result = await getImpactMetricByIdForAdmin(id);
 
-  if (result.status === "forbidden" || evidenceResult.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
+  if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
-
-  const evidencePrimarySource =
-    evidenceResult.options.find(
-      (option) => option.id === result.metric.evidence_id,
-    )?.primary_source ?? null;
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -71,8 +58,7 @@ export default async function ImpactMetricDetailPage({
 
       <ImpactMetricDetailContent
         metric={result.metric}
-        evidenceOptions={evidenceResult.options}
-        evidencePrimarySource={evidencePrimarySource}
+        evidencePrimarySource={result.evidencePrimarySource}
       />
     </main>
   );

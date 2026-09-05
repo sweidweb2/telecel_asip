@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AboutNarrativeSections } from "@/components/marketing/about-narrative-sections";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { PageHero, Section } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
@@ -43,6 +44,10 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
         <Section className="border-t py-14 sm:py-16 lg:py-20">
           <AboutNarrativeSections locale={locale} narrative={copy.aboutNarrative} />
         </Section>
+      ) : null}
+
+      {copy.ctaSection ? (
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
       ) : null}
     </main>
   );

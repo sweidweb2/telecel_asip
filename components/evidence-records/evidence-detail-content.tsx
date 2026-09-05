@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import {
   CalendarIcon,
   ExternalLinkIcon,
@@ -15,6 +14,7 @@ import {
   EVIDENCE_PERMISSION_LABELS,
   EVIDENCE_STATUS_LABELS,
 } from "@/constants/evidence-labels";
+import { formatAdminDate, formatAdminDateTime } from "@/lib/admin-format";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -124,28 +124,25 @@ export function EvidenceDetailContent({
               </Stat>
 
               <Stat icon={CalendarIcon} label="Measurement period">
-                {format(
-                  new Date(record.measurement_period_start),
-                  "MMM d, yyyy",
-                )}
+                {formatAdminDate(record.measurement_period_start)}
                 {" – "}
-                {format(new Date(record.measurement_period_end), "MMM d, yyyy")}
+                {formatAdminDate(record.measurement_period_end)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Last verified">
-                {format(new Date(record.last_verified_date), "MMM d, yyyy")}
+                {formatAdminDate(record.last_verified_date)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Review date">
-                {format(new Date(record.review_date), "MMM d, yyyy")}
+                {formatAdminDate(record.review_date)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Created">
-                {format(new Date(record.created_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(record.created_at)}
               </Stat>
 
               <Stat icon={CalendarIcon} label="Last updated">
-                {format(new Date(record.updated_at), "MMM d, yyyy · HH:mm")}
+                {formatAdminDateTime(record.updated_at)}
               </Stat>
             </dl>
           </CardContent>

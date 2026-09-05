@@ -12,10 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import {
-  getFounderStoryByIdForAdmin,
-  getStartupsForStoryPicker,
-} from "@/data/founder-stories";
+import { getFounderStoryByIdForAdmin } from "@/data/founder-stories";
 
 type EditFounderStoryPageProps = {
   params: Promise<{ id: string }>;
@@ -43,11 +40,6 @@ export default async function EditFounderStoryPage({
   if (result.status === "forbidden") redirect(ROUTES.dashboard);
   if (result.status === "not_found") notFound();
 
-  const startupsResult = await getStartupsForStoryPicker({
-    includeStartupId: result.story.startup_id,
-  });
-  if (startupsResult.status === "forbidden") redirect(ROUTES.dashboard);
-
   const pageLabel = result.story.startup_name.trim() || "Edit story";
 
   return (
@@ -70,7 +62,12 @@ export default async function EditFounderStoryPage({
       <FounderStoryEditorForm
         mode="edit"
         story={result.story}
-        startups={startupsResult.startups}
+        startups={[
+          {
+            id: result.story.startup_id,
+            name: result.story.startup_name || "Linked startup",
+          },
+        ]}
         heading="Edit founder story"
         description="Update narrative modules, quote permission, and publish status."
       />

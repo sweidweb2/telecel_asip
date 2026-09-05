@@ -5,8 +5,8 @@ export function CohortsPageSkeleton() {
     <AdminListPageSkeleton
       titleWidthClass="w-48"
       subtitleWidthClass="w-80"
-      showHeaderAction={false}
-      filterControlCount={2}
+      showHeaderAction
+      filterControlCount={1}
       columnCount={5}
     />
   );

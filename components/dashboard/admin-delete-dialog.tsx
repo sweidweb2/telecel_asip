@@ -2,6 +2,7 @@
 
 import { Loader2Icon, Trash2Icon } from "lucide-react";
 
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type AdminDeleteDialogProps = {
   open: boolean;
@@ -48,8 +50,11 @@ export function AdminDeleteDialog({
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              size="icon"
+              className={cn(
+                ADMIN_ICON_BUTTON_CLASS,
+                "text-destructive hover:bg-destructive/10 hover:text-destructive",
+              )}
               aria-label={triggerLabel ?? confirmLabel}
             />
           }

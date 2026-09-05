@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { FounderStoryEditorForm } from "@/components/founder-stories/founder-story-editor-form";
 import {
@@ -13,7 +12,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
 import { requireAdmin } from "@/data/auth";
-import { getStartupsForStoryPicker } from "@/data/founder-stories";
 
 export const metadata: Metadata = {
   title: "New founder story | ASIP Admin",
@@ -21,9 +19,6 @@ export const metadata: Metadata = {
 
 export default async function NewFounderStoryPage() {
   await requireAdmin();
-
-  const startupsResult = await getStartupsForStoryPicker();
-  if (startupsResult.status === "forbidden") redirect(ROUTES.dashboard);
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -42,7 +37,6 @@ export default async function NewFounderStoryPage() {
       </Breadcrumb>
       <FounderStoryEditorForm
         mode="create"
-        startups={startupsResult.startups}
         heading="New founder story"
         description="Link one startup and draft the four narrative modules. Quotes are optional."
       />

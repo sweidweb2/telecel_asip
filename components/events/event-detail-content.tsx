@@ -1,4 +1,3 @@
-import { format, parseISO } from "date-fns";
 import {
   CalendarIcon,
   LinkIcon,
@@ -11,7 +10,8 @@ import { EventRowActions } from "@/components/events/event-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { EventDetail, EventStartupOption } from "@/types/event";
+import { formatAdminDate, formatAdminDateTime } from "@/lib/admin-format";
+import type { EventDetail } from "@/types/event";
 import {
   CMS_PUBLISH_STATUS_LABELS,
   EVENT_FORMAT_LABELS,
@@ -41,24 +41,12 @@ function Stat({
   );
 }
 
-function formatEventDate(value: string) {
-  try {
-    return format(parseISO(value), "d MMMM yyyy");
-  } catch {
-    return value;
-  }
-}
-
 export function EventDetailContent({
   event,
-  startupOptions,
 }: {
   event: EventDetail;
-  startupOptions: EventStartupOption[];
 }) {
-  const linkedStartups = startupOptions.filter((option) =>
-    event.startup_ids.includes(option.id),
-  );
+  const linkedStartups = event.linked_startups;
 
   return (
     <div className="grid min-w-0 gap-6 lg:grid-cols-3">
@@ -86,13 +74,12 @@ export function EventDetailContent({
             </div>
             <EventRowActions
               event={event}
-              startupOptions={startupOptions}
               redirectOnDelete
             />
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <Stat icon={CalendarIcon} label="Date">
-              {formatEventDate(event.event_date)}
+              {formatAdminDate(event.event_date)}
             </Stat>
             <Stat icon={MapPinIcon} label="Location">
               {event.location || "—"}
@@ -166,7 +153,7 @@ export function EventDetailContent({
             <Separator className="my-4" />
             <p className="text-xs text-muted-foreground">
               Updated{" "}
-              {format(parseISO(event.updated_at), "d MMM yyyy HH:mm")}
+              {formatAdminDateTime(event.updated_at)}
             </p>
           </CardContent>
         </Card>

@@ -1,10 +1,10 @@
 "use client";
 
-import { format } from "date-fns";
 import { EyeIcon } from "lucide-react";
 
 import { deleteApplication } from "@/actions/applications";
 import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,21 +15,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { formatAdminDateTime } from "@/lib/admin-format";
 import type { Application } from "@/types/application";
 
 export function ApplicationRowActions({
   application,
+  viewOpen,
+  onViewOpenChange,
 }: {
   application: Application;
+  viewOpen?: boolean;
+  onViewOpenChange?: (open: boolean) => void;
 }) {
+  const isControlled = onViewOpenChange !== undefined;
+
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Dialog>
+      <Dialog
+        open={isControlled ? viewOpen : undefined}
+        onOpenChange={onViewOpenChange}
+      >
         <DialogTrigger
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`View ${application.full_name}`}
             />
           }
@@ -41,7 +52,7 @@ export function ApplicationRowActions({
             <DialogTitle>{application.full_name}</DialogTitle>
             <DialogDescription>
               Application submitted{" "}
-              {format(new Date(application.created_at), "MMM d, yyyy · HH:mm")}
+              {formatAdminDateTime(application.created_at)}
             </DialogDescription>
           </DialogHeader>
           <dl className="grid gap-4">

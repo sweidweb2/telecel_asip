@@ -42,8 +42,8 @@ Blank screens and wrong titles make the CMS feel unfinished.
 
 **Decision checklist**
 
-- [ ] P0.1 — blank nav destinations  
-- [ ] P0.2 — header title + sidebar active on nested routes  
+- [x] P0.1 — blank nav destinations *(done: Analytics/Backup removed from nav + Coming soon pages; Dashboard home has quick links)*  
+- [x] P0.2 — header title + sidebar active on nested routes *(done: `isDashboardNavActive` + prefix title match)*  
 
 ---
 
@@ -74,11 +74,11 @@ Admins currently learn 3–4 different ways to list / create / edit. Pick one ru
 
 **Decision checklist**
 
-- [ ] P1.1 — unify list pattern (move Blogs/Portfolio/Cohorts onto shared table chrome, or document cards as intentional)  
-- [ ] P1.2 — all “New” in header  
-- [ ] P1.3 — one edit pattern per record type  
-- [ ] P1.4 — row click = open  
-- [ ] P1.5 — heavy creates/edits on full pages  
+- [x] P1.1 — unify list pattern *(Blogs / Portfolio / Cohorts → `AdminDataTable` + shared filters/pagination)*  
+- [x] P1.2 — all “New” in header *(Blogs / Portfolio / Cohorts / Founder stories; dialog creates stay in header for Users / Partners / Events / Evidence / Impact)*  
+- [x] P1.3 — one edit pattern per record type *(full-page editors for Blogs/Portfolio/Cohorts/Founder stories; detail→dialog for Partners/Events/Evidence/Impact; short dialogs for Users; view dialogs for inbox)*  
+- [x] P1.4 — row click = open *(all list tables: row opens the same surface as the primary action)*  
+- [x] P1.5 — heavy creates/edits on full pages *(done for Blogs/Portfolio/Cohorts/Founder stories; Partners/Events/Evidence/Impact still create/edit via dialogs on header/detail — full-page forms deferred)*  
 
 ---
 
@@ -92,9 +92,9 @@ Admins currently learn 3–4 different ways to list / create / edit. Pick one ru
 
 **Decision checklist**
 
-- [ ] P2.1 — sidebar groups + shorter labels  
-- [ ] P2.2 — single account chrome  
-- [ ] P2.3 — one title hierarchy  
+- [x] P2.1 — sidebar groups + shorter labels *(Overview / Pipeline / Content / Programme / System; dropped “Manage”)*  
+- [x] P2.2 — single account chrome *(header avatar menu only; sidebar footer removed)*  
+- [x] P2.3 — one title hierarchy *(header `h1` is primary; list pages no longer render a duplicate `h2`)*  
 
 ---
 
@@ -110,11 +110,11 @@ Admins currently learn 3–4 different ways to list / create / edit. Pick one ru
 
 **Decision checklist**
 
-- [ ] P3.1 — shared empty state (+ Create when create exists)  
-- [ ] P3.2 — Clear on all filtered lists  
-- [ ] P3.3 — one pending pattern  
-- [ ] P3.4 — one search model  
-- [ ] P3.5 — stats cards: keep Users-only or reuse elsewhere  
+- [x] P3.1 — shared empty state (+ Create when create exists) *(`AdminEmptyState`; link CTAs on Blogs/Portfolio/Cohorts/Founder stories)*  
+- [x] P3.2 — Clear on all filtered lists *(already on `AdminFilterBar`; card lists removed in Phase 1)*  
+- [x] P3.3 — one pending pattern *(Contact overlay removed; search-field spinner only)*  
+- [x] P3.4 — one search model *(Users/Apps/Regs URL-only; client page filter removed)*  
+- [x] P3.5 — stats cards: keep Users-only  
 
 ---
 
@@ -129,10 +129,10 @@ Admins currently learn 3–4 different ways to list / create / edit. Pick one ru
 
 **Decision checklist**
 
-- [ ] P4.1 — one date format  
-- [ ] P4.2 — labelled statuses everywhere  
-- [ ] P4.3 — Settings shell  
-- [ ] P4.4 — touch targets on row actions  
+- [x] P4.1 — one date format *(`formatAdminDate` / `formatAdminDateTime` → `MMM d, yyyy` / `MMM d, yyyy · HH:mm`)*  
+- [x] P4.2 — labelled statuses everywhere *(publish + quote permission labels on founder stories; other lists already labelled)*  
+- [x] P4.3 — Settings shell *(done in Phase 2 via `AdminListPageShell`)*  
+- [x] P4.4 — touch targets on row actions *(`size="icon"` + `min-h-11 min-w-11`)*  
 
 ---
 
@@ -174,17 +174,18 @@ Phase 5  →  New product features (inbox, analytics)
 
 | Page | List UI | New | Open / edit |
 | --- | --- | --- | --- |
-| Users | Table | Header dialog | Dialog |
-| Registrations | Table | — | Eye dialog |
-| Applications | Table | — | Eye dialog |
-| Contact | Table | — | Eye dialog |
-| Partners | Table | Header dialog | Row → detail; pencil dialog |
-| Events | Table | Header dialog | Row → detail; pencil dialog |
-| Evidence | Table | Header dialog | Row → detail; pencil dialog |
-| Impact metrics | Table | Header dialog | Row → detail; pencil dialog |
-| Founder stories | Table | Header → page | Row → full editor |
-| Blogs | Cards | In filter row → page | Full editor |
-| Portfolio | Cards | In filter row → page | Full editor |
-| Cohorts | Hybrid table | In filter row → page | Full editor |
+| Users | Table | Header dialog | Row / pencil → edit dialog |
+| Registrations | Table | — | Row / eye → view dialog |
+| Applications | Table | — | Row / eye → view dialog |
+| Contact | Table | — | Row / eye → view dialog |
+| Partners | Table | Header dialog | Row / pencil → detail; edit dialog on detail |
+| Events | Table | Header dialog | Row / pencil → detail; edit dialog on detail |
+| Evidence | Table | Header dialog | Row / pencil → detail; edit dialog on detail |
+| Impact metrics | Table | Header dialog | Row / pencil → detail; edit dialog on detail |
+| Founder stories | Table | Header → page | Row / pencil → full editor |
+| Blogs | Table | Header → page | Row / pencil → full editor |
+| Portfolio | Table | Header → page | Row / pencil → full editor |
+| Cohorts | Table | Header → page | Row / pencil → full editor |
 | Settings | Custom form | — | Inline form |
-| Dashboard / Analytics / Backup | **Empty** | — | — |
+| Dashboard | Quick links | — | — |
+| Analytics / Backup | Coming soon (not in nav) | — | — |

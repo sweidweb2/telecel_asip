@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import {
   createBlog,
   deleteBlog,
+  loadBlogLinkOptions,
   removeBlogImage,
   updateBlog,
   uploadAuthorAvatar,
@@ -42,6 +43,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { ROUTES } from "@/constants/routes";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
 import {
@@ -65,8 +67,9 @@ type BlogLinkOption = { id: string; name: string };
 type BlogEditorFormProps = {
   mode: "create" | "edit";
   blog?: Blog;
-  startups: BlogLinkOption[];
-  cohorts: { id: string; label: string }[];
+  /** Optional seed; editor lazy-loads / searches the rest. */
+  startups?: BlogLinkOption[];
+  cohorts?: { id: string; label: string }[];
   heading: string;
   description: string;
 };
@@ -95,8 +98,8 @@ function FieldLabel({
 export function BlogEditorForm({
   mode,
   blog,
-  startups,
-  cohorts,
+  startups: initialStartups = [],
+  cohorts: initialCohorts = [],
   heading,
   description,
 }: BlogEditorFormProps) {
@@ -114,6 +117,44 @@ export function BlogEditorForm({
   const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const isCreateSuccessOpen = Boolean(createdBlogId);
+  const [startups, setStartups] = useState(initialStartups);
+  const [cohorts, setCohorts] = useState(initialCohorts);
+  const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOptions() {
+      setOptionsLoading(true);
+      try {
+        const result = await loadBlogLinkOptions({
+          search: debouncedSearch,
+          includeStartupId: blog?.startup_id,
+          includeCohortId: blog?.cohort_id,
+        });
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+        setStartups(result.startups);
+        setCohorts(result.cohorts);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load link options. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, blog?.startup_id, blog?.cohort_id]);
 
   const emptyCreateValues: CreateBlogInput = {
     title: "",
@@ -548,6 +589,222 @@ export function BlogEditorForm({
             ) : null}
           </div>
 
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <CardTitle>Related & SEO</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Optional founder/cohort links, sources, and search metadata
+              </p>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-2 sm:col-span-2">
+                <FieldLabel htmlFor="blog-link-search">
+                  Search founders & cohorts
+                </FieldLabel>
+                <Input
+                  id="blog-link-search"
+                  value={optionSearch}
+                  onChange={(event) => setOptionSearch(event.target.value)}
+                  maxLength={100}
+                  placeholder="Search by name…"
+                  className="min-h-11"
+                  disabled={isPending}
+                />
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-startup">Related founder</FieldLabel>
+                <Controller
+                  control={control}
+                  name="startupId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={(value) =>
+                        field.onChange(value && value.length > 0 ? value : null)
+                      }
+                      disabled={isPending || optionsLoading}
+                    >
+                      <SelectTrigger id="blog-startup" className="min-h-11 w-full">
+                        <SelectValue
+                          placeholder={
+                            optionsLoading
+                              ? "Loading…"
+                              : startups.length === 0
+                                ? "No startups available"
+                                : "None"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {startups.map((startup) => (
+                          <SelectItem key={startup.id} value={startup.id}>
+                            {startup.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {startupId ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-11 w-fit"
+                    disabled={isPending}
+                    onClick={() =>
+                      setValue("startupId", null, { shouldValidate: false })
+                    }
+                  >
+                    Clear founder
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-cohort">Related cohort</FieldLabel>
+                <Controller
+                  control={control}
+                  name="cohortId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={(value) =>
+                        field.onChange(value && value.length > 0 ? value : null)
+                      }
+                      disabled={isPending || optionsLoading}
+                    >
+                      <SelectTrigger id="blog-cohort" className="min-h-11 w-full">
+                        <SelectValue
+                          placeholder={
+                            optionsLoading
+                              ? "Loading…"
+                              : cohorts.length === 0
+                                ? "No cohorts available"
+                                : "None"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cohorts.map((cohort) => (
+                          <SelectItem key={cohort.id} value={cohort.id}>
+                            {cohort.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {cohortId ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-11 w-fit"
+                    disabled={isPending}
+                    onClick={() =>
+                      setValue("cohortId", null, { shouldValidate: false })
+                    }
+                  >
+                    Clear cohort
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-meta-title" hint={`max ${BLOG_META_TITLE_MAX}`}>
+                  Meta title
+                </FieldLabel>
+                <Input
+                  id="blog-meta-title"
+                  className="min-h-11"
+                  maxLength={BLOG_META_TITLE_MAX}
+                  disabled={isPending}
+                  {...register("metaTitle")}
+                />
+                {errors.metaTitle ? (
+                  <p className="text-sm text-destructive">
+                    {errors.metaTitle.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2 sm:col-span-2">
+                <FieldLabel
+                  htmlFor="blog-meta-description"
+                  hint={`max ${BLOG_META_DESCRIPTION_MAX}`}
+                >
+                  Meta description
+                </FieldLabel>
+                <Textarea
+                  id="blog-meta-description"
+                  rows={3}
+                  maxLength={BLOG_META_DESCRIPTION_MAX}
+                  disabled={isPending}
+                  {...register("metaDescription")}
+                />
+                {errors.metaDescription ? (
+                  <p className="text-sm text-destructive">
+                    {errors.metaDescription.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2 sm:col-span-2">
+                <FieldLabel hint={`up to ${BLOG_SOURCES_MAX} · max ${BLOG_SOURCE_MAX} chars`}>
+                  Sources
+                </FieldLabel>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    className="min-h-11"
+                    placeholder="URL or citation, then Add"
+                    value={sourceDraft}
+                    disabled={isPending}
+                    onChange={(event) => setSourceDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addSource();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11 w-full sm:w-auto"
+                    disabled={isPending}
+                    onClick={addSource}
+                  >
+                    Add
+                  </Button>
+                </div>
+                {sources.length > 0 ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {sources.map((source) => (
+                      <li key={source}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="min-h-11 max-w-full truncate"
+                          disabled={isPending}
+                          onClick={() => removeSource(source)}
+                        >
+                          {source} ×
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {errors.sources ? (
+                  <p className="text-sm text-destructive">
+                    {errors.sources.message ?? errors.sources.root?.message}
+                  </p>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Card size="sm" className="min-w-0">
               <CardHeader className="border-b">
@@ -737,204 +994,6 @@ export function BlogEditorForm({
                     No cover yet
                   </p>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Related & SEO</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                Optional founder/cohort links, sources, and search metadata
-              </p>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-startup">Related founder</FieldLabel>
-                <Controller
-                  control={control}
-                  name="startupId"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value ?? undefined}
-                      onValueChange={(value) =>
-                        field.onChange(value && value.length > 0 ? value : null)
-                      }
-                      disabled={isPending}
-                    >
-                      <SelectTrigger id="blog-startup" className="min-h-11 w-full">
-                        <SelectValue
-                          placeholder={
-                            startups.length === 0
-                              ? "No startups available"
-                              : "None"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {startups.map((startup) => (
-                          <SelectItem key={startup.id} value={startup.id}>
-                            {startup.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {startupId ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-11 w-fit"
-                    disabled={isPending}
-                    onClick={() =>
-                      setValue("startupId", null, { shouldValidate: false })
-                    }
-                  >
-                    Clear founder
-                  </Button>
-                ) : null}
-              </div>
-
-              <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-cohort">Related cohort</FieldLabel>
-                <Controller
-                  control={control}
-                  name="cohortId"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value ?? undefined}
-                      onValueChange={(value) =>
-                        field.onChange(value && value.length > 0 ? value : null)
-                      }
-                      disabled={isPending}
-                    >
-                      <SelectTrigger id="blog-cohort" className="min-h-11 w-full">
-                        <SelectValue
-                          placeholder={
-                            cohorts.length === 0
-                              ? "No cohorts available"
-                              : "None"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cohorts.map((cohort) => (
-                          <SelectItem key={cohort.id} value={cohort.id}>
-                            {cohort.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {cohortId ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-11 w-fit"
-                    disabled={isPending}
-                    onClick={() =>
-                      setValue("cohortId", null, { shouldValidate: false })
-                    }
-                  >
-                    Clear cohort
-                  </Button>
-                ) : null}
-              </div>
-
-              <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-meta-title" hint={`max ${BLOG_META_TITLE_MAX}`}>
-                  Meta title
-                </FieldLabel>
-                <Input
-                  id="blog-meta-title"
-                  className="min-h-11"
-                  maxLength={BLOG_META_TITLE_MAX}
-                  disabled={isPending}
-                  {...register("metaTitle")}
-                />
-                {errors.metaTitle ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaTitle.message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="grid gap-2">
-                <FieldLabel
-                  htmlFor="blog-meta-description"
-                  hint={`max ${BLOG_META_DESCRIPTION_MAX}`}
-                >
-                  Meta description
-                </FieldLabel>
-                <Textarea
-                  id="blog-meta-description"
-                  rows={3}
-                  maxLength={BLOG_META_DESCRIPTION_MAX}
-                  disabled={isPending}
-                  {...register("metaDescription")}
-                />
-                {errors.metaDescription ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaDescription.message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="grid gap-2">
-                <FieldLabel hint={`up to ${BLOG_SOURCES_MAX} · max ${BLOG_SOURCE_MAX} chars`}>
-                  Sources
-                </FieldLabel>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    className="min-h-11"
-                    placeholder="URL or citation, then Add"
-                    value={sourceDraft}
-                    disabled={isPending}
-                    onChange={(event) => setSourceDraft(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        addSource();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="min-h-11 w-full sm:w-auto"
-                    disabled={isPending}
-                    onClick={addSource}
-                  >
-                    Add
-                  </Button>
-                </div>
-                {sources.length > 0 ? (
-                  <ul className="flex flex-wrap gap-2">
-                    {sources.map((source) => (
-                      <li key={source}>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          className="min-h-11 max-w-full truncate"
-                          disabled={isPending}
-                          onClick={() => removeSource(source)}
-                        >
-                          {source} ×
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-                {errors.sources ? (
-                  <p className="text-sm text-destructive">
-                    {errors.sources.message ?? errors.sources.root?.message}
-                  </p>
-                ) : null}
               </div>
             </CardContent>
           </Card>

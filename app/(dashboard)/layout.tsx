@@ -29,7 +29,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar account={account} />
+      <AppSidebar />
       <SidebarInset>
         <DashboardHeader account={account} />
         <div className="flex flex-1 flex-col">{children}</div>

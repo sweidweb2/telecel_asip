@@ -60,6 +60,13 @@ const en: AlumniPageCopy = {
     ],
   },
   notice: "",
+  ctaSection: {
+    title: "The cohort ends. The connection continues.",
+    description:
+      "Explore founders across ASIP cohorts while the alumni network takes shape.",
+    slug: "founders",
+    label: "Explore the community",
+  },
 };
 
 const fr: AlumniPageCopy = {
@@ -110,6 +117,13 @@ const fr: AlumniPageCopy = {
     ],
   },
   notice: "",
+  ctaSection: {
+    title: "La cohorte s’achève. Le lien continue.",
+    description:
+      "Explorez les fondateurs des cohortes ASIP pendant que le réseau alumni prend forme.",
+    slug: "founders",
+    label: "Explorer la communauté",
+  },
 };
 
 export function alumniCopyFor(locale: Locale): AlumniPageCopy {
