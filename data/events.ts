@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
@@ -17,10 +18,6 @@ const LIST_COLUMNS =
 const STARTUP_OPTIONS_LIMIT = 500;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
-
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[\\%_"]/g, "\\$&");
-}
 
 async function fetchEventsPage(
   supabase: ServerClient,

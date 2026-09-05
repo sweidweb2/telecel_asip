@@ -8,20 +8,33 @@ import {
 
 const validInput = {
   fullName: "Ada Lovelace",
+  founderRole: "Founder & CEO",
   email: "ada@example.com",
   phone: "+233 20 123 4567",
-  companyName: "Analytical Engines",
-  sector: "Fintech",
   country: "Ghana",
-  pitch:
-    "We help African SMEs access working capital through a mobile-first credit platform.",
+  linkedin: "",
+  companyName: "Analytical Engines",
+  website: "",
+  companyCountry: "Ghana",
+  sector: "Fintech",
+  pitch: "",
+  commsOptIn: false,
   consent: true as const,
   turnstileToken: "test-turnstile-token",
 };
 
 describe("interestRegistrationSchema", () => {
-  it("accepts a valid registration", () => {
+  it("accepts a valid registration without LinkedIn or website", () => {
     const result = interestRegistrationSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts optional LinkedIn and website URLs", () => {
+    const result = interestRegistrationSchema.safeParse({
+      ...validInput,
+      linkedin: "https://linkedin.com/in/ada",
+      website: "https://analyticalengines.example",
+    });
     expect(result.success).toBe(true);
   });
 
@@ -60,7 +73,7 @@ describe("interestRegistrationSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a short pitch", () => {
+  it("rejects a short pitch when provided", () => {
     const result = interestRegistrationSchema.safeParse({
       ...validInput,
       pitch: "Too short",

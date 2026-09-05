@@ -1,5 +1,4 @@
 import { HomePageContent } from "@/components/marketing/home-page-content";
-import { homeCopyFor } from "@/constants/home-copy";
 import { getLatestInsights } from "@/data/insights";
 import { getSpotlightStartups } from "@/data/startups";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
@@ -21,7 +20,7 @@ export default async function Page() {
   return (
     <HomePageContent
       locale="fr"
-      copy={homeCopyFor("fr")}
+      metrics={[]}
       founders={founders}
       articles={articles}
     />

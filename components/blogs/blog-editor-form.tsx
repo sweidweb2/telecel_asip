@@ -17,15 +17,7 @@ import {
   uploadBlogThumbnail,
 } from "@/actions/blogs";
 import { BlogRichTextEditor } from "@/components/blogs/blog-rich-text-editor";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -802,40 +794,20 @@ export function BlogEditorForm({
       </DialogContent>
     </Dialog>
 
-    <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader className="text-left">
-          <AlertDialogTitle>Delete this blog?</AlertDialogTitle>
-          <AlertDialogDescription>
-            {blog?.title
-              ? `This permanently deletes “${blog.title}”. This cannot be undone.`
-              : "This permanently deletes the blog post. This cannot be undone."}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <Button
-            type="button"
-            variant="destructive"
-            className="min-h-11"
-            disabled={isPending}
-            onClick={onDelete}
-          >
-            {isPending ? (
-              <>
-                <Loader2Icon className="animate-spin" />
-                Deleting…
-              </>
-            ) : (
-              <>
-                <Trash2Icon className="size-4" />
-                Delete
-              </>
-            )}
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AdminDeleteDialog
+      open={isDeleteOpen}
+      onOpenChange={setIsDeleteOpen}
+      showTrigger={false}
+      title="Delete this blog?"
+      description={
+        blog?.title
+          ? `This permanently deletes “${blog.title}”. This cannot be undone.`
+          : "This permanently deletes the blog post. This cannot be undone."
+      }
+      confirmLabel="Delete"
+      isPending={isPending}
+      onConfirm={onDelete}
+    />
     </>
   );
 }

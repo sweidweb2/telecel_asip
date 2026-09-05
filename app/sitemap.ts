@@ -3,19 +3,25 @@ import type { MetadataRoute } from "next";
 import { LOCALES } from "@/constants/locales";
 import { INDEXABLE_PAGE_SLUGS } from "@/constants/public-pages";
 import { getInsightSlugRows } from "@/data/insights";
+import { getOpenApplications } from "@/data/settings";
 import { getActiveStartupSlugRows } from "@/data/startups";
 import { safePrerenderList } from "@/lib/prerender-safe";
 import { localeUrl } from "@/lib/seo/alternates";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
-  const [insightRows, startupRows] = await Promise.all([
+  const [insightRows, startupRows, openApplications] = await Promise.all([
     safePrerenderList("sitemap insight slugs", () => getInsightSlugRows()),
     safePrerenderList("sitemap startup slugs", () => getActiveStartupSlugRows()),
+    getOpenApplications(),
   ]);
 
+  const pageSlugs = openApplications
+    ? [...INDEXABLE_PAGE_SLUGS, "apply" as const]
+    : INDEXABLE_PAGE_SLUGS;
+
   for (const locale of LOCALES) {
-    for (const slug of INDEXABLE_PAGE_SLUGS) {
+    for (const slug of pageSlugs) {
       const path = slug === "" ? "/" : `/${slug}`;
       entries.push({
         url: localeUrl(locale, path),

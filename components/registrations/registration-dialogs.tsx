@@ -65,12 +65,17 @@ function toEditDefaults(
   return {
     id: registration.id,
     fullName: registration.full_name,
+    founderRole: registration.founder_role ?? "",
     email: registration.email,
     phone: registration.phone,
-    companyName: registration.company_name,
-    sector: registration.sector,
     country: registration.country,
-    pitch: registration.pitch,
+    linkedin: registration.linkedin ?? "",
+    companyName: registration.company_name,
+    website: registration.website ?? "",
+    companyCountry: registration.company_country,
+    sector: registration.sector,
+    pitch: registration.pitch ?? "",
+    commsOptIn: registration.comms_opt_in,
   };
 }
 
@@ -334,8 +339,82 @@ export function RegistrationRowActions({
                   />
                 </Field>
               </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field data-invalid={Boolean(form.formState.errors.founderRole)}>
+                  <Label htmlFor={`edit-role-${registration.id}`}>Role</Label>
+                  <Input
+                    id={`edit-role-${registration.id}`}
+                    disabled={isUpdating}
+                    maxLength={80}
+                    className="min-h-11"
+                    aria-invalid={Boolean(form.formState.errors.founderRole)}
+                    {...form.register("founderRole")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.founderRole?.message}
+                  />
+                </Field>
+                <Field
+                  data-invalid={Boolean(form.formState.errors.companyCountry)}
+                >
+                  <Label htmlFor={`edit-company-country-${registration.id}`}>
+                    Company country
+                  </Label>
+                  <Input
+                    id={`edit-company-country-${registration.id}`}
+                    disabled={isUpdating}
+                    maxLength={INTEREST_REGISTRATION_COUNTRY_MAX}
+                    className="min-h-11"
+                    aria-invalid={Boolean(
+                      form.formState.errors.companyCountry,
+                    )}
+                    {...form.register("companyCountry")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.companyCountry?.message}
+                  />
+                </Field>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field data-invalid={Boolean(form.formState.errors.linkedin)}>
+                  <Label htmlFor={`edit-linkedin-${registration.id}`}>
+                    LinkedIn
+                  </Label>
+                  <Input
+                    id={`edit-linkedin-${registration.id}`}
+                    type="url"
+                    disabled={isUpdating}
+                    maxLength={500}
+                    className="min-h-11"
+                    aria-invalid={Boolean(form.formState.errors.linkedin)}
+                    {...form.register("linkedin")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.linkedin?.message}
+                  />
+                </Field>
+                <Field data-invalid={Boolean(form.formState.errors.website)}>
+                  <Label htmlFor={`edit-website-${registration.id}`}>
+                    Website
+                  </Label>
+                  <Input
+                    id={`edit-website-${registration.id}`}
+                    type="url"
+                    disabled={isUpdating}
+                    maxLength={500}
+                    className="min-h-11"
+                    aria-invalid={Boolean(form.formState.errors.website)}
+                    {...form.register("website")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.website?.message}
+                  />
+                </Field>
+              </div>
               <Field data-invalid={Boolean(form.formState.errors.pitch)}>
-                <Label htmlFor={`edit-pitch-${registration.id}`}>Pitch</Label>
+                <Label htmlFor={`edit-pitch-${registration.id}`}>
+                  Note (optional)
+                </Label>
                 <Textarea
                   id={`edit-pitch-${registration.id}`}
                   rows={5}
@@ -348,6 +427,17 @@ export function RegistrationRowActions({
                 <FormFieldError
                   message={form.formState.errors.pitch?.message}
                 />
+              </Field>
+              <Field>
+                <label className="flex items-start gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1 size-4"
+                    disabled={isUpdating}
+                    {...form.register("commsOptIn")}
+                  />
+                  <span>Comms opt-in</span>
+                </label>
               </Field>
             </FieldGroup>
           </form>

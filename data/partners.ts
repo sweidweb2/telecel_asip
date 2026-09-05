@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -30,15 +31,6 @@ const PUBLIC_COLUMNS =
 const PUBLIC_LIMIT = 500;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
-
-/**
- * Escape a search term for use inside a quoted PostgREST `or()` value.
- * Quoting keeps commas and parentheses from being read as filter syntax; the
- * backslash escapes stop `%`/`_` from acting as ilike wildcards.
- */
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[\\%_"]/g, "\\$&");
-}
 
 async function fetchPartnersPage(
   supabase: ServerClient,

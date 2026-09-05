@@ -4,7 +4,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { EVENTS_CACHE_TAG } from "@/data/events";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   createEventSchema,
   deleteEventSchema,
@@ -29,33 +31,11 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: SupabaseServerClient;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+};
 
 function refreshEventPaths(eventId?: string) {
   revalidateTag(EVENTS_CACHE_TAG, "max");
@@ -65,89 +45,17 @@ function refreshEventPaths(eventId?: string) {
   }
 }
 
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function toEventRow(input: CreateEventInput | UpdateEventInput) {
+function toEventJson(input: CreateEventInput | UpdateEventInput) {
   return {
     name: input.name,
     event_date: input.eventDate,
-    location: emptyToNull(input.location),
-    format: input.format,
+    location: emptyToNull(input.location) ?? "",
+    format: input.format ?? "",
     speakers: input.speakers,
     assets: input.assets,
-    outcomes: emptyToNull(input.outcomes),
+    outcomes: emptyToNull(input.outcomes) ?? "",
     publish_status: input.publishStatus,
   };
-}
-
-function writeErrorMessage(error: { code?: string; message?: string }): string {
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (code === "PGRST116" || message.includes("no rows")) {
-    return MESSAGES.notFound;
-  }
-  return MESSAGES.genericError;
-}
-
-async function replaceEventStartups(
-  supabase: SupabaseServerClient,
-  eventId: string,
-  startupIds: string[],
-): Promise<{ status: "success" } | { status: "error"; message: string }> {
-  const { data: existingLinks, error: existingError } = await supabase
-    .from("event_startups")
-    .select("startup_id")
-    .eq("event_id", eventId);
-
-  if (existingError) {
-    return { status: "error", message: writeErrorMessage(existingError) };
-  }
-
-  const previousIds = (existingLinks ?? []).map((row) => row.startup_id);
-
-  const { error: deleteError } = await supabase
-    .from("event_startups")
-    .delete()
-    .eq("event_id", eventId);
-
-  if (deleteError) {
-    return { status: "error", message: writeErrorMessage(deleteError) };
-  }
-
-  const uniqueIds = [...new Set(startupIds)];
-
-  if (uniqueIds.length === 0) {
-    return { status: "success" };
-  }
-
-  const { error: insertError } = await supabase.from("event_startups").insert(
-    uniqueIds.map((startup_id) => ({
-      event_id: eventId,
-      startup_id,
-    })),
-  );
-
-  if (insertError) {
-    if (previousIds.length > 0) {
-      await supabase.from("event_startups").insert(
-        previousIds.map((startup_id) => ({
-          event_id: eventId,
-          startup_id,
-        })),
-      );
-    }
-    return { status: "error", message: writeErrorMessage(insertError) };
-  }
-
-  return { status: "success" };
 }
 
 export async function createEvent(
@@ -161,31 +69,24 @@ export async function createEvent(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
-  const { data, error } = await session.supabase
-    .from("events")
-    .insert(toEventRow(parsed.data))
-    .select("id")
-    .single();
+  const { data, error } = await session.supabase.rpc("create_event_with_links", {
+    p_event: toEventJson(parsed.data),
+    p_startup_ids: parsed.data.startupIds,
+  });
 
-  if (error || !data?.id) {
-    return { status: "error", message: writeErrorMessage(error ?? {}) };
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row?.id) {
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
-  const links = await replaceEventStartups(
-    session.supabase,
-    data.id,
-    parsed.data.startupIds,
-  );
-  if (links.status === "error") {
-    await session.supabase.from("events").delete().eq("id", data.id);
-    return links;
-  }
-
-  refreshEventPaths(data.id);
-  return { status: "success", message: MESSAGES.createSuccess, id: data.id };
+  refreshEventPaths(row.id);
+  return { status: "success", message: MESSAGES.createSuccess, id: row.id };
 }
 
 export async function updateEvent(
@@ -199,34 +100,27 @@ export async function updateEvent(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
-  const { data, error } = await session.supabase
-    .from("events")
-    .update(toEventRow(parsed.data))
-    .eq("id", parsed.data.id)
-    .select("id")
-    .maybeSingle();
+  const { id, ...rest } = parsed.data;
 
-  if (error) {
-    return { status: "error", message: writeErrorMessage(error) };
-  }
-  if (!data?.id) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+  const { data, error } = await session.supabase.rpc("update_event_with_links", {
+    p_id: id,
+    p_event: toEventJson(rest),
+    p_startup_ids: rest.startupIds,
+  });
 
-  const links = await replaceEventStartups(
-    session.supabase,
-    data.id,
-    parsed.data.startupIds,
-  );
-  if (links.status === "error") {
-    return links;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row?.id) {
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
-  refreshEventPaths(data.id);
-  return { status: "success", message: MESSAGES.updateSuccess, id: data.id };
+  refreshEventPaths(row.id);
+  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
 }
 
 export async function deleteEvent(
@@ -237,7 +131,7 @@ export async function deleteEvent(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -259,7 +153,10 @@ export async function deleteEvent(
     .eq("id", parsed.data.id);
 
   if (deleteError) {
-    return { status: "error", message: writeErrorMessage(deleteError) };
+    return {
+      status: "error",
+      message: mapPgActionError(deleteError, PG_MESSAGES),
+    };
   }
 
   refreshEventPaths();

@@ -1,177 +1,66 @@
-import Link from "next/link";
-import Image from "next/image";
-import {
-  Building2,
-  Compass,
-  Cpu,
-  Globe,
-  GraduationCap,
-  Hammer,
-  Handshake,
-  Landmark,
-  Network,
-  TrendingUp,
-  Waypoints,
-  type LucideIcon,
-} from "lucide-react";
+import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
-import { BlogCard } from "@/components/marketing/blog-card";
-import { HomeHero } from "@/components/marketing/home-hero";
-import {
-  Section,
-  SectionHeading,
-} from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import { founderStartupPath, publicPath } from "@/constants/routes";
 import { localeUrl } from "@/lib/seo/alternates";
-import { startupInitials } from "@/lib/startup-display";
-import { cn } from "@/lib/utils";
 import type { ArticleListItem } from "@/types/article";
-import type {
-  HomePageCopy,
-  HomePageLink,
-  HomePartnerRoleId,
-  HomePlatformStepId,
-} from "@/types/marketing-page";
 import type { StartupPublicListItem } from "@/types/startup";
 
-const STEP_ICONS: Record<HomePlatformStepId, LucideIcon> = {
-  discover: Compass,
-  build: Hammer,
-  connect: Waypoints,
-  commercialise: Handshake,
-  scale: TrendingUp,
+type HomeImpactMetric = {
+  id: string;
+  claim_label: string;
+  value: string;
+  unit: string | null;
 };
-
-const ROLE_ICONS: Record<HomePartnerRoleId, LucideIcon> = {
-  mentors: GraduationCap,
-  investors: Landmark,
-  corporates: Building2,
-  technology: Cpu,
-  institutions: Globe,
-  ecosystem: Network,
-};
-
-const SPOTLIGHT_LIMIT = 5;
-const OUTCOME_LIMIT = 3;
 
 type HomePageContentProps = {
   locale: Locale;
-  copy: HomePageCopy;
+  metrics: HomeImpactMetric[];
   founders: StartupPublicListItem[];
   articles: ArticleListItem[];
 };
 
-function HomeCtaLink({
-  locale,
-  cta,
-  variant = "default",
-  className,
+function HomeSection({
+  title,
+  source,
+  children,
 }: {
-  locale: Locale;
-  cta: HomePageLink;
-  variant?: "default" | "outline";
-  className?: string;
+  title: string;
+  source?: string;
+  children?: ReactNode;
 }) {
   return (
-    <Link
-      href={publicPath(locale, cta.slug)}
-      className={cn(
-        buttonVariants({ size: "lg", variant }),
-        "min-h-11 w-full sm:w-auto",
-        className,
-      )}
-    >
-      {cta.label}
-    </Link>
-  );
-}
-
-function FounderMark({ name, src }: { name: string; src: string | null }) {
-  return (
-    <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-muted sm:size-14">
-      {src ? (
-        <Image
-          src={src}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="56px"
-        />
-      ) : (
-        <span
-          aria-hidden
-          className="flex size-full items-center justify-center font-heading text-sm font-semibold text-primary/60"
-        >
-          {startupInitials(name)}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function SpotlightCard({
-  locale,
-  startup,
-}: {
-  locale: Locale;
-  startup: StartupPublicListItem;
-}) {
-  return (
-    <Link
-      href={founderStartupPath(locale, startup.slug)}
-      className="group flex h-full flex-col border-t-4 border-[#179191] bg-white p-5 outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50 sm:p-6"
-    >
-      <FounderMark name={startup.name} src={startup.logo_url} />
-      <h3 className="mt-4 font-heading text-lg font-semibold tracking-tight text-balance group-hover:underline group-hover:underline-offset-4 sm:text-xl">
-        {startup.name}
-      </h3>
-      <p className="mt-2 line-clamp-4 flex-1 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-        {startup.public_outcome}
-      </p>
-    </Link>
-  );
-}
-
-function OutcomeCard({
-  locale,
-  startup,
-}: {
-  locale: Locale;
-  startup: StartupPublicListItem;
-}) {
-  return (
-    <Link
-      href={founderStartupPath(locale, startup.slug)}
-      className="group flex h-full flex-col border-t-4 border-[#dc395f] bg-white p-5 outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50 sm:p-6"
-    >
-      <p className="line-clamp-5 flex-1 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-        {startup.description}
-      </p>
-      <div className="mt-6 flex items-center gap-3">
-        <FounderMark name={startup.name} src={startup.logo_url} />
-        <p className="font-heading text-base font-semibold tracking-tight group-hover:underline group-hover:underline-offset-4">
-          {startup.name}
+    <section className="border-b border-border px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {source ? `${title} · pulls ${source}` : title}
         </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
+          {title}
+        </h2>
+        <div className="mt-4 min-h-24 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+          {children}
+        </div>
       </div>
-    </Link>
+    </section>
+  );
+}
+
+function EmptySlot({ label }: { label: string }) {
+  return (
+    <p className="text-sm text-muted-foreground">
+      Skeleton holder — {label}
+    </p>
   );
 }
 
 export function HomePageContent({
   locale,
-  copy,
+  metrics,
   founders,
   articles,
 }: HomePageContentProps) {
-  const spotlight = founders.slice(0, SPOTLIGHT_LIMIT);
-  const outcomes = founders
-    .filter((startup) => Boolean(startup.public_outcome))
-    .slice(0, OUTCOME_LIMIT);
-
   return (
     <main>
       <JsonLd
@@ -181,7 +70,8 @@ export function HomePageContent({
           name: "Africa Startup Initiative Program",
           alternateName: "ASIP",
           url: localeUrl(locale),
-          description: copy.hero.description,
+          description:
+            "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners.",
           parentOrganization: {
             "@type": "Organization",
             name: "Telecel Group",
@@ -190,205 +80,80 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero locale={locale} copy={copy.hero} />
-
-      {copy.impactYears.metrics.length > 0 ? <Section>
-        <SectionHeading
-          title={copy.impactYears.title}
-          description={copy.impactYears.description}
-          className="max-w-3xl"
-        />
-        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3 lg:grid-cols-5">
-          {copy.impactYears.metrics.map((metric) => (
-            <div
-              key={metric.label}
-              className="bg-card px-4 py-5 text-center sm:px-5 sm:py-6"
-            >
-              <dt className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                {metric.label}
-              </dt>
-              <dd className="metric-numeral mt-2 font-heading text-2xl font-semibold sm:text-3xl">
-                {metric.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-4 text-xs leading-5 text-muted-foreground">
-          {copy.impactYears.notice}
-        </p>
-      </Section> : null}
-
-      <div className="bg-[#14333b] text-white">
-      <Section className="border-t-0">
-        <SectionHeading
-          title={copy.platform.title}
-          description={copy.platform.description}
-          className="[&_h2]:text-white [&_p]:text-white/70"
-        />
-        <ol className="grid grid-cols-1 border-y border-white/20 sm:grid-cols-2 xl:grid-cols-5">
-          {copy.platform.steps.map((step, index) => {
-            const Icon = STEP_ICONS[step.id];
-            return (
-              <li
-                key={step.id}
-                className="flex h-full flex-col border-b border-white/15 p-6 sm:border-r xl:border-b-0"
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <span className="flex size-11 items-center justify-center border border-[#9ad1bf]/45 text-[#9ad1bf]">
-                    <Icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="font-heading text-sm font-semibold text-white/45">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="font-heading text-lg font-semibold tracking-tight text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-white/65 sm:leading-7">
-                  {step.description}
-                </p>
-              </li>
-            );
-          })}
-        </ol>
-      </Section>
-      </div>
-
-      {spotlight.length > 0 ? <Section className="border-t">
-        <SectionHeading
-          title={copy.founders.title}
-          description={copy.founders.description}
-          className="max-w-3xl"
-        />
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {spotlight.map((startup) => (
-            <li key={startup.id}>
-              <SpotlightCard locale={locale} startup={startup} />
-            </li>
-          ))}
-        </ul>
-        <div className="mt-8">
-          <HomeCtaLink locale={locale} cta={copy.founders.cta} />
-        </div>
-      </Section> : null}
-
-      {outcomes.length > 0 ? <Section className="border-t">
-        <SectionHeading
-          title={copy.outcomes.title}
-          description={copy.outcomes.description}
-          className="max-w-3xl"
-        />
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {outcomes.map((startup) => (
-            <li key={startup.id}>
-              <OutcomeCard locale={locale} startup={startup} />
-            </li>
-          ))}
-        </ul>
-        <div className="mt-8">
-          <HomeCtaLink locale={locale} cta={copy.outcomes.cta} />
-        </div>
-      </Section> : null}
-
-      <Section className="border-t">
-        <SectionHeading
-          title={copy.ecosystem.title}
-          description={copy.ecosystem.description}
-          className="max-w-3xl"
-        />
-        <ul className="grid grid-cols-1 border-y border-black/15 md:grid-cols-2 lg:grid-cols-3">
-          {copy.ecosystem.roles.map((role, index) => {
-            const Icon = ROLE_ICONS[role.id];
-            return (
-              <li
-                key={role.id}
-                className="group relative min-h-64 overflow-hidden border-b border-black/12 p-6 transition-colors duration-300 hover:bg-[#14333b] hover:text-white md:border-r sm:p-8"
-              >
-                <span className="absolute right-6 top-5 font-heading text-5xl font-semibold text-[#14333b]/7 transition-colors group-hover:text-white/8" aria-hidden>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="mb-8 flex size-11 items-center justify-center border border-[#179191]/35 text-[#179191] transition-colors group-hover:border-[#81b764]/50 group-hover:text-[#81b764]">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <h3 className="font-heading text-xl font-semibold">
-                  {role.title}
-                </h3>
-                <p className="mt-3 text-base leading-7 text-muted-foreground transition-colors group-hover:text-white/68">
-                  {role.description}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="mt-8">
-          <HomeCtaLink locale={locale} cta={copy.ecosystem.cta} />
-        </div>
-      </Section>
-
-      <Section className="border-t">
-        <div className="flex max-w-3xl flex-col gap-6">
-          <SectionHeading
-            title={copy.telecel.title}
-            description={copy.telecel.description}
-            className="mb-0"
-          />
-          <a
-            href={TELECEL_GROUP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "min-h-11 w-full sm:w-auto",
-            )}
-          >
-            {copy.telecel.ctaLabel}
-          </a>
-        </div>
-      </Section>
-
-      <Section className="border-t pb-16 sm:pb-20">
-        <div className="border-l-4 border-[#dc395f] bg-[#14333b] px-6 py-10 text-white sm:px-10 sm:py-12">
-          <h2 className="max-w-2xl font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-            {copy.nextChapter.title}
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-white/72 sm:text-lg">
-            {copy.nextChapter.description}
+      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Hero
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <HomeCtaLink locale={locale} cta={copy.nextChapter.primaryCta} />
-            <HomeCtaLink
-              locale={locale}
-              cta={copy.nextChapter.secondaryCta}
-              variant="outline"
-              className="border-white/45 bg-transparent text-white hover:bg-white hover:text-[#14333b]"
-            />
+          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            Africa Startup Initiative Program
+          </h1>
+          <div className="mt-6 min-h-32 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
+            <EmptySlot label="hero media, headline, and CTAs" />
           </div>
         </div>
-      </Section>
+      </section>
 
-      {articles.length > 0 ? <Section className="border-t">
-        <div className="mb-8 flex flex-col gap-6 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading
-            eyebrow={copy.latest.eyebrow}
-            title={copy.latest.title}
-            description={copy.latest.description}
-            className="mb-0 max-w-2xl"
-          />
-          <HomeCtaLink
-            locale={locale}
-            cta={copy.latest.cta}
-            variant="outline"
-            className="shrink-0"
-          />
-        </div>
-        <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
-            <li key={article.id}>
-              <BlogCard locale={locale} article={article} />
-            </li>
-          ))}
-        </ul>
-      </Section> : null}
+      <HomeSection title="Impact strip" source="Impact Metric">
+        {metrics.length > 0 ? (
+          <ul className="space-y-2 text-sm">
+            {metrics.map((metric) => (
+              <li key={metric.id}>
+                <span className="font-medium">{metric.value}</span>
+                {metric.unit ? ` ${metric.unit}` : null}
+                {" — "}
+                {metric.claim_label}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptySlot label="Impact Metric rows for homepage display" />
+        )}
+      </HomeSection>
+
+      <HomeSection title="Platform model">
+        <EmptySlot label="Discover → Build → Connect → Commercialise → Scale" />
+      </HomeSection>
+
+      <HomeSection title="Founder spotlight" source="Founder">
+        {founders.length > 0 ? (
+          <ul className="space-y-2 text-sm">
+            {founders.map((founder) => (
+              <li key={founder.id}>{founder.name}</li>
+            ))}
+          </ul>
+        ) : (
+          <EmptySlot label="Founder / startup spotlight items" />
+        )}
+      </HomeSection>
+
+      <HomeSection title="Impact module">
+        <EmptySlot label="founder outcome stories and impact CTA" />
+      </HomeSection>
+
+      <HomeSection title="Ecosystem">
+        <EmptySlot label="partner roles and ecosystem CTA" />
+      </HomeSection>
+
+      <HomeSection title="Telecel module">
+        <EmptySlot label="Telecel connection copy and CTA" />
+      </HomeSection>
+
+      <HomeSection title="2026 CTA">
+        <EmptySlot label="next-chapter register interest and partnership CTAs" />
+      </HomeSection>
+
+      <HomeSection title="Latest insights" source="Article">
+        {articles.length > 0 ? (
+          <ul className="space-y-2 text-sm">
+            {articles.map((article) => (
+              <li key={article.id}>{article.title}</li>
+            ))}
+          </ul>
+        ) : (
+          <EmptySlot label="latest Article / insights items" />
+        )}
+      </HomeSection>
     </main>
   );
 }

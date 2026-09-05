@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { match, P } from "ts-pattern";
 
 import { ROUTES } from "@/constants/routes";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import {
   createUserSchema,
   deleteUserSchema,
@@ -19,35 +19,10 @@ export type UserActionResult =
   | { status: "success"; message: string }
   | { status: "error"; message: string };
 
-type AdminSession =
-  | {
-      status: "success";
-      userId: string;
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: "You must be signed in." };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return {
-      status: "error",
-      message: "You do not have permission to manage users.",
-    };
-  }
-
-  return { status: "success", userId: user.id, supabase };
-}
+const AUTH_MESSAGES = {
+  signedInRequired: "You must be signed in.",
+  unauthorized: "You do not have permission to manage users.",
+} as const;
 
 function validationMessage(error: { issues: { message: string }[] }): string {
   return error.issues[0]?.message ?? "Check the submitted user details.";
@@ -85,7 +60,7 @@ export async function createUser(
     return { status: "error", message: validationMessage(parsed.error) };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(AUTH_MESSAGES);
   if (session.status === "error") return session;
 
   const admin = createAdminClient();
@@ -113,7 +88,7 @@ export async function updateUser(
     return { status: "error", message: validationMessage(parsed.error) };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(AUTH_MESSAGES);
   if (session.status === "error") return session;
 
   if (session.userId === parsed.data.id && parsed.data.role !== "admin") {
@@ -169,7 +144,7 @@ export async function deleteUser(
     return { status: "error", message: validationMessage(parsed.error) };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(AUTH_MESSAGES);
   if (session.status === "error") return session;
 
   if (session.userId === parsed.data.id) {

@@ -6,7 +6,7 @@ import type {
 import type { InterestRegistrationListQuery } from "@/validations/interest-registration";
 
 const REGISTRATION_COLUMNS =
-  "id, full_name, email, phone, company_name, sector, country, pitch, consent, created_at" as const;
+  "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, pitch, consent, comms_opt_in, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 

@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceListItem,
@@ -18,10 +19,6 @@ const LIST_COLUMNS =
 const OWNER_OPTION_LIMIT = 200;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
-
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[\\%_"]/g, "\\$&");
-}
 
 function normalizeOwner(
   owner: EvidenceOwnerOption | EvidenceOwnerOption[] | null,

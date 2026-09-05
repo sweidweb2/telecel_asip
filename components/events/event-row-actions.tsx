@@ -2,21 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteEvent } from "@/actions/events";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { EventFormDialog } from "@/components/events/event-form-dialog";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { EventListItem, EventStartupOption } from "@/types/event";
@@ -24,7 +15,6 @@ import type { EventListItem, EventStartupOption } from "@/types/event";
 type EventRowActionsProps = {
   event: EventListItem;
   startupOptions: EventStartupOption[];
-  /** Send the admin back to the list after deleting from the detail page. */
   redirectOnDelete?: boolean;
 };
 
@@ -74,44 +64,21 @@ export function EventRowActions({
         triggerContent={<PencilIcon />}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${event.name}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete event?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes {event.name} and removes its startup
-              links. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete event"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete event?"
+        description={
+          <>
+            This permanently deletes {event.name} and removes its startup links.
+            This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete event"
+        triggerLabel={`Delete ${event.name}`}
+        isPending={isDeleting}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

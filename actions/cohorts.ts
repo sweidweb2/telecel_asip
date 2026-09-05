@@ -4,7 +4,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { COHORTS_CACHE_TAG } from "@/data/cohorts";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   createCohortSchema,
   deleteCohortSchema,
@@ -30,67 +31,17 @@ const MESSAGES = {
   labelTaken: "A cohort with that year and public label already exists.",
 } as const;
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+  uniqueViolation: MESSAGES.labelTaken,
+  uniqueConstraint: "cohorts_year_public_label",
+};
 
 function refreshCohortPaths() {
   revalidateTag(COHORTS_CACHE_TAG, "max");
   revalidatePath(ROUTES.cohorts);
-}
-
-function uniqueConstraintMessage(error: {
-  code?: string;
-  message?: string;
-}): string | null {
-  const message = (error.message ?? "").toLowerCase();
-  const isUnique =
-    error.code === "23505" || message.includes("cohorts_year_public_label");
-  if (!isUnique) return null;
-  return MESSAGES.labelTaken;
-}
-
-function rpcErrorMessage(error: { code?: string; message?: string }): string {
-  const unique = uniqueConstraintMessage(error);
-  if (unique) return unique;
-
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (
-    code === "P0002" ||
-    message.includes("cohort not found") ||
-    message.includes("no data")
-  ) {
-    return MESSAGES.notFound;
-  }
-
-  return MESSAGES.genericError;
 }
 
 function toCohortJson(input: CreateCohortInput) {
@@ -117,7 +68,7 @@ export async function createCohort(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc("create_cohort_with_links", {
@@ -128,7 +79,10 @@ export async function createCohort(
 
   const row = Array.isArray(data) ? data[0] : data;
   if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
   refreshCohortPaths();
@@ -150,7 +104,7 @@ export async function updateCohort(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { id, ...rest } = parsed.data;
@@ -164,7 +118,10 @@ export async function updateCohort(
 
   const row = Array.isArray(data) ? data[0] : data;
   if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
   refreshCohortPaths();
@@ -183,7 +140,7 @@ export async function deleteCohort(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing } = await session.supabase
@@ -202,7 +159,7 @@ export async function deleteCohort(
     .eq("id", parsed.data.id);
 
   if (error) {
-    return { status: "error", message: MESSAGES.genericError };
+    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
   }
 
   refreshCohortPaths();

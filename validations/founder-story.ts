@@ -1,14 +1,25 @@
 import { z } from "zod";
 
+import {
+  CMS_PUBLISH_STATUSES,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+export {
+  CMS_PUBLISH_STATUSES,
+  CMS_PUBLISH_STATUS_LABELS,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+/** @deprecated Prefer `CmsPublishStatus` from `@/constants/cms-publish`. */
+export type CmsPublishStatusInput = CmsPublishStatus;
+
 export const FOUNDER_STORY_PAGE_SIZE = 20;
 
 export const FOUNDER_STORY_NARRATIVE_MAX = 4000;
 export const FOUNDER_STORY_QUOTE_MAX = 2000;
 export const FOUNDER_STORY_ATTRIBUTION_NAME_MAX = 120;
 export const FOUNDER_STORY_ATTRIBUTION_TITLE_MAX = 160;
-
-export const CMS_PUBLISH_STATUSES = ["draft", "published"] as const;
-export type CmsPublishStatusInput = (typeof CMS_PUBLISH_STATUSES)[number];
 
 export const QUOTE_PERMISSION_STATUSES = [
   "granted",

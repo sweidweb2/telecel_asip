@@ -2,21 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteEvidenceRecord } from "@/actions/evidence-records";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { EvidenceFormDialog } from "@/components/evidence-records/evidence-form-dialog";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type {
@@ -86,45 +77,16 @@ export function EvidenceRowActions({
         triggerContent={<PencilIcon />}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${title}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete evidence record?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes this evidence entry. Impact metrics that
-              reference it will need a new source before they can stay verified.
-              This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete evidence"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete evidence record?"
+        description="This permanently deletes this evidence entry. Impact metrics that reference it will need a new source before they can stay verified. This cannot be undone."
+        confirmLabel="Delete evidence"
+        triggerLabel={`Delete ${title}`}
+        isPending={isDeleting}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

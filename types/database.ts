@@ -504,40 +504,115 @@ export type Database = {
       }
       interest_registrations: {
         Row: {
+          comms_opt_in: boolean
+          company_country: string
           company_name: string
           consent: boolean
           country: string
           created_at: string
           email: string
+          founder_role: string | null
           full_name: string
           id: string
+          linkedin: string | null
           phone: string
-          pitch: string
+          pitch: string | null
           sector: string
+          website: string | null
         }
         Insert: {
+          comms_opt_in?: boolean
+          company_country: string
           company_name: string
           consent: boolean
           country: string
           created_at?: string
           email: string
+          founder_role?: string | null
           full_name: string
           id?: string
+          linkedin?: string | null
           phone: string
-          pitch: string
+          pitch?: string | null
           sector: string
+          website?: string | null
         }
         Update: {
+          comms_opt_in?: boolean
+          company_country?: string
           company_name?: string
           consent?: boolean
           country?: string
           created_at?: string
           email?: string
+          founder_role?: string | null
           full_name?: string
           id?: string
+          linkedin?: string | null
           phone?: string
-          pitch?: string
+          pitch?: string | null
           sector?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      applications: {
+        Row: {
+          comms_opt_in: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at: string
+          email: string
+          founder_role: string
+          full_name: string
+          id: string
+          linkedin: string
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          website: string
+        }
+        Insert: {
+          comms_opt_in?: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          founder_role: string
+          full_name: string
+          id?: string
+          linkedin: string
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          website: string
+        }
+        Update: {
+          comms_opt_in?: boolean
+          company_country?: string
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          founder_role?: string
+          full_name?: string
+          id?: string
+          linkedin?: string
+          phone?: string
+          problem_product?: string
+          programme_fit?: string
+          sector?: string
+          traction?: string
+          website?: string
         }
         Relationships: []
       }
@@ -844,6 +919,15 @@ export type Database = {
           id: string
         }[]
       }
+      create_event_with_links: {
+        Args: {
+          p_event: Json
+          p_startup_ids?: string[]
+        }
+        Returns: {
+          id: string
+        }[]
+      }
       create_startup_with_details: {
         Args: { p_core: Json; p_details: Json }
         Returns: {
@@ -892,6 +976,16 @@ export type Database = {
           p_cohort: Json
           p_id: string
           p_partner_ids?: string[]
+          p_startup_ids?: string[]
+        }
+        Returns: {
+          id: string
+        }[]
+      }
+      update_event_with_links: {
+        Args: {
+          p_event: Json
+          p_id: string
           p_startup_ids?: string[]
         }
         Returns: {

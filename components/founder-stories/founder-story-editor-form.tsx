@@ -12,15 +12,7 @@ import {
   deleteFounderStory,
   updateFounderStory,
 } from "@/actions/founder-stories";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -502,33 +494,22 @@ export function FounderStoryEditorForm({
         </div>
       </form>
 
-      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete founder story?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes the story
-              {story?.startup_name ? ` for ${story.startup_name}` : ""}. This
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isPending ? "Deleting…" : "Delete story"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        showTrigger={false}
+        title="Delete founder story?"
+        description={
+          <>
+            This permanently deletes the story
+            {story?.startup_name ? ` for ${story.startup_name}` : ""}. This
+            cannot be undone.
+          </>
+        }
+        confirmLabel="Delete story"
+        isPending={isPending}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

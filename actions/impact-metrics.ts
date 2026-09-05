@@ -4,7 +4,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { IMPACT_METRICS_CACHE_TAG } from "@/data/impact-metrics";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   createImpactMetricSchema,
   deleteImpactMetricSchema,
@@ -30,33 +32,12 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: SupabaseServerClient;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+  foreignKeyWrite: MESSAGES.evidenceNotFound,
+};
 
 function refreshImpactMetricPaths(id?: string) {
   revalidateTag(IMPACT_METRICS_CACHE_TAG, "max");
@@ -64,12 +45,6 @@ function refreshImpactMetricPaths(id?: string) {
   if (id) {
     revalidatePath(`${ROUTES.impactMetrics}/${id}`);
   }
-}
-
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function toImpactMetricRow(
@@ -92,22 +67,6 @@ function toImpactMetricRow(
   };
 }
 
-function writeErrorMessage(error: { code?: string; message?: string }): string {
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (code === "23503" || message.includes("foreign key")) {
-    return MESSAGES.evidenceNotFound;
-  }
-  if (code === "PGRST116" || message.includes("no rows")) {
-    return MESSAGES.notFound;
-  }
-  return MESSAGES.genericError;
-}
-
 export async function createImpactMetric(
   input: CreateImpactMetricInput,
 ): Promise<ImpactMetricActionResult> {
@@ -119,7 +78,7 @@ export async function createImpactMetric(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -129,7 +88,10 @@ export async function createImpactMetric(
     .single();
 
   if (error || !data?.id) {
-    return { status: "error", message: writeErrorMessage(error ?? {}) };
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
   refreshImpactMetricPaths(data.id);
@@ -147,7 +109,7 @@ export async function updateImpactMetric(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -158,7 +120,7 @@ export async function updateImpactMetric(
     .maybeSingle();
 
   if (error) {
-    return { status: "error", message: writeErrorMessage(error) };
+    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
   }
   if (!data?.id) {
     return { status: "error", message: MESSAGES.notFound };
@@ -176,7 +138,7 @@ export async function deleteImpactMetric(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -198,7 +160,7 @@ export async function deleteImpactMetric(
     .eq("id", parsed.data.id);
 
   if (deleteError) {
-    return { status: "error", message: writeErrorMessage(deleteError) };
+    return { status: "error", message: mapPgActionError(deleteError, PG_MESSAGES) };
   }
 
   refreshImpactMetricPaths();

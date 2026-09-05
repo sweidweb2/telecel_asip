@@ -24,10 +24,15 @@ import { cn } from "@/lib/utils";
 type ApplyPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
+  mode: "register" | "apply";
 };
 
-export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
-  const labels = applyLabelsFor(locale);
+export function ApplyPageContent({
+  locale,
+  copy,
+  mode,
+}: ApplyPageContentProps) {
+  const labels = applyLabelsFor(locale, mode);
 
   return (
     <main>
@@ -47,7 +52,7 @@ export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
             <CardDescription>{labels.formDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ApplyForm locale={locale} labels={labels} />
+            <ApplyForm locale={locale} labels={labels} mode={mode} />
           </CardContent>
         </Card>
 

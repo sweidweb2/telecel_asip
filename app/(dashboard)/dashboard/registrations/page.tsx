@@ -39,7 +39,8 @@ export default async function RegistrationsPage({
           Registrations
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review and manage interest submissions from the apply form.
+          Review and manage Register Interest leads. Official Apply submissions
+          live under Applications.
         </p>
       </div>
 

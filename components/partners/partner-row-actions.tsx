@@ -2,28 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deletePartner } from "@/actions/partners";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { PartnerFormDialog } from "@/components/partners/partner-form-dialog";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { PartnerListItem } from "@/types/partner";
 
 type PartnerRowActionsProps = {
   partner: PartnerListItem;
-  /** Send the admin back to the list after deleting from the detail page. */
   redirectOnDelete?: boolean;
 };
 
@@ -71,44 +61,21 @@ export function PartnerRowActions({
         triggerContent={<PencilIcon />}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${partner.name}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete partner?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes {partner.name} and removes the stored
-              logo from Storage. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete partner"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete partner?"
+        description={
+          <>
+            This permanently deletes {partner.name} and removes the stored logo
+            from Storage. This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete partner"
+        triggerLabel={`Delete ${partner.name}`}
+        isPending={isDeleting}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

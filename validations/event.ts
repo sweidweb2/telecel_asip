@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+import {
+  CMS_PUBLISH_STATUSES,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+export {
+  CMS_PUBLISH_STATUSES,
+  CMS_PUBLISH_STATUS_LABELS,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+/** @deprecated Prefer `CmsPublishStatus` from `@/constants/cms-publish`. */
+export type CmsPublishStatusInput = CmsPublishStatus;
+
 export const EVENT_PAGE_SIZE = 20;
 
 export const EVENT_NAME_MAX = 200;
@@ -14,21 +28,11 @@ export const EVENT_FORMATS = ["virtual", "in_person", "hybrid"] as const;
 
 export type EventFormatInput = (typeof EVENT_FORMATS)[number];
 
-export const CMS_PUBLISH_STATUSES = ["draft", "published"] as const;
-
-export type CmsPublishStatusInput = (typeof CMS_PUBLISH_STATUSES)[number];
-
 export const EVENT_FORMAT_LABELS: Record<EventFormatInput, string> = {
   virtual: "Virtual",
   in_person: "In person",
   hybrid: "Hybrid",
 };
-
-export const CMS_PUBLISH_STATUS_LABELS: Record<CmsPublishStatusInput, string> =
-  {
-    draft: "Draft",
-    published: "Published",
-  };
 
 /** Split a textarea (one value per line) into a trimmed string array. */
 function linesToArray(value: unknown): string[] {

@@ -5,10 +5,10 @@ import { headers } from "next/headers";
 
 import type { Locale } from "@/constants/locales";
 import { ROUTES } from "@/constants/routes";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
@@ -62,33 +62,6 @@ const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_PER_IP = 5;
 const RATE_LIMIT_PER_EMAIL = 3;
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(locale: Locale): Promise<AdminSession> {
-  const copy = ACTION_MESSAGES[locale];
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: copy.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: copy.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
-
 function validationMessage(
   error: { issues: { message: string }[] },
   locale: Locale,
@@ -137,13 +110,18 @@ export async function submitInterestRegistration(
 
   const {
     fullName,
+    founderRole,
     email,
     phone,
-    companyName,
-    sector,
     country,
+    linkedin,
+    companyName,
+    website,
+    companyCountry,
+    sector,
     pitch,
     consent,
+    commsOptIn,
     turnstileToken,
   } = parsed.data;
 
@@ -170,13 +148,18 @@ export async function submitInterestRegistration(
   const admin = createAdminClient();
   const { error } = await admin.from("interest_registrations").insert({
     full_name: fullName,
+    founder_role: founderRole,
     email,
     phone,
-    company_name: companyName,
-    sector,
     country,
-    pitch,
+    linkedin: linkedin?.trim() ? linkedin.trim() : null,
+    company_name: companyName,
+    website: website?.trim() ? website.trim() : null,
+    company_country: companyCountry,
+    sector,
+    pitch: pitch?.trim() ? pitch.trim() : null,
     consent,
+    comms_opt_in: commsOptIn,
   });
 
   if (error) {
@@ -203,22 +186,40 @@ export async function updateInterestRegistration(
     return { status: "error", message: validationMessage(parsed.error, locale) };
   }
 
-  const session = await authorizeAdmin(locale);
+  const session = await authorizeAdmin(ACTION_MESSAGES[locale]);
   if (session.status === "error") return session;
 
-  const { id, fullName, email, phone, companyName, sector, country, pitch } =
-    parsed.data;
+  const {
+    id,
+    fullName,
+    founderRole,
+    email,
+    phone,
+    country,
+    linkedin,
+    companyName,
+    website,
+    companyCountry,
+    sector,
+    pitch,
+    commsOptIn,
+  } = parsed.data;
 
   const { data, error } = await session.supabase
     .from("interest_registrations")
     .update({
       full_name: fullName,
+      founder_role: founderRole,
       email,
       phone,
-      company_name: companyName,
-      sector,
       country,
-      pitch,
+      linkedin: linkedin?.trim() ? linkedin.trim() : null,
+      company_name: companyName,
+      website: website?.trim() ? website.trim() : null,
+      company_country: companyCountry,
+      sector,
+      pitch: pitch?.trim() ? pitch.trim() : null,
+      comms_opt_in: commsOptIn,
     })
     .eq("id", id)
     .select("id")
@@ -249,7 +250,7 @@ export async function deleteInterestRegistration(
     return { status: "error", message: validationMessage(parsed.error, locale) };
   }
 
-  const session = await authorizeAdmin(locale);
+  const session = await authorizeAdmin(ACTION_MESSAGES[locale]);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase

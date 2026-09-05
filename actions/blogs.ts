@@ -5,6 +5,8 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
@@ -53,32 +55,6 @@ const ALLOWED_MIME = new Set([
   "image/gif",
 ]);
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
-
 function refreshBlogPaths(slug?: string) {
   revalidateTag(BLOGS_CACHE_TAG, "max");
   revalidatePath(ROUTES.blogs);
@@ -108,21 +84,11 @@ function rpcErrorMessage(error: { code?: string; message?: string }): string {
   const unique = uniqueConstraintMessage(error);
   if (unique) return unique;
 
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (
-    code === "P0002" ||
-    message.includes("blog not found") ||
-    message.includes("no data")
-  ) {
-    return MESSAGES.notFound;
-  }
-
-  return MESSAGES.genericError;
+  return mapPgActionError(error, {
+    unauthorized: MESSAGES.unauthorized,
+    notFound: MESSAGES.notFound,
+    genericError: MESSAGES.genericError,
+  });
 }
 
 /**
@@ -155,7 +121,7 @@ export async function createBlog(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -187,7 +153,7 @@ export async function updateBlog(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { id, ...rest } = parsed.data;
@@ -221,7 +187,7 @@ export async function deleteBlog(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing } = await session.supabase
@@ -308,7 +274,7 @@ async function uploadImage(options: {
     return { status: "error", message: MESSAGES.invalidImage };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -423,7 +389,7 @@ export async function removeBlogImage(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const bucket = parsed.data.kind === "thumbnail" ? COVER_BUCKET : AUTHOR_BUCKET;

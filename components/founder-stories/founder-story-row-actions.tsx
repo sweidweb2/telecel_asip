@@ -3,25 +3,13 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteFounderStory } from "@/actions/founder-stories";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  founderStoryEditPath,
-  ROUTES,
-} from "@/constants/routes";
+import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import type { FounderStoryListItem } from "@/types/founder-story";
 
 type FounderStoryRowActionsProps = {
@@ -70,44 +58,21 @@ export function FounderStoryRowActions({
         <PencilIcon />
       </Button>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${story.startup_name}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete founder story?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes the story for {story.startup_name}. This
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete story"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete founder story?"
+        description={
+          <>
+            This permanently deletes the story for {story.startup_name}. This
+            cannot be undone.
+          </>
+        }
+        confirmLabel="Delete story"
+        triggerLabel={`Delete ${story.startup_name}`}
+        isPending={isDeleting}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

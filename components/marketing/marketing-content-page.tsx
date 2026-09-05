@@ -58,7 +58,13 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
   }
 
   if (slug === "apply" || slug === "register-interest") {
-    return <ApplyPageContent locale={locale} copy={copy} />;
+    return (
+      <ApplyPageContent
+        locale={locale}
+        copy={copy}
+        mode={slug === "apply" ? "apply" : "register"}
+      />
+    );
   }
 
   return (

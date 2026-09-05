@@ -12,15 +12,7 @@ import {
   deleteCohort,
   updateCohort,
 } from "@/actions/cohorts";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -447,31 +439,16 @@ export function CohortEditorForm({
         </div>
       </form>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this cohort?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes the cohort and its partner/startup links. This cannot
-              be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isPending}
-              onClick={onDelete}
-            >
-              {isPending ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              ) : null}
-              Delete cohort
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        showTrigger={false}
+        title="Delete this cohort?"
+        description="This removes the cohort and its partner/startup links. This cannot be undone."
+        confirmLabel="Delete cohort"
+        isPending={isPending}
+        onConfirm={onDelete}
+      />
     </>
   );
 }

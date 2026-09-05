@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 import { ROUTES } from "@/constants/routes";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import {
   TURNSTILE_CONTACT_ACTION,
   verifyTurnstileToken,
@@ -59,32 +59,6 @@ const ADMIN_MESSAGES = {
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_PER_IP = 5;
 const RATE_LIMIT_PER_EMAIL = 3;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: ADMIN_MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: ADMIN_MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
 
 async function getClientIp(): Promise<string> {
   const headerStore = await headers();
@@ -177,7 +151,7 @@ export async function updateContactMessage(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(ADMIN_MESSAGES);
   if (session.status === "error") return session;
 
   const { id, enquiryType, fullName, email, phone, subject, message } =
@@ -221,7 +195,7 @@ export async function deleteContactMessage(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(ADMIN_MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase

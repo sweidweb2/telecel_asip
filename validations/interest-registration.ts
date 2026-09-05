@@ -5,6 +5,8 @@ import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
 type InterestRegistrationMessages = {
   fullNameMin: string;
   fullNameMax: string;
+  roleMin: string;
+  roleMax: string;
   invalidEmail: string;
   emailMax: string;
   phoneInvalid: string;
@@ -14,7 +16,8 @@ type InterestRegistrationMessages = {
   sectorMax: string;
   countryMin: string;
   countryMax: string;
-  pitchMin: string;
+  linkedinInvalid: string;
+  websiteInvalid: string;
   pitchMax: string;
   consentRequired: string;
   turnstileRequired: string;
@@ -25,18 +28,21 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
   en: {
     fullNameMin: "Name must be at least 2 characters",
     fullNameMax: "Name must be at most 100 characters",
+    roleMin: "Role must be at least 2 characters",
+    roleMax: "Role must be at most 80 characters",
     invalidEmail: "Enter a valid email address",
     emailMax: "Email must be at most 254 characters",
     phoneInvalid:
       "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
-    companyMin: "Company name must be at least 2 characters",
-    companyMax: "Company name must be at most 120 characters",
+    companyMin: "Startup name must be at least 2 characters",
+    companyMax: "Startup name must be at most 120 characters",
     sectorMin: "Sector must be at least 2 characters",
     sectorMax: "Sector must be at most 80 characters",
     countryMin: "Country must be at least 2 characters",
     countryMax: "Country must be at most 80 characters",
-    pitchMin: "Pitch must be at least 20 characters",
-    pitchMax: "Pitch must be at most 1000 characters",
+    linkedinInvalid: "LinkedIn must be a valid http(s) URL",
+    websiteInvalid: "Website must be a valid http(s) URL",
+    pitchMax: "Note must be at most 1000 characters",
     consentRequired: "You must agree before submitting",
     turnstileRequired: "Please complete the security check",
     invalidId: "Invalid registration id",
@@ -44,18 +50,21 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
   fr: {
     fullNameMin: "Le nom doit contenir au moins 2 caractères",
     fullNameMax: "Le nom doit contenir au plus 100 caractères",
+    roleMin: "Le rôle doit contenir au moins 2 caractères",
+    roleMax: "Le rôle doit contenir au plus 80 caractères",
     invalidEmail: "Entrez une adresse e-mail valide",
     emailMax: "L’e-mail doit contenir au plus 254 caractères",
     phoneInvalid:
       "Entrez un numéro de téléphone valide (7–20 chiffres ; espaces ou +()- autorisés)",
-    companyMin: "Le nom de l’entreprise doit contenir au moins 2 caractères",
-    companyMax: "Le nom de l’entreprise doit contenir au plus 120 caractères",
+    companyMin: "Le nom de la startup doit contenir au moins 2 caractères",
+    companyMax: "Le nom de la startup doit contenir au plus 120 caractères",
     sectorMin: "Le secteur doit contenir au moins 2 caractères",
     sectorMax: "Le secteur doit contenir au plus 80 caractères",
     countryMin: "Le pays doit contenir au moins 2 caractères",
     countryMax: "Le pays doit contenir au plus 80 caractères",
-    pitchMin: "Le message doit contenir au moins 20 caractères",
-    pitchMax: "Le message doit contenir au plus 1000 caractères",
+    linkedinInvalid: "LinkedIn doit être une URL http(s) valide",
+    websiteInvalid: "Le site web doit être une URL http(s) valide",
+    pitchMax: "La note doit contenir au plus 1000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
     turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant de candidature invalide",
@@ -63,6 +72,7 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
 };
 
 const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
+const HTTP_URL_REGEX = /^https?:\/\/.+/i;
 
 export const INTEREST_REGISTRATION_PAGE_SIZE = 10;
 export const INTEREST_REGISTRATION_FULL_NAME_MAX = 100;
@@ -72,6 +82,34 @@ export const INTEREST_REGISTRATION_COMPANY_MAX = 120;
 export const INTEREST_REGISTRATION_SECTOR_MAX = 80;
 export const INTEREST_REGISTRATION_COUNTRY_MAX = 80;
 export const INTEREST_REGISTRATION_PITCH_MAX = 1000;
+export const INTEREST_REGISTRATION_ROLE_MAX = 80;
+export const INTEREST_REGISTRATION_URL_MAX = 500;
+
+function optionalHttpUrl(message: string) {
+  return z
+    .string()
+    .trim()
+    .max(INTEREST_REGISTRATION_URL_MAX, message)
+    .refine(
+      (value) => value === "" || HTTP_URL_REGEX.test(value),
+      message,
+    )
+    .optional()
+    .or(z.literal(""));
+}
+
+function optionalPitch(messages: InterestRegistrationMessages) {
+  return z
+    .string()
+    .trim()
+    .max(INTEREST_REGISTRATION_PITCH_MAX, messages.pitchMax)
+    .refine(
+      (value) => value === "" || value.length >= 20,
+      messages.pitchMax,
+    )
+    .optional()
+    .or(z.literal(""));
+}
 
 function registrationFieldsSchema(messages: InterestRegistrationMessages) {
   return {
@@ -80,6 +118,11 @@ function registrationFieldsSchema(messages: InterestRegistrationMessages) {
       .trim()
       .min(2, messages.fullNameMin)
       .max(100, messages.fullNameMax),
+    founderRole: z
+      .string()
+      .trim()
+      .min(2, messages.roleMin)
+      .max(80, messages.roleMax),
     email: z
       .string()
       .trim()
@@ -95,26 +138,30 @@ function registrationFieldsSchema(messages: InterestRegistrationMessages) {
         (value) => value.replace(/\D/g, "").length >= 7,
         messages.phoneInvalid,
       ),
-    companyName: z
-      .string()
-      .trim()
-      .min(2, messages.companyMin)
-      .max(120, messages.companyMax),
-    sector: z
-      .string()
-      .trim()
-      .min(2, messages.sectorMin)
-      .max(80, messages.sectorMax),
     country: z
       .string()
       .trim()
       .min(2, messages.countryMin)
       .max(80, messages.countryMax),
-    pitch: z
+    linkedin: optionalHttpUrl(messages.linkedinInvalid),
+    companyName: z
       .string()
       .trim()
-      .min(20, messages.pitchMin)
-      .max(1000, messages.pitchMax),
+      .min(2, messages.companyMin)
+      .max(120, messages.companyMax),
+    website: optionalHttpUrl(messages.websiteInvalid),
+    companyCountry: z
+      .string()
+      .trim()
+      .min(2, messages.countryMin)
+      .max(80, messages.countryMax),
+    sector: z
+      .string()
+      .trim()
+      .min(2, messages.sectorMin)
+      .max(80, messages.sectorMax),
+    pitch: optionalPitch(messages),
+    commsOptIn: z.boolean(),
   };
 }
 

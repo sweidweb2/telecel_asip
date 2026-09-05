@@ -2,21 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteImpactMetric } from "@/actions/impact-metrics";
+import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { ImpactMetricFormDialog } from "@/components/impact-metrics/impact-metric-form-dialog";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { EvidenceOption, ImpactMetricListItem } from "@/types/impact-metric";
@@ -24,7 +15,6 @@ import type { EvidenceOption, ImpactMetricListItem } from "@/types/impact-metric
 type ImpactMetricRowActionsProps = {
   metric: ImpactMetricListItem;
   evidenceOptions: EvidenceOption[];
-  /** Send the admin back to the list after deleting from the detail page. */
   redirectOnDelete?: boolean;
 };
 
@@ -74,44 +64,21 @@ export function ImpactMetricRowActions({
         triggerContent={<PencilIcon />}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${metric.claim_label}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete impact metric?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes “{metric.claim_label}”. This cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete metric"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete impact metric?"
+        description={
+          <>
+            This permanently deletes “{metric.claim_label}”. This cannot be
+            undone.
+          </>
+        }
+        confirmLabel="Delete metric"
+        triggerLabel={`Delete ${metric.claim_label}`}
+        isPending={isDeleting}
+        onConfirm={onDelete}
+      />
     </div>
   );
 }

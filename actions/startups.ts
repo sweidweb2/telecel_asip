@@ -5,6 +5,9 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -46,32 +49,6 @@ const ALLOWED_MIME = new Set([
   "image/gif",
 ]);
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
-
 function refreshStartupPaths(slug?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
   revalidatePath(ROUTES.portfolio);
@@ -94,10 +71,15 @@ function uniqueConstraintMessage(error: {
   return MESSAGES.slugTaken;
 }
 
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+function rpcErrorMessage(error: { code?: string; message?: string }): string {
+  const unique = uniqueConstraintMessage(error);
+  if (unique) return unique;
+
+  return mapPgActionError(error, {
+    unauthorized: MESSAGES.unauthorized,
+    notFound: MESSAGES.notFound,
+    genericError: MESSAGES.genericError,
+  });
 }
 
 function toStartupCoreJson(input: CreateStartupInput | UpdateStartupInput) {
@@ -139,30 +121,6 @@ function toDetailsJson(
   };
 }
 
-function rpcErrorMessage(error: {
-  code?: string;
-  message?: string;
-}): string {
-  const unique = uniqueConstraintMessage(error);
-  if (unique) return unique;
-
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (
-    code === "P0002" ||
-    message.includes("startup not found") ||
-    message.includes("no data")
-  ) {
-    return MESSAGES.notFound;
-  }
-
-  return MESSAGES.genericError;
-}
-
 export async function createStartup(
   input: CreateStartupInput,
 ): Promise<StartupActionResult> {
@@ -174,7 +132,7 @@ export async function createStartup(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -209,7 +167,7 @@ export async function updateStartup(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -242,7 +200,7 @@ export async function deleteStartup(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -322,7 +280,7 @@ export async function uploadStartupLogo(
     return { status: "error", message: MESSAGES.invalidImage };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -390,7 +348,7 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase

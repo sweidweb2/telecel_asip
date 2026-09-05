@@ -49,14 +49,19 @@ Table profiles {
 
 Table interest_registrations {
   id uuid [pk, not null, default: `gen_random_uuid()`]
-  full_name text [not null, note: 'CHECK char_length 2..100']
+  full_name text [not null, note: 'Founder name; CHECK char_length 2..100']
+  founder_role text [note: 'CHECK 2..80 when set']
   email text [not null, note: 'CHECK char_length 3..254']
   phone text [not null, note: 'CHECK char_length 7..20']
-  company_name text [not null, note: 'CHECK char_length 2..120']
-  sector text [not null, note: 'Free text for now; CHECK char_length 2..80']
-  country text [not null, note: 'Free text for now; CHECK char_length 2..80']
-  pitch text [not null, note: 'CHECK char_length 20..1000']
+  country text [not null, note: 'Founder country; CHECK 2..80']
+  linkedin text [note: 'Optional for Register; http(s); CHECK <= 500']
+  company_name text [not null, note: 'Startup name; CHECK 2..120']
+  website text [note: 'Optional for Register; http(s); CHECK <= 500']
+  company_country text [not null, note: 'CHECK 2..80']
+  sector text [not null, note: 'Free text; CHECK 2..80']
+  pitch text [note: 'Optional short note; CHECK 20..1000 when set']
   consent boolean [not null, note: 'CHECK (consent = true)']
+  comms_opt_in boolean [not null, default: false]
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
@@ -66,7 +71,7 @@ Table interest_registrations {
   }
 
   Note: '''
-    RLS enabled.
+    RLS enabled. Leads / Register Interest intake (not Applications).
 
     Grants:
     - authenticated: SELECT, UPDATE, DELETE
@@ -74,13 +79,59 @@ Table interest_registrations {
     - no grants to anon (public cannot write via PostgREST)
 
     Policies (authenticated):
-    - Admins can read interest registrations — SELECT USING (is_admin())
-    - Admins can update interest registrations — UPDATE USING/WITH CHECK (is_admin())
-    - Admins can delete interest registrations — DELETE USING (is_admin())
+    - Admins can read/update/delete — is_admin()
 
     Public inserts only via Server Action + service role client.
-    App validates with Zod before insert/update; consent must stay true.
+    No automatic conversion to applications when Apply opens.
   '''
+}
+
+Table applications {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  full_name text [not null, note: 'CHECK 2..100']
+  founder_role text [not null, note: 'CHECK 2..80']
+  email text [not null, note: 'CHECK 3..254']
+  phone text [not null, note: 'CHECK 7..20']
+  country text [not null, note: 'CHECK 2..80']
+  linkedin text [not null, note: 'Required for Apply; http(s); CHECK 8..500']
+  company_name text [not null, note: 'CHECK 2..120']
+  website text [not null, note: 'Required for Apply; http(s); CHECK 8..500']
+  company_country text [not null, note: 'CHECK 2..80']
+  sector text [not null, note: 'CHECK 2..80']
+  problem_product text [not null, note: 'CHECK 40..4000']
+  traction text [not null, note: 'CHECK 20..2000']
+  programme_fit text [not null, note: 'CHECK 20..2000']
+  consent boolean [not null, note: 'CHECK (consent = true)']
+  comms_opt_in boolean [not null, default: false]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (created_at) [name: 'applications_created_at_idx', note: 'created_at DESC']
+    (email) [name: 'applications_email_idx']
+    (email, company_name) [name: 'applications_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
+  }
+
+  Note: '''
+    RLS enabled. Official Apply intake pipeline (separate from Leads).
+
+    Grants:
+    - authenticated: SELECT, UPDATE, DELETE
+    - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none
+
+    Policies (authenticated):
+    - Admins can read/update/delete — is_admin()
+
+    Public inserts via Server Action + service role only.
+    No automatic conversion from interest_registrations.
+  '''
+}
+
+Enum contact_enquiry_type {
+  founder
+  partner
+  media
+  general
 }
 
 Table contact_messages {
@@ -90,11 +141,13 @@ Table contact_messages {
   phone text [not null, note: 'CHECK char_length between 7 and 20']
   subject text [not null, note: 'CHECK char_length between 2 and 120']
   message text [not null, note: 'CHECK char_length between 20 and 2000']
+  enquiry_type contact_enquiry_type [not null, default: 'general', note: 'Founder / partner / media routing; general is the catch-all']
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
     (created_at) [name: 'contact_messages_created_at_idx', note: 'created_at DESC — admin lists']
     (email) [name: 'contact_messages_email_idx']
+    (enquiry_type, created_at) [name: 'contact_messages_enquiry_type_idx', note: 'created_at DESC — admin inbox filter']
   }
 
   Note: '''
@@ -113,6 +166,9 @@ Table contact_messages {
     CHECKs: contact_messages_*_len_chk on full_name, email, phone, subject, message
     (aligned with validations/contact-message.ts).
 
+    enquiry_type (20260829000000) routes founder / partner / media / general
+    submissions; inbox email routing is still app-side, not a separate table.
+
     No unique (email, subject) — follow-ups allowed; spam throttled by app rate limits.
     Public inserts only via Server Action + service role client.
     App validates with Zod before insert/update.
@@ -121,7 +177,7 @@ Table contact_messages {
 
 Table site_settings {
   id smallint [pk, not null, default: 1, note: 'CHECK id = 1 — singleton row (site_settings_singleton_chk)']
-  open_applications boolean [not null, default: false, note: 'Drives the public CTA and the /apply ↔ /register-interest middleware redirect']
+  open_applications boolean [not null, default: false, note: 'Drives navbar CTA, status banner, and Apply SEO (not URL exclusivity)']
   updated_at timestamptz [not null, default: `now()`]
 
   Note: '''
@@ -227,19 +283,21 @@ Table startups {
     RLS enabled.
 
     Grants:
-    - anon, authenticated: SELECT
-    - authenticated: INSERT, UPDATE, DELETE
+    - authenticated: SELECT, INSERT, UPDATE, DELETE
     - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none (revoked in 20260903090000; public reads go through startups_public)
 
     Policies:
-    - Anyone can read active startups — SELECT USING (status = active)
     - Admins can read all startups — SELECT USING (is_admin())
     - Admins can insert/update/delete — is_admin()
+    - "Anyone can read active startups" dropped in 20260903090000
 
     Storage bucket (public read, admin write):
     - startups — logo images
 
     Trigger: startups_set_updated_at BEFORE UPDATE
+    Writes go through create_startup_with_details / update_startup_with_details
+    (also persist startup_details portfolio columns).
     English-only content phase 1; EN/FR public pages show the same startups.
   '''
 }
@@ -259,21 +317,82 @@ Table startup_details {
   business_model text
   funding_goal numeric
   amount_raised numeric
+  cohort text [note: 'Public portfolio label; CHECK length <= 40']
+  country_code text [note: 'ISO 3166-1 alpha-2; CHECK ^[A-Z]{2}$']
+  sector text [note: 'CHECK length <= 100']
+  founder_names text[] [not null, default: '{}', note: 'CHECK cardinality <= 12']
+  cover_image_url text [note: 'CHECK length <= 500']
+  public_outcome text [note: 'CHECK length <= 2000']
+  featured boolean [not null, default: false, note: 'Partial unique-style list index WHERE featured']
+  image_focal_x numeric [not null, default: 50, note: 'CHECK 0–100']
+  image_focal_y numeric [not null, default: 50, note: 'CHECK 0–100']
+
+  indexes {
+    (cohort) [name: 'startup_details_cohort_idx']
+    (country_code) [name: 'startup_details_country_code_idx']
+    (sector) [name: 'startup_details_sector_idx']
+    (featured) [name: 'startup_details_featured_idx', note: 'WHERE featured']
+    founder_names [type: gin, name: 'startup_details_founder_names_gin_idx']
+  }
 
   Note: '''
     RLS enabled. 1:1 extension of startups.
 
     Grants:
-    - anon, authenticated: SELECT
-    - authenticated: INSERT, UPDATE, DELETE
+    - authenticated: SELECT, INSERT, UPDATE, DELETE
     - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: none (revoked in 20260903090000; public reads go through startups_public)
 
     Policies:
-    - Anyone can read details when parent startup status = active
     - Admins can read/insert/update/delete — is_admin()
+    - "Anyone can read details of active startups" dropped in 20260903090000
 
     CHECKs: founding_year 1900–2100; funding_goal/amount_raised >= 0;
-    amount_raised <= funding_goal when both set; length bounds on text fields.
+    amount_raised <= funding_goal when both set; length bounds on text fields;
+    country_code ISO alpha-2; founder_names cardinality <= 12; focal 0–100.
+    Internal-only fields (problem, solution, funding, size, founding_year)
+    are not projected on startups_public.
+  '''
+}
+
+// Flattened anonymous portfolio view (migration 20260903090000).
+Table startups_public {
+  id uuid
+  name text
+  slug text
+  logo_url text
+  description text
+  founded_at date
+  updated_at timestamptz
+  website_url text
+  industry text
+  category text
+  location text
+  team text
+  cohort text
+  country_code text
+  sector text
+  founder_names text[]
+  cover_image_url text
+  public_outcome text
+  featured boolean
+  image_focal_x numeric
+  image_focal_y numeric
+
+  Note: '''
+    VIEW, not a table: `create or replace view public.startups_public
+    with (security_barrier = true) as select ... from public.startups
+    left join public.startup_details ... where s.status = 'active'`.
+
+    Definer rights on purpose — anon has no SELECT on public.startups /
+    public.startup_details, so a security_invoker view would return zero rows.
+    security_barrier = true reduces leaky-predicate risk on the status filter.
+
+    Does not project status, created_at, founding_year, size, problem,
+    solution, target_market, business_model, funding_goal, or amount_raised.
+
+    Grants: SELECT to anon, authenticated.
+    Read by data/startups.ts for the EN/FR public portfolio pages.
   '''
 }
 
@@ -553,8 +672,8 @@ Table events {
     - Admins can read all / insert / update / delete — is_admin()
 
     Trigger: events_set_updated_at BEFORE UPDATE
-    No write RPCs — actions/events.ts uses plain INSERT/UPDATE/DELETE
-    plus replace on event_startups. Assets are URL strings only (no bucket).
+    Write RPCs: create_event_with_links / update_event_with_links
+    (atomic event + event_startups). Assets are URL strings only (no bucket).
     Reuses cms_publish_status from Phase 4 (founder_stories).
   '''
 }

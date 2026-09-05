@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -42,11 +43,6 @@ const PUBLIC_DETAIL_COLUMNS =
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
-
-/** Escape PostgREST ilike wildcards in user search input. */
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[%_]/g, "\\$&");
-}
 
 /**
  * Views type every column as nullable. Map to the domain shape the UI expects,

@@ -4,7 +4,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { FOUNDER_STORIES_CACHE_TAG } from "@/data/founder-stories";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   createFounderStorySchema,
   deleteFounderStorySchema,
@@ -30,43 +32,17 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: SupabaseServerClient;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+  uniqueViolation: MESSAGES.duplicateStartup,
+  uniqueConstraint: "founder_stories_startup_id",
+};
 
 function refreshFounderStoryPaths() {
   revalidateTag(FOUNDER_STORIES_CACHE_TAG, "max");
   revalidatePath(ROUTES.founderStories);
-}
-
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function normalizePermission(
@@ -103,22 +79,6 @@ function toFounderStoryRow(
   };
 }
 
-function writeErrorMessage(error: { code?: string; message?: string }): string {
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (code === "23505" || message.includes("founder_stories_startup_id")) {
-    return MESSAGES.duplicateStartup;
-  }
-  if (code === "PGRST116" || message.includes("no rows")) {
-    return MESSAGES.notFound;
-  }
-  return MESSAGES.genericError;
-}
-
 export async function createFounderStory(
   input: CreateFounderStoryInput,
 ): Promise<FounderStoryActionResult> {
@@ -130,7 +90,7 @@ export async function createFounderStory(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -140,7 +100,10 @@ export async function createFounderStory(
     .single();
 
   if (error || !data?.id) {
-    return { status: "error", message: writeErrorMessage(error ?? {}) };
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
   refreshFounderStoryPaths();
@@ -158,7 +121,7 @@ export async function updateFounderStory(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -169,7 +132,7 @@ export async function updateFounderStory(
     .maybeSingle();
 
   if (error) {
-    return { status: "error", message: writeErrorMessage(error) };
+    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
   }
   if (!data?.id) {
     return { status: "error", message: MESSAGES.notFound };
@@ -188,7 +151,7 @@ export async function deleteFounderStory(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -210,7 +173,7 @@ export async function deleteFounderStory(
     .eq("id", parsed.data.id);
 
   if (deleteError) {
-    return { status: "error", message: writeErrorMessage(deleteError) };
+    return { status: "error", message: mapPgActionError(deleteError, PG_MESSAGES) };
   }
 
   refreshFounderStoryPaths();

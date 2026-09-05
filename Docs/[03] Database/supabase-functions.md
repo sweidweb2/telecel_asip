@@ -385,13 +385,39 @@ No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_events_updated_at()` |
 
-**How it works:** Keeps `updated_at` current. No write RPCs — `events` is a flat table plus `event_startups` junction, so `actions/events.ts` uses plain INSERT/UPDATE/DELETE and replaces junction rows after each write. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Assets are URL strings only (no Storage bucket in Phase 5).
+**How it works:** Keeps `updated_at` current. Prefer the write RPCs below so `event_startups` stays in the same transaction as the event row. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Assets are URL strings only (no Storage bucket in Phase 5).
+
+### `public.create_event_with_links(p_event jsonb, p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin event create) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Inserts an `events` row and `event_startups` junction rows in one transaction.
+
+**How it works:** Raises `42501` unless `is_admin()`. Inserts core fields from `p_event` (null-safe location/outcomes/format; speakers/assets as jsonb string arrays), then inserts each id from `p_startup_ids`.
+
+### `public.update_event_with_links(p_id uuid, p_event jsonb, p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin event update) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Updates the event and fully replaces startup links atomically.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `events`, deletes existing `event_startups` for `p_id`, then re-inserts from the uuid array.
 
 ---
 
 ### `public.event_startups`
 
-No RPCs, functions, or triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to both parents. Public SELECT only when the related event is published. Admins CRUD via `is_admin()`.
+No triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to both parents. Public SELECT only when the related event is published. Admins write via the event link RPCs (or direct `is_admin()` policies).
 
 ---
 

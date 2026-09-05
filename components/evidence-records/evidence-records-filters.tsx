@@ -1,9 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "nextjs-toploader/app";
-import { useEffect, useRef, useState, useTransition } from "react";
 import { Loader2Icon, SearchIcon, XIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -23,66 +20,21 @@ import {
   EVIDENCE_STATUSES,
 } from "@/constants/evidence-labels";
 import { ROUTES } from "@/constants/routes";
+import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import { cn } from "@/lib/utils";
 import type { EvidenceListQuery } from "@/validations/evidence-record";
 
-const SEARCH_DEBOUNCE_MS = 600;
-
 export function EvidenceRecordsFilters({ query }: { query: EvidenceListQuery }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState(query.search);
-  const [prevQuerySearch, setPrevQuerySearch] = useState(query.search);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
+    useAdminListFilters({
+      basePath: ROUTES.evidence,
+      search: query.search,
+    });
+
   const hasFilters =
     query.search !== "" ||
     query.status !== "all" ||
     query.permission !== "all";
-
-  if (query.search !== prevQuerySearch) {
-    setPrevQuerySearch(query.search);
-    setSearch(query.search);
-  }
-
-  function cancelPendingSearch() {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = null;
-  }
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
-
-  function navigate(changes: Record<string, string>) {
-    cancelPendingSearch();
-
-    const next = new URLSearchParams(searchParams.toString());
-    Object.entries(changes).forEach(([key, value]) => {
-      if (!value || value === "all") {
-        next.delete(key);
-      } else {
-        next.set(key, value);
-      }
-    });
-    next.set("page", "1");
-
-    startTransition(() => {
-      router.push(`${ROUTES.evidence}?${next.toString()}`);
-    });
-  }
-
-  function handleSearchChange(value: string) {
-    setSearch(value);
-    cancelPendingSearch();
-    debounceRef.current = setTimeout(() => {
-      const nextSearch = value.trim();
-      if (nextSearch === query.search) return;
-      navigate({ search: nextSearch });
-    }, SEARCH_DEBOUNCE_MS);
-  }
 
   return (
     <div className="flex flex-col gap-2 border-b p-4 lg:flex-row lg:items-center">
@@ -168,10 +120,7 @@ export function EvidenceRecordsFilters({ query }: { query: EvidenceListQuery }) 
               "min-h-11 shrink-0 sm:min-h-8",
               isPending && "pointer-events-none opacity-50",
             )}
-            onClick={() => {
-              cancelPendingSearch();
-              setSearch("");
-            }}
+            onClick={clearSearchLocal}
           >
             <XIcon />
             Clear

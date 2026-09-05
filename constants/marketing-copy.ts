@@ -245,7 +245,7 @@ const en: MarketingCopy = {
     cards: [
       { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, connect to markets and build toward sustainable scale." },
       { title: "Who can apply?", description: "Eligibility is published for each cohort. ASIP generally targets technology-led ventures with an African market focus, a committed founding team and credible potential to scale." },
-      { title: "Are applications open?", description: "The website status banner is the source of truth. When applications are closed, founders may register interest for confirmed updates." },
+      { title: "Are applications open?", description: "The status banner at the top of the site is the source of truth. When applications are closed, founders can still register interest for updates. When open, use Apply for the official intake. Both pages stay available." },
       { title: "Does ASIP invest in every startup?", description: "Funding and investment terms vary by cohort and partner structure. Any cash, equity or in-kind support is disclosed in the official cohort terms." },
       { title: "Is the programme virtual or in person?", description: "The format varies by cohort and may combine virtual sessions, in-person activities, market visits, events and demo opportunities." },
       { title: "Which sectors does ASIP support?", description: "ASIP has supported ventures across financial technology, health, agriculture, education, insurance, clean technology, commerce, logistics and other technology-enabled sectors." },
@@ -274,7 +274,7 @@ const en: MarketingCopy = {
         label: "Founders",
         items: [
           { title: "Who can apply?", description: "Eligibility is published for each cohort. ASIP generally targets technology-led ventures with an African market focus, a committed founding team and credible potential to scale." },
-          { title: "Are applications open?", description: "The website status banner is the source of truth. When applications are closed, founders may register interest for confirmed updates." },
+          { title: "Are applications open?", description: "The status banner at the top of the site is the source of truth. When applications are closed, founders can still register interest for updates. When open, use Apply for the official intake. Both pages stay available." },
           { title: "Does ASIP invest in every startup?", description: "Funding and investment terms vary by cohort and partner structure. Any cash, equity or in-kind support is disclosed in the official cohort terms." },
         ],
       },
@@ -529,7 +529,7 @@ const fr: MarketingCopy = {
     cards: [
       { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, se connecter aux marchés et construire une croissance durable." },
       { title: "Qui peut candidater ?", description: "Les critères d’éligibilité sont publiés pour chaque cohorte. ASIP cible généralement des entreprises technologiques orientées vers les marchés africains, avec une équipe fondatrice engagée et un potentiel crédible de passage à l’échelle." },
-      { title: "Les candidatures sont-elles ouvertes ?", description: "La bannière de statut du site fait foi. Lorsque les candidatures sont fermées, les fondateurs peuvent manifester leur intérêt pour recevoir les mises à jour confirmées." },
+      { title: "Les candidatures sont-elles ouvertes ?", description: "La bannière de statut en haut du site fait foi. Lorsque les candidatures sont fermées, les fondateurs peuvent toujours manifester leur intérêt. Lorsqu’elles sont ouvertes, utilisez Candidater pour le dépôt officiel. Les deux pages restent accessibles." },
       { title: "ASIP investit-il dans chaque startup ?", description: "Le financement et les conditions d’investissement varient selon la cohorte et la structure des partenariats. Tout apport en numéraire, en capital ou en nature est précisé dans les conditions officielles de la cohorte." },
       { title: "Le programme est-il virtuel ou en présentiel ?", description: "Le format varie selon la cohorte et peut combiner sessions virtuelles, activités en présentiel, visites de marché, événements et opportunités de démonstration." },
       { title: "Quels secteurs ASIP accompagne-t-il ?", description: "ASIP a accompagné des entreprises dans la technologie financière, la santé, l’agriculture, l’éducation, l’assurance, les technologies propres, le commerce, la logistique et d’autres secteurs portés par la technologie." },
@@ -558,7 +558,7 @@ const fr: MarketingCopy = {
         label: "Fondateurs",
         items: [
           { title: "Qui peut candidater ?", description: "Les critères d’éligibilité sont publiés pour chaque cohorte. ASIP cible généralement des entreprises technologiques orientées vers les marchés africains, avec une équipe fondatrice engagée et un potentiel crédible de passage à l’échelle." },
-          { title: "Les candidatures sont-elles ouvertes ?", description: "La bannière de statut du site fait foi. Lorsque les candidatures sont fermées, les fondateurs peuvent manifester leur intérêt pour recevoir les mises à jour confirmées." },
+          { title: "Les candidatures sont-elles ouvertes ?", description: "La bannière de statut en haut du site fait foi. Lorsque les candidatures sont fermées, les fondateurs peuvent toujours manifester leur intérêt. Lorsqu’elles sont ouvertes, utilisez Candidater pour le dépôt officiel. Les deux pages restent accessibles." },
           { title: "ASIP investit-il dans chaque startup ?", description: "Le financement et les conditions d’investissement varient selon la cohorte et la structure des partenariats. Tout apport en numéraire, en capital ou en nature est précisé dans les conditions officielles de la cohorte." },
         ],
       },

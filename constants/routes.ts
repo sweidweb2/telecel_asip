@@ -10,6 +10,7 @@ export const ROUTES = {
   dashboard: "/dashboard",
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
+  applications: "/dashboard/applications",
   portfolio: "/dashboard/portfolio",
   portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",

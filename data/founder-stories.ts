@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   FounderStory,
@@ -26,10 +27,6 @@ type ServerClient = Awaited<ReturnType<typeof createClient>>;
 type StoryRowWithStartup = FounderStory & {
   startups: { name: string } | { name: string }[] | null;
 };
-
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[\\%_"]/g, "\\$&");
-}
 
 function startupNameFromJoin(
   startups: StoryRowWithStartup["startups"],

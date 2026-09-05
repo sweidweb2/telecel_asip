@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { ApplicationStatusBanner } from "@/components/layout/application-status-banner";
 import { frFooterLabels } from "@/components/layout/site-footer-labels";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { frNavLabels } from "@/components/layout/site-nav-labels";
@@ -18,6 +19,10 @@ export default async function FrMarketingLayout({
       <SiteNavbar
         locale="fr"
         labels={frNavLabels(openApplications)}
+      />
+      <ApplicationStatusBanner
+        locale="fr"
+        openApplications={openApplications}
       />
       <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter labels={frFooterLabels()} />

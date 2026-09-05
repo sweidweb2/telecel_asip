@@ -5,6 +5,9 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { PARTNERS_CACHE_TAG } from "@/data/partners";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import { processImageBuffer } from "@/lib/media/process-image";
 import {
   publicObjectUrl,
@@ -51,43 +54,17 @@ const ALLOWED_MIME = new Set([
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: SupabaseServerClient;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+};
 
 function refreshPartnerPaths() {
   revalidateTag(PARTNERS_CACHE_TAG, "max");
   revalidatePath(ROUTES.partners);
   revalidatePath("/en/partners");
   revalidatePath("/fr/partners");
-}
-
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function toPartnerRow(input: CreatePartnerInput | UpdatePartnerInput) {
@@ -104,16 +81,7 @@ function toPartnerRow(input: CreatePartnerInput | UpdatePartnerInput) {
 }
 
 function writeErrorMessage(error: { code?: string; message?: string }): string {
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (code === "PGRST116" || message.includes("no rows")) {
-    return MESSAGES.notFound;
-  }
-  return MESSAGES.genericError;
+  return mapPgActionError(error, PG_MESSAGES);
 }
 
 export async function createPartner(
@@ -127,7 +95,7 @@ export async function createPartner(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -155,7 +123,7 @@ export async function updatePartner(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -184,7 +152,7 @@ export async function deletePartner(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -288,7 +256,7 @@ export async function uploadPartnerLogo(
     return { status: "error", message: MESSAGES.invalidImage };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -356,7 +324,7 @@ export async function removePartnerLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase

@@ -63,8 +63,9 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
                 Applications open
               </Label>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When on, the public CTA reads “Apply” and points to the apply
-                page. When off, visitors are sent to Register Interest instead.
+                When on, the public CTA and status banner promote Apply. When
+                off, they promote Register Interest. Both pages stay live;
+                submissions still go to separate Leads and Applications tables.
               </p>
             </div>
             <div className="flex min-h-11 items-center gap-3">

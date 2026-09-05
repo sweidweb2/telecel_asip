@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   createEvidenceRecordSchema,
   deleteEvidenceRecordSchema,
@@ -31,43 +33,17 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
 } as const;
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: SupabaseServerClient;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
+const PG_MESSAGES = {
+  unauthorized: MESSAGES.unauthorized,
+  notFound: MESSAGES.notFound,
+  genericError: MESSAGES.genericError,
+  foreignKeyWrite: MESSAGES.invalidOwner,
+  foreignKeyDelete: MESSAGES.deleteInUse,
+};
 
 function refreshEvidencePaths(id?: string) {
   revalidatePath(ROUTES.evidence);
   if (id) revalidatePath(`${ROUTES.evidence}/${id}`);
-}
-
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function toEvidenceRow(
@@ -86,31 +62,6 @@ function toEvidenceRow(
   };
 }
 
-function writeErrorMessage(
-  error: { code?: string; message?: string },
-  context: "write" | "delete" = "write",
-): string {
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (code === "PGRST116" || message.includes("no rows")) {
-    return MESSAGES.notFound;
-  }
-  if (code === "23503" || message.includes("foreign key")) {
-    if (context === "delete") {
-      return MESSAGES.deleteInUse;
-    }
-    if (message.includes("owner") || message.includes("profiles")) {
-      return MESSAGES.invalidOwner;
-    }
-    return MESSAGES.invalidOwner;
-  }
-  return MESSAGES.genericError;
-}
-
 export async function createEvidenceRecord(
   input: CreateEvidenceRecordInput,
 ): Promise<EvidenceActionResult> {
@@ -122,7 +73,7 @@ export async function createEvidenceRecord(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -132,7 +83,10 @@ export async function createEvidenceRecord(
     .single();
 
   if (error || !data?.id) {
-    return { status: "error", message: writeErrorMessage(error ?? {}) };
+    return {
+      status: "error",
+      message: mapPgActionError(error ?? {}, PG_MESSAGES),
+    };
   }
 
   refreshEvidencePaths(data.id);
@@ -150,7 +104,7 @@ export async function updateEvidenceRecord(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase
@@ -161,7 +115,7 @@ export async function updateEvidenceRecord(
     .maybeSingle();
 
   if (error) {
-    return { status: "error", message: writeErrorMessage(error) };
+    return { status: "error", message: mapPgActionError(error, PG_MESSAGES) };
   }
   if (!data?.id) {
     return { status: "error", message: MESSAGES.notFound };
@@ -179,7 +133,7 @@ export async function deleteEvidenceRecord(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -203,7 +157,7 @@ export async function deleteEvidenceRecord(
   if (deleteError) {
     return {
       status: "error",
-      message: writeErrorMessage(deleteError, "delete"),
+      message: mapPgActionError(deleteError, PG_MESSAGES, "delete"),
     };
   }
 

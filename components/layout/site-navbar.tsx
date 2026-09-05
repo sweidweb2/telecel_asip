@@ -213,9 +213,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           <NavigationMenu className="max-w-none flex-1 justify-start" align="start">
             <NavigationMenuList className="justify-start gap-1">
               {labels.items
-                .filter(
-                  (item) => item.href !== homeHref && item.href !== alumniHref,
-                )
+                .filter((item) => item.href !== alumniHref)
                 .map((item) => {
                   const active =
                     isNavActive(pathname, item.href, locale) ||

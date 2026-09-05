@@ -79,3 +79,27 @@ test("retired portfolio URLs resolve to the founders directory", async ({ page }
   await page.goto("/en/portfolio");
   await expect(page).toHaveURL(/\/en\/founders$/);
 });
+
+test("register-interest and apply both stay live without cross-redirect", async ({
+  page,
+}) => {
+  for (const path of ["/en/register-interest", "/en/apply", "/fr/register-interest", "/fr/apply"]) {
+    const response = await page.goto(path);
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(path);
+    await expect(page.locator("h1")).toBeVisible();
+  }
+});
+
+test("navbar primary CTA points at register-interest or apply", async ({
+  page,
+}) => {
+  await page.goto("/en");
+  const cta = page
+    .locator("header")
+    .locator('a[href="/en/apply"], a[href="/en/register-interest"]')
+    .first();
+  await expect(cta).toBeVisible();
+  const href = await cta.getAttribute("href");
+  expect(href === "/en/apply" || href === "/en/register-interest").toBe(true);
+});

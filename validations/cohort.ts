@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+import {
+  CMS_PUBLISH_STATUSES,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+export {
+  CMS_PUBLISH_STATUSES,
+  CMS_PUBLISH_STATUS_LABELS,
+  type CmsPublishStatus,
+} from "@/constants/cms-publish";
+
+/** @deprecated Prefer `CmsPublishStatus` from `@/constants/cms-publish`. */
+export type CmsPublishStatusInput = CmsPublishStatus;
+
 export const COHORT_PAGE_SIZE = 20;
 
 export const COHORT_PUBLIC_LABEL_MAX = 160;
@@ -13,9 +27,6 @@ export const COHORT_PROGRAMME_STATUSES = ["closed", "open", "hold"] as const;
 export type CohortProgrammeStatusInput =
   (typeof COHORT_PROGRAMME_STATUSES)[number];
 
-export const CMS_PUBLISH_STATUSES = ["draft", "published"] as const;
-export type CmsPublishStatusInput = (typeof CMS_PUBLISH_STATUSES)[number];
-
 export const COHORT_PROGRAMME_STATUS_LABELS: Record<
   CohortProgrammeStatusInput,
   string
@@ -24,12 +35,6 @@ export const COHORT_PROGRAMME_STATUS_LABELS: Record<
   open: "Open",
   hold: "Hold",
 };
-
-export const CMS_PUBLISH_STATUS_LABELS: Record<CmsPublishStatusInput, string> =
-  {
-    draft: "Draft",
-    published: "Published",
-  };
 
 const optionalDate = z
   .string()

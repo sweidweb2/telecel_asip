@@ -21,14 +21,9 @@ export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
 export const PUBLIC_PAGE_SLUG_SET = new Set<string>(PUBLIC_PAGE_SLUGS);
 
 /**
- * Slugs kept out of the sitemap and search index.
- * Apply remains routable while closed, but is excluded from discovery until
- * a cohort is formally open. Alumni is a permanent public destination.
+ * Always in the sitemap. `/apply` is added separately when
+ * `site_settings.open_applications` is true (see `app/sitemap.ts`).
  */
-export const UNLISTED_PAGE_SLUGS = new Set<PublicPageSlug>([
-  "apply",
-]);
-
 export const INDEXABLE_PAGE_SLUGS = PUBLIC_PAGE_SLUGS.filter(
-  (slug) => !UNLISTED_PAGE_SLUGS.has(slug),
+  (slug) => slug !== "apply",
 );

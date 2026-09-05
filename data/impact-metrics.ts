@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceOption,
@@ -30,10 +31,6 @@ type ServerClient = Awaited<ReturnType<typeof createClient>>;
 type ListRow = Omit<ImpactMetricListItem, "evidence_primary_source"> & {
   evidence_records: { primary_source: string } | null;
 };
-
-function escapeIlikePattern(value: string): string {
-  return value.replace(/[\\%_"]/g, "\\$&");
-}
 
 function toListItem(row: ListRow): ImpactMetricListItem {
   const { evidence_records, ...rest } = row;
