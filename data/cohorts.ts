@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -76,65 +77,75 @@ async function fetchCohortsPage(
 export async function getCohortsPageData(
   query: CohortListQuery,
 ): Promise<{ status: "forbidden" } | { status: "ok"; list: CohortListResult }> {
-  const supabase = await createClient();
+  return traceAsync(
+    "getCohortsPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
 
-  const [isAdmin, list] = await Promise.all([
-    isCurrentUserAdmin(),
-    fetchCohortsPage(supabase, query),
-  ]);
+      const [isAdmin, list] = await Promise.all([
+        isCurrentUserAdmin(),
+        fetchCohortsPage(supabase, query),
+      ]);
 
-  if (!isAdmin) return { status: "forbidden" };
+      if (!isAdmin) return { status: "forbidden" };
 
-  return { status: "ok", list };
+      return { status: "ok", list };
+    },
+  );
 }
 
-export const getCohortByIdForAdmin = cache(
-  async (
-    id: string,
-  ): Promise<
-    | { status: "forbidden" }
-    | { status: "not_found" }
-    | { status: "ok"; cohort: CohortAdminDetail }
-  > => {
-    if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
+export const getCohortByIdForAdmin = wrapCached(
+  "getCohortByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (
+      id: string,
+    ): Promise<
+      | { status: "forbidden" }
+      | { status: "not_found" }
+      | { status: "ok"; cohort: CohortAdminDetail }
+    > => {
+      if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const { data, error } = await supabase
-      .from("cohorts")
-      .select(DETAIL_COLUMNS)
-      .eq("id", id)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from("cohorts")
+        .select(DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle();
 
-    if (error) throw error;
-    if (!data) return { status: "not_found" };
+      if (error) throw error;
+      if (!data) return { status: "not_found" };
 
-    const [partnersResult, startupsResult] = await Promise.all([
-      supabase
-        .from("cohort_partners")
-        .select("partner_id")
-        .eq("cohort_id", id)
-        .limit(DETAIL_LINK_LIMIT),
-      supabase
-        .from("cohort_startups")
-        .select("startup_id")
-        .eq("cohort_id", id)
-        .limit(DETAIL_LINK_LIMIT),
-    ]);
+      const [partnersResult, startupsResult] = await Promise.all([
+        supabase
+          .from("cohort_partners")
+          .select("partner_id")
+          .eq("cohort_id", id)
+          .limit(DETAIL_LINK_LIMIT),
+        supabase
+          .from("cohort_startups")
+          .select("startup_id")
+          .eq("cohort_id", id)
+          .limit(DETAIL_LINK_LIMIT),
+      ]);
 
-    if (partnersResult.error) throw partnersResult.error;
-    if (startupsResult.error) throw startupsResult.error;
+      if (partnersResult.error) throw partnersResult.error;
+      if (startupsResult.error) throw startupsResult.error;
 
-    return {
-      status: "ok",
-      cohort: {
-        ...(data as Cohort),
-        partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
-        startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
-      },
-    };
-  },
+      return {
+        status: "ok",
+        cohort: {
+          ...(data as Cohort),
+          partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
+          startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
+        },
+      };
+    },
+  ),
 );
 
 /** Narrow id/name lists for the cohort editor multi-selects. */
@@ -148,41 +159,47 @@ export async function getCohortLinkOptionsForAdmin(
       startups: CohortLinkOption[];
     }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "getCohortLinkOptionsForAdmin",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const term = search.trim().slice(0, 100);
-  const pattern = term ? escapeIlikePattern(term) : "";
+      const term = search.trim().slice(0, 100);
+      const pattern = term ? escapeIlikePattern(term) : "";
 
-  let partnersQuery = supabase
-    .from("partners")
-    .select("id, name")
-    .order("name", { ascending: true })
-    .limit(LINK_OPTIONS_LIMIT);
-  let startupsQuery = supabase
-    .from("startups")
-    .select("id, name")
-    .order("name", { ascending: true })
-    .limit(LINK_OPTIONS_LIMIT);
+      let partnersQuery = supabase
+        .from("partners")
+        .select("id, name")
+        .order("name", { ascending: true })
+        .limit(LINK_OPTIONS_LIMIT);
+      let startupsQuery = supabase
+        .from("startups")
+        .select("id, name")
+        .order("name", { ascending: true })
+        .limit(LINK_OPTIONS_LIMIT);
 
-  if (pattern) {
-    partnersQuery = partnersQuery.ilike("name", `%${pattern}%`);
-    startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
-  }
+      if (pattern) {
+        partnersQuery = partnersQuery.ilike("name", `%${pattern}%`);
+        startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
+      }
 
-  const [partnersResult, startupsResult] = await Promise.all([
-    partnersQuery,
-    startupsQuery,
-  ]);
+      const [partnersResult, startupsResult] = await Promise.all([
+        partnersQuery,
+        startupsQuery,
+      ]);
 
-  if (partnersResult.error) throw partnersResult.error;
-  if (startupsResult.error) throw startupsResult.error;
+      if (partnersResult.error) throw partnersResult.error;
+      if (startupsResult.error) throw startupsResult.error;
 
-  return {
-    status: "ok",
-    partners: (partnersResult.data ?? []) as CohortLinkOption[],
-    startups: (startupsResult.data ?? []) as CohortLinkOption[],
-  };
+      return {
+        status: "ok",
+        partners: (partnersResult.data ?? []) as CohortLinkOption[],
+        startups: (startupsResult.data ?? []) as CohortLinkOption[],
+      };
+    },
+  );
 }
 
 async function fetchPublishedCohorts(): Promise<CohortPublicListItem[]> {
@@ -207,46 +224,52 @@ export async function getCohortsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; cohorts: { id: string; label: string }[] }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "getCohortsForBlogPicker",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const term = search.trim().slice(0, 100);
-  let request = supabase
-    .from("cohorts")
-    .select("id, public_label")
-    .order("year", { ascending: false })
-    .order("public_label", { ascending: true })
-    .limit(LINK_OPTIONS_LIMIT);
+      const term = search.trim().slice(0, 100);
+      let request = supabase
+        .from("cohorts")
+        .select("id, public_label")
+        .order("year", { ascending: false })
+        .order("public_label", { ascending: true })
+        .limit(LINK_OPTIONS_LIMIT);
 
-  if (term) {
-    const pattern = escapeIlikePattern(term);
-    request = request.ilike("public_label", `%${pattern}%`);
-  }
+      if (term) {
+        const pattern = escapeIlikePattern(term);
+        request = request.ilike("public_label", `%${pattern}%`);
+      }
 
-  const { data, error } = await request;
-  if (error) throw error;
+      const { data, error } = await request;
+      if (error) throw error;
 
-  let cohorts = (data ?? []).map((row) => ({
-    id: row.id,
-    label: row.public_label,
-  }));
+      let cohorts = (data ?? []).map((row) => ({
+        id: row.id,
+        label: row.public_label,
+      }));
 
-  if (includeCohortId && !cohorts.some((row) => row.id === includeCohortId)) {
-    const included = await supabase
-      .from("cohorts")
-      .select("id, public_label")
-      .eq("id", includeCohortId)
-      .maybeSingle();
-    if (included.error) throw included.error;
-    if (included.data) {
-      cohorts = [
-        { id: included.data.id, label: included.data.public_label },
-        ...cohorts,
-      ];
-    }
-  }
+      if (includeCohortId && !cohorts.some((row) => row.id === includeCohortId)) {
+        const included = await supabase
+          .from("cohorts")
+          .select("id, public_label")
+          .eq("id", includeCohortId)
+          .maybeSingle();
+        if (included.error) throw included.error;
+        if (included.data) {
+          cohorts = [
+            { id: included.data.id, label: included.data.public_label },
+            ...cohorts,
+          ];
+        }
+      }
 
-  return { status: "ok", cohorts };
+      return { status: "ok", cohorts };
+    },
+  );
 }
 
 /** Cached public list for Phase 6 marketing wiring. */

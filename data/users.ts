@@ -123,11 +123,14 @@ export async function getUsersPageData(query: UserListQuery): Promise<
   | { status: "forbidden" }
   | { status: "ok"; list: UserListResult; stats: UserStats }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const [list, stats] = await Promise.all([
-      fetchUsers(supabase, query),
-      fetchUserStats(supabase),
-    ]);
-    return { list, stats };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
+        fetchUsers(supabase, query),
+        fetchUserStats(supabase),
+      ]);
+      return { list, stats };
+    },
+    { name: "getUsersPageData" },
+  );
 }

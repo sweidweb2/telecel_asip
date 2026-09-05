@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
+import { HomeLatestInsightsSection } from "@/components/marketing/home-latest-insights-section";
+import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { JsonLd } from "@/components/seo/json-ld";
+import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ArticleListItem } from "@/types/article";
@@ -61,6 +64,8 @@ export function HomePageContent({
   founders,
   articles,
 }: HomePageContentProps) {
+  const copy = homeCopyFor(locale);
+
   return (
     <main>
       <JsonLd
@@ -139,21 +144,13 @@ export function HomePageContent({
         <EmptySlot label="Telecel connection copy and CTA" />
       </HomeSection>
 
-      <HomeSection title="2026 CTA">
-        <EmptySlot label="next-chapter register interest and partnership CTAs" />
-      </HomeSection>
+      <HomeNextChapterSection locale={locale} copy={copy.nextChapter} />
 
-      <HomeSection title="Latest insights" source="Article">
-        {articles.length > 0 ? (
-          <ul className="space-y-2 text-sm">
-            {articles.map((article) => (
-              <li key={article.id}>{article.title}</li>
-            ))}
-          </ul>
-        ) : (
-          <EmptySlot label="latest Article / insights items" />
-        )}
-      </HomeSection>
+      <HomeLatestInsightsSection
+        locale={locale}
+        copy={copy.latest}
+        articles={articles}
+      />
     </main>
   );
 }

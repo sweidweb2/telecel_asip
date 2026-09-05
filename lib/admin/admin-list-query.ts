@@ -1,4 +1,5 @@
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -20,12 +21,19 @@ export function adminListTotalPages(total: number, pageSize: number) {
  */
 export async function gateAdminPageData<TPayload extends Record<string, unknown>>(
   load: (supabase: ServerClient) => Promise<TPayload>,
+  options?: { name?: string },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
-  const supabase = await createClient();
-  const [isAdmin, payload] = await Promise.all([
-    isCurrentUserAdmin(),
-    load(supabase),
-  ]);
-  if (!isAdmin) return { status: "forbidden" };
-  return { status: "ok", ...payload };
+  return traceAsync(
+    options?.name ?? "gateAdminPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      const [isAdmin, payload] = await Promise.all([
+        isCurrentUserAdmin(),
+        load(supabase),
+      ]);
+      if (!isAdmin) return { status: "forbidden" };
+      return { status: "ok", ...payload };
+    },
+  );
 }

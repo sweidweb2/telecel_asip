@@ -54,8 +54,11 @@ export async function getInterestRegistrationsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: InterestRegistrationListResult }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const list = await fetchInterestRegistrations(supabase, query);
-    return { list };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const list = await fetchInterestRegistrations(supabase, query);
+      return { list };
+    },
+    { name: "getInterestRegistrationsPageData" },
+  );
 }

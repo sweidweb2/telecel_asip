@@ -53,8 +53,11 @@ export async function getApplicationsPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: ApplicationListResult }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const list = await fetchApplications(supabase, query);
-    return { list };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const list = await fetchApplications(supabase, query);
+      return { list };
+    },
+    { name: "getApplicationsPageData" },
+  );
 }

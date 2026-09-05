@@ -6,6 +6,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceOption,
@@ -89,16 +90,22 @@ export async function getImpactMetricsPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: ImpactMetricListResult }
 > {
-  const supabase = await createClient();
+  return traceAsync(
+    "getImpactMetricsPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
 
-  const [isAdmin, list] = await Promise.all([
-    isCurrentUserAdmin(),
-    fetchImpactMetricsPage(supabase, query),
-  ]);
+      const [isAdmin, list] = await Promise.all([
+        isCurrentUserAdmin(),
+        fetchImpactMetricsPage(supabase, query),
+      ]);
 
-  if (!isAdmin) return { status: "forbidden" };
+      if (!isAdmin) return { status: "forbidden" };
 
-  return { status: "ok", list };
+      return { status: "ok", list };
+    },
+  );
 }
 
 type ImpactMetricDetailResult =
@@ -114,34 +121,38 @@ type ImpactMetricDetailResult =
  * Deduped per request: `generateMetadata` and the page body both need the same
  * metric.
  */
-export const getImpactMetricByIdForAdmin = cache(
-  async (id: string): Promise<ImpactMetricDetailResult> => {
-    if (!impactMetricIdSchema.safeParse(id).success) {
-      return { status: "not_found" };
-    }
+export const getImpactMetricByIdForAdmin = wrapCached(
+  "getImpactMetricByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (id: string): Promise<ImpactMetricDetailResult> => {
+      if (!impactMetricIdSchema.safeParse(id).success) {
+        return { status: "not_found" };
+      }
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const { data, error } = await supabase
-      .from("impact_metrics")
-      .select(DETAIL_COLUMNS)
-      .eq("id", id)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from("impact_metrics")
+        .select(DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle();
 
-    if (error) throw error;
-    if (!data) return { status: "not_found" };
+      if (error) throw error;
+      if (!data) return { status: "not_found" };
 
-    const { evidence_records: _evidenceJoin, ...metric } = data as ImpactMetric & {
-      evidence_records: { primary_source: string } | null;
-    };
+      const { evidence_records: _evidenceJoin, ...metric } = data as ImpactMetric & {
+        evidence_records: { primary_source: string } | null;
+      };
 
-    return {
-      status: "ok",
-      metric: metric as ImpactMetric,
-      evidencePrimarySource: _evidenceJoin?.primary_source ?? null,
-    };
-  },
+      return {
+        status: "ok",
+        metric: metric as ImpactMetric,
+        evidencePrimarySource: _evidenceJoin?.primary_source ?? null,
+      };
+    },
+  ),
 );
 
 /**
@@ -154,42 +165,48 @@ export async function listEvidenceOptionsForAdmin(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EvidenceOption[] }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "listEvidenceOptionsForAdmin",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const term = search.trim().slice(0, 100);
-  let request = supabase
-    .from("evidence_records")
-    .select(EVIDENCE_OPTION_COLUMNS)
-    .order("created_at", { ascending: false })
-    .limit(EVIDENCE_OPTIONS_LIMIT);
+      const term = search.trim().slice(0, 100);
+      let request = supabase
+        .from("evidence_records")
+        .select(EVIDENCE_OPTION_COLUMNS)
+        .order("created_at", { ascending: false })
+        .limit(EVIDENCE_OPTIONS_LIMIT);
 
-  if (term) {
-    const pattern = escapeIlikePattern(term);
-    request = request.ilike("primary_source", `%${pattern}%`);
-  }
+      if (term) {
+        const pattern = escapeIlikePattern(term);
+        request = request.ilike("primary_source", `%${pattern}%`);
+      }
 
-  const { data, error } = await request;
-  if (error) throw error;
+      const { data, error } = await request;
+      if (error) throw error;
 
-  let options = (data ?? []) as EvidenceOption[];
-  if (
-    includeEvidenceId &&
-    !options.some((row) => row.id === includeEvidenceId)
-  ) {
-    const included = await supabase
-      .from("evidence_records")
-      .select(EVIDENCE_OPTION_COLUMNS)
-      .eq("id", includeEvidenceId)
-      .maybeSingle();
-    if (included.error) throw included.error;
-    if (included.data) {
-      options = [included.data as EvidenceOption, ...options];
-    }
-  }
+      let options = (data ?? []) as EvidenceOption[];
+      if (
+        includeEvidenceId &&
+        !options.some((row) => row.id === includeEvidenceId)
+      ) {
+        const included = await supabase
+          .from("evidence_records")
+          .select(EVIDENCE_OPTION_COLUMNS)
+          .eq("id", includeEvidenceId)
+          .maybeSingle();
+        if (included.error) throw included.error;
+        if (included.data) {
+          options = [included.data as EvidenceOption, ...options];
+        }
+      }
 
-  return {
-    status: "ok",
-    options,
-  };
+      return {
+        status: "ok",
+        options,
+      };
+    },
+  );
 }

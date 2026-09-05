@@ -39,6 +39,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_perf_events: {
+        Row: {
+          cache_status: string
+          created_at: string
+          db_ms: number | null
+          duration_ms: number
+          error_message: string | null
+          event_type: string
+          id: string
+          meta: Json
+          name: string
+          ok: boolean
+          parent_id: string | null
+          request_id: string
+          route: string | null
+        }
+        Insert: {
+          cache_status: string
+          created_at?: string
+          db_ms?: number | null
+          duration_ms: number
+          error_message?: string | null
+          event_type: string
+          id?: string
+          meta?: Json
+          name: string
+          ok?: boolean
+          parent_id?: string | null
+          request_id: string
+          route?: string | null
+        }
+        Update: {
+          cache_status?: string
+          created_at?: string
+          db_ms?: number | null
+          duration_ms?: number
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          meta?: Json
+          name?: string
+          ok?: boolean
+          parent_id?: string | null
+          request_id?: string
+          route?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_perf_events_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "admin_perf_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           comms_opt_in: boolean

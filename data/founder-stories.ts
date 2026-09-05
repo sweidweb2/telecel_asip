@@ -6,6 +6,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   FounderStory,
@@ -108,16 +109,22 @@ export async function getFounderStoriesPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: FounderStoryListResult }
 > {
-  const supabase = await createClient();
+  return traceAsync(
+    "getFounderStoriesPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
 
-  const [isAdmin, list] = await Promise.all([
-    isCurrentUserAdmin(),
-    fetchFounderStoriesPage(supabase, query),
-  ]);
+      const [isAdmin, list] = await Promise.all([
+        isCurrentUserAdmin(),
+        fetchFounderStoriesPage(supabase, query),
+      ]);
 
-  if (!isAdmin) return { status: "forbidden" };
+      if (!isAdmin) return { status: "forbidden" };
 
-  return { status: "ok", list };
+      return { status: "ok", list };
+    },
+  );
 }
 
 type FounderStoryDetailResult =
@@ -125,29 +132,33 @@ type FounderStoryDetailResult =
   | { status: "not_found" }
   | { status: "ok"; story: FounderStoryDetail };
 
-export const getFounderStoryByIdForAdmin = cache(
-  async (id: string): Promise<FounderStoryDetailResult> => {
-    if (!founderStoryIdSchema.safeParse(id).success) {
-      return { status: "not_found" };
-    }
+export const getFounderStoryByIdForAdmin = wrapCached(
+  "getFounderStoryByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (id: string): Promise<FounderStoryDetailResult> => {
+      if (!founderStoryIdSchema.safeParse(id).success) {
+        return { status: "not_found" };
+      }
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const { data, error } = await supabase
-      .from("founder_stories")
-      .select(DETAIL_COLUMNS)
-      .eq("id", id)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from("founder_stories")
+        .select(DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle();
 
-    if (error) throw error;
-    if (!data) return { status: "not_found" };
+      if (error) throw error;
+      if (!data) return { status: "not_found" };
 
-    return {
-      status: "ok",
-      story: toDetail(data as unknown as StoryRowWithStartup),
-    };
-  },
+      return {
+        status: "ok",
+        story: toDetail(data as unknown as StoryRowWithStartup),
+      };
+    },
+  ),
 );
 
 /**
@@ -162,62 +173,71 @@ export async function getStartupsForStoryPicker(options?: {
   | { status: "forbidden" }
   | { status: "ok"; startups: StartupStoryOption[] }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "getStartupsForStoryPicker",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const includeId = options?.includeStartupId;
-  const term = (options?.search ?? "").trim().slice(0, 100);
+      const includeId = options?.includeStartupId;
+      const term = (options?.search ?? "").trim().slice(0, 100);
 
-  let startupsQuery = supabase
-    .from("startups")
-    .select("id, name")
-    .order("name", { ascending: true })
-    .limit(STORY_PICKER_LIMIT);
+      let startupsQuery = supabase
+        .from("startups")
+        .select("id, name")
+        .order("name", { ascending: true })
+        .limit(STORY_PICKER_LIMIT);
 
-  if (term) {
-    const pattern = escapeIlikePattern(term);
-    startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
-  }
+      if (term) {
+        const pattern = escapeIlikePattern(term);
+        startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
+      }
 
-  const startupsResult = await startupsQuery;
+      const startupsResult = await startupsQuery;
 
-  if (startupsResult.error) throw startupsResult.error;
+      if (startupsResult.error) throw startupsResult.error;
 
-  let candidates = (startupsResult.data ?? []) as StartupStoryOption[];
+      let candidates = (startupsResult.data ?? []) as StartupStoryOption[];
 
-  if (includeId && !candidates.some((row) => row.id === includeId)) {
-    const includedResult = await supabase
-      .from("startups")
-      .select("id, name")
-      .eq("id", includeId)
-      .maybeSingle();
-    if (includedResult.error) throw includedResult.error;
-    if (includedResult.data) {
-      candidates = [includedResult.data as StartupStoryOption, ...candidates];
-    }
-  }
+      if (includeId && !candidates.some((row) => row.id === includeId)) {
+        const includedResult = await supabase
+          .from("startups")
+          .select("id, name")
+          .eq("id", includeId)
+          .maybeSingle();
+        if (includedResult.error) throw includedResult.error;
+        if (includedResult.data) {
+          candidates = [
+            includedResult.data as StartupStoryOption,
+            ...candidates,
+          ];
+        }
+      }
 
-  const candidateIds = candidates.map((row) => row.id);
-  if (candidateIds.length === 0) {
-    return { status: "ok", startups: [] };
-  }
+      const candidateIds = candidates.map((row) => row.id);
+      if (candidateIds.length === 0) {
+        return { status: "ok", startups: [] };
+      }
 
-  const takenResult = await supabase
-    .from("founder_stories")
-    .select("startup_id")
-    .in("startup_id", candidateIds)
-    .limit(STORY_PICKER_LIMIT);
+      const takenResult = await supabase
+        .from("founder_stories")
+        .select("startup_id")
+        .in("startup_id", candidateIds)
+        .limit(STORY_PICKER_LIMIT);
 
-  if (takenResult.error) throw takenResult.error;
+      if (takenResult.error) throw takenResult.error;
 
-  const taken = new Set(
-    (takenResult.data ?? []).map((row) => row.startup_id as string),
+      const taken = new Set(
+        (takenResult.data ?? []).map((row) => row.startup_id as string),
+      );
+
+      const startups = candidates.filter((row) => {
+        if (includeId && row.id === includeId) return true;
+        return !taken.has(row.id);
+      });
+
+      return { status: "ok", startups };
+    },
   );
-
-  const startups = candidates.filter((row) => {
-    if (includeId && row.id === includeId) return true;
-    return !taken.has(row.id);
-  });
-
-  return { status: "ok", startups };
 }

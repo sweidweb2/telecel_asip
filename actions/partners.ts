@@ -12,6 +12,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { traceAsync } from "@/lib/admin/perf";
 import { processImageBuffer } from "@/lib/media/process-image";
 import {
   publicObjectUrl,
@@ -250,78 +251,92 @@ export async function uploadPartnerLogo(
   partnerId: string,
   formData: FormData,
 ): Promise<PartnerActionResult> {
-  if (!partnerIdSchema.safeParse(partnerId).success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return traceAsync(
+    "uploadPartnerLogo",
+    { eventType: "upload", cacheStatus: "n_a", meta: { partnerId } },
+    async () => {
+      if (!partnerIdSchema.safeParse(partnerId).success) {
+        return { status: "error", message: MESSAGES.invalidDetails };
+      }
 
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      const file = formData.get("file");
+      if (!(file instanceof File)) {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  if (!ALLOWED_MIME.has(file.type) || file.size <= 0 || file.size > LOGO_MAX_BYTES) {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      if (
+        !ALLOWED_MIME.has(file.type) ||
+        file.size <= 0 ||
+        file.size > LOGO_MAX_BYTES
+      ) {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      const session = await authorizeAdmin(MESSAGES);
+      if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("partners")
-    .select("id, logo_url")
-    .eq("id", partnerId)
-    .maybeSingle();
+      const { data: existing, error: existingError } = await session.supabase
+        .from("partners")
+        .select("id, logo_url")
+        .eq("id", partnerId)
+        .maybeSingle();
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  let processed;
-  try {
-    processed = await processImageBuffer(
-      Buffer.from(await file.arrayBuffer()),
-      "partnerLogo",
-    );
-  } catch {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      let processed;
+      try {
+        processed = await processImageBuffer(
+          Buffer.from(await file.arrayBuffer()),
+          "partnerLogo",
+        );
+      } catch {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const path = `${partnerId}/${nanoid(10)}.${processed.extension}`;
+      const path = `${partnerId}/${nanoid(10)}.${processed.extension}`;
 
-  const { error: uploadError } = await session.supabase.storage
-    .from(LOGO_BUCKET)
-    .upload(path, processed.buffer, {
-      contentType: processed.contentType,
-      upsert: false,
-      cacheControl: LOGO_CACHE_CONTROL,
-    });
+      const { error: uploadError } = await session.supabase.storage
+        .from(LOGO_BUCKET)
+        .upload(path, processed.buffer, {
+          contentType: processed.contentType,
+          upsert: false,
+          cacheControl: LOGO_CACHE_CONTROL,
+        });
 
-  if (uploadError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (uploadError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
-  const { error: updateError } = await session.supabase
-    .from("partners")
-    .update({ logo_url: publicUrl })
-    .eq("id", partnerId);
+      const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
+      const { error: updateError } = await session.supabase
+        .from("partners")
+        .update({ logo_url: publicUrl })
+        .eq("id", partnerId);
 
-  if (updateError) {
-    await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (updateError) {
+        await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-  refreshPartnerPaths();
-  return { status: "success", message: MESSAGES.uploadSuccess, id: partnerId };
+      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
+      refreshPartnerPaths();
+      return {
+        status: "success",
+        message: MESSAGES.uploadSuccess,
+        id: partnerId,
+      };
+    },
+  );
 }
 
 export async function removePartnerLogo(

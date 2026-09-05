@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -18,6 +18,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,7 +42,7 @@ import {
 type ContactFormProps = {
   locale: Locale;
   labels: ContactLabels;
-  /** Owned by `ContactExperience` so the hero shortcuts can set it too. */
+  /** Owned by `ContactExperience` so enquiry routing stays in one place. */
   enquiryType: ContactEnquiryType;
   onEnquiryTypeChange: (value: ContactEnquiryType) => void;
 };
@@ -45,6 +54,7 @@ export function ContactForm({
   onEnquiryTypeChange,
 }: ContactFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const {
     register,
@@ -91,7 +101,6 @@ export function ContactForm({
           return;
         }
 
-        toast.success(result.message || labels.successToast);
         reset({
           enquiryType,
           fullName: "",
@@ -101,6 +110,7 @@ export function ContactForm({
           message: "",
           turnstileToken: "",
         });
+        setSuccessOpen(true);
       } finally {
         turnstile.reset();
       }
@@ -108,6 +118,7 @@ export function ContactForm({
   }
 
   return (
+    <>
     <Card className="lg:col-span-3">
       <CardHeader>
         <CardTitle>{labels.formTitle}</CardTitle>
@@ -240,5 +251,28 @@ export function ContactForm({
         </form>
       </CardContent>
     </Card>
+
+    <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+      <DialogContent className="sm:max-w-md" showCloseButton>
+        <DialogHeader>
+          <DialogTitle className="pr-8 text-lg">
+            {labels.successTitle}
+          </DialogTitle>
+          <DialogDescription>
+            {labels.successDescription}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-end">
+          <DialogClose
+            render={
+              <Button variant="default" className="min-h-11 w-full sm:w-auto" />
+            }
+          >
+            {labels.successCloseLabel}
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

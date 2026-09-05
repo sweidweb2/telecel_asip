@@ -7,6 +7,7 @@ import {
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -76,17 +77,23 @@ async function fetchBlogsPage(
 export async function getBlogsPageData(
   query: BlogListQuery,
 ): Promise<{ status: "forbidden" } | { status: "ok"; list: BlogListResult }> {
-  return gateAdminPageData(async (supabase) => {
-    const list = await fetchBlogsPage(supabase, query);
-    return { list };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const list = await fetchBlogsPage(supabase, query);
+      return { list };
+    },
+    { name: "getBlogsPageData" },
+  );
 }
 
 /**
  * Deduped per request: `generateMetadata` and the page body both need the same
  * blog.
  */
-export const getBlogByIdForAdmin = cache(
+export const getBlogByIdForAdmin = wrapCached(
+  "getBlogByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
   async (
     id: string,
   ): Promise<
@@ -109,6 +116,7 @@ export const getBlogByIdForAdmin = cache(
     if (!data) return { status: "not_found" };
     return { status: "ok", blog: data as Blog };
   },
+  ),
 );
 
 async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {

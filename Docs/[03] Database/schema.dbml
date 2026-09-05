@@ -844,6 +844,37 @@ Table cohort_startups {
   '''
 }
 
+Table admin_perf_events {
+  id uuid [pk, default: `gen_random_uuid()`]
+  created_at timestamptz [not null, default: `now()`]
+  request_id text [not null]
+  parent_id uuid [null, note: 'Optional parent span']
+  event_type text [not null, note: 'layout|page|action|data_read|option_load|mutation|upload']
+  name text [not null]
+  route text [null]
+  duration_ms float [not null]
+  db_ms float [null]
+  cache_status text [not null, note: 'hit|miss|bypass|n_a']
+  ok boolean [not null, default: true]
+  error_message text [null]
+  meta jsonb [not null, default: '{}']
+
+  indexes {
+    (created_at) [name: 'admin_perf_events_created_at_idx', note: 'DESC in SQL']
+    (name, created_at) [name: 'admin_perf_events_name_created_at_idx']
+    (cache_status, created_at) [name: 'admin_perf_events_cache_status_created_at_idx']
+    (request_id) [name: 'admin_perf_events_request_id_idx']
+    (event_type, created_at) [name: 'admin_perf_events_event_type_created_at_idx']
+  }
+
+  Note: '''
+    Temporary CMS perf debug table. RLS enabled. Admin-only SELECT/INSERT/DELETE via is_admin().
+    No anon grants. Teardown: drop table + remove lib/admin/perf instrumentation.
+  '''
+}
+
+Ref: admin_perf_events.parent_id > admin_perf_events.id [delete: set null]
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]

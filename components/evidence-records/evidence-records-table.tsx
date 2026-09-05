@@ -60,7 +60,9 @@ export function EvidenceRecordsTable({
         <AdminEmptyState
           icon={ShieldCheckIcon}
           title="No evidence records found"
-          description="Try changing the filters, or create a new evidence record from the header."
+          description="Try changing the filters, or create a new evidence record."
+          createHref={ROUTES.evidenceNew}
+          createLabel="New evidence"
         />
       }
       pagination={{

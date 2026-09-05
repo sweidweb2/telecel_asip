@@ -14,6 +14,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { traceAsync } from "@/lib/admin/perf";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
 import { createClient } from "@/lib/supabase/server";
@@ -304,86 +305,100 @@ async function uploadImage(options: {
 }): Promise<BlogActionResult> {
   const { blogId, file, bucket, column, maxBytes } = options;
 
-  const parsedId = blogIdSchema.safeParse(blogId);
-  if (!parsedId.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return traceAsync(
+    column === "thumbnail_url" ? "uploadBlogThumbnail" : "uploadAuthorAvatar",
+    {
+      eventType: "upload",
+      cacheStatus: "n_a",
+      meta: { column, bucket, bytes: file.size },
+    },
+    async () => {
+      const parsedId = blogIdSchema.safeParse(blogId);
+      if (!parsedId.success) {
+        return { status: "error", message: MESSAGES.invalidDetails };
+      }
 
-  if (!ALLOWED_MIME.has(file.type) || file.size <= 0 || file.size > maxBytes) {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      if (
+        !ALLOWED_MIME.has(file.type) ||
+        file.size <= 0 ||
+        file.size > maxBytes
+      ) {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      const session = await authorizeAdmin(MESSAGES);
+      if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("blogs")
-    .select("id, slug, thumbnail_url, author_avatar_url")
-    .eq("id", blogId)
-    .maybeSingle();
+      const { data: existing, error: existingError } = await session.supabase
+        .from("blogs")
+        .select("id, slug, thumbnail_url, author_avatar_url")
+        .eq("id", blogId)
+        .maybeSingle();
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const preset = column === "thumbnail_url" ? "blogCover" : "blogAvatar";
-  let processed;
-  try {
-    processed = await processImageBuffer(
-      Buffer.from(await file.arrayBuffer()),
-      preset,
-    );
-  } catch {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      const preset = column === "thumbnail_url" ? "blogCover" : "blogAvatar";
+      let processed;
+      try {
+        processed = await processImageBuffer(
+          Buffer.from(await file.arrayBuffer()),
+          preset,
+        );
+      } catch {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const path = `${blogId}/${nanoid(10)}.${processed.extension}`;
+      const path = `${blogId}/${nanoid(10)}.${processed.extension}`;
 
-  const { error: uploadError } = await session.supabase.storage
-    .from(bucket)
-    .upload(path, processed.buffer, {
-      contentType: processed.contentType,
-      upsert: false,
-      cacheControl: MEDIA_CACHE_CONTROL,
-    });
+      const { error: uploadError } = await session.supabase.storage
+        .from(bucket)
+        .upload(path, processed.buffer, {
+          contentType: processed.contentType,
+          upsert: false,
+          cacheControl: MEDIA_CACHE_CONTROL,
+        });
 
-  if (uploadError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (uploadError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
-  const previousUrl =
-    column === "thumbnail_url"
-      ? (existing as { thumbnail_url: string | null }).thumbnail_url
-      : (existing as { author_avatar_url: string | null }).author_avatar_url;
+      const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
+      const previousUrl =
+        column === "thumbnail_url"
+          ? (existing as { thumbnail_url: string | null }).thumbnail_url
+          : (existing as { author_avatar_url: string | null }).author_avatar_url;
 
-  const { error: updateError } =
-    column === "thumbnail_url"
-      ? await session.supabase
-          .from("blogs")
-          .update({ thumbnail_url: publicUrl })
-          .eq("id", blogId)
-      : await session.supabase
-          .from("blogs")
-          .update({ author_avatar_url: publicUrl })
-          .eq("id", blogId);
+      const { error: updateError } =
+        column === "thumbnail_url"
+          ? await session.supabase
+              .from("blogs")
+              .update({ thumbnail_url: publicUrl })
+              .eq("id", blogId)
+          : await session.supabase
+              .from("blogs")
+              .update({ author_avatar_url: publicUrl })
+              .eq("id", blogId);
 
-  if (updateError) {
-    await session.supabase.storage.from(bucket).remove([path]);
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (updateError) {
+        await session.supabase.storage.from(bucket).remove([path]);
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  await removeStorageUrlIfOwned(session.supabase, previousUrl, bucket);
-  refreshBlogPaths(existing.slug);
-  return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
+      await removeStorageUrlIfOwned(session.supabase, previousUrl, bucket);
+      refreshBlogPaths(existing.slug);
+      return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
+    },
+  );
 }
 
 export async function uploadBlogThumbnail(

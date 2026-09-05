@@ -45,7 +45,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
         <Button
           className="min-h-11 w-full sm:w-auto"
           nativeButton={false}
-          render={<Link href={`${ROUTES.blogs}/new`} />}
+          render={<Link href={ROUTES.blogsNew} />}
         >
           <PlusIcon className="size-4" />
           New blog

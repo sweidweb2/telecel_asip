@@ -6,6 +6,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
@@ -69,16 +70,22 @@ export async function getEventsPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: EventListResult }
 > {
-  const supabase = await createClient();
+  return traceAsync(
+    "getEventsPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
 
-  const [isAdmin, list] = await Promise.all([
-    isCurrentUserAdmin(),
-    fetchEventsPage(supabase, query),
-  ]);
+      const [isAdmin, list] = await Promise.all([
+        isCurrentUserAdmin(),
+        fetchEventsPage(supabase, query),
+      ]);
 
-  if (!isAdmin) return { status: "forbidden" };
+      if (!isAdmin) return { status: "forbidden" };
 
-  return { status: "ok", list };
+      return { status: "ok", list };
+    },
+  );
 }
 
 type EventDetailResult =
@@ -86,52 +93,60 @@ type EventDetailResult =
   | { status: "not_found" }
   | { status: "ok"; event: EventDetail };
 
-export const getEventByIdForAdmin = cache(
-  async (id: string): Promise<EventDetailResult> => {
-    if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
+export const getEventByIdForAdmin = wrapCached(
+  "getEventByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (id: string): Promise<EventDetailResult> => {
+      if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const [eventResult, linksResult] = await Promise.all([
-      supabase.from("events").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
-      supabase
-        .from("event_startups")
-        .select("startup_id, startups(id, name)")
-        .eq("event_id", id)
-        .limit(DETAIL_LINK_LIMIT),
-    ]);
+      const [eventResult, linksResult] = await Promise.all([
+        supabase
+          .from("events")
+          .select(DETAIL_COLUMNS)
+          .eq("id", id)
+          .maybeSingle(),
+        supabase
+          .from("event_startups")
+          .select("startup_id, startups(id, name)")
+          .eq("event_id", id)
+          .limit(DETAIL_LINK_LIMIT),
+      ]);
 
-    if (eventResult.error) throw eventResult.error;
-    if (linksResult.error) throw linksResult.error;
-    if (!eventResult.data) return { status: "not_found" };
+      if (eventResult.error) throw eventResult.error;
+      if (linksResult.error) throw linksResult.error;
+      if (!eventResult.data) return { status: "not_found" };
 
-    const linked_startups: EventStartupOption[] = [];
-    const startup_ids: string[] = [];
-    for (const row of linksResult.data ?? []) {
-      startup_ids.push(row.startup_id);
-      const startup = row.startups as
-        | EventStartupOption
-        | EventStartupOption[]
-        | null;
-      const named = Array.isArray(startup) ? startup[0] : startup;
-      if (named?.id && named.name) {
-        linked_startups.push({ id: named.id, name: named.name });
+      const linked_startups: EventStartupOption[] = [];
+      const startup_ids: string[] = [];
+      for (const row of linksResult.data ?? []) {
+        startup_ids.push(row.startup_id);
+        const startup = row.startups as
+          | EventStartupOption
+          | EventStartupOption[]
+          | null;
+        const named = Array.isArray(startup) ? startup[0] : startup;
+        if (named?.id && named.name) {
+          linked_startups.push({ id: named.id, name: named.name });
+        }
       }
-    }
 
-    return {
-      status: "ok",
-      event: {
-        ...(eventResult.data as Omit<
-          EventDetail,
-          "startup_ids" | "linked_startups"
-        >),
-        startup_ids,
-        linked_startups,
-      },
-    };
-  },
+      return {
+        status: "ok",
+        event: {
+          ...(eventResult.data as Omit<
+            EventDetail,
+            "startup_ids" | "linked_startups"
+          >),
+          startup_ids,
+          linked_startups,
+        },
+      };
+    },
+  ),
 );
 
 /**
@@ -144,43 +159,49 @@ export async function getEventStartupOptions(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EventStartupOption[] }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "getEventStartupOptions",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const term = search.trim().slice(0, 100);
-  let request = supabase
-    .from("startups")
-    .select("id, name")
-    .order("name", { ascending: true })
-    .limit(STARTUP_OPTIONS_LIMIT);
+      const term = search.trim().slice(0, 100);
+      let request = supabase
+        .from("startups")
+        .select("id, name")
+        .order("name", { ascending: true })
+        .limit(STARTUP_OPTIONS_LIMIT);
 
-  if (term) {
-    const pattern = escapeIlikePattern(term);
-    request = request.ilike("name", `%${pattern}%`);
-  }
+      if (term) {
+        const pattern = escapeIlikePattern(term);
+        request = request.ilike("name", `%${pattern}%`);
+      }
 
-  const { data, error } = await request;
-  if (error) throw error;
+      const { data, error } = await request;
+      if (error) throw error;
 
-  let options = (data ?? []) as EventStartupOption[];
-  const missingIds = includeIds.filter(
-    (id) => id && !options.some((row) => row.id === id),
+      let options = (data ?? []) as EventStartupOption[];
+      const missingIds = includeIds.filter(
+        (id) => id && !options.some((row) => row.id === id),
+      );
+      if (missingIds.length > 0) {
+        const included = await supabase
+          .from("startups")
+          .select("id, name")
+          .in("id", missingIds)
+          .limit(STARTUP_OPTIONS_LIMIT);
+        if (included.error) throw included.error;
+        options = [
+          ...((included.data ?? []) as EventStartupOption[]),
+          ...options,
+        ];
+      }
+
+      return {
+        status: "ok",
+        options,
+      };
+    },
   );
-  if (missingIds.length > 0) {
-    const included = await supabase
-      .from("startups")
-      .select("id, name")
-      .in("id", missingIds)
-      .limit(STARTUP_OPTIONS_LIMIT);
-    if (included.error) throw included.error;
-    options = [
-      ...((included.data ?? []) as EventStartupOption[]),
-      ...options,
-    ];
-  }
-
-  return {
-    status: "ok",
-    options,
-  };
 }

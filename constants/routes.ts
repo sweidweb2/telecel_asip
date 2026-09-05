@@ -14,6 +14,7 @@ export const ROUTES = {
   portfolio: "/dashboard/portfolio",
   portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",
+  blogsNew: "/dashboard/blogs/new",
   cohorts: "/dashboard/cohorts",
   cohortsNew: "/dashboard/cohorts/new",
   partners: "/dashboard/partners",
@@ -28,6 +29,7 @@ export const ROUTES = {
   eventsNew: "/dashboard/events/new",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
+  performance: "/dashboard/performance",
   backup: "/dashboard/backup",
   settings: "/dashboard/settings",
 } as const;

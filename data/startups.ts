@@ -8,6 +8,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -140,59 +141,66 @@ export async function getStartupsPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: StartupListResult }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const list = await fetchStartupsPage(supabase, query);
-    return { list };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const list = await fetchStartupsPage(supabase, query);
+      return { list };
+    },
+    { name: "getStartupsPageData" },
+  );
 }
 
 /**
  * Deduped per request: `generateMetadata` and the page body both need the same
  * startup.
  */
-export const getStartupByIdForAdmin = cache(
-  async (
-    id: string,
-  ): Promise<
-    | { status: "forbidden" }
-    | { status: "not_found" }
-    | { status: "ok"; startup: StartupWithDetails }
-  > => {
-    if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
+export const getStartupByIdForAdmin = wrapCached(
+  "getStartupByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (
+      id: string,
+    ): Promise<
+      | { status: "forbidden" }
+      | { status: "not_found" }
+      | { status: "ok"; startup: StartupWithDetails }
+    > => {
+      if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const [
-      { data: startup, error: startupError },
-      { data: details, error: detailsError },
-    ] = await Promise.all([
-      supabase
-        .from("startups")
-        .select(DETAIL_COLUMNS)
-        .eq("id", id)
-        .maybeSingle(),
-      supabase
-        .from("startup_details")
-        .select(DETAILS_COLUMNS)
-        .eq("startup_id", id)
-        .maybeSingle(),
-    ]);
+      const [
+        { data: startup, error: startupError },
+        { data: details, error: detailsError },
+      ] = await Promise.all([
+        supabase
+          .from("startups")
+          .select(DETAIL_COLUMNS)
+          .eq("id", id)
+          .maybeSingle(),
+        supabase
+          .from("startup_details")
+          .select(DETAILS_COLUMNS)
+          .eq("startup_id", id)
+          .maybeSingle(),
+      ]);
 
-    if (startupError) throw startupError;
-    if (detailsError) throw detailsError;
-    if (!startup) return { status: "not_found" };
+      if (startupError) throw startupError;
+      if (detailsError) throw detailsError;
+      if (!startup) return { status: "not_found" };
 
-    return {
-      status: "ok",
-      startup: {
-        ...(startup as StartupListItem & {
-          status: StartupWithDetails["status"];
-        }),
-        details: details ?? null,
-      } as StartupWithDetails,
-    };
-  },
+      return {
+        status: "ok",
+        startup: {
+          ...(startup as StartupListItem & {
+            status: StartupWithDetails["status"];
+          }),
+          details: details ?? null,
+        } as StartupWithDetails,
+      };
+    },
+  ),
 );
 
 const BLOG_PICKER_LIMIT = 100;
@@ -205,39 +213,51 @@ export async function getStartupsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; startups: { id: string; name: string }[] }
 > {
-  const supabase = await createClient();
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+  return traceAsync(
+    "getStartupsForBlogPicker",
+    { eventType: "option_load", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const term = search.trim().slice(0, 100);
-  let request = supabase
-    .from("startups")
-    .select("id, name")
-    .order("name", { ascending: true })
-    .limit(BLOG_PICKER_LIMIT);
+      const term = search.trim().slice(0, 100);
+      let request = supabase
+        .from("startups")
+        .select("id, name")
+        .order("name", { ascending: true })
+        .limit(BLOG_PICKER_LIMIT);
 
-  if (term) {
-    const pattern = escapeIlikePattern(term);
-    request = request.ilike("name", `%${pattern}%`);
-  }
+      if (term) {
+        const pattern = escapeIlikePattern(term);
+        request = request.ilike("name", `%${pattern}%`);
+      }
 
-  const { data, error } = await request;
-  if (error) throw error;
+      const { data, error } = await request;
+      if (error) throw error;
 
-  let startups = (data ?? []) as { id: string; name: string }[];
+      let startups = (data ?? []) as { id: string; name: string }[];
 
-  if (includeStartupId && !startups.some((row) => row.id === includeStartupId)) {
-    const included = await supabase
-      .from("startups")
-      .select("id, name")
-      .eq("id", includeStartupId)
-      .maybeSingle();
-    if (included.error) throw included.error;
-    if (included.data) {
-      startups = [included.data as { id: string; name: string }, ...startups];
-    }
-  }
+      if (
+        includeStartupId &&
+        !startups.some((row) => row.id === includeStartupId)
+      ) {
+        const included = await supabase
+          .from("startups")
+          .select("id, name")
+          .eq("id", includeStartupId)
+          .maybeSingle();
+        if (included.error) throw included.error;
+        if (included.data) {
+          startups = [
+            included.data as { id: string; name: string },
+            ...startups,
+          ];
+        }
+      }
 
-  return { status: "ok", startups };
+      return { status: "ok", startups };
+    },
+  );
 }
 
 async function fetchActiveStartupsPage(

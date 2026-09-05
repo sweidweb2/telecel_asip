@@ -412,7 +412,7 @@ export function BlogEditorForm({
     if (avatarInputRef.current) avatarInputRef.current.value = "";
     reset(emptyCreateValues);
     clearErrors();
-    router.push(`${ROUTES.blogs}/new`);
+    router.push(ROUTES.blogsNew);
     router.refresh();
   }
 

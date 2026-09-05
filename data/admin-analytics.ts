@@ -31,38 +31,45 @@ export type AdminAnalytics = {
   content: ContentSnapshotRow[];
 };
 
-type HeadCountQuery = {
-  eq: (column: string, value: string | boolean) => HeadCountQuery;
-  neq: (column: string, value: string) => HeadCountQuery;
-  gte: (column: string, value: string) => HeadCountQuery;
-  then: Promise<{ count: number | null; error: { message: string } | null }>["then"];
+type AnalyticsTable =
+  | "applications"
+  | "interest_registrations"
+  | "contact_messages"
+  | "blogs"
+  | "startups"
+  | "partners"
+  | "cohorts"
+  | "events"
+  | "founder_stories"
+  | "impact_metrics";
+
+type HeadCountBuilder = {
+  eq: (column: string, value: string | boolean) => HeadCountBuilder;
+  neq: (column: string, value: string) => HeadCountBuilder;
+  gte: (column: string, value: string) => HeadCountBuilder;
 };
 
-function headCount(
+async function countRows(
   supabase: ServerClient,
-  table:
-    | "applications"
-    | "interest_registrations"
-    | "contact_messages"
-    | "blogs"
-    | "startups"
-    | "partners"
-    | "cohorts"
-    | "events"
-    | "founder_stories"
-    | "impact_metrics",
-): HeadCountQuery {
-  return supabase.from(table).select("id", {
-    count: "exact",
-    head: true,
-  }) as unknown as HeadCountQuery;
-}
-
-async function countFiltered(
-  query: HeadCountQuery,
+  table: AnalyticsTable,
+  filter?: (query: HeadCountBuilder) => HeadCountBuilder,
 ): Promise<number> {
-  const { count, error } = await query;
-  if (error) throw error;
+  const base = supabase
+    .from(table)
+    .select("id", { count: "exact", head: true }) as unknown as HeadCountBuilder;
+
+  const query = filter ? filter(base) : base;
+  const { count, error } = await (query as unknown as PromiseLike<{
+    count: number | null;
+    error: { message?: string; code?: string } | null;
+  }>);
+
+  if (error) {
+    throw new Error(
+      `Analytics count failed on ${table}: ${error.message || error.code || "unknown error"}`,
+    );
+  }
+
   return count ?? 0;
 }
 
@@ -75,12 +82,12 @@ async function inboxStats(
 
   const [total, unread, reviewed, archived, last7Days, last30Days] =
     await Promise.all([
-      countFiltered(headCount(supabase, table)),
-      countFiltered(headCount(supabase, table).eq("inbox_status", "unread")),
-      countFiltered(headCount(supabase, table).eq("inbox_status", "reviewed")),
-      countFiltered(headCount(supabase, table).eq("inbox_status", "archived")),
-      countFiltered(headCount(supabase, table).gte("created_at", since7)),
-      countFiltered(headCount(supabase, table).gte("created_at", since30)),
+      countRows(supabase, table),
+      countRows(supabase, table, (q) => q.eq("inbox_status", "unread")),
+      countRows(supabase, table, (q) => q.eq("inbox_status", "reviewed")),
+      countRows(supabase, table, (q) => q.eq("inbox_status", "archived")),
+      countRows(supabase, table, (q) => q.gte("created_at", since7)),
+      countRows(supabase, table, (q) => q.gte("created_at", since30)),
     ]);
 
   return { total, unread, reviewed, archived, last7Days, last30Days };
@@ -102,34 +109,31 @@ async function fetchContentSnapshot(
     eventsDraft,
     storiesPublished,
     storiesDraft,
-    metricsPublished,
-    metricsDraft,
+    metricsVerified,
+    metricsOther,
   ] = await Promise.all([
-    countFiltered(headCount(supabase, "blogs").eq("status", "published")),
-    countFiltered(headCount(supabase, "blogs").eq("status", "draft")),
-    countFiltered(headCount(supabase, "startups").eq("status", "active")),
-    countFiltered(headCount(supabase, "startups").neq("status", "active")),
-    countFiltered(headCount(supabase, "partners").eq("is_active", true)),
-    countFiltered(headCount(supabase, "partners").eq("is_active", false)),
-    countFiltered(
-      headCount(supabase, "cohorts").eq("publish_status", "published"),
+    countRows(supabase, "blogs", (q) => q.eq("status", "published")),
+    countRows(supabase, "blogs", (q) => q.eq("status", "draft")),
+    countRows(supabase, "startups", (q) => q.eq("status", "active")),
+    countRows(supabase, "startups", (q) => q.neq("status", "active")),
+    countRows(supabase, "partners", (q) => q.eq("is_active", true)),
+    countRows(supabase, "partners", (q) => q.eq("is_active", false)),
+    countRows(supabase, "cohorts", (q) => q.eq("publish_status", "published")),
+    countRows(supabase, "cohorts", (q) => q.eq("publish_status", "draft")),
+    countRows(supabase, "events", (q) => q.eq("publish_status", "published")),
+    countRows(supabase, "events", (q) => q.eq("publish_status", "draft")),
+    countRows(supabase, "founder_stories", (q) =>
+      q.eq("publish_status", "published"),
     ),
-    countFiltered(headCount(supabase, "cohorts").eq("publish_status", "draft")),
-    countFiltered(
-      headCount(supabase, "events").eq("publish_status", "published"),
+    countRows(supabase, "founder_stories", (q) =>
+      q.eq("publish_status", "draft"),
     ),
-    countFiltered(headCount(supabase, "events").eq("publish_status", "draft")),
-    countFiltered(
-      headCount(supabase, "founder_stories").eq("publish_status", "published"),
+    // impact_metrics.publish_status is evidence_status (verified/pending/…), not draft/published
+    countRows(supabase, "impact_metrics", (q) =>
+      q.eq("publish_status", "verified"),
     ),
-    countFiltered(
-      headCount(supabase, "founder_stories").eq("publish_status", "draft"),
-    ),
-    countFiltered(
-      headCount(supabase, "impact_metrics").eq("publish_status", "published"),
-    ),
-    countFiltered(
-      headCount(supabase, "impact_metrics").eq("publish_status", "draft"),
+    countRows(supabase, "impact_metrics", (q) =>
+      q.neq("publish_status", "verified"),
     ),
   ]);
 
@@ -185,10 +189,10 @@ async function fetchContentSnapshot(
     {
       label: "Impact metrics",
       href: ROUTES.impactMetrics,
-      primary: metricsPublished,
-      primaryLabel: "Published",
-      secondary: metricsDraft,
-      secondaryLabel: "Draft",
+      primary: metricsVerified,
+      primaryLabel: "Verified",
+      secondary: metricsOther,
+      secondaryLabel: "Other",
     },
   ];
 }
@@ -196,22 +200,25 @@ async function fetchContentSnapshot(
 export async function getAdminAnalytics(): Promise<
   { status: "forbidden" } | { status: "ok"; analytics: AdminAnalytics }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const [applications, registrations, contactMessages, content] =
-      await Promise.all([
-        inboxStats(supabase, "applications"),
-        inboxStats(supabase, "interest_registrations"),
-        inboxStats(supabase, "contact_messages"),
-        fetchContentSnapshot(supabase),
-      ]);
+  return gateAdminPageData(
+    async (supabase) => {
+      const [applications, registrations, contactMessages, content] =
+        await Promise.all([
+          inboxStats(supabase, "applications"),
+          inboxStats(supabase, "interest_registrations"),
+          inboxStats(supabase, "contact_messages"),
+          fetchContentSnapshot(supabase),
+        ]);
 
-    return {
-      analytics: {
-        applications,
-        registrations,
-        contactMessages,
-        content,
-      },
-    };
-  });
+      return {
+        analytics: {
+          applications,
+          registrations,
+          contactMessages,
+          content,
+        },
+      };
+    },
+    { name: "getAdminAnalytics" },
+  );
 }

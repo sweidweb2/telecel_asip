@@ -16,6 +16,7 @@ import {
   NewspaperIcon,
   SettingsIcon,
   ShieldCheckIcon,
+  TimerIcon,
   UserPlusIcon,
   UsersIcon,
   UsersRoundIcon,
@@ -55,6 +56,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.events]: CalendarIcon,
   [ROUTES.contactUs]: MailIcon,
   [ROUTES.analytics]: BarChart3Icon,
+  [ROUTES.performance]: TimerIcon,
   [ROUTES.backup]: DatabaseBackupIcon,
   [ROUTES.settings]: SettingsIcon,
 };

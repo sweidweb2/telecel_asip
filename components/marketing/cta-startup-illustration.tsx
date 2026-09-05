@@ -124,7 +124,7 @@ export function CtaStartupIllustration({
 }: {
   className?: string;
 }) {
-  // Each wave: own undulation, rises into cluster, smooth tip (no hard join)
+  // Tips aim at the cluster but stop short for clear breathing room.
   const leftTeal: Point[] = [
     { x: 0, y: 128 },
     { x: 70, y: 148 },
@@ -133,9 +133,9 @@ export function CtaStartupIllustration({
     { x: 230, y: 108 },
     { x: 280, y: 108 },
     { x: 330, y: 124 },
-    { x: 380, y: 140 },
-    { x: 420, y: 100 },
-    { x: 470, y: 56 },
+    { x: 370, y: 136 },
+    { x: 410, y: 118 },
+    { x: 448, y: 98 },
   ];
   const leftPink: Point[] = [
     { x: 0, y: 142 },
@@ -145,9 +145,9 @@ export function CtaStartupIllustration({
     { x: 210, y: 158 },
     { x: 270, y: 152 },
     { x: 320, y: 130 },
-    { x: 370, y: 108 },
-    { x: 425, y: 100 },
-    { x: 478, y: 70 },
+    { x: 365, y: 122 },
+    { x: 415, y: 112 },
+    { x: 456, y: 100 },
   ];
   const leftBlue: Point[] = [
     { x: 0, y: 112 },
@@ -157,9 +157,9 @@ export function CtaStartupIllustration({
     { x: 240, y: 92 },
     { x: 290, y: 98 },
     { x: 340, y: 118 },
-    { x: 390, y: 138 },
-    { x: 435, y: 95 },
-    { x: 476, y: 44 },
+    { x: 380, y: 128 },
+    { x: 420, y: 108 },
+    { x: 462, y: 88 },
   ];
 
   const rightTeal: Point[] = [
@@ -170,9 +170,9 @@ export function CtaStartupIllustration({
     { x: 970, y: 108 },
     { x: 920, y: 108 },
     { x: 870, y: 124 },
-    { x: 820, y: 140 },
-    { x: 780, y: 100 },
-    { x: 730, y: 56 },
+    { x: 830, y: 136 },
+    { x: 790, y: 118 },
+    { x: 752, y: 98 },
   ];
   const rightPink: Point[] = [
     { x: 1200, y: 142 },
@@ -182,9 +182,9 @@ export function CtaStartupIllustration({
     { x: 990, y: 158 },
     { x: 930, y: 152 },
     { x: 880, y: 130 },
-    { x: 830, y: 108 },
-    { x: 775, y: 100 },
-    { x: 722, y: 70 },
+    { x: 835, y: 122 },
+    { x: 785, y: 112 },
+    { x: 744, y: 100 },
   ];
   const rightBlue: Point[] = [
     { x: 1200, y: 112 },
@@ -194,9 +194,9 @@ export function CtaStartupIllustration({
     { x: 960, y: 92 },
     { x: 910, y: 98 },
     { x: 860, y: 118 },
-    { x: 810, y: 138 },
-    { x: 765, y: 95 },
-    { x: 724, y: 44 },
+    { x: 820, y: 128 },
+    { x: 780, y: 108 },
+    { x: 738, y: 88 },
   ];
 
   return (

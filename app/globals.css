@@ -352,6 +352,14 @@
   animation: about-story-float 6s ease-in-out 1s infinite;
 }
 
+.next-chapter-float {
+  animation: about-story-float 5.5s ease-in-out infinite;
+}
+
+.next-chapter-float-delayed {
+  animation: about-story-float 7s ease-in-out 1.2s infinite;
+}
+
 @keyframes scroll-horizontal {
   0% {
     transform: translateX(0);
@@ -393,7 +401,9 @@
   .about-story-fade-up,
   .about-story-underline,
   .about-story-float,
-  .about-story-float-delayed {
+  .about-story-float-delayed,
+  .next-chapter-float,
+  .next-chapter-float-delayed {
     animation: none !important;
     opacity: 1;
     transform: none;

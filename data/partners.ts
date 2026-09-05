@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -82,18 +83,24 @@ export async function getPartnersPageData(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; list: PartnerListResult }
 > {
-  const supabase = await createClient();
+  return traceAsync(
+    "getPartnersPageData",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
 
-  // RLS already restricts the rows, so the list can run alongside the role
-  // check instead of waiting a full round trip for it.
-  const [isAdmin, list] = await Promise.all([
-    isCurrentUserAdmin(),
-    fetchPartnersPage(supabase, query),
-  ]);
+      // RLS already restricts the rows, so the list can run alongside the role
+      // check instead of waiting a full round trip for it.
+      const [isAdmin, list] = await Promise.all([
+        isCurrentUserAdmin(),
+        fetchPartnersPage(supabase, query),
+      ]);
 
-  if (!isAdmin) return { status: "forbidden" };
+      if (!isAdmin) return { status: "forbidden" };
 
-  return { status: "ok", list };
+      return { status: "ok", list };
+    },
+  );
 }
 
 type PartnerDetailResult =
@@ -105,26 +112,30 @@ type PartnerDetailResult =
  * Deduped per request: `generateMetadata` and the page body both need the same
  * partner, and without `cache()` that is two role checks plus two selects.
  */
-export const getPartnerByIdForAdmin = cache(
-  async (id: string): Promise<PartnerDetailResult> => {
-    // An id that is not a uuid would make Postgres raise 22P02, surfacing a
-    // crash where the route should simply render its not-found page.
-    if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
+export const getPartnerByIdForAdmin = wrapCached(
+  "getPartnerByIdForAdmin",
+  { eventType: "data_read" },
+  cache(
+    async (id: string): Promise<PartnerDetailResult> => {
+      // An id that is not a uuid would make Postgres raise 22P02, surfacing a
+      // crash where the route should simply render its not-found page.
+      if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-    const { data, error } = await supabase
-      .from("partners")
-      .select(LIST_COLUMNS)
-      .eq("id", id)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from("partners")
+        .select(LIST_COLUMNS)
+        .eq("id", id)
+        .maybeSingle();
 
-    if (error) throw error;
-    if (!data) return { status: "not_found" };
+      if (error) throw error;
+      if (!data) return { status: "not_found" };
 
-    return { status: "ok", partner: data as Partner };
-  },
+      return { status: "ok", partner: data as Partner };
+    },
+  ),
 );
 
 type PublicRow = Pick<

@@ -58,8 +58,11 @@ export async function getContactMessagesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ContactMessageListResult }
 > {
-  return gateAdminPageData(async (supabase) => {
-    const list = await fetchContactMessages(supabase, query);
-    return { list };
-  });
+  return gateAdminPageData(
+    async (supabase) => {
+      const list = await fetchContactMessages(supabase, query);
+      return { list };
+    },
+    { name: "getContactMessagesPageData" },
+  );
 }

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
+import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 
 type ForbiddenResult = { status: "forbidden" };
 type OkListResult<TList extends { totalPages: number }> = {
@@ -29,7 +30,17 @@ export async function loadAdminListPage<
   buildClampParams: (query: TQuery, totalPages: number) => URLSearchParams;
   forbiddenPath?: string;
 }): Promise<TOk> {
-  const result = await fetchPage(query);
+  setAdminPerfRoute(listPath);
+
+  const result = await traceAsync(
+    "loadAdminListPage",
+    {
+      eventType: "page",
+      route: listPath,
+      meta: { page: query.page },
+    },
+    () => fetchPage(query),
+  );
 
   if (result.status === "forbidden") {
     redirect(forbiddenPath);

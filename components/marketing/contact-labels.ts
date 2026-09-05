@@ -9,9 +9,6 @@ export type ContactEnquiryRoute = {
 };
 
 export type ContactLabels = {
-  heroEyebrow: string;
-  heroTitle: string;
-  heroDescription: string;
   routesLegend: string;
   routesHint: string;
   routes: readonly ContactEnquiryRoute[];
@@ -36,14 +33,13 @@ export type ContactLabels = {
   submitLabel: string;
   submittingLabel: string;
   successToast: string;
+  successTitle: string;
+  successDescription: string;
+  successCloseLabel: string;
   turnstileHint: string;
 };
 
 const EN: ContactLabels = {
-  heroEyebrow: "Contact",
-  heroTitle: "Start with the right conversation.",
-  heroDescription:
-    "Choose the route that best matches your objective and the ASIP team will direct your enquiry to the relevant owner.",
   routesLegend: "Enquiry route",
   routesHint: "Pick the route that matches your enquiry.",
   routes: [
@@ -92,14 +88,14 @@ const EN: ContactLabels = {
   submitLabel: "Send message",
   submittingLabel: "Sending…",
   successToast: "Thank you — your message has been sent.",
+  successTitle: "Thank you",
+  successDescription:
+    "Your message has been sent. The ASIP team will get back to you shortly.",
+  successCloseLabel: "Close",
   turnstileHint: "Complete the security check before sending.",
 };
 
 const FR: ContactLabels = {
-  heroEyebrow: "Contact",
-  heroTitle: "Commencez par la bonne conversation.",
-  heroDescription:
-    "Choisissez le parcours qui correspond le mieux à votre objectif et l’équipe ASIP transmettra votre demande au bon interlocuteur.",
   routesLegend: "Type de demande",
   routesHint: "Choisissez le parcours qui correspond à votre demande.",
   routes: [
@@ -150,6 +146,10 @@ const FR: ContactLabels = {
   submitLabel: "Envoyer le message",
   submittingLabel: "Envoi…",
   successToast: "Merci — votre message a bien été envoyé.",
+  successTitle: "Merci",
+  successDescription:
+    "Votre message a bien été envoyé. L’équipe ASIP vous répondra rapidement.",
+  successCloseLabel: "Fermer",
   turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 

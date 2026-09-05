@@ -64,7 +64,9 @@ export function ImpactMetricsTable({
         <AdminEmptyState
           icon={ChartColumnIcon}
           title="No impact metrics found"
-          description="Try changing the filters, or create a new metric from the header."
+          description="Try changing the filters, or create a new metric."
+          createHref={ROUTES.impactMetricsNew}
+          createLabel="New metric"
         />
       }
       pagination={{

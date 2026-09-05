@@ -48,7 +48,7 @@ export function BlogsTable({
           icon={NewspaperIcon}
           title="No blogs found"
           description="Try changing the filters, or create a new blog."
-          createHref={`${ROUTES.blogs}/new`}
+          createHref={ROUTES.blogsNew}
           createLabel="New blog"
         />
       }

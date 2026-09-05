@@ -14,7 +14,7 @@ export const metadata = buildMarketingMetadata({
 export default async function Page() {
   const [founders, articles] = await Promise.all([
     getSpotlightStartups(5),
-    getLatestInsights("en", 3),
+    getLatestInsights("en", 8),
   ]);
 
   return (

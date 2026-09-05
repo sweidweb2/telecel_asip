@@ -122,6 +122,10 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 ## Tables without functions / triggers
 
+### `public.admin_perf_events`
+
+No RPCs, functions, or triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the `/dashboard/performance` reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
+
 ### `public.interest_registrations`
 
 No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=apply`), and in-memory rate limits (hits recorded only after a successful insert). Admins list/update/delete via the session client under `is_admin()` RLS policies.

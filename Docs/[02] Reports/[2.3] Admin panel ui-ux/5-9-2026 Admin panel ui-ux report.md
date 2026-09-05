@@ -17,6 +17,8 @@
 
 **Shipped pattern:** sidebar groups + header; `AdminListPageShell` / `AdminDataTable` / `AdminFilterBar` / `AdminEmptyState`; full-page editors for long CMS forms; inbox triage; Analytics KPIs; Backup CSV export.
 
+**Consistency rescan (5 Sep 2026):** Checklist matches live code. Follow-ups applied: Evidence/Impact empty-state Create CTAs; `ROUTES.blogsNew`; removed unused `AdminComingSoon`.
+
 ---
 
 ## Phase 0 — Fix before demos
