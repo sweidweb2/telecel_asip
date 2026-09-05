@@ -18,9 +18,13 @@ import {
 
 type SiteSettingsFormProps = {
   openApplications: boolean;
+  newsletterSignupEnabled: boolean;
 };
 
-export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
+export function SiteSettingsForm({
+  openApplications,
+  newsletterSignupEnabled,
+}: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -31,10 +35,14 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
     formState: { isDirty },
   } = useForm<UpdateSiteSettingsInput>({
     resolver: zodResolver(updateSiteSettingsSchema),
-    defaultValues: { openApplications },
+    defaultValues: { openApplications, newsletterSignupEnabled },
   });
 
   const isOpen = useWatch({ control, name: "openApplications" });
+  const isNewsletterOn = useWatch({
+    control,
+    name: "newsletterSignupEnabled",
+  });
 
   function onSubmit(values: UpdateSiteSettingsInput) {
     startTransition(async () => {
@@ -79,6 +87,34 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
               />
               <span className="text-sm font-medium">
                 {isOpen ? "Open" : "Closed"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <Label htmlFor="newsletter-signup" className="text-base">
+                Newsletter signup
+              </Label>
+              <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+                When off, the Insights updates form stays inactive and rejects
+                submissions. Turn on only after privacy, routing, and owner are
+                confirmed.
+              </p>
+            </div>
+            <div className="flex min-h-11 items-center gap-3">
+              <Switch
+                id="newsletter-signup"
+                checked={isNewsletterOn}
+                disabled={isPending}
+                onCheckedChange={(checked) =>
+                  setValue("newsletterSignupEnabled", checked, {
+                    shouldDirty: true,
+                  })
+                }
+              />
+              <span className="text-sm font-medium">
+                {isNewsletterOn ? "Enabled" : "Disabled"}
               </span>
             </div>
           </div>

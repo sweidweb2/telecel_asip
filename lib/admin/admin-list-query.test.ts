@@ -1,9 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   adminListRange,
   adminListTotalPages,
+  gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+
+const isCurrentUserAdmin = vi.fn();
+const createClient = vi.fn();
+
+vi.mock("@/lib/admin/is-current-user-admin", () => ({
+  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: (...args: unknown[]) => createClient(...args),
+}));
 
 describe("adminListRange", () => {
   it("returns inclusive bounds for page 1", () => {
@@ -22,5 +34,43 @@ describe("adminListTotalPages", () => {
 
   it("ceils fractional pages", () => {
     expect(adminListTotalPages(21, 20)).toBe(2);
+  });
+});
+
+describe("gateAdminPageData", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    createClient.mockResolvedValue({ tag: "supabase" });
+  });
+
+  it("runs load concurrently with the admin check", async () => {
+    const order: string[] = [];
+
+    isCurrentUserAdmin.mockImplementation(async () => {
+      order.push("admin-start");
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      order.push("admin-end");
+      return true;
+    });
+
+    const result = await gateAdminPageData(async (supabase) => {
+      order.push("load-start");
+      expect(supabase).toEqual({ tag: "supabase" });
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      order.push("load-end");
+      return { rows: [1] };
+    });
+
+    expect(result).toEqual({ status: "ok", rows: [1] });
+    expect(order.indexOf("load-start")).toBeLessThan(order.indexOf("admin-end"));
+    expect(order.indexOf("admin-start")).toBeLessThan(order.indexOf("load-end"));
+  });
+
+  it("returns forbidden when the user is not an admin", async () => {
+    isCurrentUserAdmin.mockResolvedValue(false);
+
+    const result = await gateAdminPageData(async () => ({ rows: [] }));
+
+    expect(result).toEqual({ status: "forbidden" });
   });
 });

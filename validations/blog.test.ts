@@ -15,14 +15,43 @@ describe("blog validations", () => {
     slug: "improve-design-skills",
     summary: "Tools and trends change, but good design is timeless.",
     bodyHtml: "<p>Hello world</p>",
-    categories: ["Design", "Research"],
+    categories: ["Founder Stories", "Design"],
     authorName: "Amélie Laurent",
     status: "draft" as const,
     isFeatured: false,
+    startupId: null,
+    cohortId: null,
+    sources: [],
+    metaTitle: null,
+    metaDescription: null,
   };
 
   it("accepts a valid create payload", () => {
     expect(createBlogSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("requires the first category to be an ASIP stream", () => {
+    const result = createBlogSchema.safeParse({
+      ...valid,
+      categories: ["Design", "Founder Stories"],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows extra free-text tags after a stream", () => {
+    const result = createBlogSchema.safeParse({
+      ...valid,
+      categories: ["Portfolio News", "Funding", "Ghana"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an empty categories list", () => {
+    const result = createBlogSchema.safeParse({
+      ...valid,
+      categories: [],
+    });
+    expect(result.success).toBe(false);
   });
 
   it("rejects an invalid slug", () => {
@@ -82,14 +111,14 @@ describe("blog utils", () => {
 });
 
 describe("toArticle", () => {
-  it("maps categories and reading time", () => {
+  it("maps categories, SEO fields, and reading time", () => {
     const article = toArticle({
       id: "00000000-0000-4000-8000-000000000001",
       slug: "test-post",
       title: "Test",
       summary: "Summary",
       body_html: "<p>Hi</p>",
-      categories: ["Design", "Research"],
+      categories: ["Founder Stories", "Design"],
       thumbnail_url: "https://example.com/a.webp",
       author_name: "Ada",
       author_avatar_url: null,
@@ -97,14 +126,21 @@ describe("toArticle", () => {
       published_at: "2025-01-10T12:00:00.000Z",
       updated_at: "2025-01-11T12:00:00.000Z",
       is_featured: true,
+      startup_id: null,
+      cohort_id: null,
+      sources: ["https://example.com/source"],
+      meta_title: "SEO title",
+      meta_description: "SEO description",
     });
 
-    expect(article.category.name).toBe("Design");
+    expect(article.category.name).toBe("Founder Stories");
     expect(article.tags).toHaveLength(2);
     expect(article.readingTime).toBe("5 min read");
     expect(article.bodyHtml).toBe("<p>Hi</p>");
     expect(article.isFeatured).toBe(true);
     expect(article.datePublishedIso).toBe("2025-01-10T12:00:00.000Z");
     expect(article.dateModifiedIso).toBe("2025-01-11T12:00:00.000Z");
+    expect(article.metaTitle).toBe("SEO title");
+    expect(article.sources).toEqual(["https://example.com/source"]);
   });
 });

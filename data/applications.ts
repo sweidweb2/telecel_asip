@@ -23,7 +23,7 @@ async function fetchApplications(
 
   let request = supabase
     .from("applications")
-    .select(APPLICATION_COLUMNS, { count: "exact" })
+    .select(APPLICATION_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);

@@ -1,25 +1,27 @@
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { BlogSection } from "@/components/marketing/blog-section";
-import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import {
+  NewsletterSignupSection,
+  newsletterSignupLabelsFor,
+} from "@/components/marketing/newsletter-signup-section";
 import { Section } from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import type { ArticleListItem } from "@/types/article";
-import type { InsightsPageCopy } from "@/types/marketing-page";
 
 type InsightsPageContentProps = {
   locale: Locale;
-  copy: InsightsPageCopy;
   labels: BlogLabels;
   articles: ArticleListItem[];
   featured?: ArticleListItem;
+  newsletterEnabled: boolean;
 };
 
 export function InsightsPageContent({
   locale,
-  copy,
   labels,
   articles,
   featured,
+  newsletterEnabled,
 }: InsightsPageContentProps) {
   return (
     <main>
@@ -32,7 +34,12 @@ export function InsightsPageContent({
         />
       </Section>
 
-      <PageCtaSection locale={locale} cta={copy.updates} />
+      <NewsletterSignupSection
+        locale={locale}
+        enabled={newsletterEnabled}
+        labels={newsletterSignupLabelsFor(locale)}
+        sourcePage={`/${locale}/insights`}
+      />
     </main>
   );
 }

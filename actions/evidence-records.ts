@@ -38,7 +38,9 @@ const MESSAGES = {
 } as const;
 
 /** Lazy option load for the create dialog (list page skips eager fetch). */
-export async function loadEvidenceFormOptions(): Promise<
+export async function loadEvidenceFormOptions(
+  search = "",
+): Promise<
   | {
       status: "ok";
       owners: EvidenceOwnerOption[];
@@ -47,7 +49,7 @@ export async function loadEvidenceFormOptions(): Promise<
   | { status: "error"; message: string }
 > {
   const [ownersResult, profile] = await Promise.all([
-    getEvidenceOwnerOptions(),
+    getEvidenceOwnerOptions(search),
     getCurrentUserProfile(),
   ]);
   if (ownersResult.status === "forbidden") {

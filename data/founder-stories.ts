@@ -5,6 +5,7 @@ import {
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 import type {
   FounderStory,
@@ -21,7 +22,7 @@ import {
 export const FOUNDER_STORIES_CACHE_TAG = "founder-stories";
 
 /** Cap startup picker so editor pages stay bounded. */
-const STORY_PICKER_LIMIT = 500;
+const STORY_PICKER_LIMIT = 100;
 
 /** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
 const DETAIL_LINK_LIMIT = 500;
@@ -80,7 +81,7 @@ async function fetchFounderStoriesPage(
 
   let request = supabase
     .from("founder_stories")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("updated_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -112,13 +113,12 @@ export async function getFounderStoriesPageData(
 > {
   const supabase = await createClient();
 
-  const [adminResult, list] = await Promise.all([
-    supabase.rpc("is_admin"),
+  const [isAdmin, list] = await Promise.all([
+    isCurrentUserAdmin(),
     fetchFounderStoriesPage(supabase, query),
   ]);
 
-  if (adminResult.error) throw adminResult.error;
-  if (!adminResult.data) return { status: "forbidden" };
+  if (!isAdmin) return { status: "forbidden" };
 
   return { status: "ok", list };
 }
@@ -135,9 +135,7 @@ export const getFounderStoryByIdForAdmin = cache(
     }
 
     const supabase = await createClient();
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-    if (adminError) throw adminError;
-    if (!isAdmin) return { status: "forbidden" };
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("founder_stories")
@@ -167,9 +165,7 @@ export async function getStartupsForStoryPicker(options?: {
   | { status: "ok"; startups: StartupStoryOption[] }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
   const includeId = options?.includeStartupId;
 

@@ -23,7 +23,7 @@ async function fetchContactMessages(
 
   let request = supabase
     .from("contact_messages")
-    .select(MESSAGE_COLUMNS, { count: "exact" })
+    .select(MESSAGE_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);

@@ -109,6 +109,11 @@ function toBlogJson(input: CreateBlogInput) {
     status: input.status,
     is_featured: input.isFeatured,
     reading_time_minutes: estimateReadingTimeMinutes(bodyHtml),
+    startup_id: input.startupId,
+    cohort_id: input.cohortId,
+    sources: input.sources,
+    meta_title: input.metaTitle,
+    meta_description: input.metaDescription,
   };
 }
 

@@ -10,6 +10,7 @@ check now /code-review (scoped to the local branch only)
 
 check now are there any security performance problems using a broader view?
 
+check now are there any ways the UI/UX for this feature could be made simpler, more intuitive, or more consistent with modern best practices?
 
 =============================================================
 

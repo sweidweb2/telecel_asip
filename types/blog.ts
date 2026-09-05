@@ -1,6 +1,6 @@
 import type { Tables } from "@/types/database";
 import type { Article, ArticleListItem } from "@/types/article";
-import { insightPath } from "@/constants/routes";
+import { founderStartupPath, insightPath } from "@/constants/routes";
 import type { Locale } from "@/constants/locales";
 import { format } from "date-fns";
 
@@ -24,6 +24,11 @@ export type BlogListItem = Pick<
   | "published_at"
   | "created_at"
   | "updated_at"
+  | "startup_id"
+  | "cohort_id"
+  | "sources"
+  | "meta_title"
+  | "meta_description"
 >;
 
 /** Public list/related row (no body_html). */
@@ -42,12 +47,39 @@ export type BlogPublicListItem = Pick<
   | "is_featured"
 >;
 
+export type BlogPublicDetail = Pick<
+  Blog,
+  | "id"
+  | "slug"
+  | "title"
+  | "summary"
+  | "body_html"
+  | "categories"
+  | "thumbnail_url"
+  | "author_name"
+  | "author_avatar_url"
+  | "reading_time_minutes"
+  | "published_at"
+  | "updated_at"
+  | "is_featured"
+  | "startup_id"
+  | "cohort_id"
+  | "sources"
+  | "meta_title"
+  | "meta_description"
+>;
+
 export type BlogSlugRow = Pick<Blog, "slug" | "updated_at">;
 
 export type BlogListResult = {
   blogs: BlogListItem[];
   total: number;
   totalPages: number;
+};
+
+export type BlogRelatedLinks = {
+  startup?: { id: string; name: string; slug: string };
+  cohort?: { id: string; label: string };
 };
 
 function readingTimeLabel(minutes: number): string {
@@ -100,28 +132,31 @@ export function toArticleList(
 
 /** Maps a DB blog detail row to the marketing `Article` shape. */
 export function toArticle(
-  blog: Pick<
-    Blog,
-    | "id"
-    | "slug"
-    | "title"
-    | "summary"
-    | "body_html"
-    | "categories"
-    | "thumbnail_url"
-    | "author_name"
-    | "author_avatar_url"
-    | "reading_time_minutes"
-    | "published_at"
-    | "updated_at"
-    | "is_featured"
-  >,
+  blog: BlogPublicDetail,
   locale: Locale = "en",
+  related: BlogRelatedLinks = {},
 ): Article {
   return {
     ...toArticleListFields(blog, locale),
     bodyHtml: blog.body_html,
     datePublishedIso: blog.published_at,
     dateModifiedIso: blog.updated_at,
+    sources: blog.sources ?? [],
+    metaTitle: blog.meta_title,
+    metaDescription: blog.meta_description,
+    relatedStartup: related.startup
+      ? {
+          id: related.startup.id,
+          name: related.startup.name,
+          slug: related.startup.slug,
+          href: founderStartupPath(locale, related.startup.slug),
+        }
+      : undefined,
+    relatedCohort: related.cohort
+      ? {
+          id: related.cohort.id,
+          label: related.cohort.label,
+        }
+      : undefined,
   };
 }

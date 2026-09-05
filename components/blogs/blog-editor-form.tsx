@@ -32,6 +32,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { ROUTES } from "@/constants/routes";
@@ -42,19 +49,29 @@ import {
   BLOG_BODY_MAX,
   BLOG_CATEGORIES_MAX,
   BLOG_CATEGORY_MAX,
+  BLOG_META_DESCRIPTION_MAX,
+  BLOG_META_TITLE_MAX,
   BLOG_SLUG_MAX,
+  BLOG_SOURCE_MAX,
+  BLOG_SOURCES_MAX,
   BLOG_SUMMARY_MAX,
   BLOG_TITLE_MAX,
   createBlogSchema,
   type CreateBlogInput,
 } from "@/validations/blog";
 
+type BlogLinkOption = { id: string; name: string };
+
 type BlogEditorFormProps = {
   mode: "create" | "edit";
   blog?: Blog;
+  startups: BlogLinkOption[];
+  cohorts: { id: string; label: string }[];
   heading: string;
   description: string;
 };
+
+const STREAM_SET = new Set<string>(RECOMMENDED_BLOG_CATEGORIES);
 
 function FieldLabel({
   htmlFor,
@@ -78,12 +95,15 @@ function FieldLabel({
 export function BlogEditorForm({
   mode,
   blog,
+  startups,
+  cohorts,
   heading,
   description,
 }: BlogEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(false);
+  const [sourceDraft, setSourceDraft] = useState("");
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [pendingCover, setPendingCover] = useState<File | null>(null);
@@ -104,6 +124,11 @@ export function BlogEditorForm({
     authorName: "",
     status: "draft",
     isFeatured: false,
+    startupId: null,
+    cohortId: null,
+    sources: [],
+    metaTitle: null,
+    metaDescription: null,
   };
 
   const {
@@ -127,13 +152,23 @@ export function BlogEditorForm({
       authorName: blog?.author_name ?? "",
       status: blog?.status ?? "draft",
       isFeatured: blog?.is_featured ?? false,
+      startupId: blog?.startup_id ?? null,
+      cohortId: blog?.cohort_id ?? null,
+      sources: blog?.sources ?? [],
+      metaTitle: blog?.meta_title ?? null,
+      metaDescription: blog?.meta_description ?? null,
     },
   });
 
   const title = useWatch({ control, name: "title" });
-  const categories = useWatch({ control, name: "categories" });
+  const categories = useWatch({ control, name: "categories" }) ?? [];
+  const sources = useWatch({ control, name: "sources" }) ?? [];
   const status = useWatch({ control, name: "status" });
   const isFeatured = useWatch({ control, name: "isFeatured" });
+  const startupId = useWatch({ control, name: "startupId" });
+  const cohortId = useWatch({ control, name: "cohortId" });
+  const primaryStream =
+    categories[0] && STREAM_SET.has(categories[0]) ? categories[0] : null;
 
   function replacePendingCover(file: File | null) {
     setPendingCoverPreview((prev) => {
@@ -143,11 +178,37 @@ export function BlogEditorForm({
     setPendingCover(file);
   }
 
-  function toggleCategory(name: string) {
-    const next = categories.includes(name)
-      ? categories.filter((item) => item !== name)
-      : [...categories, name];
-    setValue("categories", next, { shouldValidate: false });
+  /** First category must be an ASIP stream; other labels stay as free tags. */
+  function setPrimaryStream(name: string) {
+    const extras = categories.filter(
+      (item) => item !== name && !STREAM_SET.has(item),
+    );
+    setValue("categories", [name, ...extras], { shouldValidate: false });
+  }
+
+  function removeCategory(name: string) {
+    setValue(
+      "categories",
+      categories.filter((item) => item !== name),
+      { shouldValidate: false },
+    );
+  }
+
+  function addSource() {
+    const value = sourceDraft.trim();
+    if (!value || sources.includes(value) || sources.length >= BLOG_SOURCES_MAX) {
+      return;
+    }
+    setValue("sources", [...sources, value], { shouldValidate: false });
+    setSourceDraft("");
+  }
+
+  function removeSource(name: string) {
+    setValue(
+      "sources",
+      sources.filter((item) => item !== name),
+      { shouldValidate: false },
+    );
   }
 
   function onSubmit(values: CreateBlogInput) {
@@ -682,17 +743,215 @@ export function BlogEditorForm({
 
           <Card size="sm">
             <CardHeader className="border-b">
+              <CardTitle>Related & SEO</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Optional founder/cohort links, sources, and search metadata
+              </p>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-startup">Related founder</FieldLabel>
+                <Controller
+                  control={control}
+                  name="startupId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={(value) =>
+                        field.onChange(value && value.length > 0 ? value : null)
+                      }
+                      disabled={isPending}
+                    >
+                      <SelectTrigger id="blog-startup" className="min-h-11 w-full">
+                        <SelectValue
+                          placeholder={
+                            startups.length === 0
+                              ? "No startups available"
+                              : "None"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {startups.map((startup) => (
+                          <SelectItem key={startup.id} value={startup.id}>
+                            {startup.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {startupId ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-11 w-fit"
+                    disabled={isPending}
+                    onClick={() =>
+                      setValue("startupId", null, { shouldValidate: false })
+                    }
+                  >
+                    Clear founder
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-cohort">Related cohort</FieldLabel>
+                <Controller
+                  control={control}
+                  name="cohortId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={(value) =>
+                        field.onChange(value && value.length > 0 ? value : null)
+                      }
+                      disabled={isPending}
+                    >
+                      <SelectTrigger id="blog-cohort" className="min-h-11 w-full">
+                        <SelectValue
+                          placeholder={
+                            cohorts.length === 0
+                              ? "No cohorts available"
+                              : "None"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cohorts.map((cohort) => (
+                          <SelectItem key={cohort.id} value={cohort.id}>
+                            {cohort.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {cohortId ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-11 w-fit"
+                    disabled={isPending}
+                    onClick={() =>
+                      setValue("cohortId", null, { shouldValidate: false })
+                    }
+                  >
+                    Clear cohort
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="blog-meta-title" hint={`max ${BLOG_META_TITLE_MAX}`}>
+                  Meta title
+                </FieldLabel>
+                <Input
+                  id="blog-meta-title"
+                  className="min-h-11"
+                  maxLength={BLOG_META_TITLE_MAX}
+                  disabled={isPending}
+                  {...register("metaTitle")}
+                />
+                {errors.metaTitle ? (
+                  <p className="text-sm text-destructive">
+                    {errors.metaTitle.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel
+                  htmlFor="blog-meta-description"
+                  hint={`max ${BLOG_META_DESCRIPTION_MAX}`}
+                >
+                  Meta description
+                </FieldLabel>
+                <Textarea
+                  id="blog-meta-description"
+                  rows={3}
+                  maxLength={BLOG_META_DESCRIPTION_MAX}
+                  disabled={isPending}
+                  {...register("metaDescription")}
+                />
+                {errors.metaDescription ? (
+                  <p className="text-sm text-destructive">
+                    {errors.metaDescription.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <FieldLabel hint={`up to ${BLOG_SOURCES_MAX} · max ${BLOG_SOURCE_MAX} chars`}>
+                  Sources
+                </FieldLabel>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    className="min-h-11"
+                    placeholder="URL or citation, then Add"
+                    value={sourceDraft}
+                    disabled={isPending}
+                    onChange={(event) => setSourceDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addSource();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11 w-full sm:w-auto"
+                    disabled={isPending}
+                    onClick={addSource}
+                  >
+                    Add
+                  </Button>
+                </div>
+                {sources.length > 0 ? (
+                  <ul className="flex flex-wrap gap-2">
+                    {sources.map((source) => (
+                      <li key={source}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="min-h-11 max-w-full truncate"
+                          disabled={isPending}
+                          onClick={() => removeSource(source)}
+                        >
+                          {source} ×
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {errors.sources ? (
+                  <p className="text-sm text-destructive">
+                    {errors.sources.message ?? errors.sources.root?.message}
+                  </p>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card size="sm">
+            <CardHeader className="border-b">
               <CardTitle>Categories</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Prefer an Insights stream as the first category so the public
-                feed filters correctly · up to {BLOG_CATEGORIES_MAX} · each max{" "}
+                First category must be an Insights stream · extra free tags
+                allowed · up to {BLOG_CATEGORIES_MAX} · each max{" "}
                 {BLOG_CATEGORY_MAX} chars
               </p>
             </CardHeader>
             <CardContent className="grid gap-3">
               <div className="flex flex-wrap gap-2">
                 {RECOMMENDED_BLOG_CATEGORIES.map((name) => {
-                  const active = categories.includes(name);
+                  const active = primaryStream === name;
                   return (
                     <Button
                       key={name}
@@ -701,7 +960,7 @@ export function BlogEditorForm({
                       variant={active ? "default" : "outline"}
                       className="min-h-11"
                       disabled={isPending}
-                      onClick={() => toggleCategory(name)}
+                      onClick={() => setPrimaryStream(name)}
                     >
                       {name}
                     </Button>
@@ -710,13 +969,17 @@ export function BlogEditorForm({
               </div>
               <Input
                 className="min-h-11"
-                placeholder="Add custom category and press Enter"
+                placeholder="Add custom tag and press Enter"
                 disabled={isPending}
                 onKeyDown={(event) => {
                   if (event.key !== "Enter") return;
                   event.preventDefault();
                   const value = event.currentTarget.value.trim();
                   if (!value || categories.includes(value)) return;
+                  if (!primaryStream) {
+                    toast.error("Pick a content stream first");
+                    return;
+                  }
                   setValue("categories", [...categories, value], {
                     shouldValidate: false,
                   });
@@ -725,17 +988,17 @@ export function BlogEditorForm({
               />
               {categories.length > 0 ? (
                 <ul className="flex flex-wrap gap-2">
-                  {categories.map((name) => (
-                    <li key={name}>
+                  {categories.map((name, index) => (
+                    <li key={`${name}-${index}`}>
                       <Button
                         type="button"
                         size="sm"
-                        variant="secondary"
+                        variant={index === 0 ? "default" : "secondary"}
                         className="min-h-11"
-                        disabled={isPending}
-                        onClick={() => toggleCategory(name)}
+                        disabled={isPending || index === 0}
+                        onClick={() => removeCategory(name)}
                       >
-                        {name} ×
+                        {index === 0 ? `${name} (stream)` : `${name} ×`}
                       </Button>
                     </li>
                   ))}
@@ -743,7 +1006,10 @@ export function BlogEditorForm({
               ) : null}
               {errors.categories ? (
                 <p className="text-sm text-destructive">
-                  {errors.categories.message ?? errors.categories.root?.message}
+                  {typeof errors.categories.message === "string"
+                    ? errors.categories.message
+                    : errors.categories.root?.message ??
+                      errors.categories[0]?.message}
                 </p>
               ) : null}
             </CardContent>

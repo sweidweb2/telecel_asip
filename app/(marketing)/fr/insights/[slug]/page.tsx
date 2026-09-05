@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: PageProps) {
   return buildMarketingMetadata({
     locale: "fr",
     path: `/insights/${slug}`,
-    title: `${article.title} — ASIP`,
-    description: article.summary,
+    title: `${article.metaTitle ?? article.title} — ASIP`,
+    description: article.metaDescription ?? article.summary,
     image: article.thumbnailUrl || undefined,
     ogType: "article",
   });

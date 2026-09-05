@@ -4,6 +4,9 @@ export const TURNSTILE_CONTACT_ACTION = "contact";
 /** Stable Turnstile `data-action` for the public apply / interest registration form. */
 export const TURNSTILE_APPLY_ACTION = "apply";
 
+/** Stable Turnstile `data-action` for the Insights newsletter signup. */
+export const TURNSTILE_NEWSLETTER_ACTION = "newsletter";
+
 export type TurnstileWidgetId = string;
 
 export type TurnstileRenderOptions = {

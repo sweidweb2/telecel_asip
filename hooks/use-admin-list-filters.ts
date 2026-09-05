@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useRef, useState, useTransition } from "react";
 
-const SEARCH_DEBOUNCE_MS = 600;
+const SEARCH_DEBOUNCE_MS = 800;
 
 type UseAdminListFiltersArgs = {
   basePath: string;
@@ -54,8 +54,9 @@ export function useAdminListFilters({
     });
     next.set("page", "1");
 
+    const qs = next.toString();
     startTransition(() => {
-      router.push(`${basePath}?${next.toString()}`);
+      router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false });
     });
   }
 

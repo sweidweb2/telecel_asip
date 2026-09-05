@@ -222,7 +222,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Unfeatures the current hero post and inserts the new post in a single transaction, so a failed insert can no longer leave the site with zero featured posts.
+**Details:** Unfeatures the current hero post and inserts the new post in a single transaction, so a failed insert can no longer leave the site with zero featured posts. Also persists optional Article fields: `startup_id`, `cohort_id`, `sources`, `meta_title`, `meta_description` (from `p_blog` JSON; empty strings → null / empty array).
 
 **How it works:** Raises `42501` unless `is_admin()`. Forces `is_featured = false` when `status = 'draft'`. When the new row is featured, clears `is_featured` on all other rows first — `blogs_one_featured_uidx` is a non-deferrable partial unique index, so the old hero must go before the new one lands. Stamps `published_at = now()` when published. Unique slug violations surface as Postgres `23505`.
 
@@ -235,7 +235,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Same transactional unfeature-then-write as create; returns the previous slug so callers can revalidate renamed public paths.
+**Details:** Same transactional unfeature-then-write as create; returns the previous slug so callers can revalidate renamed public paths. Persists the same optional Article fields as create (`startup_id`, `cohort_id`, `sources`, `meta_title`, `meta_description`).
 
 **How it works:** Raises `42501` unless `is_admin()`. Locks the row (`FOR UPDATE`); raises `P0002` if missing. Drafts are forced unfeatured. Clears `is_featured` on every other row when this one is featured, then updates. `published_at` keeps its original value once set and is only stamped on the first publish.
 
@@ -289,6 +289,20 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 **Details:** Backs `blogs_categories_item_len_chk`. Exists because a CHECK constraint cannot contain a subquery, and per-element bounds on a `text[]` need `unnest`.
 
 **How it works:** Unnests the array and returns `bool_and(char_length(category) between 1 and 40)`, defaulting to `true` for an empty or null array. Mirrors `BLOG_CATEGORY_MAX` in `validations/blog.ts`.
+
+---
+
+### `public.blog_sources_within_bounds(sources text[])`
+
+| | |
+| --- | --- |
+| **Role** | CHECK constraint helper for `public.blogs.sources` |
+| **Returns** | `boolean` |
+| **Security** | Plain `sql`, `immutable` |
+
+**Details:** Backs `blogs_sources_bounds_chk`. Exists because a CHECK constraint cannot contain a subquery, and per-element bounds on a `text[]` need `unnest`.
+
+**How it works:** Returns true when `cardinality(sources) <= 20` and every trimmed item is between 1 and 500 characters (empty array allowed). Mirrors `BLOG_SOURCES_MAX` / `BLOG_SOURCE_MAX` in `validations/blog.ts`.
 
 ---
 

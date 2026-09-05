@@ -36,11 +36,13 @@ const MESSAGES = {
 } as const;
 
 /** Lazy option load for the create dialog (list page skips eager fetch). */
-export async function loadEventStartupOptions(): Promise<
+export async function loadEventStartupOptions(
+  search = "",
+): Promise<
   | { status: "ok"; options: EventStartupOption[] }
   | { status: "error"; message: string }
 > {
-  const result = await getEventStartupOptions();
+  const result = await getEventStartupOptions(search);
   if (result.status === "forbidden") {
     return { status: "error", message: MESSAGES.unauthorized };
   }

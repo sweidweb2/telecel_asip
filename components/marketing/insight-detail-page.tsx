@@ -19,6 +19,9 @@ type InsightDetailLabels = {
   publishedOn: string;
   fileUnder: string;
   moreInsights: string;
+  relatedFounder: string;
+  relatedCohort: string;
+  sources: string;
 };
 
 type InsightDetailPageProps = {
@@ -136,6 +139,55 @@ export function InsightDetailPage({
             className="prose prose-neutral dark:prose-invert max-w-none text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8"
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
+
+          {(article.relatedStartup ||
+            article.relatedCohort ||
+            article.sources.length > 0) && (
+            <aside className="mt-10 space-y-6 border-t pt-8">
+              {article.relatedStartup ? (
+                <div>
+                  <p className="text-sm font-semibold">{labels.relatedFounder}</p>
+                  <Link
+                    href={article.relatedStartup.href}
+                    className="mt-2 inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline"
+                  >
+                    {article.relatedStartup.name}
+                  </Link>
+                </div>
+              ) : null}
+              {article.relatedCohort ? (
+                <div>
+                  <p className="text-sm font-semibold">{labels.relatedCohort}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {article.relatedCohort.label}
+                  </p>
+                </div>
+              ) : null}
+              {article.sources.length > 0 ? (
+                <div>
+                  <p className="text-sm font-semibold">{labels.sources}</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    {article.sources.map((source) => (
+                      <li key={source} className="break-words">
+                        {/^https?:\/\//i.test(source) ? (
+                          <a
+                            href={source}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline-offset-4 hover:underline"
+                          >
+                            {source}
+                          </a>
+                        ) : (
+                          source
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </aside>
+          )}
         </div>
 
         {related.length > 0 ? (
@@ -182,5 +234,8 @@ export function insightDetailLabelsFor(
     publishedOn: blogLabels.publishedOn,
     fileUnder: blogLabels.fileUnder,
     moreInsights: locale === "fr" ? "Autres articles" : "More insights",
+    relatedFounder: locale === "fr" ? "Fondateur lié" : "Related founder",
+    relatedCohort: locale === "fr" ? "Cohorte liée" : "Related cohort",
+    sources: locale === "fr" ? "Sources" : "Sources",
   };
 }

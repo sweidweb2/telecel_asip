@@ -47,7 +47,10 @@ export async function updateSiteSettings(
 
   const { data, error } = await supabase
     .from("site_settings")
-    .update({ open_applications: parsed.data.openApplications })
+    .update({
+      open_applications: parsed.data.openApplications,
+      newsletter_signup_enabled: parsed.data.newsletterSignupEnabled,
+    })
     .eq("id", SITE_SETTINGS_ID)
     .select("id")
     .maybeSingle();
@@ -59,6 +62,8 @@ export async function updateSiteSettings(
   revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
   // The CTA lives in both marketing layouts, so refresh the whole public tree.
   revalidatePath("/", "layout");
+  revalidatePath("/en/insights");
+  revalidatePath("/fr/insights");
   revalidatePath(ROUTES.settings);
 
   return { status: "success", message: MESSAGES.updateSuccess };

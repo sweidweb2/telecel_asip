@@ -5,6 +5,7 @@ import {
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceOption,
@@ -28,7 +29,7 @@ const DETAIL_COLUMNS =
 const EVIDENCE_OPTION_COLUMNS = "id, primary_source, status" as const;
 
 /** Upper bound so the evidence Select stays bounded. */
-const EVIDENCE_OPTIONS_LIMIT = 500;
+const EVIDENCE_OPTIONS_LIMIT = 100;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -52,7 +53,7 @@ async function fetchImpactMetricsPage(
 
   let request = supabase
     .from("impact_metrics")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -90,13 +91,12 @@ export async function getImpactMetricsPageData(
 > {
   const supabase = await createClient();
 
-  const [adminResult, list] = await Promise.all([
-    supabase.rpc("is_admin"),
+  const [isAdmin, list] = await Promise.all([
+    isCurrentUserAdmin(),
     fetchImpactMetricsPage(supabase, query),
   ]);
 
-  if (adminResult.error) throw adminResult.error;
-  if (!adminResult.data) return { status: "forbidden" };
+  if (!isAdmin) return { status: "forbidden" };
 
   return { status: "ok", list };
 }
@@ -117,9 +117,7 @@ export const getImpactMetricByIdForAdmin = cache(
     }
 
     const supabase = await createClient();
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-    if (adminError) throw adminError;
-    if (!isAdmin) return { status: "forbidden" };
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("impact_metrics")
@@ -138,20 +136,27 @@ export const getImpactMetricByIdForAdmin = cache(
  * Evidence options for the metric form Select. Admin-gated; does not own
  * Phase 1 evidence CRUD.
  */
-export async function listEvidenceOptionsForAdmin(): Promise<
+export async function listEvidenceOptionsForAdmin(
+  search = "",
+): Promise<
   { status: "forbidden" } | { status: "ok"; options: EvidenceOption[] }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const { data, error } = await supabase
+  const term = search.trim().slice(0, 100);
+  let request = supabase
     .from("evidence_records")
     .select(EVIDENCE_OPTION_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(EVIDENCE_OPTIONS_LIMIT);
 
+  if (term) {
+    const pattern = escapeIlikePattern(term);
+    request = request.ilike("primary_source", `%${pattern}%`);
+  }
+
+  const { data, error } = await request;
   if (error) throw error;
 
   return {

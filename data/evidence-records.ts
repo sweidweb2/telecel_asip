@@ -5,6 +5,7 @@ import {
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceDetail,
@@ -24,7 +25,7 @@ const LIST_COLUMNS =
 const DETAIL_COLUMNS =
   "id, primary_source, source_file_url, measurement_period_start, measurement_period_end, owner_id, status, last_verified_date, permission, review_date, created_at, updated_at, owner:profiles!evidence_records_owner_id_fkey(id, email, full_name)" as const;
 
-const OWNER_OPTION_LIMIT = 200;
+const OWNER_OPTION_LIMIT = 100;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -43,7 +44,7 @@ async function fetchEvidencePage(
 
   let request = supabase
     .from("evidence_records")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -86,13 +87,12 @@ export async function getEvidenceRecordsPageData(
 > {
   const supabase = await createClient();
 
-  const [adminResult, list] = await Promise.all([
-    supabase.rpc("is_admin"),
+  const [isAdmin, list] = await Promise.all([
+    isCurrentUserAdmin(),
     fetchEvidencePage(supabase, query),
   ]);
 
-  if (adminResult.error) throw adminResult.error;
-  if (!adminResult.data) return { status: "forbidden" };
+  if (!isAdmin) return { status: "forbidden" };
 
   return { status: "ok", list };
 }
@@ -109,9 +109,7 @@ export const getEvidenceRecordByIdForAdmin = cache(
     }
 
     const supabase = await createClient();
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-    if (adminError) throw adminError;
-    if (!isAdmin) return { status: "forbidden" };
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("evidence_records")
@@ -140,21 +138,30 @@ export const getEvidenceRecordByIdForAdmin = cache(
  * Profiles available as evidence owners in the admin form.
  * Admin-gated; capped so the Select stays practical.
  */
-export async function getEvidenceOwnerOptions(): Promise<
+export async function getEvidenceOwnerOptions(
+  search = "",
+): Promise<
   { status: "forbidden" } | { status: "ok"; owners: EvidenceOwnerOption[] }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
-  const { data, error } = await supabase
+  const term = search.trim().slice(0, 100);
+  let request = supabase
     .from("profiles")
     .select("id, email, full_name")
     .order("full_name", { ascending: true, nullsFirst: false })
     .order("email", { ascending: true })
     .limit(OWNER_OPTION_LIMIT);
 
+  if (term) {
+    const pattern = escapeIlikePattern(term);
+    request = request.or(
+      `full_name.ilike.%${pattern}%,email.ilike.%${pattern}%`,
+    );
+  }
+
+  const { data, error } = await request;
   if (error) throw error;
 
   return { status: "ok", owners: (data ?? []) as EvidenceOwnerOption[] };

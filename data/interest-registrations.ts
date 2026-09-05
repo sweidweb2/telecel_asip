@@ -23,7 +23,7 @@ async function fetchInterestRegistrations(
 
   let request = supabase
     .from("interest_registrations")
-    .select(REGISTRATION_COLUMNS, { count: "exact" })
+    .select(REGISTRATION_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);

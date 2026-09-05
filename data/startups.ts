@@ -6,6 +6,7 @@ import {
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -107,7 +108,7 @@ async function fetchStartupsPage(
 
   let request = supabase
     .from("startups")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -151,9 +152,7 @@ export async function getStartupByIdForAdmin(
   | { status: "ok"; startup: StartupWithDetails }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
   const [
     { data: startup, error: startupError },

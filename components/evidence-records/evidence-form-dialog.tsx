@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
@@ -43,6 +43,7 @@ import {
   EVIDENCE_STATUS_LABELS,
   EVIDENCE_STATUSES,
 } from "@/constants/evidence-labels";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -103,6 +104,9 @@ export function EvidenceFormDialog({
     initialOwners ?? [],
   );
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(open);
+  const needsInitialResetRef = useRef(false);
 
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
     resolver: zodResolver(createEvidenceRecordSchema),
@@ -110,33 +114,58 @@ export function EvidenceFormDialog({
     defaultValues: defaultsFor(record, initialDefaultOwnerId),
   });
 
-  async function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) return;
+  useEffect(() => {
+    if (!open) return;
 
+    let cancelled = false;
+
+    async function loadOptions() {
+      if (!debouncedSearch && initialOwners) {
+        setOwners(initialOwners);
+        return;
+      }
+
+      setOptionsLoading(true);
+      try {
+        const result = await loadEvidenceFormOptions(debouncedSearch);
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          setOwners([]);
+          return;
+        }
+        setOwners(result.owners);
+        if (needsInitialResetRef.current && !debouncedSearch) {
+          needsInitialResetRef.current = false;
+          form.reset(defaultsFor(record, result.defaultOwnerId));
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load owners. Please try again.");
+          setOwners([]);
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, debouncedSearch, initialOwners, form, record]);
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) {
+      needsInitialResetRef.current = false;
+      return;
+    }
+    needsInitialResetRef.current = true;
     if (initialOwners) {
       setOwners(initialOwners);
       form.reset(defaultsFor(record, initialDefaultOwnerId));
-      return;
-    }
-
-    setOptionsLoading(true);
-    try {
-      const result = await loadEvidenceFormOptions();
-      if (result.status === "error") {
-        toast.error(result.message);
-        setOwners([]);
-        form.reset(defaultsFor(record, ""));
-        return;
-      }
-      setOwners(result.owners);
-      form.reset(defaultsFor(record, result.defaultOwnerId));
-    } catch {
-      toast.error("Could not load owners. Please try again.");
-      setOwners([]);
-      form.reset(defaultsFor(record, ""));
-    } finally {
-      setOptionsLoading(false);
+      needsInitialResetRef.current = false;
     }
   }
 
@@ -277,6 +306,15 @@ export function EvidenceFormDialog({
               <AdminFormFieldLabel htmlFor={`${formId}-owner`} hint="Required">
                 Owner
               </AdminFormFieldLabel>
+              <Input
+                id={`${formId}-owner-search`}
+                value={optionSearch}
+                onChange={(event) => setOptionSearch(event.target.value)}
+                maxLength={100}
+                placeholder="Search owners by name or email…"
+                className="mb-2 min-h-11 sm:min-h-8"
+                aria-label="Search owners"
+              />
               <Controller
                 control={form.control}
                 name="ownerId"

@@ -1,8 +1,8 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { InsightsPageContent } from "@/components/marketing/insights-page-content";
-import { insightsCopyFor } from "@/constants/insights-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 import { getInsightsIndex } from "@/data/insights";
+import { getNewsletterSignupEnabled } from "@/data/settings";
 
 export const metadata = buildMarketingMetadata({
   locale: "en",
@@ -13,16 +13,18 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function InsightsPageEn() {
-  const { articles, featured } = await getInsightsIndex("en");
-  const copy = insightsCopyFor("en");
+  const [{ articles, featured }, newsletterEnabled] = await Promise.all([
+    getInsightsIndex("en"),
+    getNewsletterSignupEnabled(),
+  ]);
 
   return (
     <InsightsPageContent
       locale="en"
-      copy={copy}
       labels={blogLabelsFor("en")}
       articles={articles}
       featured={featured}
+      newsletterEnabled={newsletterEnabled}
     />
   );
 }

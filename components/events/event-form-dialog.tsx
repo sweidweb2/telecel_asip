@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useState, useTransition } from "react";
 import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { EventDetail, EventStartupOption } from "@/types/event";
 import {
   CMS_PUBLISH_STATUSES,
@@ -90,6 +91,8 @@ export function EventFormDialog({
     initialOptions ?? [],
   );
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(open);
 
   const form = useForm<EventFormValues, unknown, CreateEventInput>({
     resolver: zodResolver(
@@ -99,32 +102,47 @@ export function EventFormDialog({
     defaultValues: defaultsFor(event),
   });
 
-  async function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) return;
+  useEffect(() => {
+    if (!open) return;
 
-    form.reset(defaultsFor(event));
+    let cancelled = false;
 
-    if (initialOptions) {
-      setStartupOptions(initialOptions);
-      return;
-    }
-
-    setOptionsLoading(true);
-    try {
-      const result = await loadEventStartupOptions();
-      if (result.status === "error") {
-        toast.error(result.message);
-        setStartupOptions([]);
+    async function loadOptions() {
+      if (!debouncedSearch && initialOptions) {
+        setStartupOptions(initialOptions);
         return;
       }
-      setStartupOptions(result.options);
-    } catch {
-      toast.error("Could not load startups. Please try again.");
-      setStartupOptions([]);
-    } finally {
-      setOptionsLoading(false);
+
+      setOptionsLoading(true);
+      try {
+        const result = await loadEventStartupOptions(debouncedSearch);
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          setStartupOptions([]);
+          return;
+        }
+        setStartupOptions(result.options);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load startups. Please try again.");
+          setStartupOptions([]);
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
     }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, debouncedSearch, initialOptions]);
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) return;
+    form.reset(defaultsFor(event));
   }
 
   function onSubmit(values: CreateEventInput) {
@@ -407,6 +425,16 @@ export function EventFormDialog({
               <AdminFormFieldLabel htmlFor={`${formId}-startups`} hint="Optional">
                 Linked startups
               </AdminFormFieldLabel>
+              <Input
+                id={`${formId}-startup-search`}
+                value={optionSearch}
+                onChange={(event) => setOptionSearch(event.target.value)}
+                disabled={isPending}
+                maxLength={100}
+                placeholder="Search startups…"
+                className="mb-2 min-h-11 sm:min-h-8"
+                aria-label="Search startups"
+              />
               <div
                 id={`${formId}-startups`}
                 className="max-h-48 space-y-2 overflow-y-auto rounded-lg border p-3"
@@ -418,7 +446,9 @@ export function EventFormDialog({
                   </p>
                 ) : startupOptions.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No startups in the portfolio yet.
+                    {optionSearch.trim()
+                      ? "No startups match that search."
+                      : "No startups in the portfolio yet."}
                   </p>
                 ) : (
                   startupOptions.map((startup) => {

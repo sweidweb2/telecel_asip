@@ -105,12 +105,17 @@ export type Database = {
           author_name: string
           body_html: string
           categories: string[]
+          cohort_id: string | null
           created_at: string
           id: string
           is_featured: boolean
+          meta_description: string | null
+          meta_title: string | null
           published_at: string | null
           reading_time_minutes: number
           slug: string
+          sources: string[]
+          startup_id: string | null
           status: Database["public"]["Enums"]["blog_status"]
           summary: string
           thumbnail_url: string | null
@@ -122,12 +127,17 @@ export type Database = {
           author_name: string
           body_html?: string
           categories?: string[]
+          cohort_id?: string | null
           created_at?: string
           id?: string
           is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
           reading_time_minutes?: number
           slug: string
+          sources?: string[]
+          startup_id?: string | null
           status?: Database["public"]["Enums"]["blog_status"]
           summary: string
           thumbnail_url?: string | null
@@ -139,19 +149,46 @@ export type Database = {
           author_name?: string
           body_html?: string
           categories?: string[]
+          cohort_id?: string | null
           created_at?: string
           id?: string
           is_featured?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
           published_at?: string | null
           reading_time_minutes?: number
           slug?: string
+          sources?: string[]
+          startup_id?: string | null
           status?: Database["public"]["Enums"]["blog_status"]
           summary?: string
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blogs_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blogs_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blogs_startup_id_fkey"
+            columns: ["startup_id"]
+            isOneToOne: false
+            referencedRelation: "startups_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cohort_partners: {
         Row: {
@@ -691,18 +728,45 @@ export type Database = {
       site_settings: {
         Row: {
           id: number
+          newsletter_signup_enabled: boolean
           open_applications: boolean
           updated_at: string
         }
         Insert: {
           id?: number
+          newsletter_signup_enabled?: boolean
           open_applications?: boolean
           updated_at?: string
         }
         Update: {
           id?: number
+          newsletter_signup_enabled?: boolean
           open_applications?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          consent: boolean
+          created_at: string
+          email: string
+          id: string
+          source_page: string | null
+        }
+        Insert: {
+          consent: boolean
+          created_at?: string
+          email: string
+          id?: string
+          source_page?: string | null
+        }
+        Update: {
+          consent?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          source_page?: string | null
         }
         Relationships: []
       }

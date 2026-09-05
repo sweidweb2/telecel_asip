@@ -1,8 +1,8 @@
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { InsightsPageContent } from "@/components/marketing/insights-page-content";
-import { insightsCopyFor } from "@/constants/insights-copy";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 import { getInsightsIndex } from "@/data/insights";
+import { getNewsletterSignupEnabled } from "@/data/settings";
 
 export const metadata = buildMarketingMetadata({
   locale: "fr",
@@ -13,16 +13,18 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function InsightsPageFr() {
-  const { articles, featured } = await getInsightsIndex("fr");
-  const copy = insightsCopyFor("fr");
+  const [{ articles, featured }, newsletterEnabled] = await Promise.all([
+    getInsightsIndex("fr"),
+    getNewsletterSignupEnabled(),
+  ]);
 
   return (
     <InsightsPageContent
       locale="fr"
-      copy={copy}
       labels={blogLabelsFor("fr")}
       articles={articles}
       featured={featured}
+      newsletterEnabled={newsletterEnabled}
     />
   );
 }

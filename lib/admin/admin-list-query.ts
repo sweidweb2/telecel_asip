@@ -1,3 +1,4 @@
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -14,17 +15,17 @@ export function adminListTotalPages(total: number, pageSize: number) {
 }
 
 /**
- * Shared admin list/detail page gate: create server client, require `is_admin`,
- * then run the loader. Returns `{ status: "forbidden" }` or `{ status: "ok", ... }`.
+ * Shared admin list/detail page gate: create server client, check admin
+ * (request-cached) in parallel with the loader.
  */
 export async function gateAdminPageData<TPayload extends Record<string, unknown>>(
   load: (supabase: ServerClient) => Promise<TPayload>,
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
   const supabase = await createClient();
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error) throw error;
+  const [isAdmin, payload] = await Promise.all([
+    isCurrentUserAdmin(),
+    load(supabase),
+  ]);
   if (!isAdmin) return { status: "forbidden" };
-
-  const payload = await load(supabase);
   return { status: "ok", ...payload };
 }

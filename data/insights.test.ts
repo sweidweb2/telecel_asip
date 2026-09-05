@@ -24,6 +24,11 @@ describe("blog helpers used by insights", () => {
       published_at: "2025-01-20T00:00:00.000Z",
       updated_at: "2025-01-21T00:00:00.000Z",
       is_featured: true,
+      startup_id: null,
+      cohort_id: null,
+      sources: [],
+      meta_title: null,
+      meta_description: null,
     });
 
     expect(article.slug).toBe("ux-review-presentations");

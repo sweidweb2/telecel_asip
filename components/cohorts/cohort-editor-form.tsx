@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   createCohort,
   deleteCohort,
+  loadCohortLinkOptions,
   updateCohort,
 } from "@/actions/cohorts";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/constants/routes";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { CohortAdminDetail, CohortLinkOption } from "@/types/cohort";
 import {
   CMS_PUBLISH_STATUSES,
@@ -72,12 +74,16 @@ function LinkCheckboxList({
   selected,
   onChange,
   disabled,
+  emptyMessage,
+  loading,
 }: {
   title: string;
   options: CohortLinkOption[];
   selected: string[];
   onChange: (next: string[]) => void;
   disabled?: boolean;
+  emptyMessage?: string;
+  loading?: boolean;
 }) {
   function toggle(id: string, checked: boolean) {
     if (checked) {
@@ -95,9 +101,14 @@ function LinkCheckboxList({
           {selected.length} selected
         </span>
       </div>
-      {options.length === 0 ? (
+      {loading ? (
+        <p className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+          <Loader2Icon className="size-4 animate-spin" />
+          Loading…
+        </p>
+      ) : options.length === 0 ? (
         <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-          No options available yet.
+          {emptyMessage ?? "No options available yet."}
         </p>
       ) : (
         <ul className="max-h-64 space-y-2 overflow-y-auto rounded-lg border p-3">
@@ -127,14 +138,19 @@ function LinkCheckboxList({
 export function CohortEditorForm({
   mode,
   cohort,
-  partners,
-  startups,
+  partners: initialPartners,
+  startups: initialStartups,
   heading,
   description,
 }: CohortEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [partners, setPartners] = useState(initialPartners);
+  const [startups, setStartups] = useState(initialStartups);
+  const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(true);
 
   const form = useForm<CreateCohortInput>({
     resolver: zodResolver(createCohortSchema),
@@ -151,6 +167,45 @@ export function CohortEditorForm({
       startupIds: cohort?.startupIds ?? [],
     },
   });
+
+  useEffect(() => {
+    if (!debouncedSearch) {
+      setPartners(initialPartners);
+      setStartups(initialStartups);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadOptions() {
+      setOptionsLoading(true);
+      try {
+        const result = await loadCohortLinkOptions(debouncedSearch);
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          setPartners([]);
+          setStartups([]);
+          return;
+        }
+        setPartners(result.partners);
+        setStartups(result.startups);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load link options. Please try again.");
+          setPartners([]);
+          setStartups([]);
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, initialPartners, initialStartups]);
 
   const {
     register,
@@ -378,33 +433,59 @@ export function CohortEditorForm({
           </div>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-2">
-          <Controller
-            control={control}
-            name="partnerIds"
-            render={({ field }) => (
-              <LinkCheckboxList
-                title="Partners"
-                options={partners}
-                selected={field.value}
-                onChange={field.onChange}
-                disabled={isPending}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="startupIds"
-            render={({ field }) => (
-              <LinkCheckboxList
-                title="Founders / startups"
-                options={startups}
-                selected={field.value}
-                onChange={field.onChange}
-                disabled={isPending}
-              />
-            )}
-          />
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="cohort-link-search">Search partners & startups</Label>
+            <Input
+              id="cohort-link-search"
+              value={optionSearch}
+              onChange={(event) => setOptionSearch(event.target.value)}
+              maxLength={100}
+              placeholder="Search by name…"
+              className="min-h-11"
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2">
+            <Controller
+              control={control}
+              name="partnerIds"
+              render={({ field }) => (
+                <LinkCheckboxList
+                  title="Partners"
+                  options={partners}
+                  selected={field.value}
+                  onChange={field.onChange}
+                  disabled={isPending}
+                  loading={optionsLoading}
+                  emptyMessage={
+                    optionSearch.trim()
+                      ? "No partners match that search."
+                      : "No options available yet."
+                  }
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="startupIds"
+              render={({ field }) => (
+                <LinkCheckboxList
+                  title="Founders / startups"
+                  options={startups}
+                  selected={field.value}
+                  onChange={field.onChange}
+                  disabled={isPending}
+                  loading={optionsLoading}
+                  emptyMessage={
+                    optionSearch.trim()
+                      ? "No startups match that search."
+                      : "No options available yet."
+                  }
+                />
+              )}
+            />
+          </div>
         </div>
         {errors.partnerIds ? (
           <p className="text-sm text-destructive">

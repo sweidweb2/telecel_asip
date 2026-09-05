@@ -6,6 +6,7 @@ import {
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -44,7 +45,7 @@ async function fetchPartnersPage(
 
   let request = supabase
     .from("partners")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
@@ -85,13 +86,12 @@ export async function getPartnersPageData(
 
   // RLS already restricts the rows, so the list can run alongside the role
   // check instead of waiting a full round trip for it.
-  const [adminResult, list] = await Promise.all([
-    supabase.rpc("is_admin"),
+  const [isAdmin, list] = await Promise.all([
+    isCurrentUserAdmin(),
     fetchPartnersPage(supabase, query),
   ]);
 
-  if (adminResult.error) throw adminResult.error;
-  if (!adminResult.data) return { status: "forbidden" };
+  if (!isAdmin) return { status: "forbidden" };
 
   return { status: "ok", list };
 }
@@ -112,9 +112,7 @@ export const getPartnerByIdForAdmin = cache(
     if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
 
     const supabase = await createClient();
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-    if (adminError) throw adminError;
-    if (!isAdmin) return { status: "forbidden" };
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("partners")

@@ -64,7 +64,7 @@ async function fetchUsers(
 
   let request = supabase
     .from("profiles")
-    .select(USER_COLUMNS, { count: "exact" })
+    .select(USER_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);

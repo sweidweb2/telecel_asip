@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
@@ -41,6 +41,7 @@ import {
   IMPACT_LENS_LABELS,
   IMPACT_PUBLISH_STATUS_LABELS,
 } from "@/constants/impact-metric-labels";
+import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
@@ -93,6 +94,8 @@ export function ImpactMetricFormDialog({
     initialOptions ?? [],
   );
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
+    useDebouncedOptionSearch(open);
 
   const form = useForm<
     ImpactMetricFormValues,
@@ -104,32 +107,47 @@ export function ImpactMetricFormDialog({
     defaultValues: defaultsFor(metric),
   });
 
-  async function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) return;
+  useEffect(() => {
+    if (!open) return;
 
-    form.reset(defaultsFor(metric));
+    let cancelled = false;
 
-    if (initialOptions) {
-      setEvidenceOptions(initialOptions);
-      return;
-    }
-
-    setOptionsLoading(true);
-    try {
-      const result = await loadImpactEvidenceOptions();
-      if (result.status === "error") {
-        toast.error(result.message);
-        setEvidenceOptions([]);
+    async function loadOptions() {
+      if (!debouncedSearch && initialOptions) {
+        setEvidenceOptions(initialOptions);
         return;
       }
-      setEvidenceOptions(result.options);
-    } catch {
-      toast.error("Could not load evidence options. Please try again.");
-      setEvidenceOptions([]);
-    } finally {
-      setOptionsLoading(false);
+
+      setOptionsLoading(true);
+      try {
+        const result = await loadImpactEvidenceOptions(debouncedSearch);
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          setEvidenceOptions([]);
+          return;
+        }
+        setEvidenceOptions(result.options);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load evidence options. Please try again.");
+          setEvidenceOptions([]);
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
     }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, debouncedSearch, initialOptions]);
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) return;
+    form.reset(defaultsFor(metric));
   }
 
   function onSubmit(values: CreateImpactMetricInput) {
@@ -282,6 +300,15 @@ export function ImpactMetricFormDialog({
               <AdminFormFieldLabel htmlFor={`${formId}-evidence`} hint="Required">
                 Evidence record
               </AdminFormFieldLabel>
+              <Input
+                id={`${formId}-evidence-search`}
+                value={optionSearch}
+                onChange={(event) => setOptionSearch(event.target.value)}
+                maxLength={100}
+                placeholder="Search evidence by source…"
+                className="mb-2 min-h-11 sm:min-h-8"
+                aria-label="Search evidence records"
+              />
               <Controller
                 control={form.control}
                 name="evidenceId"

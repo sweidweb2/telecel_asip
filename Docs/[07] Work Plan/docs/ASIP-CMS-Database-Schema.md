@@ -158,23 +158,23 @@ Built today with different column names/shapes (`org`, `contribution`, `is_activ
 
 ## 7. `articles` (Article / Case Study) — integrated: `blogs`
 
-Powers `/insights/` listing and article template, plus Impact page case studies. Live table is `blogs` — do not rename. Optional later FKs target `startups` / `cohorts` only if approved.
+Powers `/insights/` listing and article template, plus Impact page case studies. Live table is `blogs` — do not rename. FKs `startup_id` → `startups`, `cohort_id` → `cohorts` live (migration `20260905190000`).
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
 | id | PK | — | |
 | title | text | req | |
-| author | text | req | |
-| publish_date | date | req | |
-| category | enum: Founder Stories / Portfolio News / Programme Updates / Founder Resources / Partner Perspectives | req | Section 12 content streams |
-| related_founder | FK → `founders` | opt | Implement as FK → `startups` if added |
-| related_cohort | FK → `cohorts` | opt | |
-| body_content | richtext | req | |
-| sources | repeatable text/url | opt | |
-| media | media | opt | |
-| meta_title | text | opt | SEO field |
-| meta_description | text | opt | SEO field |
-| publish_status | enum: draft / published | req | |
+| author | text | req | live: `author_name` |
+| publish_date | date | req | live: `published_at` |
+| category | enum: Founder Stories / Portfolio News / Programme Updates / Founder Resources / Partner Perspectives | req | live: `categories[0]` must be one of the five streams; extra free-text tags allowed after |
+| related_founder | FK → `founders` | opt | live: `startup_id` → `startups` |
+| related_cohort | FK → `cohorts` | opt | live: `cohort_id` |
+| body_content | richtext | req | live: `body_html` |
+| sources | repeatable text/url | opt | live: `sources text[]` |
+| media | media | opt | live: `thumbnail_url` + author avatar |
+| meta_title | text | opt | live |
+| meta_description | text | opt | live |
+| publish_status | enum: draft / published | req | live: `status` |
 
 ---
 
@@ -314,7 +314,7 @@ Not a repeatable content type — one row/object holding global toggles and bloc
 | ceo_message_visibility | enum: hidden / published | req | Future |
 | ceo_message_text | richtext | opt | Populated only when approved |
 | ceo_message_media | media | opt | |
-| newsletter_signup_enabled | boolean | req | Off by default until privacy/routing/owner confirmed |
+| newsletter_signup_enabled | boolean | req | Off by default until privacy/routing/owner confirmed — live on `site_settings` (20260905190100) |
 | header_banner_closed_copy | richtext | req | "Register interest" state copy (Section 04) |
 | header_banner_open_copy | richtext | req | "Apply" state copy (Section 04) |
 | footer_proposition_text | richtext | req | |
@@ -352,15 +352,17 @@ Enquiry type is stored on each message; destination inbox / routing_email is not
 
 ---
 
-## 16. `newsletter_subscribers` (only if/when activated) — not in Phases 1–5
+## 16. `newsletter_subscribers` (built, inactive until toggle) — live table
 
 | Field | Type | Req/Opt | Notes |
 |---|---|---|---|
 | id | PK | — | |
-| email | text | req | |
-| subscribed_at | datetime (auto) | — | |
-| consent | boolean | req | |
+| email | text | req | UNIQUE lower(email) |
+| subscribed_at | datetime (auto) | — | live: `created_at` |
+| consent | boolean | req | must be true |
 | source_page | text | opt | |
+
+Public signup only when `site_settings.newsletter_signup_enabled` is true; inserts via service role.
 
 ---
 
@@ -373,7 +375,7 @@ Planned names on the left; **implement FKs against integrated tables**.
 - `founders` / `startups` many—many `outcome_tags` (taxonomy not built)
 - `founder_stories` many—many `evidence_records`
 - `impact_metrics` many—1 `evidence_records`
-- `articles` / `blogs` many—1 `startups`, many—1 `cohorts` (FKs not on `blogs` yet)
+- `articles` / `blogs` many—1 `startups`, many—1 `cohorts` (`startup_id` / `cohort_id` on `blogs`)
 - `events` many—many `startups`
 - `cohorts` many—many `partners`, many—many `startups`, many—many `events`
 - `leads` / `interest_registrations` and `applications` are standalone (no FK relation to each other — intentional, per Guy)

@@ -5,6 +5,8 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -20,7 +22,7 @@ import { cohortIdSchema, type CohortListQuery } from "@/validations/cohort";
 export const COHORTS_CACHE_TAG = "cohorts";
 
 /** Cap multi-select option lists so editor pages stay bounded. */
-const LINK_OPTIONS_LIMIT = 500;
+const LINK_OPTIONS_LIMIT = 100;
 
 /** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
 const DETAIL_LINK_LIMIT = 500;
@@ -47,7 +49,7 @@ async function fetchCohortsPage(
 
   let request = supabase
     .from("cohorts")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("year", { ascending: false })
     .order("public_label", { ascending: true })
     .range(from, to);
@@ -76,13 +78,12 @@ export async function getCohortsPageData(
 ): Promise<{ status: "forbidden" } | { status: "ok"; list: CohortListResult }> {
   const supabase = await createClient();
 
-  const [adminResult, list] = await Promise.all([
-    supabase.rpc("is_admin"),
+  const [isAdmin, list] = await Promise.all([
+    isCurrentUserAdmin(),
     fetchCohortsPage(supabase, query),
   ]);
 
-  if (adminResult.error) throw adminResult.error;
-  if (!adminResult.data) return { status: "forbidden" };
+  if (!isAdmin) return { status: "forbidden" };
 
   return { status: "ok", list };
 }
@@ -98,9 +99,7 @@ export const getCohortByIdForAdmin = cache(
     if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
     const supabase = await createClient();
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-    if (adminError) throw adminError;
-    if (!isAdmin) return { status: "forbidden" };
+    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("cohorts")
@@ -139,7 +138,9 @@ export const getCohortByIdForAdmin = cache(
 );
 
 /** Narrow id/name lists for the cohort editor multi-selects. */
-export async function getCohortLinkOptionsForAdmin(): Promise<
+export async function getCohortLinkOptionsForAdmin(
+  search = "",
+): Promise<
   | { status: "forbidden" }
   | {
       status: "ok";
@@ -148,21 +149,30 @@ export async function getCohortLinkOptionsForAdmin(): Promise<
     }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+
+  const term = search.trim().slice(0, 100);
+  const pattern = term ? escapeIlikePattern(term) : "";
+
+  let partnersQuery = supabase
+    .from("partners")
+    .select("id, name")
+    .order("name", { ascending: true })
+    .limit(LINK_OPTIONS_LIMIT);
+  let startupsQuery = supabase
+    .from("startups")
+    .select("id, name")
+    .order("name", { ascending: true })
+    .limit(LINK_OPTIONS_LIMIT);
+
+  if (pattern) {
+    partnersQuery = partnersQuery.ilike("name", `%${pattern}%`);
+    startupsQuery = startupsQuery.ilike("name", `%${pattern}%`);
+  }
 
   const [partnersResult, startupsResult] = await Promise.all([
-    supabase
-      .from("partners")
-      .select("id, name")
-      .order("name", { ascending: true })
-      .limit(LINK_OPTIONS_LIMIT),
-    supabase
-      .from("startups")
-      .select("id, name")
-      .order("name", { ascending: true })
-      .limit(LINK_OPTIONS_LIMIT),
+    partnersQuery,
+    startupsQuery,
   ]);
 
   if (partnersResult.error) throw partnersResult.error;
@@ -187,6 +197,32 @@ async function fetchPublishedCohorts(): Promise<CohortPublicListItem[]> {
 
   if (error) throw error;
   return (data ?? []) as CohortPublicListItem[];
+}
+
+/** Narrow id/label list for the blog editor related-cohort select. */
+export async function getCohortsForBlogPicker(): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; cohorts: { id: string; label: string }[] }
+> {
+  const supabase = await createClient();
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+
+  const { data, error } = await supabase
+    .from("cohorts")
+    .select("id, public_label")
+    .order("year", { ascending: false })
+    .order("public_label", { ascending: true })
+    .limit(LINK_OPTIONS_LIMIT);
+
+  if (error) throw error;
+
+  return {
+    status: "ok",
+    cohorts: (data ?? []).map((row) => ({
+      id: row.id,
+      label: row.public_label,
+    })),
+  };
 }
 
 /** Cached public list for Phase 6 marketing wiring. */

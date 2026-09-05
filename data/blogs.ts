@@ -5,12 +5,14 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Blog,
   BlogListItem,
   BlogListResult,
+  BlogPublicDetail,
   BlogPublicListItem,
   BlogSlugRow,
 } from "@/types/blog";
@@ -19,18 +21,18 @@ import type { BlogListQuery } from "@/validations/blog";
 export const BLOGS_CACHE_TAG = "blogs";
 
 const LIST_COLUMNS =
-  "id, slug, title, summary, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at" as const;
+  "id, slug, title, summary, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at, startup_id, cohort_id, sources, meta_title, meta_description" as const;
 
 const DETAIL_COLUMNS =
-  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at" as const;
+  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at, startup_id, cohort_id, sources, meta_title, meta_description" as const;
 
 /** Public list / related / featured — no body_html. */
 const PUBLIC_LIST_COLUMNS =
   "id, slug, title, summary, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, is_featured" as const;
 
-/** Public detail by slug — includes body + updated_at for SEO. */
+/** Public detail by slug — includes body + Article gap fields + updated_at for SEO. */
 const PUBLIC_DETAIL_COLUMNS =
-  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, updated_at, is_featured" as const;
+  "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, reading_time_minutes, published_at, updated_at, is_featured, startup_id, cohort_id, sources, meta_title, meta_description" as const;
 
 const PUBLIC_SLUG_COLUMNS = "slug, updated_at" as const;
 
@@ -44,7 +46,7 @@ async function fetchBlogsPage(
 
   let request = supabase
     .from("blogs")
-    .select(LIST_COLUMNS, { count: "exact" })
+    .select(LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -87,9 +89,7 @@ export async function getBlogByIdForAdmin(
   | { status: "ok"; blog: Blog }
 > {
   const supabase = await createClient();
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
+  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
 
   const { data, error } = await supabase
     .from("blogs")
@@ -115,7 +115,9 @@ async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   return (data ?? []) as BlogPublicListItem[];
 }
 
-async function fetchPublishedBlogBySlug(slug: string): Promise<Blog | null> {
+async function fetchPublishedBlogBySlug(
+  slug: string,
+): Promise<BlogPublicDetail | null> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blogs")
@@ -125,7 +127,7 @@ async function fetchPublishedBlogBySlug(slug: string): Promise<Blog | null> {
     .maybeSingle();
 
   if (error) throw error;
-  return (data as Blog | null) ?? null;
+  return (data as BlogPublicDetail | null) ?? null;
 }
 
 async function fetchPublishedBlogSlugRows(): Promise<BlogSlugRow[]> {
@@ -173,7 +175,7 @@ export const getPublishedBlogSlugRows = unstable_cache(
 
 export async function getPublishedBlogBySlug(
   slug: string,
-): Promise<Blog | null> {
+): Promise<BlogPublicDetail | null> {
   return unstable_cache(
     async () => fetchPublishedBlogBySlug(slug),
     ["published-blog-by-slug", slug],
