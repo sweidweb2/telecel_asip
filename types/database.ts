@@ -653,6 +653,30 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          consent: boolean
+          created_at: string
+          email: string
+          id: string
+          source_page: string | null
+        }
+        Insert: {
+          consent: boolean
+          created_at?: string
+          email: string
+          id?: string
+          source_page?: string | null
+        }
+        Update: {
+          consent?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          source_page?: string | null
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           contribution: string | null
@@ -743,30 +767,6 @@ export type Database = {
           newsletter_signup_enabled?: boolean
           open_applications?: boolean
           updated_at?: string
-        }
-        Relationships: []
-      }
-      newsletter_subscribers: {
-        Row: {
-          consent: boolean
-          created_at: string
-          email: string
-          id: string
-          source_page: string | null
-        }
-        Insert: {
-          consent: boolean
-          created_at?: string
-          email: string
-          id?: string
-          source_page?: string | null
-        }
-        Update: {
-          consent?: boolean
-          created_at?: string
-          email?: string
-          id?: string
-          source_page?: string | null
         }
         Relationships: []
       }
@@ -964,6 +964,10 @@ export type Database = {
     Functions: {
       blog_categories_within_bounds: {
         Args: { categories: string[] }
+        Returns: boolean
+      }
+      blog_sources_within_bounds: {
+        Args: { sources: string[] }
         Returns: boolean
       }
       create_blog_with_featured: {

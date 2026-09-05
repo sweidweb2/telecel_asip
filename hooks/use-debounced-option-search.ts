@@ -1,32 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const OPTION_SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Local search string with a debounced value for reloading admin option pickers.
- * First enable applies immediately; later edits wait {@link OPTION_SEARCH_DEBOUNCE_MS}.
+ * Resets when `enabled` becomes true; later edits wait {@link OPTION_SEARCH_DEBOUNCE_MS}.
  */
 export function useDebouncedOptionSearch(enabled: boolean) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const wasEnabledRef = useRef(false);
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
+
+  if (enabled !== prevEnabled) {
+    setPrevEnabled(enabled);
+    if (enabled) {
+      setSearch("");
+      setDebouncedSearch("");
+    }
+  }
 
   useEffect(() => {
-    if (!enabled) {
-      wasEnabledRef.current = false;
-      setSearch("");
-      setDebouncedSearch("");
-      return;
-    }
-
-    if (!wasEnabledRef.current) {
-      wasEnabledRef.current = true;
-      setSearch("");
-      setDebouncedSearch("");
-      return;
-    }
+    if (!enabled) return;
 
     const timeoutId = setTimeout(() => {
       setDebouncedSearch(search.trim().slice(0, 100));
@@ -35,5 +31,9 @@ export function useDebouncedOptionSearch(enabled: boolean) {
     return () => clearTimeout(timeoutId);
   }, [enabled, search]);
 
-  return { search, setSearch, debouncedSearch };
+  return {
+    search: enabled ? search : "",
+    setSearch,
+    debouncedSearch: enabled ? debouncedSearch : "",
+  };
 }
