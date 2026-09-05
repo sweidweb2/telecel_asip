@@ -41,11 +41,7 @@ import {
   IMPACT_LENS_LABELS,
   IMPACT_PUBLISH_STATUS_LABELS,
 } from "@/constants/impact-metric-labels";
-import type {
-  EvidenceOption,
-  ImpactMetric,
-  ImpactMetricListItem,
-} from "@/types/impact-metric";
+import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
   IMPACT_CLAIM_LABEL_MAX,

@@ -102,7 +102,6 @@ export function EvidenceFormDialog({
   const [owners, setOwners] = useState<EvidenceOwnerOption[]>(
     initialOwners ?? [],
   );
-  const [defaultOwnerId, setDefaultOwnerId] = useState(initialDefaultOwnerId);
   const [optionsLoading, setOptionsLoading] = useState(false);
 
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
@@ -117,7 +116,6 @@ export function EvidenceFormDialog({
 
     if (initialOwners) {
       setOwners(initialOwners);
-      setDefaultOwnerId(initialDefaultOwnerId);
       form.reset(defaultsFor(record, initialDefaultOwnerId));
       return;
     }
@@ -128,17 +126,14 @@ export function EvidenceFormDialog({
       if (result.status === "error") {
         toast.error(result.message);
         setOwners([]);
-        setDefaultOwnerId("");
         form.reset(defaultsFor(record, ""));
         return;
       }
       setOwners(result.owners);
-      setDefaultOwnerId(result.defaultOwnerId);
       form.reset(defaultsFor(record, result.defaultOwnerId));
     } catch {
       toast.error("Could not load owners. Please try again.");
       setOwners([]);
-      setDefaultOwnerId("");
       form.reset(defaultsFor(record, ""));
     } finally {
       setOptionsLoading(false);
