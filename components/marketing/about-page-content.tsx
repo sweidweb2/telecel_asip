@@ -4,7 +4,6 @@ import { AboutNarrativeSections } from "@/components/marketing/about-narrative-s
 import { PageHero, Section } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { publicPath } from "@/constants/routes";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
@@ -22,9 +21,6 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
   return (
     <main>
       <PageHero
-        variant="split"
-        media={MARKETING_MEDIA.about}
-        locale={locale}
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}

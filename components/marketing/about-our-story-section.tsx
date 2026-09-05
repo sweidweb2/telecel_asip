@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   Globe,
   Heart,
   Rocket,
   TrendingUp,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,7 +19,6 @@ import type {
   AboutStoryFeatureIcon,
 } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
-import { MARKETING_MEDIA } from "@/constants/marketing-media";
 
 const FEATURE_ICONS: Record<AboutStoryFeatureIcon, LucideIcon> = {
   rocket: Rocket,
@@ -94,9 +93,24 @@ function StoryHeroVisual({
   imageCta?: AboutStoryCopy["imageCta"];
 }) {
   return (
-    <div className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-lg bg-[#14333b] lg:max-w-none">
-      <Image src={MARKETING_MEDIA.about.src} alt={MARKETING_MEDIA.about.alt[locale]} fill className="object-cover" style={{ objectPosition: MARKETING_MEDIA.about.position }} sizes="(max-width: 1024px) 90vw, 33vw" />
-      <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(20,51,59,.72),transparent_58%)]" />
+    <div className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border-2 border-border bg-gradient-to-br from-primary/15 via-muted/80 to-primary/5 shadow-sm lg:max-w-none">
+      <span
+        aria-hidden
+        className="about-story-float absolute -right-3 top-8 size-16 rounded-full bg-primary/10 blur-sm"
+      />
+      <span
+        aria-hidden
+        className="about-story-float-delayed absolute -left-4 bottom-16 size-20 rounded-full bg-primary/15 blur-sm"
+      />
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Users
+          className="size-24 text-primary/25 sm:size-28"
+          aria-hidden
+        />
+      </div>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
 
       {imageCta ? (
         <div className="absolute inset-x-0 bottom-0 flex justify-center p-5 opacity-100 transition-opacity sm:p-6 sm:opacity-0 sm:group-hover:opacity-100">
@@ -125,6 +139,15 @@ export function AboutOurStorySection({
 
   return (
     <section id="our-story" className="relative scroll-mt-20 overflow-hidden">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-10 size-64 rounded-full bg-primary/5 blur-3xl"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-20 bottom-32 size-72 rounded-full bg-primary/8 blur-3xl"
+      />
+
       <div className="relative text-center">
         {story.eyebrow ? (
           <p className="about-story-fade-up mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
