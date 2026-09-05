@@ -1065,6 +1065,15 @@ export type Database = {
           slug: string
         }[]
       }
+      get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_shell: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          is_admin: boolean
+        }[]
+      }
       get_related_published_blogs: {
         Args: { p_limit?: number; p_slug: string }
         Returns: {
@@ -1079,18 +1088,6 @@ export type Database = {
           summary: string
           thumbnail_url: string
           title: string
-        }[]
-      }
-      get_admin_analytics: {
-        Args: never
-        Returns: Json
-      }
-      get_admin_shell: {
-        Args: never
-        Returns: {
-          email: string | null
-          full_name: string | null
-          is_admin: boolean
         }[]
       }
       get_user_stats: {
