@@ -122,9 +122,9 @@ function buildFractalTree({
 
 const PATTERN_TREE = buildFractalTree({
   depth: 4,
-  length: 16,
-  width: 72,
-  height: 96,
+  length: 58,
+  width: 140,
+  height: 190,
 });
 
 const FEATURE_TREE = buildFractalTree({
@@ -211,7 +211,7 @@ export function ProgrammeHero({
   return (
     <section className="relative isolate overflow-hidden border-b border-border bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <svg className="absolute inset-0 h-full w-full text-primary opacity-[0.14]">
+        <svg className="absolute inset-0 h-full w-full text-primary opacity-[0.04]">
           <defs>
             <pattern
               id="programme-hero-tree-tile"
@@ -243,7 +243,7 @@ export function ProgrammeHero({
           <FractalTree
             tree={FEATURE_TREE}
             preserveAspectRatio="xMidYMax slice"
-            className="absolute bottom-0 left-0 h-full w-full overflow-visible opacity-[0.28] sm:opacity-[0.32]"
+            className="absolute bottom-0 left-0 h-full w-full overflow-visible opacity-[0.1] sm:opacity-[0.12]"
             strokeClassName="stroke-primary"
           />
         </div>
@@ -255,7 +255,7 @@ export function ProgrammeHero({
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,color-mix(in_oklch,var(--background)_42%,transparent)_0%,transparent_68%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[32rem] w-full max-w-3xl flex-col items-center justify-center px-4 py-16 text-center sm:min-h-[36rem] sm:px-6 sm:py-20 lg:min-h-[40rem] lg:px-8 lg:py-24">
+      <div className="relative mx-auto flex min-h-[36rem] w-full max-w-3xl flex-col items-center justify-center px-4 py-16 text-center sm:min-h-[40rem] sm:px-6 sm:py-20 lg:min-h-[44rem] lg:px-8 lg:py-24">
         <div data-hero-copy className="flex w-full flex-col items-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary shadow-sm backdrop-blur-sm">
             <TreeGlyph className="size-4 shrink-0" />

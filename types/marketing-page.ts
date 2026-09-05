@@ -189,6 +189,8 @@ export type ProgrammeValueId =
   | "visibility"
   | "continuity";
 
+export type ProgrammeAudienceHighlightId = "team" | "product" | "market";
+
 export type AlumniBenefitId =
   | "community"
   | "learning"
@@ -241,6 +243,10 @@ export type ProgrammePageCopy = {
     eyebrow: string;
     title: string;
     description: string;
+    highlights: {
+      id: ProgrammeAudienceHighlightId;
+      label: string;
+    }[];
   };
   journey: {
     title: string;
@@ -261,7 +267,10 @@ export type ProgrammePageCopy = {
   eligibility: {
     title: string;
     items: string[];
-    /** Visitor-facing: exact criteria land when a cohort opens. */
+    /**
+     * Kept for future cohort-criteria swap; not rendered on the public page.
+     * Internal cohort-rule notes must never ship as live copy.
+     */
     notice: string;
   };
   ctaSection: {
@@ -353,9 +362,14 @@ export type PartnerTypeId =
 export type PartnersPageCopy = {
   hero: {
     eyebrow: string;
-    title: string;
+    /** Plain lead before the gradient accent phrase. */
+    titleLead: string;
+    /** Phrase rendered with the warm portal gradient. */
+    titleAccent: string;
     description: string;
     cta: HomePageLink;
+    /** Qualitative proof chips — no unverified capital/count claims. */
+    proof: string[];
   };
   proposition: {
     title: string;
@@ -431,10 +445,27 @@ export type ImpactPageCopy = {
     eyebrow: string;
     title: string;
     templateLabel: string;
+    /** Internal template — never render as a live founder story. */
     body: string;
     note: string;
+    empty: string;
+    comingSoon: string;
+    readStory: string;
+    loadMore: string;
+    prevLabel: string;
+    nextLabel: string;
+    steps: {
+      barrier: string;
+      support: string;
+      outcome: string;
+    };
   };
-  evidenceRule: string;
+  evidenceRule: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    requirements: { id: string; label: string }[];
+  };
   ctaSection: {
     title: string;
     description: string;

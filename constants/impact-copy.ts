@@ -11,7 +11,7 @@ import type { ImpactPageCopy } from "@/types/marketing-page";
 const en: ImpactPageCopy = {
   hero: {
     eyebrow: "Impact",
-    title: "What founders built next.",
+    title: "The story is what happened next.",
     description:
       "ASIP’s impact is measured by what founders build after the programme: stronger companies, better products, new markets, investment readiness, jobs, partnerships and technology that changes how people live and work.",
     cta: { slug: "founders", label: "Explore founder stories" },
@@ -82,9 +82,32 @@ const en: ImpactPageCopy = {
     templateLabel: "Story template",
     body: "[Startup] entered ASIP facing [specific barrier]. Through [specific ASIP support], the team strengthened [product, market, investment or operating capability]. Since then, it has [validated outcome]. The result shows what can happen when a strong founder gets the right connection at the right time.",
     note: "Published case studies replace every placeholder with verified, founder-specific facts. Generic success copy is not published as a real story.",
+    empty:
+      "Founder stories appear here once each one is verified — not as generic success copy.",
+    comingSoon: "Founder story coming soon",
+    readStory: "Read full story",
+    loadMore: "Load more stories",
+    prevLabel: "Previous case studies",
+    nextLabel: "Next case studies",
+    steps: {
+      barrier: "Barrier",
+      support: "Connection",
+      outcome: "Since then",
+    },
   },
-  evidenceRule:
-    "Every published metric has a source, measurement period, owner, last-verified date and permission status. Figures stay unpublished until those are in place.",
+  evidenceRule: {
+    eyebrow: "Evidence rule",
+    title: "No number goes live without a paper trail.",
+    description:
+      "Every published metric has a source, measurement period, owner, last-verified date and permission status. Figures stay unpublished until those are in place.",
+    requirements: [
+      { id: "source", label: "Source" },
+      { id: "period", label: "Measurement period" },
+      { id: "owner", label: "Owner" },
+      { id: "verified", label: "Last verified" },
+      { id: "permission", label: "Permission status" },
+    ],
+  },
   ctaSection: {
     title: "Meet the founders behind the outcomes",
     description:
@@ -97,7 +120,7 @@ const en: ImpactPageCopy = {
 const fr: ImpactPageCopy = {
   hero: {
     eyebrow: "Impact",
-    title: "Ce que les fondateurs ont construit ensuite.",
+    title: "L’histoire, c’est ce qui s’est passé ensuite.",
     description:
       "L’impact d’ASIP se mesure à ce que les fondateurs construisent après le programme : des entreprises plus solides, de meilleurs produits, de nouveaux marchés, une préparation à l’investissement, des emplois, des partenariats et des technologies qui changent la façon dont les gens vivent et travaillent.",
     cta: { slug: "founders", label: "Découvrir les histoires de fondateurs" },
@@ -172,9 +195,32 @@ const fr: ImpactPageCopy = {
     templateLabel: "Canevas de récit",
     body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne connexion au bon moment.",
     note: "Les études de cas publiées remplacent chaque crochet par des faits vérifiés, propres au fondateur. Un texte générique de réussite n’est pas publié comme s’il s’agissait d’une vraie histoire.",
+    empty:
+      "Les histoires de fondateurs apparaissent ici une fois vérifiées — pas comme un texte générique de réussite.",
+    comingSoon: "L’histoire du fondateur arrive bientôt",
+    readStory: "Lire l’histoire",
+    loadMore: "Voir plus d’histoires",
+    prevLabel: "Études de cas précédentes",
+    nextLabel: "Études de cas suivantes",
+    steps: {
+      barrier: "Obstacle",
+      support: "Connexion",
+      outcome: "Depuis",
+    },
   },
-  evidenceRule:
-    "Chaque indicateur publié a une source, une période de mesure, un responsable, une date de dernière vérification et un statut d’autorisation. Les chiffres restent non publiés tant que ces éléments ne sont pas en place.",
+  evidenceRule: {
+    eyebrow: "Règle de preuve",
+    title: "Aucun chiffre ne sort sans dossier.",
+    description:
+      "Chaque indicateur publié a une source, une période de mesure, un responsable, une date de dernière vérification et un statut d’autorisation. Les chiffres restent non publiés tant que ces éléments ne sont pas en place.",
+    requirements: [
+      { id: "source", label: "Source" },
+      { id: "period", label: "Période de mesure" },
+      { id: "owner", label: "Responsable" },
+      { id: "verified", label: "Dernière vérification" },
+      { id: "permission", label: "Statut d’autorisation" },
+    ],
+  },
   ctaSection: {
     title: "Rencontrez les fondateurs derrière les résultats",
     description:

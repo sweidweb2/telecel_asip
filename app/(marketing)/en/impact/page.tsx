@@ -1,5 +1,5 @@
 import { ImpactPageContent } from "@/components/marketing/impact-page-content";
-import { getImpactPageMetrics } from "@/data/impact-metrics";
+import { getPublishedImpactCaseStudies } from "@/data/founder-stories";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -11,7 +11,7 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function Page() {
-  const metrics = await getImpactPageMetrics();
+  const caseStudies = await getPublishedImpactCaseStudies();
 
-  return <ImpactPageContent locale="en" metrics={metrics} />;
+  return <ImpactPageContent locale="en" caseStudies={caseStudies} />;
 }

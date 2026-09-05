@@ -25,6 +25,13 @@ export const metadata: Metadata = {
   description:
     "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
   applicationName: "ASIP",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
   openGraph: {
     type: "website",
     siteName: "ASIP",
@@ -76,7 +83,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
-          <NextTopLoader color="#171717" height={2} showSpinner={false} />
+          <NextTopLoader color="#179191" height={2} showSpinner={false} />
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>

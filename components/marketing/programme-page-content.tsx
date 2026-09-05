@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { format, parseISO } from "date-fns";
 
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import { ProgrammeAudienceSection } from "@/components/marketing/programme-audience-section";
 import { ProgrammeHero } from "@/components/marketing/programme-hero";
+import { ProgrammeEligibilitySection } from "@/components/marketing/programme-eligibility-section";
+import { ProgrammeValueSection } from "@/components/marketing/programme-value-section";
 import HowItWorks, { type Step } from "@/components/ui/how-it-works";
 import type { Locale } from "@/constants/locales";
 import { programmeCopyFor } from "@/constants/programme-copy";
@@ -129,9 +132,11 @@ export function ProgrammePageContent({
         openApplications={openApplications}
       />
 
-      <PageSection title="Who it is for" note="Mostly static">
-        <EmptySlot label="audience module" />
-      </PageSection>
+      <ProgrammeAudienceSection
+        locale={locale}
+        copy={copy.audience}
+        openApplications={openApplications}
+      />
 
       <section className="border-b border-border">
         <div className="mx-auto w-full max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
@@ -152,13 +157,9 @@ export function ProgrammePageContent({
         />
       </section>
 
-      <PageSection title="What founders gain" note="Mostly static">
-        <EmptySlot label="7 value cards" />
-      </PageSection>
+      <ProgrammeValueSection copy={copy.value} />
 
-      <PageSection title="Eligibility" note="Cohort-conditional">
-        <EmptySlot label="general eligibility list; swap for cohort-specific criteria when Apply opens" />
-      </PageSection>
+      <ProgrammeEligibilitySection copy={copy.eligibility} />
 
       <PageSection title={pastTitle} note="Live cohorts">
         {cohorts.length > 0 ? (

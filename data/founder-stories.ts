@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import {
   adminListRange,
   adminListTotalPages,
@@ -16,6 +17,7 @@ import type {
   FounderStoryListItem,
   FounderStoryListResult,
   FounderStoryPublic,
+  ImpactCaseStudyPublic,
   StartupStoryOption,
 } from "@/types/founder-story";
 import {
@@ -306,3 +308,230 @@ export function getPublishedFounderStoryByStartupId(startupId: string) {
     { tags: [FOUNDER_STORIES_CACHE_TAG], revalidate: 300 },
   )();
 }
+
+const IMPACT_CASE_STUDY_LIMIT = 12;
+const IMPACT_CASE_STUDY_MIN_SLOTS = 3;
+
+const CASE_STORY_COLUMNS =
+  "id, startup_id, the_problem, the_asip_connection, where_they_are_now" as const;
+
+const CASE_STARTUP_COLUMNS =
+  "id, name, slug, founder_names, sector, country_code, cover_image_url, public_outcome, image_focal_x, image_focal_y" as const;
+
+/** Bracketed CMS placeholders must not ship as live copy. */
+const UNRESOLVED_PLACEHOLDER_RE = /\[[^\]\n]{1,80}\]/;
+
+type CaseStoryRow = {
+  id: string;
+  startup_id: string;
+  the_problem: string;
+  the_asip_connection: string;
+  where_they_are_now: string;
+};
+
+type CaseStartupRow = {
+  id: string | null;
+  name: string | null;
+  slug: string | null;
+  founder_names: string[] | null;
+  sector: string | null;
+  country_code: string | null;
+  cover_image_url: string | null;
+  public_outcome: string | null;
+  image_focal_x: number | null;
+  image_focal_y: number | null;
+};
+
+function publicLine(text: string | null | undefined, max = 140): string | null {
+  const trimmed = text?.replace(/\s+/g, " ").trim() ?? "";
+  if (!trimmed || UNRESOLVED_PLACEHOLDER_RE.test(trimmed)) return null;
+
+  const sentence =
+    trimmed.match(/^[^.!?]+[.!?]?(?=\s|$)/)?.[0]?.trim() ?? trimmed;
+  if (sentence.length <= max) return sentence;
+  return `${sentence.slice(0, max - 1).trimEnd()}…`;
+}
+
+function publicStat(text: string | null | undefined): string | null {
+  const trimmed = text?.replace(/\s+/g, " ").trim() ?? "";
+  if (!trimmed || UNRESOLVED_PLACEHOLDER_RE.test(trimmed)) return null;
+  if (trimmed.length <= 48) return trimmed;
+  return `${trimmed.slice(0, 47).trimEnd()}…`;
+}
+
+function identityFields(startup: CaseStartupRow) {
+  return {
+    startupId: startup.id,
+    name: startup.name ?? "",
+    slug: startup.slug ?? "",
+    founderNames: startup.founder_names ?? [],
+    sector: startup.sector?.trim() || null,
+    country: startup.country_code?.trim() || null,
+    imageFocalX: startup.image_focal_x ?? 50,
+    imageFocalY: startup.image_focal_y ?? 50,
+  };
+}
+
+function toPendingSeat(
+  startup: CaseStartupRow,
+): ImpactCaseStudyPublic | null {
+  if (!startup.id || !startup.name || !startup.slug) return null;
+
+  return {
+    id: `pending-${startup.id}`,
+    ...identityFields(startup),
+    coverImageUrl: null,
+    barrier: null,
+    support: null,
+    outcome: null,
+    stat: null,
+    status: "pending",
+  };
+}
+
+function anonymousPendingSeat(index: number): ImpactCaseStudyPublic {
+  return {
+    id: `pending-slot-${index}`,
+    startupId: null,
+    name: "",
+    slug: "",
+    founderNames: [],
+    sector: null,
+    country: null,
+    coverImageUrl: null,
+    imageFocalX: 50,
+    imageFocalY: 50,
+    barrier: null,
+    support: null,
+    outcome: null,
+    stat: null,
+    status: "pending",
+  };
+}
+
+function toCaseStudy(
+  story: CaseStoryRow,
+  startup: CaseStartupRow,
+): ImpactCaseStudyPublic | null {
+  if (!startup.id || !startup.name || !startup.slug) return null;
+
+  const barrier = publicLine(story.the_problem);
+  const support = publicLine(story.the_asip_connection);
+  const outcome = publicLine(story.where_they_are_now);
+  const isCleared = Boolean(barrier || support || outcome);
+
+  return {
+    id: isCleared ? story.id : `pending-${startup.id}`,
+    ...identityFields(startup),
+    coverImageUrl: isCleared ? startup.cover_image_url : null,
+    barrier,
+    support,
+    outcome,
+    stat: isCleared ? publicStat(startup.public_outcome) : null,
+    status: isCleared ? "live" : "pending",
+  };
+}
+
+function padPendingSeats(
+  live: ImpactCaseStudyPublic[],
+  known: ImpactCaseStudyPublic[],
+): ImpactCaseStudyPublic[] {
+  const slots = [...live];
+  const taken = new Set(slots.map((item) => item.startupId).filter(Boolean));
+
+  for (const seat of known) {
+    if (slots.length >= IMPACT_CASE_STUDY_MIN_SLOTS) break;
+    if (seat.startupId && taken.has(seat.startupId)) continue;
+    slots.push(seat);
+    if (seat.startupId) taken.add(seat.startupId);
+  }
+
+  let index = 0;
+  while (slots.length < IMPACT_CASE_STUDY_MIN_SLOTS) {
+    slots.push(anonymousPendingSeat(index));
+    index += 1;
+  }
+
+  return slots.slice(0, IMPACT_CASE_STUDY_LIMIT);
+}
+
+async function fetchPublishedImpactCaseStudies(): Promise<
+  ImpactCaseStudyPublic[]
+> {
+  const supabase = createPublicClient();
+  const [storiesResult, directoryResult] = await Promise.all([
+    supabase
+      .from("founder_stories")
+      .select(CASE_STORY_COLUMNS)
+      .eq("publish_status", "published")
+      .order("updated_at", { ascending: false })
+      .limit(IMPACT_CASE_STUDY_LIMIT),
+    supabase
+      .from("startups_public")
+      .select(CASE_STARTUP_COLUMNS)
+      .order("featured", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(IMPACT_CASE_STUDY_LIMIT),
+  ]);
+
+  if (storiesResult.error) throw storiesResult.error;
+  if (directoryResult.error) throw directoryResult.error;
+
+  const rows = (storiesResult.data ?? []) as CaseStoryRow[];
+  const directory = (directoryResult.data ?? []) as CaseStartupRow[];
+  const storyStartupIds = rows.map((row) => row.startup_id);
+  const missingIds = storyStartupIds.filter(
+    (id) => !directory.some((row) => row.id === id),
+  );
+
+  let storyStartups = directory.filter(
+    (row) => row.id && storyStartupIds.includes(row.id),
+  );
+
+  if (missingIds.length > 0) {
+    const extra = await supabase
+      .from("startups_public")
+      .select(CASE_STARTUP_COLUMNS)
+      .in("id", missingIds);
+    if (extra.error) throw extra.error;
+    storyStartups = [...storyStartups, ...((extra.data ?? []) as CaseStartupRow[])];
+  }
+
+  const byId = new Map(
+    storyStartups
+      .filter((row): row is CaseStartupRow & { id: string } => Boolean(row.id))
+      .map((row) => [row.id, row]),
+  );
+
+  const fromStories = rows.flatMap((story) => {
+    const startup = byId.get(story.startup_id);
+    if (!startup) return [];
+    const item = toCaseStudy(story, startup);
+    return item ? [item] : [];
+  });
+
+  const live = fromStories.filter((item) => item.status === "live");
+  if (live.length >= IMPACT_CASE_STUDY_MIN_SLOTS) {
+    return live.slice(0, IMPACT_CASE_STUDY_LIMIT);
+  }
+
+  const knownPending = [
+    ...fromStories.filter((item) => item.status === "pending"),
+    ...directory.flatMap((row) => {
+      const seat = toPendingSeat(row);
+      return seat ? [seat] : [];
+    }),
+  ];
+
+  return padPendingSeats(live, knownPending);
+}
+
+/** Published founder stories for the Impact case-study module. */
+export const getPublishedImpactCaseStudies = unstable_cache(
+  fetchPublishedImpactCaseStudies,
+  ["published-impact-case-studies"],
+  {
+    tags: [FOUNDER_STORIES_CACHE_TAG, STARTUPS_CACHE_TAG],
+    revalidate: 300,
+  },
+);

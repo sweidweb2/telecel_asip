@@ -42,3 +42,26 @@ export type FounderStoryPublic = {
     date: string | null;
   } | null;
 };
+
+/**
+ * Impact page case-study card. `pending` is a reserved seat — same shell,
+ * no narrative, stats, or photos until the story is cleared.
+ */
+export type ImpactCaseStudyPublic = {
+  id: string;
+  startupId: string | null;
+  name: string;
+  slug: string;
+  founderNames: string[];
+  sector: string | null;
+  country: string | null;
+  coverImageUrl: string | null;
+  imageFocalX: number;
+  imageFocalY: number;
+  barrier: string | null;
+  support: string | null;
+  outcome: string | null;
+  /** Short public outcome — omit when empty or unverified. */
+  stat: string | null;
+  status: "live" | "pending";
+};

@@ -71,6 +71,8 @@ function refreshFounderStoryPaths(id?: string) {
   // Detail HTML paths vary by startup slug; bust list + tag covers data cache.
   revalidatePath("/en/founders", "layout");
   revalidatePath("/fr/founders", "layout");
+  revalidatePath("/en/impact");
+  revalidatePath("/fr/impact");
 }
 
 function normalizePermission(

@@ -23,6 +23,11 @@ const en: ProgrammePageCopy = {
       "Built for ambitious technology ventures solving real African market problems.",
     description:
       "ASIP is designed for founders with a credible team, a technology-enabled solution, a meaningful African market opportunity and the ambition to build beyond one customer or one geography. Exact stage, sector, geography and selection criteria are published for each cohort.",
+    highlights: [
+      { id: "team", label: "Credible team" },
+      { id: "product", label: "Tech-enabled solution" },
+      { id: "market", label: "African market" },
+    ],
   },
   journey: {
     title: "Founder journey",
@@ -149,6 +154,11 @@ const fr: ProgrammePageCopy = {
       "Conçu pour les entreprises technologiques ambitieuses qui résolvent de vrais problèmes de marché en Afrique.",
     description:
       "ASIP s’adresse aux fondateurs qui ont une équipe crédible, une solution technologique, une opportunité de marché africaine significative et l’ambition de construire au-delà d’un client ou d’une géographie. Le stade, le secteur, la géographie et les critères de sélection sont publiés pour chaque cohorte.",
+    highlights: [
+      { id: "team", label: "Équipe crédible" },
+      { id: "product", label: "Solution technologique" },
+      { id: "market", label: "Marché africain" },
+    ],
   },
   journey: {
     title: "Parcours du fondateur",
