@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  beirutCalendarMonthStartIso,
   pickMonthlyRetainIds,
   shiftBeirutMonth,
 } from "@/lib/backups/retention-policy";
@@ -51,6 +52,28 @@ describe("shiftBeirutMonth", () => {
   it("shifts back two months across year boundary", () => {
     expect(shiftBeirutMonth(2026, 1, -2)).toEqual({ year: 2025, month: 11 });
     expect(shiftBeirutMonth(2026, 9, -2)).toEqual({ year: 2026, month: 7 });
+  });
+});
+
+describe("beirutCalendarMonthStartIso", () => {
+  it("formats UTC midnight on day 1", () => {
+    expect(beirutCalendarMonthStartIso(2026, 8)).toBe("2026-08-01T00:00:00.000Z");
+    expect(beirutCalendarMonthStartIso(2025, 11)).toBe(
+      "2025-11-01T00:00:00.000Z",
+    );
+  });
+
+  it("excludes M and M-1 when filtering older than M-1 start", () => {
+    // "now" ≈ Sep 2026 Beirut → M-1 = Aug 2026
+    const m1 = shiftBeirutMonth(2026, 9, -1);
+    const bound = beirutCalendarMonthStartIso(m1.year, m1.month);
+    const candidates = [
+      { id: "m", created_at: "2026-09-06T00:30:00.000Z" },
+      { id: "m1", created_at: "2026-08-15T10:00:00.000Z" },
+      { id: "m2", created_at: "2026-07-20T10:00:00.000Z" },
+      { id: "older", created_at: "2026-06-01T10:00:00.000Z" },
+    ].filter((row) => row.created_at < bound);
+    expect(candidates.map((r) => r.id)).toEqual(["m2", "older"]);
   });
 });
 

@@ -26,7 +26,7 @@ type TimelineStep = {
 };
 
 /**
- * Repeatable Impact case-study card.
+ * Compact Impact case-study card.
  * Pending seats keep the same shell — grey reserved fill, no fake copy.
  */
 export function ImpactCaseStudyCard({
@@ -52,13 +52,13 @@ export function ImpactCaseStudyCard({
   return (
     <article
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-xl md:flex-row",
+        "flex h-full flex-col overflow-hidden rounded-xl",
         isPending
           ? "border border-dashed border-muted-foreground/35 bg-muted/50"
           : "border border-border bg-white",
       )}
     >
-      <div className="relative aspect-[16/10] w-full shrink-0 bg-muted md:aspect-auto md:min-h-[14rem] md:w-[40%]">
+      <div className="relative aspect-[16/7] w-full shrink-0 bg-muted">
         {isPending ? (
           <div className="size-full bg-muted" aria-hidden />
         ) : story?.coverImageUrl ? (
@@ -70,7 +70,7 @@ export function ImpactCaseStudyCard({
             style={{
               objectPosition: `${story.imageFocalX}% ${story.imageFocalY}%`,
             }}
-            sizes="(max-width: 768px) 90vw, (max-width: 1280px) 28vw, 18vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
           <div
@@ -78,7 +78,7 @@ export function ImpactCaseStudyCard({
             className="flex size-full items-center justify-center bg-[#14333b]"
           >
             {name ? (
-              <span className="font-heading text-3xl font-semibold text-white/70 sm:text-4xl">
+              <span className="font-heading text-2xl font-semibold text-white/70 sm:text-3xl">
                 {startupInitials(name)}
               </span>
             ) : null}
@@ -88,16 +88,16 @@ export function ImpactCaseStudyCard({
 
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-col p-5 sm:p-6 md:w-[60%]",
-          isPending && "min-h-36 md:min-h-0",
+          "flex min-w-0 flex-1 flex-col p-4 sm:p-5",
+          isPending && "min-h-28",
         )}
       >
         {tags.length > 0 ? (
-          <ul className="mb-3 flex flex-wrap gap-1.5">
+          <ul className="mb-2 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <li
                 key={tag}
-                className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-[0.12em] text-muted-foreground"
+                className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.12em] text-muted-foreground"
               >
                 {tag}
               </li>
@@ -106,13 +106,13 @@ export function ImpactCaseStudyCard({
         ) : null}
 
         {name ? (
-          <h3 className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">
+          <h3 className="font-heading text-base font-semibold tracking-tight text-balance sm:text-lg">
             {name}
           </h3>
         ) : null}
 
         {story && story.founderNames.length > 0 ? (
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:text-sm">
             {story.founderNames.join(", ")}
           </p>
         ) : null}
@@ -120,8 +120,8 @@ export function ImpactCaseStudyCard({
         {isPending ? (
           <p
             className={cn(
-              "flex flex-1 items-center text-sm font-medium text-muted-foreground sm:text-base",
-              name ? "pt-4" : "justify-center text-center",
+              "flex flex-1 items-center text-sm font-medium text-muted-foreground",
+              name ? "pt-3" : "justify-center text-center",
             )}
           >
             {copy.comingSoon}
@@ -129,9 +129,9 @@ export function ImpactCaseStudyCard({
         ) : (
           <>
             {steps.length > 0 ? (
-              <ol className="mt-5 space-y-3">
+              <ol className="mt-3 space-y-2">
                 {steps.map((step) => (
-                  <li key={step.id} className="flex gap-3">
+                  <li key={step.id} className="flex gap-2.5">
                     <span
                       aria-hidden
                       className={cn(
@@ -142,12 +142,12 @@ export function ImpactCaseStudyCard({
                       )}
                     />
                     <div className="min-w-0">
-                      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         {step.label}
                       </p>
                       <p
                         className={cn(
-                          "mt-0.5 line-clamp-2 text-sm leading-6 sm:text-[0.95rem] sm:leading-7",
+                          "mt-0.5 line-clamp-1 text-sm leading-5",
                           step.id === "support"
                             ? "text-muted-foreground"
                             : "text-foreground",
@@ -161,9 +161,9 @@ export function ImpactCaseStudyCard({
               </ol>
             ) : null}
 
-            <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+            <div className="mt-auto flex items-center justify-between gap-3 pt-3">
               {story?.stat ? (
-                <span className="inline-flex min-h-8 max-w-[60%] items-center rounded-md bg-muted px-2.5 text-xs font-semibold tracking-tight text-foreground">
+                <span className="inline-flex min-h-7 max-w-[55%] items-center rounded-md bg-muted px-2 text-[0.7rem] font-semibold tracking-tight text-foreground">
                   {story.stat}
                 </span>
               ) : (

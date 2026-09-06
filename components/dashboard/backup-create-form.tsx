@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "nextjs-toploader/app";
 
-import { createBackup, runBackupNow } from "@/actions/backups";
+import {
+  createBackup,
+  getBackupStatus,
+  runBackupNow,
+} from "@/actions/backups";
 import {
   BackupProgressDialog,
   type BackupProgressPhase,
@@ -22,14 +26,18 @@ const SCOPE_OPTIONS: { value: ScopeMode; label: string; description: string }[] 
     {
       value: "full",
       label: "Full DB backup",
-      description: "All allowlisted application tables as JSON.",
+      description:
+        "All allowlisted application tables as JSON. Runs in the background.",
     },
     {
       value: "storage",
       label: "Storage backup",
-      description: "Export Supabase Storage media buckets as a ZIP.",
+      description:
+        "ZIP of Supabase media buckets. Large libraries take longer in the background.",
     },
   ];
+
+const POLL_MS = 2000;
 
 export function BackupCreateForm() {
   const router = useRouter();
@@ -40,6 +48,8 @@ export function BackupCreateForm() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [phase, setPhase] = useState<BackupProgressPhase>("running");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activeBackupId, setActiveBackupId] = useState<string | null>(null);
+  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const summary = useMemo(() => {
     if (scope === "storage") {
@@ -48,10 +58,65 @@ export function BackupCreateForm() {
     return `Full DB · ${BACKUP_TABLE_ALLOWLIST.length} tables · JSON`;
   }, [scope]);
 
+  function clearPoll() {
+    if (pollTimer.current) {
+      clearInterval(pollTimer.current);
+      pollTimer.current = null;
+    }
+  }
+
+  useEffect(() => {
+    return () => clearPoll();
+  }, []);
+
+  function startPolling(backupId: string) {
+    clearPoll();
+    setActiveBackupId(backupId);
+    setPhase("running");
+    setErrorMessage(null);
+    setDialogOpen(true);
+
+    pollTimer.current = setInterval(() => {
+      void (async () => {
+        const result = await getBackupStatus(backupId);
+        if (result.status === "error") {
+          clearPoll();
+          setPhase("error");
+          setErrorMessage(result.message);
+          toast.error(result.message);
+          return;
+        }
+
+        if (
+          result.backupStatus === "pending" ||
+          result.backupStatus === "processing"
+        ) {
+          return;
+        }
+
+        clearPoll();
+        router.refresh();
+
+        if (result.backupStatus === "completed") {
+          setPhase("success");
+          toast.success("Backup ready to download.");
+          return;
+        }
+
+        setPhase("error");
+        setErrorMessage(
+          result.errorMessage ?? "Backup failed. Check Backup history.",
+        );
+        toast.error(result.errorMessage ?? "Backup failed.");
+      })();
+    }, POLL_MS);
+  }
+
   function onSubmit() {
     setDialogOpen(true);
     setPhase("running");
     setErrorMessage(null);
+    setActiveBackupId(null);
 
     startTransition(async () => {
       const input: CreateBackupInput =
@@ -68,9 +133,14 @@ export function BackupCreateForm() {
         return;
       }
 
-      setPhase("success");
       toast.success(result.message);
       router.refresh();
+
+      if (result.id) {
+        startPolling(result.id);
+      } else {
+        setPhase("success");
+      }
     });
   }
 
@@ -81,8 +151,13 @@ export function BackupCreateForm() {
         toast.error(result.message);
         return;
       }
+
       toast.success(result.message);
       router.refresh();
+
+      if (result.id) {
+        startPolling(result.id);
+      }
     });
   }
 
@@ -93,8 +168,9 @@ export function BackupCreateForm() {
           Create backup
         </h2>
         <p className="text-sm text-muted-foreground">
-          Export on demand to private R2. Full DB uses JSON; storage uses ZIP.
-          Scheduled runs are configured in Settings.
+          Export on demand to private R2. Jobs run in the background — watch
+          Backup history for status and download. Scheduled runs are configured
+          in Settings.
         </p>
       </div>
 
@@ -135,27 +211,28 @@ export function BackupCreateForm() {
         <Button
           type="button"
           className="min-h-11 w-full sm:w-auto"
-          disabled={pending || runNowPending}
+          disabled={pending || runNowPending || Boolean(activeBackupId && phase === "running")}
           onClick={onSubmit}
         >
-          {pending ? "Creating backup…" : "Create backup"}
+          {pending ? "Starting…" : "Create backup"}
         </Button>
         <Button
           type="button"
           variant="outline"
           className="min-h-11 w-full sm:w-auto"
-          disabled={pending || runNowPending}
+          disabled={pending || runNowPending || Boolean(activeBackupId && phase === "running")}
           onClick={onRunNow}
         >
           {runNowPending ? (
             <Loader2Icon className="animate-spin" />
           ) : null}
-          {runNowPending ? "Backing up…" : "Run backup now"}
+          {runNowPending ? "Starting…" : "Run backup now"}
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
         Run backup now starts one automated full JSON backup without changing
-        the schedule in Settings.
+        the schedule in Settings. You do not need to keep this tab locked — the
+        job continues in the background.
       </p>
 
       <BackupProgressDialog
@@ -163,7 +240,14 @@ export function BackupCreateForm() {
         phase={phase}
         summary={summary}
         errorMessage={errorMessage}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(open) => {
+          if (!open && phase === "running") return;
+          if (!open) {
+            clearPoll();
+            setActiveBackupId(null);
+          }
+          setDialogOpen(open);
+        }}
       />
     </section>
   );

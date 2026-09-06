@@ -12,6 +12,8 @@ import type { Database } from "@/types/database";
 type AdminClient = SupabaseClient<Database>;
 
 const PAGE_SIZE = 100;
+/** Cap parallel Storage downloads to limit peak RAM vs sequential wall-clock. */
+const DOWNLOAD_CONCURRENCY = 4;
 
 async function listAllFilePaths(
   supabase: AdminClient,
@@ -52,6 +54,27 @@ async function listAllFilePaths(
   return paths;
 }
 
+async function mapPool<T>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<void>,
+): Promise<void> {
+  if (items.length === 0) return;
+  const limit = Math.max(1, Math.min(concurrency, items.length));
+  let nextIndex = 0;
+
+  async function runWorker(): Promise<void> {
+    for (;;) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= items.length) return;
+      await worker(items[index]!);
+    }
+  }
+
+  await Promise.all(Array.from({ length: limit }, () => runWorker()));
+}
+
 /**
  * Download all objects from known public media buckets into a JSZip under storage/.
  */
@@ -63,7 +86,7 @@ export async function addStorageBucketsToZip(
 
   for (const bucket of BACKUP_STORAGE_BUCKETS) {
     const paths = await listAllFilePaths(supabase, bucket);
-    for (const path of paths) {
+    await mapPool(paths, DOWNLOAD_CONCURRENCY, async (path) => {
       const { data, error } = await supabase.storage.from(bucket).download(path);
       if (error || !data) {
         throw new Error(
@@ -73,7 +96,7 @@ export async function addStorageBucketsToZip(
       const buffer = Buffer.from(await data.arrayBuffer());
       zip.file(`storage/${bucket}/${path}`, buffer);
       objectCount += 1;
-    }
+    });
   }
 
   return { objectCount };

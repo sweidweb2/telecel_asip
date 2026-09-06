@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   applyAutomatedBackupRetention,
+  failStuckInFlightBackups,
   runScheduledBackupWindow,
 } from "@/lib/backups/automated";
 import {
@@ -21,12 +22,8 @@ export const maxDuration = 300;
 function authorizeCron(request: Request): boolean {
   const secret = process.env.BACKUP_CRON_SECRET?.trim();
   if (!secret) return false;
-
-  const header = request.headers.get("authorization");
-  if (header === `Bearer ${secret}`) return true;
-
-  const url = new URL(request.url);
-  return url.searchParams.get("secret") === secret;
+  // Bearer only — never accept ?secret= (leaks via logs / Referer).
+  return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 function isBackupSchedule(value: string): value is BackupScheduleValue {
@@ -36,6 +33,12 @@ function isBackupSchedule(value: string): value is BackupScheduleValue {
 export async function POST(request: Request) {
   if (!authorizeCron(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  try {
+    await failStuckInFlightBackups();
+  } catch (err) {
+    console.error("[backups] stuck cleanup failed", err);
   }
 
   const admin = createAdminClient();

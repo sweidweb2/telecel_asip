@@ -2,6 +2,7 @@ import "server-only";
 
 import { deleteBackupObject } from "@/lib/backups/r2";
 import {
+  beirutCalendarMonthStartIso,
   isCreatedInBeirutMonth,
   pickMonthlyRetainIds,
   shiftBeirutMonth,
@@ -11,6 +12,44 @@ import { startBackupAttempt } from "@/lib/backups/start-backup";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const MAX_WINDOW_ATTEMPTS = 3;
+
+/** Longer than route `maxDuration` (300s) so healthy jobs are not marked failed. */
+export const BACKUP_STUCK_AFTER_MS = 20 * 60 * 1000;
+
+const STUCK_ERROR_MESSAGE =
+  "Timed out — job did not finish. Try again.";
+
+/**
+ * Mark abandoned pending/processing rows as failed so overlap does not block forever.
+ */
+export async function failStuckInFlightBackups(
+  now: Date = new Date(),
+): Promise<number> {
+  const admin = createAdminClient();
+  const cutoff = new Date(now.getTime() - BACKUP_STUCK_AFTER_MS).toISOString();
+  const { data, error } = await admin
+    .from("backups")
+    .update({
+      status: "failed",
+      error_message: STUCK_ERROR_MESSAGE,
+    })
+    .in("status", ["pending", "processing"])
+    .lt("created_at", cutoff)
+    .select("id");
+
+  if (error) {
+    throw new Error(`Stuck backup cleanup failed: ${error.message}`);
+  }
+
+  const count = data?.length ?? 0;
+  if (count > 0) {
+    console.warn("[backups] marked stuck in-flight backups as failed", {
+      count,
+      cutoff,
+    });
+  }
+  return count;
+}
 
 export async function hasInFlightBackup(): Promise<boolean> {
   const admin = createAdminClient();
@@ -76,6 +115,7 @@ export async function runScheduledBackupWindow(input: {
   reason?: string;
   backupId?: string;
 }> {
+  await failStuckInFlightBackups();
   if (await hasInFlightBackup()) {
     return { status: "skipped", attempts: 0, reason: "in_flight" };
   }
@@ -110,13 +150,17 @@ export async function applyAutomatedBackupRetention(
 ): Promise<{ deleted: number }> {
   const admin = createAdminClient();
   const beirut = getBeirutParts(now);
+  const m1 = shiftBeirutMonth(beirut.year, beirut.month, -1);
   const m2 = shiftBeirutMonth(beirut.year, beirut.month, -2);
+  // Only load M-2 and older — M and M-1 are kept in full.
+  const olderThanM1Iso = beirutCalendarMonthStartIso(m1.year, m1.month);
 
   const { data, error } = await admin
     .from("backups")
     .select("id, created_at, file_path, status")
     .eq("scope", "automated")
     .eq("status", "completed")
+    .lt("created_at", olderThanM1Iso)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -124,6 +168,10 @@ export async function applyAutomatedBackupRetention(
   }
 
   const rows = data ?? [];
+  if (rows.length === 0) {
+    return { deleted: 0 };
+  }
+
   const toDeleteIds = new Set<string>();
 
   const m2Rows: { id: string; created_at: string }[] = [];

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DownloadIcon } from "lucide-react";
 
 import { BackupCreateForm } from "@/components/dashboard/backup-create-form";
 import { BackupHistoryTable } from "@/components/dashboard/backup-history-table";
@@ -19,6 +18,9 @@ import {
 export const metadata: Metadata = {
   title: "Backup | ASIP Admin",
 };
+
+/** Align with cron backup route — Full/Storage exports can take minutes. */
+export const maxDuration = 300;
 
 type BackupPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

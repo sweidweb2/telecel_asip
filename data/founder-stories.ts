@@ -348,7 +348,7 @@ export function getPublishedFounderStoryByStartupId(startupId: string) {
   )();
 }
 
-const IMPACT_CASE_STUDY_LIMIT = 12;
+const IMPACT_CASE_STUDY_LIMIT = 9;
 const IMPACT_CASE_STUDY_MIN_SLOTS = 3;
 
 const CASE_STORY_COLUMNS =

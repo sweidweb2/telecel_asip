@@ -2,14 +2,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { from, select, single } = vi.hoisted(() => {
+const { from, select, single, update } = vi.hoisted(() => {
   const single = vi.fn();
   const select = vi.fn();
   const insert = vi.fn(() => ({
     select: vi.fn(() => ({ single })),
   }));
-  const from = vi.fn(() => ({ select, insert }));
-  return { from, select, single, insert };
+  const updateSelect = vi.fn(async () => ({ data: [], error: null }));
+  const update = vi.fn(() => ({
+    in: vi.fn(() => ({
+      lt: vi.fn(() => ({
+        select: updateSelect,
+      })),
+    })),
+  }));
+  const from = vi.fn(() => ({ select, insert, update }));
+  return { from, select, single, insert, update, updateSelect };
 });
 
 vi.mock("@/lib/supabase/admin", () => ({
@@ -24,8 +32,42 @@ vi.mock("@/lib/backups/r2", () => ({
   deleteBackupObject: vi.fn(),
 }));
 
-import { runScheduledBackupWindow } from "@/lib/backups/automated";
+import {
+  failStuckInFlightBackups,
+  runScheduledBackupWindow,
+  BACKUP_STUCK_AFTER_MS,
+} from "@/lib/backups/automated";
 import { runBackupJob } from "@/lib/backups/run-backup";
+
+describe("failStuckInFlightBackups", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("marks stale pending/processing rows as failed", async () => {
+    const updateSelect = vi.fn(async () => ({
+      data: [{ id: "stuck-1" }],
+      error: null,
+    }));
+    const lt = vi.fn(() => ({ select: updateSelect }));
+    update.mockReturnValueOnce({
+      in: vi.fn(() => ({ lt })),
+    });
+
+    const now = new Date("2026-09-06T12:00:00.000Z");
+    const count = await failStuckInFlightBackups(now);
+
+    expect(count).toBe(1);
+    expect(update).toHaveBeenCalledWith({
+      status: "failed",
+      error_message: "Timed out — job did not finish. Try again.",
+    });
+    expect(lt).toHaveBeenCalledWith(
+      "created_at",
+      new Date(now.getTime() - BACKUP_STUCK_AFTER_MS).toISOString(),
+    );
+  });
+});
 
 describe("runScheduledBackupWindow", () => {
   beforeEach(() => {

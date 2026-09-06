@@ -15,6 +15,15 @@ export function shiftBeirutMonth(
   };
 }
 
+/**
+ * Exclusive upper bound ISO for “older than this Beirut calendar month”.
+ * Uses UTC midnight on day 1 of the given year/month (conservative filter for SQL).
+ */
+export function beirutCalendarMonthStartIso(year: number, month: number): string {
+  const mm = String(month).padStart(2, "0");
+  return `${year}-${mm}-01T00:00:00.000Z`;
+}
+
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }

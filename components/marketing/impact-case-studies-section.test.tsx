@@ -1,23 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi, beforeAll } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { ImpactCaseStudiesSection } from "@/components/marketing/impact-case-studies-section";
 import { impactCopyFor } from "@/constants/impact-copy";
 import type { ImpactCaseStudyPublic } from "@/types/founder-story";
 
 const copy = impactCopyFor("en").caseStudy;
-
-beforeAll(() => {
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
-});
 
 function story(
   id: string,
@@ -79,5 +68,28 @@ describe("ImpactCaseStudiesSection", () => {
 
     await user.click(screen.getByRole("button", { name: copy.loadMore }));
     expect(screen.getByText("Proxalys")).toBeInTheDocument();
+  });
+
+  it("never shows more than nine stories even if more are passed", async () => {
+    const user = userEvent.setup();
+    const stories = Array.from({ length: 12 }, (_, i) =>
+      story(String(i + 1), `Startup ${i + 1}`),
+    );
+
+    render(
+      <ImpactCaseStudiesSection locale="en" copy={copy} stories={stories} />,
+    );
+
+    expect(screen.getByText("Startup 1")).toBeInTheDocument();
+    expect(screen.queryByText("Startup 10")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: copy.loadMore }));
+    await user.click(screen.getByRole("button", { name: copy.loadMore }));
+
+    expect(screen.getByText("Startup 9")).toBeInTheDocument();
+    expect(screen.queryByText("Startup 10")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: copy.loadMore }),
+    ).not.toBeInTheDocument();
   });
 });

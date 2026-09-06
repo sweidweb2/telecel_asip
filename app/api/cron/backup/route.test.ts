@@ -28,6 +28,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 vi.mock("@/lib/backups/automated", () => ({
   applyAutomatedBackupRetention,
+  failStuckInFlightBackups: vi.fn(),
   runScheduledBackupWindow,
 }));
 
@@ -43,17 +44,27 @@ vi.mock("@/lib/backups/schedule", async () => {
 });
 
 import { POST } from "@/app/api/cron/backup/route";
+import { failStuckInFlightBackups } from "@/lib/backups/automated";
 
 describe("POST /api/cron/backup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.BACKUP_CRON_SECRET = "test-secret";
     applyAutomatedBackupRetention.mockResolvedValue({ deleted: 0 });
+    vi.mocked(failStuckInFlightBackups).mockResolvedValue(0);
   });
 
   it("rejects missing authorization", async () => {
     const response = await POST(new Request("http://localhost/api/cron/backup"));
     expect(response.status).toBe(401);
+  });
+
+  it("rejects query-string secret (Bearer only)", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/cron/backup?secret=test-secret"),
+    );
+    expect(response.status).toBe(401);
+    expect(failStuckInFlightBackups).not.toHaveBeenCalled();
   });
 
   it("skips when schedule is off", async () => {
@@ -73,6 +84,7 @@ describe("POST /api/cron/backup", () => {
     expect(body.skipped).toBe("off");
     expect(runScheduledBackupWindow).not.toHaveBeenCalled();
     expect(applyAutomatedBackupRetention).toHaveBeenCalled();
+    expect(failStuckInFlightBackups).toHaveBeenCalled();
   });
 
   it("skips when schedule is not due this hour", async () => {

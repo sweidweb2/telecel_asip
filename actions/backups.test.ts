@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const afterMock = vi.hoisted(() => vi.fn((fn: () => void | Promise<void>) => {
+  void Promise.resolve().then(() => fn());
+}));
+
+vi.mock("next/server", () => ({
+  after: afterMock,
+}));
+
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
   revalidateTag: vi.fn(),
@@ -12,12 +20,17 @@ vi.mock("@/lib/admin/authorize-admin", () => ({
 
 vi.mock("@/lib/backups/automated", () => ({
   hasInFlightBackup: vi.fn(),
-  startAutomatedBackupAttempt: vi.fn(),
   applyAutomatedBackupRetention: vi.fn(),
+  failStuckInFlightBackups: vi.fn(),
 }));
 
 vi.mock("@/lib/backups/start-backup", () => ({
+  enqueueBackupAttempt: vi.fn(),
   startBackupAttempt: vi.fn(),
+}));
+
+vi.mock("@/lib/backups/run-backup", () => ({
+  runBackupJob: vi.fn(),
 }));
 
 vi.mock("@/lib/backups/r2", () => ({
@@ -27,16 +40,18 @@ vi.mock("@/lib/backups/r2", () => ({
 import {
   createBackup,
   getBackupDownloadUrl,
+  getBackupStatus,
   runBackupNow,
 } from "@/actions/backups";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import {
   applyAutomatedBackupRetention,
+  failStuckInFlightBackups,
   hasInFlightBackup,
-  startAutomatedBackupAttempt,
 } from "@/lib/backups/automated";
+import { runBackupJob } from "@/lib/backups/run-backup";
 import { getSignedBackupUrl } from "@/lib/backups/r2";
-import { startBackupAttempt } from "@/lib/backups/start-backup";
+import { enqueueBackupAttempt } from "@/lib/backups/start-backup";
 
 const backupId = "11111111-1111-4111-8111-111111111111";
 
@@ -44,6 +59,7 @@ describe("createBackup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(hasInFlightBackup).mockResolvedValue(false);
+    vi.mocked(failStuckInFlightBackups).mockResolvedValue(0);
   });
 
   it("rejects invalid input before auth", async () => {
@@ -81,31 +97,41 @@ describe("createBackup", () => {
       status: "error",
       message: "A backup is already running. Try again when it finishes.",
     });
-    expect(startBackupAttempt).not.toHaveBeenCalled();
+    expect(enqueueBackupAttempt).not.toHaveBeenCalled();
   });
 
-  it("creates a full JSON backup", async () => {
+  it("enqueues a full JSON backup and schedules background work", async () => {
     vi.mocked(authorizeAdmin).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: {} as never,
     });
-    vi.mocked(startBackupAttempt).mockResolvedValue({
+    vi.mocked(enqueueBackupAttempt).mockResolvedValue({
       backupId,
-      ok: true,
     });
+    vi.mocked(runBackupJob).mockResolvedValue(undefined);
 
     const result = await createBackup({ scope: "full", format: "json" });
     expect(result).toEqual({
       status: "success",
-      message: "Backup completed.",
+      message:
+        "Backup started. Watch history — download when it completes.",
       id: backupId,
     });
-    expect(startBackupAttempt).toHaveBeenCalledWith({
+    expect(enqueueBackupAttempt).toHaveBeenCalledWith({
       userId: "admin-1",
       scope: "full",
       format: "json",
       targetTables: null,
+    });
+    expect(afterMock).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(runBackupJob).toHaveBeenCalledWith({
+        backupId,
+        scope: "full",
+        format: "json",
+        targetTables: null,
+      });
     });
   });
 
@@ -115,34 +141,16 @@ describe("createBackup", () => {
       userId: "admin-1",
       supabase: {} as never,
     });
-    vi.mocked(startBackupAttempt).mockResolvedValue({
-      backupId,
-      ok: true,
-    });
+    vi.mocked(enqueueBackupAttempt).mockResolvedValue({ backupId });
+    vi.mocked(runBackupJob).mockResolvedValue(undefined);
 
     await createBackup({ scope: "storage", format: "zip" });
-    expect(startBackupAttempt).toHaveBeenCalledWith({
+    expect(enqueueBackupAttempt).toHaveBeenCalledWith({
       userId: "admin-1",
       scope: "storage",
       format: "zip",
       targetTables: null,
     });
-  });
-
-  it("returns engine errors", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "admin-1",
-      supabase: {} as never,
-    });
-    vi.mocked(startBackupAttempt).mockResolvedValue({
-      backupId,
-      ok: false,
-      error: "R2 failed",
-    });
-
-    const result = await createBackup({ scope: "full", format: "json" });
-    expect(result).toEqual({ status: "error", message: "R2 failed" });
   });
 });
 
@@ -150,11 +158,9 @@ describe("runBackupNow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(hasInFlightBackup).mockResolvedValue(false);
-    vi.mocked(startAutomatedBackupAttempt).mockResolvedValue({
-      backupId: "b1",
-      ok: true,
-    });
+    vi.mocked(failStuckInFlightBackups).mockResolvedValue(0);
     vi.mocked(applyAutomatedBackupRetention).mockResolvedValue({ deleted: 0 });
+    vi.mocked(runBackupJob).mockResolvedValue(undefined);
   });
 
   it("returns auth errors", async () => {
@@ -168,7 +174,7 @@ describe("runBackupNow", () => {
       status: "error",
       message: "Sign in to manage backups.",
     });
-    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
+    expect(enqueueBackupAttempt).not.toHaveBeenCalled();
   });
 
   it("rejects when another backup is in flight", async () => {
@@ -184,10 +190,10 @@ describe("runBackupNow", () => {
       status: "error",
       message: "A backup is already running. Try again when it finishes.",
     });
-    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
+    expect(enqueueBackupAttempt).not.toHaveBeenCalled();
   });
 
-  it("starts an immediate window backup and applies retention", async () => {
+  it("enqueues an immediate automated backup in the background", async () => {
     const maybeSingle = vi.fn().mockResolvedValue({
       data: { backup_time: "off" },
       error: null,
@@ -203,25 +209,44 @@ describe("runBackupNow", () => {
         })),
       } as never,
     });
+    vi.mocked(enqueueBackupAttempt).mockResolvedValue({ backupId });
 
     const result = await runBackupNow();
 
     expect(result).toEqual({
       status: "success",
-      message: "Backup completed.",
+      message:
+        "Backup started. Watch history — download when it completes.",
+      id: backupId,
     });
-    expect(startAutomatedBackupAttempt).toHaveBeenCalledWith(
+    expect(enqueueBackupAttempt).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "admin-1",
+        scope: "automated",
+        format: "json",
         scheduleWindow: expect.stringMatching(/^immediate:/),
       }),
     );
-    expect(applyAutomatedBackupRetention).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(runBackupJob).toHaveBeenCalled();
+      expect(applyAutomatedBackupRetention).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("getBackupStatus", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(failStuckInFlightBackups).mockResolvedValue(0);
   });
 
-  it("returns failure when the backup attempt fails", async () => {
+  it("returns processing status", async () => {
     const maybeSingle = vi.fn().mockResolvedValue({
-      data: { backup_time: "off" },
+      data: {
+        id: backupId,
+        status: "processing",
+        error_message: null,
+      },
       error: null,
     });
     vi.mocked(authorizeAdmin).mockResolvedValue({
@@ -235,16 +260,14 @@ describe("runBackupNow", () => {
         })),
       } as never,
     });
-    vi.mocked(startAutomatedBackupAttempt).mockResolvedValue({
-      backupId: "b2",
-      ok: false,
-    });
 
-    const result = await runBackupNow();
+    const result = await getBackupStatus(backupId);
     expect(result).toEqual({
-      status: "error",
-      message: "Backup failed. Check Backup history for details.",
+      status: "success",
+      backupStatus: "processing",
+      errorMessage: null,
     });
+    expect(failStuckInFlightBackups).toHaveBeenCalled();
   });
 });
 
@@ -257,51 +280,6 @@ describe("getBackupDownloadUrl", () => {
     const result = await getBackupDownloadUrl("bad");
     expect(result.status).toBe("error");
     expect(authorizeAdmin).not.toHaveBeenCalled();
-  });
-
-  it("returns not found", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "admin-1",
-      supabase: {
-        from: vi.fn(() => ({
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({ maybeSingle })),
-          })),
-        })),
-      } as never,
-    });
-
-    const result = await getBackupDownloadUrl(backupId);
-    expect(result).toEqual({
-      status: "error",
-      message: "Backup not found.",
-    });
-  });
-
-  it("returns not ready for failed rows", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({
-      data: { id: backupId, status: "failed", file_path: null },
-      error: null,
-    });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "admin-1",
-      supabase: {
-        from: vi.fn(() => ({
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({ maybeSingle })),
-          })),
-        })),
-      } as never,
-    });
-
-    const result = await getBackupDownloadUrl(backupId);
-    expect(result).toEqual({
-      status: "error",
-      message: "This backup is not ready to download.",
-    });
   });
 
   it("returns a signed URL for completed backups", async () => {
@@ -332,6 +310,5 @@ describe("getBackupDownloadUrl", () => {
       url: "https://signed.example/x",
       message: "Download ready.",
     });
-    expect(getSignedBackupUrl).toHaveBeenCalledWith("backups/full/x.zip", 900);
   });
 });

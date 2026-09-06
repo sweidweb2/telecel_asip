@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { partnerLabelsFor } from "@/components/marketing/partner-labels";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Locale } from "@/constants/locales";
-import { startupInitials } from "@/lib/startup-display";
 import type { PartnerPublicItem, PartnerType } from "@/types/partner";
 import type { PartnersPageCopy } from "@/types/marketing-page";
 import { cn } from "@/lib/utils";
@@ -14,6 +13,8 @@ import { cn } from "@/lib/utils";
 type TypeLabels = Partial<Record<PartnerType, string>>;
 
 const ALL_FILTER = "all";
+/** Visible letters before ellipsis on name-only (no logo) tiles. */
+const NAME_CARD_MAX_CHARS = 15;
 
 type FilterId = typeof ALL_FILTER | PartnerType | "other";
 
@@ -122,6 +123,16 @@ export const FLOAT_TILE_HALF = {
   h: TILE_H / 2,
 } as const;
 
+/** Truncate partner display name for no-logo cards (15 chars + …). */
+export function truncatePartnerCardName(
+  name: string,
+  maxChars = NAME_CARD_MAX_CHARS,
+): string {
+  const trimmed = name.trim();
+  if (trimmed.length <= maxChars) return trimmed;
+  return `${trimmed.slice(0, maxChars)}...`;
+}
+
 function PartnerMark({ partner }: { partner: PartnerPublicItem }) {
   const label = partner.org ? `${partner.name} — ${partner.org}` : partner.name;
 
@@ -138,17 +149,14 @@ function PartnerMark({ partner }: { partner: PartnerPublicItem }) {
     );
   }
 
+  const shortName = truncatePartnerCardName(partner.name);
+
   return (
-    <span className="flex min-w-0 flex-col items-center gap-1 px-1 text-center">
-      <span
-        aria-hidden
-        className="flex size-8 items-center justify-center rounded-full bg-muted font-heading text-[0.65rem] font-semibold tracking-tight sm:size-9 sm:text-xs"
-      >
-        {startupInitials(partner.name)}
-      </span>
-      <span className="line-clamp-2 max-w-[7rem] text-xs font-medium leading-4 sm:text-sm sm:leading-5">
-        {label}
-      </span>
+    <span
+      title={partner.name}
+      className="max-w-[7.5rem] truncate px-0.5 text-center text-xs font-semibold tracking-tight text-foreground sm:max-w-[9rem] sm:text-sm"
+    >
+      {shortName}
     </span>
   );
 }

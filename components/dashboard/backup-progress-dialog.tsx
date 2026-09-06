@@ -42,10 +42,10 @@ export function BackupProgressDialog({
         <DialogHeader>
           <DialogTitle>
             {phase === "success"
-              ? "Backup completed"
+              ? "Backup ready"
               : phase === "error"
                 ? "Backup failed"
-                : "Creating backup"}
+                : "Backup in progress"}
           </DialogTitle>
           <DialogDescription>{summary}</DialogDescription>
         </DialogHeader>
@@ -64,10 +64,10 @@ export function BackupProgressDialog({
           )}
           <p className="text-sm text-muted-foreground">
             {phase === "running"
-              ? "Keep this window open. Large exports can take a minute."
+              ? "Working in the background. You can leave this dialog open — history updates when it finishes."
               : phase === "success"
                 ? "The archive is in Backup history and ready to download."
-                : "Check the details below and try again."}
+                : "Check Backup history for details, then try again."}
           </p>
         </div>
 

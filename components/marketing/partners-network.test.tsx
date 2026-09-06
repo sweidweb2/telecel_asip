@@ -6,6 +6,7 @@ import {
   FLOAT_TILE_HALF,
   layoutFloatField,
   PartnersNetwork,
+  truncatePartnerCardName,
 } from "@/components/marketing/partners-network";
 import { partnersCopyFor } from "@/constants/partners-copy";
 import type { PartnerPublicItem } from "@/types/partner";
@@ -56,6 +57,19 @@ const partners: PartnerPublicItem[] = [
     link: null,
   },
 ];
+
+describe("truncatePartnerCardName", () => {
+  it("keeps short names and truncates longer ones at 15 chars", () => {
+    expect(truncatePartnerCardName("Cloudworx")).toBe("Cloudworx");
+    expect(truncatePartnerCardName("Telecel Innovation Hub")).toBe(
+      "Telecel Innovat...",
+    );
+    expect(truncatePartnerCardName("123456789012345")).toBe("123456789012345");
+    expect(truncatePartnerCardName("1234567890123456")).toBe(
+      "123456789012345...",
+    );
+  });
+});
 
 describe("layoutFloatField", () => {
   it("keeps tile AABBs from intersecting", () => {
@@ -108,5 +122,30 @@ describe("PartnersNetwork", () => {
     expect(screen.getAllByAltText(/Cloudworx/i).length).toBeGreaterThan(0);
     expect(screen.queryAllByAltText(/FMO Ventures/i)).toHaveLength(0);
     expect(screen.queryAllByAltText(/Accelerator/i)).toHaveLength(0);
+  });
+
+  it("shows a truncated name card when a partner has no logo", () => {
+    const copy = partnersCopyFor("en");
+    const noLogo: PartnerPublicItem[] = [
+      {
+        id: "n1",
+        name: "Very Long Partner Org Name",
+        org: null,
+        type: "technology",
+        logo_url: null,
+        link: null,
+      },
+    ];
+
+    render(
+      <PartnersNetwork
+        locale="en"
+        partners={noLogo}
+        typeRows={copy.types.rows}
+      />,
+    );
+
+    expect(screen.getAllByText("Very Long Partn...").length).toBeGreaterThan(0);
+    expect(screen.queryByAltText(/Very Long/i)).not.toBeInTheDocument();
   });
 });

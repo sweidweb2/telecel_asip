@@ -938,12 +938,14 @@ Table backups {
     (status) [name: 'backups_status_idx']
     (scope, created_at) [name: 'backups_scope_created_at_idx', note: 'DESC on created_at in SQL']
     (scope, schedule_window) [name: 'backups_scope_schedule_window_idx']
+    (true) [name: 'backups_one_in_flight_uidx', note: 'Partial unique WHERE status IN (pending, processing) — at most one in-flight row']
   }
 
   Note: '''
     Admin backup audit log. File blobs live in private Cloudflare R2 (signed URLs only).
     RLS enabled. Admin-only SELECT/INSERT/UPDATE/DELETE via is_admin().
     service_role used by hourly cron export path. No anon grants.
+    Overlap: partial unique index + app failStuckInFlightBackups (20m) before start/poll/cron.
   '''
 }
 

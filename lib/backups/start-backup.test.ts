@@ -2,16 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { single, updateEq, from } = vi.hoisted(() => {
+const { single, from } = vi.hoisted(() => {
   const single = vi.fn();
-  const updateEq = vi.fn();
   const from = vi.fn(() => ({
     insert: vi.fn(() => ({
       select: vi.fn(() => ({ single })),
     })),
-    update: vi.fn(() => ({ eq: updateEq })),
   }));
-  return { single, updateEq, from };
+  return { single, from };
 });
 
 vi.mock("@/lib/supabase/admin", () => ({
@@ -22,10 +20,13 @@ vi.mock("@/lib/backups/run-backup", () => ({
   runBackupJob: vi.fn(),
 }));
 
-import { startBackupAttempt } from "@/lib/backups/start-backup";
+import {
+  enqueueBackupAttempt,
+  startBackupAttempt,
+} from "@/lib/backups/start-backup";
 import { runBackupJob } from "@/lib/backups/run-backup";
 
-describe("startBackupAttempt", () => {
+describe("enqueueBackupAttempt", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,7 +37,7 @@ describe("startBackupAttempt", () => {
       error: { message: "insert failed" },
     });
 
-    const result = await startBackupAttempt({
+    const result = await enqueueBackupAttempt({
       scope: "full",
       format: "json",
       userId: "admin-1",
@@ -44,10 +45,48 @@ describe("startBackupAttempt", () => {
 
     expect(result).toEqual({
       backupId: "",
-      ok: false,
       error: "insert failed",
     });
     expect(runBackupJob).not.toHaveBeenCalled();
+  });
+
+  it("maps unique in-flight violations to a friendly error", async () => {
+    single.mockResolvedValue({
+      data: null,
+      error: { code: "23505", message: "duplicate key" },
+    });
+
+    const result = await enqueueBackupAttempt({
+      scope: "full",
+      format: "json",
+    });
+
+    expect(result).toEqual({
+      backupId: "",
+      error: "A backup is already running. Try again when it finishes.",
+    });
+  });
+
+  it("returns the new backup id without running the job", async () => {
+    single.mockResolvedValue({
+      data: { id: "b1" },
+      error: null,
+    });
+
+    const result = await enqueueBackupAttempt({
+      scope: "full",
+      format: "json",
+      userId: "admin-1",
+    });
+
+    expect(result).toEqual({ backupId: "b1" });
+    expect(runBackupJob).not.toHaveBeenCalled();
+  });
+});
+
+describe("startBackupAttempt", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it("runs the job after insert", async () => {
@@ -58,7 +97,7 @@ describe("startBackupAttempt", () => {
     vi.mocked(runBackupJob).mockResolvedValue(undefined);
 
     const result = await startBackupAttempt({
-      scope: "tables",
+      scope: "full",
       format: "json",
       targetTables: ["blogs"],
       userId: "admin-1",
@@ -68,7 +107,7 @@ describe("startBackupAttempt", () => {
     expect(result).toEqual({ backupId: "b1", ok: true });
     expect(runBackupJob).toHaveBeenCalledWith({
       backupId: "b1",
-      scope: "tables",
+      scope: "full",
       format: "json",
       targetTables: ["blogs"],
     });

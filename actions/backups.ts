@@ -1,22 +1,25 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import {
   applyAutomatedBackupRetention,
+  failStuckInFlightBackups,
   hasInFlightBackup,
-  startAutomatedBackupAttempt,
 } from "@/lib/backups/automated";
 import { getSignedBackupUrl } from "@/lib/backups/r2";
+import { runBackupJob } from "@/lib/backups/run-backup";
 import {
   immediateScheduleWindow,
   isScheduleDue,
   scheduleWindowKey,
 } from "@/lib/backups/schedule";
-import { startBackupAttempt } from "@/lib/backups/start-backup";
+import { enqueueBackupAttempt } from "@/lib/backups/start-backup";
 import type { BackupScheduleValue } from "@/constants/backup-schedule";
 import type { AdminActionResult } from "@/types/admin-action";
+import type { Database } from "@/types/database";
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_ID } from "@/data/settings";
 import {
@@ -24,18 +27,18 @@ import {
   getBackupDownloadUrlSchema,
   type CreateBackupInput,
 } from "@/validations/backup";
+import { z } from "zod";
 
 const MESSAGES = {
   signedInRequired: "Sign in to manage backups.",
   unauthorized: "Only admins can manage backups.",
   invalidDetails: "Check the backup options and try again.",
-  createSuccess: "Backup completed.",
+  createStarted: "Backup started. Watch history — download when it completes.",
   downloadReady: "Download ready.",
   notFound: "Backup not found.",
   notReady: "This backup is not ready to download.",
   inFlight: "A backup is already running. Try again when it finishes.",
-  runNowSuccess: "Backup completed.",
-  runNowStartedFailed: "Backup failed. Check Backup history for details.",
+  runNowStarted: "Backup started. Watch history — download when it completes.",
   genericError: "Could not complete the backup.",
 } as const;
 
@@ -44,8 +47,52 @@ export type BackupDownloadUrlResult =
   | { status: "success"; url: string; message: string }
   | { status: "error"; message: string };
 export type RunBackupNowResult =
-  | { status: "success"; message: string }
+  | { status: "success"; message: string; id?: string }
   | { status: "error"; message: string };
+
+export type BackupStatusResult =
+  | {
+      status: "success";
+      backupStatus: Database["public"]["Enums"]["backup_status"];
+      errorMessage: string | null;
+    }
+  | { status: "error"; message: string };
+
+function scheduleBackupJob(input: {
+  backupId: string;
+  scope: Database["public"]["Enums"]["backup_scope"];
+  format: Database["public"]["Enums"]["backup_format"];
+  targetTables?: readonly string[] | null;
+  applyRetention?: boolean;
+}): void {
+  after(async () => {
+    try {
+      await runBackupJob({
+        backupId: input.backupId,
+        scope: input.scope,
+        format: input.format,
+        targetTables: input.targetTables ?? null,
+      });
+      if (input.applyRetention) {
+        try {
+          await applyAutomatedBackupRetention();
+        } catch (err) {
+          console.error("[backups] retention after async job failed", err);
+        }
+      }
+    } catch (err) {
+      console.error("[backups] background job failed", {
+        backupId: input.backupId,
+        err,
+      });
+    } finally {
+      revalidatePath(ROUTES.backup);
+      if (input.applyRetention) {
+        revalidatePath(ROUTES.settings);
+      }
+    }
+  });
+}
 
 export async function createBackup(
   input: CreateBackupInput,
@@ -61,6 +108,7 @@ export async function createBackup(
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
+  await failStuckInFlightBackups();
   if (await hasInFlightBackup()) {
     return { status: "error", message: MESSAGES.inFlight };
   }
@@ -69,8 +117,22 @@ export async function createBackup(
   const format =
     data.scope === "storage" ? ("zip" as const) : data.format;
 
-  const result = await startBackupAttempt({
+  const enqueued = await enqueueBackupAttempt({
     userId: session.userId,
+    scope: data.scope,
+    format,
+    targetTables: null,
+  });
+
+  if (!enqueued.backupId) {
+    return {
+      status: "error",
+      message: enqueued.error ?? MESSAGES.genericError,
+    };
+  }
+
+  scheduleBackupJob({
+    backupId: enqueued.backupId,
     scope: data.scope,
     format,
     targetTables: null,
@@ -78,29 +140,22 @@ export async function createBackup(
 
   revalidatePath(ROUTES.backup);
 
-  if (!result.ok) {
-    return {
-      status: "error",
-      message: result.error ?? MESSAGES.genericError,
-    };
-  }
-
   return {
     status: "success",
-    message: MESSAGES.createSuccess,
-    id: result.backupId,
+    message: MESSAGES.createStarted,
+    id: enqueued.backupId,
   };
 }
 
 /**
  * One-shot automated backup. Does not change stored backup_time.
- * When the schedule is currently due, uses the same window key so the hourly
- * tick will skip that window after success.
+ * Enqueues immediately; export continues in the background.
  */
 export async function runBackupNow(): Promise<RunBackupNowResult> {
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
+  await failStuckInFlightBackups();
   if (await hasInFlightBackup()) {
     return { status: "error", message: MESSAGES.inFlight };
   }
@@ -122,25 +177,78 @@ export async function runBackupNow(): Promise<RunBackupNowResult> {
       ? (scheduleWindowKey(backupTime, now) ?? immediateScheduleWindow(now))
       : immediateScheduleWindow(now);
 
-  const result = await startAutomatedBackupAttempt({
-    scheduleWindow: windowKey,
+  const enqueued = await enqueueBackupAttempt({
     userId: session.userId,
+    scope: "automated",
+    format: "json",
+    targetTables: null,
+    scheduleWindow: windowKey,
   });
 
-  try {
-    await applyAutomatedBackupRetention(now);
-  } catch (err) {
-    console.error("[backups] retention after runBackupNow failed", err);
+  if (!enqueued.backupId) {
+    return {
+      status: "error",
+      message: enqueued.error ?? MESSAGES.genericError,
+    };
   }
+
+  scheduleBackupJob({
+    backupId: enqueued.backupId,
+    scope: "automated",
+    format: "json",
+    targetTables: null,
+    applyRetention: true,
+  });
 
   revalidatePath(ROUTES.backup);
   revalidatePath(ROUTES.settings);
 
-  if (!result.ok) {
-    return { status: "error", message: MESSAGES.runNowStartedFailed };
+  return {
+    status: "success",
+    message: MESSAGES.runNowStarted,
+    id: enqueued.backupId,
+  };
+}
+
+const getBackupStatusSchema = z.object({
+  backupId: z.uuid("Invalid backup id."),
+});
+
+/** Poll job status while a background export runs. */
+export async function getBackupStatus(
+  backupId: string,
+): Promise<BackupStatusResult> {
+  const parsed = getBackupStatusSchema.safeParse({ backupId });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
+    };
   }
 
-  return { status: "success", message: MESSAGES.runNowSuccess };
+  const session = await authorizeAdmin(MESSAGES);
+  if (session.status === "error") return session;
+
+  await failStuckInFlightBackups();
+
+  const { data: row, error } = await session.supabase
+    .from("backups")
+    .select("id, status, error_message")
+    .eq("id", parsed.data.backupId)
+    .maybeSingle();
+
+  if (error) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+  if (!row) {
+    return { status: "error", message: MESSAGES.notFound };
+  }
+
+  return {
+    status: "success",
+    backupStatus: row.status,
+    errorMessage: row.error_message,
+  };
 }
 
 export async function getBackupDownloadUrl(
