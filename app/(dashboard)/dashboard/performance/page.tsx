@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { AdminPerfDashboard } from "@/components/dashboard/admin-perf-dashboard";
+import { DeleteOldPerfEventsButton } from "@/components/dashboard/delete-old-perf-events-button";
 import { ROUTES } from "@/constants/routes";
 import {
   getAdminPerfEventsByRequestIds,
@@ -49,6 +50,7 @@ export default async function PerformancePage({
     <AdminListPageShell
       title="Performance"
       description="Temporary CMS timing debug. Cache hits show React.cache / request dedupe; misses and n_a are real work. Disable with ADMIN_PERF_TRACKING unset."
+      actions={<DeleteOldPerfEventsButton />}
     >
       <AdminPerfDashboard
         events={result.list.events}

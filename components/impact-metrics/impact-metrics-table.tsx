@@ -6,6 +6,10 @@ import { ChartColumnIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { ImpactMetricRowActions } from "@/components/impact-metrics/impact-metric-row-actions";
 import { ImpactMetricsFilters } from "@/components/impact-metrics/impact-metrics-filters";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +54,8 @@ export function ImpactMetricsTable({
       filters={<ImpactMetricsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Claim</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Claim</TableHead>
           <TableHead>Value</TableHead>
           <TableHead>Lens</TableHead>
           <TableHead>Status</TableHead>
@@ -59,7 +64,7 @@ export function ImpactMetricsTable({
         </TableRow>
       }
       isEmpty={metrics.length === 0}
-      emptyColSpan={6}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={ChartColumnIcon}
@@ -83,13 +88,18 @@ export function ImpactMetricsTable({
         },
       }}
     >
-      {metrics.map((metric) => (
+      {metrics.map((metric, index) => (
         <TableRow
           key={metric.id}
           className="cursor-pointer"
           onClick={() => router.push(impactMetricDetailPath(metric.id))}
         >
-          <TableCell className="max-w-[10rem] pl-4 font-medium sm:max-w-[14rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={IMPACT_METRIC_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[10rem] font-medium sm:max-w-[14rem]">
             <Link
               href={impactMetricDetailPath(metric.id)}
               title={metric.claim_label}

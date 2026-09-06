@@ -5,6 +5,10 @@ import { ClipboardListIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { RegistrationRowActions } from "@/components/registrations/registration-dialogs";
 import { RegistrationsFilters } from "@/components/registrations/registrations-filters";
@@ -35,7 +39,8 @@ export function RegistrationsTable({
       filters={<RegistrationsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Company</TableHead>
@@ -46,7 +51,7 @@ export function RegistrationsTable({
         </TableRow>
       }
       isEmpty={registrations.length === 0}
-      emptyColSpan={8}
+      emptyColSpan={9}
       empty={
         <AdminEmptyState
           icon={ClipboardListIcon}
@@ -67,13 +72,18 @@ export function RegistrationsTable({
         },
       }}
     >
-      {registrations.map((registration) => (
+      {registrations.map((registration, index) => (
         <TableRow
           key={registration.id}
           className="cursor-pointer"
           onClick={() => setViewId(registration.id)}
         >
-          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={INTEREST_REGISTRATION_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[10rem] truncate font-medium sm:max-w-[14rem]">
             {registration.full_name}
           </TableCell>
           <TableCell>

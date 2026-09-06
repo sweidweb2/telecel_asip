@@ -8,6 +8,10 @@ import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { AdminPerfEventsFilters } from "@/components/dashboard/admin-perf-events-filters";
 import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -49,7 +53,8 @@ export function AdminPerfEventsTable({
         filters={<AdminPerfEventsFilters query={query} />}
         header={
           <TableRow>
-            <TableHead className="pl-4">Time</TableHead>
+            <AdminRowNumberHead />
+            <TableHead>Time</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Cache</TableHead>
@@ -58,7 +63,7 @@ export function AdminPerfEventsTable({
           </TableRow>
         }
         isEmpty={events.length === 0}
-        emptyColSpan={6}
+        emptyColSpan={7}
         empty={
           <AdminEmptyState
             icon={TimerIcon}
@@ -77,13 +82,18 @@ export function AdminPerfEventsTable({
           defaultPageSize: ADMIN_PERF_DEFAULT_PAGE_SIZE,
         }}
       >
-        {events.map((event) => (
+        {events.map((event, index) => (
           <TableRow
             key={event.id}
             className="cursor-pointer"
             onClick={() => setSelected(event)}
           >
-            <TableCell className="whitespace-nowrap pl-4 tabular-nums">
+            <AdminRowNumberCell
+              page={query.page}
+              pageSize={query.pageSize}
+              index={index}
+            />
+            <TableCell className="whitespace-nowrap tabular-nums">
               {format(parseISO(event.created_at), "MMM d, HH:mm:ss.SSS")}
             </TableCell>
             <TableCell className="max-w-[14rem] truncate font-medium">

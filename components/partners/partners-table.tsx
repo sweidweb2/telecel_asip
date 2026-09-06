@@ -7,6 +7,10 @@ import { HandshakeIcon, ImageOffIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { PartnerRowActions } from "@/components/partners/partner-row-actions";
 import { PartnersFilters } from "@/components/partners/partners-filters";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +61,8 @@ export function PartnersTable({
       filters={<PartnersFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="w-14 pl-4">Logo</TableHead>
+          <AdminRowNumberHead />
+          <TableHead className="w-14">Logo</TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Organisation</TableHead>
           <TableHead>Type</TableHead>
@@ -67,7 +72,7 @@ export function PartnersTable({
         </TableRow>
       }
       isEmpty={partners.length === 0}
-      emptyColSpan={7}
+      emptyColSpan={8}
       empty={
         <AdminEmptyState
           icon={HandshakeIcon}
@@ -90,13 +95,18 @@ export function PartnersTable({
         },
       }}
     >
-      {partners.map((partner) => (
+      {partners.map((partner, index) => (
         <TableRow
           key={partner.id}
           className="cursor-pointer"
           onClick={() => router.push(partnerDetailPath(partner.id))}
         >
-          <TableCell className="pl-4">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={PARTNER_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell>
             <LogoCell partner={partner} />
           </TableCell>
           <TableCell className="max-w-[10rem] font-medium sm:max-w-[14rem]">

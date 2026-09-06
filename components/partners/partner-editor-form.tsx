@@ -22,12 +22,18 @@ import {
   updatePartner,
   uploadPartnerLogo,
 } from "@/actions/partners";
+import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
 import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -36,10 +42,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -51,6 +56,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { PARTNER_EDITOR_HELP } from "@/constants/partner-editor-help";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
 import type { PartnerListItem } from "@/types/partner";
@@ -230,9 +236,14 @@ export function PartnerEditorForm({
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="grid max-w-2xl gap-6"
+        className={`grid max-w-2xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       >
-        <FieldGroup>
+        <AdminFormSection
+          title={PARTNER_EDITOR_HELP.identity.title}
+          description={PARTNER_EDITOR_HELP.identity.intro}
+          help={PARTNER_EDITOR_HELP.identity}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -246,7 +257,7 @@ export function PartnerEditorForm({
               </AdminFormFieldLabel>
               <Input
                 id={`${formId}-name`}
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 required
                 maxLength={PARTNER_NAME_MAX}
@@ -271,7 +282,7 @@ export function PartnerEditorForm({
               </AdminFormFieldLabel>
               <Input
                 id={`${formId}-org`}
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 maxLength={PARTNER_ORG_MAX}
                 placeholder="Leave empty for solo mentors"
@@ -340,7 +351,7 @@ export function PartnerEditorForm({
                 min={0}
                 max={PARTNER_SORT_ORDER_MAX}
                 step={1}
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={Boolean(errors.sortOrder)}
                 {...form.register("sortOrder")}
@@ -350,7 +361,14 @@ export function PartnerEditorForm({
               ) : null}
             </Field>
           </div>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={PARTNER_EDITOR_HELP.profile.title}
+          description={PARTNER_EDITOR_HELP.profile.intro}
+          help={PARTNER_EDITOR_HELP.profile}
+          contentClassName="grid gap-4"
+        >
           <Field data-invalid={Boolean(errors.link)}>
             <AdminFormFieldLabel
               htmlFor={`${formId}-link`}
@@ -362,7 +380,7 @@ export function PartnerEditorForm({
               id={`${formId}-link`}
               type="url"
               inputMode="url"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               maxLength={PARTNER_LINK_MAX}
               placeholder="https://example.com"
@@ -388,59 +406,71 @@ export function PartnerEditorForm({
               maxLength={PARTNER_CONTRIBUTION_MAX}
               placeholder="What this partner actually does with founders."
               aria-invalid={Boolean(errors.contribution)}
+              className="bg-white dark:bg-card"
               {...form.register("contribution")}
             />
             {errors.contribution ? (
               <FieldError>{errors.contribution.message}</FieldError>
             ) : null}
           </Field>
+        </AdminFormSection>
 
-          <div className="grid gap-4 rounded-lg border p-4">
-            <Controller
-              control={form.control}
-              name="isActive"
-              render={({ field }) => (
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <Label htmlFor={`${formId}-active`}>Active partner</Label>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Turn off to move this partner to the historical section.
-                    </p>
-                  </div>
-                  <Switch
-                    id={`${formId}-active`}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isPending}
-                  />
+        <AdminFormSection
+          title={PARTNER_EDITOR_HELP.visibility.title}
+          description={PARTNER_EDITOR_HELP.visibility.intro}
+          help={PARTNER_EDITOR_HELP.visibility}
+          contentClassName="grid gap-4"
+        >
+          <Controller
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <Label htmlFor={`${formId}-active`}>Active partner</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Turn off to move this partner to the historical section.
+                  </p>
                 </div>
-              )}
-            />
+                <Switch
+                  id={`${formId}-active`}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isPending}
+                />
+              </div>
+            )}
+          />
 
-            <Controller
-              control={form.control}
-              name="logoPermission"
-              render={({ field }) => (
-                <div className="flex items-center justify-between gap-4 border-t pt-4">
-                  <div className="min-w-0">
-                    <Label htmlFor={`${formId}-permission`}>
-                      Logo publication permission
-                    </Label>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Only granted logos are rendered on the public site.
-                    </p>
-                  </div>
-                  <Switch
-                    id={`${formId}-permission`}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isPending}
-                  />
+          <Controller
+            control={form.control}
+            name="logoPermission"
+            render={({ field }) => (
+              <div className="flex items-center justify-between gap-4 border-t pt-4">
+                <div className="min-w-0">
+                  <Label htmlFor={`${formId}-permission`}>
+                    Logo publication permission
+                  </Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Only granted logos are rendered on the public site.
+                  </p>
                 </div>
-              )}
-            />
-          </div>
+                <Switch
+                  id={`${formId}-permission`}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isPending}
+                />
+              </div>
+            )}
+          />
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={PARTNER_EDITOR_HELP.logo.title}
+          description={PARTNER_EDITOR_HELP.logo.intro}
+          help={PARTNER_EDITOR_HELP.logo}
+        >
           <Field>
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
               <Label>Logo</Label>
@@ -449,29 +479,46 @@ export function PartnerEditorForm({
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted/40">
-                {displayLogo ? (
-                  previewUrl ? (
-                    // Local blob preview — no optimization possible.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={previewUrl}
-                      alt="Selected logo preview"
-                      className="size-full object-contain"
-                    />
+              <div className="relative size-20 shrink-0">
+                <div className="flex size-full items-center justify-center overflow-hidden rounded-lg border bg-muted/40">
+                  {displayLogo ? (
+                    previewUrl ? (
+                      // Local blob preview — no optimization possible.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewUrl}
+                        alt="Selected logo preview"
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src={displayLogo}
+                        alt={`${partner?.name ?? "Partner"} logo`}
+                        width={80}
+                        height={80}
+                        sizes="80px"
+                        className="size-full object-contain"
+                      />
+                    )
                   ) : (
-                    <Image
-                      src={displayLogo}
-                      alt={`${partner?.name ?? "Partner"} logo`}
-                      width={80}
-                      height={80}
-                      sizes="80px"
-                      className="size-full object-contain"
-                    />
-                  )
-                ) : (
-                  <ImageIcon className="size-6 text-muted-foreground" />
-                )}
+                    <ImageIcon className="size-6 text-muted-foreground" />
+                  )}
+                </div>
+                {pendingFile ? (
+                  <AdminClearIconButton
+                    label="Clear logo selection"
+                    disabled={isPending}
+                    className="-top-1 -right-1"
+                    onClick={() => replacePendingLogo(null)}
+                  />
+                ) : storedLogoUrl ? (
+                  <AdminClearIconButton
+                    label="Remove logo"
+                    disabled={isPending}
+                    className="-top-1 -right-1"
+                    onClick={() => setRemoveOpen(true)}
+                  />
+                ) : null}
               </div>
 
               <div className="flex min-w-0 flex-col gap-2">
@@ -482,81 +529,52 @@ export function PartnerEditorForm({
                   className="sr-only"
                   onChange={handleFileChange}
                 />
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="min-h-11 sm:min-h-8"
-                    disabled={isPending}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <UploadIcon />
-                    {displayLogo ? "Replace" : "Upload"}
-                  </Button>
-                  {pendingFile ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="min-h-11 text-destructive sm:min-h-8"
-                      disabled={isPending}
-                      onClick={() => replacePendingLogo(null)}
-                    >
-                      <XIcon />
-                      Remove
-                    </Button>
-                  ) : storedLogoUrl ? (
-                    <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
-                      <AlertDialogTrigger
-                        render={
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="min-h-11 text-destructive sm:min-h-8"
-                            disabled={isPending}
-                          />
-                        }
-                      >
-                        <XIcon />
-                        Remove
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader className="text-left">
-                          <AlertDialogTitle>Remove logo?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This deletes the image from Storage immediately.
-                            This cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel disabled={isPending}>
-                            Cancel
-                          </AlertDialogCancel>
-                          <Button
-                            variant="destructive"
-                            onClick={handleRemoveStoredLogo}
-                            disabled={isPending}
-                          >
-                            {isPending ? (
-                              <Loader2Icon className="animate-spin" />
-                            ) : (
-                              <XIcon />
-                            )}
-                            {isPending ? "Removing…" : "Remove logo"}
-                          </Button>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  ) : null}
-                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11 w-fit sm:min-h-8"
+                  disabled={isPending}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <UploadIcon />
+                  {displayLogo ? "Replace" : "Upload"}
+                </Button>
                 <p className="text-xs text-muted-foreground">
                   JPEG, PNG, WebP, or GIF under 2 MB. Resized and converted to
                   WebP on upload.
                 </p>
               </div>
             </div>
+
+            <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader className="text-left">
+                  <AlertDialogTitle>Remove logo?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This deletes the image from Storage immediately. This
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isPending}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <Button
+                    variant="destructive"
+                    onClick={handleRemoveStoredLogo}
+                    disabled={isPending}
+                  >
+                    {isPending ? (
+                      <Loader2Icon className="animate-spin" />
+                    ) : (
+                      <XIcon />
+                    )}
+                    {isPending ? "Removing…" : "Remove logo"}
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             {displayLogo && !logoPermission ? (
               <p className="flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
@@ -566,19 +584,9 @@ export function PartnerEditorForm({
               </p>
             ) : null}
           </Field>
-        </FieldGroup>
+        </AdminFormSection>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create partner" : "Save changes"}
-          </Button>
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -590,8 +598,20 @@ export function PartnerEditorForm({
               <Trash2Icon className="size-4" />
               Delete
             </Button>
-          ) : null}
-        </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:ml-auto sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            {mode === "create" ? "Create partner" : "Save changes"}
+          </Button>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

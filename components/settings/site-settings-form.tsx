@@ -7,10 +7,16 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { updateSiteSettings } from "@/actions/settings";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
 import {
   updateSiteSettingsSchema,
   type UpdateSiteSettingsInput,
@@ -63,13 +69,16 @@ export function SiteSettingsForm({
       <CardContent className="p-4 sm:p-6">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
+          className={`flex flex-col gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <Label htmlFor="open-applications" className="text-base">
-                Applications open
-              </Label>
+              <div className="flex items-start justify-between gap-2">
+                <Label htmlFor="open-applications" className="text-base">
+                  Applications open
+                </Label>
+                <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
+              </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
                 When on, the public navbar promotes Apply and a status banner
                 appears under the nav. When off, the navbar promotes Register
@@ -94,9 +103,12 @@ export function SiteSettingsForm({
 
           <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <Label htmlFor="newsletter-signup" className="text-base">
-                Newsletter signup
-              </Label>
+              <div className="flex items-start justify-between gap-2">
+                <Label htmlFor="newsletter-signup" className="text-base">
+                  Newsletter signup
+                </Label>
+                <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
+              </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
                 When off, the Insights updates form stays inactive and rejects
                 submissions. Turn on only after privacy, routing, and owner are
@@ -120,16 +132,17 @@ export function SiteSettingsForm({
             </div>
           </div>
 
-          <div className="flex">
+          <AdminEditorActionsBar>
+            <span className="hidden sm:block" />
             <Button
               type="submit"
               disabled={isPending || !isDirty}
-              className="w-full sm:w-auto"
+              className="min-h-11 w-full sm:ml-auto sm:w-auto"
             >
               {isPending ? <Loader2Icon className="animate-spin" /> : null}
               {isPending ? "Saving…" : "Save changes"}
             </Button>
-          </div>
+          </AdminEditorActionsBar>
         </form>
       </CardContent>
     </Card>

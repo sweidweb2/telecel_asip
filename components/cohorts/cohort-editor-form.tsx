@@ -14,6 +14,11 @@ import {
   updateCohort,
 } from "@/actions/cohorts";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -26,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { CohortAdminDetail, CohortLinkOption } from "@/types/cohort";
@@ -249,7 +255,7 @@ export function CohortEditorForm({
   return (
     <>
       <form
-        className="grid max-w-3xl gap-8"
+        className={`grid max-w-3xl gap-8 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
@@ -260,13 +266,18 @@ export function CohortEditorForm({
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <AdminFormSection
+          title={COHORT_EDITOR_HELP.programme.title}
+          description={COHORT_EDITOR_HELP.programme.intro}
+          help={COHORT_EDITOR_HELP.programme}
+          contentClassName="grid gap-5 sm:grid-cols-2"
+        >
           <div className="grid gap-2">
             <FieldLabel htmlFor="year">Year</FieldLabel>
             <Input
               id="year"
               type="number"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               {...register("year", { valueAsNumber: true })}
             />
@@ -284,7 +295,7 @@ export function CohortEditorForm({
             </FieldLabel>
             <Input
               id="publicLabel"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               {...register("publicLabel")}
             />
@@ -302,7 +313,7 @@ export function CohortEditorForm({
             <Input
               id="programmeDatesStart"
               type="date"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               {...register("programmeDatesStart")}
             />
@@ -318,7 +329,7 @@ export function CohortEditorForm({
             <Input
               id="programmeDatesEnd"
               type="date"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               {...register("programmeDatesEnd")}
             />
@@ -402,6 +413,7 @@ export function CohortEditorForm({
             <Textarea
               id="summary"
               rows={5}
+              className="bg-white dark:bg-card"
               disabled={isPending}
               {...register("summary")}
             />
@@ -418,7 +430,7 @@ export function CohortEditorForm({
               id="mediaUrl"
               type="url"
               placeholder="https://"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               {...register("mediaUrl")}
             />
@@ -428,9 +440,14 @@ export function CohortEditorForm({
               </p>
             ) : null}
           </div>
-        </div>
+        </AdminFormSection>
 
-        <div className="grid gap-4">
+        <AdminFormSection
+          title={COHORT_EDITOR_HELP.links.title}
+          description={COHORT_EDITOR_HELP.links.intro}
+          help={COHORT_EDITOR_HELP.links}
+          contentClassName="grid gap-4"
+        >
           <div className="grid gap-2">
             <Label htmlFor="cohort-link-search">Search partners & startups</Label>
             <Input
@@ -440,7 +457,7 @@ export function CohortEditorForm({
               onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search by name…"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
             />
           </div>
@@ -484,25 +501,19 @@ export function CohortEditorForm({
               )}
             />
           </div>
-        </div>
-        {errors.partnerIds ? (
-          <p className="text-sm text-destructive">
-            {errors.partnerIds.message}
-          </p>
-        ) : null}
-        {errors.startupIds ? (
-          <p className="text-sm text-destructive">
-            {errors.startupIds.message}
-          </p>
-        ) : null}
+          {errors.partnerIds ? (
+            <p className="text-sm text-destructive">
+              {errors.partnerIds.message}
+            </p>
+          ) : null}
+          {errors.startupIds ? (
+            <p className="text-sm text-destructive">
+              {errors.startupIds.message}
+            </p>
+          ) : null}
+        </AdminFormSection>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button type="submit" className="min-h-11 w-full sm:w-auto" disabled={isPending}>
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create cohort" : "Save changes"}
-          </Button>
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -514,8 +525,20 @@ export function CohortEditorForm({
               <Trash2Icon className="size-4" />
               Delete
             </Button>
-          ) : null}
-        </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:ml-auto sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            {mode === "create" ? "Create cohort" : "Save changes"}
+          </Button>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

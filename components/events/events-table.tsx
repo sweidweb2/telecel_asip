@@ -6,6 +6,10 @@ import { CalendarIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { EventRowActions } from "@/components/events/event-row-actions";
 import { EventsFilters } from "@/components/events/events-filters";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +42,8 @@ export function EventsTable({
       filters={<EventsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Name</TableHead>
           <TableHead>Date</TableHead>
           <TableHead>Format</TableHead>
           <TableHead>Location</TableHead>
@@ -47,7 +52,7 @@ export function EventsTable({
         </TableRow>
       }
       isEmpty={events.length === 0}
-      emptyColSpan={6}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={CalendarIcon}
@@ -69,13 +74,18 @@ export function EventsTable({
         },
       }}
     >
-      {events.map((event) => (
+      {events.map((event, index) => (
         <TableRow
           key={event.id}
           className="cursor-pointer"
           onClick={() => router.push(eventDetailPath(event.id))}
         >
-          <TableCell className="max-w-[12rem] pl-4 font-medium sm:max-w-[18rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={EVENT_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[12rem] font-medium sm:max-w-[18rem]">
             <Link
               href={eventDetailPath(event.id)}
               title={event.name}

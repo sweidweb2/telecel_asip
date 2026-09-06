@@ -158,6 +158,9 @@ export function RegistrationRowActions({
             <AdminDetailRow label="Status">
               <InboxStatusBadge status={registration.inbox_status} />
             </AdminDetailRow>
+            <AdminDetailRow label="Role">
+              {registration.founder_role}
+            </AdminDetailRow>
             <AdminDetailRow label="Email">{registration.email}</AdminDetailRow>
             <AdminDetailRow label="Phone">{registration.phone}</AdminDetailRow>
             <AdminDetailRow label="Company">
@@ -171,6 +174,15 @@ export function RegistrationRowActions({
                 {registration.country}
               </AdminDetailRow>
             </div>
+            <AdminDetailRow label="Company country">
+              {registration.company_country}
+            </AdminDetailRow>
+            <AdminDetailRow label="LinkedIn">
+              {registration.linkedin}
+            </AdminDetailRow>
+            <AdminDetailRow label="Website">
+              {registration.website}
+            </AdminDetailRow>
             <AdminDetailRow label="Pitch">{registration.pitch}</AdminDetailRow>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <AdminDetailRow label="Consent">
@@ -229,6 +241,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_FULL_NAME_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Ama Mensah"
                     aria-invalid={Boolean(form.formState.errors.fullName)}
                     {...form.register("fullName")}
                   />
@@ -244,6 +257,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_EMAIL_MAX}
                     className="min-h-11"
+                    placeholder="name@company.com"
                     aria-invalid={Boolean(form.formState.errors.email)}
                     {...form.register("email")}
                   />
@@ -261,6 +275,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_PHONE_MAX}
                     className="min-h-11"
+                    placeholder="+233 20 000 0000"
                     aria-invalid={Boolean(form.formState.errors.phone)}
                     {...form.register("phone")}
                   />
@@ -279,6 +294,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_COMPANY_MAX}
                     className="min-h-11"
+                    placeholder="Startup or company name"
                     aria-invalid={Boolean(form.formState.errors.companyName)}
                     {...form.register("companyName")}
                   />
@@ -297,6 +313,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_SECTOR_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Fintech"
                     aria-invalid={Boolean(form.formState.errors.sector)}
                     {...form.register("sector")}
                   />
@@ -313,6 +330,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_COUNTRY_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Ghana"
                     aria-invalid={Boolean(form.formState.errors.country)}
                     {...form.register("country")}
                   />
@@ -329,6 +347,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={80}
                     className="min-h-11"
+                    placeholder="e.g. Founder / CEO"
                     aria-invalid={Boolean(form.formState.errors.founderRole)}
                     {...form.register("founderRole")}
                   />
@@ -347,6 +366,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_COUNTRY_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Ghana"
                     aria-invalid={Boolean(
                       form.formState.errors.companyCountry,
                     )}
@@ -368,6 +388,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={500}
                     className="min-h-11"
+                    placeholder="https://linkedin.com/in/…"
                     aria-invalid={Boolean(form.formState.errors.linkedin)}
                     {...form.register("linkedin")}
                   />
@@ -385,6 +406,7 @@ export function RegistrationRowActions({
                     disabled={isUpdating}
                     maxLength={500}
                     className="min-h-11"
+                    placeholder="https://example.com"
                     aria-invalid={Boolean(form.formState.errors.website)}
                     {...form.register("website")}
                   />
@@ -403,6 +425,7 @@ export function RegistrationRowActions({
                   disabled={isUpdating}
                   maxLength={INTEREST_REGISTRATION_PITCH_MAX}
                   className="min-h-32"
+                  placeholder="Optional note about the startup or interest…"
                   aria-invalid={Boolean(form.formState.errors.pitch)}
                   {...form.register("pitch")}
                 />

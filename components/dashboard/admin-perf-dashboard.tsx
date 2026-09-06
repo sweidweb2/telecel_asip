@@ -1,7 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
-import { toast } from "sonner";
 import {
   Bar,
   BarChart,
@@ -15,9 +13,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { deleteOldAdminPerfEvents } from "@/actions/admin-perf-events";
 import { AdminPerfEventsTable } from "@/components/dashboard/admin-perf-events-table";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   AdminPerfAnalytics,
@@ -44,8 +40,6 @@ export function AdminPerfDashboard({
   trackingEnabled,
   siblingsByRequestId,
 }: Props) {
-  const [pending, startTransition] = useTransition();
-
   if (!trackingEnabled) {
     return (
       <Card>
@@ -63,7 +57,7 @@ export function AdminPerfDashboard({
 
   return (
     <div className="grid gap-8">
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Events (window)" value={String(analytics.total)} />
         <StatCard
           label="Cache hit ratio"
@@ -73,26 +67,6 @@ export function AdminPerfDashboard({
           label="Event types"
           value={String(analytics.byEventType.length)}
         />
-        <div className="flex items-end">
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-11 w-full"
-            disabled={pending}
-            onClick={() => {
-              startTransition(async () => {
-                const result = await deleteOldAdminPerfEvents();
-                if (result.status === "error") {
-                  toast.error(result.message);
-                  return;
-                }
-                toast.success(result.message);
-              });
-            }}
-          >
-            Delete events older than 7 days
-          </Button>
-        </div>
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">

@@ -5,6 +5,10 @@ import { UserRoundSearchIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { UserRowActions } from "@/components/users/user-dialogs";
 import { UsersFilters } from "@/components/users/users-filters";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +48,8 @@ export function UsersTable({
       filters={<UsersFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Full name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Full name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Created</TableHead>
@@ -53,7 +58,7 @@ export function UsersTable({
         </TableRow>
       }
       isEmpty={users.length === 0}
-      emptyColSpan={6}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={UserRoundSearchIcon}
@@ -73,13 +78,18 @@ export function UsersTable({
         },
       }}
     >
-      {users.map((user) => (
+      {users.map((user, index) => (
         <TableRow
           key={user.id}
           className="cursor-pointer"
           onClick={() => setEditUserId(user.id)}
         >
-          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={USER_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[10rem] truncate font-medium sm:max-w-[14rem]">
             {user.full_name || "—"}
           </TableCell>
           <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">

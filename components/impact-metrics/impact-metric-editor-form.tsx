@@ -19,8 +19,14 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -34,6 +40,7 @@ import {
   IMPACT_LENS_LABELS,
   IMPACT_PUBLISH_STATUS_LABELS,
 } from "@/constants/impact-metric-labels";
+import { IMPACT_METRIC_EDITOR_HELP } from "@/constants/impact-metric-editor-help";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
@@ -87,7 +94,9 @@ export function ImpactMetricEditorForm({
     initialOptions,
   );
   const [optionsLoading, setOptionsLoading] = useState(false);
-  const [optionsEnabled, setOptionsEnabled] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(
+    Boolean(metric?.evidence_id),
+  );
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(optionsEnabled);
 
@@ -181,7 +190,7 @@ export function ImpactMetricEditorForm({
   return (
     <>
       <form
-        className="grid max-w-3xl gap-8"
+        className={`grid max-w-3xl gap-8 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
@@ -192,7 +201,12 @@ export function ImpactMetricEditorForm({
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
 
-        <FieldGroup>
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.claim.title}
+          description={IMPACT_METRIC_EDITOR_HELP.claim.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.claim}
+          contentClassName="grid gap-4"
+        >
           <Field data-invalid={!!errors.claimLabel}>
             <AdminFormFieldLabel
               htmlFor="impact-claim"
@@ -202,7 +216,7 @@ export function ImpactMetricEditorForm({
             </AdminFormFieldLabel>
             <Input
               id="impact-claim"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               maxLength={IMPACT_CLAIM_LABEL_MAX}
               disabled={isPending}
               aria-invalid={!!errors.claimLabel}
@@ -224,7 +238,7 @@ export function ImpactMetricEditorForm({
               </AdminFormFieldLabel>
               <Input
                 id="impact-value"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 maxLength={IMPACT_VALUE_MAX}
                 disabled={isPending}
                 aria-invalid={!!errors.value}
@@ -245,7 +259,7 @@ export function ImpactMetricEditorForm({
               </AdminFormFieldLabel>
               <Input
                 id="impact-unit"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 maxLength={IMPACT_UNIT_MAX}
                 disabled={isPending}
                 aria-invalid={!!errors.unit}
@@ -254,7 +268,14 @@ export function ImpactMetricEditorForm({
               <FieldError>{errors.unit?.message}</FieldError>
             </Field>
           </div>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.periodEvidence.title}
+          description={IMPACT_METRIC_EDITOR_HELP.periodEvidence.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.periodEvidence}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -266,7 +287,7 @@ export function ImpactMetricEditorForm({
               <Input
                 id="impact-start"
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={!!errors.periodStart}
                 {...register("periodStart")}
@@ -284,7 +305,7 @@ export function ImpactMetricEditorForm({
               <Input
                 id="impact-end"
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={!!errors.periodEnd}
                 {...register("periodEnd")}
@@ -304,7 +325,7 @@ export function ImpactMetricEditorForm({
               onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search evidence by source…"
-              className="mb-2 min-h-11"
+              className="mb-2 min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               aria-label="Search evidence records"
             />
@@ -312,40 +333,35 @@ export function ImpactMetricEditorForm({
               control={control}
               name="evidenceId"
               render={({ field }) => (
-                <Select
-                  value={field.value || undefined}
-                  onValueChange={(value) => field.onChange(value ?? "")}
+                <EntitySelect
+                  id="impact-evidence"
+                  value={field.value || null}
+                  onValueChange={(next) => field.onChange(next ?? "")}
+                  options={evidenceOptions.map((option) => ({
+                    id: option.id,
+                    label: `${option.primary_source} (${option.status})`,
+                  }))}
+                  placeholder={
+                    optionsLoading ? "Loading evidence…" : "Select evidence"
+                  }
+                  disabled={isPending}
                   onOpenChange={(open) => {
                     if (open) setOptionsEnabled(true);
                   }}
-                  disabled={isPending}
-                >
-                  <SelectTrigger
-                    id="impact-evidence"
-                    className="w-full min-h-11"
-                    aria-invalid={!!errors.evidenceId}
-                  >
-                    <SelectValue
-                      placeholder={
-                        optionsLoading
-                          ? "Loading evidence…"
-                          : "Select evidence"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {evidenceOptions.map((option) => (
-                      <SelectItem key={option.id} value={option.id}>
-                        {option.primary_source} ({option.status})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  aria-invalid={!!errors.evidenceId}
+                />
               )}
             />
             <FieldError>{errors.evidenceId?.message}</FieldError>
           </Field>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.publishing.title}
+          description={IMPACT_METRIC_EDITOR_HELP.publishing.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.publishing}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -434,7 +450,7 @@ export function ImpactMetricEditorForm({
             </AdminFormFieldLabel>
             <Input
               id="impact-geography"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               maxLength={IMPACT_GEOGRAPHY_MAX}
               disabled={isPending}
               aria-invalid={!!errors.geography}
@@ -455,23 +471,14 @@ export function ImpactMetricEditorForm({
               rows={3}
               disabled={isPending}
               aria-invalid={!!errors.displayLocations}
+              className="bg-white dark:bg-card"
               {...register("displayLocations")}
             />
             <FieldError>{errors.displayLocations?.message}</FieldError>
           </Field>
-        </FieldGroup>
+        </AdminFormSection>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending || optionsLoading || evidenceOptions.length === 0}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create metric" : "Save changes"}
-          </Button>
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -483,8 +490,22 @@ export function ImpactMetricEditorForm({
               <Trash2Icon className="size-4" />
               Delete
             </Button>
-          ) : null}
-        </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:ml-auto sm:w-auto"
+            disabled={
+              isPending || optionsLoading || evidenceOptions.length === 0
+            }
+          >
+            {isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            {mode === "create" ? "Create metric" : "Save changes"}
+          </Button>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

@@ -6,6 +6,10 @@ import { BriefcaseIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { StartupRowActions } from "@/components/startups/startup-row-actions";
 import { StartupsFilters } from "@/components/startups/startups-filters";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +52,8 @@ export function StartupsTable({
       filters={<StartupsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Slug</TableHead>
           <TableHead>Updated</TableHead>
@@ -56,7 +61,7 @@ export function StartupsTable({
         </TableRow>
       }
       isEmpty={startups.length === 0}
-      emptyColSpan={5}
+      emptyColSpan={6}
       empty={
         <AdminEmptyState
           icon={BriefcaseIcon}
@@ -78,7 +83,7 @@ export function StartupsTable({
         },
       }}
     >
-      {startups.map((startup) => {
+      {startups.map((startup, index) => {
         const href = portfolioEditPath(startup.id);
         return (
           <TableRow
@@ -86,7 +91,12 @@ export function StartupsTable({
             className="cursor-pointer"
             onClick={() => router.push(href)}
           >
-            <TableCell className="max-w-[12rem] pl-4 font-medium sm:max-w-[18rem]">
+            <AdminRowNumberCell
+              page={query.page}
+              pageSize={STARTUP_PAGE_SIZE}
+              index={index}
+            />
+            <TableCell className="max-w-[12rem] font-medium sm:max-w-[18rem]">
               <Link
                 href={href}
                 title={startup.name}

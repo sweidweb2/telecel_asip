@@ -141,6 +141,11 @@ export const deleteBlogSchema = z.object({
   id: z.uuid("Invalid blog id"),
 });
 
+export const updateBlogStatusSchema = z.object({
+  id: z.uuid("Invalid blog id"),
+  status: z.enum(BLOG_STATUSES),
+});
+
 export const blogIdSchema = z.uuid("Invalid blog id");
 
 export const BLOG_IMAGE_KINDS = ["thumbnail", "author"] as const;
@@ -153,6 +158,7 @@ export const blogImageTargetSchema = z.object({
 export type CreateBlogInput = z.infer<typeof createBlogSchema>;
 export type UpdateBlogInput = z.infer<typeof updateBlogSchema>;
 export type DeleteBlogInput = z.infer<typeof deleteBlogSchema>;
+export type UpdateBlogStatusInput = z.infer<typeof updateBlogStatusSchema>;
 export type BlogImageTarget = z.infer<typeof blogImageTargetSchema>;
 
 const blogListQueryInputSchema = z.object({

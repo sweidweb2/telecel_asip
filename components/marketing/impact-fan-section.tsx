@@ -15,31 +15,31 @@ type ImpactFanSectionProps = {
   className?: string;
 };
 
-/** Fan placement — outer cards rotate more; centre lifts from the shared bottom edge. */
+/** Fan placement — outer cards rotate more; centre lifts and slightly overlaps its neighbours. */
 const FAN_SLOTS = [
   {
     className:
-      "left-0 z-[14] w-[26%] -rotate-[11deg] sm:w-[22%] sm:-rotate-[10deg] lg:w-[20%]",
+      "left-0 z-[14] w-[28%] -rotate-[11deg] sm:w-[24%] sm:-rotate-[10deg] lg:w-[22%]",
     floatClassName: "about-story-float",
   },
   {
     className:
-      "left-[16%] z-[16] w-[26%] -translate-y-2 -rotate-[5deg] sm:left-[18%] sm:w-[22%] sm:-translate-y-3 sm:-rotate-[4deg] lg:w-[20%]",
+      "left-[15%] z-[16] w-[28%] -translate-y-2 -rotate-[5deg] sm:left-[17%] sm:w-[24%] sm:-translate-y-3 sm:-rotate-[4deg] lg:left-[17%] lg:w-[24%]",
     floatClassName: "next-chapter-float-delayed",
   },
   {
     className:
-      "left-1/2 z-[18] w-[28%] -translate-x-1/2 -translate-y-5 sm:w-[24%] sm:-translate-y-7 lg:w-[22%] lg:-translate-y-8",
+      "left-1/2 z-[18] w-[30%] -translate-x-1/2 -translate-y-5 sm:w-[26%] sm:-translate-y-7 lg:w-[26%] lg:-translate-y-8",
     floatClassName: "about-story-float-delayed",
   },
   {
     className:
-      "right-[16%] z-[16] w-[26%] -translate-y-2 rotate-[5deg] sm:right-[18%] sm:w-[22%] sm:-translate-y-3 sm:rotate-[4deg] lg:w-[20%]",
+      "right-[15%] z-[16] w-[28%] -translate-y-2 rotate-[5deg] sm:right-[17%] sm:w-[24%] sm:-translate-y-3 sm:rotate-[4deg] lg:right-[17%] lg:w-[24%]",
     floatClassName: "next-chapter-float",
   },
   {
     className:
-      "right-0 z-[14] w-[26%] rotate-[11deg] sm:w-[22%] sm:rotate-[10deg] lg:w-[20%]",
+      "right-0 z-[14] w-[28%] rotate-[11deg] sm:w-[24%] sm:rotate-[10deg] lg:w-[22%]",
     floatClassName: "about-story-float",
   },
 ] as const;
@@ -169,25 +169,30 @@ function FanCard({
     >
       <div
         className={cn(
-          "relative size-full overflow-hidden rounded-2xl bg-muted shadow-[0_18px_40px_-24px_rgba(20,51,59,0.45)] ring-1 ring-foreground/8 sm:rounded-3xl",
+          "relative size-full rounded-2xl bg-white p-1 shadow-[0_18px_40px_-24px_rgba(20,51,59,0.45)] ring-1 ring-foreground/8 sm:rounded-3xl sm:p-1.5",
           "origin-center transition-transform duration-300 ease-out will-change-transform hover:scale-105",
         )}
       >
-        <Image
-          src={image.src}
-          alt={image.alt}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 40vw, (max-width: 1024px) 28vw, 320px"
-          quality={90}
-        />
-        <figcaption className="absolute top-2.5 left-2.5 inline-flex max-w-[calc(100%-1.25rem)] items-center gap-1.5 rounded-full bg-background/95 px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.12em] text-foreground uppercase shadow-sm backdrop-blur-sm sm:top-3 sm:left-3 sm:px-3 sm:py-1.5 sm:text-xs">
-          <span
-            aria-hidden
-            className={cn("size-1.5 shrink-0 rounded-full", image.dotClassName)}
+        <div className="relative size-full overflow-hidden rounded-[calc(1rem-2px)] sm:rounded-[calc(1.5rem-3px)]">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 40vw, (max-width: 1024px) 28vw, 320px"
+            quality={90}
           />
-          <span className="truncate">{image.badge}</span>
-        </figcaption>
+          <figcaption className="absolute top-2.5 left-2.5 inline-flex max-w-[calc(100%-1.25rem)] items-center gap-1.5 rounded-full bg-background/95 px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.12em] text-foreground uppercase shadow-sm backdrop-blur-sm sm:top-3 sm:left-3 sm:px-3 sm:py-1.5 sm:text-xs">
+            <span
+              aria-hidden
+              className={cn(
+                "size-1.5 shrink-0 rounded-full",
+                image.dotClassName,
+              )}
+            />
+            <span className="truncate">{image.badge}</span>
+          </figcaption>
+        </div>
       </div>
     </figure>
   );

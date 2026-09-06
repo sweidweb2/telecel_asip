@@ -28,3 +28,12 @@ export function formatAdminDate(value: string | Date): string {
 export function formatAdminDateTime(value: string | Date): string {
   return format(toDate(value), ADMIN_DATETIME_FORMAT);
 }
+
+/** Absolute 1-based row number for a paginated admin list. */
+export function adminRowNumber(
+  page: number,
+  pageSize: number,
+  index: number,
+): number {
+  return (page - 1) * pageSize + index + 1;
+}

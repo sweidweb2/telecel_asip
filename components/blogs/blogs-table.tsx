@@ -5,12 +5,16 @@ import { useRouter } from "nextjs-toploader/app";
 import { NewspaperIcon } from "lucide-react";
 
 import { BlogRowActions } from "@/components/blogs/blog-row-actions";
+import { BlogStatusToggle } from "@/components/blogs/blog-status-toggle";
 import { BlogsFilters } from "@/components/blogs/blogs-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { CMS_PUBLISH_STATUS_LABELS } from "@/constants/cms-publish";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
 import type { BlogListItem } from "@/types/blog";
@@ -34,7 +38,8 @@ export function BlogsTable({
       filters={<BlogsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Title</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Title</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Author</TableHead>
           <TableHead>Updated</TableHead>
@@ -42,7 +47,7 @@ export function BlogsTable({
         </TableRow>
       }
       isEmpty={blogs.length === 0}
-      emptyColSpan={5}
+      emptyColSpan={6}
       empty={
         <AdminEmptyState
           icon={NewspaperIcon}
@@ -64,7 +69,7 @@ export function BlogsTable({
         },
       }}
     >
-      {blogs.map((blog) => {
+      {blogs.map((blog, index) => {
         const href = `${ROUTES.blogs}/${blog.id}`;
         return (
           <TableRow
@@ -72,7 +77,12 @@ export function BlogsTable({
             className="cursor-pointer"
             onClick={() => router.push(href)}
           >
-            <TableCell className="max-w-[14rem] pl-4 font-medium sm:max-w-[22rem]">
+            <AdminRowNumberCell
+              page={query.page}
+              pageSize={BLOG_PAGE_SIZE}
+              index={index}
+            />
+            <TableCell className="max-w-[14rem] font-medium sm:max-w-[22rem]">
               <Link
                 href={href}
                 title={blog.title}
@@ -87,14 +97,8 @@ export function BlogsTable({
                 </Badge>
               ) : null}
             </TableCell>
-            <TableCell>
-              <Badge
-                variant={
-                  blog.status === "published" ? "default" : "secondary"
-                }
-              >
-                {CMS_PUBLISH_STATUS_LABELS[blog.status]}
-              </Badge>
+            <TableCell onClick={(event) => event.stopPropagation()}>
+              <BlogStatusToggle blogId={blog.id} status={blog.status} />
             </TableCell>
             <TableCell className="max-w-[10rem] truncate text-muted-foreground">
               {blog.author_name}

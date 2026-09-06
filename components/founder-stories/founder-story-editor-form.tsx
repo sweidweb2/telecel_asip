@@ -14,8 +14,20 @@ import {
   updateFounderStory,
 } from "@/actions/founder-stories";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,6 +38,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type {
@@ -206,10 +219,18 @@ export function FounderStoryEditorForm({
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
-        <Card>
-          <CardHeader>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+      >
+        <Card size="sm">
+          <CardHeader className="border-b">
             <CardTitle>Startup & status</CardTitle>
+            <CardAction>
+              <AdminFormSectionHelp
+                help={FOUNDER_STORY_EDITOR_HELP.startupStatus}
+              />
+            </CardAction>
           </CardHeader>
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="grid gap-2 sm:col-span-2">
@@ -222,7 +243,7 @@ export function FounderStoryEditorForm({
                   onFocus={() => setOptionsEnabled(true)}
                   maxLength={100}
                   placeholder="Search startups…"
-                  className="mb-2 min-h-11"
+                  className="mb-2 min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
                   aria-label="Search startups"
                 />
@@ -231,35 +252,27 @@ export function FounderStoryEditorForm({
                 control={control}
                 name="startupId"
                 render={({ field }) => (
-                  <Select
-                    value={field.value || undefined}
-                    onValueChange={(value) => field.onChange(value ?? "")}
-                    disabled={
-                      isPending ||
-                      mode === "edit" ||
-                      optionsLoading ||
-                      (mode === "create" && startups.length === 0)
+                  <EntitySelect
+                    id="startupId"
+                    value={field.value || null}
+                    onValueChange={(next) => field.onChange(next ?? "")}
+                    options={startups.map((startup) => ({
+                      id: startup.id,
+                      label: startup.name,
+                    }))}
+                    placeholder={
+                      optionsLoading
+                        ? "Loading startups…"
+                        : startups.length === 0
+                          ? "No startups available"
+                          : "Select a startup"
                     }
-                  >
-                    <SelectTrigger id="startupId" className="min-h-11 w-full">
-                      <SelectValue
-                        placeholder={
-                          optionsLoading
-                            ? "Loading startups…"
-                            : startups.length === 0
-                              ? "No startups available"
-                              : "Select a startup"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {startups.map((startup) => (
-                        <SelectItem key={startup.id} value={startup.id}>
-                          {startup.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    disabled={isPending || mode === "edit"}
+                    onOpenChange={(open) => {
+                      if (open) setOptionsEnabled(true);
+                    }}
+                    aria-invalid={Boolean(errors.startupId)}
+                  />
                 )}
               />
               {errors.startupId ? (
@@ -282,6 +295,10 @@ export function FounderStoryEditorForm({
                 render={({ field }) => (
                   <Select
                     value={field.value}
+                    items={CMS_PUBLISH_STATUSES.map((status) => ({
+                      value: status,
+                      label: CMS_PUBLISH_STATUS_LABELS[status],
+                    }))}
                     onValueChange={(value) => {
                       if (value) field.onChange(value);
                     }}
@@ -309,9 +326,14 @@ export function FounderStoryEditorForm({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card size="sm">
+          <CardHeader className="border-b">
             <CardTitle>Story modules</CardTitle>
+            <CardAction>
+              <AdminFormSectionHelp
+                help={FOUNDER_STORY_EDITOR_HELP.storyModules}
+              />
+            </CardAction>
           </CardHeader>
           <CardContent className="grid gap-5">
             <div className="grid gap-2">
@@ -323,7 +345,7 @@ export function FounderStoryEditorForm({
               </FieldLabel>
               <Textarea
                 id="theProblem"
-                className="min-h-28"
+                className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
                 {...register("theProblem")}
               />
@@ -343,7 +365,7 @@ export function FounderStoryEditorForm({
               </FieldLabel>
               <Textarea
                 id="whatTheyBuilt"
-                className="min-h-28"
+                className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
                 {...register("whatTheyBuilt")}
               />
@@ -363,7 +385,7 @@ export function FounderStoryEditorForm({
               </FieldLabel>
               <Textarea
                 id="theAsipConnection"
-                className="min-h-28"
+                className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
                 {...register("theAsipConnection")}
               />
@@ -383,7 +405,7 @@ export function FounderStoryEditorForm({
               </FieldLabel>
               <Textarea
                 id="whereTheyAreNow"
-                className="min-h-28"
+                className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
                 {...register("whereTheyAreNow")}
               />
@@ -396,9 +418,14 @@ export function FounderStoryEditorForm({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card size="sm">
+          <CardHeader className="border-b">
             <CardTitle>Founder quote (optional)</CardTitle>
+            <CardAction>
+              <AdminFormSectionHelp
+                help={FOUNDER_STORY_EDITOR_HELP.founderQuote}
+              />
+            </CardAction>
           </CardHeader>
           <CardContent className="grid gap-5">
             <div className="grid gap-2">
@@ -410,7 +437,7 @@ export function FounderStoryEditorForm({
               </FieldLabel>
               <Textarea
                 id="founderQuoteText"
-                className="min-h-24"
+                className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
                 {...register("founderQuoteText")}
               />
@@ -436,6 +463,7 @@ export function FounderStoryEditorForm({
                 <Input
                   id="quoteAttributionName"
                   disabled={isPending}
+                  className="bg-white dark:bg-card"
                   {...register("quoteAttributionName")}
                 />
                 {errors.quoteAttributionName ? (
@@ -455,6 +483,7 @@ export function FounderStoryEditorForm({
                 <Input
                   id="quoteAttributionTitle"
                   disabled={isPending}
+                  className="bg-white dark:bg-card"
                   {...register("quoteAttributionTitle")}
                 />
                 {errors.quoteAttributionTitle ? (
@@ -470,6 +499,7 @@ export function FounderStoryEditorForm({
                   id="quoteDate"
                   type="date"
                   disabled={isPending}
+                  className="bg-white dark:bg-card"
                   {...register("quoteDate")}
                 />
                 {errors.quoteDate ? (
@@ -488,7 +518,11 @@ export function FounderStoryEditorForm({
                   name="quotePermissionStatus"
                   render={({ field }) => (
                     <Select
-                      value={field.value || undefined}
+                      value={field.value || null}
+                      items={QUOTE_PERMISSION_STATUSES.map((status) => ({
+                        value: status,
+                        label: QUOTE_PERMISSION_STATUS_LABELS[status],
+                      }))}
                       onValueChange={(value) => field.onChange(value ?? "")}
                       disabled={isPending}
                     >
@@ -518,7 +552,7 @@ export function FounderStoryEditorForm({
           </CardContent>
         </Card>
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -531,10 +565,6 @@ export function FounderStoryEditorForm({
               Delete story
             </Button>
           ) : (
-            <span />
-          )}
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -544,6 +574,19 @@ export function FounderStoryEditorForm({
             >
               Cancel
             </Button>
+          )}
+          <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:justify-end">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => router.push(ROUTES.founderStories)}
+              >
+                Cancel
+              </Button>
+            ) : null}
             <Button
               type="submit"
               className="min-h-11 w-full sm:w-auto"
@@ -555,7 +598,7 @@ export function FounderStoryEditorForm({
               {mode === "create" ? "Create story" : "Save changes"}
             </Button>
           </div>
-        </div>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

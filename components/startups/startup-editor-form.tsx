@@ -16,6 +16,12 @@ import {
   uploadStartupLogo,
 } from "@/actions/startups";
 import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
+import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -43,6 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/constants/routes";
+import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { StartupWithDetails } from "@/types/startup";
 import {
@@ -314,51 +321,28 @@ export function StartupEditorForm({
 
   return (
     <form
-      className="mx-auto grid w-full max-w-6xl gap-6"
+      className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       onSubmit={form.handleSubmit(submit)}
       noValidate
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-        <div className="min-w-0 flex-1">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            {heading}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:justify-end">
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : null}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create startup" : "Save changes"}
-          </Button>
-        </div>
+      <div className="min-w-0">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight">
+          {heading}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-10">
         <section className="min-w-0 space-y-4" aria-labelledby="startup-core-heading">
-          <h3
-            id="startup-core-heading"
-            className="font-heading text-lg font-semibold tracking-tight"
-          >
-            Core
-          </h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3
+              id="startup-core-heading"
+              className="font-heading text-lg font-semibold tracking-tight"
+            >
+              Core
+            </h3>
+            <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.core} />
+          </div>
           <div className="grid gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
@@ -370,7 +354,7 @@ export function StartupEditorForm({
                 </FieldLabel>
                 <Input
                   id="name"
-                  className="min-h-11"
+                  className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
                   {...form.register("name", {
                     onChange: (event) => onNameChange(event.target.value),
@@ -392,7 +376,7 @@ export function StartupEditorForm({
                 </FieldLabel>
                 <Input
                   id="slug"
-                  className="min-h-11"
+                  className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
                   {...form.register("slug", {
                     onChange: () => setSlugTouched(true),
@@ -415,7 +399,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Textarea
                 id="description"
-                className="min-h-28"
+                className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("description")}
               />
@@ -469,7 +453,7 @@ export function StartupEditorForm({
                 <Input
                   id="foundedAt"
                   type="date"
-                  className="min-h-11"
+                  className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
                   {...form.register("foundedAt")}
                 />
@@ -484,12 +468,15 @@ export function StartupEditorForm({
         </section>
 
         <section className="min-w-0 space-y-4" aria-labelledby="startup-logo-heading">
-          <h3
-            id="startup-logo-heading"
-            className="font-heading text-lg font-semibold tracking-tight"
-          >
-            Logo
-          </h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3
+              id="startup-logo-heading"
+              className="font-heading text-lg font-semibold tracking-tight"
+            >
+              Logo
+            </h3>
+            <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.logo} />
+          </div>
           <div className="grid gap-4">
             <FieldLabel hint="JPEG / PNG / WebP / GIF · max 5 MB">
               Image
@@ -517,6 +504,21 @@ export function StartupEditorForm({
                   No logo yet
                 </div>
               )}
+              {previewSrc ? (
+                <AdminClearIconButton
+                  label={
+                    pendingLogo ? "Clear logo selection" : "Remove logo"
+                  }
+                  disabled={isPending}
+                  onClick={() => {
+                    if (pendingLogo) {
+                      onLogoPicked(null);
+                      return;
+                    }
+                    onRemoveLogo();
+                  }}
+                />
+              ) : null}
             </div>
             <input
               ref={logoInputRef}
@@ -539,28 +541,6 @@ export function StartupEditorForm({
                 <UploadIcon className="size-4" />
                 {pendingLogo || logoUrl ? "Replace logo" : "Choose logo"}
               </Button>
-              {mode === "edit" && logoUrl && !pendingLogo ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="min-h-11"
-                  disabled={isPending}
-                  onClick={onRemoveLogo}
-                >
-                  Remove logo
-                </Button>
-              ) : null}
-              {pendingLogo ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-11"
-                  disabled={isPending}
-                  onClick={() => onLogoPicked(null)}
-                >
-                  Clear selection
-                </Button>
-              ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
               Optional. On create, the file uploads after the startup is saved.
@@ -576,36 +556,55 @@ export function StartupEditorForm({
             className="min-w-0"
           >
             <AccordionItem value="details" className="border-none">
-              <AccordionTrigger className="min-h-0 items-center py-1 px-0 hover:no-underline">
-                <span className="flex min-w-0 flex-col items-start gap-0.5 text-left">
-                  <span className="font-heading text-lg font-semibold tracking-tight">
-                    Details
-                  </span>
-                  <span className="text-xs font-normal text-muted-foreground">
-                    Optional — expand to add website, funding, and more (can stay
-                    empty)
-                  </span>
-                </span>
-              </AccordionTrigger>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <AccordionTrigger className="min-h-0 items-center py-1 px-0 hover:no-underline">
+                    <span className="flex min-w-0 flex-col items-start gap-0.5 text-left">
+                      <span className="font-heading text-lg font-semibold tracking-tight">
+                        Details
+                      </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Optional — expand to add website, funding, and more (can
+                        stay empty)
+                      </span>
+                    </span>
+                  </AccordionTrigger>
+                </div>
+                <div className="shrink-0 pt-1">
+                  <AdminFormSectionHelp
+                    help={STARTUP_EDITOR_HELP.detailsExtra}
+                  />
+                </div>
+              </div>
               <AccordionContent className="pb-0 pt-0">
                 <div className="grid gap-4 pt-3">
           <section className="grid gap-4 border-b pb-6">
             <div>
-              <h3 className="font-heading text-base font-semibold">Public profile</h3>
-              <p className="mt-1 text-sm text-muted-foreground">These fields appear exactly as entered on the public founder directory.</p>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-heading text-base font-semibold">
+                  Public profile
+                </h3>
+                <AdminFormSectionHelp
+                  help={STARTUP_EDITOR_HELP.publicProfile}
+                />
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                These fields appear exactly as entered on the public founder
+                directory.
+              </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="grid gap-2"><FieldLabel htmlFor="cohort">Cohort</FieldLabel><Input id="cohort" placeholder="Cohort 4" disabled={isPending} {...form.register("details.cohort")} /></div>
-              <div className="grid gap-2"><FieldLabel htmlFor="countryCode">Country code</FieldLabel><Input id="countryCode" placeholder="GH" maxLength={2} className="uppercase" disabled={isPending} {...form.register("details.countryCode")} /></div>
-              <div className="grid gap-2"><FieldLabel htmlFor="sector">Sector</FieldLabel><Input id="sector" placeholder="Health technology" disabled={isPending} {...form.register("details.sector")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="cohort">Cohort</FieldLabel><Input id="cohort" placeholder="Cohort 4" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.cohort")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="countryCode">Country code</FieldLabel><Input id="countryCode" placeholder="GH" maxLength={2} className="uppercase bg-white dark:bg-card" disabled={isPending} {...form.register("details.countryCode")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="sector">Sector</FieldLabel><Input id="sector" placeholder="Health technology" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.sector")} /></div>
             </div>
-            <div className="grid gap-2"><FieldLabel htmlFor="founderNames" hint="Comma-separated">Founder names</FieldLabel><Input id="founderNames" placeholder="First Founder, Second Founder" disabled={isPending} {...form.register("details.founderNames")} /></div>
-            <div className="grid gap-2"><FieldLabel htmlFor="coverImageUrl">Cover image URL</FieldLabel><Input id="coverImageUrl" type="url" placeholder="https://" disabled={isPending} {...form.register("details.coverImageUrl")} /></div>
-            <div className="grid gap-2"><FieldLabel htmlFor="publicOutcome">Approved public outcome</FieldLabel><Textarea id="publicOutcome" className="min-h-24" disabled={isPending} {...form.register("details.publicOutcome")} /></div>
+            <div className="grid gap-2"><FieldLabel htmlFor="founderNames" hint="Comma-separated">Founder names</FieldLabel><Input id="founderNames" placeholder="First Founder, Second Founder" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.founderNames")} /></div>
+            <div className="grid gap-2"><FieldLabel htmlFor="coverImageUrl">Cover image URL</FieldLabel><Input id="coverImageUrl" type="url" placeholder="https://" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.coverImageUrl")} /></div>
+            <div className="grid gap-2"><FieldLabel htmlFor="publicOutcome">Approved public outcome</FieldLabel><Textarea id="publicOutcome" className="min-h-24 bg-white dark:bg-card" disabled={isPending} {...form.register("details.publicOutcome")} /></div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <label className="flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-medium"><input type="checkbox" className="size-4 accent-primary" disabled={isPending} {...form.register("details.featured")} /> Featured profile</label>
-              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel><Input id="imageFocalX" type="number" min={0} max={100} disabled={isPending} {...form.register("details.imageFocalX")} /></div>
-              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalY">Image focus Y (%)</FieldLabel><Input id="imageFocalY" type="number" min={0} max={100} disabled={isPending} {...form.register("details.imageFocalY")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel><Input id="imageFocalX" type="number" min={0} max={100} disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.imageFocalX")} /></div>
+              <div className="grid gap-2"><FieldLabel htmlFor="imageFocalY">Image focus Y (%)</FieldLabel><Input id="imageFocalY" type="number" min={0} max={100} disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.imageFocalY")} /></div>
             </div>
           </section>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -620,7 +619,7 @@ export function StartupEditorForm({
                 id="websiteUrl"
                 type="url"
                 placeholder="https://"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.websiteUrl")}
               />
@@ -640,7 +639,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Input
                 id="industry"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.industry")}
               />
@@ -655,7 +654,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Input
                 id="category"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.category")}
               />
@@ -670,7 +669,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Input
                 id="location"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.location")}
               />
@@ -686,7 +685,7 @@ export function StartupEditorForm({
               <Input
                 id="foundingYear"
                 type="number"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.foundingYear")}
               />
@@ -707,7 +706,7 @@ export function StartupEditorForm({
               <Input
                 id="size"
                 placeholder="e.g. 1-10"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.size")}
               />
@@ -722,7 +721,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Input
                 id="team"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.team")}
               />
@@ -739,7 +738,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Textarea
                 id="problem"
-                className="min-h-24"
+                className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.problem")}
               />
@@ -754,7 +753,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Textarea
                 id="solution"
-                className="min-h-24"
+                className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.solution")}
               />
@@ -769,7 +768,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Textarea
                 id="targetMarket"
-                className="min-h-20"
+                className="min-h-20 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.targetMarket")}
               />
@@ -784,7 +783,7 @@ export function StartupEditorForm({
               </FieldLabel>
               <Textarea
                 id="businessModel"
-                className="min-h-20"
+                className="min-h-20 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.businessModel")}
               />
@@ -804,7 +803,7 @@ export function StartupEditorForm({
                 type="number"
                 min={0}
                 step="any"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.fundingGoal")}
               />
@@ -826,7 +825,7 @@ export function StartupEditorForm({
                 type="number"
                 min={0}
                 step="any"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 {...form.register("details.amountRaised")}
               />
@@ -843,6 +842,33 @@ export function StartupEditorForm({
           </Accordion>
         </CardContent>
       </Card>
+
+      <AdminEditorActionsBar>
+        {mode === "edit" ? (
+          <Button
+            type="button"
+            variant="destructive"
+            className="min-h-11 w-full sm:w-auto"
+            disabled={isPending}
+            onClick={() => setDeleteOpen(true)}
+          >
+            <Trash2Icon className="size-4" />
+            Delete
+          </Button>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:ml-auto sm:w-auto"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <Loader2Icon className="size-4 animate-spin" />
+          ) : null}
+          {mode === "create" ? "Create startup" : "Save changes"}
+        </Button>
+      </AdminEditorActionsBar>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>

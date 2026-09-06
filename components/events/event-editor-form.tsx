@@ -15,13 +15,18 @@ import {
 } from "@/actions/events";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -31,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type { EventDetail, EventStartupOption } from "@/types/event";
@@ -179,7 +185,7 @@ export function EventEditorForm({
   return (
     <>
       <form
-        className="grid max-w-3xl gap-8"
+        className={`grid max-w-3xl gap-8 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
       >
@@ -190,7 +196,12 @@ export function EventEditorForm({
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
 
-        <FieldGroup>
+        <AdminFormSection
+          title={EVENT_EDITOR_HELP.basics.title}
+          description={EVENT_EDITOR_HELP.basics.intro}
+          help={EVENT_EDITOR_HELP.basics}
+          contentClassName="grid gap-4"
+        >
           <Field data-invalid={Boolean(errors.name)}>
             <AdminFormFieldLabel
               htmlFor="event-name"
@@ -200,7 +211,7 @@ export function EventEditorForm({
             </AdminFormFieldLabel>
             <Input
               id="event-name"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               required
               maxLength={EVENT_NAME_MAX}
@@ -224,7 +235,7 @@ export function EventEditorForm({
               <Input
                 id="event-date"
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 required
                 aria-invalid={Boolean(errors.eventDate)}
@@ -274,7 +285,14 @@ export function EventEditorForm({
               ) : null}
             </Field>
           </div>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={EVENT_EDITOR_HELP.details.title}
+          description={EVENT_EDITOR_HELP.details.intro}
+          help={EVENT_EDITOR_HELP.details}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -288,7 +306,7 @@ export function EventEditorForm({
               </AdminFormFieldLabel>
               <Input
                 id="event-location"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 maxLength={EVENT_LOCATION_MAX}
                 placeholder="City or venue"
@@ -344,7 +362,14 @@ export function EventEditorForm({
               ) : null}
             </Field>
           </div>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={EVENT_EDITOR_HELP.content.title}
+          description={EVENT_EDITOR_HELP.content.intro}
+          help={EVENT_EDITOR_HELP.content}
+          contentClassName="grid gap-4"
+        >
           <Field data-invalid={Boolean(errors.speakers)}>
             <AdminFormFieldLabel
               htmlFor="event-speakers"
@@ -358,6 +383,7 @@ export function EventEditorForm({
               disabled={isPending}
               placeholder={"Amina Diallo\nKwame Mensah"}
               aria-invalid={Boolean(errors.speakers)}
+              className="bg-white dark:bg-card"
               {...form.register("speakers")}
             />
             {errors.speakers ? (
@@ -382,6 +408,7 @@ export function EventEditorForm({
               disabled={isPending}
               placeholder="https://example.com/deck.pdf"
               aria-invalid={Boolean(errors.assets)}
+              className="bg-white dark:bg-card"
               {...form.register("assets")}
             />
             {errors.assets ? (
@@ -407,13 +434,20 @@ export function EventEditorForm({
               maxLength={EVENT_OUTCOMES_MAX}
               placeholder="What happened after the event."
               aria-invalid={Boolean(errors.outcomes)}
+              className="bg-white dark:bg-card"
               {...form.register("outcomes")}
             />
             {errors.outcomes ? (
               <FieldError>{errors.outcomes.message}</FieldError>
             ) : null}
           </Field>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={EVENT_EDITOR_HELP.links.title}
+          description={EVENT_EDITOR_HELP.links.intro}
+          help={EVENT_EDITOR_HELP.links}
+        >
           <Field data-invalid={Boolean(errors.startupIds)}>
             <AdminFormFieldLabel htmlFor="event-startups" hint="Optional">
               Linked startups
@@ -426,7 +460,7 @@ export function EventEditorForm({
               disabled={isPending}
               maxLength={100}
               placeholder="Search startups…"
-              className="mb-2 min-h-11"
+              className="mb-2 min-h-11 bg-white dark:bg-card"
               aria-label="Search startups"
             />
             <div
@@ -483,19 +517,9 @@ export function EventEditorForm({
               </FieldError>
             ) : null}
           </Field>
-        </FieldGroup>
+        </AdminFormSection>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create event" : "Save changes"}
-          </Button>
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -507,8 +531,20 @@ export function EventEditorForm({
               <Trash2Icon className="size-4" />
               Delete
             </Button>
-          ) : null}
-        </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:ml-auto sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            {mode === "create" ? "Create event" : "Save changes"}
+          </Button>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

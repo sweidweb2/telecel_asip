@@ -18,10 +18,24 @@ import {
   uploadBlogThumbnail,
 } from "@/actions/blogs";
 import { BlogRichTextEditor } from "@/components/blogs/blog-rich-text-editor";
+import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -33,15 +47,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
+import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { slugifyTitle } from "@/lib/blog-utils";
@@ -114,50 +122,20 @@ export function BlogEditorForm({
   const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
     null,
   );
+  const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
+    string | null
+  >(null);
   const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const isCreateSuccessOpen = Boolean(createdBlogId);
   const [startups, setStartups] = useState(initialStartups);
   const [cohorts, setCohorts] = useState(initialCohorts);
   const [optionsLoading, setOptionsLoading] = useState(false);
-  const [optionsEnabled, setOptionsEnabled] = useState(false);
+  const [optionsEnabled, setOptionsEnabled] = useState(
+    Boolean(blog?.startup_id || blog?.cohort_id),
+  );
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(optionsEnabled);
-
-  useEffect(() => {
-    if (!optionsEnabled) return;
-
-    let cancelled = false;
-
-    async function loadOptions() {
-      setOptionsLoading(true);
-      try {
-        const result = await loadBlogLinkOptions({
-          search: debouncedSearch,
-          includeStartupId: blog?.startup_id,
-          includeCohortId: blog?.cohort_id,
-        });
-        if (cancelled) return;
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        setStartups(result.startups);
-        setCohorts(result.cohorts);
-      } catch {
-        if (!cancelled) {
-          toast.error("Could not load link options. Please try again.");
-        }
-      } finally {
-        if (!cancelled) setOptionsLoading(false);
-      }
-    }
-
-    void loadOptions();
-    return () => {
-      cancelled = true;
-    };
-  }, [optionsEnabled, debouncedSearch, blog?.startup_id, blog?.cohort_id]);
 
   const emptyCreateValues: CreateBlogInput = {
     title: "",
@@ -214,12 +192,62 @@ export function BlogEditorForm({
   const primaryStream =
     categories[0] && STREAM_SET.has(categories[0]) ? categories[0] : null;
 
+  useEffect(() => {
+    if (!optionsEnabled) return;
+
+    let cancelled = false;
+
+    async function loadOptions() {
+      setOptionsLoading(true);
+      try {
+        const result = await loadBlogLinkOptions({
+          search: debouncedSearch,
+          includeStartupId: startupId ?? blog?.startup_id,
+          includeCohortId: cohortId ?? blog?.cohort_id,
+        });
+        if (cancelled) return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+        setStartups(result.startups);
+        setCohorts(result.cohorts);
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load link options. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setOptionsLoading(false);
+      }
+    }
+
+    void loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    optionsEnabled,
+    debouncedSearch,
+    startupId,
+    cohortId,
+    blog?.startup_id,
+    blog?.cohort_id,
+  ]);
+
   function replacePendingCover(file: File | null) {
     setPendingCoverPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return file ? URL.createObjectURL(file) : null;
     });
     setPendingCover(file);
+  }
+
+  function replacePendingAvatar(file: File | null) {
+    setPendingAvatarPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+    setPendingAvatar(file);
   }
 
   /** First category must be an ASIP stream; other labels stay as free tags. */
@@ -346,20 +374,23 @@ export function BlogEditorForm({
   function onPickAvatar(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
     if (mode === "create") {
-      setPendingAvatar(file);
+      replacePendingAvatar(file);
       return;
     }
     if (!blog || !file) return;
+    replacePendingAvatar(file);
     const formData = new FormData();
     formData.set("file", file);
     startTransition(async () => {
       const uploadToast = toast.loading("Uploading image…");
       const result = await uploadAuthorAvatar(blog.id, formData);
       if (result.status === "error") {
+        replacePendingAvatar(null);
         toast.error(result.message, { id: uploadToast });
         return;
       }
       toast.success(result.message, { id: uploadToast });
+      replacePendingAvatar(null);
       router.refresh();
     });
   }
@@ -383,8 +414,8 @@ export function BlogEditorForm({
   }
 
   function onRemoveAvatar() {
-    if (mode === "create") {
-      setPendingAvatar(null);
+    if (mode === "create" || pendingAvatarPreview) {
+      replacePendingAvatar(null);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
       return;
     }
@@ -410,7 +441,7 @@ export function BlogEditorForm({
     setCreatedBlogId(null);
     setSlugTouched(false);
     replacePendingCover(null);
-    setPendingAvatar(null);
+    replacePendingAvatar(null);
     if (coverInputRef.current) coverInputRef.current.value = "";
     if (avatarInputRef.current) avatarInputRef.current.value = "";
     reset(emptyCreateValues);
@@ -428,71 +459,51 @@ export function BlogEditorForm({
   const coverPreview =
     mode === "create" ? pendingCoverPreview : blog?.thumbnail_url ?? null;
   const hasCover = Boolean(coverPreview);
-  const avatarFileLabel =
-    mode === "create"
-      ? pendingAvatar?.name ?? null
-      : blog?.author_avatar_url
-        ? "Avatar uploaded"
-        : null;
-  const hasAvatar = Boolean(
-    mode === "create" ? pendingAvatar : blog?.author_avatar_url,
-  );
+  const avatarPreview =
+    pendingAvatarPreview ?? blog?.author_avatar_url ?? null;
+  const hasAvatar = Boolean(avatarPreview);
 
   return (
     <>
-    <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight">
-              {heading}
-            </h2>
-            <Badge variant={status === "published" ? "default" : "secondary"}>
-              {status === "published" ? "Published" : "Draft"}
-            </Badge>
-            {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    <form
+      className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+    >
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+            {heading}
+          </h2>
+          <Badge variant={status === "published" ? "default" : "secondary"}>
+            {status === "published" ? "Published" : "Draft"}
+          </Badge>
+          {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
         </div>
-        <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11"
-              disabled={isPending}
-              onClick={() => setIsDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : null}
-          <Button type="submit" className="min-h-11" disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2Icon className="animate-spin" />
-                Saving…
-              </>
-            ) : mode === "create" ? (
-              "Create blog"
-            ) : (
-              "Save changes"
-            )}
-          </Button>
-        </div>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
         {/* Left: content fields */}
         <div className="grid min-w-0 gap-4">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <CardTitle>Basics</CardTitle>
+              <CardDescription>
+                Title, URL slug, and author byline
+              </CardDescription>
+              <CardAction>
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.basics} />
+              </CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <div className="grid gap-2">
               <FieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
                 Title
               </FieldLabel>
               <Input
                 id="blog-title"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. Improve your design skills"
                 disabled={isPending}
                 aria-invalid={Boolean(errors.title)}
@@ -519,7 +530,7 @@ export function BlogEditorForm({
               </FieldLabel>
               <Input
                 id="blog-slug"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. improve-your-design-skills"
                 disabled={isPending}
                 aria-invalid={Boolean(errors.slug)}
@@ -542,7 +553,7 @@ export function BlogEditorForm({
               </FieldLabel>
               <Input
                 id="blog-author"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. Amélie Laurent"
                 disabled={isPending}
                 aria-invalid={Boolean(errors.authorName)}
@@ -554,9 +565,20 @@ export function BlogEditorForm({
                 </p>
               ) : null}
             </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid gap-2">
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <CardTitle>Summary</CardTitle>
+              <CardDescription>
+                Teaser for cards and default SEO description
+              </CardDescription>
+              <CardAction>
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.summary} />
+              </CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-2">
             <FieldLabel
               htmlFor="blog-summary"
               hint={`2–${BLOG_SUMMARY_MAX} chars`}
@@ -566,7 +588,7 @@ export function BlogEditorForm({
             <Textarea
               id="blog-summary"
               rows={3}
-              className="min-h-24"
+              className="min-h-24 bg-white dark:bg-card"
               placeholder="Short summary shown on cards and search results"
               disabled={isPending}
               aria-invalid={Boolean(errors.summary)}
@@ -575,9 +597,20 @@ export function BlogEditorForm({
             {errors.summary ? (
               <p className="text-sm text-destructive">{errors.summary.message}</p>
             ) : null}
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid gap-2">
+          <Card size="sm">
+            <CardHeader className="border-b">
+              <CardTitle>Body</CardTitle>
+              <CardDescription>
+                Full article content on the Insights detail page
+              </CardDescription>
+              <CardAction>
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.body} />
+              </CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-2">
             <FieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
               Body
             </FieldLabel>
@@ -590,6 +623,7 @@ export function BlogEditorForm({
                   onChange={field.onChange}
                   disabled={isPending}
                   placeholder="Write the article body…"
+                  className="bg-white dark:bg-card"
                 />
               )}
             />
@@ -598,14 +632,18 @@ export function BlogEditorForm({
                 {errors.bodyHtml.message}
               </p>
             ) : null}
-          </div>
+            </CardContent>
+          </Card>
 
           <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Related & SEO</CardTitle>
-              <p className="text-xs text-muted-foreground">
+              <CardDescription>
                 Optional founder/cohort links, sources, and search metadata
-              </p>
+              </CardDescription>
+              <CardAction>
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.relatedSeo} />
+              </CardAction>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2 sm:col-span-2">
@@ -619,7 +657,7 @@ export function BlogEditorForm({
                   onFocus={() => setOptionsEnabled(true)}
                   maxLength={100}
                   placeholder="Search by name…"
-                  className="min-h-11"
+                  className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
                 />
               </div>
@@ -629,51 +667,30 @@ export function BlogEditorForm({
                   control={control}
                   name="startupId"
                   render={({ field }) => (
-                    <Select
-                      value={field.value ?? undefined}
-                      onValueChange={(value) =>
-                        field.onChange(value && value.length > 0 ? value : null)
+                    <EntitySelect
+                      id="blog-startup"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={startups.map((startup) => ({
+                        id: startup.id,
+                        label: startup.name,
+                      }))}
+                      placeholder={
+                        optionsLoading
+                          ? "Loading…"
+                          : startups.length === 0
+                            ? "No startups available"
+                            : "None"
                       }
+                      disabled={isPending}
                       onOpenChange={(open) => {
                         if (open) setOptionsEnabled(true);
                       }}
-                      disabled={isPending || optionsLoading}
-                    >
-                      <SelectTrigger id="blog-startup" className="min-h-11 w-full">
-                        <SelectValue
-                          placeholder={
-                            optionsLoading
-                              ? "Loading…"
-                              : startups.length === 0
-                                ? "No startups available"
-                                : "None"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {startups.map((startup) => (
-                          <SelectItem key={startup.id} value={startup.id}>
-                            {startup.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      clearable
+                      clearLabel="Clear founder"
+                    />
                   )}
                 />
-                {startupId ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-11 w-fit"
-                    disabled={isPending}
-                    onClick={() =>
-                      setValue("startupId", null, { shouldValidate: false })
-                    }
-                  >
-                    Clear founder
-                  </Button>
-                ) : null}
               </div>
 
               <div className="grid gap-2">
@@ -682,51 +699,30 @@ export function BlogEditorForm({
                   control={control}
                   name="cohortId"
                   render={({ field }) => (
-                    <Select
-                      value={field.value ?? undefined}
-                      onValueChange={(value) =>
-                        field.onChange(value && value.length > 0 ? value : null)
+                    <EntitySelect
+                      id="blog-cohort"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={cohorts.map((cohort) => ({
+                        id: cohort.id,
+                        label: cohort.label,
+                      }))}
+                      placeholder={
+                        optionsLoading
+                          ? "Loading…"
+                          : cohorts.length === 0
+                            ? "No cohorts available"
+                            : "None"
                       }
+                      disabled={isPending}
                       onOpenChange={(open) => {
                         if (open) setOptionsEnabled(true);
                       }}
-                      disabled={isPending || optionsLoading}
-                    >
-                      <SelectTrigger id="blog-cohort" className="min-h-11 w-full">
-                        <SelectValue
-                          placeholder={
-                            optionsLoading
-                              ? "Loading…"
-                              : cohorts.length === 0
-                                ? "No cohorts available"
-                                : "None"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cohorts.map((cohort) => (
-                          <SelectItem key={cohort.id} value={cohort.id}>
-                            {cohort.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      clearable
+                      clearLabel="Clear cohort"
+                    />
                   )}
                 />
-                {cohortId ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-11 w-fit"
-                    disabled={isPending}
-                    onClick={() =>
-                      setValue("cohortId", null, { shouldValidate: false })
-                    }
-                  >
-                    Clear cohort
-                  </Button>
-                ) : null}
               </div>
 
               <div className="grid gap-2">
@@ -735,7 +731,7 @@ export function BlogEditorForm({
                 </FieldLabel>
                 <Input
                   id="blog-meta-title"
-                  className="min-h-11"
+                  className="min-h-11 bg-white dark:bg-card"
                   maxLength={BLOG_META_TITLE_MAX}
                   disabled={isPending}
                   {...register("metaTitle")}
@@ -757,6 +753,7 @@ export function BlogEditorForm({
                 <Textarea
                   id="blog-meta-description"
                   rows={3}
+                  className="bg-white dark:bg-card"
                   maxLength={BLOG_META_DESCRIPTION_MAX}
                   disabled={isPending}
                   {...register("metaDescription")}
@@ -774,7 +771,7 @@ export function BlogEditorForm({
                 </FieldLabel>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
-                    className="min-h-11"
+                    className="min-h-11 bg-white dark:bg-card"
                     placeholder="URL or citation, then Add"
                     value={sourceDraft}
                     disabled={isPending}
@@ -827,9 +824,12 @@ export function BlogEditorForm({
             <Card size="sm" className="min-w-0">
               <CardHeader className="border-b">
                 <CardTitle>Publishing</CardTitle>
-                <p className="text-xs text-muted-foreground">
+                <CardDescription>
                   Visibility and hero placement
-                </p>
+                </CardDescription>
+                <CardAction>
+                  <AdminFormSectionHelp help={BLOG_EDITOR_HELP.publishing} />
+                </CardAction>
               </CardHeader>
               <CardContent className="grid gap-3">
                 <div className="flex items-center gap-3">
@@ -897,9 +897,12 @@ export function BlogEditorForm({
             <Card size="sm" className="min-w-0">
               <CardHeader className="border-b">
                 <CardTitle>Author avatar</CardTitle>
-                <p className="text-xs text-muted-foreground">
+                <CardDescription>
                   JPEG/PNG/WebP/GIF · max 2MB
-                </p>
+                </CardDescription>
+                <CardAction>
+                  <AdminFormSectionHelp help={BLOG_EDITOR_HELP.authorAvatar} />
+                </CardAction>
               </CardHeader>
               <CardContent>
                 <input
@@ -909,7 +912,50 @@ export function BlogEditorForm({
                   className="hidden"
                   onChange={(event) => onPickAvatar(event.target.files)}
                 />
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="relative size-20 shrink-0">
+                    <div className="relative size-full overflow-hidden rounded-full border bg-muted">
+                      {avatarPreview ? (
+                        pendingAvatarPreview ? (
+                          // Local File preview (blob:) — native img avoids next/image remote rules
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={avatarPreview}
+                            alt={
+                              title
+                                ? `${title} author avatar preview`
+                                : "Author avatar preview"
+                            }
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <Image
+                            src={avatarPreview}
+                            alt={
+                              title
+                                ? `${title} author avatar`
+                                : "Author avatar"
+                            }
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        )
+                      ) : (
+                        <p className="flex size-full items-center justify-center px-2 text-center text-[0.65rem] leading-tight text-muted-foreground">
+                          No avatar
+                        </p>
+                      )}
+                    </div>
+                    {hasAvatar ? (
+                      <AdminClearIconButton
+                        label="Clear avatar"
+                        disabled={isPending}
+                        className="-top-1 -right-1"
+                        onClick={onRemoveAvatar}
+                      />
+                    ) : null}
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
@@ -921,21 +967,6 @@ export function BlogEditorForm({
                     <UploadIcon className="size-4" />
                     {hasAvatar ? "Replace" : "Choose file"}
                   </Button>
-                  {hasAvatar ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="min-h-11 shrink-0"
-                      disabled={isPending}
-                      onClick={onRemoveAvatar}
-                    >
-                      Remove
-                    </Button>
-                  ) : null}
-                  <span className="min-w-0 truncate text-sm text-muted-foreground">
-                    {avatarFileLabel ?? "No file selected"}
-                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -946,46 +977,31 @@ export function BlogEditorForm({
         <aside className="grid gap-4 lg:sticky lg:top-4">
           <Card size="sm">
             <CardHeader className="border-b">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <CardTitle>Cover image</CardTitle>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    JPEG/PNG/WebP/GIF · max 5MB
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    className="hidden"
-                    onChange={(event) => onPickCover(event.target.files)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="min-h-11"
-                    disabled={isPending}
-                    onClick={() => coverInputRef.current?.click()}
-                  >
-                    <UploadIcon className="size-4" />
-                    Upload
-                  </Button>
-                  {hasCover ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="min-h-11"
-                      disabled={isPending}
-                      onClick={onRemoveCover}
-                    >
-                      Remove
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
+              <CardTitle>Cover image</CardTitle>
+              <CardDescription>
+                JPEG/PNG/WebP/GIF · max 5MB
+              </CardDescription>
+              <CardAction className="flex flex-wrap items-center justify-end gap-2">
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.cover} />
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(event) => onPickCover(event.target.files)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11"
+                  disabled={isPending}
+                  onClick={() => coverInputRef.current?.click()}
+                >
+                  <UploadIcon className="size-4" />
+                  Upload
+                </Button>
+              </CardAction>
             </CardHeader>
             <CardContent>
               <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
@@ -1012,6 +1028,13 @@ export function BlogEditorForm({
                     No cover yet
                   </p>
                 )}
+                {hasCover ? (
+                  <AdminClearIconButton
+                    label="Clear cover image"
+                    disabled={isPending}
+                    onClick={onRemoveCover}
+                  />
+                ) : null}
               </div>
             </CardContent>
           </Card>
@@ -1019,11 +1042,14 @@ export function BlogEditorForm({
           <Card size="sm">
             <CardHeader className="border-b">
               <CardTitle>Categories</CardTitle>
-              <p className="text-xs text-muted-foreground">
+              <CardDescription>
                 First category must be an Insights stream · extra free tags
                 allowed · up to {BLOG_CATEGORIES_MAX} · each max{" "}
                 {BLOG_CATEGORY_MAX} chars
-              </p>
+              </CardDescription>
+              <CardAction>
+                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.categories} />
+              </CardAction>
             </CardHeader>
             <CardContent className="grid gap-3">
               <div className="flex flex-wrap gap-2">
@@ -1045,7 +1071,7 @@ export function BlogEditorForm({
                 })}
               </div>
               <Input
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 placeholder="Add custom tag and press Enter"
                 disabled={isPending}
                 onKeyDown={(event) => {
@@ -1093,6 +1119,39 @@ export function BlogEditorForm({
           </Card>
         </aside>
       </div>
+
+      <AdminEditorActionsBar>
+        {mode === "edit" ? (
+          <Button
+            type="button"
+            variant="destructive"
+            className="min-h-11 w-full sm:w-auto"
+            disabled={isPending}
+            onClick={() => setIsDeleteOpen(true)}
+          >
+            <Trash2Icon className="size-4" />
+            Delete
+          </Button>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:w-auto sm:ml-auto"
+          disabled={isPending}
+        >
+          {isPending ? (
+            <>
+              <Loader2Icon className="animate-spin" />
+              Saving…
+            </>
+          ) : mode === "create" ? (
+            "Create blog"
+          ) : (
+            "Save changes"
+          )}
+        </Button>
+      </AdminEditorActionsBar>
     </form>
 
     <Dialog

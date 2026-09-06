@@ -7,6 +7,10 @@ import { ContactMessageRowActions } from "@/components/contact-messages/contact-
 import { ContactMessagesFilters } from "@/components/contact-messages/contact-messages-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -37,7 +41,8 @@ export function ContactMessagesTable({
       filters={<ContactMessagesFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Route</TableHead>
           <TableHead>Email</TableHead>
@@ -48,7 +53,7 @@ export function ContactMessagesTable({
         </TableRow>
       }
       isEmpty={messages.length === 0}
-      emptyColSpan={8}
+      emptyColSpan={9}
       empty={
         <AdminEmptyState
           icon={MailIcon}
@@ -71,13 +76,18 @@ export function ContactMessagesTable({
         },
       }}
     >
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <TableRow
           key={message.id}
           className="cursor-pointer"
           onClick={() => setViewId(message.id)}
         >
-          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={CONTACT_MESSAGE_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[10rem] truncate font-medium sm:max-w-[14rem]">
             {message.full_name}
           </TableCell>
           <TableCell>

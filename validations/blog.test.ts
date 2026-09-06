@@ -4,6 +4,7 @@ import {
   createBlogSchema,
   parseBlogListQuery,
   updateBlogSchema,
+  updateBlogStatusSchema,
 } from "@/validations/blog";
 import { estimateReadingTimeMinutes, slugifyTitle } from "@/lib/blog-utils";
 import { toArticle } from "@/types/blog";
@@ -94,6 +95,30 @@ describe("blog validations", () => {
 
   it("exposes blog statuses", () => {
     expect(BLOG_STATUSES).toContain("published");
+  });
+
+  it("accepts a valid status update payload", () => {
+    const result = updateBlogStatusSchema.safeParse({
+      id: "00000000-0000-4000-8000-000000000001",
+      status: "published",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid status update id", () => {
+    const result = updateBlogStatusSchema.safeParse({
+      id: "not-a-uuid",
+      status: "draft",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an unknown status value", () => {
+    const result = updateBlogStatusSchema.safeParse({
+      id: "00000000-0000-4000-8000-000000000001",
+      status: "archived",
+    });
+    expect(result.success).toBe(false);
   });
 });
 

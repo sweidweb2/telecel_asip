@@ -7,6 +7,10 @@ import { ApplicationRowActions } from "@/components/applications/application-row
 import { ApplicationsFilters } from "@/components/applications/applications-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
@@ -35,7 +39,8 @@ export function ApplicationsTable({
       filters={<ApplicationsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Name</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Startup</TableHead>
@@ -45,7 +50,7 @@ export function ApplicationsTable({
         </TableRow>
       }
       isEmpty={applications.length === 0}
-      emptyColSpan={7}
+      emptyColSpan={8}
       empty={
         <AdminEmptyState
           icon={FileTextIcon}
@@ -66,13 +71,18 @@ export function ApplicationsTable({
         },
       }}
     >
-      {applications.map((application) => (
+      {applications.map((application, index) => (
         <TableRow
           key={application.id}
           className="cursor-pointer"
           onClick={() => setViewId(application.id)}
         >
-          <TableCell className="max-w-[10rem] truncate pl-4 font-medium sm:max-w-[14rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={APPLICATION_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[10rem] truncate font-medium sm:max-w-[14rem]">
             {application.full_name}
           </TableCell>
           <TableCell>

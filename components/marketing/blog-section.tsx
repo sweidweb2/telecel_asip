@@ -156,17 +156,17 @@ export function BlogSection({
         <Tabs
           value={tab}
           onValueChange={(value) => setTab(value as BlogTabId)}
-          className="min-w-0 w-full"
+          className="min-w-0 w-full items-center"
         >
           <TabsList
-            variant="line"
-            className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
+            variant="default"
+            className="mx-auto h-auto w-fit max-w-full flex-wrap justify-center gap-1 p-1 group-data-horizontal/tabs:h-auto"
           >
             {labels.tabs.map((item) => (
               <TabsTrigger
                 key={item.id}
                 value={item.id}
-                className="min-h-11 shrink-0 px-3"
+                className="h-9 flex-none px-3 after:hidden sm:px-3.5"
               >
                 {item.label}
               </TabsTrigger>

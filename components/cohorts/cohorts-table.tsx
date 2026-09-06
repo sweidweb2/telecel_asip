@@ -8,6 +8,10 @@ import { CohortRowActions } from "@/components/cohorts/cohort-row-actions";
 import { CohortsFilters } from "@/components/cohorts/cohorts-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { cohortEditPath, ROUTES } from "@/constants/routes";
@@ -37,7 +41,8 @@ export function CohortsTable({
       filters={<CohortsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Year</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Year</TableHead>
           <TableHead>Label</TableHead>
           <TableHead>Programme</TableHead>
           <TableHead>Publish</TableHead>
@@ -45,7 +50,7 @@ export function CohortsTable({
         </TableRow>
       }
       isEmpty={cohorts.length === 0}
-      emptyColSpan={5}
+      emptyColSpan={6}
       empty={
         <AdminEmptyState
           icon={UsersRoundIcon}
@@ -67,7 +72,7 @@ export function CohortsTable({
         },
       }}
     >
-      {cohorts.map((cohort) => {
+      {cohorts.map((cohort, index) => {
         const href = cohortEditPath(cohort.id);
         return (
           <TableRow
@@ -75,7 +80,12 @@ export function CohortsTable({
             className="cursor-pointer"
             onClick={() => router.push(href)}
           >
-            <TableCell className="pl-4 tabular-nums">{cohort.year}</TableCell>
+            <AdminRowNumberCell
+              page={query.page}
+              pageSize={COHORT_PAGE_SIZE}
+              index={index}
+            />
+            <TableCell className="tabular-nums">{cohort.year}</TableCell>
             <TableCell className="max-w-[12rem] font-medium sm:max-w-[18rem]">
               <Link
                 href={href}

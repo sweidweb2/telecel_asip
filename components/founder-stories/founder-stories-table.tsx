@@ -6,6 +6,10 @@ import { BookOpenIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { FounderStoriesFilters } from "@/components/founder-stories/founder-stories-filters";
 import { FounderStoryRowActions } from "@/components/founder-stories/founder-story-row-actions";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +42,8 @@ export function FounderStoriesTable({
       filters={<FounderStoriesFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Startup</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Startup</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Quote</TableHead>
           <TableHead>Updated</TableHead>
@@ -46,7 +51,7 @@ export function FounderStoriesTable({
         </TableRow>
       }
       isEmpty={stories.length === 0}
-      emptyColSpan={5}
+      emptyColSpan={6}
       empty={
         <AdminEmptyState
           icon={BookOpenIcon}
@@ -68,13 +73,18 @@ export function FounderStoriesTable({
         },
       }}
     >
-      {stories.map((story) => (
+      {stories.map((story, index) => (
         <TableRow
           key={story.id}
           className="cursor-pointer"
           onClick={() => router.push(founderStoryEditPath(story.id))}
         >
-          <TableCell className="max-w-[12rem] pl-4 font-medium sm:max-w-[18rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={FOUNDER_STORY_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[12rem] font-medium sm:max-w-[18rem]">
             <Link
               href={founderStoryEditPath(story.id)}
               title={story.startup_name}

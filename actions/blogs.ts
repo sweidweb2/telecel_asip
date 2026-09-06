@@ -24,10 +24,12 @@ import {
   createBlogSchema,
   deleteBlogSchema,
   updateBlogSchema,
+  updateBlogStatusSchema,
   type BlogImageTarget,
   type CreateBlogInput,
   type DeleteBlogInput,
   type UpdateBlogInput,
+  type UpdateBlogStatusInput,
 } from "@/validations/blog";
 
 export type BlogActionResult = AdminActionResult;
@@ -38,6 +40,8 @@ const MESSAGES = {
   invalidDetails: "Please check the form and try again.",
   createSuccess: "Blog created successfully.",
   updateSuccess: "Blog updated successfully.",
+  publishSuccess: "Blog published.",
+  draftSuccess: "Blog moved to draft.",
   deleteSuccess: "Blog deleted successfully.",
   uploadSuccess: "Image uploaded successfully.",
   removeSuccess: "Image removed successfully.",
@@ -218,6 +222,62 @@ export async function updateBlog(
   }
 
   return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
+}
+
+export async function updateBlogStatus(
+  input: UpdateBlogStatusInput,
+): Promise<BlogActionResult> {
+  const successMessage =
+    input.status === "published"
+      ? MESSAGES.publishSuccess
+      : MESSAGES.draftSuccess;
+
+  return runAdminMutation({
+    schema: updateBlogStatusSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: successMessage,
+    },
+    perfName: "updateBlogStatus",
+    execute: async (session, data) => {
+      const { data: existing } = await session.supabase
+        .from("blogs")
+        .select("id, slug, published_at, is_featured")
+        .eq("id", data.id)
+        .maybeSingle();
+
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+
+      const publishedAt =
+        data.status === "published"
+          ? (existing.published_at ?? new Date().toISOString())
+          : existing.published_at;
+
+      const { data: row, error } = await session.supabase
+        .from("blogs")
+        .update({
+          status: data.status,
+          is_featured: data.status === "draft" ? false : existing.is_featured,
+          published_at: publishedAt,
+        })
+        .eq("id", data.id)
+        .select("id, slug")
+        .maybeSingle();
+
+      if (error) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+
+      refreshBlogPaths(row.slug, row.id);
+      return { status: "success", id: row.id };
+    },
+  });
 }
 
 export async function deleteBlog(

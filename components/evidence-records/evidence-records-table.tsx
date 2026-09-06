@@ -6,6 +6,10 @@ import { ShieldCheckIcon } from "lucide-react";
 
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import {
+  AdminRowNumberCell,
+  AdminRowNumberHead,
+} from "@/components/dashboard/admin-row-number";
 import { EvidenceRecordsFilters } from "@/components/evidence-records/evidence-records-filters";
 import { EvidenceRowActions } from "@/components/evidence-records/evidence-row-actions";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +50,8 @@ export function EvidenceRecordsTable({
       filters={<EvidenceRecordsFilters query={query} />}
       header={
         <TableRow>
-          <TableHead className="pl-4">Primary source</TableHead>
+          <AdminRowNumberHead />
+          <TableHead>Primary source</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Permission</TableHead>
           <TableHead>Owner</TableHead>
@@ -55,7 +60,7 @@ export function EvidenceRecordsTable({
         </TableRow>
       }
       isEmpty={records.length === 0}
-      emptyColSpan={6}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={ShieldCheckIcon}
@@ -79,13 +84,18 @@ export function EvidenceRecordsTable({
         },
       }}
     >
-      {records.map((record) => (
+      {records.map((record, index) => (
         <TableRow
           key={record.id}
           className="cursor-pointer"
           onClick={() => router.push(evidenceDetailPath(record.id))}
         >
-          <TableCell className="max-w-[14rem] pl-4 font-medium sm:max-w-[20rem]">
+          <AdminRowNumberCell
+            page={query.page}
+            pageSize={EVIDENCE_PAGE_SIZE}
+            index={index}
+          />
+          <TableCell className="max-w-[14rem] font-medium sm:max-w-[20rem]">
             <Link
               href={evidenceDetailPath(record.id)}
               title={record.primary_source}

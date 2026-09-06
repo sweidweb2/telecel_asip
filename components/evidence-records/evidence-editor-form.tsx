@@ -19,8 +19,14 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import {
+  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
+  AdminEditorActionsBar,
+} from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,6 +42,7 @@ import {
   EVIDENCE_STATUS_LABELS,
   EVIDENCE_STATUSES,
 } from "@/constants/evidence-labels";
+import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import type {
@@ -203,7 +210,7 @@ export function EvidenceEditorForm({
   return (
     <>
       <form
-        className="grid max-w-3xl gap-8"
+        className={`grid max-w-3xl gap-8 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
       >
@@ -214,7 +221,12 @@ export function EvidenceEditorForm({
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
 
-        <FieldGroup>
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.source.title}
+          description={EVIDENCE_EDITOR_HELP.source.intro}
+          help={EVIDENCE_EDITOR_HELP.source}
+          contentClassName="grid gap-4"
+        >
           <Field data-invalid={!!form.formState.errors.primarySource}>
             <AdminFormFieldLabel
               htmlFor={`${formId}-primary-source`}
@@ -228,6 +240,7 @@ export function EvidenceEditorForm({
               maxLength={EVIDENCE_PRIMARY_SOURCE_MAX}
               disabled={isPending}
               aria-invalid={!!form.formState.errors.primarySource}
+              className="bg-white dark:bg-card"
               {...form.register("primarySource")}
             />
             <FieldError>
@@ -247,7 +260,7 @@ export function EvidenceEditorForm({
               type="url"
               inputMode="url"
               placeholder="https://"
-              className="min-h-11"
+              className="min-h-11 bg-white dark:bg-card"
               maxLength={EVIDENCE_SOURCE_URL_MAX}
               disabled={isPending}
               aria-invalid={!!form.formState.errors.sourceFileUrl}
@@ -257,7 +270,14 @@ export function EvidenceEditorForm({
               {form.formState.errors.sourceFileUrl?.message}
             </FieldError>
           </Field>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.periodOwner.title}
+          description={EVIDENCE_EDITOR_HELP.periodOwner.intro}
+          help={EVIDENCE_EDITOR_HELP.periodOwner}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -272,7 +292,7 @@ export function EvidenceEditorForm({
               <Input
                 id={`${formId}-period-start`}
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={
                   !!form.formState.errors.measurementPeriodStart
@@ -297,7 +317,7 @@ export function EvidenceEditorForm({
               <Input
                 id={`${formId}-period-end`}
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={!!form.formState.errors.measurementPeriodEnd}
                 {...form.register("measurementPeriodEnd")}
@@ -319,7 +339,7 @@ export function EvidenceEditorForm({
               onFocus={() => setOptionsEnabled(true)}
               maxLength={100}
               placeholder="Search owners by name or email…"
-              className="mb-2 min-h-11"
+              className="mb-2 min-h-11 bg-white dark:bg-card"
               disabled={isPending}
               aria-label="Search owners"
             />
@@ -327,38 +347,35 @@ export function EvidenceEditorForm({
               control={form.control}
               name="ownerId"
               render={({ field }) => (
-                <Select
-                  value={field.value || undefined}
-                  onValueChange={(value) => field.onChange(value ?? "")}
+                <EntitySelect
+                  id={`${formId}-owner`}
+                  value={field.value || null}
+                  onValueChange={(next) => field.onChange(next ?? "")}
+                  options={owners.map((owner) => ({
+                    id: owner.id,
+                    label: ownerLabel(owner),
+                  }))}
+                  placeholder={
+                    optionsLoading ? "Loading owners…" : "Select owner"
+                  }
+                  disabled={isPending}
                   onOpenChange={(open) => {
                     if (open) setOptionsEnabled(true);
                   }}
-                  disabled={isPending}
-                >
-                  <SelectTrigger
-                    id={`${formId}-owner`}
-                    className="w-full min-h-11"
-                    aria-invalid={!!form.formState.errors.ownerId}
-                  >
-                    <SelectValue
-                      placeholder={
-                        optionsLoading ? "Loading owners…" : "Select owner"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {owners.map((owner) => (
-                      <SelectItem key={owner.id} value={owner.id}>
-                        {ownerLabel(owner)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  aria-invalid={!!form.formState.errors.ownerId}
+                />
               )}
             />
             <FieldError>{form.formState.errors.ownerId?.message}</FieldError>
           </Field>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.governance.title}
+          description={EVIDENCE_EDITOR_HELP.governance.intro}
+          help={EVIDENCE_EDITOR_HELP.governance}
+          contentClassName="grid gap-4"
+        >
           <div className={ADMIN_FORM_PAIR_ROW}>
             <Field
               className={ADMIN_FORM_PAIR_FIELD}
@@ -456,7 +473,7 @@ export function EvidenceEditorForm({
               <Input
                 id={`${formId}-last-verified`}
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={!!form.formState.errors.lastVerifiedDate}
                 {...form.register("lastVerifiedDate")}
@@ -476,7 +493,7 @@ export function EvidenceEditorForm({
               <Input
                 id={`${formId}-review`}
                 type="date"
-                className="min-h-11"
+                className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
                 aria-invalid={!!form.formState.errors.reviewDate}
                 {...form.register("reviewDate")}
@@ -486,19 +503,9 @@ export function EvidenceEditorForm({
               </FieldError>
             </Field>
           </div>
-        </FieldGroup>
+        </AdminFormSection>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending || optionsLoading || owners.length === 0}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create evidence" : "Save changes"}
-          </Button>
+        <AdminEditorActionsBar>
           {mode === "edit" ? (
             <Button
               type="button"
@@ -510,8 +517,20 @@ export function EvidenceEditorForm({
               <Trash2Icon className="size-4" />
               Delete
             </Button>
-          ) : null}
-        </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <Button
+            type="submit"
+            className="min-h-11 w-full sm:ml-auto sm:w-auto"
+            disabled={isPending || optionsLoading || owners.length === 0}
+          >
+            {isPending ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : null}
+            {mode === "create" ? "Create evidence" : "Save changes"}
+          </Button>
+        </AdminEditorActionsBar>
       </form>
 
       <AdminDeleteDialog

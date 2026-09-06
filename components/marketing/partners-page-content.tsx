@@ -37,7 +37,7 @@ export function PartnersPageContent({
         aria-labelledby="partners-network-heading"
         className={cn(
           "border-b border-border bg-background",
-          "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
+          "px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-8",
         )}
       >
         <div className="mx-auto w-full max-w-7xl">
@@ -47,7 +47,7 @@ export function PartnersPageContent({
           >
             {copy.logos.title}
           </h2>
-          <div className="mt-10 sm:mt-12">
+          <div className="mt-4 sm:mt-5">
             <PartnersNetwork
               locale={locale}
               partners={active}
@@ -63,7 +63,7 @@ export function PartnersPageContent({
           aria-labelledby="partners-historical-heading"
           className={cn(
             "border-b border-border bg-[color-mix(in_oklab,var(--brand-subtle)_40%,var(--background))]",
-            "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
+            "px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-8",
           )}
         >
           <div className="mx-auto w-full max-w-7xl">
@@ -74,11 +74,11 @@ export function PartnersPageContent({
               >
                 {labels.historicalTitle}
               </h2>
-              <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              <p className="mt-3 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
                 {labels.historicalDescription}
               </p>
             </div>
-            <div className="mt-10 sm:mt-12">
+            <div className="mt-4 sm:mt-5">
               <PartnersNetwork
                 locale={locale}
                 partners={historical}
