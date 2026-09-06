@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import { DownloadIcon } from "lucide-react";
 
+import { BackupCreateForm } from "@/components/dashboard/backup-create-form";
+import { BackupHistoryTable } from "@/components/dashboard/backup-history-table";
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAdmin } from "@/data/auth";
+import { ROUTES } from "@/constants/routes";
+import { getBackupsPageData } from "@/data/backups";
+import {
+  adminListClampParams,
+  loadAdminListPage,
+} from "@/lib/admin/load-admin-list-page";
 import { cn } from "@/lib/utils";
+import {
+  backupListFilterParams,
+  parseBackupListQuery,
+} from "@/validations/backup";
 
 export const metadata: Metadata = {
   title: "Backup | ASIP Admin",
@@ -29,17 +40,46 @@ const EXPORTS = [
   },
 ] as const;
 
-export default async function BackupPage() {
-  await requireAdmin();
+type BackupPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function BackupPage({ searchParams }: BackupPageProps) {
+  const query = parseBackupListQuery(await searchParams);
+  const result = await loadAdminListPage({
+    query,
+    fetchPage: async (q) => {
+      const page = await getBackupsPageData(q);
+      if (page.status === "forbidden") return page;
+      return {
+        status: "ok" as const,
+        list: {
+          backups: page.backups,
+          total: page.total,
+          totalPages: page.totalPages,
+        },
+      };
+    },
+    listPath: ROUTES.backup,
+    buildClampParams: (q, totalPages) =>
+      adminListClampParams(totalPages, backupListFilterParams(q)),
+  });
 
   return (
-    <AdminListPageShell
-      title="Backup"
-    >
-      <div className="grid gap-8">
+    <AdminListPageShell title="Backup">
+      <div className="grid gap-10">
+        <BackupCreateForm />
+
+        <BackupHistoryTable
+          backups={result.list.backups}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+
         <section className="grid gap-3">
           <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            CSV export
+            Quick CSV
           </h2>
           <ul className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {EXPORTS.map((item) => (
@@ -76,9 +116,10 @@ export default async function BackupPage() {
           <Card>
             <CardContent className="grid gap-4 pt-6 text-sm text-muted-foreground">
               <p>
-                Database backups and point-in-time recovery run in Supabase, not
-                inside this admin UI. Use the project dashboard for restore
-                operations.
+                In-app and weekly R2 backups are operational copies for export —
+                they are not a substitute for Supabase automated backups or
+                point-in-time recovery. Use the Supabase project dashboard for
+                restore operations.
               </p>
               <ul className="list-disc space-y-2 pl-5">
                 <li>
@@ -86,8 +127,8 @@ export default async function BackupPage() {
                   Supabase project.
                 </li>
                 <li>
-                  Keep a credentials and secrets handover list outside the app
-                  (env vars, service role, Turnstile, storage).
+                  Keep credentials and secrets outside the app (env vars,
+                  service role, R2 keys, Turnstile).
                 </li>
                 <li>
                   After a restore, re-check CMS lists and public forms before

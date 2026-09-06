@@ -95,6 +95,53 @@ export type Database = {
           },
         ]
       }
+      backups: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          file_path: string | null
+          file_size: number | null
+          format: Database["public"]["Enums"]["backup_format"]
+          id: string
+          scope: Database["public"]["Enums"]["backup_scope"]
+          status: Database["public"]["Enums"]["backup_status"]
+          target_tables: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          format: Database["public"]["Enums"]["backup_format"]
+          id?: string
+          scope: Database["public"]["Enums"]["backup_scope"]
+          status?: Database["public"]["Enums"]["backup_status"]
+          target_tables?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          format?: Database["public"]["Enums"]["backup_format"]
+          id?: string
+          scope?: Database["public"]["Enums"]["backup_scope"]
+          status?: Database["public"]["Enums"]["backup_status"]
+          target_tables?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           comms_opt_in: boolean
@@ -1137,6 +1184,9 @@ export type Database = {
       }
     }
     Enums: {
+      backup_format: "json" | "csv" | "sql" | "zip"
+      backup_scope: "full" | "tables" | "storage" | "automated"
+      backup_status: "pending" | "processing" | "completed" | "failed"
       blog_status: "draft" | "published"
       cms_publish_status: "draft" | "published"
       cohort_programme_status: "closed" | "open" | "hold"
@@ -1301,6 +1351,9 @@ export const Constants = {
   },
   public: {
     Enums: {
+      backup_format: ["json", "csv", "sql", "zip"],
+      backup_scope: ["full", "tables", "storage", "automated"],
+      backup_status: ["pending", "processing", "completed", "failed"],
       blog_status: ["draft", "published"],
       cms_publish_status: ["draft", "published"],
       cohort_programme_status: ["closed", "open", "hold"],

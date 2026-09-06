@@ -9,12 +9,33 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
+test("weekly cron rejects missing secret", async ({ request }) => {
+  const response = await request.post("/api/cron/weekly-backup");
+  expect(response.status()).toBe(401);
+});
+
 test.describe("backup export API", () => {
   test.beforeEach(() => {
     test.skip(
       !hasE2ECredentials(),
       "Backup E2E requires real Supabase credentials.",
     );
+  });
+
+  test("admin backup page loads create + history sections", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/dashboard/backup");
+    await expect(
+      page.getByRole("heading", { name: "Create backup" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Backup history" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Quick CSV" }),
+    ).toBeVisible();
   });
 
   test("admin can export an allowed table", async ({ page, request }) => {

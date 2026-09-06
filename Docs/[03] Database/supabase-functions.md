@@ -525,3 +525,35 @@ No triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to b
 | **Calls** | `public.set_impact_metrics_updated_at()` |
 
 **How it works:** Keeps `updated_at` current. No write RPCs — admin CRUD via `actions/impact-metrics.ts` and `is_admin()` RLS. Admin-only until Phase 6 (no anon grants). `publish_status` reuses `evidence_status`; only `verified` may render on the live site.
+
+---
+
+## Backup cron (ops)
+
+Weekly full-DB export is **not** a Postgres function. Hosted Supabase should enable `pg_cron` + `pg_net`, then schedule an HTTP POST to the Next.js route.
+
+### Schedule (Sunday 03:00 UTC)
+
+Run in the Supabase SQL editor after enabling extensions (Dashboard → Database → Extensions: `pg_cron`, `pg_net`):
+
+```sql
+-- Once per project (replace URL + secret):
+select cron.schedule(
+  'asip-weekly-backup',
+  '0 3 * * 0',
+  $$
+  select net.http_post(
+    url := 'https://YOUR_PRODUCTION_HOST/api/cron/weekly-backup',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer YOUR_BACKUP_CRON_SECRET'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+
+**How it works:** `pg_cron` fires weekly; `pg_net` POSTs to `/api/cron/weekly-backup` with `BACKUP_CRON_SECRET`. The Node route inserts a `backups` row (`scope = automated`, `user_id` null, `format = json`), exports allowlisted public tables to a ZIP on private R2, then applies retention (keep last `BACKUP_RETENTION_COUNT` automated completed rows). Failures set `status = failed` + `error_message` and log to the server console (no Sentry in-repo yet).
+
+**Related table:** `public.backups` — migration `20260906210000_create_backups.sql`. No triggers/RPCs on that table.

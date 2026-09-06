@@ -886,6 +886,55 @@ Table admin_perf_events {
 
 Ref: admin_perf_events.parent_id > admin_perf_events.id [delete: set null]
 
+Enum backup_scope {
+  full
+  tables
+  storage
+  automated
+}
+
+Enum backup_status {
+  pending
+  processing
+  completed
+  failed
+}
+
+Enum backup_format {
+  json
+  csv
+  sql
+  zip
+}
+
+Table backups {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [null, note: 'Triggering admin; null for automated weekly jobs']
+  scope backup_scope [not null]
+  format backup_format [not null]
+  target_tables text[] [null, note: 'Required when scope = tables']
+  file_path text [null, note: 'Private R2 object key']
+  file_size bigint [null]
+  status backup_status [not null, default: 'pending']
+  error_message text [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id) [name: 'backups_user_id_idx']
+    (created_at) [name: 'backups_created_at_idx', note: 'DESC in SQL']
+    (status) [name: 'backups_status_idx']
+    (scope, created_at) [name: 'backups_scope_created_at_idx', note: 'DESC on created_at in SQL']
+  }
+
+  Note: '''
+    Admin backup audit log. File blobs live in private Cloudflare R2 (signed URLs only).
+    RLS enabled. Admin-only SELECT/INSERT/UPDATE/DELETE via is_admin().
+    service_role used by weekly cron export path. No anon grants.
+  '''
+}
+
+Ref: backups.user_id > profiles.id [delete: set null]
+
 // auth.users lives in Supabase auth schema (not managed in public migrations).
 Table "auth.users" {
   id uuid [pk]
