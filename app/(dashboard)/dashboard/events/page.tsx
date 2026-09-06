@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { EventStatsCards } from "@/components/dashboard/cms-list-stats";
 import { EventsTable } from "@/components/events/events-table";
 import { Button } from "@/components/ui/button";
@@ -42,14 +43,17 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.eventsNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New event
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="events" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.eventsNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New event
+          </Button>
+        </>
       }
     >
       <EventStatsCards stats={stats} />

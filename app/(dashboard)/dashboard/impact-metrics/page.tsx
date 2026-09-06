@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { ImpactMetricStatsCards } from "@/components/dashboard/cms-list-stats";
 import { ImpactMetricsTable } from "@/components/impact-metrics/impact-metrics-table";
 import { Button } from "@/components/ui/button";
@@ -46,14 +47,17 @@ export default async function ImpactMetricsPage({
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.impactMetricsNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New metric
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="impactMetrics" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.impactMetricsNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New metric
+          </Button>
+        </>
       }
     >
       <ImpactMetricStatsCards stats={stats} />

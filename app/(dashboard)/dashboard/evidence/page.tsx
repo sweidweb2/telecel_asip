@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { EvidenceStatsCards } from "@/components/dashboard/cms-list-stats";
 import { EvidenceRecordsTable } from "@/components/evidence-records/evidence-records-table";
 import { Button } from "@/components/ui/button";
@@ -43,14 +44,17 @@ export default async function EvidencePage({ searchParams }: EvidencePageProps) 
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.evidenceNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New evidence
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="evidence" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.evidenceNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New evidence
+          </Button>
+        </>
       }
     >
       <EvidenceStatsCards stats={stats} />

@@ -281,7 +281,7 @@ export function PartnerEditorForm({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
         <AdminFormDevTools
           onDummy={fillDummy}

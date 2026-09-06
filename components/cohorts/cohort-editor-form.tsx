@@ -269,8 +269,8 @@ export function CohortEditorForm({
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-6">
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+    <div className="grid w-full gap-6">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-2xl font-semibold tracking-tight">
           {heading}
         </h2>
@@ -286,7 +286,7 @@ export function CohortEditorForm({
       </div>
 
       <form
-        className={`grid w-full gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+        className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
@@ -350,7 +350,7 @@ export function CohortEditorForm({
                   ) : null}
                 </div>
 
-                <div className="grid gap-2 sm:col-span-2">
+                <div className="grid gap-2">
                   <FieldLabel
                     htmlFor="publicLabel"
                     hint={`${COHORT_PUBLIC_LABEL_MAX} max`}

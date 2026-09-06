@@ -27,7 +27,7 @@ export const EVENT_EDITOR_HELP = {
       {
         name: "Location",
         detail:
-          "Venue or place label shown publicly when set. Optional for online-only events.",
+          "Venue or place label shown publicly when set. Type to filter city/venue suggestions; free text is still allowed. Optional for online-only events.",
       },
       {
         name: "Format",

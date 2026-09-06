@@ -7,7 +7,8 @@ export const IMPACT_METRIC_EDITOR_HELP = {
     fields: [
       {
         name: "Claim label",
-        detail: "Short name of the impact claim (e.g. “Founders supported”).",
+        detail:
+          "Short name of the impact claim (e.g. “Founders supported”). Type to filter suggestions; free text is still allowed.",
       },
       {
         name: "Value",
@@ -49,12 +50,13 @@ export const IMPACT_METRIC_EDITOR_HELP = {
       },
       {
         name: "Geography",
-        detail: "Optional geographic scope of the claim.",
+        detail:
+          "Optional geographic scope of the claim. Type to filter region/country suggestions.",
       },
       {
         name: "Display locations",
         detail:
-          "Notes on where this metric may be shown (pages/modules). Not automatic routing by itself.",
+          "Where this metric may appear (one tag per line, e.g. homepage_module_02, impact_page). Suggestions replace the line you are typing.",
       },
     ],
   },

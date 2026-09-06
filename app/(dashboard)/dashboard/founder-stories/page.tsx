@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { FounderStoryStatsCards } from "@/components/dashboard/cms-list-stats";
 import { FounderStoriesTable } from "@/components/founder-stories/founder-stories-table";
 import { Button } from "@/components/ui/button";
@@ -44,14 +45,17 @@ export default async function FounderStoriesPage({
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.founderStoriesNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New story
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="founderStories" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.founderStoriesNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New story
+          </Button>
+        </>
       }
     >
       <FounderStoryStatsCards stats={stats} />

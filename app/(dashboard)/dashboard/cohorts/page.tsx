@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { CohortStatsCards } from "@/components/dashboard/cms-list-stats";
 import { CohortsTable } from "@/components/cohorts/cohorts-table";
 import { Button } from "@/components/ui/button";
@@ -42,14 +43,17 @@ export default async function CohortsPage({ searchParams }: CohortsPageProps) {
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.cohortsNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New cohort
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="cohorts" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.cohortsNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New cohort
+          </Button>
+        </>
       }
     >
       <CohortStatsCards stats={stats} />

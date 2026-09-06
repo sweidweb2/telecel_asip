@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { StartupStatsCards } from "@/components/dashboard/cms-list-stats";
 import { StartupsTable } from "@/components/startups/startups-table";
 import { Button } from "@/components/ui/button";
@@ -44,14 +45,17 @@ export default async function PortfolioAdminPage({
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.portfolioNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New startup
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="portfolio" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.portfolioNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New startup
+          </Button>
+        </>
       }
     >
       <StartupStatsCards stats={stats} />

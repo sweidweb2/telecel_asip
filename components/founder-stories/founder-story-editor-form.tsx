@@ -234,8 +234,8 @@ export function FounderStoryEditorForm({
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+    <div className="grid w-full gap-6">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-2xl font-semibold tracking-tight">
           {heading}
         </h2>

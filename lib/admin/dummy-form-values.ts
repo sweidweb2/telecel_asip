@@ -196,7 +196,7 @@ export function dummyImpactMetricValues(
     periodEnd: dateOffset(-10),
     geography: "West Africa",
     impactLens: "pipeline",
-    displayLocations: "Lagos\nAccra\nAbidjan",
+    displayLocations: "homepage_module_02\nimpact_page",
     evidenceId: current.evidenceId || "",
     publishStatus: "pending",
   };

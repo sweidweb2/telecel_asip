@@ -24,7 +24,7 @@ export function AdminListPageShell({
       aria-label={title}
     >
       {actions ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-end">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
           {actions}
         </div>
       ) : null}

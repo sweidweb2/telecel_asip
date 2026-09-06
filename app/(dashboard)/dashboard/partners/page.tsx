@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { PartnerStatsCards } from "@/components/dashboard/cms-list-stats";
 import { PartnersTable } from "@/components/partners/partners-table";
 import { Button } from "@/components/ui/button";
@@ -45,14 +46,17 @@ export default async function PartnersPage({
     <AdminListPageShell
       title={resource.pageTitle}
       actions={
-        <Button
-          className="min-h-11 w-full sm:w-auto"
-          nativeButton={false}
-          render={<Link href={ROUTES.partnersNew} />}
-        >
-          <PlusIcon className="size-4" />
-          New partner
-        </Button>
+        <>
+          <AdminPublicReflectionDialog resourceId="partners" />
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href={ROUTES.partnersNew} />}
+          >
+            <PlusIcon className="size-4" />
+            New partner
+          </Button>
+        </>
       }
     >
       <PartnerStatsCards stats={stats} />

@@ -364,12 +364,8 @@ export function StartupEditorForm({
   const saveLabel = mode === "create" ? "Create startup" : "Save changes";
 
   return (
-    <form
-      className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      onSubmit={form.handleSubmit(submit)}
-      noValidate
-    >
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+    <div className="grid w-full gap-6">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-2xl font-semibold tracking-tight">
           {heading}
         </h2>
@@ -390,6 +386,11 @@ export function StartupEditorForm({
         />
       </div>
 
+      <form
+        className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+        onSubmit={form.handleSubmit(submit)}
+        noValidate
+      >
       <Stepper
         steps={STARTUP_EDITOR_STEPS}
         value={step}
@@ -1134,5 +1135,6 @@ export function StartupEditorForm({
         </AlertDialogContent>
       </AlertDialog>
     </form>
+    </div>
   );
 }
