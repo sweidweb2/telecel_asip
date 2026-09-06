@@ -1,14 +1,13 @@
 import "server-only";
 
 import { deleteBackupObject } from "@/lib/backups/r2";
-import { runBackupJob } from "@/lib/backups/run-backup";
 import {
-  getBeirutParts,
   isCreatedInBeirutMonth,
   pickMonthlyRetainIds,
   shiftBeirutMonth,
-  type BackupScheduleValue,
-} from "@/lib/backups/schedule";
+} from "@/lib/backups/retention-policy";
+import { getBeirutParts, type BackupScheduleValue } from "@/lib/backups/schedule";
+import { startBackupAttempt } from "@/lib/backups/start-backup";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const MAX_WINDOW_ATTEMPTS = 3;
@@ -55,47 +54,18 @@ export async function startAutomatedBackupAttempt(input: {
   scheduleWindow: string;
   userId?: string | null;
 }): Promise<{ backupId: string; ok: boolean; error?: string }> {
-  const admin = createAdminClient();
-  const { data: row, error } = await admin
-    .from("backups")
-    .insert({
-      user_id: input.userId ?? null,
-      scope: "automated",
-      format: "json",
-      target_tables: null,
-      status: "pending",
-      schedule_window: input.scheduleWindow,
-    })
-    .select("id")
-    .single();
-
-  if (error || !row?.id) {
-    return {
-      backupId: "",
-      ok: false,
-      error: error?.message ?? "Could not create backup record.",
-    };
-  }
-
-  try {
-    await runBackupJob({
-      backupId: row.id,
-      scope: "automated",
-      format: "json",
-      targetTables: null,
-    });
-    return { backupId: row.id, ok: true };
-  } catch (err) {
-    return {
-      backupId: row.id,
-      ok: false,
-      error: err instanceof Error ? err.message : "Backup failed.",
-    };
-  }
+  return startBackupAttempt({
+    userId: input.userId,
+    scope: "automated",
+    format: "json",
+    targetTables: null,
+    scheduleWindow: input.scheduleWindow,
+  });
 }
 
 /**
- * Cron path: up to 3 attempts for the window; stop on first success.
+ * Cron path: one attempt per tick. Up to MAX_WINDOW_ATTEMPTS failures across
+ * hourly ticks for the same schedule_window, then wait for the next window.
  */
 export async function runScheduledBackupWindow(input: {
   backupTime: BackupScheduleValue;
@@ -118,30 +88,21 @@ export async function runScheduledBackupWindow(input: {
     return { status: "skipped", attempts: 0, reason: "max_failures" };
   }
 
-  const remaining = MAX_WINDOW_ATTEMPTS - stats.failed;
-  let attempts = 0;
-  let lastId: string | undefined;
+  const result = await startAutomatedBackupAttempt({
+    scheduleWindow: input.scheduleWindow,
+  });
 
-  for (let i = 0; i < remaining; i += 1) {
-    if (i > 0 && (await hasInFlightBackup())) {
-      return {
-        status: "skipped",
-        attempts,
-        reason: "in_flight",
-        backupId: lastId,
-      };
-    }
-    attempts += 1;
-    const result = await startAutomatedBackupAttempt({
-      scheduleWindow: input.scheduleWindow,
-    });
-    lastId = result.backupId || lastId;
-    if (result.ok) {
-      return { status: "success", attempts, backupId: result.backupId };
-    }
+  if (result.ok) {
+    return { status: "success", attempts: 1, backupId: result.backupId };
   }
 
-  return { status: "failed", attempts, backupId: lastId, reason: "exhausted" };
+  const failedAfter = stats.failed + 1;
+  return {
+    status: "failed",
+    attempts: 1,
+    backupId: result.backupId || undefined,
+    reason: failedAfter >= MAX_WINDOW_ATTEMPTS ? "exhausted" : "attempt_failed",
+  };
 }
 
 export async function applyAutomatedBackupRetention(

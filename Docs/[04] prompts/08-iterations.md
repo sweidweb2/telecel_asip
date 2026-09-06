@@ -1,12 +1,12 @@
 Ask each question in a loop until no reasonable findings are returned any more:
 
-check now can the code related to this branch be simplifed using a different architecture?
+check now can the code related to this feature be simplifed using a different architecture?
 
-check now can the code related to this branch be simplifed using a broader view?
+check now can the code related to this feature be simplifed using a broader view?
 
 check now are there any potential performance problems using a broader view?
 
-check now /code-review (scoped to the local branch only)
+check now /code-review (scoped to the local feature only)
 
 check now are there any security performance problems using a broader view?
 

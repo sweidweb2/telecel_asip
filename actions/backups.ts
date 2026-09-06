@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { hasInFlightBackup } from "@/lib/backups/automated";
 import { getSignedBackupUrl } from "@/lib/backups/r2";
-import { runBackupJob } from "@/lib/backups/run-backup";
+import { startBackupAttempt } from "@/lib/backups/start-backup";
 import type { AdminActionResult } from "@/types/admin-action";
 import { ROUTES } from "@/constants/routes";
 import {
@@ -21,6 +22,7 @@ const MESSAGES = {
   downloadReady: "Download ready.",
   notFound: "Backup not found.",
   notReady: "This backup is not ready to download.",
+  inFlight: "A backup is already running. Try again when it finishes.",
   genericError: "Could not complete the backup.",
 } as const;
 
@@ -43,49 +45,37 @@ export async function createBackup(
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
+  if (await hasInFlightBackup()) {
+    return { status: "error", message: MESSAGES.inFlight };
+  }
+
   const data = parsed.data;
   const format =
     data.scope === "storage" ? ("zip" as const) : data.format;
   const targetTables =
     data.scope === "tables" ? (data.targetTables ?? null) : null;
 
-  const { data: row, error } = await session.supabase
-    .from("backups")
-    .insert({
-      user_id: session.userId,
-      scope: data.scope,
-      format,
-      target_tables: targetTables,
-      status: "pending",
-    })
-    .select("id")
-    .single();
-
-  if (error || !row?.id) {
-    return {
-      status: "error",
-      message: error?.message ?? MESSAGES.genericError,
-    };
-  }
-
-  try {
-    await runBackupJob({
-      backupId: row.id,
-      scope: data.scope,
-      format,
-      targetTables,
-    });
-  } catch (err) {
-    revalidatePath(ROUTES.backup);
-    return {
-      status: "error",
-      message:
-        err instanceof Error ? err.message : MESSAGES.genericError,
-    };
-  }
+  const result = await startBackupAttempt({
+    userId: session.userId,
+    scope: data.scope,
+    format,
+    targetTables,
+  });
 
   revalidatePath(ROUTES.backup);
-  return { status: "success", message: MESSAGES.createSuccess, id: row.id };
+
+  if (!result.ok) {
+    return {
+      status: "error",
+      message: result.error ?? MESSAGES.genericError,
+    };
+  }
+
+  return {
+    status: "success",
+    message: MESSAGES.createSuccess,
+    id: result.backupId,
+  };
 }
 
 export async function getBackupDownloadUrl(

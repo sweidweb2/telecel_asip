@@ -7,7 +7,8 @@ import {
 } from "@/validations/admin-list-query";
 
 export const BACKUP_SCOPES = ["full", "tables", "storage"] as const;
-export const BACKUP_DB_FORMATS = ["json", "csv", "sql"] as const;
+/** New backups: JSON for DB scopes, ZIP for storage. Legacy csv/sql rows may still exist. */
+export const BACKUP_CREATE_FORMATS = ["json", "zip"] as const;
 export const BACKUP_PAGE_SIZES = [10, 25, 50] as const;
 export const BACKUP_PAGE_SIZE_VALUES = ["10", "25", "50"] as const;
 export const BACKUP_DEFAULT_PAGE_SIZE = 25;
@@ -17,7 +18,7 @@ const tableEnum = z.enum(BACKUP_TABLE_ALLOWLIST);
 export const createBackupSchema = z
   .object({
     scope: z.enum(BACKUP_SCOPES),
-    format: z.enum([...BACKUP_DB_FORMATS, "zip"]),
+    format: z.enum(BACKUP_CREATE_FORMATS),
     targetTables: z.array(tableEnum).max(BACKUP_TABLE_ALLOWLIST.length).optional(),
   })
   .superRefine((value, ctx) => {
@@ -32,11 +33,11 @@ export const createBackupSchema = z
       return;
     }
 
-    if (value.format === "zip") {
+    if (value.format !== "json") {
       ctx.addIssue({
         code: "custom",
         path: ["format"],
-        message: "Choose JSON, CSV, or SQL for database backups.",
+        message: "Database backups use JSON format.",
       });
     }
 

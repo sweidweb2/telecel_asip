@@ -111,18 +111,13 @@ describe("updateSiteSettings", () => {
     });
   });
 
-  it("updates settings without immediate backup when schedule unchanged", async () => {
+  it("updates settings without starting a backup", async () => {
     getUser.mockResolvedValue({
       data: { user: { id: "admin-1" } },
       error: null,
     });
     rpc.mockResolvedValue({ data: true, error: null });
-    maybeSingle
-      .mockResolvedValueOnce({
-        data: { backup_time: "daily_03" },
-        error: null,
-      })
-      .mockResolvedValueOnce({ data: { id: 1 }, error: null });
+    maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     const result = await updateSiteSettings(validInput);
 
@@ -136,28 +131,28 @@ describe("updateSiteSettings", () => {
       backup_time: "daily_03",
     });
     expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
+    expect(applyAutomatedBackupRetention).not.toHaveBeenCalled();
     expect(revalidateTag).toHaveBeenCalledWith(SITE_SETTINGS_CACHE_TAG, "max");
     expect(revalidatePath).toHaveBeenCalled();
   });
 
-  it("runs immediate backup when schedule changes", async () => {
+  it("still does not start a backup when schedule value changes", async () => {
     getUser.mockResolvedValue({
       data: { user: { id: "admin-1" } },
       error: null,
     });
     rpc.mockResolvedValue({ data: true, error: null });
-    maybeSingle
-      .mockResolvedValueOnce({
-        data: { backup_time: "off" },
-        error: null,
-      })
-      .mockResolvedValueOnce({ data: { id: 1 }, error: null });
+    maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
-    const result = await updateSiteSettings(validInput);
+    const result = await updateSiteSettings({
+      ...validInput,
+      backupTime: "weekly_sun_03",
+    });
 
-    expect(result.status).toBe("success");
-    expect(result).toMatchObject({ backupStarted: true });
-    expect(startAutomatedBackupAttempt).toHaveBeenCalled();
-    expect(applyAutomatedBackupRetention).toHaveBeenCalled();
+    expect(result).toEqual({
+      status: "success",
+      message: "Settings saved.",
+    });
+    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
   });
 });

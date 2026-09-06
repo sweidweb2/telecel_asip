@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useRouter } from "nextjs-toploader/app";
 
 import { createBackup } from "@/actions/backups";
 import {
   BackupProgressDialog,
-  BACKUP_PROGRESS_STEPS,
   type BackupProgressPhase,
 } from "@/components/dashboard/backup-progress-dialog";
 import { Button } from "@/components/ui/button";
@@ -20,19 +19,18 @@ import { cn } from "@/lib/utils";
 import type { CreateBackupInput } from "@/validations/backup";
 
 type ScopeMode = CreateBackupInput["scope"];
-type DbFormat = "json" | "csv" | "sql";
 
 const SCOPE_OPTIONS: { value: ScopeMode; label: string; description: string }[] =
   [
     {
       value: "full",
       label: "Full DB backup",
-      description: "All allowlisted application tables.",
+      description: "All allowlisted application tables as JSON.",
     },
     {
       value: "tables",
       label: "Selected tables",
-      description: "Choose one or more tables.",
+      description: "Choose one or more tables as JSON.",
     },
     {
       value: "storage",
@@ -41,24 +39,15 @@ const SCOPE_OPTIONS: { value: ScopeMode; label: string; description: string }[] 
     },
   ];
 
-const FORMAT_OPTIONS: { value: DbFormat; label: string }[] = [
-  { value: "json", label: "JSON" },
-  { value: "csv", label: "CSV" },
-  { value: "sql", label: "SQL inserts" },
-];
-
 export function BackupCreateForm() {
   const router = useRouter();
   const [scope, setScope] = useState<ScopeMode>("full");
-  const [format, setFormat] = useState<DbFormat>("json");
   const [selectedTables, setSelectedTables] = useState<BackupTableName[]>([]);
   const [pending, startTransition] = useTransition();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [phase, setPhase] = useState<BackupProgressPhase>("running");
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const advanceTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const allSelected = selectedTables.length === BACKUP_TABLE_ALLOWLIST.length;
 
@@ -67,35 +56,11 @@ export function BackupCreateForm() {
       return "Storage backup · ZIP of blogs, auther, startups, partners buckets";
     }
     if (scope === "full") {
-      return `Full DB · ${BACKUP_TABLE_ALLOWLIST.length} tables · ${format.toUpperCase()}`;
+      return `Full DB · ${BACKUP_TABLE_ALLOWLIST.length} tables · JSON`;
     }
     const count = selectedTables.length;
-    return `Selected tables · ${count} table${count === 1 ? "" : "s"} · ${format.toUpperCase()}`;
-  }, [scope, format, selectedTables.length]);
-
-  useEffect(() => {
-    return () => {
-      if (advanceTimer.current) clearInterval(advanceTimer.current);
-    };
-  }, []);
-
-  function clearAdvanceTimer() {
-    if (advanceTimer.current) {
-      clearInterval(advanceTimer.current);
-      advanceTimer.current = null;
-    }
-  }
-
-  function startProgressAnimation() {
-    clearAdvanceTimer();
-    setActiveStepIndex(0);
-    advanceTimer.current = setInterval(() => {
-      setActiveStepIndex((current) => {
-        const maxRunning = BACKUP_PROGRESS_STEPS.length - 2;
-        return current < maxRunning ? current + 1 : current;
-      });
-    }, 1800);
-  }
+    return `Selected tables · ${count} table${count === 1 ? "" : "s"} · JSON`;
+  }, [scope, selectedTables.length]);
 
   function toggleTable(table: BackupTableName, checked: boolean) {
     setSelectedTables((prev) => {
@@ -112,18 +77,20 @@ export function BackupCreateForm() {
     setDialogOpen(true);
     setPhase("running");
     setErrorMessage(null);
-    startProgressAnimation();
 
     startTransition(async () => {
       const input: CreateBackupInput =
         scope === "storage"
           ? { scope: "storage", format: "zip" }
           : scope === "tables"
-            ? { scope: "tables", format, targetTables: selectedTables }
-            : { scope: "full", format };
+            ? {
+                scope: "tables",
+                format: "json",
+                targetTables: selectedTables,
+              }
+            : { scope: "full", format: "json" };
 
       const result = await createBackup(input);
-      clearAdvanceTimer();
 
       if (result.status === "error") {
         setPhase("error");
@@ -132,7 +99,6 @@ export function BackupCreateForm() {
         return;
       }
 
-      setActiveStepIndex(BACKUP_PROGRESS_STEPS.length - 1);
       setPhase("success");
       toast.success(result.message);
       router.refresh();
@@ -146,7 +112,8 @@ export function BackupCreateForm() {
           Create backup
         </h2>
         <p className="text-sm text-muted-foreground">
-          Export on demand to private R2. Pick scope and format, then confirm.
+          Export on demand to private R2. Database scopes use JSON; storage uses
+          ZIP.
         </p>
       </div>
 
@@ -211,29 +178,6 @@ export function BackupCreateForm() {
         </div>
       ) : null}
 
-      {scope !== "storage" ? (
-        <div className="grid gap-3">
-          <p className="text-sm font-medium">Export format</p>
-          <div className="flex flex-wrap gap-2">
-            {FORMAT_OPTIONS.map((option) => {
-              const selected = format === option.value;
-              return (
-                <Button
-                  key={option.value}
-                  type="button"
-                  variant={selected ? "default" : "outline"}
-                  className="min-h-11"
-                  onClick={() => setFormat(option.value)}
-                  aria-pressed={selected}
-                >
-                  {option.label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
       <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm">
         <p className="font-medium">Selected scope</p>
         <p className="mt-1 text-muted-foreground">{summary}</p>
@@ -255,7 +199,6 @@ export function BackupCreateForm() {
       <BackupProgressDialog
         open={dialogOpen}
         phase={phase}
-        activeStepIndex={activeStepIndex}
         summary={summary}
         errorMessage={errorMessage}
         onOpenChange={setDialogOpen}

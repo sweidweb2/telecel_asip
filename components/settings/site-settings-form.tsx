@@ -174,9 +174,9 @@ export function SiteSettingsForm({
                   <AdminFormSectionHelp help={SITE_SETTINGS_HELP.backup} />
                 </div>
                 <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                  Times use Lebanon (Asia/Beirut). Changing the schedule starts
-                  one backup immediately, then the hourly job follows the new
-                  cadence. Off disables scheduled runs.
+                  Times use Lebanon (Asia/Beirut). Saving only updates the
+                  schedule; the hourly job follows the new cadence. Use Run
+                  backup now for a one-shot. Off disables scheduled runs.
                 </p>
               </div>
               <div className="grid w-full gap-3 sm:max-w-xs">

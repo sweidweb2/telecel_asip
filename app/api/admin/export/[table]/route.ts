@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { rowsToCsv } from "@/lib/backups/serialize";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -27,26 +28,6 @@ type ExportTable = keyof typeof EXPORT_TABLES;
 
 function isExportTable(value: string): value is ExportTable {
   return value in EXPORT_TABLES;
-}
-
-function escapeCsvCell(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  const text = String(value);
-  if (/[",\n\r]/.test(text)) {
-    return `"${text.replaceAll('"', '""')}"`;
-  }
-  return text;
-}
-
-function rowsToCsv(
-  columns: string[],
-  rows: Record<string, unknown>[],
-): string {
-  const header = columns.join(",");
-  const lines = rows.map((row) =>
-    columns.map((column) => escapeCsvCell(row[column])).join(","),
-  );
-  return `${[header, ...lines].join("\n")}\n`;
 }
 
 export async function GET(

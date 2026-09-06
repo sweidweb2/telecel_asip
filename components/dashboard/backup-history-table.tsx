@@ -33,7 +33,7 @@ function formatDate(iso: string): string {
 }
 
 function scopeLabel(row: BackupListRow): string {
-  if (row.scope === "automated") return "Automated weekly";
+  if (row.scope === "automated") return "Automated";
   if (row.scope === "full") return "Full DB";
   if (row.scope === "storage") return "Storage";
   const tables = row.target_tables ?? [];

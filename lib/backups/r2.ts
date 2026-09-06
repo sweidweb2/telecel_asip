@@ -95,10 +95,3 @@ export async function deleteBackupObject(key: string): Promise<void> {
     }),
   );
 }
-
-export function getBackupRetentionCount(): number {
-  const raw = process.env.BACKUP_RETENTION_COUNT?.trim();
-  const parsed = raw ? Number.parseInt(raw, 10) : 8;
-  if (!Number.isFinite(parsed) || parsed < 1) return 8;
-  return parsed;
-}

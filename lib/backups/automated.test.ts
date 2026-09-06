@@ -109,7 +109,7 @@ describe("runScheduledBackupWindow", () => {
     expect(runBackupJob).not.toHaveBeenCalled();
   });
 
-  it("runs until success within remaining attempts", async () => {
+  it("runs one attempt per tick and succeeds", async () => {
     select
       .mockReturnValueOnce({
         in: vi.fn(() => ({
@@ -137,6 +137,39 @@ describe("runScheduledBackupWindow", () => {
       status: "success",
       attempts: 1,
       backupId: "new-1",
+    });
+    expect(runBackupJob).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks attempt_failed when retries remain for later ticks", async () => {
+    select
+      .mockReturnValueOnce({
+        in: vi.fn(() => ({
+          limit: vi.fn(async () => ({ data: [], error: null })),
+        })),
+      })
+      .mockReturnValueOnce({
+        eq: vi.fn(() => ({
+          eq: vi.fn(async () => ({
+            data: [{ status: "failed" }],
+            error: null,
+          })),
+        })),
+      });
+
+    single.mockResolvedValue({ data: { id: "new-2" }, error: null });
+    vi.mocked(runBackupJob).mockRejectedValue(new Error("boom"));
+
+    const result = await runScheduledBackupWindow({
+      backupTime: "weekly_sun_03",
+      scheduleWindow: "weekly:2026-09-06:sun03",
+    });
+
+    expect(result).toMatchObject({
+      status: "failed",
+      attempts: 1,
+      reason: "attempt_failed",
+      backupId: "new-2",
     });
     expect(runBackupJob).toHaveBeenCalledTimes(1);
   });

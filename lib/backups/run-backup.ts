@@ -6,10 +6,7 @@ import {
   buildBackupObjectKey,
   uploadBackupObject,
 } from "@/lib/backups/r2";
-import {
-  serializeTableFile,
-  type BackupDbFormat,
-} from "@/lib/backups/serialize";
+import { serializeTableFile } from "@/lib/backups/serialize";
 import { addStorageBucketsToZip } from "@/lib/backups/storage-export";
 import { fetchAllTableRows } from "@/lib/backups/table-export";
 import {
@@ -46,32 +43,22 @@ async function updateBackupRow(
   }
 }
 
-function assertDbFormat(format: BackupFormat): BackupDbFormat {
-  if (format === "zip") {
-    throw new Error("ZIP format is only valid for storage backups.");
-  }
-  return format;
-}
-
-async function buildDbZip(
-  tables: BackupTableName[],
-  format: BackupDbFormat,
-): Promise<Buffer> {
+async function buildDbZip(tables: BackupTableName[]): Promise<Buffer> {
   const admin = createAdminClient();
   const zip = new JSZip();
   const manifest: {
     exportedAt: string;
-    format: BackupDbFormat;
+    format: "json";
     tables: { name: string; rowCount: number }[];
   } = {
     exportedAt: new Date().toISOString(),
-    format,
+    format: "json",
     tables: [],
   };
 
   for (const table of tables) {
     const rows = await fetchAllTableRows(admin, table);
-    const file = serializeTableFile(table, rows, format);
+    const file = serializeTableFile(table, rows);
     zip.file(`tables/${file.filename}`, file.content);
     manifest.tables.push({ name: table, rowCount: rows.length });
   }
@@ -110,7 +97,7 @@ export async function runBackupJob(input: RunBackupInput): Promise<void> {
     });
 
     let body: Buffer;
-    let extension = "zip";
+    const extension = "zip";
 
     if (input.scope === "storage") {
       if (input.format !== "zip") {
@@ -118,6 +105,9 @@ export async function runBackupJob(input: RunBackupInput): Promise<void> {
       }
       body = await buildStorageZip();
     } else {
+      if (input.format !== "json") {
+        throw new Error("Database backups must use JSON format.");
+      }
       const tables = resolveBackupTables(
         input.scope === "automated" ? "automated" : input.scope,
         input.targetTables,
@@ -125,8 +115,7 @@ export async function runBackupJob(input: RunBackupInput): Promise<void> {
       if (tables.length === 0) {
         throw new Error("No tables selected for backup.");
       }
-      const dbFormat = assertDbFormat(input.format);
-      body = await buildDbZip(tables, dbFormat);
+      body = await buildDbZip(tables);
     }
 
     const key = buildBackupObjectKey({

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  pickMonthlyRetainIds,
+  shiftBeirutMonth,
+} from "@/lib/backups/retention-policy";
+import {
   getBeirutParts,
   isScheduleDue,
-  pickMonthlyRetainIds,
   scheduleWindowKey,
-  shiftBeirutMonth,
 } from "@/lib/backups/schedule";
 
 describe("getBeirutParts", () => {
