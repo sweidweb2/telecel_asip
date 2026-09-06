@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import {
   updateSiteSettingsSchema,
   type UpdateSiteSettingsInput,
@@ -38,9 +39,10 @@ export function SiteSettingsForm({
     handleSubmit,
     reset,
     setValue,
-    formState: { isDirty },
+    formState: { errors, isDirty },
   } = useForm<UpdateSiteSettingsInput>({
     resolver: zodResolver(updateSiteSettingsSchema),
+    mode: "onChange",
     defaultValues: { openApplications, newsletterSignupEnabled },
   });
 
@@ -136,7 +138,7 @@ export function SiteSettingsForm({
             <span className="hidden sm:block" />
             <Button
               type="submit"
-              disabled={isPending || !isDirty}
+              disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
               className="min-h-11 w-full sm:ml-auto sm:w-auto"
             >
               {isPending ? <Loader2Icon className="animate-spin" /> : null}

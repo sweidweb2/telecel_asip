@@ -50,6 +50,7 @@ import {
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
 import { formatAdminDateTime } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { ContactMessage } from "@/types/contact-message";
 import {
@@ -119,8 +120,10 @@ export function ContactMessageRowActions({
   const editDefaults = toEditDefaults(message);
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
+    mode: "onChange",
     defaultValues: editDefaults,
   });
+  const { errors, isDirty } = form.formState;
   const enquiryType = useWatch({
     control: form.control,
     name: "enquiryType",
@@ -385,7 +388,15 @@ export function ContactMessageRowActions({
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (

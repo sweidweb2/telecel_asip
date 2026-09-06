@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  deleteInterestRegistrationSchema,
   interestRegistrationSchema,
   interestRegistrationSchemaFor,
   parseInterestRegistrationListQuery,
+  updateInterestRegistrationSchema,
 } from "@/validations/interest-registration";
 
 const validInput = {
@@ -111,6 +113,23 @@ describe("interestRegistrationSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toMatch(/caractères|accepter/i);
     }
+  });
+});
+
+describe("updateInterestRegistrationSchema / deleteInterestRegistrationSchema", () => {
+  const id = "22222222-2222-4222-8222-222222222222";
+
+  it("accepts an admin update without consent or turnstile", () => {
+    const { consent: _c, turnstileToken: _t, ...fields } = validInput;
+    expect(
+      updateInterestRegistrationSchema.safeParse({ id, ...fields }).success,
+    ).toBe(true);
+  });
+
+  it("accepts a delete id", () => {
+    expect(deleteInterestRegistrationSchema.safeParse({ id }).success).toBe(
+      true,
+    );
   });
 });
 

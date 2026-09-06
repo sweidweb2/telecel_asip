@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   contactMessageSchema,
   contactMessageSchemaFor,
+  deleteContactMessageSchema,
   parseContactMessageListQuery,
+  updateContactMessageSchema,
 } from "@/validations/contact-message";
 
 const validInput = {
@@ -76,6 +78,21 @@ describe("contactMessageSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toMatch(/caractères/i);
     }
+  });
+});
+
+describe("updateContactMessageSchema / deleteContactMessageSchema", () => {
+  const id = "33333333-3333-4333-8333-333333333333";
+
+  it("accepts an admin update without turnstile", () => {
+    const { turnstileToken: _t, ...fields } = validInput;
+    expect(updateContactMessageSchema.safeParse({ id, ...fields }).success).toBe(
+      true,
+    );
+  });
+
+  it("accepts a delete id", () => {
+    expect(deleteContactMessageSchema.safeParse({ id }).success).toBe(true);
   });
 });
 

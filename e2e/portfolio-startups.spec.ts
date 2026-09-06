@@ -124,6 +124,67 @@ test.describe("portfolio startups cms", () => {
     }
   });
 
+  test("picking a logo enables Save without other field edits", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const suffix = e2eSuffix();
+    const name = `E2E Startup Logo ${suffix}`;
+    const slug = `e2e-startup-logo-${suffix}`;
+    const admin = adminClient();
+    const tinyPng = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      "base64",
+    );
+
+    const { data: inserted, error } = await admin
+      .from("startups")
+      .insert({
+        name,
+        slug,
+        description: "E2E logo dirty-gate coverage.",
+        status: "draft",
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+
+    try {
+      await page.goto("/en/login?next=%2Fdashboard%2Fportfolio");
+      await page.getByLabel("Email").fill(adminEmail);
+      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/portfolio/, {
+        timeout: 20_000,
+      });
+
+      await page.goto(`/dashboard/portfolio/${inserted.id}`);
+      await expect(
+        page.getByRole("heading", { name: "Edit startup" }),
+      ).toBeVisible({ timeout: 20_000 });
+
+      const save = page.getByRole("button", { name: "Save changes" });
+      await expect(save).toBeDisabled();
+
+      await page.locator('input[type="file"]').setInputFiles({
+        name: "e2e-logo.png",
+        mimeType: "image/png",
+        buffer: tinyPng,
+      });
+      await expect(save).toBeEnabled({ timeout: 10_000 });
+
+      await save.click();
+      await expect(
+        page.locator("[data-sonner-toast]").filter({
+          hasText: "Startup updated successfully.",
+        }),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(save).toBeDisabled({ timeout: 10_000 });
+    } finally {
+      await admin.from("startups").delete().eq("id", inserted.id);
+    }
+  });
+
   test("non-admin is redirected away from portfolio", async ({ page }) => {
     test.setTimeout(60_000);
     if (!supabaseUrl || !anonKey) {

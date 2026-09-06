@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type { EventDetail, EventStartupOption } from "@/types/event";
 import {
   CMS_PUBLISH_STATUSES,
@@ -101,7 +102,7 @@ export function EventEditorForm({
     resolver: zodResolver(
       createEventSchema,
     ) as Resolver<EventFormValues, unknown, CreateEventInput>,
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: defaultsFor(event),
   });
 
@@ -159,6 +160,7 @@ export function EventEditorForm({
           router.refresh();
           return;
         }
+        form.reset(form.getValues());
         router.refresh();
       } catch {
         toast.error("The event could not be saved. Please try again.");
@@ -180,7 +182,7 @@ export function EventEditorForm({
     });
   }
 
-  const errors = form.formState.errors;
+  const { errors, isDirty } = form.formState;
   const selectedIds =
     useWatch({ control: form.control, name: "startupIds" }) ?? [];
 
@@ -541,7 +543,7 @@ export function EventEditorForm({
           <Button
             type="submit"
             className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isPending}
+            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
           >
             {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />

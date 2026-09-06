@@ -44,6 +44,8 @@ describe("CreateUserDialog", () => {
   it("reports validation errors and does not call the action", async () => {
     const user = await openDialog();
 
+    // Submit stays disabled while pristine — dirty the form with a short name.
+    await user.type(screen.getByLabelText("Full name"), "A");
     await submit(user);
 
     expect(

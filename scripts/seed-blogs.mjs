@@ -41,14 +41,14 @@ function parsePublishedAt(label) {
   return date.toISOString();
 }
 
-/** Featured hero + list cards from the former constants/blog-articles.ts */
+/** Featured hero + list cards — first category is always an ASIP Insights stream. */
 const SEED_POSTS = [
   {
     slug: "improve-design-skills",
     title: 'Improve your design skills: Develop an "eye" for design',
     summary:
       'Tools and trends change, but good design is timeless. Learn how to quickly develop an "eye" for design.',
-    categories: ["Design", "Research", "Presentation"],
+    categories: ["Founder Resources", "Design", "Research"],
     thumbnailUrl:
       "https://www.untitledui.com/marketing/blog-featured-post-01.webp",
     publishedAt: "10 April 2025",
@@ -63,7 +63,7 @@ const SEED_POSTS = [
     title: "UX review presentations",
     summary:
       "How do you create compelling presentations that wow your colleagues and impress your managers?",
-    categories: ["Design", "Research", "Presentation"],
+    categories: ["Founder Resources", "Design", "Presentation"],
     thumbnailUrl: "https://www.untitledui.com/marketing/spirals.webp",
     publishedAt: "20 Jan 2025",
     authorName: "Olivia Rhye",
@@ -77,7 +77,7 @@ const SEED_POSTS = [
     title: "Migrating to Linear 101",
     summary:
       "Linear helps streamline software projects, sprints, tasks, and bug tracking. Here's how to get started.",
-    categories: ["Product", "Tools", "SaaS"],
+    categories: ["Portfolio News", "Product", "Tools"],
     thumbnailUrl: "https://www.untitledui.com/marketing/conversation.webp",
     publishedAt: "19 Jan 2025",
     authorName: "Phoenix Baker",
@@ -91,7 +91,7 @@ const SEED_POSTS = [
     title: "Building your API stack",
     summary:
       "The rise of RESTful APIs has been met by a rise in tools for creating, testing, and managing them.",
-    categories: ["Software Engineering", "Software Development", "Tools"],
+    categories: ["Portfolio News", "Software Engineering", "Tools"],
     thumbnailUrl:
       "https://www.untitledui.com/blog/two-mobile-shapes-pattern.webp",
     publishedAt: "18 Jan 2025",
@@ -106,7 +106,7 @@ const SEED_POSTS = [
     title: "Bill Walsh leadership lessons",
     summary:
       "Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?",
-    categories: ["Product", "Leadership", "Management"],
+    categories: ["Founder Stories", "Leadership", "Management"],
     thumbnailUrl: "https://www.untitledui.com/blog/two-people.webp",
     publishedAt: "17 Jan 2025",
     authorName: "Alec Whitten",
@@ -120,7 +120,7 @@ const SEED_POSTS = [
     title: "PM mental models",
     summary:
       "Mental models are simple expressions of complex processes or relationships.",
-    categories: ["Product", "Research", "Frameworks"],
+    categories: ["Founder Resources", "Product", "Frameworks"],
     thumbnailUrl: "https://www.untitledui.com/marketing/smiling-girl-6.webp",
     publishedAt: "16 Jan 2025",
     authorName: "Demi Wilkinson",
@@ -134,7 +134,7 @@ const SEED_POSTS = [
     title: "What is wireframing?",
     summary:
       "Introduction to Wireframing and its Principles. Learn from the best in the industry.",
-    categories: ["Design", "Research"],
+    categories: ["Programme Updates", "Design", "Research"],
     thumbnailUrl: "https://www.untitledui.com/marketing/wireframing-layout.webp",
     publishedAt: "15 Jan 2025",
     authorName: "Candice Wu",
@@ -148,7 +148,7 @@ const SEED_POSTS = [
     title: "How collaboration makes us better designers",
     summary:
       "Collaboration can make our teams stronger, and our individual designs better.",
-    categories: ["Design", "Research"],
+    categories: ["Founder Stories", "Design", "Research"],
     thumbnailUrl: "https://www.untitledui.com/marketing/two-people.webp",
     publishedAt: "14 Jan 2025",
     authorName: "Natali Craig",
@@ -162,7 +162,7 @@ const SEED_POSTS = [
     title: "Our top 10 Javascript frameworks to use",
     summary:
       "JavaScript frameworks make development easy with extensive features and functionalities.",
-    categories: ["Product", "Software Development", "Tools", "SaaS"],
+    categories: ["Portfolio News", "Software Development", "Tools"],
     thumbnailUrl: "https://www.untitledui.com/marketing/workspace-5.webp",
     publishedAt: "13 Jan 2025",
     authorName: "Drew Cano",
@@ -176,7 +176,7 @@ const SEED_POSTS = [
     title: "Podcast: Creating a better CX Community",
     summary:
       "Starting a community doesn't need to be complicated, but how do you get started?",
-    categories: ["Customer Success", "Podcasts"],
+    categories: ["Partner Perspectives", "Customer Success", "Podcasts"],
     thumbnailUrl: "https://www.untitledui.com/marketing/sythesize.webp",
     publishedAt: "12 Jan 2025",
     authorName: "Orlando Diggs",
@@ -250,7 +250,16 @@ async function main() {
       .maybeSingle();
 
     if (existing) {
-      console.log("skip (slug exists)");
+      // Repair older Untitled UI seeds that used free tags as the primary category.
+      const { error: updateError } = await supabase
+        .from("blogs")
+        .update({ categories: post.categories })
+        .eq("id", existing.id);
+      if (updateError) {
+        console.log("FAILED (categories)");
+        throw updateError;
+      }
+      console.log("updated categories");
       continue;
     }
 

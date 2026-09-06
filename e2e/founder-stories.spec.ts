@@ -1,0 +1,170 @@
+import { expect, test } from "@playwright/test";
+
+import {
+  e2eAdminClient,
+  e2eSuffix,
+  hasE2ECredentials,
+  loginAsAdmin,
+} from "./helpers";
+
+test.describe.configure({ mode: "serial" });
+
+test.describe("founder stories cms", () => {
+  test.beforeEach(() => {
+    test.skip(
+      !hasE2ECredentials(),
+      "Founder stories E2E requires real Supabase credentials.",
+    );
+  });
+
+  test("admin can create, edit, and delete a founder story", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const suffix = e2eSuffix();
+    const startupName = `E2E Story Startup ${suffix}`;
+    const admin = e2eAdminClient();
+    let startupId: string | null = null;
+
+    const { data: startup, error: startupError } = await admin
+      .from("startups")
+      .insert({
+        name: startupName,
+        slug: `e2e-story-${suffix}`,
+        description: "Temporary startup for founder story E2E.",
+        status: "draft",
+      })
+      .select("id")
+      .single();
+    if (startupError) throw startupError;
+    startupId = startup.id;
+
+    try {
+      await loginAsAdmin(page, "/dashboard/founder-stories");
+      await page
+        .locator('a[href="/dashboard/founder-stories/new"]')
+        .first()
+        .click();
+      await expect(page).toHaveURL(/\/dashboard\/founder-stories\/new/, {
+        timeout: 20_000,
+      });
+
+      await page.getByLabel("Search startups").fill(startupName);
+      await page.getByRole("combobox", { name: "Startup" }).click();
+      await expect(
+        page.getByRole("option", { name: startupName }),
+      ).toBeVisible({ timeout: 20_000 });
+      await page.getByRole("option", { name: startupName }).click();
+
+      await page.getByLabel("The problem").fill("Founders lacked local distribution.");
+      await page
+        .getByLabel("What they built")
+        .fill("A marketplace connecting merchants to buyers.");
+      await page
+        .getByLabel("The ASIP connection")
+        .fill("ASIP introduced mentors and early customers.");
+      await page
+        .getByLabel("Where they are now")
+        .fill("Expanding into two new markets this year.");
+      await page.getByRole("button", { name: "Create story" }).click();
+
+      await expect(page).toHaveURL(/\/dashboard\/founder-stories\/[0-9a-f-]+/, {
+        timeout: 20_000,
+      });
+      await page
+        .getByLabel("The problem")
+        .fill("Founders lacked reliable distribution across regions.");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expect(
+        page.locator("[data-sonner-toast]").filter({
+          hasText: /Founder story updated successfully/i,
+        }),
+      ).toBeVisible({ timeout: 20_000 });
+
+      await page.getByRole("button", { name: "Delete story" }).click();
+      await page
+        .getByRole("alertdialog")
+        .getByRole("button", { name: "Delete story" })
+        .click();
+      await expect(page).toHaveURL(/\/dashboard\/founder-stories$/, {
+        timeout: 20_000,
+      });
+    } finally {
+      if (startupId) {
+        await admin.from("founder_stories").delete().eq("startup_id", startupId);
+        await admin.from("startups").delete().eq("id", startupId);
+      }
+    }
+  });
+
+  test("non-admin is redirected away from founder stories", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    const suffix = e2eSuffix();
+    const email = `stories.viewer.${suffix}@example.com`;
+    const password = "Testpass1";
+    const admin = e2eAdminClient();
+    const { data: created, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: "Stories Viewer" },
+      app_metadata: { app_role: "viewer" },
+    });
+    if (error) throw error;
+    try {
+      await page.goto("/en/login?next=%2Fdashboard%2Ffounder-stories");
+      await page.getByLabel("Email").fill(email);
+      await page.getByLabel("Password").fill(password);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
+    } finally {
+      if (created.user?.id) await admin.auth.admin.deleteUser(created.user.id);
+    }
+  });
+
+  test("published founder story is visible on the public founders page", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const suffix = e2eSuffix();
+    const startupName = `E2E Public Story ${suffix}`;
+    const admin = e2eAdminClient();
+
+    const { data: startup, error: startupError } = await admin
+      .from("startups")
+      .insert({
+        name: startupName,
+        slug: `e2e-public-story-${suffix}`,
+        description: "Public founder story fixture.",
+        status: "active",
+      })
+      .select("id")
+      .single();
+    if (startupError) throw startupError;
+
+    const { error: storyError } = await admin.from("founder_stories").insert({
+      startup_id: startup.id,
+      the_problem: "Distribution was fragmented across markets.",
+      what_they_built: "A logistics platform for SMB retailers.",
+      the_asip_connection: "ASIP opened mentor and customer intros.",
+      where_they_are_now: "Serving three countries with paid pilots.",
+      publish_status: "published",
+    });
+    if (storyError) {
+      await admin.from("startups").delete().eq("id", startup.id);
+      throw storyError;
+    }
+
+    try {
+      await page.goto(`/en/founders/e2e-public-story-${suffix}`);
+      await expect(
+        page.getByText("Distribution was fragmented across markets."),
+      ).toBeVisible({ timeout: 20_000 });
+    } finally {
+      await admin.from("founder_stories").delete().eq("startup_id", startup.id);
+      await admin.from("startups").delete().eq("id", startup.id);
+    }
+  });
+});

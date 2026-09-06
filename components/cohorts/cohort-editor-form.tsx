@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type { CohortAdminDetail, CohortLinkOption } from "@/types/cohort";
 import {
   CMS_PUBLISH_STATUSES,
@@ -162,6 +163,7 @@ export function CohortEditorForm({
 
   const form = useForm<CreateCohortInput>({
     resolver: zodResolver(createCohortSchema),
+    mode: "onChange",
     defaultValues: {
       year: cohort?.year ?? new Date().getFullYear(),
       publicLabel: cohort?.public_label ?? "",
@@ -215,7 +217,8 @@ export function CohortEditorForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = form;
 
   function onSubmit(values: CreateCohortInput) {
@@ -235,6 +238,7 @@ export function CohortEditorForm({
         router.push(`${ROUTES.cohorts}/${result.id}`);
         return;
       }
+      reset(values);
       router.refresh();
     });
   }
@@ -540,7 +544,7 @@ export function CohortEditorForm({
           <Button
             type="submit"
             className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isPending}
+            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
           >
             {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />

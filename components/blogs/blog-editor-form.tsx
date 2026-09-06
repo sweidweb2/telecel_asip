@@ -52,6 +52,7 @@ import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
 import {
@@ -160,11 +161,10 @@ export function BlogEditorForm({
     setValue,
     reset,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<CreateBlogInput>({
     resolver: zodResolver(createBlogSchema),
-    mode: "onSubmit",
-    reValidateMode: "onSubmit",
+    mode: "onChange",
     defaultValues: {
       title: blog?.title ?? "",
       slug: blog?.slug ?? "",
@@ -255,14 +255,17 @@ export function BlogEditorForm({
     const extras = categories.filter(
       (item) => item !== name && !STREAM_SET.has(item),
     );
-    setValue("categories", [name, ...extras], { shouldValidate: false });
+    setValue("categories", [name, ...extras], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   }
 
   function removeCategory(name: string) {
     setValue(
       "categories",
       categories.filter((item) => item !== name),
-      { shouldValidate: false },
+      { shouldDirty: true, shouldValidate: true },
     );
   }
 
@@ -331,6 +334,7 @@ export function BlogEditorForm({
         return;
       }
       toast.success(result.message);
+      reset(values);
       router.refresh();
     });
   }
@@ -1057,6 +1061,13 @@ export function BlogEditorForm({
               </CardAction>
             </CardHeader>
             <CardContent className="grid gap-3">
+              {!primaryStream && categories.length > 0 ? (
+                <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                  This post’s first category is not an ASIP stream (often from
+                  older seed data). Click one of the five streams below to fix
+                  it before saving.
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 {RECOMMENDED_BLOG_CATEGORIES.map((name) => {
                   const active = primaryStream === name;
@@ -1089,7 +1100,8 @@ export function BlogEditorForm({
                     return;
                   }
                   setValue("categories", [...categories, value], {
-                    shouldValidate: false,
+                    shouldDirty: true,
+                    shouldValidate: true,
                   });
                   event.currentTarget.value = "";
                 }}
@@ -1143,7 +1155,12 @@ export function BlogEditorForm({
         <Button
           type="submit"
           className="min-h-11 w-full sm:w-auto sm:ml-auto"
-          disabled={isPending}
+          disabled={isAdminFormSubmitDisabled({
+            isPending,
+            isDirty,
+            errors,
+            hasExternalChanges: Boolean(pendingCover || pendingAvatar),
+          })}
         >
           {isPending ? (
             <>

@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   applicationSchema,
   applicationSchemaFor,
+  deleteApplicationSchema,
   parseApplicationListQuery,
+  updateApplicationSchema,
 } from "@/validations/application";
 
 const validInput = {
@@ -87,6 +89,23 @@ describe("applicationSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toMatch(/caractères|accepter/i);
     }
+  });
+});
+
+describe("updateApplicationSchema / deleteApplicationSchema", () => {
+  const id = "11111111-1111-4111-8111-111111111111";
+
+  it("accepts an admin update without consent or turnstile", () => {
+    const { consent: _c, turnstileToken: _t, ...fields } = validInput;
+    const result = updateApplicationSchema.safeParse({ id, ...fields });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a delete id", () => {
+    expect(deleteApplicationSchema.safeParse({ id }).success).toBe(true);
+    expect(deleteApplicationSchema.safeParse({ id: "bad" }).success).toBe(
+      false,
+    );
   });
 });
 

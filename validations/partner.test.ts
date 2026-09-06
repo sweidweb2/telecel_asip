@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createPartnerSchema,
   parsePartnerListQuery,
+  updatePartnerActiveSchema,
+  updatePartnerLogoPermissionSchema,
   updatePartnerSchema,
   PARTNER_NAME_MAX,
   PARTNER_PAGE_SIZE,
@@ -94,6 +96,42 @@ describe("updatePartnerSchema", () => {
         id: "00000000-0000-4000-8000-000000000000",
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("updatePartnerActiveSchema", () => {
+  it("accepts a valid active-status payload", () => {
+    const result = updatePartnerActiveSchema.safeParse({
+      id: "00000000-0000-4000-8000-000000000001",
+      isActive: false,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid partner id", () => {
+    const result = updatePartnerActiveSchema.safeParse({
+      id: "not-a-uuid",
+      isActive: true,
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("updatePartnerLogoPermissionSchema", () => {
+  it("accepts a valid logo-permission payload", () => {
+    const result = updatePartnerLogoPermissionSchema.safeParse({
+      id: "00000000-0000-4000-8000-000000000001",
+      logoPermission: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid partner id", () => {
+    const result = updatePartnerLogoPermissionSchema.safeParse({
+      id: "not-a-uuid",
+      logoPermission: false,
+    });
+    expect(result.success).toBe(false);
   });
 });
 

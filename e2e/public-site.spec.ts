@@ -109,3 +109,12 @@ test("navbar primary CTA points at register-interest or apply", async ({
   const href = await cta.getAttribute("href");
   expect(href === "/en/apply" || href === "/en/register-interest").toBe(true);
 });
+
+test("/lab renders marketing chrome without entering sitemap pages", async ({
+  page,
+}) => {
+  await page.goto("/en/lab");
+  await expect(page.locator("header").first()).toBeVisible();
+  await expect(page.locator("h1").first()).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+});

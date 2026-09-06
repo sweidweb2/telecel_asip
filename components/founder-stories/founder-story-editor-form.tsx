@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
   FounderStoryDetail,
   StartupStoryOption,
@@ -157,11 +158,11 @@ export function FounderStoryEditorForm({
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useForm<CreateFounderStoryInput>({
     resolver: zodResolver(createFounderStorySchema),
-    mode: "onSubmit",
-    reValidateMode: "onSubmit",
+    mode: "onChange",
     defaultValues: defaultsFor(story),
   });
 
@@ -191,6 +192,7 @@ export function FounderStoryEditorForm({
         return;
       }
       toast.success(result.message);
+      reset(values);
       router.refresh();
     });
   }
@@ -597,7 +599,10 @@ export function FounderStoryEditorForm({
             <Button
               type="submit"
               className="min-h-11 w-full sm:w-auto"
-              disabled={isPending || (mode === "create" && startups.length === 0)}
+              disabled={
+                isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
+                (mode === "create" && startups.length === 0)
+              }
             >
               {isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />

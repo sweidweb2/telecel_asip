@@ -1,0 +1,88 @@
+import { expect, test } from "@playwright/test";
+
+import {
+  e2eAdminClient,
+  e2eSuffix,
+  hasE2ECredentials,
+  loginAsAdmin,
+} from "./helpers";
+
+test.describe.configure({ mode: "serial" });
+
+test.describe("backup export API", () => {
+  test.beforeEach(() => {
+    test.skip(
+      !hasE2ECredentials(),
+      "Backup E2E requires real Supabase credentials.",
+    );
+  });
+
+  test("admin can export an allowed table", async ({ page, request }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/dashboard/backup");
+    const cookies = await page.context().cookies();
+    const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+
+    const response = await request.get("/api/admin/export/applications", {
+      headers: { cookie: cookieHeader },
+    });
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toMatch(/text\/csv/);
+    const body = await response.text();
+    expect(body).toContain("email");
+  });
+
+  test("unknown export table returns 404 for admins", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/dashboard/backup");
+    const cookies = await page.context().cookies();
+    const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+
+    const response = await request.get("/api/admin/export/not_a_table", {
+      headers: { cookie: cookieHeader },
+    });
+    expect(response.status()).toBe(404);
+  });
+
+  test("viewer receives 403", async ({ browser }) => {
+    test.setTimeout(60_000);
+    const suffix = e2eSuffix();
+    const email = `backup.viewer.${suffix}@example.com`;
+    const password = "Testpass1";
+    const admin = e2eAdminClient();
+    const { data: created, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: "Backup Viewer" },
+      app_metadata: { app_role: "viewer" },
+    });
+    if (error) throw error;
+
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      await page.goto("/en/login");
+      await page.getByLabel("Email").fill(email);
+      await page.getByLabel("Password").fill(password);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
+
+      const cookies = await context.cookies();
+      const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+      const response = await context.request.get(
+        "/api/admin/export/applications",
+        { headers: { cookie: cookieHeader } },
+      );
+      expect(response.status()).toBe(403);
+    } finally {
+      await context.close();
+      if (created.user?.id) {
+        await admin.auth.admin.deleteUser(created.user.id);
+      }
+    }
+  });
+});

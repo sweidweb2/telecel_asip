@@ -41,6 +41,7 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatAdminDate } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/types/profile";
 import {
@@ -85,6 +86,7 @@ export function CreateUserDialog() {
   const [isPending, startTransition] = useTransition();
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
+    mode: "onChange",
     defaultValues: {
       fullName: "",
       email: "",
@@ -92,6 +94,7 @@ export function CreateUserDialog() {
       role: USER_FORM_ROLE,
     },
   });
+  const { errors, isDirty } = form.formState;
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -217,7 +220,11 @@ export function CreateUserDialog() {
           >
             Cancel
           </Button>
-          <Button type="submit" form={formId} disabled={isPending}>
+          <Button
+            type="submit"
+            form={formId}
+            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
+          >
             {isPending ? (
               <Loader2Icon className="animate-spin" />
             ) : (
@@ -260,8 +267,10 @@ export function UserRowActions({
   };
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
+    mode: "onChange",
     defaultValues: editDefaults,
   });
+  const { errors, isDirty } = form.formState;
 
   function handleEditOpen(next: boolean) {
     if (isEditControlled) {
@@ -441,7 +450,15 @@ export function UserRowActions({
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (

@@ -45,6 +45,7 @@ import {
 import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -114,10 +115,11 @@ export function EvidenceEditorForm({
 
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
     resolver: zodResolver(createEvidenceRecordSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: defaultsFor(record, initialDefaultOwnerId),
   });
   const ownerId = useWatch({ control: form.control, name: "ownerId" });
+  const { errors, isDirty } = form.formState;
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -190,6 +192,7 @@ export function EvidenceEditorForm({
         router.push(evidenceDetailPath(result.id));
         return;
       }
+      form.reset(form.getValues());
       router.refresh();
     });
   }
@@ -527,7 +530,7 @@ export function EvidenceEditorForm({
             // Keep Save enabled once an owner is chosen — option reloads must
             // not block edit saves (Playwright otherwise waits until test timeout).
             disabled={
-              isPending ||
+              isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
               !ownerId ||
               (optionsLoading && owners.length === 0)
             }

@@ -12,6 +12,10 @@ import {
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
 import { PartnerRowActions } from "@/components/partners/partner-row-actions";
+import {
+  PartnerActiveToggle,
+  PartnerLogoPermissionToggle,
+} from "@/components/partners/partner-flag-toggles";
 import { PartnersFilters } from "@/components/partners/partners-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -135,17 +139,23 @@ export function PartnersTable({
               </span>
             </Badge>
           </TableCell>
-          <TableCell className="whitespace-nowrap">
-            <Badge variant={partner.is_active ? "default" : "outline"}>
-              {partner.is_active ? "Active" : "Historical"}
-            </Badge>
+          <TableCell
+            className="whitespace-nowrap"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <PartnerActiveToggle
+              partnerId={partner.id}
+              isActive={partner.is_active}
+            />
           </TableCell>
-          <TableCell className="whitespace-nowrap">
-            <Badge
-              variant={partner.logo_permission ? "default" : "destructive"}
-            >
-              {partner.logo_permission ? "Granted" : "Not granted"}
-            </Badge>
+          <TableCell
+            className="whitespace-nowrap"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <PartnerLogoPermissionToggle
+              partnerId={partner.id}
+              logoPermission={partner.logo_permission}
+            />
           </TableCell>
           <TableCell
             className="pr-4 whitespace-nowrap"

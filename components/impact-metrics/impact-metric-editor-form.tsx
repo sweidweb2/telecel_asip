@@ -43,6 +43,7 @@ import {
 import { IMPACT_METRIC_EDITOR_HELP } from "@/constants/impact-metric-editor-help";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
@@ -108,7 +109,7 @@ export function ImpactMetricEditorForm({
     CreateImpactMetricInput
   >({
     resolver: zodResolver(createImpactMetricSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: defaultsFor(metric),
   });
 
@@ -151,7 +152,7 @@ export function ImpactMetricEditorForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = form;
 
   function onSubmit(values: CreateImpactMetricInput) {
@@ -171,6 +172,7 @@ export function ImpactMetricEditorForm({
         router.push(impactMetricDetailPath(result.id));
         return;
       }
+      form.reset(form.getValues());
       router.refresh();
     });
   }
@@ -503,7 +505,9 @@ export function ImpactMetricEditorForm({
             type="submit"
             className="min-h-11 w-full sm:ml-auto sm:w-auto"
             disabled={
-              isPending || optionsLoading || evidenceOptions.length === 0
+              isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
+              optionsLoading ||
+              evidenceOptions.length === 0
             }
           >
             {isPending ? (

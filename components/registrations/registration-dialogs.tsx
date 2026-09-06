@@ -37,6 +37,7 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { formatAdminDateTime } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { InterestRegistration } from "@/types/interest-registration";
 import {
@@ -133,8 +134,10 @@ export function RegistrationRowActions({
   const editDefaults = toEditDefaults(registration);
   const form = useForm<UpdateInterestRegistrationInput>({
     resolver: zodResolver(updateInterestRegistrationSchema),
+    mode: "onChange",
     defaultValues: editDefaults,
   });
+  const { errors, isDirty } = form.formState;
 
   function handleEditOpen(next: boolean) {
     setEditOpen(next);
@@ -545,7 +548,15 @@ export function RegistrationRowActions({
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (

@@ -34,6 +34,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DASHBOARD_NAV_GROUPS,
@@ -63,6 +64,11 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
+
+  function closeMobileSidebar() {
+    setOpenMobile(false);
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -72,7 +78,9 @@ export function AppSidebar() {
             <SidebarMenuButton
               size="lg"
               tooltip="Telecel"
-              render={<Link href={publicPath("en")} />}
+              render={
+                <Link href={publicPath("en")} onClick={closeMobileSidebar} />
+              }
             >
               <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
                 T
@@ -96,7 +104,9 @@ export function AppSidebar() {
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
-                        render={<Link href={item.href} />}
+                        render={
+                          <Link href={item.href} onClick={closeMobileSidebar} />
+                        }
                         isActive={isDashboardNavActive(pathname, item.href)}
                         tooltip={item.title}
                       >

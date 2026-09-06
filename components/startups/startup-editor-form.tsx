@@ -50,6 +50,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/constants/routes";
 import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { StartupWithDetails } from "@/types/startup";
 import {
@@ -191,7 +192,7 @@ export function StartupEditorForm({
   const form = useForm<StartupFormValues>({
     resolver: zodResolver(createStartupSchema) as never,
     defaultValues: defaultsFromStartup(startup),
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const status = useWatch({ control: form.control, name: "status" });
@@ -276,6 +277,8 @@ export function StartupEditorForm({
         const upload = await uploadStartupLogo(startup.id, formData);
         if (upload.status === "error") {
           toast.error(upload.message, { id: uploadToast });
+          // Fields already saved — clear dirty so only pending logo keeps Save open.
+          form.reset(form.getValues());
           return;
         }
         toast.dismiss(uploadToast);
@@ -284,6 +287,7 @@ export function StartupEditorForm({
         setPendingLogoPreview(null);
       }
       toast.success(result.message);
+      form.reset(form.getValues());
       router.refresh();
     });
   }
@@ -317,7 +321,7 @@ export function StartupEditorForm({
     });
   }
 
-  const errors = form.formState.errors;
+  const { errors, isDirty } = form.formState;
 
   return (
     <form
@@ -953,7 +957,12 @@ export function StartupEditorForm({
         <Button
           type="submit"
           className="min-h-11 w-full sm:ml-auto sm:w-auto"
-          disabled={isPending}
+          disabled={isAdminFormSubmitDisabled({
+            isPending,
+            isDirty,
+            errors,
+            hasExternalChanges: Boolean(pendingLogo),
+          })}
         >
           {isPending ? (
             <Loader2Icon className="size-4 animate-spin" />

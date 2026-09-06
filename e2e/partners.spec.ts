@@ -86,6 +86,9 @@ test.describe("partners cms", () => {
           hasText: "Partner updated successfully.",
         }),
       ).toBeVisible({ timeout: 30_000 });
+      await expect(
+        page.getByRole("button", { name: "Save changes" }),
+      ).toBeDisabled({ timeout: 10_000 });
 
       await page.getByRole("button", { name: "Delete" }).click();
       await page
@@ -97,6 +100,67 @@ test.describe("partners cms", () => {
       });
     } finally {
       await admin.from("partners").delete().ilike("name", `E2E Partner ${suffix}%`);
+    }
+  });
+
+  test("picking a logo on the detail page enables Save without other edits", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const suffix = e2eSuffix();
+    const name = `E2E Partner Logo ${suffix}`;
+    const admin = adminClient();
+    // Minimal 1×1 PNG — enough to unlock Save via pendingFile (upload may still process).
+    const tinyPng = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      "base64",
+    );
+
+    const { data: inserted, error } = await admin
+      .from("partners")
+      .insert({
+        name,
+        type: "mentors",
+        is_active: true,
+        logo_permission: true,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+
+    try {
+      await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
+      await page.getByLabel("Email").fill(adminEmail);
+      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/partners/, {
+        timeout: 20_000,
+      });
+
+      await page.goto(`/dashboard/partners/${inserted.id}`);
+      await expect(
+        page.getByRole("heading", { name: "Edit partner" }),
+      ).toBeVisible({ timeout: 20_000 });
+
+      const save = page.getByRole("button", { name: "Save changes" });
+      await expect(save).toBeDisabled();
+
+      await page.locator('input[type="file"]').setInputFiles({
+        name: "e2e-logo.png",
+        mimeType: "image/png",
+        buffer: tinyPng,
+      });
+      await expect(save).toBeEnabled({ timeout: 10_000 });
+
+      await save.click();
+      await expect(
+        page.locator("[data-sonner-toast]").filter({
+          hasText: /Partner updated successfully|logo could not be uploaded/i,
+        }),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(save).toBeDisabled({ timeout: 10_000 });
+    } finally {
+      await admin.from("partners").delete().eq("id", inserted.id);
     }
   });
 

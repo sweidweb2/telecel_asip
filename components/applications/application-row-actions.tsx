@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type { Application } from "@/types/application";
 import {
   APPLICATION_COMPANY_MAX,
@@ -124,8 +125,10 @@ export function ApplicationRowActions({
 
   const form = useForm<UpdateApplicationInput>({
     resolver: zodResolver(updateApplicationSchema),
+    mode: "onChange",
     defaultValues: toEditDefaults(application),
   });
+  const { errors, isDirty } = form.formState;
 
   function handleViewOpenChange(open: boolean) {
     onViewOpenChange?.(open);
@@ -599,7 +602,15 @@ export function ApplicationRowActions({
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (

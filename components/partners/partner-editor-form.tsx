@@ -59,6 +59,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PARTNER_EDITOR_HELP } from "@/constants/partner-editor-help";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type { PartnerListItem } from "@/types/partner";
 import {
   createPartnerSchema,
@@ -113,7 +114,7 @@ export function PartnerEditorForm({
 
   const form = useForm<PartnerFormValues, unknown, CreatePartnerInput>({
     resolver: zodResolver(createPartnerSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: defaultsFor(partner),
   });
 
@@ -196,6 +197,9 @@ export function PartnerEditorForm({
 
         if (mode === "create" && result.id) {
           router.push(partnerDetailPath(result.id));
+        } else if (mode === "edit") {
+          // Mark current field values as the new baseline so Save disables again.
+          form.reset(form.getValues());
         }
         router.refresh();
       } catch {
@@ -223,7 +227,7 @@ export function PartnerEditorForm({
   }
 
   const displayLogo = previewUrl ?? storedLogoUrl;
-  const errors = form.formState.errors;
+  const { errors, isDirty } = form.formState;
 
   return (
     <>
@@ -236,355 +240,364 @@ export function PartnerEditorForm({
         id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className={`grid max-w-2xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+        className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       >
-        <AdminFormSection
-          title={PARTNER_EDITOR_HELP.identity.title}
-          description={PARTNER_EDITOR_HELP.identity.intro}
-          help={PARTNER_EDITOR_HELP.identity}
-          contentClassName="grid gap-4"
-        >
-          <div className={ADMIN_FORM_PAIR_ROW}>
-            <Field
-              className={ADMIN_FORM_PAIR_FIELD}
-              data-invalid={Boolean(errors.name)}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start lg:gap-8">
+          <div className="grid min-w-0 gap-6">
+            <AdminFormSection
+              title={PARTNER_EDITOR_HELP.identity.title}
+              description={PARTNER_EDITOR_HELP.identity.intro}
+              help={PARTNER_EDITOR_HELP.identity}
+              contentClassName="grid gap-4"
             >
-              <AdminFormFieldLabel
-                htmlFor={`${formId}-name`}
-                hint={`Required · 2–${PARTNER_NAME_MAX} chars`}
-              >
-                Name
-              </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-name`}
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                required
-                maxLength={PARTNER_NAME_MAX}
-                placeholder="Person or partner name"
-                aria-invalid={Boolean(errors.name)}
-                {...form.register("name")}
-              />
-              {errors.name ? (
-                <FieldError>{errors.name.message}</FieldError>
-              ) : null}
-            </Field>
+              <div className={ADMIN_FORM_PAIR_ROW}>
+                <Field
+                  className={ADMIN_FORM_PAIR_FIELD}
+                  data-invalid={Boolean(errors.name)}
+                >
+                  <AdminFormFieldLabel
+                    htmlFor={`${formId}-name`}
+                    hint={`Required · 2–${PARTNER_NAME_MAX} chars`}
+                  >
+                    Name
+                  </AdminFormFieldLabel>
+                  <Input
+                    id={`${formId}-name`}
+                    className="min-h-11 bg-white dark:bg-card"
+                    disabled={isPending}
+                    required
+                    maxLength={PARTNER_NAME_MAX}
+                    placeholder="Person or partner name"
+                    aria-invalid={Boolean(errors.name)}
+                    {...form.register("name")}
+                  />
+                  {errors.name ? (
+                    <FieldError>{errors.name.message}</FieldError>
+                  ) : null}
+                </Field>
 
-            <Field
-              className={ADMIN_FORM_PAIR_FIELD}
-              data-invalid={Boolean(errors.org)}
+                <Field
+                  className={ADMIN_FORM_PAIR_FIELD}
+                  data-invalid={Boolean(errors.org)}
+                >
+                  <AdminFormFieldLabel
+                    htmlFor={`${formId}-org`}
+                    hint={`Optional · 2–${PARTNER_ORG_MAX} chars`}
+                  >
+                    Organisation
+                  </AdminFormFieldLabel>
+                  <Input
+                    id={`${formId}-org`}
+                    className="min-h-11 bg-white dark:bg-card"
+                    disabled={isPending}
+                    maxLength={PARTNER_ORG_MAX}
+                    placeholder="Leave empty for solo mentors"
+                    aria-invalid={Boolean(errors.org)}
+                    {...form.register("org")}
+                  />
+                  {errors.org ? (
+                    <FieldError>{errors.org.message}</FieldError>
+                  ) : null}
+                </Field>
+              </div>
+
+              <div className={ADMIN_FORM_PAIR_ROW}>
+                <Field
+                  className={ADMIN_FORM_PAIR_FIELD}
+                  data-invalid={Boolean(errors.type)}
+                >
+                  <AdminFormFieldLabel
+                    htmlFor={`${formId}-type`}
+                    hint="Required"
+                  >
+                    Type
+                  </AdminFormFieldLabel>
+                  <Controller
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          if (value) field.onChange(value);
+                        }}
+                        disabled={isPending}
+                      >
+                        <SelectTrigger
+                          id={`${formId}-type`}
+                          className="min-h-11 w-full"
+                        >
+                          <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PARTNER_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {PARTNER_TYPE_LABELS[type]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.type ? (
+                    <FieldError>{errors.type.message}</FieldError>
+                  ) : null}
+                </Field>
+
+                <Field
+                  className={ADMIN_FORM_PAIR_FIELD}
+                  data-invalid={Boolean(errors.sortOrder)}
+                >
+                  <AdminFormFieldLabel
+                    htmlFor={`${formId}-sort`}
+                    hint={`Optional · 0–${PARTNER_SORT_ORDER_MAX} · lowest first`}
+                  >
+                    Display order
+                  </AdminFormFieldLabel>
+                  <Input
+                    id={`${formId}-sort`}
+                    type="number"
+                    min={0}
+                    max={PARTNER_SORT_ORDER_MAX}
+                    step={1}
+                    className="min-h-11 bg-white dark:bg-card"
+                    disabled={isPending}
+                    aria-invalid={Boolean(errors.sortOrder)}
+                    {...form.register("sortOrder")}
+                  />
+                  {errors.sortOrder ? (
+                    <FieldError>{errors.sortOrder.message}</FieldError>
+                  ) : null}
+                </Field>
+              </div>
+            </AdminFormSection>
+
+            <AdminFormSection
+              title={PARTNER_EDITOR_HELP.profile.title}
+              description={PARTNER_EDITOR_HELP.profile.intro}
+              help={PARTNER_EDITOR_HELP.profile}
+              contentClassName="grid gap-4"
             >
-              <AdminFormFieldLabel
-                htmlFor={`${formId}-org`}
-                hint={`Optional · 2–${PARTNER_ORG_MAX} chars`}
-              >
-                Organisation
-              </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-org`}
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                maxLength={PARTNER_ORG_MAX}
-                placeholder="Leave empty for solo mentors"
-                aria-invalid={Boolean(errors.org)}
-                {...form.register("org")}
-              />
-              {errors.org ? (
-                <FieldError>{errors.org.message}</FieldError>
-              ) : null}
-            </Field>
+              <Field data-invalid={Boolean(errors.link)}>
+                <AdminFormFieldLabel
+                  htmlFor={`${formId}-link`}
+                  hint={`Optional · http(s):// · max ${PARTNER_LINK_MAX} chars`}
+                >
+                  Link
+                </AdminFormFieldLabel>
+                <Input
+                  id={`${formId}-link`}
+                  type="url"
+                  inputMode="url"
+                  className="min-h-11 bg-white dark:bg-card"
+                  disabled={isPending}
+                  maxLength={PARTNER_LINK_MAX}
+                  placeholder="https://example.com"
+                  aria-invalid={Boolean(errors.link)}
+                  {...form.register("link")}
+                />
+                {errors.link ? (
+                  <FieldError>{errors.link.message}</FieldError>
+                ) : null}
+              </Field>
+
+              <Field data-invalid={Boolean(errors.contribution)}>
+                <AdminFormFieldLabel
+                  htmlFor={`${formId}-contribution`}
+                  hint={`Optional · max ${PARTNER_CONTRIBUTION_MAX} chars`}
+                >
+                  Role / contribution
+                </AdminFormFieldLabel>
+                <Textarea
+                  id={`${formId}-contribution`}
+                  rows={4}
+                  disabled={isPending}
+                  maxLength={PARTNER_CONTRIBUTION_MAX}
+                  placeholder="What this partner actually does with founders."
+                  aria-invalid={Boolean(errors.contribution)}
+                  className="bg-white dark:bg-card"
+                  {...form.register("contribution")}
+                />
+                {errors.contribution ? (
+                  <FieldError>{errors.contribution.message}</FieldError>
+                ) : null}
+              </Field>
+            </AdminFormSection>
           </div>
 
-          <div className={ADMIN_FORM_PAIR_ROW}>
-            <Field
-              className={ADMIN_FORM_PAIR_FIELD}
-              data-invalid={Boolean(errors.type)}
+          <aside className="grid gap-6 lg:sticky lg:top-4">
+            <AdminFormSection
+              title={PARTNER_EDITOR_HELP.visibility.title}
+              description={PARTNER_EDITOR_HELP.visibility.intro}
+              help={PARTNER_EDITOR_HELP.visibility}
+              contentClassName="grid gap-4"
             >
-              <AdminFormFieldLabel htmlFor={`${formId}-type`} hint="Required">
-                Type
-              </AdminFormFieldLabel>
               <Controller
                 control={form.control}
-                name="type"
+                name="isActive"
                 render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      if (value) field.onChange(value);
-                    }}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger
-                      id={`${formId}-type`}
-                      className="min-h-11 w-full"
-                    >
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PARTNER_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {PARTNER_TYPE_LABELS[type]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <Label htmlFor={`${formId}-active`}>Active partner</Label>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Turn off to move this partner to the historical section.
+                      </p>
+                    </div>
+                    <Switch
+                      id={`${formId}-active`}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  </div>
                 )}
               />
-              {errors.type ? (
-                <FieldError>{errors.type.message}</FieldError>
-              ) : null}
-            </Field>
 
-            <Field
-              className={ADMIN_FORM_PAIR_FIELD}
-              data-invalid={Boolean(errors.sortOrder)}
-            >
-              <AdminFormFieldLabel
-                htmlFor={`${formId}-sort`}
-                hint={`Optional · 0–${PARTNER_SORT_ORDER_MAX} · lowest first`}
-              >
-                Display order
-              </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-sort`}
-                type="number"
-                min={0}
-                max={PARTNER_SORT_ORDER_MAX}
-                step={1}
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={Boolean(errors.sortOrder)}
-                {...form.register("sortOrder")}
+              <Controller
+                control={form.control}
+                name="logoPermission"
+                render={({ field }) => (
+                  <div className="flex items-center justify-between gap-4 border-t pt-4">
+                    <div className="min-w-0">
+                      <Label htmlFor={`${formId}-permission`}>
+                        Logo publication permission
+                      </Label>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Only granted logos are rendered on the public site.
+                      </p>
+                    </div>
+                    <Switch
+                      id={`${formId}-permission`}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  </div>
+                )}
               />
-              {errors.sortOrder ? (
-                <FieldError>{errors.sortOrder.message}</FieldError>
-              ) : null}
-            </Field>
-          </div>
-        </AdminFormSection>
+            </AdminFormSection>
 
-        <AdminFormSection
-          title={PARTNER_EDITOR_HELP.profile.title}
-          description={PARTNER_EDITOR_HELP.profile.intro}
-          help={PARTNER_EDITOR_HELP.profile}
-          contentClassName="grid gap-4"
-        >
-          <Field data-invalid={Boolean(errors.link)}>
-            <AdminFormFieldLabel
-              htmlFor={`${formId}-link`}
-              hint={`Optional · http(s):// · max ${PARTNER_LINK_MAX} chars`}
+            <AdminFormSection
+              title={PARTNER_EDITOR_HELP.logo.title}
+              description={PARTNER_EDITOR_HELP.logo.intro}
+              help={PARTNER_EDITOR_HELP.logo}
             >
-              Link
-            </AdminFormFieldLabel>
-            <Input
-              id={`${formId}-link`}
-              type="url"
-              inputMode="url"
-              className="min-h-11 bg-white dark:bg-card"
-              disabled={isPending}
-              maxLength={PARTNER_LINK_MAX}
-              placeholder="https://example.com"
-              aria-invalid={Boolean(errors.link)}
-              {...form.register("link")}
-            />
-            {errors.link ? (
-              <FieldError>{errors.link.message}</FieldError>
-            ) : null}
-          </Field>
-
-          <Field data-invalid={Boolean(errors.contribution)}>
-            <AdminFormFieldLabel
-              htmlFor={`${formId}-contribution`}
-              hint={`Optional · max ${PARTNER_CONTRIBUTION_MAX} chars`}
-            >
-              Role / contribution
-            </AdminFormFieldLabel>
-            <Textarea
-              id={`${formId}-contribution`}
-              rows={4}
-              disabled={isPending}
-              maxLength={PARTNER_CONTRIBUTION_MAX}
-              placeholder="What this partner actually does with founders."
-              aria-invalid={Boolean(errors.contribution)}
-              className="bg-white dark:bg-card"
-              {...form.register("contribution")}
-            />
-            {errors.contribution ? (
-              <FieldError>{errors.contribution.message}</FieldError>
-            ) : null}
-          </Field>
-        </AdminFormSection>
-
-        <AdminFormSection
-          title={PARTNER_EDITOR_HELP.visibility.title}
-          description={PARTNER_EDITOR_HELP.visibility.intro}
-          help={PARTNER_EDITOR_HELP.visibility}
-          contentClassName="grid gap-4"
-        >
-          <Controller
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <Label htmlFor={`${formId}-active`}>Active partner</Label>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Turn off to move this partner to the historical section.
-                  </p>
+              <Field>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                  <Label>Logo</Label>
+                  <span className="text-[0.6875rem] leading-4 text-muted-foreground">
+                    Optional · JPEG/PNG/WebP/GIF · max 2 MB
+                  </span>
                 </div>
-                <Switch
-                  id={`${formId}-active`}
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={isPending}
-                />
-              </div>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="logoPermission"
-            render={({ field }) => (
-              <div className="flex items-center justify-between gap-4 border-t pt-4">
-                <div className="min-w-0">
-                  <Label htmlFor={`${formId}-permission`}>
-                    Logo publication permission
-                  </Label>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Only granted logos are rendered on the public site.
-                  </p>
-                </div>
-                <Switch
-                  id={`${formId}-permission`}
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={isPending}
-                />
-              </div>
-            )}
-          />
-        </AdminFormSection>
-
-        <AdminFormSection
-          title={PARTNER_EDITOR_HELP.logo.title}
-          description={PARTNER_EDITOR_HELP.logo.intro}
-          help={PARTNER_EDITOR_HELP.logo}
-        >
-          <Field>
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-              <Label>Logo</Label>
-              <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-                Optional · JPEG/PNG/WebP/GIF · max 2 MB
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative size-20 shrink-0">
-                <div className="flex size-full items-center justify-center overflow-hidden rounded-lg border bg-muted/40">
-                  {displayLogo ? (
-                    previewUrl ? (
-                      // Local blob preview — no optimization possible.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={previewUrl}
-                        alt="Selected logo preview"
-                        className="size-full object-contain"
+                <div className="flex items-center gap-4">
+                  <div className="relative size-20 shrink-0">
+                    <div className="flex size-full items-center justify-center overflow-hidden rounded-lg border bg-muted/40">
+                      {displayLogo ? (
+                        previewUrl ? (
+                          // Local blob preview — no optimization possible.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={previewUrl}
+                            alt="Selected logo preview"
+                            className="size-full object-contain"
+                          />
+                        ) : (
+                          <Image
+                            src={displayLogo}
+                            alt={`${partner?.name ?? "Partner"} logo`}
+                            width={80}
+                            height={80}
+                            sizes="80px"
+                            className="size-full object-contain"
+                          />
+                        )
+                      ) : (
+                        <ImageIcon className="size-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    {pendingFile ? (
+                      <AdminClearIconButton
+                        label="Clear logo selection"
+                        disabled={isPending}
+                        className="-top-1 -right-1"
+                        onClick={() => replacePendingLogo(null)}
                       />
-                    ) : (
-                      <Image
-                        src={displayLogo}
-                        alt={`${partner?.name ?? "Partner"} logo`}
-                        width={80}
-                        height={80}
-                        sizes="80px"
-                        className="size-full object-contain"
+                    ) : storedLogoUrl ? (
+                      <AdminClearIconButton
+                        label="Remove logo"
+                        disabled={isPending}
+                        className="-top-1 -right-1"
+                        onClick={() => setRemoveOpen(true)}
                       />
-                    )
-                  ) : (
-                    <ImageIcon className="size-6 text-muted-foreground" />
-                  )}
+                    ) : null}
+                  </div>
+
+                  <div className="flex min-w-0 flex-col gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={LOGO_ACCEPT}
+                      className="sr-only"
+                      onChange={handleFileChange}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="min-h-11 w-fit sm:min-h-8"
+                      disabled={isPending}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <UploadIcon />
+                      {displayLogo ? "Replace" : "Upload"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      JPEG, PNG, WebP, or GIF under 2 MB. Resized and converted
+                      to WebP on upload.
+                    </p>
+                  </div>
                 </div>
-                {pendingFile ? (
-                  <AdminClearIconButton
-                    label="Clear logo selection"
-                    disabled={isPending}
-                    className="-top-1 -right-1"
-                    onClick={() => replacePendingLogo(null)}
-                  />
-                ) : storedLogoUrl ? (
-                  <AdminClearIconButton
-                    label="Remove logo"
-                    disabled={isPending}
-                    className="-top-1 -right-1"
-                    onClick={() => setRemoveOpen(true)}
-                  />
+
+                <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader className="text-left">
+                      <AlertDialogTitle>Remove logo?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This deletes the image from Storage immediately. This
+                        cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isPending}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <Button
+                        variant="destructive"
+                        onClick={handleRemoveStoredLogo}
+                        disabled={isPending}
+                      >
+                        {isPending ? (
+                          <Loader2Icon className="animate-spin" />
+                        ) : (
+                          <XIcon />
+                        )}
+                        {isPending ? "Removing…" : "Remove logo"}
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {displayLogo && !logoPermission ? (
+                  <p className="flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
+                    <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
+                    This logo stays hidden on the public site until publication
+                    permission is granted.
+                  </p>
                 ) : null}
-              </div>
-
-              <div className="flex min-w-0 flex-col gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={LOGO_ACCEPT}
-                  className="sr-only"
-                  onChange={handleFileChange}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-h-11 w-fit sm:min-h-8"
-                  disabled={isPending}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <UploadIcon />
-                  {displayLogo ? "Replace" : "Upload"}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  JPEG, PNG, WebP, or GIF under 2 MB. Resized and converted to
-                  WebP on upload.
-                </p>
-              </div>
-            </div>
-
-            <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader className="text-left">
-                  <AlertDialogTitle>Remove logo?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This deletes the image from Storage immediately. This
-                    cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isPending}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <Button
-                    variant="destructive"
-                    onClick={handleRemoveStoredLogo}
-                    disabled={isPending}
-                  >
-                    {isPending ? (
-                      <Loader2Icon className="animate-spin" />
-                    ) : (
-                      <XIcon />
-                    )}
-                    {isPending ? "Removing…" : "Remove logo"}
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            {displayLogo && !logoPermission ? (
-              <p className="flex items-start gap-2 rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
-                <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0" />
-                This logo stays hidden on the public site until publication
-                permission is granted.
-              </p>
-            ) : null}
-          </Field>
-        </AdminFormSection>
+              </Field>
+            </AdminFormSection>
+          </aside>
+        </div>
 
         <AdminEditorActionsBar>
           {mode === "edit" ? (
@@ -604,7 +617,12 @@ export function PartnerEditorForm({
           <Button
             type="submit"
             className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isPending}
+            disabled={isAdminFormSubmitDisabled({
+              isPending,
+              isDirty,
+              errors,
+              hasExternalChanges: Boolean(pendingFile),
+            })}
           >
             {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />

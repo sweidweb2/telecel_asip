@@ -23,10 +23,14 @@ import {
   createPartnerSchema,
   deletePartnerSchema,
   partnerIdSchema,
+  updatePartnerActiveSchema,
+  updatePartnerLogoPermissionSchema,
   updatePartnerSchema,
   type CreatePartnerInput,
   type DeletePartnerInput,
+  type UpdatePartnerActiveInput,
   type UpdatePartnerInput,
+  type UpdatePartnerLogoPermissionInput,
 } from "@/validations/partner";
 
 export type PartnerActionResult = AdminActionResult;
@@ -40,6 +44,10 @@ const MESSAGES = {
   createSuccess: "Partner created successfully.",
   updateSuccess: "Partner updated successfully.",
   deleteSuccess: "Partner deleted successfully.",
+  activeSuccess: "Partner marked as active.",
+  historicalSuccess: "Partner marked as historical.",
+  logoGrantedSuccess: "Logo permission granted.",
+  logoRevokedSuccess: "Logo permission revoked.",
   uploadSuccess: "Logo uploaded successfully.",
   removeSuccess: "Logo removed successfully.",
   notFound: "Partner not found.",
@@ -134,6 +142,74 @@ export async function updatePartner(
       const { data: row, error } = await session.supabase
         .from("partners")
         .update(toPartnerRow(data))
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        return { status: "error", pgError: error };
+      }
+      if (!row?.id) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshPartnerPaths(id),
+  });
+}
+
+export async function updatePartnerActive(
+  input: UpdatePartnerActiveInput,
+): Promise<PartnerActionResult> {
+  return runAdminMutation({
+    schema: updatePartnerActiveSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: input.isActive
+        ? MESSAGES.activeSuccess
+        : MESSAGES.historicalSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    perfName: "updatePartnerActive",
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("partners")
+        .update({ is_active: data.isActive })
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        return { status: "error", pgError: error };
+      }
+      if (!row?.id) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshPartnerPaths(id),
+  });
+}
+
+export async function updatePartnerLogoPermission(
+  input: UpdatePartnerLogoPermissionInput,
+): Promise<PartnerActionResult> {
+  return runAdminMutation({
+    schema: updatePartnerLogoPermissionSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: input.logoPermission
+        ? MESSAGES.logoGrantedSuccess
+        : MESSAGES.logoRevokedSuccess,
+    },
+    pgMessages: PG_MESSAGES,
+    perfName: "updatePartnerLogoPermission",
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("partners")
+        .update({ logo_permission: data.logoPermission })
         .eq("id", data.id)
         .select("id")
         .maybeSingle();

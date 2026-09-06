@@ -106,6 +106,16 @@ export const deletePartnerSchema = z.object({
   id: z.uuid("Invalid partner id"),
 });
 
+export const updatePartnerActiveSchema = z.object({
+  id: z.uuid("Invalid partner id"),
+  isActive: z.boolean(),
+});
+
+export const updatePartnerLogoPermissionSchema = z.object({
+  id: z.uuid("Invalid partner id"),
+  logoPermission: z.boolean(),
+});
+
 export const partnerIdSchema = z.uuid("Invalid partner id");
 
 /** Raw form values before Zod coercion (e.g. `sortOrder` as a string). */
@@ -113,6 +123,10 @@ export type PartnerFormValues = z.input<typeof createPartnerSchema>;
 export type CreatePartnerInput = z.infer<typeof createPartnerSchema>;
 export type UpdatePartnerInput = z.infer<typeof updatePartnerSchema>;
 export type DeletePartnerInput = z.infer<typeof deletePartnerSchema>;
+export type UpdatePartnerActiveInput = z.infer<typeof updatePartnerActiveSchema>;
+export type UpdatePartnerLogoPermissionInput = z.infer<
+  typeof updatePartnerLogoPermissionSchema
+>;
 
 const partnerListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
