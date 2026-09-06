@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Cpu, Globe, Users, type LucideIcon } from "lucide-react";
 
+import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
 import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import type { Locale } from "@/constants/locales";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
@@ -25,7 +26,7 @@ type ProgrammeAudienceSectionProps = {
 
 /**
  * Programme “Who it is for” — diagonal split with mentor photo and intake CTA.
- * Darker teal panel + light type opposite the photo.
+ * Same ink primary surface as home Platform (section #3): `#14333b` + teal dots.
  */
 export function ProgrammeAudienceSection({
   locale,
@@ -39,11 +40,13 @@ export function ProgrammeAudienceSection({
     <section
       id="audience"
       aria-labelledby="programme-audience-heading"
-      className="relative scroll-mt-24 overflow-hidden border-b border-[#0d5555] bg-[#0d5555] text-primary-foreground"
+      className="relative scroll-mt-24 overflow-hidden border-b border-white/10 bg-[#14333b] text-white"
     >
+      <HomeTealDotPattern withVignette />
+
       <div
         className={cn(
-          "relative h-64 w-full bg-[#0d5555] sm:h-80",
+          "relative h-64 w-full bg-[#14333b] sm:h-80",
           "md:absolute md:inset-0 md:h-auto",
           "md:[clip-path:polygon(56%_0,100%_0,100%_100%,72%_100%)]",
         )}
@@ -57,7 +60,7 @@ export function ProgrammeAudienceSection({
           sizes="(max-width: 768px) 100vw, 48vw"
         />
         <div
-          className="absolute inset-0 bg-[#0d5555]/35 md:bg-[#0d5555]/20"
+          className="absolute inset-0 bg-[#14333b]/35 md:bg-[#14333b]/20"
           aria-hidden
         />
       </div>
@@ -66,19 +69,19 @@ export function ProgrammeAudienceSection({
         <div>
           <div className="flex items-center gap-3">
             <span
-              className="grid size-10 shrink-0 grid-cols-2 overflow-hidden rounded-full ring-2 ring-primary-foreground/30"
+              className="grid size-10 shrink-0 grid-cols-2 overflow-hidden rounded-full ring-2 ring-white/30"
               aria-hidden
             >
-              <span className="bg-primary-foreground/90" />
+              <span className="bg-white/90" />
               <span className="bg-[#81b764]" />
               <span className="bg-[#c14a9b]" />
               <span className="bg-[#dc395f]" />
             </span>
             <div className="min-w-0">
-              <p className="font-heading text-sm font-semibold tracking-wide text-primary-foreground">
+              <p className="font-heading text-sm font-semibold tracking-wide text-white">
                 ASIP
               </p>
-              <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-primary-foreground/75">
+              <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-[#9ad1bf]">
                 {copy.eyebrow}
               </p>
             </div>
@@ -86,20 +89,20 @@ export function ProgrammeAudienceSection({
 
           <h2
             id="programme-audience-heading"
-            className="mt-8 font-heading text-3xl font-semibold leading-[1.08] text-primary-foreground sm:text-4xl lg:text-5xl"
+            className="mt-8 font-heading text-3xl font-semibold leading-[1.08] text-white sm:text-4xl lg:text-5xl"
           >
             {copy.title}
           </h2>
           <span
-            className="mt-5 block h-px w-16 bg-primary-foreground/50"
+            className="mt-5 block h-px w-16 bg-white/50"
             aria-hidden
           />
-          <p className="mt-5 text-base leading-7 text-primary-foreground/85 sm:text-lg sm:leading-8">
+          <p className="mt-5 text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
             {copy.description}
           </p>
           <Link
             href={intake.href}
-            className="mt-8 inline-flex min-h-11 items-center text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground underline-offset-4 hover:underline"
+            className="mt-8 inline-flex min-h-11 items-center text-sm font-semibold uppercase tracking-[0.18em] text-white underline-offset-4 hover:underline"
           >
             {intake.label}
           </Link>
@@ -111,10 +114,10 @@ export function ProgrammeAudienceSection({
             return (
               <li key={item.id} className="flex items-center gap-2.5">
                 <Icon
-                  className="size-4 shrink-0 text-primary-foreground/90"
+                  className="size-4 shrink-0 text-white/90"
                   aria-hidden
                 />
-                <span className="text-sm text-primary-foreground/80">
+                <span className="text-sm text-white/80">
                   {item.label}
                 </span>
               </li>

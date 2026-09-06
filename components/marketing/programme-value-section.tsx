@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
 import { cn } from "@/lib/utils";
 import type {
   ProgrammePageCopy,
@@ -30,7 +31,8 @@ type ProgrammeValueSectionProps = {
 };
 
 /**
- * Programme “What founders gain” — scannable benefit grid (not a sequence).
+ * Programme “What founders gain” — scannable benefit grid.
+ * Same ink primary surface as home Platform (section #3): `#14333b` + teal dots.
  * 1 col mobile → 2 / 3 desktop; final item centered so 7 never orphans.
  */
 export function ProgrammeValueSection({ copy }: ProgrammeValueSectionProps) {
@@ -40,12 +42,14 @@ export function ProgrammeValueSection({ copy }: ProgrammeValueSectionProps) {
     <section
       id="value"
       aria-labelledby="programme-value-heading"
-      className="scroll-mt-24 border-b border-border bg-background text-foreground"
+      className="relative scroll-mt-24 overflow-hidden border-b border-white/10 bg-[#14333b] text-white"
     >
-      <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+      <HomeTealDotPattern withVignette />
+
+      <div className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <h2
           id="programme-value-heading"
-          className="font-heading text-2xl font-semibold tracking-tight text-balance sm:text-3xl"
+          className="font-heading text-2xl font-semibold tracking-tight text-balance text-white sm:text-3xl"
         >
           {copy.title}
         </h2>
@@ -66,15 +70,15 @@ export function ProgrammeValueSection({ copy }: ProgrammeValueSectionProps) {
               >
                 <article className="group flex h-full flex-col gap-3 outline-none focus-visible:outline-none">
                   <Icon
-                    className="size-5 shrink-0 text-muted-foreground transition-colors duration-200 group-hover:text-[#dc395f] group-focus-within:text-[#dc395f] sm:size-[1.35rem]"
+                    className="size-5 shrink-0 text-white/65 transition-colors duration-200 group-hover:text-[#9ad1bf] group-focus-within:text-[#9ad1bf] sm:size-[1.35rem]"
                     strokeWidth={1.5}
                     aria-hidden
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-heading text-base font-semibold tracking-tight text-[#14333b] transition-colors duration-200 group-hover:text-[#dc395f] group-focus-within:text-[#dc395f] sm:text-lg">
+                    <h3 className="font-heading text-base font-semibold tracking-tight text-white transition-colors duration-200 group-hover:text-[#9ad1bf] group-focus-within:text-[#9ad1bf] sm:text-lg">
                       {item.title}
                     </h3>
-                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground sm:text-[0.9375rem] sm:leading-7">
+                    <p className="mt-1.5 text-sm leading-6 text-white/70 sm:text-[0.9375rem] sm:leading-7">
                       {item.description}
                     </p>
                   </div>

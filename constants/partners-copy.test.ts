@@ -20,6 +20,10 @@ describe("partnersCopyFor", () => {
     expect(fr.hero.titleAccent.length).toBeGreaterThan(0);
     expect(en.hero.proof).toHaveLength(fr.hero.proof.length);
     expect(fr.hero.cta.label.length).toBeGreaterThan(0);
+    expect(en.types.title.length).toBeGreaterThan(0);
+    expect(fr.types.title.length).toBeGreaterThan(0);
+    expect(en.types.description.length).toBeGreaterThan(0);
+    expect(fr.types.description.length).toBeGreaterThan(0);
   });
 
   it("covers every partner_type enum value so DB rows always have a label", () => {

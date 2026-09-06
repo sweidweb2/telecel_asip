@@ -68,12 +68,33 @@ const en: HomePageCopy = {
       "Founder stories will appear here as verified profiles are published.",
   },
   outcomes: {
+    eyebrow: "Impact",
     title: "The story is what happened next.",
     description:
-      "Impact is more than the number of startups supported. It is what founders built afterwards: stronger businesses, new markets, jobs, partnerships, investment readiness and technology that improves how people live and work.",
+      "Impact is more than the number of startups in a cohort. It is what founders built afterwards — stronger businesses, new markets, and technology that improves how people live and work.",
+    features: [
+      {
+        id: "businesses",
+        title: "Stronger businesses.",
+        description:
+          "Teams leave with sharper product strategy, tighter operations and commercial footing that holds under pressure.",
+      },
+      {
+        id: "markets",
+        title: "Wider reach.",
+        description:
+          "Introductions open routes to customers, pilots and partners across African markets.",
+      },
+      {
+        id: "readiness",
+        title: "Ready for what is next.",
+        description:
+          "Founders build the evidence and relationships that help the next growth stage land.",
+      },
+    ],
     cta: { slug: "impact", label: "See the impact" },
-    empty:
-      "Founder outcomes will appear here once verified stories are ready to publish.",
+    imageAlt:
+      "ASIP founders building ventures — register interest for the next chapter",
   },
   ecosystem: {
     title: "The right connection can change a company’s trajectory.",
@@ -208,12 +229,33 @@ const fr: HomePageCopy = {
       "Les parcours des fondateurs apparaîtront ici à mesure que les profils vérifiés sont publiés.",
   },
   outcomes: {
+    eyebrow: "Impact",
     title: "L’histoire, c’est ce qui s’est passé ensuite.",
     description:
-      "L’impact ne se résume pas au nombre de startups accompagnées. C’est ce que les fondateurs ont construit après : des entreprises plus solides, de nouveaux marchés, des emplois, des partenariats, une préparation investisseurs et des technologies qui changent la façon dont les gens vivent et travaillent.",
+      "L’impact ne se résume pas au nombre de startups d’une cohorte. C’est ce que les fondateurs ont construit après — des entreprises plus solides, de nouveaux marchés et des technologies qui améliorent la façon dont les gens vivent et travaillent.",
+    features: [
+      {
+        id: "businesses",
+        title: "Des entreprises plus solides.",
+        description:
+          "Les équipes repartent avec une stratégie produit plus nette, des opérations plus serrées et un ancrage commercial qui tient la pression.",
+      },
+      {
+        id: "markets",
+        title: "Une portée plus large.",
+        description:
+          "Des introductions ouvrent des voies vers clients, pilotes et partenaires sur les marchés africains.",
+      },
+      {
+        id: "readiness",
+        title: "Prêts pour la suite.",
+        description:
+          "Les fondateurs construisent les preuves et les relations qui aident l’étape de croissance suivante à se concrétiser.",
+      },
+    ],
     cta: { slug: "impact", label: "Voir l’impact" },
-    empty:
-      "Les résultats des fondateurs apparaîtront ici une fois les parcours vérifiés prêts à être publiés.",
+    imageAlt:
+      "Des fondateurs ASIP qui construisent — manifestez votre intérêt pour le prochain chapitre",
   },
   ecosystem: {
     title: "La bonne connexion peut changer la trajectoire d’une entreprise.",

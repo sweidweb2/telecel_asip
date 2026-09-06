@@ -46,4 +46,19 @@ describe("ProgrammeAudienceSection", () => {
       screen.getByRole("link", { name: /apply to asip/i }),
     ).toHaveAttribute("href", "/en/apply");
   });
+
+  it("uses the home platform ink primary surface", () => {
+    const copy = programmeCopyFor("en").audience;
+    const { container } = render(
+      <ProgrammeAudienceSection
+        locale="en"
+        copy={copy}
+        openApplications={false}
+      />,
+    );
+    const section = container.querySelector("section#audience");
+
+    expect(section).toHaveClass("bg-[#14333b]");
+    expect(section).toHaveClass("text-white");
+  });
 });

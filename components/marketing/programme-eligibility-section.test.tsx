@@ -31,4 +31,16 @@ describe("ProgrammeEligibilitySection", () => {
       screen.queryByText(/when applications open, replace/i),
     ).not.toBeInTheDocument();
   });
+
+  it("renders the bridge connection illustration beside the checklist", () => {
+    const copy = programmeCopyFor("en").eligibility;
+    const { container } = render(<ProgrammeEligibilitySection copy={copy} />);
+    const img = container.querySelector("img");
+
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute(
+      "src",
+      expect.stringContaining("eligibility-bridge-connection.png"),
+    );
+  });
 });

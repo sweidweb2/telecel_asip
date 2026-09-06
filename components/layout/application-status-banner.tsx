@@ -39,6 +39,7 @@ export function ApplicationStatusBanner({
         <Button
           size="sm"
           className="min-h-11 shrink-0 px-4 sm:min-h-9"
+          nativeButton={false}
           render={<Link href={cta.href} />}
         >
           {cta.label}

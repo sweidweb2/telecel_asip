@@ -23,6 +23,11 @@ describe("homeCopyFor", () => {
     expect(en.hero.description.length).toBeLessThan(220);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("contact");
+    expect(en.outcomes.features.map((feature) => feature.id)).toEqual(
+      fr.outcomes.features.map((feature) => feature.id),
+    );
+    expect(en.outcomes.features).toHaveLength(3);
+    expect(en.outcomes.cta.slug).toBe("impact");
     expect(en.telecel.title).toContain("Connecting Energies");
     expect(en.telecel.prompt.length).toBeGreaterThan(0);
     expect(fr.telecel.prompt.length).toBeGreaterThan(0);

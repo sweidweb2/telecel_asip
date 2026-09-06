@@ -17,6 +17,9 @@ const en: PartnersPageCopy = {
       "Tell us the market, sector or challenge you want to address. ASIP can help identify relevant founders, shape the right engagement route and connect the people needed to move from conversation to practical opportunity.",
   },
   types: {
+    title: "Ways to work with founders.",
+    description:
+      "Six engagement routes. Choose the one that matches the opportunity you can bring.",
     columns: {
       type: "Partner type",
       value: "Value to the ecosystem",
@@ -104,6 +107,9 @@ const fr: PartnersPageCopy = {
       "Indiquez le marché, le secteur ou le défi que vous souhaitez adresser. ASIP peut aider à identifier les fondateurs pertinents, façonner le bon format d’engagement et réunir les personnes nécessaires pour passer de la conversation à une opportunité concrète.",
   },
   types: {
+    title: "Des façons de travailler avec les fondateurs.",
+    description:
+      "Six formats d’engagement. Choisissez celui qui correspond à l’opportunité que vous pouvez apporter.",
     columns: {
       type: "Type de partenaire",
       value: "Valeur pour l’écosystème",

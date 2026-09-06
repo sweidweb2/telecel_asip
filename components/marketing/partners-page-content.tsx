@@ -1,43 +1,13 @@
-import type { ReactNode } from "react";
-
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { partnerLabelsFor } from "@/components/marketing/partner-labels";
+import { PartnersHeroSection } from "@/components/marketing/partners-hero-section";
 import { PartnersNetwork } from "@/components/marketing/partners-network";
+import { PartnersPropositionSection } from "@/components/marketing/partners-proposition-section";
+import { PartnersTypesSection } from "@/components/marketing/partners-types-section";
 import type { Locale } from "@/constants/locales";
 import { partnersCopyFor } from "@/constants/partners-copy";
 import type { PartnerPublicItem } from "@/types/partner";
-
-function PageSection({
-  title,
-  note,
-  children,
-}: {
-  title: string;
-  note?: string;
-  children?: ReactNode;
-}) {
-  return (
-    <section className="border-b border-border px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-7xl">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {note ? `${title} · ${note}` : title}
-        </p>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">
-          {title}
-        </h2>
-        <div className="mt-4 min-h-24 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
-          {children}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function EmptySlot({ label }: { label: string }) {
-  return (
-    <p className="text-sm text-muted-foreground">Skeleton holder — {label}</p>
-  );
-}
+import { cn } from "@/lib/utils";
 
 type PartnersPageContentProps = {
   locale: Locale;
@@ -46,8 +16,7 @@ type PartnersPageContentProps = {
 };
 
 /**
- * Partners marketing page — mostly static template (build spec §4).
- * Network logos pull from `getPublicPartners`.
+ * Partners marketing page — hero, proposition, type routes, live network logos, CTA.
  */
 export function PartnersPageContent({
   locale,
@@ -59,47 +28,65 @@ export function PartnersPageContent({
 
   return (
     <main>
-      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <PartnersHeroSection locale={locale} copy={copy.hero} />
+      <PartnersPropositionSection locale={locale} copy={copy.proposition} />
+      <PartnersTypesSection copy={copy.types} />
+
+      <section
+        id="network"
+        aria-labelledby="partners-network-heading"
+        className={cn(
+          "border-b border-border bg-background",
+          "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
+        )}
+      >
         <div className="mx-auto w-full max-w-7xl">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Partners · Mostly static
-          </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Partners
-          </h1>
-          <div className="mt-6 min-h-32 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
-            <EmptySlot label="hero + Discuss a partnership CTA" />
+          <h2
+            id="partners-network-heading"
+            className="mx-auto max-w-2xl text-center font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+          >
+            {copy.logos.title}
+          </h2>
+          <div className="mt-10 sm:mt-12">
+            <PartnersNetwork
+              locale={locale}
+              partners={active}
+              typeRows={copy.types.rows}
+            />
           </div>
         </div>
       </section>
 
-      <PageSection title="Partner proposition" note="Mostly static">
-        <EmptySlot label="partner proposition module" />
-      </PageSection>
-
-      <PageSection title="Partner types" note="Mostly static">
-        <EmptySlot label="6 partner type rows (value + engagement examples)" />
-      </PageSection>
-
-      <PageSection title={copy.logos.title} note="Live partners">
-        <PartnersNetwork
-          locale={locale}
-          partners={active}
-          typeRows={copy.types.rows}
-        />
-      </PageSection>
-
       {historical.length > 0 ? (
-        <PageSection title={labels.historicalTitle} note="Live partners">
-          <p className="mb-8 text-sm text-muted-foreground sm:text-base">
-            {labels.historicalDescription}
-          </p>
-          <PartnersNetwork
-            locale={locale}
-            partners={historical}
-            typeRows={copy.types.rows}
-          />
-        </PageSection>
+        <section
+          id="previous-chapters"
+          aria-labelledby="partners-historical-heading"
+          className={cn(
+            "border-b border-border bg-[color-mix(in_oklab,var(--brand-subtle)_40%,var(--background))]",
+            "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
+          )}
+        >
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2
+                id="partners-historical-heading"
+                className="font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+              >
+                {labels.historicalTitle}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+                {labels.historicalDescription}
+              </p>
+            </div>
+            <div className="mt-10 sm:mt-12">
+              <PartnersNetwork
+                locale={locale}
+                partners={historical}
+                typeRows={copy.types.rows}
+              />
+            </div>
+          </div>
+        </section>
       ) : null}
 
       <PageCtaSection locale={locale} cta={copy.ctaSection} />

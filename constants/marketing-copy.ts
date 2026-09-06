@@ -30,6 +30,21 @@ const en: MarketingCopy = {
     sectionDescription:
       "From Barcelona in 2019 to the 2026 next chapter — how ASIP connects African founders to knowledge, capital pathways, markets and relationships.",
     cards: [],
+    heroChips: {
+      focusKind: "Focus",
+      chapterKind: "Chapter",
+      chips: [
+        { kind: "focus", label: "Knowledge" },
+        { kind: "focus", label: "Capital pathways" },
+        { kind: "focus", label: "Markets", hideSm: true },
+        { kind: "focus", label: "Relationships", hideSm: true },
+        { kind: "focus", label: "Connecting Energies", hideMd: true },
+        { kind: "chapter", label: "Barcelona · 2019", hideMd: true },
+        { kind: "chapter", label: "Africa", hideSm: true },
+        { kind: "chapter", label: "Founders", hideMd: true },
+        { kind: "chapter", label: "Next chapter · 2026", hideSm: true },
+      ],
+    },
     cta: { slug: "founders", label: "Explore the founders" },
     ctaSection: {
       title: "Meet the founders building Africa’s next chapter.",
@@ -343,6 +358,21 @@ const fr: MarketingCopy = {
     sectionDescription:
       "De Barcelone en 2019 au prochain chapitre 2026 — comment ASIP relie les fondateurs africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
     cards: [],
+    heroChips: {
+      focusKind: "Axe",
+      chapterKind: "Chapitre",
+      chips: [
+        { kind: "focus", label: "Connaissance" },
+        { kind: "focus", label: "Voies de capital" },
+        { kind: "focus", label: "Marchés", hideSm: true },
+        { kind: "focus", label: "Relations", hideSm: true },
+        { kind: "focus", label: "Connecting Energies", hideMd: true },
+        { kind: "chapter", label: "Barcelone · 2019", hideMd: true },
+        { kind: "chapter", label: "Afrique", hideSm: true },
+        { kind: "chapter", label: "Fondateurs", hideMd: true },
+        { kind: "chapter", label: "Prochain chapitre · 2026", hideSm: true },
+      ],
+    },
     cta: { slug: "founders", label: "Découvrir les fondateurs" },
     ctaSection: {
       title: "Rencontrez les fondateurs qui construisent le prochain chapitre de l’Afrique.",

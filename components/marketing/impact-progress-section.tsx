@@ -13,7 +13,7 @@ export function ImpactProgressSection({ copy }: ImpactProgressSectionProps) {
     <section
       id="progress"
       aria-labelledby="impact-progress-heading"
-      className="border-b border-border bg-white text-foreground"
+      className="border-b border-border bg-background text-foreground"
     >
       <div
         data-reveal="fade"

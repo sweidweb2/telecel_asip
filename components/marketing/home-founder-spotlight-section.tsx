@@ -37,7 +37,19 @@ export function HomeFounderSpotlightSection({
       )}
     >
       <div className="relative mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-12 lg:items-center lg:gap-8">
-        <div className="relative z-10 max-w-xl lg:col-span-5 lg:max-w-none">
+        <div className="relative order-2 lg:order-1 lg:col-span-7">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(23,145,145,0.1),transparent_62%)]"
+          />
+          <AfricaInnovationBlueprint
+            tone="light"
+            titleBlock={blueprint.titleBlock}
+            className="relative h-auto w-full overflow-hidden rounded-sm shadow-[0_0_0_1px_rgba(20,51,59,0.1)]"
+          />
+        </div>
+
+        <div className="relative z-10 order-1 max-w-xl lg:order-2 lg:col-span-5 lg:max-w-none">
           <p className="font-mono text-[0.7rem] font-medium tracking-[0.22em] text-brand uppercase">
             Spotlight
           </p>
@@ -59,18 +71,6 @@ export function HomeFounderSpotlightSection({
           >
             {copy.cta.label}
           </Link>
-        </div>
-
-        <div className="relative lg:col-span-7">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-[radial-gradient(ellipse_at_center,rgba(23,145,145,0.1),transparent_62%)]"
-          />
-          <AfricaInnovationBlueprint
-            tone="light"
-            titleBlock={blueprint.titleBlock}
-            className="relative h-auto w-full overflow-hidden rounded-sm shadow-[0_0_0_1px_rgba(20,51,59,0.1)]"
-          />
         </div>
       </div>
     </section>

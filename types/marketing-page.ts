@@ -106,6 +106,17 @@ export type LegalPageCopy = {
   sections: LegalSection[];
 };
 
+export type AboutHeroChipKind = "focus" | "chapter";
+
+export type AboutHeroChip = {
+  kind: AboutHeroChipKind;
+  label: string;
+  /** Hide below `sm` when true. */
+  hideSm?: boolean;
+  /** Hide below `md` when true. */
+  hideMd?: boolean;
+};
+
 export type MarketingPageCopy = {
   eyebrow: string;
   title: string;
@@ -115,6 +126,12 @@ export type MarketingPageCopy = {
   sectionDescription: string;
   cards: { title: string; description: string }[];
   cta?: { slug: PublicPageSlug; label: string; hash?: string };
+  /** About hero — floating decorative chips (aria-hidden). */
+  heroChips?: {
+    focusKind: string;
+    chapterKind: string;
+    chips: AboutHeroChip[];
+  };
   /** Optional animated proof-point counters. Omit until figures are verified. */
   statsSection?: {
     eyebrow?: string;
@@ -166,6 +183,11 @@ export type HomePartnerRoleId =
   | "technology"
   | "institutions"
   | "ecosystem";
+
+export type HomeOutcomeFeatureId =
+  | "businesses"
+  | "markets"
+  | "readiness";
 
 export type HomePageLink = {
   slug: PublicPageSlug;
@@ -312,10 +334,17 @@ export type HomePageCopy = {
     empty: string;
   };
   outcomes: {
+    eyebrow: string;
     title: string;
     description: string;
+    features: {
+      id: HomeOutcomeFeatureId;
+      title: string;
+      description: string;
+    }[];
+    /** Secondary link to the Impact page. Primary intake CTA is wired via `intakeCtaFor`. */
     cta: HomePageLink;
-    empty: string;
+    imageAlt: string;
   };
   ecosystem: {
     title: string;
@@ -381,6 +410,8 @@ export type PartnersPageCopy = {
     description: string;
   };
   types: {
+    title: string;
+    description: string;
     columns: {
       type: string;
       value: string;
