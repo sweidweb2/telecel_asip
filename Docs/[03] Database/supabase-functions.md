@@ -530,20 +530,26 @@ No triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to b
 
 ## Backup cron (ops)
 
-Weekly full-DB export is **not** a Postgres function. Hosted Supabase should enable `pg_cron` + `pg_net`, then schedule an HTTP POST to the Next.js route.
+Automated full-DB export is **not** a Postgres function. Hosted Supabase should enable `pg_cron` + `pg_net`, then schedule an **hourly** HTTP POST to the Next.js tick route. The app reads `site_settings.backup_time` (Asia/Beirut cadence) and decides whether to run.
 
-### Schedule (Sunday 03:00 UTC)
+### Schedule (hourly)
 
 Run in the Supabase SQL editor after enabling extensions (Dashboard → Database → Extensions: `pg_cron`, `pg_net`):
 
 ```sql
--- Once per project (replace URL + secret):
+-- Remove the old weekly job if it exists:
+select cron.unschedule('asip-weekly-backup')
+where exists (
+  select 1 from cron.job where jobname = 'asip-weekly-backup'
+);
+
+-- Hourly tick (replace URL + secret):
 select cron.schedule(
-  'asip-weekly-backup',
-  '0 3 * * 0',
+  'asip-backup-tick',
+  '0 * * * *',
   $$
   select net.http_post(
-    url := 'https://YOUR_PRODUCTION_HOST/api/cron/weekly-backup',
+    url := 'https://YOUR_PRODUCTION_HOST/api/cron/backup',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'Authorization', 'Bearer YOUR_BACKUP_CRON_SECRET'
@@ -554,6 +560,6 @@ select cron.schedule(
 );
 ```
 
-**How it works:** `pg_cron` fires weekly; `pg_net` POSTs to `/api/cron/weekly-backup` with `BACKUP_CRON_SECRET`. The Node route inserts a `backups` row (`scope = automated`, `user_id` null, `format = json`), exports allowlisted public tables to a ZIP on private R2, then applies retention (keep last `BACKUP_RETENTION_COUNT` automated completed rows). Failures set `status = failed` + `error_message` and log to the server console (no Sentry in-repo yet).
+**How it works:** `pg_cron` fires every hour; `pg_net` POSTs to `/api/cron/backup` with `BACKUP_CRON_SECRET`. The Node route loads `backup_time` via the service role (uncached). If the schedule is due in Asia/Beirut, not overlapping another job, and the schedule window has fewer than 3 failures with no success yet, it inserts `backups` rows (`scope = automated`) and exports to private R2. Up to 3 attempts per window; each failure stays visible in history. Retention: keep months M and M-1 fully; for month M-2 keep nearest-to-start/mid/end (max 3); delete older months.
 
-**Related table:** `public.backups` — migration `20260906210000_create_backups.sql`. No triggers/RPCs on that table.
+**Related:** `site_settings.backup_time` (`backup_schedule` enum), `backups.schedule_window` — migration `20260906220000_backup_schedule_settings.sql`.

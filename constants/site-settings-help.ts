@@ -23,4 +23,15 @@ export const SITE_SETTINGS_HELP = {
       },
     ],
   },
+  backup: {
+    title: "Automated backup schedule",
+    intro: "Cadence for full database backups to private R2 (Lebanon time).",
+    fields: [
+      {
+        name: "Backup schedule",
+        detail:
+          "Times are Asia/Beirut. Off disables the hourly cron tick. Changing the schedule saves the new cadence and starts one backup immediately. Use Run backup now for a one-shot without changing the schedule.",
+      },
+    ],
+  },
 } as const satisfies Record<string, AdminFormHelpSection>;

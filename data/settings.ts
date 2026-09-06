@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 
+import type { BackupScheduleValue } from "@/lib/backups/schedule";
+import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export const SITE_SETTINGS_CACHE_TAG = "site-settings";
@@ -10,6 +12,10 @@ export const SITE_SETTINGS_ID = 1;
 export type SiteSettingsPublic = {
   openApplications: boolean;
   newsletterSignupEnabled: boolean;
+};
+
+export type SiteSettingsAdmin = SiteSettingsPublic & {
+  backupTime: BackupScheduleValue;
 };
 
 async function fetchSiteSettings(): Promise<SiteSettingsPublic> {
@@ -44,9 +50,29 @@ export async function getSiteSettings(): Promise<SiteSettingsPublic> {
 /**
  * Uncached read for the admin Settings form so the editor always sees the
  * live row after navigation (public marketing still uses the 60s cache).
+ * Includes backup_time (admin UI only — cron uses createAdminClient).
  */
-export async function getSiteSettingsForAdmin(): Promise<SiteSettingsPublic> {
-  return fetchSiteSettings();
+export async function getSiteSettingsForAdmin(): Promise<SiteSettingsAdmin> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("open_applications, newsletter_signup_enabled, backup_time")
+    .eq("id", SITE_SETTINGS_ID)
+    .maybeSingle();
+
+  if (error || !data) {
+    return {
+      openApplications: false,
+      newsletterSignupEnabled: false,
+      backupTime: "weekly_sun_03",
+    };
+  }
+
+  return {
+    openApplications: Boolean(data.open_applications),
+    newsletterSignupEnabled: Boolean(data.newsletter_signup_enabled),
+    backupTime: data.backup_time as BackupScheduleValue,
+  };
 }
 
 export async function getOpenApplications(): Promise<boolean> {

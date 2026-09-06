@@ -200,6 +200,7 @@ Table site_settings {
   id smallint [pk, not null, default: 1, note: 'CHECK id = 1 — singleton row (site_settings_singleton_chk)']
   open_applications boolean [not null, default: false, note: 'Drives navbar CTA, status banner, and Apply SEO (not URL exclusivity)']
   newsletter_signup_enabled boolean [not null, default: false, note: 'Insights newsletter module; off until privacy/routing confirmed']
+  backup_time backup_schedule [not null, default: 'weekly_sun_03', note: 'Automated backup cadence in Asia/Beirut; now is UI-only']
   updated_at timestamptz [not null, default: `now()`]
 
   Note: '''
@@ -907,6 +908,17 @@ Enum backup_format {
   zip
 }
 
+Enum backup_schedule {
+  off
+  daily_00
+  daily_03
+  daily_06
+  daily_12
+  daily_18
+  weekly_sun_03
+  weekly_mon_03
+}
+
 Table backups {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [null, note: 'Triggering admin; null for automated weekly jobs']
@@ -917,6 +929,7 @@ Table backups {
   file_size bigint [null]
   status backup_status [not null, default: 'pending']
   error_message text [null]
+  schedule_window text [null, note: 'Idempotency/retry key for automated windows']
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
@@ -924,12 +937,13 @@ Table backups {
     (created_at) [name: 'backups_created_at_idx', note: 'DESC in SQL']
     (status) [name: 'backups_status_idx']
     (scope, created_at) [name: 'backups_scope_created_at_idx', note: 'DESC on created_at in SQL']
+    (scope, schedule_window) [name: 'backups_scope_schedule_window_idx']
   }
 
   Note: '''
     Admin backup audit log. File blobs live in private Cloudflare R2 (signed URLs only).
     RLS enabled. Admin-only SELECT/INSERT/UPDATE/DELETE via is_admin().
-    service_role used by weekly cron export path. No anon grants.
+    service_role used by hourly cron export path. No anon grants.
   '''
 }
 

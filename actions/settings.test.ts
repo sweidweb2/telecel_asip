@@ -1,22 +1,38 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { revalidatePath, revalidateTag, getUser, rpc, maybeSingle, eq, update, from } =
-  vi.hoisted(() => {
-    const maybeSingle = vi.fn();
-    const eq = vi.fn(() => ({ select: vi.fn(() => ({ maybeSingle })) }));
-    const update = vi.fn(() => ({ eq }));
-    const from = vi.fn(() => ({ update }));
-    return {
-      revalidatePath: vi.fn(),
-      revalidateTag: vi.fn(),
-      getUser: vi.fn(),
-      rpc: vi.fn(),
-      maybeSingle,
-      eq,
-      update,
-      from,
-    };
-  });
+const {
+  revalidatePath,
+  revalidateTag,
+  getUser,
+  rpc,
+  maybeSingle,
+  selectEq,
+  update,
+  from,
+  hasInFlightBackup,
+  startAutomatedBackupAttempt,
+  applyAutomatedBackupRetention,
+} = vi.hoisted(() => {
+  const maybeSingle = vi.fn();
+  const selectEq = vi.fn(() => ({ maybeSingle }));
+  const select = vi.fn(() => ({ eq: selectEq }));
+  const updateEq = vi.fn(() => ({ select: vi.fn(() => ({ maybeSingle })) }));
+  const update = vi.fn(() => ({ eq: updateEq }));
+  const from = vi.fn(() => ({ update, select }));
+  return {
+    revalidatePath: vi.fn(),
+    revalidateTag: vi.fn(),
+    getUser: vi.fn(),
+    rpc: vi.fn(),
+    maybeSingle,
+    selectEq,
+    update,
+    from,
+    hasInFlightBackup: vi.fn(),
+    startAutomatedBackupAttempt: vi.fn(),
+    applyAutomatedBackupRetention: vi.fn(),
+  };
+});
 
 vi.mock("next/cache", () => ({
   revalidatePath,
@@ -32,18 +48,37 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
+vi.mock("@/lib/backups/automated", () => ({
+  hasInFlightBackup,
+  startAutomatedBackupAttempt,
+  applyAutomatedBackupRetention,
+}));
+
 import { updateSiteSettings } from "@/actions/settings";
 import { SITE_SETTINGS_CACHE_TAG } from "@/data/settings";
+
+const validInput = {
+  openApplications: true,
+  newsletterSignupEnabled: true,
+  backupTime: "daily_03" as const,
+};
 
 describe("updateSiteSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    hasInFlightBackup.mockResolvedValue(false);
+    startAutomatedBackupAttempt.mockResolvedValue({
+      backupId: "b1",
+      ok: true,
+    });
+    applyAutomatedBackupRetention.mockResolvedValue({ deleted: 0 });
   });
 
   it("rejects invalid input", async () => {
     const result = await updateSiteSettings({
       openApplications: "yes" as never,
       newsletterSignupEnabled: true,
+      backupTime: "daily_03",
     });
 
     expect(result.status).toBe("error");
@@ -53,10 +88,7 @@ describe("updateSiteSettings", () => {
   it("requires a signed-in user", async () => {
     getUser.mockResolvedValue({ data: { user: null }, error: null });
 
-    const result = await updateSiteSettings({
-      openApplications: true,
-      newsletterSignupEnabled: false,
-    });
+    const result = await updateSiteSettings(validInput);
 
     expect(result).toEqual({
       status: "error",
@@ -71,10 +103,7 @@ describe("updateSiteSettings", () => {
     });
     rpc.mockResolvedValue({ data: false, error: null });
 
-    const result = await updateSiteSettings({
-      openApplications: true,
-      newsletterSignupEnabled: false,
-    });
+    const result = await updateSiteSettings(validInput);
 
     expect(result).toEqual({
       status: "error",
@@ -82,18 +111,20 @@ describe("updateSiteSettings", () => {
     });
   });
 
-  it("updates settings and revalidates on success", async () => {
+  it("updates settings without immediate backup when schedule unchanged", async () => {
     getUser.mockResolvedValue({
       data: { user: { id: "admin-1" } },
       error: null,
     });
     rpc.mockResolvedValue({ data: true, error: null });
-    maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
+    maybeSingle
+      .mockResolvedValueOnce({
+        data: { backup_time: "daily_03" },
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: { id: 1 }, error: null });
 
-    const result = await updateSiteSettings({
-      openApplications: true,
-      newsletterSignupEnabled: true,
-    });
+    const result = await updateSiteSettings(validInput);
 
     expect(result).toEqual({
       status: "success",
@@ -102,8 +133,31 @@ describe("updateSiteSettings", () => {
     expect(update).toHaveBeenCalledWith({
       open_applications: true,
       newsletter_signup_enabled: true,
+      backup_time: "daily_03",
     });
+    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
     expect(revalidateTag).toHaveBeenCalledWith(SITE_SETTINGS_CACHE_TAG, "max");
     expect(revalidatePath).toHaveBeenCalled();
+  });
+
+  it("runs immediate backup when schedule changes", async () => {
+    getUser.mockResolvedValue({
+      data: { user: { id: "admin-1" } },
+      error: null,
+    });
+    rpc.mockResolvedValue({ data: true, error: null });
+    maybeSingle
+      .mockResolvedValueOnce({
+        data: { backup_time: "off" },
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: { id: 1 }, error: null });
+
+    const result = await updateSiteSettings(validInput);
+
+    expect(result.status).toBe("success");
+    expect(result).toMatchObject({ backupStarted: true });
+    expect(startAutomatedBackupAttempt).toHaveBeenCalled();
+    expect(applyAutomatedBackupRetention).toHaveBeenCalled();
   });
 });

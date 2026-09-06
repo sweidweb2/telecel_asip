@@ -103,6 +103,7 @@ export type Database = {
           file_size: number | null
           format: Database["public"]["Enums"]["backup_format"]
           id: string
+          schedule_window: string | null
           scope: Database["public"]["Enums"]["backup_scope"]
           status: Database["public"]["Enums"]["backup_status"]
           target_tables: string[] | null
@@ -115,6 +116,7 @@ export type Database = {
           file_size?: number | null
           format: Database["public"]["Enums"]["backup_format"]
           id?: string
+          schedule_window?: string | null
           scope: Database["public"]["Enums"]["backup_scope"]
           status?: Database["public"]["Enums"]["backup_status"]
           target_tables?: string[] | null
@@ -127,6 +129,7 @@ export type Database = {
           file_size?: number | null
           format?: Database["public"]["Enums"]["backup_format"]
           id?: string
+          schedule_window?: string | null
           scope?: Database["public"]["Enums"]["backup_scope"]
           status?: Database["public"]["Enums"]["backup_status"]
           target_tables?: string[] | null
@@ -863,18 +866,21 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          backup_time: Database["public"]["Enums"]["backup_schedule"]
           id: number
           newsletter_signup_enabled: boolean
           open_applications: boolean
           updated_at: string
         }
         Insert: {
+          backup_time?: Database["public"]["Enums"]["backup_schedule"]
           id?: number
           newsletter_signup_enabled?: boolean
           open_applications?: boolean
           updated_at?: string
         }
         Update: {
+          backup_time?: Database["public"]["Enums"]["backup_schedule"]
           id?: number
           newsletter_signup_enabled?: boolean
           open_applications?: boolean
@@ -1185,6 +1191,15 @@ export type Database = {
     }
     Enums: {
       backup_format: "json" | "csv" | "sql" | "zip"
+      backup_schedule:
+        | "off"
+        | "daily_00"
+        | "daily_03"
+        | "daily_06"
+        | "daily_12"
+        | "daily_18"
+        | "weekly_sun_03"
+        | "weekly_mon_03"
       backup_scope: "full" | "tables" | "storage" | "automated"
       backup_status: "pending" | "processing" | "completed" | "failed"
       blog_status: "draft" | "published"
@@ -1352,6 +1367,16 @@ export const Constants = {
   public: {
     Enums: {
       backup_format: ["json", "csv", "sql", "zip"],
+      backup_schedule: [
+        "off",
+        "daily_00",
+        "daily_03",
+        "daily_06",
+        "daily_12",
+        "daily_18",
+        "weekly_sun_03",
+        "weekly_mon_03",
+      ],
       backup_scope: ["full", "tables", "storage", "automated"],
       backup_status: ["pending", "processing", "completed", "failed"],
       blog_status: ["draft", "published"],

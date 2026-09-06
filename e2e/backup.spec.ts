@@ -9,8 +9,8 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
-test("weekly cron rejects missing secret", async ({ request }) => {
-  const response = await request.post("/api/cron/weekly-backup");
+test("backup cron rejects missing secret", async ({ request }) => {
+  const response = await request.post("/api/cron/backup");
   expect(response.status()).toBe(401);
 });
 
@@ -20,6 +20,17 @@ test.describe("backup export API", () => {
       !hasE2ECredentials(),
       "Backup E2E requires real Supabase credentials.",
     );
+  });
+
+  test("admin settings shows backup schedule controls", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/dashboard/settings");
+    await expect(
+      page.getByText(/automated backup schedule/i),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /run backup now/i }),
+    ).toBeVisible();
   });
 
   test("admin backup page loads create + history sections", async ({
