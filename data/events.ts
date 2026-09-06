@@ -1,10 +1,13 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { format } from "date-fns";
+
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -74,10 +77,47 @@ async function fetchEventsPage(
   };
 }
 
+export type EventListStats = {
+  total: number;
+  published: number;
+  draft: number;
+  upcoming: number;
+};
+
+async function fetchEventListStats(
+  supabase: ServerClient,
+): Promise<EventListStats> {
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const [total, published, draft, upcoming] = await Promise.all([
+    supabase.from("events").select("id", { count: "exact", head: true }),
+    supabase
+      .from("events")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "published"),
+    supabase
+      .from("events")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "draft"),
+    supabase
+      .from("events")
+      .select("id", { count: "exact", head: true })
+      .gte("event_date", today),
+  ]);
+
+  return {
+    total: countExact(total),
+    published: countExact(published),
+    draft: countExact(draft),
+    upcoming: countExact(upcoming),
+  };
+}
+
 export async function getEventsPageData(
   query: EventListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: EventListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: EventListResult; stats: EventListStats }
 > {
   return traceAsync(
     "getEventsPageData",
@@ -85,14 +125,15 @@ export async function getEventsPageData(
     async () => {
       const supabase = await createClient();
 
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchEventsPage(supabase, query),
+        fetchEventListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }

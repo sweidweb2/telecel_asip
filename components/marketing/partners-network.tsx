@@ -122,27 +122,23 @@ export const FLOAT_TILE_HALF = {
   h: TILE_H / 2,
 } as const;
 
-function PartnerFloatTile({
-  partner,
-  slot,
-  phase,
-}: {
-  partner: PartnerPublicItem;
-  slot: FloatSlot;
-  phase: (typeof FLOAT_PHASE)[number];
-}) {
+function PartnerMark({ partner }: { partner: PartnerPublicItem }) {
   const label = partner.org ? `${partner.name} — ${partner.org}` : partner.name;
 
-  const mark = partner.logo_url ? (
-    <Image
-      src={partner.logo_url}
-      alt={`${label} logo`}
-      width={200}
-      height={64}
-      sizes="(max-width: 640px) 34vw, 160px"
-      className="h-auto max-h-8 w-auto max-w-[7.5rem] object-contain sm:max-h-10 sm:max-w-[9rem]"
-    />
-  ) : (
+  if (partner.logo_url) {
+    return (
+      <Image
+        src={partner.logo_url}
+        alt={`${label} logo`}
+        width={200}
+        height={64}
+        sizes="(max-width: 768px) 40vw, 160px"
+        className="h-auto max-h-8 w-auto max-w-[7.5rem] object-contain sm:max-h-10 sm:max-w-[9rem]"
+      />
+    );
+  }
+
+  return (
     <span className="flex min-w-0 flex-col items-center gap-1 px-1 text-center">
       <span
         aria-hidden
@@ -155,6 +151,16 @@ function PartnerFloatTile({
       </span>
     </span>
   );
+}
+
+function PartnerShell({
+  partner,
+  className,
+}: {
+  partner: PartnerPublicItem;
+  className?: string;
+}) {
+  const label = partner.org ? `${partner.name} — ${partner.org}` : partner.name;
 
   const shell = (
     <span
@@ -162,12 +168,37 @@ function PartnerFloatTile({
         "flex min-h-11 min-w-11 items-center justify-center rounded-2xl border border-border/60 bg-background/90 px-3 py-2 shadow-[0_12px_32px_-18px_rgba(20,51,59,0.5)] backdrop-blur-md",
         "transition-[transform,box-shadow] duration-300 ease-out",
         "hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-16px_rgba(20,51,59,0.55)]",
+        className,
       )}
     >
-      {mark}
+      <PartnerMark partner={partner} />
     </span>
   );
 
+  if (!partner.link) return shell;
+
+  return (
+    <a
+      href={partner.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+    >
+      {shell}
+    </a>
+  );
+}
+
+function PartnerFloatTile({
+  partner,
+  slot,
+  phase,
+}: {
+  partner: PartnerPublicItem;
+  slot: FloatSlot;
+  phase: (typeof FLOAT_PHASE)[number];
+}) {
   return (
     <li
       className="absolute -translate-x-1/2 -translate-y-1/2"
@@ -175,19 +206,7 @@ function PartnerFloatTile({
     >
       <div className={phase}>
         <div style={{ transform: `scale(${slot.scale})` }}>
-          {partner.link ? (
-            <a
-              href={partner.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="block rounded-2xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              {shell}
-            </a>
-          ) : (
-            shell
-          )}
+          <PartnerShell partner={partner} />
         </div>
       </div>
     </li>
@@ -203,6 +222,7 @@ type PartnersNetworkProps = {
 
 /**
  * Partner logos in a floating field, filtered by type tabs (default: All).
+ * Mobile uses a calm 2-col grid — the float canvas only fits from md up.
  */
 export function PartnersNetwork({
   locale,
@@ -265,22 +285,24 @@ export function PartnersNetwork({
       <Tabs
         value={filter}
         onValueChange={(value) => setFilter(value as FilterId)}
-        className="min-w-0 w-full items-center"
+        className="min-w-0 w-full items-stretch"
       >
-        <TabsList
-          variant="default"
-          className="mx-auto h-auto w-fit max-w-full flex-wrap justify-center gap-1 p-1 group-data-horizontal/tabs:h-auto"
-        >
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className="h-9 flex-none px-3 after:hidden sm:px-3.5"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsList
+            variant="default"
+            className="mx-auto flex h-auto w-max max-w-none flex-nowrap justify-start gap-1 p-1 group-data-horizontal/tabs:h-auto md:mx-auto md:justify-center"
+          >
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="h-9 shrink-0 flex-none px-3 after:hidden sm:px-3.5"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
       </Tabs>
 
       {filtered.length === 0 ? (
@@ -288,29 +310,41 @@ export function PartnersNetwork({
           {labels.emptyFilterState}
         </p>
       ) : (
-        <div
-          className="relative mt-4 w-full overflow-visible"
-          style={{ height: `${field.heightRem}rem` }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-          >
-            <div className="absolute top-[8%] left-[8%] size-28 rounded-full bg-brand/10 blur-3xl sm:size-40" />
-            <div className="absolute right-[8%] bottom-[6%] size-32 rounded-full bg-[color-mix(in_oklab,var(--asip-magenta)_10%,transparent)] blur-3xl sm:size-44" />
-          </div>
-
-          <ul className="absolute inset-0">
-            {filtered.map((partner, index) => (
-              <PartnerFloatTile
-                key={partner.id}
-                partner={partner}
-                slot={field.slots[index]!}
-                phase={FLOAT_PHASE[index % FLOAT_PHASE.length]!}
-              />
+        <>
+          {/* Mobile: orderly grid — float percentages collide on narrow viewports */}
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:hidden">
+            {filtered.map((partner) => (
+              <li key={partner.id} className="flex min-w-0 justify-center">
+                <PartnerShell
+                  partner={partner}
+                  className="w-full max-w-[11rem]"
+                />
+              </li>
             ))}
           </ul>
-        </div>
+
+          {/* Desktop: floating field */}
+          <div
+            className="relative mt-4 hidden w-full overflow-visible md:block"
+            style={{ height: `${field.heightRem}rem` }}
+          >
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+              <div className="absolute top-[8%] left-[8%] size-28 rounded-full bg-brand/10 blur-3xl sm:size-40" />
+              <div className="absolute right-[8%] bottom-[6%] size-32 rounded-full bg-[color-mix(in_oklab,var(--asip-magenta)_10%,transparent)] blur-3xl sm:size-44" />
+            </div>
+
+            <ul className="absolute inset-0">
+              {filtered.map((partner, index) => (
+                <PartnerFloatTile
+                  key={partner.id}
+                  partner={partner}
+                  slot={field.slots[index]!}
+                  phase={FLOAT_PHASE[index % FLOAT_PHASE.length]!}
+                />
+              ))}
+            </ul>
+          </div>
+        </>
       )}
     </div>
   );

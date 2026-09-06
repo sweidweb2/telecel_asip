@@ -5,6 +5,7 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -94,10 +95,47 @@ async function fetchImpactMetricsPage(
   };
 }
 
+export type ImpactMetricListStats = {
+  total: number;
+  verified: number;
+  pending: number;
+  notForPublication: number;
+};
+
+async function fetchImpactMetricListStats(
+  supabase: ServerClient,
+): Promise<ImpactMetricListStats> {
+  const [total, verified, pending, notForPublication] = await Promise.all([
+    supabase
+      .from("impact_metrics")
+      .select("id", { count: "exact", head: true }),
+    supabase
+      .from("impact_metrics")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "verified"),
+    supabase
+      .from("impact_metrics")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "pending"),
+    supabase
+      .from("impact_metrics")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "not_for_publication"),
+  ]);
+
+  return {
+    total: countExact(total),
+    verified: countExact(verified),
+    pending: countExact(pending),
+    notForPublication: countExact(notForPublication),
+  };
+}
+
 export async function getImpactMetricsPageData(
   query: ImpactMetricListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: ImpactMetricListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: ImpactMetricListResult; stats: ImpactMetricListStats }
 > {
   return traceAsync(
     "getImpactMetricsPageData",
@@ -105,14 +143,15 @@ export async function getImpactMetricsPageData(
     async () => {
       const supabase = await createClient();
 
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchImpactMetricsPage(supabase, query),
+        fetchImpactMetricListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }

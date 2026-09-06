@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,11 @@ type EntitySelectProps = {
   clearable?: boolean;
   clearLabel?: string;
   "aria-invalid"?: boolean;
+  /** When set with onSearchChange, shows a search field inside the dropdown. */
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
 };
 
 /**
@@ -45,6 +51,10 @@ export function EntitySelect({
   clearable = false,
   clearLabel = "Clear",
   "aria-invalid": ariaInvalid,
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = "Search…",
+  emptyMessage = "No matches",
 }: EntitySelectProps) {
   const [labelById, setLabelById] = useState<Record<string, string>>(() =>
     Object.fromEntries(options.map((option) => [option.id, option.label])),
@@ -88,6 +98,7 @@ export function EntitySelect({
   }, [options, value, labelById]);
 
   const showClear = Boolean(clearable && value && !disabled);
+  const isSearchable = typeof onSearchChange === "function";
 
   function labelFor(selected: string | null): string {
     if (!selected) return placeholder;
@@ -118,12 +129,38 @@ export function EntitySelect({
             {(selected: string | null) => labelFor(selected)}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.id} value={option.id}>
-              {option.label}
-            </SelectItem>
-          ))}
+        <SelectContent
+          alignItemWithTrigger={false}
+          header={
+            isSearchable ? (
+              <div className="sticky top-0 z-10 border-b bg-popover p-1.5">
+                <Input
+                  value={searchValue ?? ""}
+                  onChange={(event) => onSearchChange?.(event.target.value)}
+                  placeholder={searchPlaceholder}
+                  maxLength={100}
+                  aria-label={searchPlaceholder}
+                  className="h-9 bg-background"
+                  // Keep focus / typing from closing or hijacking list keyboard nav
+                  onClick={(event) => event.stopPropagation()}
+                  onKeyDown={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => event.stopPropagation()}
+                />
+              </div>
+            ) : undefined
+          }
+        >
+          {options.length === 0 ? (
+            <div className="px-2 py-3 text-sm text-muted-foreground">
+              {emptyMessage}
+            </div>
+          ) : (
+            options.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.label}
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
       {showClear ? (

@@ -40,7 +40,6 @@ export default async function ContactUsPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
     >
       <InboxStatsCards stats={stats} />
       <ContactMessagesTable

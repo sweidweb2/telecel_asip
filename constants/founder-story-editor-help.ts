@@ -49,8 +49,13 @@ export const FOUNDER_STORY_EDITOR_HELP = {
         detail: "Optional quote shown on the public story when present.",
       },
       {
-        name: "Attribution name / title",
-        detail: "Who said it and their role — shown with the quote when set.",
+        name: "Attribution name",
+        detail: "Who said it — shown with the quote when set.",
+      },
+      {
+        name: "Attribution title",
+        detail:
+          "Role or title shown with the quote. Type to filter suggestions (e.g. Founder & CEO); free text is still allowed.",
       },
       {
         name: "Quote date",

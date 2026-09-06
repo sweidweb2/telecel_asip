@@ -100,13 +100,13 @@ describe("PartnersNetwork", () => {
       "data-active",
       "",
     );
-    expect(screen.getByAltText(/Cloudworx/i)).toBeInTheDocument();
-    expect(screen.getByAltText(/FMO Ventures/i)).toBeInTheDocument();
+    expect(screen.getAllByAltText(/Cloudworx/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByAltText(/FMO Ventures/i).length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole("tab", { name: "Technology partners" }));
 
-    expect(screen.getByAltText(/Cloudworx/i)).toBeInTheDocument();
-    expect(screen.queryByAltText(/FMO Ventures/i)).not.toBeInTheDocument();
-    expect(screen.queryByAltText(/Accelerator/i)).not.toBeInTheDocument();
+    expect(screen.getAllByAltText(/Cloudworx/i).length).toBeGreaterThan(0);
+    expect(screen.queryAllByAltText(/FMO Ventures/i)).toHaveLength(0);
+    expect(screen.queryAllByAltText(/Accelerator/i)).toHaveLength(0);
   });
 });

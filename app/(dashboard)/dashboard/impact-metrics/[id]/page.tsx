@@ -61,7 +61,6 @@ export default async function EditImpactMetricPage({
         mode="edit"
         metric={result.metric}
         heading="Edit impact metric"
-        description="Update the claim, measurement window, evidence link, and publish status."
       />
     </main>
   );

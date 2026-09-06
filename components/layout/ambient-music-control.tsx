@@ -128,7 +128,8 @@ function fadeVolume(
 
   const tick = (now: number) => {
     const progress = Math.min(1, (now - startedAt) / durationMs);
-    audio.volume = from + (to - from) * progress;
+    // Clamp — float drift can land slightly outside [0, 1] and throw IndexSizeError
+    audio.volume = Math.min(1, Math.max(0, from + (to - from) * progress));
     if (progress < 1) {
       frame = requestAnimationFrame(tick);
     }

@@ -11,7 +11,11 @@ export const PARTNER_NAME_MAX = 120;
 export const PARTNER_ORG_MAX = 160;
 export const PARTNER_CONTRIBUTION_MAX = 2000;
 export const PARTNER_LINK_MAX = 500;
-export const PARTNER_SORT_ORDER_MAX = 10_000;
+/** Inclusive display-order bounds (map + Zod + DB check). */
+export const PARTNER_SORT_ORDER_MIN = 1;
+export const PARTNER_SORT_ORDER_MAX = 170;
+/** Orders shown per map page (page 1 = 1–170). */
+export const PARTNER_SORT_ORDER_PAGE_SIZE = 170;
 
 /**
  * Mirrors `public.partner_type` and the `rows[].id` keys in
@@ -56,16 +60,18 @@ const sortOrder = z
   .union([z.number(), z.string(), z.null()])
   .optional()
   .transform((value, ctx) => {
-    if (value === "" || value === null || value === undefined) return 0;
+    if (value === "" || value === null || value === undefined) {
+      return PARTNER_SORT_ORDER_MIN;
+    }
     const n = typeof value === "number" ? value : Number(value);
     if (!Number.isFinite(n) || !Number.isInteger(n)) {
       ctx.addIssue({ code: "custom", message: "Order must be a whole number" });
       return z.NEVER;
     }
-    if (n < 0 || n > PARTNER_SORT_ORDER_MAX) {
+    if (n < PARTNER_SORT_ORDER_MIN || n > PARTNER_SORT_ORDER_MAX) {
       ctx.addIssue({
         code: "custom",
-        message: `Order must be between 0 and ${PARTNER_SORT_ORDER_MAX}`,
+        message: `Order must be between ${PARTNER_SORT_ORDER_MIN} and ${PARTNER_SORT_ORDER_MAX}`,
       });
       return z.NEVER;
     }

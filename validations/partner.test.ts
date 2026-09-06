@@ -29,7 +29,7 @@ describe("createPartnerSchema", () => {
     expect(parsed.name).toBe("Accelerator²");
   });
 
-  it("defaults a blank sort order to 0 and allows optional fields to be empty", () => {
+  it("defaults a blank sort order to the minimum and allows optional fields to be empty", () => {
     const parsed = createPartnerSchema.parse({
       name: "Amina Diallo",
       org: "",
@@ -40,7 +40,7 @@ describe("createPartnerSchema", () => {
       link: "",
       sortOrder: "",
     });
-    expect(parsed.sortOrder).toBe(0);
+    expect(parsed.sortOrder).toBe(1);
     expect(parsed.org).toBe("");
     expect(parsed.link).toBe("");
   });
@@ -64,6 +64,9 @@ describe("createPartnerSchema", () => {
   it("rejects an unknown partner type and an out-of-range sort order", () => {
     expect(
       createPartnerSchema.safeParse({ ...base, type: "philanthropy" }).success,
+    ).toBe(false);
+    expect(
+      createPartnerSchema.safeParse({ ...base, sortOrder: 0 }).success,
     ).toBe(false);
     expect(
       createPartnerSchema.safeParse({ ...base, sortOrder: -1 }).success,

@@ -66,7 +66,7 @@ export async function loginAsAdmin(
 }
 
 /**
- * Wait until Turnstile issues a token (submit becomes enabled).
+ * Wait until Turnstile issues a token into the form's hidden field.
  * Skips the test when the widget cannot mint a token on localhost.
  */
 export async function waitForTurnstileReady(
@@ -76,15 +76,18 @@ export async function waitForTurnstileReady(
   await expect(page.getByTestId(options.testId)).toBeVisible({
     timeout: 30_000,
   });
-  const submit = page.getByRole("button", { name: options.submitName });
+  const tokenInput = page.locator('input[name="turnstileToken"]');
   try {
-    await expect(submit).toBeEnabled({ timeout: 60_000 });
+    await expect(tokenInput).not.toHaveValue("", { timeout: 60_000 });
   } catch {
     test.skip(
       true,
       "Turnstile did not issue a token — check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
     );
   }
+  await expect(
+    page.getByRole("button", { name: options.submitName }),
+  ).toBeEnabled({ timeout: 5_000 });
 }
 
 /**

@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { publicPath } from "@/constants/routes";
 import { getAdminShell } from "@/data/admin-shell";
+import { getDashboardNavCounts } from "@/data/dashboard-nav-counts";
 import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { userDisplayName, userInitials } from "@/lib/user-display";
@@ -31,6 +32,12 @@ export default async function DashboardLayout({
     redirect(publicPath(await getRequestLocale()));
   }
 
+  const navCounts = await traceAsync(
+    "dashboardNavCounts",
+    { eventType: "layout", meta: { ops: ["getDashboardNavCounts"] } },
+    () => getDashboardNavCounts(),
+  );
+
   const email = shell.email ?? "";
   const account: DashboardAccount = {
     name: userDisplayName(shell.fullName, email),
@@ -43,7 +50,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar counts={navCounts} />
       <SidebarInset>
         <DashboardHeader account={account} />
         <div className="flex flex-1 flex-col">{children}</div>

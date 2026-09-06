@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { CohortStatsCards } from "@/components/dashboard/cms-list-stats";
 import { CohortsTable } from "@/components/cohorts/cohorts-table";
 import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -26,7 +27,7 @@ type CohortsPageProps = {
 
 export default async function CohortsPage({ searchParams }: CohortsPageProps) {
   const query = parseCohortListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getCohortsPageData,
     listPath: resource.listPath,
@@ -40,7 +41,6 @@ export default async function CohortsPage({ searchParams }: CohortsPageProps) {
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
@@ -52,6 +52,7 @@ export default async function CohortsPage({ searchParams }: CohortsPageProps) {
         </Button>
       }
     >
+      <CohortStatsCards stats={stats} />
       <CohortsTable
         cohorts={list.cohorts}
         total={list.total}

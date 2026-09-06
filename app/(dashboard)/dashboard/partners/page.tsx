@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { PartnerStatsCards } from "@/components/dashboard/cms-list-stats";
 import { PartnersTable } from "@/components/partners/partners-table";
 import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -28,7 +29,7 @@ export default async function PartnersPage({
   searchParams,
 }: PartnersPageProps) {
   const query = parsePartnerListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getPartnersPageData,
     listPath: resource.listPath,
@@ -43,7 +44,6 @@ export default async function PartnersPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
@@ -55,6 +55,7 @@ export default async function PartnersPage({
         </Button>
       }
     >
+      <PartnerStatsCards stats={stats} />
       <PartnersTable
         partners={list.partners}
         total={list.total}

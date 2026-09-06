@@ -4,6 +4,7 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -96,10 +97,47 @@ async function fetchEvidencePage(
   };
 }
 
+export type EvidenceListStats = {
+  total: number;
+  verified: number;
+  pending: number;
+  attention: number;
+};
+
+async function fetchEvidenceListStats(
+  supabase: ServerClient,
+): Promise<EvidenceListStats> {
+  const [total, verified, pending, attention] = await Promise.all([
+    supabase
+      .from("evidence_records")
+      .select("id", { count: "exact", head: true }),
+    supabase
+      .from("evidence_records")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "verified"),
+    supabase
+      .from("evidence_records")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("evidence_records")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["outdated", "disputed"]),
+  ]);
+
+  return {
+    total: countExact(total),
+    verified: countExact(verified),
+    pending: countExact(pending),
+    attention: countExact(attention),
+  };
+}
+
 export async function getEvidenceRecordsPageData(
   query: EvidenceListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: EvidenceListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: EvidenceListResult; stats: EvidenceListStats }
 > {
   return traceAsync(
     "getEvidenceRecordsPageData",
@@ -107,14 +145,15 @@ export async function getEvidenceRecordsPageData(
     async () => {
       const supabase = await createClient();
 
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchEvidencePage(supabase, query),
+        fetchEvidenceListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }

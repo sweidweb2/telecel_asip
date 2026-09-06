@@ -5,11 +5,19 @@ import type { PublicPageSlug } from "@/constants/public-pages";
  * Impact page fan section — portfolio traction snapshot with fanned media.
  * Named figures are portfolio examples pending full evidence packaging.
  */
+export type ImpactFanBadgeId =
+  | "revenue"
+  | "mentors"
+  | "operations"
+  | "partners"
+  | "growth";
+
 export type ImpactFanImage = {
+  id: ImpactFanBadgeId;
   src: string;
   alt: string;
   badge: string;
-  /** Tailwind colour for the badge dot */
+  /** Tailwind colour for the badge accent */
   dotClassName: string;
 };
 
@@ -33,30 +41,35 @@ export type ImpactFanCopy = {
 
 const sharedImagesEn: ImpactFanImage[] = [
   {
+    id: "revenue",
     src: "/asip-media/programme-workshop.webp",
     alt: "ASIP founders collaborating in a programme workshop",
     badge: "Revenue",
     dotClassName: "bg-brand",
   },
   {
+    id: "mentors",
     src: "/asip-media/programme-mentor.webp",
     alt: "A mentor working directly with an ASIP founder",
     badge: "Mentors",
     dotClassName: "bg-[var(--asip-coral)]",
   },
   {
+    id: "operations",
     src: "/asip-media/founders-community.webp",
     alt: "ASIP founders and programme community together",
     badge: "Operations",
     dotClassName: "bg-[var(--asip-magenta)]",
   },
   {
+    id: "partners",
     src: "/asip-media/partners-stage.webp",
     alt: "ASIP partners and founders on stage at an ecosystem event",
     badge: "Partners",
     dotClassName: "bg-[var(--asip-ink)]",
   },
   {
+    id: "growth",
     src: "/asip-media/about-journey.webp",
     alt: "ASIP founders on the programme journey",
     badge: "Growth",
@@ -66,30 +79,35 @@ const sharedImagesEn: ImpactFanImage[] = [
 
 const sharedImagesFr: ImpactFanImage[] = [
   {
+    id: "revenue",
     src: "/asip-media/programme-workshop.webp",
     alt: "Fondateurs ASIP collaborant lors d’un atelier du programme",
     badge: "Revenus",
     dotClassName: "bg-brand",
   },
   {
+    id: "mentors",
     src: "/asip-media/programme-mentor.webp",
     alt: "Un mentor travaillant directement avec un fondateur ASIP",
     badge: "Mentors",
     dotClassName: "bg-[var(--asip-coral)]",
   },
   {
+    id: "operations",
     src: "/asip-media/founders-community.webp",
     alt: "Fondateurs ASIP et communauté du programme",
     badge: "Opérations",
     dotClassName: "bg-[var(--asip-magenta)]",
   },
   {
+    id: "partners",
     src: "/asip-media/partners-stage.webp",
     alt: "Partenaires et fondateurs ASIP sur scène lors d’un événement",
     badge: "Partenaires",
     dotClassName: "bg-[var(--asip-ink)]",
   },
   {
+    id: "growth",
     src: "/asip-media/about-journey.webp",
     alt: "Fondateurs ASIP sur le parcours du programme",
     badge: "Croissance",

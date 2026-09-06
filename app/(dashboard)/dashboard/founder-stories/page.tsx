@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { FounderStoryStatsCards } from "@/components/dashboard/cms-list-stats";
 import { FounderStoriesTable } from "@/components/founder-stories/founder-stories-table";
 import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -28,7 +29,7 @@ export default async function FounderStoriesPage({
   searchParams,
 }: FounderStoriesPageProps) {
   const query = parseFounderStoryListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getFounderStoriesPageData,
     listPath: resource.listPath,
@@ -42,7 +43,6 @@ export default async function FounderStoriesPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
@@ -54,6 +54,7 @@ export default async function FounderStoriesPage({
         </Button>
       }
     >
+      <FounderStoryStatsCards stats={stats} />
       <FounderStoriesTable
         stories={list.stories}
         total={list.total}

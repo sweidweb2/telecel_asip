@@ -19,6 +19,7 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -26,8 +27,10 @@ import {
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { UrlInput } from "@/components/ui/url-input";
 import {
   Select,
   SelectContent,
@@ -46,6 +49,12 @@ import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import {
+  applyClearFormValues,
+  applyDummyFormValues,
+  dummyEvidenceValues,
+  todayIsoDate,
+} from "@/lib/admin/dummy-form-values";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -67,16 +76,17 @@ function defaultsFor(
   record: EvidenceDetail | undefined,
   defaultOwnerId: string,
 ): EvidenceFormValues {
+  const today = todayIsoDate();
   return {
     primarySource: record?.primary_source ?? "",
     sourceFileUrl: record?.source_file_url ?? "",
-    measurementPeriodStart: record?.measurement_period_start ?? "",
-    measurementPeriodEnd: record?.measurement_period_end ?? "",
+    measurementPeriodStart: record?.measurement_period_start ?? today,
+    measurementPeriodEnd: record?.measurement_period_end ?? today,
     ownerId: record?.owner_id ?? defaultOwnerId,
     status: record?.status ?? "pending",
-    lastVerifiedDate: record?.last_verified_date ?? "",
+    lastVerifiedDate: record?.last_verified_date ?? today,
     permission: record?.permission ?? "internal_only",
-    reviewDate: record?.review_date ?? "",
+    reviewDate: record?.review_date ?? today,
   };
 }
 
@@ -87,7 +97,6 @@ type EvidenceEditorFormProps = {
   owners?: EvidenceOwnerOption[];
   defaultOwnerId?: string;
   heading: string;
-  description: string;
 };
 
 export function EvidenceEditorForm({
@@ -96,7 +105,6 @@ export function EvidenceEditorForm({
   owners: initialOwners = [],
   defaultOwnerId: initialDefaultOwnerId = "",
   heading,
-  description,
 }: EvidenceEditorFormProps) {
   const formId = useId();
   const router = useRouter();
@@ -218,11 +226,33 @@ export function EvidenceEditorForm({
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
       >
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
             {heading}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <AdminFormDevTools
+            disabled={isPending}
+            onDummy={() => {
+              const current = form.getValues();
+              applyDummyFormValues(
+                form,
+                dummyEvidenceValues({
+                  ...current,
+                  ownerId:
+                    current.ownerId ||
+                    owners[0]?.id ||
+                    initialDefaultOwnerId ||
+                    "",
+                }),
+              );
+            }}
+            onClear={() => {
+              applyClearFormValues(
+                form,
+                defaultsFor(undefined, initialDefaultOwnerId),
+              );
+            }}
+          />
         </div>
 
         <AdminFormSection
@@ -245,6 +275,7 @@ export function EvidenceEditorForm({
               disabled={isPending}
               aria-invalid={!!form.formState.errors.primarySource}
               className="bg-white dark:bg-card"
+              placeholder="Report title, URL, or citation"
               {...form.register("primarySource")}
             />
             <FieldError>
@@ -259,11 +290,9 @@ export function EvidenceEditorForm({
             >
               Source file URL
             </AdminFormFieldLabel>
-            <Input
+            <UrlInput
               id={`${formId}-source-url`}
-              type="url"
-              inputMode="url"
-              placeholder="https://"
+              placeholder="example.com/report.pdf"
               className="min-h-11 bg-white dark:bg-card"
               maxLength={EVIDENCE_SOURCE_URL_MAX}
               disabled={isPending}
@@ -293,15 +322,21 @@ export function EvidenceEditorForm({
               >
                 Period start
               </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-period-start`}
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={
-                  !!form.formState.errors.measurementPeriodStart
-                }
-                {...form.register("measurementPeriodStart")}
+              <Controller
+                control={form.control}
+                name="measurementPeriodStart"
+                render={({ field }) => (
+                  <DatePicker
+                    id={`${formId}-period-start`}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select start date"
+                    aria-invalid={
+                      !!form.formState.errors.measurementPeriodStart
+                    }
+                  />
+                )}
               />
               <FieldError>
                 {form.formState.errors.measurementPeriodStart?.message}
@@ -318,13 +353,19 @@ export function EvidenceEditorForm({
               >
                 Period end
               </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-period-end`}
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={!!form.formState.errors.measurementPeriodEnd}
-                {...form.register("measurementPeriodEnd")}
+              <Controller
+                control={form.control}
+                name="measurementPeriodEnd"
+                render={({ field }) => (
+                  <DatePicker
+                    id={`${formId}-period-end`}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select end date"
+                    aria-invalid={!!form.formState.errors.measurementPeriodEnd}
+                  />
+                )}
               />
               <FieldError>
                 {form.formState.errors.measurementPeriodEnd?.message}
@@ -336,17 +377,6 @@ export function EvidenceEditorForm({
             <AdminFormFieldLabel htmlFor={`${formId}-owner`} hint="Required">
               Owner
             </AdminFormFieldLabel>
-            <Input
-              id={`${formId}-owner-search`}
-              value={optionSearch}
-              onChange={(event) => setOptionSearch(event.target.value)}
-              onFocus={() => setOptionsEnabled(true)}
-              maxLength={100}
-              placeholder="Search owners by name or email…"
-              className="mb-2 min-h-11 bg-white dark:bg-card"
-              disabled={isPending}
-              aria-label="Search owners"
-            />
             <Controller
               control={form.control}
               name="ownerId"
@@ -366,6 +396,16 @@ export function EvidenceEditorForm({
                   onOpenChange={(open) => {
                     if (open) setOptionsEnabled(true);
                   }}
+                  searchValue={optionSearch}
+                  onSearchChange={setOptionSearch}
+                  searchPlaceholder="Search owners by name or email…"
+                  emptyMessage={
+                    optionsLoading
+                      ? "Loading…"
+                      : optionSearch.trim()
+                        ? "No owners match"
+                        : "No owners available"
+                  }
                   aria-invalid={!!form.formState.errors.ownerId}
                 />
               )}
@@ -474,13 +514,19 @@ export function EvidenceEditorForm({
               >
                 Last verified
               </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-last-verified`}
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={!!form.formState.errors.lastVerifiedDate}
-                {...form.register("lastVerifiedDate")}
+              <Controller
+                control={form.control}
+                name="lastVerifiedDate"
+                render={({ field }) => (
+                  <DatePicker
+                    id={`${formId}-last-verified`}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select verified date"
+                    aria-invalid={!!form.formState.errors.lastVerifiedDate}
+                  />
+                )}
               />
               <FieldError>
                 {form.formState.errors.lastVerifiedDate?.message}
@@ -494,13 +540,19 @@ export function EvidenceEditorForm({
               <AdminFormFieldLabel htmlFor={`${formId}-review`} hint="Required">
                 Review date
               </AdminFormFieldLabel>
-              <Input
-                id={`${formId}-review`}
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={!!form.formState.errors.reviewDate}
-                {...form.register("reviewDate")}
+              <Controller
+                control={form.control}
+                name="reviewDate"
+                render={({ field }) => (
+                  <DatePicker
+                    id={`${formId}-review`}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select review date"
+                    aria-invalid={!!form.formState.errors.reviewDate}
+                  />
+                )}
               />
               <FieldError>
                 {form.formState.errors.reviewDate?.message}

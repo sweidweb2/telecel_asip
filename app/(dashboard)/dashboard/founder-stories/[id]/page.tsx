@@ -69,7 +69,6 @@ export default async function EditFounderStoryPage({
           },
         ]}
         heading="Edit founder story"
-        description="Update narrative modules, quote permission, and publish status."
       />
     </main>
   );

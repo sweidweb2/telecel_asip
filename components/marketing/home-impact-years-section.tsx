@@ -46,10 +46,10 @@ export function HomeImpactYearsSection({
           "min-h-[28rem] px-4 pb-16 pt-12 sm:min-h-[32rem] sm:px-6 sm:pb-20 sm:pt-14 lg:min-h-[36rem] lg:px-8 lg:pb-24 lg:pt-16",
         )}
       >
-        {/* Diagonal HR joining the slant (taller left → shorter right) */}
+        {/* Diagonal HR joining the slant — hidden on mobile where #2/#3 share the teal cutaway */}
         <svg
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full"
+          className="pointer-events-none absolute inset-0 hidden h-full w-full sm:block"
           preserveAspectRatio="none"
         >
           <line

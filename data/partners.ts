@@ -5,6 +5,7 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -17,6 +18,7 @@ import type {
   PartnerListResult,
   PartnerPublicGroups,
   PartnerPublicItem,
+  PartnerSortOrderOccupant,
 } from "@/types/partner";
 import { partnerIdSchema, type PartnerListQuery } from "@/validations/partner";
 
@@ -78,10 +80,45 @@ async function fetchPartnersPage(
   };
 }
 
+export type PartnerListStats = {
+  total: number;
+  active: number;
+  historical: number;
+  logoGranted: number;
+};
+
+async function fetchPartnerListStats(
+  supabase: ServerClient,
+): Promise<PartnerListStats> {
+  const [total, active, historical, logoGranted] = await Promise.all([
+    supabase.from("partners").select("id", { count: "exact", head: true }),
+    supabase
+      .from("partners")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase
+      .from("partners")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", false),
+    supabase
+      .from("partners")
+      .select("id", { count: "exact", head: true })
+      .eq("logo_permission", true),
+  ]);
+
+  return {
+    total: countExact(total),
+    active: countExact(active),
+    historical: countExact(historical),
+    logoGranted: countExact(logoGranted),
+  };
+}
+
 export async function getPartnersPageData(
   query: PartnerListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: PartnerListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: PartnerListResult; stats: PartnerListStats }
 > {
   return traceAsync(
     "getPartnersPageData",
@@ -91,14 +128,15 @@ export async function getPartnersPageData(
 
       // RLS already restricts the rows, so the list can run alongside the role
       // check instead of waiting a full round trip for it.
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchPartnersPage(supabase, query),
+        fetchPartnerListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }
@@ -189,3 +227,36 @@ export const getPublicPartners = unstable_cache(
   ["public-partners"],
   { tags: [PARTNERS_CACHE_TAG], revalidate: 300 },
 );
+
+const ORDER_COLUMNS = "id, name, sort_order" as const;
+
+/**
+ * All partners' display orders for the editor map + displacement planning.
+ * Admin-only; ordered ascending for a stable first→last range.
+ */
+export async function getPartnerSortOrderOccupants(): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; partners: PartnerSortOrderOccupant[] }
+> {
+  return traceAsync(
+    "getPartnerSortOrderOccupants",
+    { eventType: "data_read", cacheStatus: "n_a" },
+    async () => {
+      const supabase = await createClient();
+      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+
+      const { data, error } = await supabase
+        .from("partners")
+        .select(ORDER_COLUMNS)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+
+      return {
+        status: "ok",
+        partners: (data ?? []) as PartnerSortOrderOccupant[],
+      };
+    },
+  );
+}

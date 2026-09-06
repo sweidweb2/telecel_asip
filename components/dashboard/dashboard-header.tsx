@@ -13,6 +13,7 @@ import {
 import { useTheme } from "next-themes";
 
 import { signOut } from "@/actions/auth";
+import { DashboardPageSearch } from "@/components/dashboard/dashboard-page-search";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -56,79 +57,86 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
   }
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="h-4" />
-      <h1 className="min-w-0 truncate font-heading text-base font-semibold tracking-tight">
-        {title}
-      </h1>
-      <DropdownMenu>
-        {/*
-          Base UI Menu Trigger already renders a <button>.
-          Do not wrap <Button> with asChild — that nests button-in-button
-          and breaks hydration.
-        */}
-        <DropdownMenuTrigger
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            "ml-auto min-h-11 min-w-11 rounded-full",
-          )}
-          aria-label="Open account menu"
-        >
-          <Avatar>
-            <AvatarFallback>{account.initials}</AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 min-w-56">
-          <div className="grid px-2 py-1.5">
-            <span className="truncate text-sm font-medium">{account.name}</span>
-            {account.email ? (
-              <span className="truncate text-xs text-muted-foreground">
-                {account.email}
-              </span>
-            ) : null}
-          </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="min-h-11 cursor-pointer sm:min-h-8"
-            render={<Link href={publicPath(DEFAULT_LOCALE)} />}
-            nativeButton={false}
+    <header className="grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b px-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
+      <div className="flex min-w-0 items-center gap-2">
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="hidden h-4 sm:block" />
+        <h1 className="min-w-0 truncate font-heading text-base font-semibold tracking-tight">
+          {title}
+        </h1>
+      </div>
+
+      <DashboardPageSearch className="justify-self-center" />
+
+      <div className="flex justify-end">
+        <DropdownMenu>
+          {/*
+            Base UI Menu Trigger already renders a <button>.
+            Do not wrap <Button> with asChild — that nests button-in-button
+            and breaks hydration.
+          */}
+          <DropdownMenuTrigger
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "min-h-11 min-w-11 rounded-full",
+            )}
+            aria-label="Open account menu"
           >
-            <HomeIcon />
-            Go home
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
-            <DropdownMenuItem
-              key={value}
-              className="min-h-11 cursor-pointer sm:min-h-8"
-              onClick={() => {
-                setTheme(value);
-              }}
-            >
-              <Icon />
-              {label}
-              {mounted && theme === value ? (
-                <span className="ml-auto text-xs text-muted-foreground">
-                  Active
+            <Avatar>
+              <AvatarFallback>{account.initials}</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 min-w-56">
+            <div className="grid px-2 py-1.5">
+              <span className="truncate text-sm font-medium">{account.name}</span>
+              {account.email ? (
+                <span className="truncate text-xs text-muted-foreground">
+                  {account.email}
                 </span>
               ) : null}
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="min-h-11 cursor-pointer sm:min-h-8"
+              render={<Link href={publicPath(DEFAULT_LOCALE)} />}
+              nativeButton={false}
+            >
+              <HomeIcon />
+              Go home
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            className="min-h-11 sm:min-h-8"
-            disabled={isPending}
-            onClick={() => {
-              handleSignOut();
-            }}
-          >
-            <LogOutIcon />
-            {isPending ? "Signing out…" : "Log out"}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuSeparator />
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <DropdownMenuItem
+                key={value}
+                className="min-h-11 cursor-pointer sm:min-h-8"
+                onClick={() => {
+                  setTheme(value);
+                }}
+              >
+                <Icon />
+                {label}
+                {mounted && theme === value ? (
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    Active
+                  </span>
+                ) : null}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="min-h-11 sm:min-h-8"
+              disabled={isPending}
+              onClick={() => {
+                handleSignOut();
+              }}
+            >
+              <LogOutIcon />
+              {isPending ? "Signing out…" : "Log out"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }

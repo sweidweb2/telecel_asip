@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { BlogStatsCards } from "@/components/dashboard/cms-list-stats";
 import { BlogsTable } from "@/components/blogs/blogs-table";
 import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -26,7 +27,7 @@ type BlogsPageProps = {
 
 export default async function BlogsPage({ searchParams }: BlogsPageProps) {
   const query = parseBlogListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getBlogsPageData,
     listPath: resource.listPath,
@@ -40,7 +41,6 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
@@ -52,6 +52,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
         </Button>
       }
     >
+      <BlogStatsCards stats={stats} />
       <BlogsTable
         blogs={list.blogs}
         total={list.total}

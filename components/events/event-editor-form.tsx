@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
 import { Loader2Icon, Trash2Icon } from "lucide-react";
@@ -14,6 +14,7 @@ import {
   updateEvent,
 } from "@/actions/events";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -24,8 +25,9 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,6 +42,12 @@ import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import {
+  applyClearFormValues,
+  applyDummyFormValues,
+  dummyEventValues,
+  todayIsoDate,
+} from "@/lib/admin/dummy-form-values";
 import type { EventDetail, EventStartupOption } from "@/types/event";
 import {
   CMS_PUBLISH_STATUSES,
@@ -61,7 +69,7 @@ import {
 function defaultsFor(event?: EventDetail): EventFormValues {
   return {
     name: event?.name ?? "",
-    eventDate: event?.event_date ?? "",
+    eventDate: event?.event_date ?? todayIsoDate(),
     location: event?.location ?? "",
     format: event?.format ?? "",
     speakers: (event?.speakers ?? []).join("\n"),
@@ -78,7 +86,6 @@ type EventEditorFormProps = {
   /** Optional seed; form loads / searches the rest. */
   startupOptions?: EventStartupOption[];
   heading: string;
-  description: string;
 };
 
 export function EventEditorForm({
@@ -86,7 +93,6 @@ export function EventEditorForm({
   event,
   startupOptions: initialOptions = [],
   heading,
-  description,
 }: EventEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -183,8 +189,6 @@ export function EventEditorForm({
   }
 
   const { errors, isDirty } = form.formState;
-  const selectedIds =
-    useWatch({ control: form.control, name: "startupIds" }) ?? [];
 
   return (
     <>
@@ -193,11 +197,22 @@ export function EventEditorForm({
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
       >
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
             {heading}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <AdminFormDevTools
+            disabled={isPending}
+            onDummy={() => {
+              applyDummyFormValues(
+                form,
+                dummyEventValues(form.getValues()),
+              );
+            }}
+            onClear={() => {
+              applyClearFormValues(form, defaultsFor());
+            }}
+          />
         </div>
 
         <AdminFormSection
@@ -236,14 +251,19 @@ export function EventEditorForm({
               <AdminFormFieldLabel htmlFor="event-date" hint="Required">
                 Event date
               </AdminFormFieldLabel>
-              <Input
-                id="event-date"
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                required
-                aria-invalid={Boolean(errors.eventDate)}
-                {...form.register("eventDate")}
+              <Controller
+                control={form.control}
+                name="eventDate"
+                render={({ field }) => (
+                  <DatePicker
+                    id="event-date"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select event date"
+                    aria-invalid={Boolean(errors.eventDate)}
+                  />
+                )}
               />
               {errors.eventDate ? (
                 <FieldError>{errors.eventDate.message}</FieldError>
@@ -458,63 +478,40 @@ export function EventEditorForm({
             <AdminFormFieldLabel htmlFor="event-startups" hint="Optional">
               Linked startups
             </AdminFormFieldLabel>
-            <Input
-              id="event-startup-search"
-              value={optionSearch}
-              onChange={(changeEvent) => setOptionSearch(changeEvent.target.value)}
-              onFocus={() => setOptionsEnabled(true)}
-              disabled={isPending}
-              maxLength={100}
-              placeholder="Search startups…"
-              className="mb-2 min-h-11 bg-white dark:bg-card"
-              aria-label="Search startups"
-            />
-            <div
-              id="event-startups"
-              className="max-h-64 space-y-2 overflow-y-auto rounded-lg border p-3"
-            >
-              {optionsLoading ? (
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2Icon className="size-4 animate-spin" />
-                  Loading startups…
-                </p>
-              ) : startupOptions.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {optionSearch.trim()
-                    ? "No startups match that search."
-                    : "No startups in the portfolio yet."}
-                </p>
-              ) : (
-                startupOptions.map((startup) => {
-                  const checked = selectedIds.includes(startup.id);
-                  return (
-                    <label
-                      key={startup.id}
-                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-1"
-                    >
-                      <Checkbox
-                        checked={checked}
-                        disabled={isPending}
-                        onCheckedChange={(next) => {
-                          const isOn = next === true;
-                          const current = form.getValues("startupIds");
-                          form.setValue(
-                            "startupIds",
-                            isOn
-                              ? [...current, startup.id]
-                              : current.filter((id) => id !== startup.id),
-                            { shouldDirty: true, shouldValidate: true },
-                          );
-                        }}
-                      />
-                      <span className="min-w-0 truncate text-sm">
-                        {startup.name}
-                      </span>
-                    </label>
-                  );
-                })
+            <Controller
+              control={form.control}
+              name="startupIds"
+              render={({ field }) => (
+                <EntityMultiSelect
+                  id="event-startups"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  options={startupOptions.map((startup) => ({
+                    id: startup.id,
+                    label: startup.name,
+                  }))}
+                  placeholder={
+                    optionsLoading
+                      ? "Loading startups…"
+                      : "Select startups"
+                  }
+                  disabled={isPending}
+                  loading={optionsLoading}
+                  onOpenChange={(open) => {
+                    if (open) setOptionsEnabled(true);
+                  }}
+                  searchValue={optionSearch}
+                  onSearchChange={setOptionSearch}
+                  searchPlaceholder="Search startups…"
+                  emptyMessage={
+                    optionSearch.trim()
+                      ? "No startups match that search."
+                      : "No startups in the portfolio yet."
+                  }
+                  aria-invalid={Boolean(errors.startupIds)}
+                />
               )}
-            </div>
+            />
             {errors.startupIds ? (
               <FieldError>
                 {typeof errors.startupIds.message === "string"

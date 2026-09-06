@@ -49,7 +49,6 @@ export default async function PerformancePage({
   return (
     <AdminListPageShell
       title="Performance"
-      description="Temporary CMS timing debug. Cache hits show React.cache / request dedupe; misses and n_a are real work. Disable with ADMIN_PERF_TRACKING unset."
       actions={<DeleteOldPerfEventsButton />}
     >
       <AdminPerfDashboard

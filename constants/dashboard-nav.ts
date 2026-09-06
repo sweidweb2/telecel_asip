@@ -73,6 +73,22 @@ export const DASHBOARD_NAV_GROUPS = [
 export const DASHBOARD_NAV_ITEMS: readonly DashboardNavItem[] =
   DASHBOARD_NAV_GROUPS.flatMap((group) => [...group.items]);
 
+/** Page search catalog: nav title + group for header typeahead. */
+export type DashboardSearchPage = {
+  title: string;
+  href: string;
+  group: string;
+};
+
+export const DASHBOARD_SEARCH_PAGES: readonly DashboardSearchPage[] =
+  DASHBOARD_NAV_GROUPS.flatMap((group) =>
+    group.items.map((item) => ({
+      title: item.title,
+      href: item.href,
+      group: group.label,
+    })),
+  );
+
 /** Extra titles for routes that exist but are not primary nav items. */
 const DASHBOARD_EXTRA_TITLES: Record<string, string> = {};
 

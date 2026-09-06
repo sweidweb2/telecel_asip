@@ -24,7 +24,7 @@ export const PARTNER_EDITOR_HELP = {
       {
         name: "Display order",
         detail:
-          "Sort weight among partners (lower numbers appear first). Use to control featured ordering on the site.",
+          "Sort weight among partners (1–170, lower first). The order map paginates 170 slots per page. Choosing a taken number moves that partner to the first free slot on save.",
       },
     ],
   },
@@ -40,7 +40,7 @@ export const PARTNER_EDITOR_HELP = {
       {
         name: "Role / contribution",
         detail:
-          "Short description of how they work with ASIP. Shown on public partner cards when present.",
+          "How they work with ASIP. Type to filter suggested roles (e.g. Technology Partner), or enter a custom label.",
       },
     ],
   },

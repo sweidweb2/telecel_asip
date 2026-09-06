@@ -74,7 +74,11 @@ export function BlogsTable({
         return (
           <TableRow
             key={blog.id}
-            className="cursor-pointer"
+            className={
+              blog.is_featured
+                ? "cursor-pointer border-l-4 border-l-primary"
+                : "cursor-pointer"
+            }
             onClick={() => router.push(href)}
           >
             <AdminRowNumberCell

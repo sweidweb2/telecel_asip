@@ -113,7 +113,7 @@ export function HomeOutcomesSection({
             </div>
           </div>
 
-          <div className="relative min-w-0 justify-self-start">
+          <div className="relative min-w-0 justify-self-center lg:justify-self-start">
             <Image
               src="/my-images/window.png"
               alt={copy.imageAlt}
@@ -121,9 +121,9 @@ export function HomeOutcomesSection({
               height={1024}
               sizes="(max-width: 1024px) 100vw, 48rem"
               className={cn(
-                "h-auto w-full max-w-none rounded-xl object-cover shadow-lg ring-1 ring-border/60",
-                /* Oversized so the right edge clips outside the section */
-                "sm:w-[34rem] lg:w-[42rem] xl:w-[48rem]",
+                "mx-auto h-auto w-full max-w-none rounded-xl object-cover shadow-lg ring-1 ring-border/60",
+                /* Oversized from lg so the right edge clips outside the section */
+                "lg:mx-0 lg:w-[42rem] xl:w-[48rem]",
               )}
               priority={false}
             />

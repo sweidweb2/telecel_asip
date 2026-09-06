@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
 import { requireAdmin } from "@/data/auth";
+import { getPartnerSortOrderOccupants } from "@/data/partners";
 
 export const metadata: Metadata = {
   title: "New partner | ASIP Admin",
@@ -19,6 +21,8 @@ export const metadata: Metadata = {
 
 export default async function NewPartnerPage() {
   await requireAdmin();
+  const orderResult = await getPartnerSortOrderOccupants();
+  if (orderResult.status === "forbidden") redirect(ROUTES.dashboard);
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
@@ -38,7 +42,7 @@ export default async function NewPartnerPage() {
       <PartnerEditorForm
         mode="create"
         heading="New partner"
-        description="Name, organisation, type, contribution, and logo publication permission."
+        orderSlots={orderResult.partners}
       />
     </main>
   );

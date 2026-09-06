@@ -39,7 +39,6 @@ export default async function RegistrationsPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
     >
       <InboxStatsCards stats={stats} />
       <RegistrationsTable

@@ -6,6 +6,7 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -136,15 +137,53 @@ async function fetchStartupsPage(
   };
 }
 
+export type StartupListStats = {
+  total: number;
+  active: number;
+  draft: number;
+  inactive: number;
+};
+
+async function fetchStartupListStats(
+  supabase: ServerClient,
+): Promise<StartupListStats> {
+  const [total, active, draft, inactive] = await Promise.all([
+    supabase.from("startups").select("id", { count: "exact", head: true }),
+    supabase
+      .from("startups")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active"),
+    supabase
+      .from("startups")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "draft"),
+    supabase
+      .from("startups")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "inactive"),
+  ]);
+
+  return {
+    total: countExact(total),
+    active: countExact(active),
+    draft: countExact(draft),
+    inactive: countExact(inactive),
+  };
+}
+
 export async function getStartupsPageData(
   query: StartupListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: StartupListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: StartupListResult; stats: StartupListStats }
 > {
   return gateAdminPageData(
     async (supabase) => {
-      const list = await fetchStartupsPage(supabase, query);
-      return { list };
+      const [list, stats] = await Promise.all([
+        fetchStartupsPage(supabase, query),
+        fetchStartupListStats(supabase),
+      ]);
+      return { list, stats };
     },
     { name: "getStartupsPageData" },
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -31,6 +32,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
@@ -40,7 +42,9 @@ import {
   DASHBOARD_NAV_GROUPS,
   isDashboardNavActive,
 } from "@/constants/dashboard-nav";
-import { publicPath, ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes";
+
+type DashboardNavCounts = Partial<Record<string, number>>;
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.dashboard]: LayoutDashboardIcon,
@@ -62,7 +66,16 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.settings]: SettingsIcon,
 };
 
-export function AppSidebar() {
+function formatNavCount(count: number) {
+  if (count > 999) return "999+";
+  return String(count);
+}
+
+export function AppSidebar({
+  counts = {},
+}: {
+  counts?: DashboardNavCounts;
+}) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
@@ -77,17 +90,30 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              tooltip="Telecel"
+              tooltip="ASIP"
+              className="justify-start group-data-[collapsible=icon]:justify-center"
               render={
-                <Link href={publicPath("en")} onClick={closeMobileSidebar} />
+                <Link href={ROUTES.dashboard} onClick={closeMobileSidebar} />
               }
             >
-              <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
-                T
-              </span>
-              <span className="truncate font-heading font-medium group-data-[collapsible=icon]:hidden">
-                Telecel
-              </span>
+              <Image
+                src="/ASIP_LOGO.png"
+                alt="Africa Startup Initiative Program"
+                width={864}
+                height={289}
+                priority
+                sizes="160px"
+                className="h-8 w-auto max-w-[10rem] object-contain object-left group-data-[collapsible=icon]:hidden"
+              />
+              <Image
+                src="/icon.png"
+                alt="ASIP"
+                width={64}
+                height={64}
+                priority
+                sizes="32px"
+                className="hidden size-7 rounded-full object-cover group-data-[collapsible=icon]:block"
+              />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -100,6 +126,7 @@ export function AppSidebar() {
               <SidebarMenu>
                 {group.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
+                  const count = counts[item.href];
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -109,10 +136,21 @@ export function AppSidebar() {
                         }
                         isActive={isDashboardNavActive(pathname, item.href)}
                         tooltip={item.title}
+                        className={
+                          typeof count === "number" ? "pr-8" : undefined
+                        }
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
                       </SidebarMenuButton>
+                      {typeof count === "number" ? (
+                        <SidebarMenuBadge
+                          className="rounded-full bg-sidebar-accent text-[10px] leading-none"
+                          aria-label={`${count} records`}
+                        >
+                          {formatNavCount(count)}
+                        </SidebarMenuBadge>
+                      ) : null}
                     </SidebarMenuItem>
                   );
                 })}

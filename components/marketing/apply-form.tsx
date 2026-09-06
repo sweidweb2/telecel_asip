@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { UrlInput } from "@/components/ui/url-input";
 import type { Locale } from "@/constants/locales";
 import { useTurnstile } from "@/hooks/use-turnstile";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
@@ -436,9 +437,8 @@ function SharedFields({
           >
             {labels.linkedinLabel}
           </ApplyFieldLabel>
-          <Input
+          <UrlInput
             id="intake-linkedin"
-            type="url"
             placeholder={labels.linkedinPlaceholder}
             aria-invalid={Boolean(err("linkedin"))}
             disabled={isPending}
@@ -473,9 +473,8 @@ function SharedFields({
           >
             {labels.websiteLabel}
           </ApplyFieldLabel>
-          <Input
+          <UrlInput
             id="intake-website"
-            type="url"
             placeholder={labels.websitePlaceholder}
             aria-invalid={Boolean(err("website"))}
             disabled={isPending}

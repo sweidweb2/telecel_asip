@@ -36,6 +36,7 @@ import {
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { UrlInput } from "@/components/ui/url-input";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
@@ -72,9 +73,9 @@ function toEditDefaults(application: Application): UpdateApplicationInput {
     email: application.email,
     phone: application.phone,
     country: application.country,
-    linkedin: application.linkedin,
+    linkedin: application.linkedin ?? "",
     companyName: application.company_name,
-    website: application.website,
+    website: application.website ?? "",
     companyCountry: application.company_country,
     sector: application.sector,
     problemProduct: application.problem_product,
@@ -205,10 +206,12 @@ export function ApplicationRowActions({
                   {application.phone}
                 </AdminDetailRow>
                 <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
-                  <ExternalLink
-                    href={application.linkedin}
-                    label={application.linkedin}
-                  />
+                  {application.linkedin ? (
+                    <ExternalLink
+                      href={application.linkedin}
+                      label={application.linkedin}
+                    />
+                  ) : null}
                 </AdminDetailRow>
               </AdminDetailGrid>
             </AdminDetailSection>
@@ -228,10 +231,12 @@ export function ApplicationRowActions({
                   {application.comms_opt_in ? "Yes" : "No"}
                 </AdminDetailRow>
                 <AdminDetailRow label="Website" className="sm:col-span-2">
-                  <ExternalLink
-                    href={application.website}
-                    label={application.website}
-                  />
+                  {application.website ? (
+                    <ExternalLink
+                      href={application.website}
+                      label={application.website}
+                    />
+                  ) : null}
                 </AdminDetailRow>
               </AdminDetailGrid>
             </AdminDetailSection>
@@ -402,17 +407,16 @@ export function ApplicationRowActions({
                 <Field data-invalid={Boolean(form.formState.errors.linkedin)}>
                   <AdminFormFieldLabel
                     htmlFor={`edit-app-linkedin-${application.id}`}
-                    hint={`http(s):// · max ${APPLICATION_URL_MAX}`}
+                    hint={`Optional · http(s):// · max ${APPLICATION_URL_MAX}`}
                   >
                     LinkedIn
                   </AdminFormFieldLabel>
-                  <Input
+                  <UrlInput
                     id={`edit-app-linkedin-${application.id}`}
-                    type="url"
                     disabled={isUpdating}
                     maxLength={APPLICATION_URL_MAX}
                     className="min-h-11"
-                    placeholder="https://linkedin.com/in/…"
+                    placeholder="linkedin.com/in/…"
                     aria-invalid={Boolean(form.formState.errors.linkedin)}
                     {...form.register("linkedin")}
                   />
@@ -447,17 +451,16 @@ export function ApplicationRowActions({
                 <Field data-invalid={Boolean(form.formState.errors.website)}>
                   <AdminFormFieldLabel
                     htmlFor={`edit-app-website-${application.id}`}
-                    hint={`http(s):// · max ${APPLICATION_URL_MAX}`}
+                    hint={`Optional · http(s):// · max ${APPLICATION_URL_MAX}`}
                   >
                     Website
                   </AdminFormFieldLabel>
-                  <Input
+                  <UrlInput
                     id={`edit-app-website-${application.id}`}
-                    type="url"
                     disabled={isUpdating}
                     maxLength={APPLICATION_URL_MAX}
                     className="min-h-11"
-                    placeholder="https://example.com"
+                    placeholder="example.com"
                     aria-invalid={Boolean(form.formState.errors.website)}
                     {...form.register("website")}
                   />

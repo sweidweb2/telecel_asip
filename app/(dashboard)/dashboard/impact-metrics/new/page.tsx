@@ -38,7 +38,6 @@ export default async function NewImpactMetricPage() {
       <ImpactMetricEditorForm
         mode="create"
         heading="New impact metric"
-        description="Every metric must link to an evidence record. Only verified status should appear on the live site."
       />
     </main>
   );

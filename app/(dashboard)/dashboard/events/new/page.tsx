@@ -38,7 +38,6 @@ export default async function NewEventPage() {
       <EventEditorForm
         mode="create"
         heading="New event"
-        description="Add name, date, format, speakers, assets, and linked startups."
       />
     </main>
   );

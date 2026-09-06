@@ -17,6 +17,8 @@
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@hookform/resolvers": "^5.9.1",
+    "@shadcn/react": "^0.3.1",
+    "@stepperize/react": "^7.0.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "@tiptap/extension-link": "^3.30.3",
@@ -41,6 +43,7 @@
     "nextjs-toploader": "^3.9.17",
     "parse5": "^8.0.1",
     "react": "19.2.8",
+    "react-day-picker": "^10.0.1",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.85.0",
     "react-simple-maps": "^3.0.0",

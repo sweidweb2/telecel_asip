@@ -147,6 +147,24 @@ describe("submitApplication", () => {
     expect(recordRateLimitHit).toHaveBeenCalled();
   });
 
+  it("stores empty LinkedIn and website as null", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
+
+    const result = await submitApplication({
+      ...validSubmit,
+      linkedin: "",
+      website: "",
+    });
+
+    expect(result.status).toBe("success");
+    expect(insertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        linkedin: null,
+        website: null,
+      }),
+    );
+  });
+
   it("maps unique violations to a duplicate message", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     insertMock.mockResolvedValue({ error: { code: "23505" } });

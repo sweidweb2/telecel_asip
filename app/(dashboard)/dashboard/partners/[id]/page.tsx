@@ -12,7 +12,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { getPartnerByIdForAdmin } from "@/data/partners";
+import {
+  getPartnerByIdForAdmin,
+  getPartnerSortOrderOccupants,
+} from "@/data/partners";
 
 type EditPartnerPageProps = {
   params: Promise<{ id: string }>;
@@ -33,9 +36,14 @@ export default async function EditPartnerPage({
   params,
 }: EditPartnerPageProps) {
   const { id } = await params;
-  const result = await getPartnerByIdForAdmin(id);
+  const [result, orderResult] = await Promise.all([
+    getPartnerByIdForAdmin(id),
+    getPartnerSortOrderOccupants(),
+  ]);
 
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
+  if (result.status === "forbidden" || orderResult.status === "forbidden") {
+    redirect(ROUTES.dashboard);
+  }
   if (result.status === "not_found") notFound();
 
   return (
@@ -60,7 +68,7 @@ export default async function EditPartnerPage({
         mode="edit"
         partner={result.partner}
         heading="Edit partner"
-        description="Update partner details, activity status, and logo publication permission."
+        orderSlots={orderResult.partners}
       />
     </main>
   );

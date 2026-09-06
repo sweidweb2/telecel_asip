@@ -50,3 +50,10 @@ export type PartnerPublicGroups = {
   active: PartnerPublicItem[];
   historical: PartnerPublicItem[];
 };
+
+/** Compact row for the partner editor display-order map. */
+export type PartnerSortOrderOccupant = {
+  id: string;
+  name: string;
+  sort_order: number;
+};

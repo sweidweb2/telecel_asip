@@ -17,7 +17,6 @@ export default async function SettingsPage() {
   return (
     <AdminListPageShell
       title="Settings"
-      description="Control site-wide switches that change what the public site shows."
     >
       <SiteSettingsForm
         openApplications={settings.openApplications}

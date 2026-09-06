@@ -59,7 +59,6 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
         mode="edit"
         blog={result.blog}
         heading="Edit blog"
-        description="Update content, publish status, featured hero, and images."
       />
     </main>
   );

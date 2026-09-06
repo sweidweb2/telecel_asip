@@ -50,7 +50,6 @@ export default async function EditStartupPage({ params }: EditStartupPageProps) 
         mode="edit"
         startup={startup}
         heading="Edit startup"
-        description="Update core fields, details, logo, or delete this portfolio company."
       />
     </main>
   );

@@ -38,7 +38,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={<CreateUserDialog />}
     >
       <UserStatsCards stats={stats} />

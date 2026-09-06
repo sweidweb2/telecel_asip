@@ -38,7 +38,6 @@ export default async function NewEvidencePage() {
       <EvidenceEditorForm
         mode="create"
         heading="New evidence record"
-        description="Governance source for claims and impact metrics. Only verified status may back live numbers later."
       />
     </main>
   );

@@ -108,13 +108,13 @@ export type Database = {
           full_name: string
           id: string
           inbox_status: Database["public"]["Enums"]["inbox_status"]
-          linkedin: string
+          linkedin: string | null
           phone: string
           problem_product: string
           programme_fit: string
           sector: string
           traction: string
-          website: string
+          website: string | null
         }
         Insert: {
           comms_opt_in?: boolean
@@ -128,13 +128,13 @@ export type Database = {
           full_name: string
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
-          linkedin: string
+          linkedin?: string | null
           phone: string
           problem_product: string
           programme_fit: string
           sector: string
           traction: string
-          website: string
+          website?: string | null
         }
         Update: {
           comms_opt_in?: boolean
@@ -148,13 +148,13 @@ export type Database = {
           full_name?: string
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
-          linkedin?: string
+          linkedin?: string | null
           phone?: string
           problem_product?: string
           programme_fit?: string
           sector?: string
           traction?: string
-          website?: string
+          website?: string | null
         }
         Relationships: []
       }

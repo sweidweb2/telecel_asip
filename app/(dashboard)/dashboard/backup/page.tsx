@@ -35,7 +35,6 @@ export default async function BackupPage() {
   return (
     <AdminListPageShell
       title="Backup"
-      description="Download intake CSVs and follow recovery notes for the database."
     >
       <div className="grid gap-8">
         <section className="grid gap-3">

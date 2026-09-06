@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { EntitySelect } from "@/components/dashboard/entity-select";
 
@@ -60,5 +60,30 @@ describe("EntitySelect", () => {
 
     expect(screen.getByRole("combobox")).toHaveTextContent("Loading…");
     expect(screen.queryByText(OPTIONS[0].id)).not.toBeInTheDocument();
+  });
+
+  it("shows a search field inside the open dropdown when searchable", async () => {
+    const user = userEvent.setup();
+    const onSearchChange = vi.fn();
+
+    render(
+      <EntitySelect
+        id="related-founder"
+        value={null}
+        onValueChange={() => {}}
+        options={OPTIONS}
+        placeholder="None"
+        searchValue=""
+        onSearchChange={onSearchChange}
+        searchPlaceholder="Search founders…"
+      />,
+    );
+
+    await user.click(screen.getByRole("combobox"));
+    const search = await screen.findByRole("textbox", {
+      name: "Search founders…",
+    });
+    await user.type(search, "Acme");
+    expect(onSearchChange).toHaveBeenCalled();
   });
 });

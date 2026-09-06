@@ -40,7 +40,9 @@ test.describe("apply and register-interest", () => {
       await page.locator("#intake-company").fill(company);
       await page.locator("#intake-company-country").fill("Ghana");
       await page.locator("#intake-sector").fill("Fintech");
-      await page.getByLabel(/I agree that ASIP may store/i).click();
+      await page
+        .getByRole("checkbox", { name: /I agree that ASIP may store/i })
+        .click();
 
       await waitForTurnstileReady(page, {
         testId: "register-turnstile",
@@ -91,13 +93,8 @@ test.describe("apply and register-interest", () => {
       await page.locator("#intake-email").fill(email);
       await page.locator("#intake-phone").fill("+233201234567");
       await page.locator("#intake-country").fill("Ghana");
-      await page
-        .locator("#intake-linkedin")
-        .fill("https://linkedin.com/in/applye2e");
+      // LinkedIn + website intentionally left empty (optional).
       await page.locator("#intake-company").fill(company);
-      await page
-        .locator("#intake-website")
-        .fill("https://applye2e.example.com");
       await page.locator("#intake-company-country").fill("Ghana");
       await page.locator("#intake-sector").fill("Health");
       await page
@@ -111,7 +108,9 @@ test.describe("apply and register-interest", () => {
       await page
         .locator("#intake-fit")
         .fill("Need customer intros and capital to expand into Francophone markets.");
-      await page.getByLabel(/I agree that ASIP may store/i).click();
+      await page
+        .getByRole("checkbox", { name: /I agree that ASIP may store/i })
+        .click();
 
       await waitForTurnstileReady(page, {
         testId: "apply-turnstile",
@@ -122,12 +121,15 @@ test.describe("apply and register-interest", () => {
         page.locator("[data-sonner-toast]").filter({ hasText: APPLY_SUCCESS }),
       ).toBeVisible({ timeout: 20_000 });
 
-      const { count, error } = await admin
+      const { data: row, error } = await admin
         .from("applications")
-        .select("id", { count: "exact", head: true })
-        .eq("email", email);
+        .select("id, linkedin, website")
+        .eq("email", email)
+        .maybeSingle();
       if (error) throw error;
-      expect(count).toBe(1);
+      expect(row).toBeTruthy();
+      expect(row?.linkedin).toBeNull();
+      expect(row?.website).toBeNull();
     } finally {
       await admin.from("applications").delete().eq("email", email);
       await admin

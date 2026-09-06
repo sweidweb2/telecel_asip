@@ -19,6 +19,7 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -26,6 +27,7 @@ import {
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +46,12 @@ import { IMPACT_METRIC_EDITOR_HELP } from "@/constants/impact-metric-editor-help
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import {
+  applyClearFormValues,
+  applyDummyFormValues,
+  dummyImpactMetricValues,
+  todayIsoDate,
+} from "@/lib/admin/dummy-form-values";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
@@ -60,12 +68,13 @@ import {
 } from "@/validations/impact-metric";
 
 function defaultsFor(metric?: ImpactMetric): ImpactMetricFormValues {
+  const today = todayIsoDate();
   return {
     claimLabel: metric?.claim_label ?? "",
     value: metric?.value ?? "",
     unit: metric?.unit ?? "",
-    periodStart: metric?.period_start ?? "",
-    periodEnd: metric?.period_end ?? "",
+    periodStart: metric?.period_start ?? today,
+    periodEnd: metric?.period_end ?? today,
     geography: metric?.geography ?? "",
     impactLens: metric?.impact_lens ?? null,
     displayLocations: (metric?.display_locations ?? []).join("\n"),
@@ -80,7 +89,6 @@ type ImpactMetricEditorFormProps = {
   /** Seed for edit; form searches the rest via loadImpactEvidenceOptions. */
   evidenceOptions?: EvidenceOption[];
   heading: string;
-  description: string;
 };
 
 export function ImpactMetricEditorForm({
@@ -88,7 +96,6 @@ export function ImpactMetricEditorForm({
   metric,
   evidenceOptions: initialOptions = [],
   heading,
-  description,
 }: ImpactMetricEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -198,11 +205,27 @@ export function ImpactMetricEditorForm({
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
             {heading}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <AdminFormDevTools
+            disabled={isPending}
+            onDummy={() => {
+              const current = form.getValues();
+              applyDummyFormValues(
+                form,
+                dummyImpactMetricValues({
+                  ...current,
+                  evidenceId:
+                    current.evidenceId || evidenceOptions[0]?.id || "",
+                }),
+              );
+            }}
+            onClear={() => {
+              applyClearFormValues(form, defaultsFor());
+            }}
+          />
         </div>
 
         <AdminFormSection
@@ -224,6 +247,7 @@ export function ImpactMetricEditorForm({
               maxLength={IMPACT_CLAIM_LABEL_MAX}
               disabled={isPending}
               aria-invalid={!!errors.claimLabel}
+              placeholder="e.g. Jobs created"
               {...register("claimLabel")}
             />
             <FieldError>{errors.claimLabel?.message}</FieldError>
@@ -246,6 +270,7 @@ export function ImpactMetricEditorForm({
                 maxLength={IMPACT_VALUE_MAX}
                 disabled={isPending}
                 aria-invalid={!!errors.value}
+                placeholder="e.g. 120"
                 {...register("value")}
               />
               <FieldError>{errors.value?.message}</FieldError>
@@ -267,6 +292,7 @@ export function ImpactMetricEditorForm({
                 maxLength={IMPACT_UNIT_MAX}
                 disabled={isPending}
                 aria-invalid={!!errors.unit}
+                placeholder="e.g. founders"
                 {...register("unit")}
               />
               <FieldError>{errors.unit?.message}</FieldError>
@@ -288,13 +314,19 @@ export function ImpactMetricEditorForm({
               <AdminFormFieldLabel htmlFor="impact-start" hint="Required">
                 Period start
               </AdminFormFieldLabel>
-              <Input
-                id="impact-start"
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={!!errors.periodStart}
-                {...register("periodStart")}
+              <Controller
+                control={control}
+                name="periodStart"
+                render={({ field }) => (
+                  <DatePicker
+                    id="impact-start"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select start date"
+                    aria-invalid={!!errors.periodStart}
+                  />
+                )}
               />
               <FieldError>{errors.periodStart?.message}</FieldError>
             </Field>
@@ -306,13 +338,19 @@ export function ImpactMetricEditorForm({
               <AdminFormFieldLabel htmlFor="impact-end" hint="Required">
                 Period end
               </AdminFormFieldLabel>
-              <Input
-                id="impact-end"
-                type="date"
-                className="min-h-11 bg-white dark:bg-card"
-                disabled={isPending}
-                aria-invalid={!!errors.periodEnd}
-                {...register("periodEnd")}
+              <Controller
+                control={control}
+                name="periodEnd"
+                render={({ field }) => (
+                  <DatePicker
+                    id="impact-end"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    placeholder="Select end date"
+                    aria-invalid={!!errors.periodEnd}
+                  />
+                )}
               />
               <FieldError>{errors.periodEnd?.message}</FieldError>
             </Field>
@@ -322,17 +360,6 @@ export function ImpactMetricEditorForm({
             <AdminFormFieldLabel htmlFor="impact-evidence" hint="Required">
               Evidence record
             </AdminFormFieldLabel>
-            <Input
-              id="impact-evidence-search"
-              value={optionSearch}
-              onChange={(event) => setOptionSearch(event.target.value)}
-              onFocus={() => setOptionsEnabled(true)}
-              maxLength={100}
-              placeholder="Search evidence by source…"
-              className="mb-2 min-h-11 bg-white dark:bg-card"
-              disabled={isPending}
-              aria-label="Search evidence records"
-            />
             <Controller
               control={control}
               name="evidenceId"
@@ -352,6 +379,16 @@ export function ImpactMetricEditorForm({
                   onOpenChange={(open) => {
                     if (open) setOptionsEnabled(true);
                   }}
+                  searchValue={optionSearch}
+                  onSearchChange={setOptionSearch}
+                  searchPlaceholder="Search evidence by source…"
+                  emptyMessage={
+                    optionsLoading
+                      ? "Loading…"
+                      : optionSearch.trim()
+                        ? "No evidence matches"
+                        : "No evidence available"
+                  }
                   aria-invalid={!!errors.evidenceId}
                 />
               )}
@@ -458,6 +495,7 @@ export function ImpactMetricEditorForm({
               maxLength={IMPACT_GEOGRAPHY_MAX}
               disabled={isPending}
               aria-invalid={!!errors.geography}
+              placeholder="e.g. West Africa"
               {...register("geography")}
             />
             <FieldError>{errors.geography?.message}</FieldError>
@@ -480,6 +518,7 @@ export function ImpactMetricEditorForm({
               }
               aria-invalid={!!errors.displayLocations}
               className="bg-white dark:bg-card"
+              placeholder="One city or country per line"
               {...register("displayLocations")}
             />
             <FieldError>{errors.displayLocations?.message}</FieldError>

@@ -59,7 +59,6 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         mode="edit"
         event={result.event}
         heading="Edit event"
-        description="Update event details, publish status, and linked startups."
       />
     </main>
   );

@@ -1,8 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 type AdminListPageSkeletonProps = {
-  /** Approximate subtitle / description width. */
-  subtitleWidthClass?: string;
   /** Show the primary CTA skeleton in the header. */
   showHeaderAction?: boolean;
   /** Number of filter control skeletons beside search. */
@@ -13,13 +11,14 @@ type AdminListPageSkeletonProps = {
   rowCount?: number;
   /** @deprecated Title lives in the dashboard header; ignored. */
   titleWidthClass?: string;
+  /** @deprecated Page blurbs removed; ignored. */
+  subtitleWidthClass?: string;
 };
 
 /**
  * Shared shadcn fallback for admin CMS list pages until boneyard bones exist.
  */
 export function AdminListPageSkeleton({
-  subtitleWidthClass = "w-72",
   showHeaderAction = true,
   filterControlCount = 1,
   columnCount = 6,
@@ -27,12 +26,11 @@ export function AdminListPageSkeleton({
 }: AdminListPageSkeletonProps) {
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <Skeleton className={`h-4 max-w-full ${subtitleWidthClass}`} />
-        {showHeaderAction ? (
+      {showHeaderAction ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-end">
           <Skeleton className="h-11 w-full shrink-0 sm:h-8 sm:w-36" />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       <div className="overflow-hidden rounded-xl border bg-card">
         <div className="flex flex-col gap-2 border-b p-4 lg:flex-row lg:items-center">

@@ -6,6 +6,7 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -49,6 +50,7 @@ async function fetchBlogsPage(
   let request = supabase
     .from("blogs")
     .select(LIST_COLUMNS, { count: "estimated" })
+    .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -74,13 +76,53 @@ async function fetchBlogsPage(
   };
 }
 
+export type BlogListStats = {
+  total: number;
+  published: number;
+  draft: number;
+  featured: number;
+};
+
+async function fetchBlogListStats(
+  supabase: ServerClient,
+): Promise<BlogListStats> {
+  const [total, published, draft, featured] = await Promise.all([
+    supabase.from("blogs").select("id", { count: "exact", head: true }),
+    supabase
+      .from("blogs")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published"),
+    supabase
+      .from("blogs")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "draft"),
+    supabase
+      .from("blogs")
+      .select("id", { count: "exact", head: true })
+      .eq("is_featured", true),
+  ]);
+
+  return {
+    total: countExact(total),
+    published: countExact(published),
+    draft: countExact(draft),
+    featured: countExact(featured),
+  };
+}
+
 export async function getBlogsPageData(
   query: BlogListQuery,
-): Promise<{ status: "forbidden" } | { status: "ok"; list: BlogListResult }> {
+): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; list: BlogListResult; stats: BlogListStats }
+> {
   return gateAdminPageData(
     async (supabase) => {
-      const list = await fetchBlogsPage(supabase, query);
-      return { list };
+      const [list, stats] = await Promise.all([
+        fetchBlogsPage(supabase, query),
+        fetchBlogListStats(supabase),
+      ]);
+      return { list, stats };
     },
     { name: "getBlogsPageData" },
   );

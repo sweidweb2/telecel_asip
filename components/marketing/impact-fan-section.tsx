@@ -1,14 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import {
+  ArrowUpRight,
+  Building2,
+  CircleDollarSign,
+  Settings2,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 import {
   impactFanCopyFor,
+  type ImpactFanBadgeId,
   type ImpactFanImage,
 } from "@/constants/impact-fan-copy";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+
+const BADGE_ICONS: Record<ImpactFanBadgeId, LucideIcon> = {
+  revenue: CircleDollarSign,
+  mentors: Users,
+  operations: Settings2,
+  partners: Building2,
+  growth: TrendingUp,
+};
 
 type ImpactFanSectionProps = {
   locale: Locale;
@@ -21,26 +38,31 @@ const FAN_SLOTS = [
     className:
       "left-0 z-[14] w-[28%] -rotate-[11deg] sm:w-[24%] sm:-rotate-[10deg] lg:w-[22%]",
     floatClassName: "about-story-float",
+    badgeSide: "left" as const,
   },
   {
     className:
       "left-[15%] z-[16] w-[28%] -translate-y-2 -rotate-[5deg] sm:left-[17%] sm:w-[24%] sm:-translate-y-3 sm:-rotate-[4deg] lg:left-[17%] lg:w-[24%]",
     floatClassName: "next-chapter-float-delayed",
+    badgeSide: "left" as const,
   },
   {
     className:
       "left-1/2 z-[18] w-[30%] -translate-x-1/2 -translate-y-5 sm:w-[26%] sm:-translate-y-7 lg:w-[26%] lg:-translate-y-8",
     floatClassName: "about-story-float-delayed",
+    badgeSide: "left" as const,
   },
   {
     className:
       "right-[15%] z-[16] w-[28%] -translate-y-2 rotate-[5deg] sm:right-[17%] sm:w-[24%] sm:-translate-y-3 sm:rotate-[4deg] lg:right-[17%] lg:w-[24%]",
     floatClassName: "next-chapter-float",
+    badgeSide: "right" as const,
   },
   {
     className:
       "right-0 z-[14] w-[28%] rotate-[11deg] sm:w-[24%] sm:rotate-[10deg] lg:w-[22%]",
     floatClassName: "about-story-float",
+    badgeSide: "right" as const,
   },
 ] as const;
 
@@ -100,6 +122,7 @@ export function ImpactFanSection({
                 image={image}
                 className={slot.className}
                 floatClassName={slot.floatClassName}
+                badgeSide={slot.badgeSide}
               />
             );
           })}
@@ -154,11 +177,15 @@ function FanCard({
   image,
   className,
   floatClassName,
+  badgeSide = "left",
 }: {
   image: ImpactFanImage;
   className?: string;
   floatClassName?: string;
+  badgeSide?: "left" | "right";
 }) {
+  const Icon = BADGE_ICONS[image.id];
+
   return (
     <figure
       className={cn(
@@ -182,15 +209,29 @@ function FanCard({
             sizes="(max-width: 640px) 40vw, (max-width: 1024px) 28vw, 320px"
             quality={90}
           />
-          <figcaption className="absolute top-2.5 left-2.5 inline-flex max-w-[calc(100%-1.25rem)] items-center gap-1.5 rounded-full bg-background/95 px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.12em] text-foreground uppercase shadow-sm backdrop-blur-sm sm:top-3 sm:left-3 sm:px-3 sm:py-1.5 sm:text-xs">
+          <figcaption
+            aria-label={image.badge}
+            className={cn(
+              "absolute top-2 inline-flex items-center rounded-full bg-background/95 shadow-sm backdrop-blur-sm",
+              /* Mobile: icon-only chip — text labels need more room from sm */
+              "size-7 justify-center sm:top-3 sm:h-auto sm:w-auto sm:max-w-[calc(100%-1.5rem)] sm:gap-1.5 sm:px-3 sm:py-1.5",
+              badgeSide === "right"
+                ? "right-2 sm:right-3"
+                : "left-2 sm:left-3",
+            )}
+          >
             <span
               aria-hidden
               className={cn(
-                "size-1.5 shrink-0 rounded-full",
+                "inline-flex size-5 items-center justify-center rounded-full text-white sm:size-4",
                 image.dotClassName,
               )}
-            />
-            <span className="truncate">{image.badge}</span>
+            >
+              <Icon className="size-3 sm:size-2.5" strokeWidth={2.5} />
+            </span>
+            <span className="hidden truncate text-xs font-semibold tracking-[0.12em] text-foreground uppercase sm:inline">
+              {image.badge}
+            </span>
           </figcaption>
         </div>
       </div>

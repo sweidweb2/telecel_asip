@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { EvidenceStatsCards } from "@/components/dashboard/cms-list-stats";
 import { EvidenceRecordsTable } from "@/components/evidence-records/evidence-records-table";
 import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -26,7 +27,7 @@ type EvidencePageProps = {
 
 export default async function EvidencePage({ searchParams }: EvidencePageProps) {
   const query = parseEvidenceListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getEvidenceRecordsPageData,
     listPath: resource.listPath,
@@ -41,7 +42,6 @@ export default async function EvidencePage({ searchParams }: EvidencePageProps) 
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      description={resource.description}
       actions={
         <Button
           className="min-h-11 w-full sm:w-auto"
@@ -53,6 +53,7 @@ export default async function EvidencePage({ searchParams }: EvidencePageProps) 
         </Button>
       }
     >
+      <EvidenceStatsCards stats={stats} />
       <EvidenceRecordsTable
         records={list.records}
         total={list.total}

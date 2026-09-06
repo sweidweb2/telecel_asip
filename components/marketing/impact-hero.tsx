@@ -58,14 +58,13 @@ export function ImpactHero({ locale, copy }: ImpactHeroProps) {
       </div>
 
       {/*
-        Right-flush trapezoid: top edge shorter than bottom
-        (narrow crown → wider base). Cover image fills the clipped shape.
+        Mobile/tablet: full-width rectangle (no clip).
+        Desktop: right-flush trapezoid (narrow crown → wider base).
       */}
       <div
         className={cn(
-          "relative ml-auto h-56 w-[min(100%,24rem)] bg-muted sm:h-64 sm:w-[min(100%,30rem)]",
-          "[clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]",
-          "lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[min(44%,36rem)]",
+          "relative mt-2 h-56 w-full bg-muted sm:h-72",
+          "lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:h-auto lg:w-[min(44%,36rem)]",
           "lg:[clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]",
         )}
       >

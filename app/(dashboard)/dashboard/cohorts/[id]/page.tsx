@@ -59,7 +59,6 @@ export default async function EditCohortPage({ params }: EditCohortPageProps) {
         mode="edit"
         cohort={result.cohort}
         heading="Edit cohort"
-        description="Update programme details, publish status, and linked partners and founders."
       />
     </main>
   );

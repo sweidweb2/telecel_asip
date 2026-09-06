@@ -54,7 +54,10 @@ const MESSAGES = {
 
 /** Lazy searchable options for blog related-founder / cohort selects. */
 export async function loadBlogLinkOptions(input?: {
+  /** Shared search applied to both lists when specific searches are omitted. */
   search?: string;
+  startupSearch?: string;
+  cohortSearch?: string;
   includeStartupId?: string | null;
   includeCohortId?: string | null;
 }): Promise<
@@ -65,10 +68,12 @@ export async function loadBlogLinkOptions(input?: {
     }
   | { status: "error"; message: string }
 > {
-  const search = input?.search ?? "";
+  const shared = input?.search ?? "";
+  const startupSearch = input?.startupSearch ?? shared;
+  const cohortSearch = input?.cohortSearch ?? shared;
   const [startupsResult, cohortsResult] = await Promise.all([
-    getStartupsForBlogPicker(search, input?.includeStartupId),
-    getCohortsForBlogPicker(search, input?.includeCohortId),
+    getStartupsForBlogPicker(startupSearch, input?.includeStartupId),
+    getCohortsForBlogPicker(cohortSearch, input?.includeCohortId),
   ]);
   if (
     startupsResult.status === "forbidden" ||

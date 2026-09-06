@@ -21,8 +21,8 @@ type ApplicationMessages = {
   sectorMax: string;
   countryMin: string;
   countryMax: string;
-  linkedinRequired: string;
-  websiteRequired: string;
+  linkedinInvalid: string;
+  websiteInvalid: string;
   problemMin: string;
   problemMax: string;
   tractionMin: string;
@@ -50,8 +50,8 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     sectorMax: "Sector must be at most 80 characters",
     countryMin: "Country must be at least 2 characters",
     countryMax: "Country must be at most 80 characters",
-    linkedinRequired: "LinkedIn must be a valid http(s) URL",
-    websiteRequired: "Website must be a valid http(s) URL",
+    linkedinInvalid: "LinkedIn must be a valid http(s) URL",
+    websiteInvalid: "Website must be a valid http(s) URL",
     problemMin: "Problem & product must be at least 40 characters",
     problemMax: "Problem & product must be at most 4000 characters",
     tractionMin: "Traction must be at least 20 characters",
@@ -77,8 +77,8 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     sectorMax: "Le secteur doit contenir au plus 80 caractères",
     countryMin: "Le pays doit contenir au moins 2 caractères",
     countryMax: "Le pays doit contenir au plus 80 caractères",
-    linkedinRequired: "LinkedIn doit être une URL http(s) valide",
-    websiteRequired: "Le site web doit être une URL http(s) valide",
+    linkedinInvalid: "LinkedIn doit être une URL http(s) valide",
+    websiteInvalid: "Le site web doit être une URL http(s) valide",
     problemMin: "Problème & produit : au moins 40 caractères",
     problemMax: "Problème & produit : au plus 4000 caractères",
     tractionMin: "Traction : au moins 20 caractères",
@@ -110,13 +110,17 @@ export const APPLICATION_PROBLEM_MIN = 40;
 export const APPLICATION_TRACTION_MIN = 20;
 export const APPLICATION_FIT_MIN = 20;
 
-function requiredHttpUrl(message: string) {
+function optionalHttpUrl(message: string) {
   return z
     .string()
     .trim()
-    .min(8, message)
     .max(APPLICATION_URL_MAX, message)
-    .regex(HTTP_URL_REGEX, message);
+    .refine(
+      (value) => value === "" || HTTP_URL_REGEX.test(value),
+      message,
+    )
+    .optional()
+    .or(z.literal(""));
 }
 
 function applicationFieldsSchema(messages: ApplicationMessages) {
@@ -151,13 +155,13 @@ function applicationFieldsSchema(messages: ApplicationMessages) {
       .trim()
       .min(2, messages.countryMin)
       .max(80, messages.countryMax),
-    linkedin: requiredHttpUrl(messages.linkedinRequired),
+    linkedin: optionalHttpUrl(messages.linkedinInvalid),
     companyName: z
       .string()
       .trim()
       .min(2, messages.companyMin)
       .max(120, messages.companyMax),
-    website: requiredHttpUrl(messages.websiteRequired),
+    website: optionalHttpUrl(messages.websiteInvalid),
     companyCountry: z
       .string()
       .trim()

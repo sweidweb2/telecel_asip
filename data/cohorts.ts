@@ -5,6 +5,7 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -74,23 +75,61 @@ async function fetchCohortsPage(
   };
 }
 
+export type CohortListStats = {
+  total: number;
+  published: number;
+  draft: number;
+  open: number;
+};
+
+async function fetchCohortListStats(
+  supabase: ServerClient,
+): Promise<CohortListStats> {
+  const [total, published, draft, open] = await Promise.all([
+    supabase.from("cohorts").select("id", { count: "exact", head: true }),
+    supabase
+      .from("cohorts")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "published"),
+    supabase
+      .from("cohorts")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "draft"),
+    supabase
+      .from("cohorts")
+      .select("id", { count: "exact", head: true })
+      .eq("programme_status", "open"),
+  ]);
+
+  return {
+    total: countExact(total),
+    published: countExact(published),
+    draft: countExact(draft),
+    open: countExact(open),
+  };
+}
+
 export async function getCohortsPageData(
   query: CohortListQuery,
-): Promise<{ status: "forbidden" } | { status: "ok"; list: CohortListResult }> {
+): Promise<
+  | { status: "forbidden" }
+  | { status: "ok"; list: CohortListResult; stats: CohortListStats }
+> {
   return traceAsync(
     "getCohortsPageData",
     { eventType: "data_read", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
 
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchCohortsPage(supabase, query),
+        fetchCohortListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }

@@ -46,7 +46,7 @@ const optionalText = (max: number, min = 1) =>
     .optional()
     .or(z.literal(""));
 
-/** ISO date string `YYYY-MM-DD` from `<input type="date">`. */
+/** ISO date string `YYYY-MM-DD` from the admin DatePicker. */
 const dateString = z
   .string()
   .trim()

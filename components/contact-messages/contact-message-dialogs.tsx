@@ -289,6 +289,7 @@ export function ContactMessageRowActions({
                     disabled={isUpdating}
                     maxLength={CONTACT_MESSAGE_FULL_NAME_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Ama Mensah"
                     aria-invalid={Boolean(form.formState.errors.fullName)}
                     {...form.register("fullName")}
                   />
@@ -309,6 +310,7 @@ export function ContactMessageRowActions({
                     disabled={isUpdating}
                     maxLength={CONTACT_MESSAGE_PHONE_MAX}
                     className="min-h-11"
+                    placeholder="+233 20 000 0000"
                     aria-invalid={Boolean(form.formState.errors.phone)}
                     {...form.register("phone")}
                   />
@@ -330,6 +332,7 @@ export function ContactMessageRowActions({
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_EMAIL_MAX}
                   className="min-h-11"
+                  placeholder="name@company.com"
                   aria-invalid={Boolean(form.formState.errors.email)}
                   {...form.register("email")}
                 />
@@ -349,6 +352,7 @@ export function ContactMessageRowActions({
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_SUBJECT_MAX}
                   className="min-h-11"
+                  placeholder="e.g. Partnership enquiry"
                   aria-invalid={Boolean(form.formState.errors.subject)}
                   {...form.register("subject")}
                 />
@@ -369,6 +373,7 @@ export function ContactMessageRowActions({
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_BODY_MAX}
                   className="min-h-32"
+                  placeholder="What they want to discuss…"
                   aria-invalid={Boolean(form.formState.errors.message)}
                   {...form.register("message")}
                 />

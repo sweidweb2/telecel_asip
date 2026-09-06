@@ -398,18 +398,24 @@ html {
   animation: partner-image-arrive 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Warm portal accent for partners hero — brand → mid → magenta → coral */
+/* Warm portal accent for partners hero — brand → mid → magenta → coral (desktop only) */
 .partners-title-accent {
-  background-image: linear-gradient(
-    105deg,
-    #81b764 0%,
-    #179191 42%,
-    #c14a9b 76%,
-    #dc395f 100%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+  color: white;
+}
+
+@media (min-width: 1024px) {
+  .partners-title-accent {
+    background-image: linear-gradient(
+      105deg,
+      #81b764 0%,
+      #179191 42%,
+      #c14a9b 76%,
+      #dc395f 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
 }
 
 .partner-signal-track {

@@ -17,7 +17,6 @@ export default async function AnalyticsPage() {
   return (
     <AdminListPageShell
       title="Analytics"
-      description="Pipeline inbox volume and content publish snapshot from the live CMS database."
     >
       <AdminAnalyticsDashboard analytics={result.analytics} />
     </AdminListPageShell>

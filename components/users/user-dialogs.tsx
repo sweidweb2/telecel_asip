@@ -163,6 +163,7 @@ export function CreateUserDialog() {
                 autoComplete="name"
                 disabled={isPending}
                 maxLength={USER_FULL_NAME_MAX}
+                placeholder="e.g. Ama Mensah"
                 aria-invalid={Boolean(form.formState.errors.fullName)}
                 {...form.register("fullName")}
               />
@@ -181,6 +182,7 @@ export function CreateUserDialog() {
                 autoComplete="email"
                 disabled={isPending}
                 maxLength={USER_EMAIL_MAX}
+                placeholder="name@company.com"
                 aria-invalid={Boolean(form.formState.errors.email)}
                 {...form.register("email")}
               />
@@ -411,6 +413,7 @@ export function UserRowActions({
                   id={`edit-name-${user.id}`}
                   disabled={isUpdating}
                   maxLength={USER_FULL_NAME_MAX}
+                  placeholder="e.g. Ama Mensah"
                   aria-invalid={Boolean(form.formState.errors.fullName)}
                   {...form.register("fullName")}
                 />
@@ -430,6 +433,7 @@ export function UserRowActions({
                   type="email"
                   disabled={isUpdating}
                   maxLength={USER_EMAIL_MAX}
+                  placeholder="name@company.com"
                   aria-invalid={Boolean(form.formState.errors.email)}
                   {...form.register("email")}
                 />

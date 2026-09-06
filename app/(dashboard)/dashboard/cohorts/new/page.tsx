@@ -38,7 +38,6 @@ export default async function NewCohortPage() {
       <CohortEditorForm
         mode="create"
         heading="New cohort"
-        description="Add a programme year, optional dates, and link partners and founders."
       />
     </main>
   );

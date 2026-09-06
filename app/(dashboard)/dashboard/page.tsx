@@ -91,7 +91,6 @@ export default async function DashboardPage() {
   return (
     <AdminListPageShell
       title="Dashboard"
-      description="Jump into a CMS section. Analytics and Backup live under System in the sidebar."
     >
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {QUICK_LINKS.map((item) => {

@@ -127,15 +127,17 @@ export async function submitApplication(
   }
 
   const admin = createAdminClient();
+  const linkedin = data.linkedin?.trim() ? data.linkedin.trim() : null;
+  const website = data.website?.trim() ? data.website.trim() : null;
   const { error } = await admin.from("applications").insert({
     full_name: data.fullName,
     founder_role: data.founderRole,
     email: data.email,
     phone: data.phone,
     country: data.country,
-    linkedin: data.linkedin,
+    linkedin,
     company_name: data.companyName,
-    website: data.website,
+    website,
     company_country: data.companyCountry,
     sector: data.sector,
     problem_product: data.problemProduct,
@@ -185,9 +187,9 @@ export async function updateApplication(
           email: data.email,
           phone: data.phone,
           country: data.country,
-          linkedin: data.linkedin,
+          linkedin: data.linkedin?.trim() ? data.linkedin.trim() : null,
           company_name: data.companyName,
-          website: data.website,
+          website: data.website?.trim() ? data.website.trim() : null,
           company_country: data.companyCountry,
           sector: data.sector,
           problem_product: data.problemProduct,

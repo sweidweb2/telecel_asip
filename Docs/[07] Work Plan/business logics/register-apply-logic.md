@@ -31,9 +31,9 @@ Both `/register-interest/` and `/apply/` stay reachable at all times. Changing t
 - Email
 - Phone/WhatsApp
 - Country
-- LinkedIn (optional for Register; required for Apply)
+- LinkedIn (optional)
 - Startup name
-- Website (optional for Register; required for Apply)
+- Website (optional)
 - Company country
 - Sector
 - Privacy consent

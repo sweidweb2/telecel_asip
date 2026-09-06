@@ -20,6 +20,7 @@ import {
 import { BlogRichTextEditor } from "@/components/blogs/blog-rich-text-editor";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
+import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -28,6 +29,7 @@ import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { dummyBlogValues } from "@/lib/admin/dummy-form-values";
 import {
   Card,
   CardAction,
@@ -80,7 +82,6 @@ type BlogEditorFormProps = {
   startups?: BlogLinkOption[];
   cohorts?: { id: string; label: string }[];
   heading: string;
-  description: string;
 };
 
 const STREAM_SET = new Set<string>(RECOMMENDED_BLOG_CATEGORIES);
@@ -110,7 +111,6 @@ export function BlogEditorForm({
   startups: initialStartups = [],
   cohorts: initialCohorts = [],
   heading,
-  description,
 }: BlogEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -126,6 +126,8 @@ export function BlogEditorForm({
   const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
     string | null
   >(null);
+  const [removeCoverOnSave, setRemoveCoverOnSave] = useState(false);
+  const [removeAvatarOnSave, setRemoveAvatarOnSave] = useState(false);
   const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const isCreateSuccessOpen = Boolean(createdBlogId);
@@ -135,8 +137,16 @@ export function BlogEditorForm({
   const [optionsEnabled, setOptionsEnabled] = useState(
     Boolean(blog?.startup_id || blog?.cohort_id),
   );
-  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(optionsEnabled);
+  const {
+    search: founderSearch,
+    setSearch: setFounderSearch,
+    debouncedSearch: founderDebouncedSearch,
+  } = useDebouncedOptionSearch(optionsEnabled);
+  const {
+    search: cohortSearch,
+    setSearch: setCohortSearch,
+    debouncedSearch: cohortDebouncedSearch,
+  } = useDebouncedOptionSearch(optionsEnabled);
 
   const emptyCreateValues: CreateBlogInput = {
     title: "",
@@ -159,6 +169,7 @@ export function BlogEditorForm({
     handleSubmit,
     control,
     setValue,
+    getValues,
     reset,
     clearErrors,
     formState: { errors, isDirty },
@@ -201,7 +212,8 @@ export function BlogEditorForm({
       setOptionsLoading(true);
       try {
         const result = await loadBlogLinkOptions({
-          search: debouncedSearch,
+          startupSearch: founderDebouncedSearch,
+          cohortSearch: cohortDebouncedSearch,
           includeStartupId: startupId ?? blog?.startup_id,
           includeCohortId: cohortId ?? blog?.cohort_id,
         });
@@ -227,7 +239,8 @@ export function BlogEditorForm({
     };
   }, [
     optionsEnabled,
-    debouncedSearch,
+    founderDebouncedSearch,
+    cohortDebouncedSearch,
     startupId,
     cohortId,
     blog?.startup_id,
@@ -333,6 +346,53 @@ export function BlogEditorForm({
         toast.error(result.message);
         return;
       }
+
+      if (pendingCover) {
+        const formData = new FormData();
+        formData.set("file", pendingCover);
+        const uploadToast = toast.loading("Uploading image…");
+        const upload = await uploadBlogThumbnail(blog.id, formData);
+        if (upload.status === "error") {
+          toast.error(upload.message, { id: uploadToast });
+          return;
+        }
+        toast.dismiss(uploadToast);
+      } else if (removeCoverOnSave) {
+        const remove = await removeBlogImage({
+          id: blog.id,
+          kind: "thumbnail",
+        });
+        if (remove.status === "error") {
+          toast.error(remove.message);
+          return;
+        }
+      }
+
+      if (pendingAvatar) {
+        const formData = new FormData();
+        formData.set("file", pendingAvatar);
+        const uploadToast = toast.loading("Uploading image…");
+        const upload = await uploadAuthorAvatar(blog.id, formData);
+        if (upload.status === "error") {
+          toast.error(upload.message, { id: uploadToast });
+          return;
+        }
+        toast.dismiss(uploadToast);
+      } else if (removeAvatarOnSave) {
+        const remove = await removeBlogImage({ id: blog.id, kind: "author" });
+        if (remove.status === "error") {
+          toast.error(remove.message);
+          return;
+        }
+      }
+
+      replacePendingCover(null);
+      replacePendingAvatar(null);
+      setRemoveCoverOnSave(false);
+      setRemoveAvatarOnSave(false);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+
       toast.success(result.message);
       reset(values);
       router.refresh();
@@ -356,83 +416,32 @@ export function BlogEditorForm({
 
   function onPickCover(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
-    if (mode === "create") {
-      replacePendingCover(file);
-      return;
-    }
-    if (!blog || !file) return;
-    const formData = new FormData();
-    formData.set("file", file);
-    startTransition(async () => {
-      const uploadToast = toast.loading("Uploading image…");
-      const result = await uploadBlogThumbnail(blog.id, formData);
-      if (result.status === "error") {
-        toast.error(result.message, { id: uploadToast });
-        return;
-      }
-      toast.success(result.message, { id: uploadToast });
-      router.refresh();
-    });
+    if (!file) return;
+    replacePendingCover(file);
+    setRemoveCoverOnSave(false);
   }
 
   function onPickAvatar(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
-    if (mode === "create") {
-      replacePendingAvatar(file);
-      return;
-    }
-    if (!blog || !file) return;
+    if (!file) return;
     replacePendingAvatar(file);
-    const formData = new FormData();
-    formData.set("file", file);
-    startTransition(async () => {
-      const uploadToast = toast.loading("Uploading image…");
-      const result = await uploadAuthorAvatar(blog.id, formData);
-      if (result.status === "error") {
-        replacePendingAvatar(null);
-        toast.error(result.message, { id: uploadToast });
-        return;
-      }
-      toast.success(result.message, { id: uploadToast });
-      replacePendingAvatar(null);
-      router.refresh();
-    });
+    setRemoveAvatarOnSave(false);
   }
 
   function onRemoveCover() {
-    if (mode === "create") {
-      replacePendingCover(null);
-      if (coverInputRef.current) coverInputRef.current.value = "";
-      return;
+    replacePendingCover(null);
+    if (coverInputRef.current) coverInputRef.current.value = "";
+    if (mode === "edit" && blog?.thumbnail_url) {
+      setRemoveCoverOnSave(true);
     }
-    if (!blog) return;
-    startTransition(async () => {
-      const result = await removeBlogImage({ id: blog.id, kind: "thumbnail" });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      router.refresh();
-    });
   }
 
   function onRemoveAvatar() {
-    if (mode === "create" || pendingAvatarPreview) {
-      replacePendingAvatar(null);
-      if (avatarInputRef.current) avatarInputRef.current.value = "";
-      return;
+    replacePendingAvatar(null);
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
+    if (mode === "edit" && blog?.author_avatar_url) {
+      setRemoveAvatarOnSave(true);
     }
-    if (!blog) return;
-    startTransition(async () => {
-      const result = await removeBlogImage({ id: blog.id, kind: "author" });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      router.refresh();
-    });
   }
 
   function goToCreatedBlog() {
@@ -446,6 +455,8 @@ export function BlogEditorForm({
     setSlugTouched(false);
     replacePendingCover(null);
     replacePendingAvatar(null);
+    setRemoveCoverOnSave(false);
+    setRemoveAvatarOnSave(false);
     if (coverInputRef.current) coverInputRef.current.value = "";
     if (avatarInputRef.current) avatarInputRef.current.value = "";
     reset(emptyCreateValues);
@@ -461,11 +472,19 @@ export function BlogEditorForm({
   }
 
   const coverPreview =
-    mode === "create" ? pendingCoverPreview : blog?.thumbnail_url ?? null;
+    pendingCoverPreview ??
+    (removeCoverOnSave ? null : blog?.thumbnail_url ?? null);
   const hasCover = Boolean(coverPreview);
   const avatarPreview =
-    pendingAvatarPreview ?? blog?.author_avatar_url ?? null;
+    pendingAvatarPreview ??
+    (removeAvatarOnSave ? null : blog?.author_avatar_url ?? null);
   const hasAvatar = Boolean(avatarPreview);
+  const hasPendingMediaChanges = Boolean(
+    pendingCover ||
+      pendingAvatar ||
+      removeCoverOnSave ||
+      removeAvatarOnSave,
+  );
 
   return (
     <>
@@ -474,7 +493,7 @@ export function BlogEditorForm({
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">
             {heading}
@@ -484,7 +503,30 @@ export function BlogEditorForm({
           </Badge>
           {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        <AdminFormDevTools
+          disabled={isPending}
+          onDummy={() => {
+            reset(
+              { ...getValues(), ...dummyBlogValues() },
+              { keepDefaultValues: true },
+            );
+            setSlugTouched(true);
+          }}
+          onClear={() => {
+            reset(emptyCreateValues, { keepDefaultValues: true });
+            setSlugTouched(false);
+            setPendingCover(null);
+            setPendingAvatar(null);
+            setPendingCoverPreview((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return null;
+            });
+            setPendingAvatarPreview((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return null;
+            });
+          }}
+        />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
@@ -654,21 +696,6 @@ export function BlogEditorForm({
               </CardAction>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2 sm:col-span-2">
-                <FieldLabel htmlFor="blog-link-search">
-                  Search founders & cohorts
-                </FieldLabel>
-                <Input
-                  id="blog-link-search"
-                  value={optionSearch}
-                  onChange={(event) => setOptionSearch(event.target.value)}
-                  onFocus={() => setOptionsEnabled(true)}
-                  maxLength={100}
-                  placeholder="Search by name…"
-                  className="min-h-11 bg-white dark:bg-card"
-                  disabled={isPending}
-                />
-              </div>
               <div className="grid gap-2">
                 <FieldLabel htmlFor="blog-startup">Related founder</FieldLabel>
                 <Controller
@@ -696,6 +723,16 @@ export function BlogEditorForm({
                       }}
                       clearable
                       clearLabel="Clear founder"
+                      searchValue={founderSearch}
+                      onSearchChange={setFounderSearch}
+                      searchPlaceholder="Search founders…"
+                      emptyMessage={
+                        optionsLoading
+                          ? "Loading…"
+                          : founderSearch.trim()
+                            ? "No founders match"
+                            : "No startups available"
+                      }
                     />
                   )}
                 />
@@ -728,6 +765,16 @@ export function BlogEditorForm({
                       }}
                       clearable
                       clearLabel="Clear cohort"
+                      searchValue={cohortSearch}
+                      onSearchChange={setCohortSearch}
+                      searchPlaceholder="Search cohorts…"
+                      emptyMessage={
+                        optionsLoading
+                          ? "Loading…"
+                          : cohortSearch.trim()
+                            ? "No cohorts match"
+                            : "No cohorts available"
+                      }
                     />
                   )}
                 />
@@ -742,6 +789,7 @@ export function BlogEditorForm({
                   className="min-h-11 bg-white dark:bg-card"
                   maxLength={BLOG_META_TITLE_MAX}
                   disabled={isPending}
+                  placeholder="e.g. Improve your design skills"
                   {...register("metaTitle")}
                 />
                 {errors.metaTitle ? (
@@ -764,6 +812,7 @@ export function BlogEditorForm({
                   className="bg-white dark:bg-card"
                   maxLength={BLOG_META_DESCRIPTION_MAX}
                   disabled={isPending}
+                  placeholder="Short description for search results"
                   {...register("metaDescription")}
                 />
                 {errors.metaDescription ? (
@@ -1015,7 +1064,7 @@ export function BlogEditorForm({
             <CardContent>
               <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
                 {coverPreview ? (
-                  mode === "create" ? (
+                  pendingCoverPreview ? (
                     // Local File preview (blob:) — native img avoids next/image remote rules
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -1159,7 +1208,7 @@ export function BlogEditorForm({
             isPending,
             isDirty,
             errors,
-            hasExternalChanges: Boolean(pendingCover || pendingAvatar),
+            hasExternalChanges: hasPendingMediaChanges,
           })}
         >
           {isPending ? (

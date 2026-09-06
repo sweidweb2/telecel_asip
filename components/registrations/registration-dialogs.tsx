@@ -36,6 +36,7 @@ import {
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { UrlInput } from "@/components/ui/url-input";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
@@ -468,13 +469,12 @@ export function RegistrationRowActions({
                   >
                     LinkedIn
                   </AdminFormFieldLabel>
-                  <Input
+                  <UrlInput
                     id={`edit-linkedin-${registration.id}`}
-                    type="url"
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_URL_MAX}
                     className="min-h-11"
-                    placeholder="https://linkedin.com/in/…"
+                    placeholder="linkedin.com/in/…"
                     aria-invalid={Boolean(form.formState.errors.linkedin)}
                     {...form.register("linkedin")}
                   />
@@ -489,13 +489,12 @@ export function RegistrationRowActions({
                   >
                     Website
                   </AdminFormFieldLabel>
-                  <Input
+                  <UrlInput
                     id={`edit-website-${registration.id}`}
-                    type="url"
                     disabled={isUpdating}
                     maxLength={INTEREST_REGISTRATION_URL_MAX}
                     className="min-h-11"
-                    placeholder="https://example.com"
+                    placeholder="example.com"
                     aria-invalid={Boolean(form.formState.errors.website)}
                     {...form.register("website")}
                   />

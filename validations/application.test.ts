@@ -36,17 +36,29 @@ describe("applicationSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("requires LinkedIn and website", () => {
-    const withoutLinkedin = applicationSchema.safeParse({
+  it("accepts optional LinkedIn and website", () => {
+    const withoutUrls = applicationSchema.safeParse({
       ...validInput,
       linkedin: "",
-    });
-    const withoutWebsite = applicationSchema.safeParse({
-      ...validInput,
       website: "",
     });
-    expect(withoutLinkedin.success).toBe(false);
-    expect(withoutWebsite.success).toBe(false);
+    expect(withoutUrls.success).toBe(true);
+
+    const withUrls = applicationSchema.safeParse(validInput);
+    expect(withUrls.success).toBe(true);
+  });
+
+  it("rejects invalid LinkedIn or website URLs when provided", () => {
+    const badLinkedin = applicationSchema.safeParse({
+      ...validInput,
+      linkedin: "not-a-url",
+    });
+    const badWebsite = applicationSchema.safeParse({
+      ...validInput,
+      website: "ftp://example.com",
+    });
+    expect(badLinkedin.success).toBe(false);
+    expect(badWebsite.success).toBe(false);
   });
 
   it("requires apply-only sections", () => {

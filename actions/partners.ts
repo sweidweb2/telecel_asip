@@ -20,9 +20,14 @@ import {
 } from "@/lib/storage/public-url";
 import { createClient } from "@/lib/supabase/server";
 import {
+  planSortOrderDisplacement,
+  type PartnerSortOrderOccupant,
+} from "@/lib/partners/sort-order";
+import {
   createPartnerSchema,
   deletePartnerSchema,
   partnerIdSchema,
+  PARTNER_SORT_ORDER_MIN,
   updatePartnerActiveSchema,
   updatePartnerLogoPermissionSchema,
   updatePartnerSchema,
@@ -92,12 +97,49 @@ function toPartnerRow(input: CreatePartnerInput | UpdatePartnerInput) {
     is_active: input.isActive,
     logo_permission: input.logoPermission,
     link: emptyToNull(input.link),
-    sort_order: input.sortOrder ?? 0,
+    sort_order: input.sortOrder ?? PARTNER_SORT_ORDER_MIN,
   };
 }
 
 function writeErrorMessage(error: { code?: string; message?: string }): string {
   return mapPgActionError(error, PG_MESSAGES);
+}
+
+async function loadSortOrderOccupants(
+  supabase: SupabaseServerClient,
+): Promise<PartnerSortOrderOccupant[]> {
+  const { data, error } = await supabase
+    .from("partners")
+    .select("id, name, sort_order")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as PartnerSortOrderOccupant[];
+}
+
+/**
+ * If another partner already owns `desiredOrder`, move them to the first free
+ * slot before writing the editor partner.
+ */
+async function displaceSortOrderIfNeeded(
+  supabase: SupabaseServerClient,
+  desiredOrder: number,
+  currentPartnerId?: string,
+): Promise<{ error?: { code?: string; message?: string } }> {
+  const partners = await loadSortOrderOccupants(supabase);
+  const plan = planSortOrderDisplacement({
+    desiredOrder,
+    currentPartnerId,
+    partners,
+  });
+  if (!plan) return {};
+
+  const { error } = await supabase
+    .from("partners")
+    .update({ sort_order: plan.displace.toOrder })
+    .eq("id", plan.displace.id);
+
+  return error ? { error } : {};
 }
 
 export async function createPartner(
@@ -112,6 +154,15 @@ export async function createPartner(
     },
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
+      const desiredOrder = data.sortOrder ?? PARTNER_SORT_ORDER_MIN;
+      const displaced = await displaceSortOrderIfNeeded(
+        session.supabase,
+        desiredOrder,
+      );
+      if (displaced.error) {
+        return { status: "error", pgError: displaced.error };
+      }
+
       const { data: row, error } = await session.supabase
         .from("partners")
         .insert(toPartnerRow(data))
@@ -139,6 +190,16 @@ export async function updatePartner(
     },
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
+      const desiredOrder = data.sortOrder ?? PARTNER_SORT_ORDER_MIN;
+      const displaced = await displaceSortOrderIfNeeded(
+        session.supabase,
+        desiredOrder,
+        data.id,
+      );
+      if (displaced.error) {
+        return { status: "error", pgError: displaced.error };
+      }
+
       const { data: row, error } = await session.supabase
         .from("partners")
         .update(toPartnerRow(data))

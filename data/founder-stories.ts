@@ -6,6 +6,7 @@ import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
+import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -112,10 +113,47 @@ async function fetchFounderStoriesPage(
   };
 }
 
+export type FounderStoryListStats = {
+  total: number;
+  published: number;
+  draft: number;
+  quotePending: number;
+};
+
+async function fetchFounderStoryListStats(
+  supabase: ServerClient,
+): Promise<FounderStoryListStats> {
+  const [total, published, draft, quotePending] = await Promise.all([
+    supabase
+      .from("founder_stories")
+      .select("id", { count: "exact", head: true }),
+    supabase
+      .from("founder_stories")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "published"),
+    supabase
+      .from("founder_stories")
+      .select("id", { count: "exact", head: true })
+      .eq("publish_status", "draft"),
+    supabase
+      .from("founder_stories")
+      .select("id", { count: "exact", head: true })
+      .eq("quote_permission_status", "pending"),
+  ]);
+
+  return {
+    total: countExact(total),
+    published: countExact(published),
+    draft: countExact(draft),
+    quotePending: countExact(quotePending),
+  };
+}
+
 export async function getFounderStoriesPageData(
   query: FounderStoryListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: FounderStoryListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: FounderStoryListResult; stats: FounderStoryListStats }
 > {
   return traceAsync(
     "getFounderStoriesPageData",
@@ -123,14 +161,15 @@ export async function getFounderStoriesPageData(
     async () => {
       const supabase = await createClient();
 
-      const [isAdmin, list] = await Promise.all([
+      const [isAdmin, list, stats] = await Promise.all([
         isCurrentUserAdmin(),
         fetchFounderStoriesPage(supabase, query),
+        fetchFounderStoryListStats(supabase),
       ]);
 
       if (!isAdmin) return { status: "forbidden" };
 
-      return { status: "ok", list };
+      return { status: "ok", list, stats };
     },
   );
 }

@@ -79,7 +79,6 @@ export default async function EditEvidencePage({
         owners={seedOwners}
         defaultOwnerId={result.record.owner_id}
         heading="Edit evidence record"
-        description="Update source details, verification status, and ownership. Only verified status may back live numbers later."
       />
     </main>
   );

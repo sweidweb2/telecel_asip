@@ -38,7 +38,6 @@ export default async function NewBlogPage() {
       <BlogEditorForm
         mode="create"
         heading="New blog"
-        description="Draft an Insights article. You can attach a cover and author avatar before creating."
       />
     </main>
   );

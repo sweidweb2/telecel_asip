@@ -38,7 +38,6 @@ export default async function NewFounderStoryPage() {
       <FounderStoryEditorForm
         mode="create"
         heading="New founder story"
-        description="Link one startup and draft the four narrative modules. Quotes are optional."
       />
     </main>
   );
