@@ -117,7 +117,7 @@ export function ImpactCaseStudyCard({
         ) : (
           <div className="mt-auto flex items-center justify-between gap-3 pt-3">
             {story?.stat ? (
-              <span className="inline-flex min-h-7 max-w-[55%] items-center rounded-md bg-muted px-2 text-[0.7rem] font-semibold tracking-tight text-foreground">
+              <span className="inline-flex min-h-8 max-w-[55%] items-center rounded-md bg-muted px-2.5 py-1.5 text-[0.7rem] font-semibold leading-snug tracking-tight text-foreground">
                 {story.stat}
               </span>
             ) : (
