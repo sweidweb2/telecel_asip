@@ -1,12 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { runBackupNow, updateSiteSettings } from "@/actions/settings";
+import { updateSiteSettings } from "@/actions/settings";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -23,12 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  backupScheduleLabel,
+  backupScheduleSelectOptions,
+  type BackupScheduleValue,
+} from "@/constants/backup-schedule";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
-import {
-  BACKUP_SCHEDULE_OPTIONS,
-  type BackupScheduleValue,
-} from "@/lib/backups/schedule";
 import {
   updateSiteSettingsSchema,
   type UpdateSiteSettingsInput,
@@ -46,7 +47,11 @@ export function SiteSettingsForm({
   backupTime,
 }: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [isBackupPending, startBackupTransition] = useTransition();
+
+  const scheduleOptions = useMemo(
+    () => backupScheduleSelectOptions(backupTime),
+    [backupTime],
+  );
 
   const {
     control,
@@ -82,17 +87,6 @@ export function SiteSettingsForm({
 
       toast.success(result.message);
       reset(values);
-    });
-  }
-
-  function onRunBackupNow() {
-    startBackupTransition(async () => {
-      const result = await runBackupNow();
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
     });
   }
 
@@ -174,9 +168,9 @@ export function SiteSettingsForm({
                   <AdminFormSectionHelp help={SITE_SETTINGS_HELP.backup} />
                 </div>
                 <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                  Times use Lebanon (Asia/Beirut). Saving only updates the
-                  schedule; the hourly job follows the new cadence. Use Run
-                  backup now for a one-shot. Off disables scheduled runs.
+                  Times use Lebanon (Asia/Beirut). Choose Off or a weekly
+                  Sunday/Monday 03:00 window. The hourly job follows this
+                  cadence. Run a one-shot from the Backup page.
                 </p>
               </div>
               <div className="grid w-full gap-3 sm:max-w-xs">
@@ -186,7 +180,7 @@ export function SiteSettingsForm({
                   render={({ field }) => (
                     <Select
                       value={field.value}
-                      items={BACKUP_SCHEDULE_OPTIONS.map((option) => ({
+                      items={scheduleOptions.map((option) => ({
                         value: option.value,
                         label: option.label,
                       }))}
@@ -195,7 +189,7 @@ export function SiteSettingsForm({
                           field.onChange(value as BackupScheduleValue);
                         }
                       }}
-                      disabled={isPending || isBackupPending}
+                      disabled={isPending}
                     >
                       <SelectTrigger
                         id="backup-time"
@@ -204,7 +198,7 @@ export function SiteSettingsForm({
                         <SelectValue placeholder="Select schedule" />
                       </SelectTrigger>
                       <SelectContent>
-                        {BACKUP_SCHEDULE_OPTIONS.map((option) => (
+                        {scheduleOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -218,23 +212,11 @@ export function SiteSettingsForm({
                     {errors.backupTime.message}
                   </p>
                 ) : null}
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="min-h-11 w-full"
-                  disabled={isPending || isBackupPending}
-                  onClick={onRunBackupNow}
-                >
-                  {isBackupPending ? (
-                    <Loader2Icon className="animate-spin" />
-                  ) : null}
-                  {isBackupPending ? "Backing up…" : "Run backup now"}
-                </Button>
                 <p className="text-xs text-muted-foreground">
                   Current selection:{" "}
-                  {BACKUP_SCHEDULE_OPTIONS.find(
-                    (o) => o.value === selectedBackupTime,
-                  )?.label ?? selectedBackupTime}
+                  {selectedBackupTime
+                    ? backupScheduleLabel(selectedBackupTime)
+                    : "—"}
                 </p>
               </div>
             </div>
@@ -244,10 +226,11 @@ export function SiteSettingsForm({
             <span className="hidden sm:block" />
             <Button
               type="submit"
-              disabled={
-                isBackupPending ||
-                isAdminFormSubmitDisabled({ isPending, isDirty, errors })
-              }
+              disabled={isAdminFormSubmitDisabled({
+                isPending,
+                isDirty,
+                errors,
+              })}
               className="min-h-11 w-full sm:ml-auto sm:w-auto"
             >
               {isPending ? <Loader2Icon className="animate-spin" /> : null}

@@ -1,25 +1,21 @@
 import { z } from "zod";
 
-import { BACKUP_TABLE_ALLOWLIST } from "@/constants/backup-tables";
 import {
   pickSearchParams,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
 
-export const BACKUP_SCOPES = ["full", "tables", "storage"] as const;
-/** New backups: JSON for DB scopes, ZIP for storage. Legacy csv/sql rows may still exist. */
+export const BACKUP_CREATE_SCOPES = ["full", "storage"] as const;
+/** New backups: JSON for DB scopes, ZIP for storage. Legacy csv/sql/tables may still exist in history. */
 export const BACKUP_CREATE_FORMATS = ["json", "zip"] as const;
 export const BACKUP_PAGE_SIZES = [10, 25, 50] as const;
 export const BACKUP_PAGE_SIZE_VALUES = ["10", "25", "50"] as const;
 export const BACKUP_DEFAULT_PAGE_SIZE = 25;
 
-const tableEnum = z.enum(BACKUP_TABLE_ALLOWLIST);
-
 export const createBackupSchema = z
   .object({
-    scope: z.enum(BACKUP_SCOPES),
+    scope: z.enum(BACKUP_CREATE_SCOPES),
     format: z.enum(BACKUP_CREATE_FORMATS),
-    targetTables: z.array(tableEnum).max(BACKUP_TABLE_ALLOWLIST.length).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.scope === "storage") {
@@ -39,16 +35,6 @@ export const createBackupSchema = z
         path: ["format"],
         message: "Database backups use JSON format.",
       });
-    }
-
-    if (value.scope === "tables") {
-      if (!value.targetTables || value.targetTables.length === 0) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["targetTables"],
-          message: "Select at least one table.",
-        });
-      }
     }
   });
 

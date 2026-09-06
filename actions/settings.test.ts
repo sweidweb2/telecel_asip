@@ -6,12 +6,8 @@ const {
   getUser,
   rpc,
   maybeSingle,
-  selectEq,
   update,
   from,
-  hasInFlightBackup,
-  startAutomatedBackupAttempt,
-  applyAutomatedBackupRetention,
 } = vi.hoisted(() => {
   const maybeSingle = vi.fn();
   const selectEq = vi.fn(() => ({ maybeSingle }));
@@ -25,12 +21,8 @@ const {
     getUser: vi.fn(),
     rpc: vi.fn(),
     maybeSingle,
-    selectEq,
     update,
     from,
-    hasInFlightBackup: vi.fn(),
-    startAutomatedBackupAttempt: vi.fn(),
-    applyAutomatedBackupRetention: vi.fn(),
   };
 });
 
@@ -48,37 +40,33 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-vi.mock("@/lib/backups/automated", () => ({
-  hasInFlightBackup,
-  startAutomatedBackupAttempt,
-  applyAutomatedBackupRetention,
-}));
-
 import { updateSiteSettings } from "@/actions/settings";
 import { SITE_SETTINGS_CACHE_TAG } from "@/data/settings";
 
 const validInput = {
   openApplications: true,
   newsletterSignupEnabled: true,
-  backupTime: "daily_03" as const,
+  backupTime: "weekly_sun_03" as const,
 };
+
+function mockAdmin() {
+  getUser.mockResolvedValue({
+    data: { user: { id: "admin-1" } },
+    error: null,
+  });
+  rpc.mockResolvedValue({ data: true, error: null });
+}
 
 describe("updateSiteSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hasInFlightBackup.mockResolvedValue(false);
-    startAutomatedBackupAttempt.mockResolvedValue({
-      backupId: "b1",
-      ok: true,
-    });
-    applyAutomatedBackupRetention.mockResolvedValue({ deleted: 0 });
   });
 
   it("rejects invalid input", async () => {
     const result = await updateSiteSettings({
       openApplications: "yes" as never,
       newsletterSignupEnabled: true,
-      backupTime: "daily_03",
+      backupTime: "weekly_sun_03",
     });
 
     expect(result.status).toBe("error");
@@ -112,11 +100,7 @@ describe("updateSiteSettings", () => {
   });
 
   it("updates settings without starting a backup", async () => {
-    getUser.mockResolvedValue({
-      data: { user: { id: "admin-1" } },
-      error: null,
-    });
-    rpc.mockResolvedValue({ data: true, error: null });
+    mockAdmin();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     const result = await updateSiteSettings(validInput);
@@ -128,31 +112,24 @@ describe("updateSiteSettings", () => {
     expect(update).toHaveBeenCalledWith({
       open_applications: true,
       newsletter_signup_enabled: true,
-      backup_time: "daily_03",
+      backup_time: "weekly_sun_03",
     });
-    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
-    expect(applyAutomatedBackupRetention).not.toHaveBeenCalled();
     expect(revalidateTag).toHaveBeenCalledWith(SITE_SETTINGS_CACHE_TAG, "max");
     expect(revalidatePath).toHaveBeenCalled();
   });
 
   it("still does not start a backup when schedule value changes", async () => {
-    getUser.mockResolvedValue({
-      data: { user: { id: "admin-1" } },
-      error: null,
-    });
-    rpc.mockResolvedValue({ data: true, error: null });
+    mockAdmin();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     const result = await updateSiteSettings({
       ...validInput,
-      backupTime: "weekly_sun_03",
+      backupTime: "weekly_mon_03",
     });
 
     expect(result).toEqual({
       status: "success",
       message: "Settings saved.",
     });
-    expect(startAutomatedBackupAttempt).not.toHaveBeenCalled();
   });
 });

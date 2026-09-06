@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxCsvDownloadLink } from "@/components/dashboard/inbox-csv-download-link";
 import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
 import { ContactMessagesTable } from "@/components/contact-messages/contact-messages-table";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -40,6 +41,9 @@ export default async function ContactUsPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
+      actions={
+        <InboxCsvDownloadLink href="/api/admin/export/contact_messages" />
+      }
     >
       <InboxStatsCards stats={stats} />
       <ContactMessagesTable

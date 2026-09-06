@@ -41,11 +41,10 @@ describe("createBackupSchema", () => {
     expect(parsed.success).toBe(true);
   });
 
-  it("requires tables for tables scope", () => {
+  it("rejects tables scope", () => {
     const parsed = createBackupSchema.safeParse({
       scope: "tables",
       format: "json",
-      targetTables: [],
     });
     expect(parsed.success).toBe(false);
   });

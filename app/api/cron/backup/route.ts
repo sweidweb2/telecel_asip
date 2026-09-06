@@ -7,9 +7,11 @@ import {
 import {
   isScheduleDue,
   scheduleWindowKey,
-  type BackupScheduleValue,
-  BACKUP_SCHEDULE_VALUES,
 } from "@/lib/backups/schedule";
+import {
+  BACKUP_SCHEDULE_VALUES,
+  type BackupScheduleValue,
+} from "@/constants/backup-schedule";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_SETTINGS_ID } from "@/data/settings";
 

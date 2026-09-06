@@ -114,7 +114,6 @@ export function BackupHistoryTable({
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Scope</TableHead>
-            <TableHead>Format</TableHead>
             <TableHead>Size</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actor</TableHead>
@@ -122,12 +121,12 @@ export function BackupHistoryTable({
           </TableRow>
         }
         isEmpty={backups.length === 0}
-        emptyColSpan={7}
+        emptyColSpan={6}
         empty={
           <div className="grid gap-1 py-6">
             <p className="font-medium">No backups yet</p>
             <p className="text-sm text-muted-foreground">
-              Create a full, table, or storage backup above. Weekly automated
+              Create a full DB or storage backup above. Scheduled automated
               runs will also appear here.
             </p>
           </div>
@@ -151,7 +150,6 @@ export function BackupHistoryTable({
             <TableCell className="max-w-[14rem] truncate" title={scopeLabel(row)}>
               {scopeLabel(row)}
             </TableCell>
-            <TableCell className="uppercase">{row.format}</TableCell>
             <TableCell>{formatBytes(row.file_size)}</TableCell>
             <TableCell>
               <Badge variant={statusVariant(row.status)}>{row.status}</Badge>

@@ -1,20 +1,17 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "nextjs-toploader/app";
 
-import { createBackup } from "@/actions/backups";
+import { createBackup, runBackupNow } from "@/actions/backups";
 import {
   BackupProgressDialog,
   type BackupProgressPhase,
 } from "@/components/dashboard/backup-progress-dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  BACKUP_TABLE_ALLOWLIST,
-  type BackupTableName,
-} from "@/constants/backup-tables";
+import { BACKUP_TABLE_ALLOWLIST } from "@/constants/backup-tables";
 import { cn } from "@/lib/utils";
 import type { CreateBackupInput } from "@/validations/backup";
 
@@ -28,11 +25,6 @@ const SCOPE_OPTIONS: { value: ScopeMode; label: string; description: string }[] 
       description: "All allowlisted application tables as JSON.",
     },
     {
-      value: "tables",
-      label: "Selected tables",
-      description: "Choose one or more tables as JSON.",
-    },
-    {
       value: "storage",
       label: "Storage backup",
       description: "Export Supabase Storage media buckets as a ZIP.",
@@ -42,36 +34,19 @@ const SCOPE_OPTIONS: { value: ScopeMode; label: string; description: string }[] 
 export function BackupCreateForm() {
   const router = useRouter();
   const [scope, setScope] = useState<ScopeMode>("full");
-  const [selectedTables, setSelectedTables] = useState<BackupTableName[]>([]);
   const [pending, startTransition] = useTransition();
+  const [runNowPending, startRunNowTransition] = useTransition();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [phase, setPhase] = useState<BackupProgressPhase>("running");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const allSelected = selectedTables.length === BACKUP_TABLE_ALLOWLIST.length;
-
   const summary = useMemo(() => {
     if (scope === "storage") {
       return "Storage backup · ZIP of blogs, auther, startups, partners buckets";
     }
-    if (scope === "full") {
-      return `Full DB · ${BACKUP_TABLE_ALLOWLIST.length} tables · JSON`;
-    }
-    const count = selectedTables.length;
-    return `Selected tables · ${count} table${count === 1 ? "" : "s"} · JSON`;
-  }, [scope, selectedTables.length]);
-
-  function toggleTable(table: BackupTableName, checked: boolean) {
-    setSelectedTables((prev) => {
-      if (checked) return prev.includes(table) ? prev : [...prev, table];
-      return prev.filter((name) => name !== table);
-    });
-  }
-
-  function toggleAll(checked: boolean) {
-    setSelectedTables(checked ? [...BACKUP_TABLE_ALLOWLIST] : []);
-  }
+    return `Full DB · ${BACKUP_TABLE_ALLOWLIST.length} tables · JSON`;
+  }, [scope]);
 
   function onSubmit() {
     setDialogOpen(true);
@@ -82,13 +57,7 @@ export function BackupCreateForm() {
       const input: CreateBackupInput =
         scope === "storage"
           ? { scope: "storage", format: "zip" }
-          : scope === "tables"
-            ? {
-                scope: "tables",
-                format: "json",
-                targetTables: selectedTables,
-              }
-            : { scope: "full", format: "json" };
+          : { scope: "full", format: "json" };
 
       const result = await createBackup(input);
 
@@ -105,6 +74,18 @@ export function BackupCreateForm() {
     });
   }
 
+  function onRunNow() {
+    startRunNowTransition(async () => {
+      const result = await runBackupNow();
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+      toast.success(result.message);
+      router.refresh();
+    });
+  }
+
   return (
     <section className="grid gap-4">
       <div className="grid gap-1">
@@ -112,14 +93,14 @@ export function BackupCreateForm() {
           Create backup
         </h2>
         <p className="text-sm text-muted-foreground">
-          Export on demand to private R2. Database scopes use JSON; storage uses
-          ZIP.
+          Export on demand to private R2. Full DB uses JSON; storage uses ZIP.
+          Scheduled runs are configured in Settings.
         </p>
       </div>
 
       <div className="grid gap-3">
         <p className="text-sm font-medium">Scope</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {SCOPE_OPTIONS.map((option) => {
             const selected = scope === option.value;
             return (
@@ -145,56 +126,37 @@ export function BackupCreateForm() {
         </div>
       </div>
 
-      {scope === "tables" ? (
-        <div className="grid gap-3 rounded-lg border p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-medium">Tables</p>
-            <label className="flex min-h-11 items-center gap-2 text-sm">
-              <Checkbox
-                checked={allSelected}
-                onCheckedChange={(checked) => toggleAll(checked === true)}
-              />
-              Select all
-            </label>
-          </div>
-          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {BACKUP_TABLE_ALLOWLIST.map((table) => {
-              const checked = selectedTables.includes(table);
-              return (
-                <li key={table}>
-                  <label className="flex min-h-11 items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={checked}
-                      onCheckedChange={(value) =>
-                        toggleTable(table, value === true)
-                      }
-                    />
-                    <span className="font-mono text-xs sm:text-sm">{table}</span>
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
-
       <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm">
         <p className="font-medium">Selected scope</p>
         <p className="mt-1 text-muted-foreground">{summary}</p>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <Button
           type="button"
           className="min-h-11 w-full sm:w-auto"
-          disabled={
-            pending || (scope === "tables" && selectedTables.length === 0)
-          }
+          disabled={pending || runNowPending}
           onClick={onSubmit}
         >
           {pending ? "Creating backup…" : "Create backup"}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 w-full sm:w-auto"
+          disabled={pending || runNowPending}
+          onClick={onRunNow}
+        >
+          {runNowPending ? (
+            <Loader2Icon className="animate-spin" />
+          ) : null}
+          {runNowPending ? "Backing up…" : "Run backup now"}
+        </Button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Run backup now starts one automated full JSON backup without changing
+        the schedule in Settings.
+      </p>
 
       <BackupProgressDialog
         open={dialogOpen}

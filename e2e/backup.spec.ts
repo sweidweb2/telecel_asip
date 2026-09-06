@@ -22,18 +22,20 @@ test.describe("backup export API", () => {
     );
   });
 
-  test("admin settings shows backup schedule controls", async ({ page }) => {
+  test("admin settings shows backup schedule without run now", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     await loginAsAdmin(page, "/dashboard/settings");
     await expect(
-      page.getByText(/automated backup schedule/i),
+      page.getByText(/automated backup schedule/i).first(),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: /run backup now/i }),
-    ).toBeVisible();
+    ).toHaveCount(0);
   });
 
-  test("admin backup page loads create + history sections", async ({
+  test("admin backup page shows create, run now, and history", async ({
     page,
   }) => {
     test.setTimeout(60_000);
@@ -45,13 +47,36 @@ test.describe("backup export API", () => {
       page.getByRole("heading", { name: "Backup history" }),
     ).toBeVisible();
     await expect(
+      page.getByRole("button", { name: /full db backup/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /storage backup/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /selected tables/i }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /^create backup$/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /run backup now/i }),
+    ).toBeVisible();
+    await expect(
       page.getByRole("heading", { name: "Quick CSV" }),
+    ).toHaveCount(0);
+  });
+
+  test("admin applications page offers CSV download", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/dashboard/applications");
+    await expect(
+      page.getByRole("link", { name: /download csv/i }),
     ).toBeVisible();
   });
 
   test("admin can export an allowed table", async ({ page, request }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/backup");
+    await loginAsAdmin(page, "/dashboard/applications");
     const cookies = await page.context().cookies();
     const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
@@ -69,7 +94,7 @@ test.describe("backup export API", () => {
     request,
   }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/backup");
+    await loginAsAdmin(page, "/dashboard/applications");
     const cookies = await page.context().cookies();
     const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
 

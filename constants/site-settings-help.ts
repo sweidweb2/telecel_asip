@@ -30,7 +30,7 @@ export const SITE_SETTINGS_HELP = {
       {
         name: "Backup schedule",
         detail:
-          "Times are Asia/Beirut. Off disables the hourly cron tick. Saving updates the cadence only. Use Run backup now for a one-shot without changing the schedule.",
+          "Times are Asia/Beirut. Off disables the hourly cron tick. Choose weekly Sunday or Monday 03:00. Use Run backup now on the Backup page for a one-shot.",
       },
     ],
   },

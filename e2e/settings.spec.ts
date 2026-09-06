@@ -17,6 +17,56 @@ test.describe("site settings", () => {
     );
   });
 
+  test("admin can change backup schedule without free text", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const admin = e2eAdminClient();
+    const { data: before } = await admin
+      .from("site_settings")
+      .select("backup_time")
+      .eq("id", 1)
+      .maybeSingle();
+
+    try {
+      await loginAsAdmin(page, "/dashboard/settings");
+      const schedule = page.getByRole("combobox", {
+        name: /automated backup schedule/i,
+      });
+      await expect(schedule).toBeVisible();
+
+      const target =
+        before?.backup_time === "daily_12" ? "daily_18" : "daily_12";
+      const optionLabel =
+        target === "daily_12"
+          ? /Daily · 12:00 \(Lebanon\)/i
+          : /Daily · 18:00 \(Lebanon\)/i;
+
+      await schedule.click();
+      await page.getByRole("option", { name: optionLabel }).click();
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expect(
+        page
+          .locator("[data-sonner-toast]")
+          .filter({ hasText: /Settings saved/i }),
+      ).toBeVisible({ timeout: 20_000 });
+
+      const { data: after } = await admin
+        .from("site_settings")
+        .select("backup_time")
+        .eq("id", 1)
+        .maybeSingle();
+      expect(after?.backup_time).toBe(target);
+    } finally {
+      await admin
+        .from("site_settings")
+        .update({
+          backup_time: before?.backup_time ?? "weekly_sun_03",
+        })
+        .eq("id", 1);
+    }
+  });
+
   test("admin can toggle newsletter signup", async ({ page }) => {
     test.setTimeout(90_000);
     const admin = e2eAdminClient();

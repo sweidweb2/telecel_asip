@@ -3,11 +3,22 @@
 import { revalidatePath } from "next/cache";
 
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { hasInFlightBackup } from "@/lib/backups/automated";
+import {
+  applyAutomatedBackupRetention,
+  hasInFlightBackup,
+  startAutomatedBackupAttempt,
+} from "@/lib/backups/automated";
 import { getSignedBackupUrl } from "@/lib/backups/r2";
+import {
+  immediateScheduleWindow,
+  isScheduleDue,
+  scheduleWindowKey,
+} from "@/lib/backups/schedule";
 import { startBackupAttempt } from "@/lib/backups/start-backup";
+import type { BackupScheduleValue } from "@/constants/backup-schedule";
 import type { AdminActionResult } from "@/types/admin-action";
 import { ROUTES } from "@/constants/routes";
+import { SITE_SETTINGS_ID } from "@/data/settings";
 import {
   createBackupSchema,
   getBackupDownloadUrlSchema,
@@ -23,12 +34,17 @@ const MESSAGES = {
   notFound: "Backup not found.",
   notReady: "This backup is not ready to download.",
   inFlight: "A backup is already running. Try again when it finishes.",
+  runNowSuccess: "Backup completed.",
+  runNowStartedFailed: "Backup failed. Check Backup history for details.",
   genericError: "Could not complete the backup.",
 } as const;
 
 export type CreateBackupResult = AdminActionResult;
 export type BackupDownloadUrlResult =
   | { status: "success"; url: string; message: string }
+  | { status: "error"; message: string };
+export type RunBackupNowResult =
+  | { status: "success"; message: string }
   | { status: "error"; message: string };
 
 export async function createBackup(
@@ -52,14 +68,12 @@ export async function createBackup(
   const data = parsed.data;
   const format =
     data.scope === "storage" ? ("zip" as const) : data.format;
-  const targetTables =
-    data.scope === "tables" ? (data.targetTables ?? null) : null;
 
   const result = await startBackupAttempt({
     userId: session.userId,
     scope: data.scope,
     format,
-    targetTables,
+    targetTables: null,
   });
 
   revalidatePath(ROUTES.backup);
@@ -76,6 +90,57 @@ export async function createBackup(
     message: MESSAGES.createSuccess,
     id: result.backupId,
   };
+}
+
+/**
+ * One-shot automated backup. Does not change stored backup_time.
+ * When the schedule is currently due, uses the same window key so the hourly
+ * tick will skip that window after success.
+ */
+export async function runBackupNow(): Promise<RunBackupNowResult> {
+  const session = await authorizeAdmin(MESSAGES);
+  if (session.status === "error") return session;
+
+  if (await hasInFlightBackup()) {
+    return { status: "error", message: MESSAGES.inFlight };
+  }
+
+  const { data: settings, error } = await session.supabase
+    .from("site_settings")
+    .select("backup_time")
+    .eq("id", SITE_SETTINGS_ID)
+    .maybeSingle();
+
+  if (error || !settings) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+
+  const backupTime = settings.backup_time as BackupScheduleValue;
+  const now = new Date();
+  const windowKey =
+    backupTime !== "off" && isScheduleDue(backupTime, now)
+      ? (scheduleWindowKey(backupTime, now) ?? immediateScheduleWindow(now))
+      : immediateScheduleWindow(now);
+
+  const result = await startAutomatedBackupAttempt({
+    scheduleWindow: windowKey,
+    userId: session.userId,
+  });
+
+  try {
+    await applyAutomatedBackupRetention(now);
+  } catch (err) {
+    console.error("[backups] retention after runBackupNow failed", err);
+  }
+
+  revalidatePath(ROUTES.backup);
+  revalidatePath(ROUTES.settings);
+
+  if (!result.ok) {
+    return { status: "error", message: MESSAGES.runNowStartedFailed };
+  }
+
+  return { status: "success", message: MESSAGES.runNowSuccess };
 }
 
 export async function getBackupDownloadUrl(

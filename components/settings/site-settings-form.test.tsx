@@ -5,13 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SiteSettingsForm } from "@/components/settings/site-settings-form";
 
 const updateSiteSettings = vi.hoisted(() => vi.fn());
-const runBackupNow = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
 const toastError = vi.hoisted(() => vi.fn());
 
 vi.mock("@/actions/settings", () => ({
   updateSiteSettings,
-  runBackupNow,
 }));
 
 vi.mock("@/components/dashboard/admin-editor-actions-bar", () => ({
@@ -57,18 +55,18 @@ describe("SiteSettingsForm", () => {
     expect(toastSuccess).toHaveBeenCalledWith("Settings saved.");
   });
 
-  it("shows backup schedule and run now control", () => {
+  it("shows backup schedule without run now", () => {
     render(
       <SiteSettingsForm
         openApplications={false}
         newsletterSignupEnabled={false}
-        backupTime="daily_03"
+        backupTime="weekly_sun_03"
       />,
     );
 
     expect(
-      screen.getByRole("button", { name: /run backup now/i }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: /run backup now/i }),
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText(/automated backup schedule/i)).toBeTruthy();
   });
 });

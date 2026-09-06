@@ -1,33 +1,16 @@
 /** Asia/Beirut schedule helpers for automated backups (pure / testable). */
 
+import {
+  BACKUP_SCHEDULE_VALUES,
+  type BackupScheduleValue,
+} from "@/constants/backup-schedule";
+
 export const BACKUP_TIMEZONE = "Asia/Beirut";
 
-export const BACKUP_SCHEDULE_VALUES = [
-  "off",
-  "daily_00",
-  "daily_03",
-  "daily_06",
-  "daily_12",
-  "daily_18",
-  "weekly_sun_03",
-  "weekly_mon_03",
-] as const;
-
-export type BackupScheduleValue = (typeof BACKUP_SCHEDULE_VALUES)[number];
-
-export const BACKUP_SCHEDULE_OPTIONS: {
-  value: BackupScheduleValue;
-  label: string;
-}[] = [
-  { value: "off", label: "Off" },
-  { value: "daily_00", label: "Daily · 00:00 (Lebanon)" },
-  { value: "daily_03", label: "Daily · 03:00 (Lebanon)" },
-  { value: "daily_06", label: "Daily · 06:00 (Lebanon)" },
-  { value: "daily_12", label: "Daily · 12:00 (Lebanon)" },
-  { value: "daily_18", label: "Daily · 18:00 (Lebanon)" },
-  { value: "weekly_sun_03", label: "Weekly · Sunday 03:00 (Lebanon)" },
-  { value: "weekly_mon_03", label: "Weekly · Monday 03:00 (Lebanon)" },
-];
+export {
+  BACKUP_SCHEDULE_VALUES,
+  type BackupScheduleValue,
+} from "@/constants/backup-schedule";
 
 export type BeirutParts = {
   year: number;
@@ -102,6 +85,9 @@ export function isScheduleDue(
   now: Date = new Date(),
 ): boolean {
   if (backupTime === "off") return false;
+  if (!(BACKUP_SCHEDULE_VALUES as readonly string[]).includes(backupTime)) {
+    return false;
+  }
   const beirut = getBeirutParts(now);
   const dailyHour = parseDailyHour(backupTime);
   if (dailyHour !== null) {
@@ -130,7 +116,6 @@ export function scheduleWindowKey(
   }
   const weekly = parseWeekly(backupTime);
   if (weekly) {
-    // ISO week-ish label from the Beirut date of the due day
     return `weekly:${beirut.isoDate}:${weekly.weekday === 0 ? "sun" : "mon"}${String(weekly.hour).padStart(2, "0")}`;
   }
   return null;
@@ -138,13 +123,4 @@ export function scheduleWindowKey(
 
 export function immediateScheduleWindow(now: Date = new Date()): string {
   return `immediate:${now.toISOString()}`;
-}
-
-export function runNowScheduleWindow(
-  backupTime: BackupScheduleValue,
-  now: Date = new Date(),
-): string {
-  const scheduled = scheduleWindowKey(backupTime, now);
-  if (scheduled) return `runnow:${scheduled}`;
-  return `runnow:${immediateScheduleWindow(now)}`;
 }

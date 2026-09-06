@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 
-import type { BackupScheduleValue } from "@/lib/backups/schedule";
+import type { BackupScheduleValue } from "@/constants/backup-schedule";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 

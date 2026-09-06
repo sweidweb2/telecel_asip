@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxCsvDownloadLink } from "@/components/dashboard/inbox-csv-download-link";
 import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
 import { RegistrationsTable } from "@/components/registrations/registrations-table";
 import { getAdminResource } from "@/constants/admin-resources";
@@ -39,6 +40,9 @@ export default async function RegistrationsPage({
   return (
     <AdminListPageShell
       title={resource.pageTitle}
+      actions={
+        <InboxCsvDownloadLink href="/api/admin/export/interest_registrations" />
+      }
     >
       <InboxStatsCards stats={stats} />
       <RegistrationsTable
