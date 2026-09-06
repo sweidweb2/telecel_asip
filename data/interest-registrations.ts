@@ -5,6 +5,10 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
+import {
+  fetchInboxTableStats,
+  type InboxTableStats,
+} from "@/data/inbox-stats";
 import type {
   InterestRegistration,
   InterestRegistrationListResult,
@@ -52,12 +56,19 @@ export async function getInterestRegistrationsPageData(
   query: InterestRegistrationListQuery,
 ): Promise<
   | { status: "forbidden" }
-  | { status: "ok"; list: InterestRegistrationListResult }
+  | {
+      status: "ok";
+      list: InterestRegistrationListResult;
+      stats: InboxTableStats;
+    }
 > {
   return gateAdminPageData(
     async (supabase) => {
-      const list = await fetchInterestRegistrations(supabase, query);
-      return { list };
+      const [list, stats] = await Promise.all([
+        fetchInterestRegistrations(supabase, query),
+        fetchInboxTableStats(supabase, "interest_registrations"),
+      ]);
+      return { list, stats };
     },
     { name: "getInterestRegistrationsPageData" },
   );

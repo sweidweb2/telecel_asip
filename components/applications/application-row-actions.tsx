@@ -12,7 +12,13 @@ import {
   updateApplication,
   updateApplicationInboxStatus,
 } from "@/actions/applications";
-import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import {
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailGrid,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
@@ -29,17 +35,24 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import type { Application } from "@/types/application";
 import {
+  APPLICATION_COMPANY_MAX,
+  APPLICATION_COUNTRY_MAX,
+  APPLICATION_EMAIL_MAX,
   APPLICATION_FIT_MAX,
+  APPLICATION_FIT_MIN,
   APPLICATION_FULL_NAME_MAX,
+  APPLICATION_PHONE_MAX,
   APPLICATION_PROBLEM_MAX,
+  APPLICATION_PROBLEM_MIN,
   APPLICATION_ROLE_MAX,
+  APPLICATION_SECTOR_MAX,
   APPLICATION_TRACTION_MAX,
+  APPLICATION_TRACTION_MIN,
   APPLICATION_URL_MAX,
   updateApplicationSchema,
   type UpdateApplicationInput,
@@ -78,12 +91,15 @@ function ExternalLink({ href, label }: { href: string; label: string }) {
       href={trimmed}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary hover:underline"
+      className="break-all text-primary hover:underline"
     >
       {label || trimmed}
     </a>
   );
 }
+
+const EDIT_DIALOG_CONTENT_CLASS =
+  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 export function ApplicationRowActions({
   application,
@@ -156,58 +172,83 @@ export function ApplicationRowActions({
         >
           <EyeIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{application.full_name}</DialogTitle>
+        <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+          <DialogHeader className="min-w-0 gap-3">
+            <div className="flex flex-wrap items-start gap-2 pr-8">
+              <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
+                {application.full_name}
+              </DialogTitle>
+              <InboxStatusBadge status={application.inbox_status} />
+            </div>
             <DialogDescription>
-              Application submitted{" "}
+              Application · submitted{" "}
               {formatAdminDateTime(application.created_at)}
             </DialogDescription>
           </DialogHeader>
-          <dl className="grid gap-4">
-            <AdminDetailRow label="Status">
-              <InboxStatusBadge status={application.inbox_status} />
-            </AdminDetailRow>
-            <AdminDetailRow label="Role">
-              {application.founder_role}
-            </AdminDetailRow>
-            <AdminDetailRow label="Email">{application.email}</AdminDetailRow>
-            <AdminDetailRow label="Phone">{application.phone}</AdminDetailRow>
-            <AdminDetailRow label="Country">
-              {application.country}
-            </AdminDetailRow>
-            <AdminDetailRow label="LinkedIn">
-              <ExternalLink
-                href={application.linkedin}
-                label={application.linkedin}
-              />
-            </AdminDetailRow>
-            <AdminDetailRow label="Startup">
-              {application.company_name}
-            </AdminDetailRow>
-            <AdminDetailRow label="Website">
-              <ExternalLink
-                href={application.website}
-                label={application.website}
-              />
-            </AdminDetailRow>
-            <AdminDetailRow label="Company country">
-              {application.company_country}
-            </AdminDetailRow>
-            <AdminDetailRow label="Sector">{application.sector}</AdminDetailRow>
-            <AdminDetailRow label="Problem & product">
-              {application.problem_product}
-            </AdminDetailRow>
-            <AdminDetailRow label="Traction">
-              {application.traction}
-            </AdminDetailRow>
-            <AdminDetailRow label="Programme fit">
-              {application.programme_fit}
-            </AdminDetailRow>
-            <AdminDetailRow label="Comms opt-in">
-              {application.comms_opt_in ? "Yes" : "No"}
-            </AdminDetailRow>
-          </dl>
+
+          <div className="grid min-w-0 gap-6">
+            <AdminDetailSection title="Founder">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Role">
+                  {application.founder_role}
+                </AdminDetailRow>
+                <AdminDetailRow label="Country">
+                  {application.country}
+                </AdminDetailRow>
+                <AdminDetailRow label="Email">
+                  {application.email}
+                </AdminDetailRow>
+                <AdminDetailRow label="Phone">
+                  {application.phone}
+                </AdminDetailRow>
+                <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
+                  <ExternalLink
+                    href={application.linkedin}
+                    label={application.linkedin}
+                  />
+                </AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Startup">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Name">
+                  {application.company_name}
+                </AdminDetailRow>
+                <AdminDetailRow label="Sector">
+                  {application.sector}
+                </AdminDetailRow>
+                <AdminDetailRow label="Company country">
+                  {application.company_country}
+                </AdminDetailRow>
+                <AdminDetailRow label="Comms opt-in">
+                  {application.comms_opt_in ? "Yes" : "No"}
+                </AdminDetailRow>
+                <AdminDetailRow label="Website" className="sm:col-span-2">
+                  <ExternalLink
+                    href={application.website}
+                    label={application.website}
+                  />
+                </AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Application">
+              <div className="grid gap-4">
+                <AdminDetailRow label="Problem & product">
+                  {application.problem_product}
+                </AdminDetailRow>
+                <AdminDetailRow label="Traction">
+                  {application.traction}
+                </AdminDetailRow>
+                <AdminDetailRow label="Programme fit">
+                  {application.programme_fit}
+                </AdminDetailRow>
+              </div>
+            </AdminDetailSection>
+          </div>
+
+          <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
 
@@ -230,7 +271,7 @@ export function ApplicationRowActions({
         >
           <PencilIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
           <DialogHeader>
             <DialogTitle>Edit application</DialogTitle>
             <DialogDescription>
@@ -242,14 +283,18 @@ export function ApplicationRowActions({
             id={editFormId}
             onSubmit={form.handleSubmit(onUpdate)}
             noValidate
+            className="min-w-0"
           >
             <input type="hidden" {...form.register("id")} />
             <FieldGroup>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                  <Label htmlFor={`edit-app-name-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-name-${application.id}`}
+                    hint={`2–${APPLICATION_FULL_NAME_MAX} chars`}
+                  >
                     Full name
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-name-${application.id}`}
                     disabled={isUpdating}
@@ -266,9 +311,12 @@ export function ApplicationRowActions({
                 <Field
                   data-invalid={Boolean(form.formState.errors.founderRole)}
                 >
-                  <Label htmlFor={`edit-app-role-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-role-${application.id}`}
+                    hint={`2–${APPLICATION_ROLE_MAX} chars`}
+                  >
                     Role
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-role-${application.id}`}
                     disabled={isUpdating}
@@ -285,14 +333,17 @@ export function ApplicationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.email)}>
-                  <Label htmlFor={`edit-app-email-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-email-${application.id}`}
+                    hint={`max ${APPLICATION_EMAIL_MAX}`}
+                  >
                     Email
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-email-${application.id}`}
                     type="email"
                     disabled={isUpdating}
-                    maxLength={254}
+                    maxLength={APPLICATION_EMAIL_MAX}
                     className="min-h-11"
                     placeholder="name@company.com"
                     aria-invalid={Boolean(form.formState.errors.email)}
@@ -303,14 +354,17 @@ export function ApplicationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.phone)}>
-                  <Label htmlFor={`edit-app-phone-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-phone-${application.id}`}
+                    hint={`7–${APPLICATION_PHONE_MAX} · +()- spaces`}
+                  >
                     Phone
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-phone-${application.id}`}
                     type="tel"
                     disabled={isUpdating}
-                    maxLength={20}
+                    maxLength={APPLICATION_PHONE_MAX}
                     className="min-h-11"
                     placeholder="+233 20 000 0000"
                     aria-invalid={Boolean(form.formState.errors.phone)}
@@ -323,13 +377,16 @@ export function ApplicationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.country)}>
-                  <Label htmlFor={`edit-app-country-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-country-${application.id}`}
+                    hint={`2–${APPLICATION_COUNTRY_MAX} chars`}
+                  >
                     Country
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-country-${application.id}`}
                     disabled={isUpdating}
-                    maxLength={80}
+                    maxLength={APPLICATION_COUNTRY_MAX}
                     className="min-h-11"
                     placeholder="e.g. Ghana"
                     aria-invalid={Boolean(form.formState.errors.country)}
@@ -340,9 +397,12 @@ export function ApplicationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.linkedin)}>
-                  <Label htmlFor={`edit-app-linkedin-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-linkedin-${application.id}`}
+                    hint={`http(s):// · max ${APPLICATION_URL_MAX}`}
+                  >
                     LinkedIn
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-linkedin-${application.id}`}
                     type="url"
@@ -362,13 +422,16 @@ export function ApplicationRowActions({
                 <Field
                   data-invalid={Boolean(form.formState.errors.companyName)}
                 >
-                  <Label htmlFor={`edit-app-company-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-company-${application.id}`}
+                    hint={`2–${APPLICATION_COMPANY_MAX} chars`}
+                  >
                     Startup
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-company-${application.id}`}
                     disabled={isUpdating}
-                    maxLength={120}
+                    maxLength={APPLICATION_COMPANY_MAX}
                     className="min-h-11"
                     placeholder="Startup name"
                     aria-invalid={Boolean(form.formState.errors.companyName)}
@@ -379,9 +442,12 @@ export function ApplicationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.website)}>
-                  <Label htmlFor={`edit-app-website-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-website-${application.id}`}
+                    hint={`http(s):// · max ${APPLICATION_URL_MAX}`}
+                  >
                     Website
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-website-${application.id}`}
                     type="url"
@@ -401,15 +467,16 @@ export function ApplicationRowActions({
                 <Field
                   data-invalid={Boolean(form.formState.errors.companyCountry)}
                 >
-                  <Label
+                  <AdminFormFieldLabel
                     htmlFor={`edit-app-company-country-${application.id}`}
+                    hint={`2–${APPLICATION_COUNTRY_MAX} chars`}
                   >
                     Company country
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-company-country-${application.id}`}
                     disabled={isUpdating}
-                    maxLength={80}
+                    maxLength={APPLICATION_COUNTRY_MAX}
                     className="min-h-11"
                     placeholder="e.g. Ghana"
                     aria-invalid={Boolean(
@@ -422,13 +489,16 @@ export function ApplicationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.sector)}>
-                  <Label htmlFor={`edit-app-sector-${application.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-app-sector-${application.id}`}
+                    hint={`2–${APPLICATION_SECTOR_MAX} chars`}
+                  >
                     Sector
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-app-sector-${application.id}`}
                     disabled={isUpdating}
-                    maxLength={80}
+                    maxLength={APPLICATION_SECTOR_MAX}
                     className="min-h-11"
                     placeholder="e.g. Fintech"
                     aria-invalid={Boolean(form.formState.errors.sector)}
@@ -442,9 +512,12 @@ export function ApplicationRowActions({
               <Field
                 data-invalid={Boolean(form.formState.errors.problemProduct)}
               >
-                <Label htmlFor={`edit-app-problem-${application.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-app-problem-${application.id}`}
+                  hint={`${APPLICATION_PROBLEM_MIN}–${APPLICATION_PROBLEM_MAX} chars`}
+                >
                   Problem & product
-                </Label>
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-app-problem-${application.id}`}
                   rows={4}
@@ -460,9 +533,12 @@ export function ApplicationRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.traction)}>
-                <Label htmlFor={`edit-app-traction-${application.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-app-traction-${application.id}`}
+                  hint={`${APPLICATION_TRACTION_MIN}–${APPLICATION_TRACTION_MAX} chars`}
+                >
                   Traction
-                </Label>
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-app-traction-${application.id}`}
                   rows={3}
@@ -480,9 +556,12 @@ export function ApplicationRowActions({
               <Field
                 data-invalid={Boolean(form.formState.errors.programmeFit)}
               >
-                <Label htmlFor={`edit-app-fit-${application.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-app-fit-${application.id}`}
+                  hint={`${APPLICATION_FIT_MIN}–${APPLICATION_FIT_MAX} chars`}
+                >
                   Programme fit
-                </Label>
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-app-fit-${application.id}`}
                   rows={3}

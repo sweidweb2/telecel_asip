@@ -506,6 +506,7 @@ export function BlogEditorForm({
                 className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. Improve your design skills"
                 disabled={isPending}
+                maxLength={BLOG_TITLE_MAX}
                 aria-invalid={Boolean(errors.title)}
                 {...register("title", {
                   onChange: (event) => {
@@ -533,6 +534,7 @@ export function BlogEditorForm({
                 className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. improve-your-design-skills"
                 disabled={isPending}
+                maxLength={BLOG_SLUG_MAX}
                 aria-invalid={Boolean(errors.slug)}
                 {...register("slug", {
                   onChange: () => {
@@ -556,6 +558,7 @@ export function BlogEditorForm({
                 className="min-h-11 bg-white dark:bg-card"
                 placeholder="e.g. Amélie Laurent"
                 disabled={isPending}
+                maxLength={BLOG_AUTHOR_NAME_MAX}
                 aria-invalid={Boolean(errors.authorName)}
                 {...register("authorName")}
               />
@@ -591,6 +594,7 @@ export function BlogEditorForm({
               className="min-h-24 bg-white dark:bg-card"
               placeholder="Short summary shown on cards and search results"
               disabled={isPending}
+              maxLength={BLOG_SUMMARY_MAX}
               aria-invalid={Boolean(errors.summary)}
               {...register("summary")}
             />
@@ -775,6 +779,7 @@ export function BlogEditorForm({
                     placeholder="URL or citation, then Add"
                     value={sourceDraft}
                     disabled={isPending}
+                    maxLength={BLOG_SOURCE_MAX}
                     onChange={(event) => setSourceDraft(event.target.value)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {

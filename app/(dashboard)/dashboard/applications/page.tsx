@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
 import { ApplicationsTable } from "@/components/applications/applications-table";
 import { getAdminResource } from "@/constants/admin-resources";
 import { getApplicationsPageData } from "@/data/applications";
@@ -24,7 +25,7 @@ export default async function ApplicationsPage({
   searchParams,
 }: ApplicationsPageProps) {
   const query = parseApplicationListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getApplicationsPageData,
     listPath: resource.listPath,
@@ -40,6 +41,7 @@ export default async function ApplicationsPage({
       title={resource.pageTitle}
       description={resource.description}
     >
+      <InboxStatsCards stats={stats} />
       <ApplicationsTable
         applications={list.applications}
         total={list.total}

@@ -18,7 +18,8 @@ type TurnstileFieldProps = {
 
 /**
  * Renders the Cloudflare script, the Turnstile widget slot, and its hint /
- * error text. Pair with {@link useTurnstile} in the owning form.
+ * error text. The hint sits above the widget (label level), not under it.
+ * Pair with {@link useTurnstile} in the owning form.
  */
 export function TurnstileField({
   turnstile,
@@ -38,10 +39,10 @@ export function TurnstileField({
           onReady={render}
         />
       ) : null}
-      <div ref={setContainer} className="min-h-16" data-testid={testId} />
       {!hasToken && !error ? (
-        <p className="text-sm text-muted-foreground">{hint}</p>
+        <p className="text-xs leading-4 text-muted-foreground">{hint}</p>
       ) : null}
+      <div ref={setContainer} className="min-h-16" data-testid={testId} />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );

@@ -64,6 +64,7 @@ export const CONTACT_MESSAGE_EMAIL_MAX = 254;
 export const CONTACT_MESSAGE_PHONE_MAX = 20;
 export const CONTACT_MESSAGE_SUBJECT_MAX = 120;
 export const CONTACT_MESSAGE_BODY_MAX = 2000;
+export const CONTACT_MESSAGE_BODY_MIN = 20;
 
 function contactMessageFieldsSchema(messages: ContactMessageMessages) {
   return {

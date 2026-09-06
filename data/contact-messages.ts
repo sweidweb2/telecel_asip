@@ -5,6 +5,10 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
+import {
+  fetchInboxTableStats,
+  type InboxTableStats,
+} from "@/data/inbox-stats";
 import type {
   ContactMessage,
   ContactMessageListResult,
@@ -56,12 +60,15 @@ export async function getContactMessagesPageData(
   query: ContactMessageListQuery,
 ): Promise<
   | { status: "forbidden" }
-  | { status: "ok"; list: ContactMessageListResult }
+  | { status: "ok"; list: ContactMessageListResult; stats: InboxTableStats }
 > {
   return gateAdminPageData(
     async (supabase) => {
-      const list = await fetchContactMessages(supabase, query);
-      return { list };
+      const [list, stats] = await Promise.all([
+        fetchContactMessages(supabase, query),
+        fetchInboxTableStats(supabase, "contact_messages"),
+      ]);
+      return { list, stats };
     },
     { name: "getContactMessagesPageData" },
   );

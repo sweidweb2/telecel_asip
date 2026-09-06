@@ -82,9 +82,23 @@ async function createConfirmedUser(
   });
 
   if (error) throw error;
+
+  // Remote handle_new_user may ignore app_role; promote via an admin session.
+  await promoteUserToAdmin(email);
 }
 
+/**
+ * Promote a profile to admin using the seed admin session.
+ * service_role cannot change profiles.role (protect trigger requires is_admin()),
+ * and some remote DBs still insert viewer even when app_metadata.app_role is set.
+ */
 async function promoteUserToAdmin(email: string) {
+  if (!supabaseUrl || !anonKey) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required for admin promotion.",
+    );
+  }
+
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.listUsers({
     page: 1,
@@ -99,29 +113,27 @@ async function promoteUserToAdmin(email: string) {
     throw new Error(`User not found for admin promotion: ${email}`);
   }
 
-  const password = "Testpass1";
-  const fullName =
-    (user.user_metadata?.full_name as string | undefined) ?? "E2E Admin";
-
-  // profiles.role updates are blocked for service_role by the protect trigger
-  // (is_admin() is false without a JWT subject). Recreate via handle_new_user
-  // with app_metadata.app_role so the profile is inserted as admin.
-  const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
-  if (deleteError) throw deleteError;
-
-  const { data: created, error: createError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
-    app_metadata: { app_role: "admin" },
+  const seedEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
+  const seedPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+  const sessionClient = createClient(supabaseUrl, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
   });
-  if (createError) throw createError;
+  const { error: signInError } = await sessionClient.auth.signInWithPassword({
+    email: seedEmail,
+    password: seedPassword,
+  });
+  if (signInError) throw signInError;
+
+  const { error: updateError } = await sessionClient
+    .from("profiles")
+    .update({ role: "admin" })
+    .eq("id", user.id);
+  if (updateError) throw updateError;
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
     .select("role")
-    .eq("id", created.user!.id)
+    .eq("id", user.id)
     .maybeSingle();
   if (profileError) throw profileError;
   if (profile?.role !== "admin") {

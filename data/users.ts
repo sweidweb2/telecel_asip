@@ -6,6 +6,7 @@ import {
   adminListTotalPages,
   gateAdminPageData,
 } from "@/lib/admin/admin-list-query";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   CurrentUserProfile,
@@ -74,8 +75,9 @@ async function fetchUsers(
   }
 
   if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
     request = request.or(
-      `full_name.ilike.%${query.search}%,email.ilike.%${query.search}%`,
+      `full_name.ilike.%${pattern}%,email.ilike.%${pattern}%`,
     );
   }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
 import { ContactMessagesTable } from "@/components/contact-messages/contact-messages-table";
 import { getAdminResource } from "@/constants/admin-resources";
 import { getContactMessagesPageData } from "@/data/contact-messages";
@@ -24,7 +25,7 @@ export default async function ContactUsPage({
   searchParams,
 }: ContactUsPageProps) {
   const query = parseContactMessageListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getContactMessagesPageData,
     listPath: resource.listPath,
@@ -41,6 +42,7 @@ export default async function ContactUsPage({
       title={resource.pageTitle}
       description={resource.description}
     >
+      <InboxStatsCards stats={stats} />
       <ContactMessagesTable
         messages={list.messages}
         total={list.total}

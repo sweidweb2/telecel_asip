@@ -45,12 +45,14 @@ import {
   CMS_PUBLISH_STATUS_LABELS,
   createEventSchema,
   EVENT_ASSET_URL_MAX,
+  EVENT_ASSETS_MAX,
   EVENT_FORMAT_LABELS,
   EVENT_FORMATS,
   EVENT_LOCATION_MAX,
   EVENT_NAME_MAX,
   EVENT_OUTCOMES_MAX,
   EVENT_SPEAKER_MAX,
+  EVENT_SPEAKERS_MAX,
   type CreateEventInput,
   type EventFormValues,
 } from "@/validations/event";
@@ -381,6 +383,7 @@ export function EventEditorForm({
               id="event-speakers"
               rows={3}
               disabled={isPending}
+              maxLength={EVENT_SPEAKER_MAX * EVENT_SPEAKERS_MAX + EVENT_SPEAKERS_MAX}
               placeholder={"Amina Diallo\nKwame Mensah"}
               aria-invalid={Boolean(errors.speakers)}
               className="bg-white dark:bg-card"
@@ -406,6 +409,7 @@ export function EventEditorForm({
               id="event-assets"
               rows={3}
               disabled={isPending}
+              maxLength={EVENT_ASSET_URL_MAX * EVENT_ASSETS_MAX + EVENT_ASSETS_MAX}
               placeholder="https://example.com/deck.pdf"
               aria-invalid={Boolean(errors.assets)}
               className="bg-white dark:bg-card"

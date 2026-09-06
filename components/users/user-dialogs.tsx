@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { createUser, deleteUser, updateUser } from "@/actions/users";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import {
   AlertDialog,
@@ -148,7 +149,12 @@ export function CreateUserDialog() {
           <input type="hidden" {...form.register("role")} />
           <FieldGroup>
             <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-              <Label htmlFor="create-full-name">Full name</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-full-name"
+                hint={`2–${USER_FULL_NAME_MAX} chars`}
+              >
+                Full name
+              </AdminFormFieldLabel>
               <Input
                 id="create-full-name"
                 autoComplete="name"
@@ -160,7 +166,12 @@ export function CreateUserDialog() {
               <FormFieldError message={form.formState.errors.fullName?.message} />
             </Field>
             <Field data-invalid={Boolean(form.formState.errors.email)}>
-              <Label htmlFor="create-email">Email</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-email"
+                hint={`max ${USER_EMAIL_MAX}`}
+              >
+                Email
+              </AdminFormFieldLabel>
               <Input
                 id="create-email"
                 type="email"
@@ -173,7 +184,12 @@ export function CreateUserDialog() {
               <FormFieldError message={form.formState.errors.email?.message} />
             </Field>
             <Field data-invalid={Boolean(form.formState.errors.password)}>
-              <Label htmlFor="create-password">Temporary password</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-password"
+                hint={`max ${USER_PASSWORD_MAX}`}
+              >
+                Temporary password
+              </AdminFormFieldLabel>
               <Input
                 id="create-password"
                 type="password"
@@ -376,7 +392,12 @@ export function UserRowActions({
             <input type="hidden" {...form.register("role")} />
             <FieldGroup>
               <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                <Label htmlFor={`edit-name-${user.id}`}>Full name</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-name-${user.id}`}
+                  hint={`2–${USER_FULL_NAME_MAX} chars`}
+                >
+                  Full name
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-name-${user.id}`}
                   disabled={isUpdating}
@@ -389,7 +410,12 @@ export function UserRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.email)}>
-                <Label htmlFor={`edit-email-${user.id}`}>Email</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-email-${user.id}`}
+                  hint={`max ${USER_EMAIL_MAX}`}
+                >
+                  Email
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-email-${user.id}`}
                   type="email"

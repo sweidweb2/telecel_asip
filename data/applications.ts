@@ -5,6 +5,10 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
+import {
+  fetchInboxTableStats,
+  type InboxTableStats,
+} from "@/data/inbox-stats";
 import type {
   Application,
   ApplicationListResult,
@@ -51,12 +55,16 @@ async function fetchApplications(
 export async function getApplicationsPageData(
   query: ApplicationListQuery,
 ): Promise<
-  { status: "forbidden" } | { status: "ok"; list: ApplicationListResult }
+  | { status: "forbidden" }
+  | { status: "ok"; list: ApplicationListResult; stats: InboxTableStats }
 > {
   return gateAdminPageData(
     async (supabase) => {
-      const list = await fetchApplications(supabase, query);
-      return { list };
+      const [list, stats] = await Promise.all([
+        fetchApplications(supabase, query),
+        fetchInboxTableStats(supabase, "applications"),
+      ]);
+      return { list, stats };
     },
     { name: "getApplicationsPageData" },
   );

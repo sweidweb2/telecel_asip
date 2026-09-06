@@ -44,13 +44,12 @@ export function ApplicationsTable({
           <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Startup</TableHead>
-          <TableHead>Sector</TableHead>
           <TableHead>Submitted</TableHead>
           <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={applications.length === 0}
-      emptyColSpan={8}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={FileTextIcon}
@@ -93,9 +92,6 @@ export function ApplicationsTable({
           </TableCell>
           <TableCell className="max-w-[10rem] truncate">
             {application.company_name}
-          </TableCell>
-          <TableCell className="whitespace-nowrap">
-            {application.sector}
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
             {formatAdminDate(application.created_at)}

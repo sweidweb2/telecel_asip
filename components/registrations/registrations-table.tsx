@@ -44,14 +44,12 @@ export function RegistrationsTable({
           <TableHead>Status</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Company</TableHead>
-          <TableHead>Sector</TableHead>
-          <TableHead>Country</TableHead>
           <TableHead>Submitted</TableHead>
           <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={registrations.length === 0}
-      emptyColSpan={9}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={ClipboardListIcon}
@@ -94,12 +92,6 @@ export function RegistrationsTable({
           </TableCell>
           <TableCell className="max-w-[10rem] truncate sm:max-w-[14rem]">
             {registration.company_name}
-          </TableCell>
-          <TableCell className="max-w-[8rem] truncate">
-            {registration.sector}
-          </TableCell>
-          <TableCell className="max-w-[8rem] truncate">
-            {registration.country}
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
             {formatAdminDate(registration.created_at)}

@@ -47,6 +47,8 @@ import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
   IMPACT_CLAIM_LABEL_MAX,
+  IMPACT_DISPLAY_LOCATION_MAX,
+  IMPACT_DISPLAY_LOCATIONS_MAX,
   IMPACT_GEOGRAPHY_MAX,
   IMPACT_LENSES,
   IMPACT_PUBLISH_STATUSES,
@@ -462,7 +464,7 @@ export function ImpactMetricEditorForm({
           <Field data-invalid={!!errors.displayLocations}>
             <AdminFormFieldLabel
               htmlFor="impact-locations"
-              hint="One per line"
+              hint={`One per line · max ${IMPACT_DISPLAY_LOCATION_MAX} each · up to ${IMPACT_DISPLAY_LOCATIONS_MAX}`}
             >
               Display locations
             </AdminFormFieldLabel>
@@ -470,6 +472,10 @@ export function ImpactMetricEditorForm({
               id="impact-locations"
               rows={3}
               disabled={isPending}
+              maxLength={
+                IMPACT_DISPLAY_LOCATION_MAX * IMPACT_DISPLAY_LOCATIONS_MAX +
+                IMPACT_DISPLAY_LOCATIONS_MAX
+              }
               aria-invalid={!!errors.displayLocations}
               className="bg-white dark:bg-card"
               {...register("displayLocations")}

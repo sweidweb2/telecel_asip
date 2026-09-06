@@ -245,9 +245,10 @@ test.describe("contact messages", () => {
           .locator("[data-sonner-toast]")
           .filter({ hasText: "Message updated successfully." }),
       ).toBeVisible({ timeout: 20_000 });
+      // Subject is not a visible table column — it lives on the row action labels.
       await expect(
-        page.getByRole("row").filter({ hasText: email }),
-      ).toContainText("edited");
+        page.getByRole("button", { name: `Edit ${updatedSubject}` }),
+      ).toBeVisible();
 
       await page
         .getByRole("row")

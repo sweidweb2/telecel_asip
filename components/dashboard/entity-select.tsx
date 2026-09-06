@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import {
@@ -50,20 +50,28 @@ export function EntitySelect({
     Object.fromEntries(options.map((option) => [option.id, option.label])),
   );
 
-  useEffect(() => {
-    if (options.length === 0) return;
-    setLabelById((prev) => {
-      let changed = false;
-      const next = { ...prev };
-      for (const option of options) {
-        if (next[option.id] !== option.label) {
-          next[option.id] = option.label;
-          changed = true;
+  // Content key avoids loops when parents pass a new options array each render.
+  const optionsKey = options
+    .map((option) => `${option.id}\0${option.label}`)
+    .join("\n");
+  const [prevOptionsKey, setPrevOptionsKey] = useState(optionsKey);
+
+  if (optionsKey !== prevOptionsKey) {
+    setPrevOptionsKey(optionsKey);
+    if (options.length > 0) {
+      setLabelById((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const option of options) {
+          if (next[option.id] !== option.label) {
+            next[option.id] = option.label;
+            changed = true;
+          }
         }
-      }
-      return changed ? next : prev;
-    });
-  }, [options]);
+        return changed ? next : prev;
+      });
+    }
+  }
 
   const items = useMemo(() => {
     const mapped = options.map((option) => ({

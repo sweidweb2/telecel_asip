@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
 
@@ -19,10 +19,12 @@ export function BlogStatusToggle({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [checked, setChecked] = useState(status === "published");
+  const [prevStatus, setPrevStatus] = useState(status);
 
-  useEffect(() => {
+  if (status !== prevStatus) {
+    setPrevStatus(status);
     setChecked(status === "published");
-  }, [status]);
+  }
 
   function onCheckedChange(nextChecked: boolean) {
     if (isPending || nextChecked === checked) return;

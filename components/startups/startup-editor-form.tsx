@@ -356,6 +356,7 @@ export function StartupEditorForm({
                   id="name"
                   className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
+                  maxLength={STARTUP_NAME_MAX}
                   {...form.register("name", {
                     onChange: (event) => onNameChange(event.target.value),
                   })}
@@ -378,6 +379,7 @@ export function StartupEditorForm({
                   id="slug"
                   className="min-h-11 bg-white dark:bg-card"
                   disabled={isPending}
+                  maxLength={STARTUP_SLUG_MAX}
                   {...form.register("slug", {
                     onChange: () => setSlugTouched(true),
                   })}
@@ -401,6 +403,7 @@ export function StartupEditorForm({
                 id="description"
                 className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_DESCRIPTION_MAX}
                 {...form.register("description")}
               />
               {errors.description ? (
@@ -594,13 +597,92 @@ export function StartupEditorForm({
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="grid gap-2"><FieldLabel htmlFor="cohort">Cohort</FieldLabel><Input id="cohort" placeholder="Cohort 4" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.cohort")} /></div>
-              <div className="grid gap-2"><FieldLabel htmlFor="countryCode">Country code</FieldLabel><Input id="countryCode" placeholder="GH" maxLength={2} className="uppercase bg-white dark:bg-card" disabled={isPending} {...form.register("details.countryCode")} /></div>
-              <div className="grid gap-2"><FieldLabel htmlFor="sector">Sector</FieldLabel><Input id="sector" placeholder="Health technology" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.sector")} /></div>
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="cohort" hint="Optional · max 40">
+                  Cohort
+                </FieldLabel>
+                <Input
+                  id="cohort"
+                  placeholder="Cohort 4"
+                  disabled={isPending}
+                  maxLength={40}
+                  className="bg-white dark:bg-card"
+                  {...form.register("details.cohort")}
+                />
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel htmlFor="countryCode">Country code</FieldLabel>
+                <Input
+                  id="countryCode"
+                  placeholder="GH"
+                  maxLength={2}
+                  className="uppercase bg-white dark:bg-card"
+                  disabled={isPending}
+                  {...form.register("details.countryCode")}
+                />
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel
+                  htmlFor="sector"
+                  hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
+                >
+                  Sector
+                </FieldLabel>
+                <Input
+                  id="sector"
+                  placeholder="Health technology"
+                  disabled={isPending}
+                  maxLength={STARTUP_TEXT_SHORT_MAX}
+                  className="bg-white dark:bg-card"
+                  {...form.register("details.sector")}
+                />
+              </div>
             </div>
-            <div className="grid gap-2"><FieldLabel htmlFor="founderNames" hint="Comma-separated">Founder names</FieldLabel><Input id="founderNames" placeholder="First Founder, Second Founder" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.founderNames")} /></div>
-            <div className="grid gap-2"><FieldLabel htmlFor="coverImageUrl">Cover image URL</FieldLabel><Input id="coverImageUrl" type="url" placeholder="https://" disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.coverImageUrl")} /></div>
-            <div className="grid gap-2"><FieldLabel htmlFor="publicOutcome">Approved public outcome</FieldLabel><Textarea id="publicOutcome" className="min-h-24 bg-white dark:bg-card" disabled={isPending} {...form.register("details.publicOutcome")} /></div>
+            <div className="grid gap-2">
+              <FieldLabel htmlFor="founderNames" hint="Comma-separated · max 500">
+                Founder names
+              </FieldLabel>
+              <Input
+                id="founderNames"
+                placeholder="First Founder, Second Founder"
+                disabled={isPending}
+                maxLength={500}
+                className="bg-white dark:bg-card"
+                {...form.register("details.founderNames")}
+              />
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel
+                htmlFor="coverImageUrl"
+                hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
+              >
+                Cover image URL
+              </FieldLabel>
+              <Input
+                id="coverImageUrl"
+                type="url"
+                placeholder="https://"
+                disabled={isPending}
+                maxLength={STARTUP_URL_MAX}
+                className="bg-white dark:bg-card"
+                {...form.register("details.coverImageUrl")}
+              />
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel
+                htmlFor="publicOutcome"
+                hint={`Optional · max ${STARTUP_TEAM_MAX}`}
+              >
+                Approved public outcome
+              </FieldLabel>
+              <Textarea
+                id="publicOutcome"
+                className="min-h-24 bg-white dark:bg-card"
+                disabled={isPending}
+                maxLength={STARTUP_TEAM_MAX}
+                {...form.register("details.publicOutcome")}
+              />
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <label className="flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-medium"><input type="checkbox" className="size-4 accent-primary" disabled={isPending} {...form.register("details.featured")} /> Featured profile</label>
               <div className="grid gap-2"><FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel><Input id="imageFocalX" type="number" min={0} max={100} disabled={isPending} className="bg-white dark:bg-card" {...form.register("details.imageFocalX")} /></div>
@@ -621,6 +703,7 @@ export function StartupEditorForm({
                 placeholder="https://"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_URL_MAX}
                 {...form.register("details.websiteUrl")}
               />
               {errors.details?.websiteUrl ? (
@@ -641,6 +724,7 @@ export function StartupEditorForm({
                 id="industry"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_TEXT_SHORT_MAX}
                 {...form.register("details.industry")}
               />
             </div>
@@ -656,6 +740,7 @@ export function StartupEditorForm({
                 id="category"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_TEXT_SHORT_MAX}
                 {...form.register("details.category")}
               />
             </div>
@@ -671,6 +756,7 @@ export function StartupEditorForm({
                 id="location"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_LOCATION_MAX}
                 {...form.register("details.location")}
               />
             </div>
@@ -708,6 +794,7 @@ export function StartupEditorForm({
                 placeholder="e.g. 1-10"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_SIZE_MAX}
                 {...form.register("details.size")}
               />
             </div>
@@ -723,6 +810,7 @@ export function StartupEditorForm({
                 id="team"
                 className="min-h-11 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_TEAM_MAX}
                 {...form.register("details.team")}
               />
             </div>
@@ -740,6 +828,7 @@ export function StartupEditorForm({
                 id="problem"
                 className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_LONG_TEXT_MAX}
                 {...form.register("details.problem")}
               />
             </div>
@@ -755,6 +844,7 @@ export function StartupEditorForm({
                 id="solution"
                 className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_LONG_TEXT_MAX}
                 {...form.register("details.solution")}
               />
             </div>
@@ -770,6 +860,7 @@ export function StartupEditorForm({
                 id="targetMarket"
                 className="min-h-20 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_TEAM_MAX}
                 {...form.register("details.targetMarket")}
               />
             </div>
@@ -785,6 +876,7 @@ export function StartupEditorForm({
                 id="businessModel"
                 className="min-h-20 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={STARTUP_TEAM_MAX}
                 {...form.register("details.businessModel")}
               />
             </div>

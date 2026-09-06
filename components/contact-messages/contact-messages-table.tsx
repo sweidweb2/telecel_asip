@@ -12,9 +12,7 @@ import {
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
 import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
-import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { CONTACT_ENQUIRY_ADMIN_LABELS } from "@/constants/contact-enquiry";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
 import type { ContactMessage } from "@/types/contact-message";
@@ -44,16 +42,14 @@ export function ContactMessagesTable({
           <AdminRowNumberHead />
           <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Route</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
-          <TableHead>Subject</TableHead>
           <TableHead>Submitted</TableHead>
           <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
       isEmpty={messages.length === 0}
-      emptyColSpan={9}
+      emptyColSpan={7}
       empty={
         <AdminEmptyState
           icon={MailIcon}
@@ -93,18 +89,10 @@ export function ContactMessagesTable({
           <TableCell>
             <InboxStatusBadge status={message.inbox_status} />
           </TableCell>
-          <TableCell>
-            <Badge variant="secondary" className="whitespace-nowrap">
-              {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
-            </Badge>
-          </TableCell>
           <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
             {message.email}
           </TableCell>
           <TableCell className="whitespace-nowrap">{message.phone}</TableCell>
-          <TableCell className="max-w-[12rem] truncate sm:max-w-[18rem]">
-            {message.subject}
-          </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
             {formatAdminDate(message.created_at)}
           </TableCell>

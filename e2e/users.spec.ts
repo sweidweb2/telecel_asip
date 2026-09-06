@@ -4,7 +4,8 @@ import {
   type User,
 } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
-import { nanoid } from "nanoid";
+
+import { e2eSuffix } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -61,7 +62,7 @@ test.describe("admin users CRUD", () => {
     page,
   }) => {
     test.setTimeout(90_000);
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const email = `users.e2e.${suffix}@example.com`;
     const password = "Testpass1";
 
@@ -179,7 +180,11 @@ test.describe("admin users CRUD", () => {
       await expect(
         page.getByRole("row").filter({ hasText: email }),
       ).toHaveCount(0);
-      await expect(page.getByText("No users found")).toBeVisible();
+      // Search should still be active; empty state confirms the filtered list.
+      await expect(page).toHaveURL(/search=users\.e2e/, { timeout: 15_000 });
+      await expect(page.getByText("No users found")).toBeVisible({
+        timeout: 15_000,
+      });
     } finally {
       await cleanupUser(email);
     }
@@ -191,7 +196,7 @@ test.describe("admin users CRUD", () => {
     if (!supabaseUrl || !anonKey)
       throw new Error("Supabase credentials missing");
 
-    const suffix = nanoid(8).toLowerCase();
+    const suffix = e2eSuffix();
     const email = `viewer.e2e.${suffix}@example.com`;
     const password = "Testpass1";
     const admin = adminClient();

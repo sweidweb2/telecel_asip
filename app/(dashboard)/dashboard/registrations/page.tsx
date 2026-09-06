@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
 import { RegistrationsTable } from "@/components/registrations/registrations-table";
 import { getAdminResource } from "@/constants/admin-resources";
 import { getInterestRegistrationsPageData } from "@/data/interest-registrations";
@@ -24,7 +25,7 @@ export default async function RegistrationsPage({
   searchParams,
 }: RegistrationsPageProps) {
   const query = parseInterestRegistrationListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
+  const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getInterestRegistrationsPageData,
     listPath: resource.listPath,
@@ -40,6 +41,7 @@ export default async function RegistrationsPage({
       title={resource.pageTitle}
       description={resource.description}
     >
+      <InboxStatsCards stats={stats} />
       <RegistrationsTable
         registrations={list.registrations}
         total={list.total}

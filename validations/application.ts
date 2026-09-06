@@ -97,10 +97,18 @@ const HTTP_URL_REGEX = /^https?:\/\/.+/i;
 export const APPLICATION_PAGE_SIZE = 10;
 export const APPLICATION_FULL_NAME_MAX = 100;
 export const APPLICATION_ROLE_MAX = 80;
+export const APPLICATION_EMAIL_MAX = 254;
+export const APPLICATION_PHONE_MAX = 20;
+export const APPLICATION_COUNTRY_MAX = 80;
+export const APPLICATION_COMPANY_MAX = 120;
+export const APPLICATION_SECTOR_MAX = 80;
 export const APPLICATION_URL_MAX = 500;
 export const APPLICATION_PROBLEM_MAX = 4000;
 export const APPLICATION_TRACTION_MAX = 2000;
 export const APPLICATION_FIT_MAX = 2000;
+export const APPLICATION_PROBLEM_MIN = 40;
+export const APPLICATION_TRACTION_MIN = 20;
+export const APPLICATION_FIT_MIN = 20;
 
 function requiredHttpUrl(message: string) {
   return z

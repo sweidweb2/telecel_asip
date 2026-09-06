@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
 import { Loader2Icon, Trash2Icon } from "lucide-react";
@@ -117,6 +117,7 @@ export function EvidenceEditorForm({
     mode: "onBlur",
     defaultValues: defaultsFor(record, initialDefaultOwnerId),
   });
+  const ownerId = useWatch({ control: form.control, name: "ownerId" });
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -523,7 +524,13 @@ export function EvidenceEditorForm({
           <Button
             type="submit"
             className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isPending || optionsLoading || owners.length === 0}
+            // Keep Save enabled once an owner is chosen — option reloads must
+            // not block edit saves (Playwright otherwise waits until test timeout).
+            disabled={
+              isPending ||
+              !ownerId ||
+              (optionsLoading && owners.length === 0)
+            }
           >
             {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />

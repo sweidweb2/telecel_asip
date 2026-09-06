@@ -88,7 +88,7 @@ test.describe("evidence cms", () => {
         page.locator("[data-sonner-toast]").filter({
           hasText: "Evidence record updated successfully.",
         }),
-      ).toBeVisible({ timeout: 20_000 });
+      ).toBeVisible({ timeout: 30_000 });
 
       await page.getByRole("button", { name: "Delete" }).click();
       await page

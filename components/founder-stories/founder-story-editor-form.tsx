@@ -347,6 +347,7 @@ export function FounderStoryEditorForm({
                 id="theProblem"
                 className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                 {...register("theProblem")}
               />
               {errors.theProblem ? (
@@ -367,6 +368,7 @@ export function FounderStoryEditorForm({
                 id="whatTheyBuilt"
                 className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                 {...register("whatTheyBuilt")}
               />
               {errors.whatTheyBuilt ? (
@@ -387,6 +389,7 @@ export function FounderStoryEditorForm({
                 id="theAsipConnection"
                 className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                 {...register("theAsipConnection")}
               />
               {errors.theAsipConnection ? (
@@ -407,6 +410,7 @@ export function FounderStoryEditorForm({
                 id="whereTheyAreNow"
                 className="min-h-28 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                 {...register("whereTheyAreNow")}
               />
               {errors.whereTheyAreNow ? (
@@ -439,6 +443,7 @@ export function FounderStoryEditorForm({
                 id="founderQuoteText"
                 className="min-h-24 bg-white dark:bg-card"
                 disabled={isPending}
+                maxLength={FOUNDER_STORY_QUOTE_MAX}
                 {...register("founderQuoteText")}
               />
               {errors.founderQuoteText ? (
@@ -464,6 +469,7 @@ export function FounderStoryEditorForm({
                   id="quoteAttributionName"
                   disabled={isPending}
                   className="bg-white dark:bg-card"
+                  maxLength={FOUNDER_STORY_ATTRIBUTION_NAME_MAX}
                   {...register("quoteAttributionName")}
                 />
                 {errors.quoteAttributionName ? (
@@ -484,6 +490,7 @@ export function FounderStoryEditorForm({
                   id="quoteAttributionTitle"
                   disabled={isPending}
                   className="bg-white dark:bg-card"
+                  maxLength={FOUNDER_STORY_ATTRIBUTION_TITLE_MAX}
                   {...register("quoteAttributionTitle")}
                 />
                 {errors.quoteAttributionTitle ? (

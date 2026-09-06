@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useCallback, useTransition, type ReactNode } from "react";
 import {
   Controller,
   useForm,
@@ -143,7 +143,9 @@ function RegisterIntakeForm({ locale, labels }: IntakeFormProps) {
         isPending={isPending}
       />
       <div className="grid gap-2">
-        <Label htmlFor="intake-pitch">{labels.pitchLabel}</Label>
+        <ApplyFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
+          {labels.pitchLabel}
+        </ApplyFieldLabel>
         <Textarea
           id="intake-pitch"
           rows={4}
@@ -228,7 +230,12 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
         isPending={isPending}
       />
       <div className="grid gap-2">
-        <Label htmlFor="intake-problem">{labels.problemLabel}</Label>
+        <ApplyFieldLabel
+          htmlFor="intake-problem"
+          hint={labels.problemHint}
+        >
+          {labels.problemLabel}
+        </ApplyFieldLabel>
         <Textarea
           id="intake-problem"
           rows={5}
@@ -244,7 +251,12 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
         ) : null}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="intake-traction">{labels.tractionLabel}</Label>
+        <ApplyFieldLabel
+          htmlFor="intake-traction"
+          hint={labels.tractionHint}
+        >
+          {labels.tractionLabel}
+        </ApplyFieldLabel>
         <Textarea
           id="intake-traction"
           rows={4}
@@ -258,7 +270,9 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
         ) : null}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="intake-fit">{labels.fitLabel}</Label>
+        <ApplyFieldLabel htmlFor="intake-fit" hint={labels.fitHint}>
+          {labels.fitLabel}
+        </ApplyFieldLabel>
         <Textarea
           id="intake-fit"
           rows={4}
@@ -295,6 +309,26 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
 type FieldErrors = Partial<
   Record<string, { message?: string } | undefined>
 >;
+
+/** Label with optional/required (or other) rules beside it — never under the input. */
+function ApplyFieldLabel({
+  htmlFor,
+  children,
+  hint,
+}: {
+  htmlFor: string;
+  children: ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+      <Label htmlFor={htmlFor}>{children}</Label>
+      {hint ? (
+        <span className="text-xs leading-4 text-muted-foreground">{hint}</span>
+      ) : null}
+    </div>
+  );
+}
 
 type SharedFieldsProps = {
   labels: ApplyLabels;
@@ -396,7 +430,12 @@ function SharedFields({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="intake-linkedin">{labels.linkedinLabel}</Label>
+          <ApplyFieldLabel
+            htmlFor="intake-linkedin"
+            hint={labels.linkedinHint}
+          >
+            {labels.linkedinLabel}
+          </ApplyFieldLabel>
           <Input
             id="intake-linkedin"
             type="url"
@@ -406,7 +445,6 @@ function SharedFields({
             className="min-h-11"
             {...register("linkedin")}
           />
-          <p className="text-xs text-muted-foreground">{labels.linkedinHint}</p>
           {err("linkedin") ? (
             <p className="text-sm text-destructive">{err("linkedin")}</p>
           ) : null}
@@ -429,7 +467,12 @@ function SharedFields({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="intake-website">{labels.websiteLabel}</Label>
+          <ApplyFieldLabel
+            htmlFor="intake-website"
+            hint={labels.websiteHint}
+          >
+            {labels.websiteLabel}
+          </ApplyFieldLabel>
           <Input
             id="intake-website"
             type="url"
@@ -439,7 +482,6 @@ function SharedFields({
             className="min-h-11"
             {...register("website")}
           />
-          <p className="text-xs text-muted-foreground">{labels.websiteHint}</p>
           {err("website") ? (
             <p className="text-sm text-destructive">{err("website")}</p>
           ) : null}

@@ -64,7 +64,7 @@ export async function createUser(
   if (session.status === "error") return session;
 
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.createUser({
+  const { data: created, error } = await admin.auth.admin.createUser({
     email: parsed.data.email,
     password: parsed.data.password,
     email_confirm: true,
@@ -74,6 +74,23 @@ export async function createUser(
 
   if (error) {
     return { status: "error", message: mapSupabaseError(error.message) };
+  }
+
+  // GoTrue can fire on_auth_user_created before app_metadata is visible to
+  // handle_new_user, so the profile may land as viewer. Set the intended role
+  // through the admin session (protect trigger requires is_admin()).
+  if (created.user) {
+    const { error: profileError } = await session.supabase
+      .from("profiles")
+      .update({ role: parsed.data.role })
+      .eq("id", created.user.id);
+
+    if (profileError) {
+      return {
+        status: "error",
+        message: mapSupabaseError(profileError.message),
+      };
+    }
   }
 
   refreshUsersRoute();

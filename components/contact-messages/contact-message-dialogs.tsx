@@ -12,11 +12,18 @@ import {
   updateContactMessage,
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
-import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import {
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailGrid,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
 import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,7 +36,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -48,6 +54,7 @@ import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { ContactMessage } from "@/types/contact-message";
 import {
   CONTACT_MESSAGE_BODY_MAX,
+  CONTACT_MESSAGE_BODY_MIN,
   CONTACT_MESSAGE_EMAIL_MAX,
   CONTACT_MESSAGE_FULL_NAME_MAX,
   CONTACT_MESSAGE_PHONE_MAX,
@@ -60,6 +67,9 @@ function FormFieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <FieldError>{message}</FieldError>;
 }
+
+const EDIT_DIALOG_CONTENT_CLASS =
+  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
   return {
@@ -153,26 +163,40 @@ export function ContactMessageRowActions({
         >
           <EyeIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="truncate pr-8">{message.subject}</DialogTitle>
-            <DialogDescription>Contact message details</DialogDescription>
-          </DialogHeader>
-          <dl className="grid gap-3 text-sm">
-            <AdminDetailRow label="Status">
+        <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+          <DialogHeader className="min-w-0 gap-3">
+            <div className="flex flex-wrap items-start gap-2 pr-8">
+              <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
+                {message.subject}
+              </DialogTitle>
               <InboxStatusBadge status={message.inbox_status} />
-            </AdminDetailRow>
-            <AdminDetailRow label="Enquiry route">
-              {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
-            </AdminDetailRow>
-            <AdminDetailRow label="Name">{message.full_name}</AdminDetailRow>
-            <AdminDetailRow label="Email">{message.email}</AdminDetailRow>
-            <AdminDetailRow label="Phone">{message.phone}</AdminDetailRow>
-            <AdminDetailRow label="Message">{message.message}</AdminDetailRow>
-            <AdminDetailRow label="Submitted">
-              {formatAdminDateTime(message.created_at)}
-            </AdminDetailRow>
-          </dl>
+            </div>
+            <DialogDescription>
+              Contact · submitted {formatAdminDateTime(message.created_at)}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid min-w-0 gap-6">
+            <AdminDetailSection title="Sender">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Name">
+                  {message.full_name}
+                </AdminDetailRow>
+                <AdminDetailRow label="Route">
+                  <Badge variant="secondary" className="whitespace-nowrap">
+                    {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
+                  </Badge>
+                </AdminDetailRow>
+                <AdminDetailRow label="Email">{message.email}</AdminDetailRow>
+                <AdminDetailRow label="Phone">{message.phone}</AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Message">
+              <AdminDetailRow label="Body">{message.message}</AdminDetailRow>
+            </AdminDetailSection>
+          </div>
+
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
@@ -196,7 +220,7 @@ export function ContactMessageRowActions({
         >
           <PencilIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
           <DialogHeader>
             <DialogTitle>Edit message</DialogTitle>
             <DialogDescription>
@@ -212,9 +236,12 @@ export function ContactMessageRowActions({
             <input type="hidden" {...form.register("id")} />
             <FieldGroup>
               <Field data-invalid={Boolean(form.formState.errors.enquiryType)}>
-                <Label htmlFor={`edit-enquiry-type-${message.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-enquiry-type-${message.id}`}
+                  hint="Required"
+                >
                   Enquiry route
-                </Label>
+                </AdminFormFieldLabel>
                 <Select
                   value={enquiryType}
                   onValueChange={(value) => {
@@ -248,7 +275,12 @@ export function ContactMessageRowActions({
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                  <Label htmlFor={`edit-name-${message.id}`}>Full name</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-name-${message.id}`}
+                    hint={`2–${CONTACT_MESSAGE_FULL_NAME_MAX} chars`}
+                  >
+                    Full name
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-name-${message.id}`}
                     disabled={isUpdating}
@@ -262,7 +294,12 @@ export function ContactMessageRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.phone)}>
-                  <Label htmlFor={`edit-phone-${message.id}`}>Phone</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-phone-${message.id}`}
+                    hint={`7–${CONTACT_MESSAGE_PHONE_MAX} · +()- spaces`}
+                  >
+                    Phone
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-phone-${message.id}`}
                     type="tel"
@@ -278,7 +315,12 @@ export function ContactMessageRowActions({
                 </Field>
               </div>
               <Field data-invalid={Boolean(form.formState.errors.email)}>
-                <Label htmlFor={`edit-email-${message.id}`}>Email</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-email-${message.id}`}
+                  hint={`max ${CONTACT_MESSAGE_EMAIL_MAX}`}
+                >
+                  Email
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-email-${message.id}`}
                   type="email"
@@ -293,7 +335,12 @@ export function ContactMessageRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.subject)}>
-                <Label htmlFor={`edit-subject-${message.id}`}>Subject</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-subject-${message.id}`}
+                  hint={`2–${CONTACT_MESSAGE_SUBJECT_MAX} chars`}
+                >
+                  Subject
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-subject-${message.id}`}
                   disabled={isUpdating}
@@ -307,7 +354,12 @@ export function ContactMessageRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.message)}>
-                <Label htmlFor={`edit-message-${message.id}`}>Message</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-message-${message.id}`}
+                  hint={`${CONTACT_MESSAGE_BODY_MIN}–${CONTACT_MESSAGE_BODY_MAX} chars`}
+                >
+                  Message
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-message-${message.id}`}
                   rows={5}

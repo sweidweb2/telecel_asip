@@ -45,11 +45,15 @@ test("language switch preserves the current public page", async ({ page }) => {
 
 test("alumni is in the primary navigation", async ({ page }) => {
   await page.goto("/en");
-  await page.getByRole("button", { name: "Founders" }).click();
-  await expect(page.getByRole("link", { name: "Alumni" }).last()).toHaveAttribute(
-    "href",
-    "/en/alumni",
-  );
+  // Scope to header + exact name so hero gallery aria-labels do not match.
+  await page
+    .locator("header")
+    .getByRole("button", { name: "Founders", exact: true })
+    .click();
+  // NavigationMenu content is portaled outside <header>.
+  await expect(
+    page.getByRole("link", { name: "Alumni", exact: true }),
+  ).toHaveAttribute("href", "/en/alumni");
 });
 
 test("mobile navigation remains usable", async ({ page }) => {
@@ -71,7 +75,9 @@ test("tablet navigation keeps the primary routes visible", async ({ page }) => {
   await expect(
     page.locator("header").getByRole("link", { name: "About" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Founders" })).toBeVisible();
+  await expect(
+    page.locator("header").getByRole("button", { name: "Founders", exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
 

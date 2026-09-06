@@ -12,7 +12,13 @@ import {
   updateInterestRegistration,
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
-import { AdminDetailRow } from "@/components/dashboard/admin-detail-row";
+import {
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailGrid,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
@@ -29,7 +35,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
@@ -41,7 +46,10 @@ import {
   INTEREST_REGISTRATION_FULL_NAME_MAX,
   INTEREST_REGISTRATION_PHONE_MAX,
   INTEREST_REGISTRATION_PITCH_MAX,
+  INTEREST_REGISTRATION_PITCH_MIN,
+  INTEREST_REGISTRATION_ROLE_MAX,
   INTEREST_REGISTRATION_SECTOR_MAX,
+  INTEREST_REGISTRATION_URL_MAX,
   updateInterestRegistrationSchema,
   type UpdateInterestRegistrationInput,
 } from "@/validations/interest-registration";
@@ -50,6 +58,24 @@ function FormFieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <FieldError>{message}</FieldError>;
 }
+
+function ExternalLink({ href, label }: { href: string; label: string }) {
+  const trimmed = href.trim();
+  if (!trimmed) return null;
+  return (
+    <a
+      href={trimmed}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="break-all text-primary hover:underline"
+    >
+      {label || trimmed}
+    </a>
+  );
+}
+
+const EDIT_DIALOG_CONTENT_CLASS =
+  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 function toEditDefaults(
   registration: InterestRegistration,
@@ -147,52 +173,76 @@ export function RegistrationRowActions({
         >
           <EyeIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="truncate pr-8">
-              {registration.full_name}
-            </DialogTitle>
-            <DialogDescription>Registration details</DialogDescription>
-          </DialogHeader>
-          <dl className="grid gap-3 text-sm">
-            <AdminDetailRow label="Status">
+        <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+          <DialogHeader className="min-w-0 gap-3">
+            <div className="flex flex-wrap items-start gap-2 pr-8">
+              <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
+                {registration.full_name}
+              </DialogTitle>
               <InboxStatusBadge status={registration.inbox_status} />
-            </AdminDetailRow>
-            <AdminDetailRow label="Role">
-              {registration.founder_role}
-            </AdminDetailRow>
-            <AdminDetailRow label="Email">{registration.email}</AdminDetailRow>
-            <AdminDetailRow label="Phone">{registration.phone}</AdminDetailRow>
-            <AdminDetailRow label="Company">
-              {registration.company_name}
-            </AdminDetailRow>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <AdminDetailRow label="Sector">
-                {registration.sector}
-              </AdminDetailRow>
-              <AdminDetailRow label="Country">
-                {registration.country}
-              </AdminDetailRow>
             </div>
-            <AdminDetailRow label="Company country">
-              {registration.company_country}
-            </AdminDetailRow>
-            <AdminDetailRow label="LinkedIn">
-              {registration.linkedin}
-            </AdminDetailRow>
-            <AdminDetailRow label="Website">
-              {registration.website}
-            </AdminDetailRow>
-            <AdminDetailRow label="Pitch">{registration.pitch}</AdminDetailRow>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <AdminDetailRow label="Consent">
-                {registration.consent ? "Yes" : "No"}
-              </AdminDetailRow>
-              <AdminDetailRow label="Submitted">
-                {formatAdminDateTime(registration.created_at)}
-              </AdminDetailRow>
-            </div>
-          </dl>
+            <DialogDescription>
+              Registration · submitted{" "}
+              {formatAdminDateTime(registration.created_at)}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid min-w-0 gap-6">
+            <AdminDetailSection title="Contact">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Role">
+                  {registration.founder_role}
+                </AdminDetailRow>
+                <AdminDetailRow label="Country">
+                  {registration.country}
+                </AdminDetailRow>
+                <AdminDetailRow label="Email">
+                  {registration.email}
+                </AdminDetailRow>
+                <AdminDetailRow label="Phone">
+                  {registration.phone}
+                </AdminDetailRow>
+                <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
+                  {registration.linkedin ? (
+                    <ExternalLink
+                      href={registration.linkedin}
+                      label={registration.linkedin}
+                    />
+                  ) : null}
+                </AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Company">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Name">
+                  {registration.company_name}
+                </AdminDetailRow>
+                <AdminDetailRow label="Sector">
+                  {registration.sector}
+                </AdminDetailRow>
+                <AdminDetailRow label="Company country">
+                  {registration.company_country}
+                </AdminDetailRow>
+                <AdminDetailRow label="Consent">
+                  {registration.consent ? "Yes" : "No"}
+                </AdminDetailRow>
+                <AdminDetailRow label="Website" className="sm:col-span-2">
+                  {registration.website ? (
+                    <ExternalLink
+                      href={registration.website}
+                      label={registration.website}
+                    />
+                  ) : null}
+                </AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Note">
+              <AdminDetailRow label="Pitch">{registration.pitch}</AdminDetailRow>
+            </AdminDetailSection>
+          </div>
+
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
@@ -216,7 +266,7 @@ export function RegistrationRowActions({
         >
           <PencilIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
           <DialogHeader>
             <DialogTitle>Edit registration</DialogTitle>
             <DialogDescription>
@@ -233,9 +283,12 @@ export function RegistrationRowActions({
             <FieldGroup>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                  <Label htmlFor={`edit-name-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-name-${registration.id}`}
+                    hint={`2–${INTEREST_REGISTRATION_FULL_NAME_MAX} chars`}
+                  >
                     Full name
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-name-${registration.id}`}
                     disabled={isUpdating}
@@ -250,7 +303,12 @@ export function RegistrationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.email)}>
-                  <Label htmlFor={`edit-email-${registration.id}`}>Email</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-email-${registration.id}`}
+                    hint={`max ${INTEREST_REGISTRATION_EMAIL_MAX}`}
+                  >
+                    Email
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-email-${registration.id}`}
                     type="email"
@@ -268,7 +326,12 @@ export function RegistrationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.phone)}>
-                  <Label htmlFor={`edit-phone-${registration.id}`}>Phone</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-phone-${registration.id}`}
+                    hint={`7–${INTEREST_REGISTRATION_PHONE_MAX} · +()- spaces`}
+                  >
+                    Phone
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-phone-${registration.id}`}
                     type="tel"
@@ -286,9 +349,12 @@ export function RegistrationRowActions({
                 <Field
                   data-invalid={Boolean(form.formState.errors.companyName)}
                 >
-                  <Label htmlFor={`edit-company-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-company-${registration.id}`}
+                    hint={`2–${INTEREST_REGISTRATION_COMPANY_MAX} chars`}
+                  >
                     Company
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-company-${registration.id}`}
                     disabled={isUpdating}
@@ -305,9 +371,12 @@ export function RegistrationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.sector)}>
-                  <Label htmlFor={`edit-sector-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-sector-${registration.id}`}
+                    hint={`2–${INTEREST_REGISTRATION_SECTOR_MAX} chars`}
+                  >
                     Sector
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-sector-${registration.id}`}
                     disabled={isUpdating}
@@ -322,9 +391,12 @@ export function RegistrationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.country)}>
-                  <Label htmlFor={`edit-country-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-country-${registration.id}`}
+                    hint={`2–${INTEREST_REGISTRATION_COUNTRY_MAX} chars`}
+                  >
                     Country
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-country-${registration.id}`}
                     disabled={isUpdating}
@@ -341,11 +413,16 @@ export function RegistrationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.founderRole)}>
-                  <Label htmlFor={`edit-role-${registration.id}`}>Role</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-role-${registration.id}`}
+                    hint={`max ${INTEREST_REGISTRATION_ROLE_MAX}`}
+                  >
+                    Role
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-role-${registration.id}`}
                     disabled={isUpdating}
-                    maxLength={80}
+                    maxLength={INTEREST_REGISTRATION_ROLE_MAX}
                     className="min-h-11"
                     placeholder="e.g. Founder / CEO"
                     aria-invalid={Boolean(form.formState.errors.founderRole)}
@@ -358,9 +435,12 @@ export function RegistrationRowActions({
                 <Field
                   data-invalid={Boolean(form.formState.errors.companyCountry)}
                 >
-                  <Label htmlFor={`edit-company-country-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-company-country-${registration.id}`}
+                    hint={`2–${INTEREST_REGISTRATION_COUNTRY_MAX} chars`}
+                  >
                     Company country
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-company-country-${registration.id}`}
                     disabled={isUpdating}
@@ -379,14 +459,17 @@ export function RegistrationRowActions({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.linkedin)}>
-                  <Label htmlFor={`edit-linkedin-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-linkedin-${registration.id}`}
+                    hint={`Optional · http(s):// · max ${INTEREST_REGISTRATION_URL_MAX}`}
+                  >
                     LinkedIn
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-linkedin-${registration.id}`}
                     type="url"
                     disabled={isUpdating}
-                    maxLength={500}
+                    maxLength={INTEREST_REGISTRATION_URL_MAX}
                     className="min-h-11"
                     placeholder="https://linkedin.com/in/…"
                     aria-invalid={Boolean(form.formState.errors.linkedin)}
@@ -397,14 +480,17 @@ export function RegistrationRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.website)}>
-                  <Label htmlFor={`edit-website-${registration.id}`}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-website-${registration.id}`}
+                    hint={`Optional · http(s):// · max ${INTEREST_REGISTRATION_URL_MAX}`}
+                  >
                     Website
-                  </Label>
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-website-${registration.id}`}
                     type="url"
                     disabled={isUpdating}
-                    maxLength={500}
+                    maxLength={INTEREST_REGISTRATION_URL_MAX}
                     className="min-h-11"
                     placeholder="https://example.com"
                     aria-invalid={Boolean(form.formState.errors.website)}
@@ -416,9 +502,12 @@ export function RegistrationRowActions({
                 </Field>
               </div>
               <Field data-invalid={Boolean(form.formState.errors.pitch)}>
-                <Label htmlFor={`edit-pitch-${registration.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-pitch-${registration.id}`}
+                  hint={`Optional · ${INTEREST_REGISTRATION_PITCH_MIN}–${INTEREST_REGISTRATION_PITCH_MAX} if filled`}
+                >
                   Note (optional)
-                </Label>
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-pitch-${registration.id}`}
                   rows={5}

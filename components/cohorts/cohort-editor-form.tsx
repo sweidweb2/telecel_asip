@@ -40,6 +40,7 @@ import {
   CMS_PUBLISH_STATUS_LABELS,
   COHORT_PROGRAMME_STATUSES,
   COHORT_PROGRAMME_STATUS_LABELS,
+  COHORT_MEDIA_URL_MAX,
   COHORT_PUBLIC_LABEL_MAX,
   COHORT_SUMMARY_MAX,
   createCohortSchema,
@@ -297,6 +298,7 @@ export function CohortEditorForm({
               id="publicLabel"
               className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
+              maxLength={COHORT_PUBLIC_LABEL_MAX}
               {...register("publicLabel")}
             />
             {errors.publicLabel ? (
@@ -415,6 +417,7 @@ export function CohortEditorForm({
               rows={5}
               className="bg-white dark:bg-card"
               disabled={isPending}
+              maxLength={COHORT_SUMMARY_MAX}
               {...register("summary")}
             />
             {errors.summary ? (
@@ -425,13 +428,19 @@ export function CohortEditorForm({
           </div>
 
           <div className="grid gap-2 sm:col-span-2">
-            <FieldLabel htmlFor="mediaUrl">Media URL</FieldLabel>
+            <FieldLabel
+              htmlFor="mediaUrl"
+              hint={`Optional · http(s) · max ${COHORT_MEDIA_URL_MAX}`}
+            >
+              Media URL
+            </FieldLabel>
             <Input
               id="mediaUrl"
               type="url"
               placeholder="https://"
               className="min-h-11 bg-white dark:bg-card"
               disabled={isPending}
+              maxLength={COHORT_MEDIA_URL_MAX}
               {...register("mediaUrl")}
             />
             {errors.mediaUrl ? (
