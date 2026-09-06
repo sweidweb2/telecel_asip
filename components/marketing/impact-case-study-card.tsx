@@ -37,11 +37,13 @@ export function ImpactCaseStudyCard({
   const isPending = !story || story.status === "pending";
   const name = story?.name?.trim() || "";
   const tags = [story?.sector, story?.country].filter(Boolean) as string[];
-  const steps: TimelineStep[] = [
-    { id: "barrier", label: copy.steps.barrier, text: story?.barrier ?? null },
-    { id: "support", label: copy.steps.support, text: story?.support ?? null },
-    { id: "outcome", label: copy.steps.outcome, text: story?.outcome ?? null },
-  ].filter((step) => Boolean(step.text));
+  const steps = (
+    [
+      { id: "barrier", label: copy.steps.barrier, text: story?.barrier ?? null },
+      { id: "support", label: copy.steps.support, text: story?.support ?? null },
+      { id: "outcome", label: copy.steps.outcome, text: story?.outcome ?? null },
+    ] satisfies TimelineStep[]
+  ).filter((step): step is TimelineStep & { text: string } => Boolean(step.text));
   const href =
     !isPending && story?.slug
       ? founderStartupPath(locale, story.slug)

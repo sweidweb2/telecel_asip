@@ -16,7 +16,9 @@ describe("partnersCopyFor", () => {
     expect(en.hero.cta.label).toBe("Discuss a partnership");
     expect(en.ctaSection.slug).toBe("contact");
     expect(en.ctaSection.label).toBe("Discuss a partnership");
-    expect(fr.hero.title.length).toBeGreaterThan(0);
+    expect(fr.hero.titleLead.length).toBeGreaterThan(0);
+    expect(fr.hero.titleAccent.length).toBeGreaterThan(0);
+    expect(en.hero.proof).toHaveLength(fr.hero.proof.length);
     expect(fr.hero.cta.label.length).toBeGreaterThan(0);
   });
 

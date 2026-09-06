@@ -17,7 +17,7 @@ export function ProgrammeEligibilitySection({
     <section
       id="eligibility"
       aria-labelledby="programme-eligibility-heading"
-      className="scroll-mt-24 border-b border-border bg-white text-foreground"
+      className="scroll-mt-24 border-b border-border bg-background text-foreground"
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         <div className="max-w-[40.625rem]">

@@ -72,12 +72,6 @@ function PageSection({
   );
 }
 
-function EmptySlot({ label }: { label: string }) {
-  return (
-    <p className="text-sm text-muted-foreground">Skeleton holder — {label}</p>
-  );
-}
-
 function formatCohortWindow(cohort: CohortPublicListItem, locale: Locale) {
   if (!cohort.programme_dates_start || !cohort.programme_dates_end) {
     return null;
