@@ -237,6 +237,7 @@ export type AlumniPageCopy = {
     description: string;
   };
   benefits: {
+    title: string;
     items: {
       id: AlumniBenefitId;
       title: string;

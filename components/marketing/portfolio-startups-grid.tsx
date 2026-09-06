@@ -21,9 +21,9 @@ import type { ActiveStartupFilters } from "@/validations/startup";
 const LABELS = {
   en: {
     search: "Search companies or solutions",
-    cohort: "All cohorts",
-    country: "All countries",
-    sector: "All sectors",
+    cohort: "Cohort",
+    country: "Country",
+    sector: "Sector",
     empty: "No companies match these filters.",
     emptyAll: "Founder profiles are being prepared for publication.",
     result: "{count} company",
@@ -31,9 +31,9 @@ const LABELS = {
   },
   fr: {
     search: "Rechercher une entreprise ou une solution",
-    cohort: "Toutes les cohortes",
-    country: "Tous les pays",
-    sector: "Tous les secteurs",
+    cohort: "Cohorte",
+    country: "Pays",
+    sector: "Secteur",
     empty: "Aucune entreprise ne correspond a ces filtres.",
     emptyAll: "Les profils des fondateurs sont en cours de preparation.",
     result: "{count} entreprise",
@@ -96,28 +96,43 @@ export function PortfolioStartupsGrid({
 
   function filterSelect(
     value: string | null,
-    allLabel: string,
+    fieldLabel: string,
     values: string[],
     key: "cohort" | "country" | "sector",
   ) {
+    const optionLabel = (item: string) =>
+      key === "country" ? (countryNames.of(item) ?? item) : item;
+
+    const items = [
+      { value: "all", label: fieldLabel },
+      ...values.map((item) => ({ value: item, label: optionLabel(item) })),
+    ];
+
     return (
       <Select
         value={value ?? "all"}
+        items={items}
         onValueChange={(next) =>
           updateParams({ [key]: next === "all" ? null : next })
         }
       >
         <SelectTrigger
           className="min-h-12 w-full bg-background"
-          aria-label={allLabel}
+          aria-label={fieldLabel}
         >
-          <SelectValue placeholder={allLabel} />
+          <SelectValue placeholder={fieldLabel}>
+            {(selected: string | null) =>
+              selected && selected !== "all"
+                ? optionLabel(selected)
+                : fieldLabel
+            }
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{allLabel}</SelectItem>
+          <SelectItem value="all">{fieldLabel}</SelectItem>
           {values.map((item) => (
             <SelectItem key={item} value={item}>
-              {key === "country" ? (countryNames.of(item) ?? item) : item}
+              {optionLabel(item)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -127,7 +142,7 @@ export function PortfolioStartupsGrid({
 
   return (
     <div className="grid gap-8">
-      <div className="grid grid-cols-1 gap-3 border-y py-5 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+      <div className="grid grid-cols-1 gap-3 border-y py-3 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input

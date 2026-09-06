@@ -43,8 +43,11 @@ describe("ImpactCaseStudyCard", () => {
     expect(screen.getByText("Fintech")).toBeInTheDocument();
     expect(screen.getByText("NG")).toBeInTheDocument();
     expect(
-      screen.getByText("Raising capital without a local investor network."),
-    ).toBeInTheDocument();
+      screen.queryByText("Raising capital without a local investor network."),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.steps.barrier)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.steps.support)).not.toBeInTheDocument();
+    expect(screen.queryByText(copy.steps.outcome)).not.toBeInTheDocument();
     expect(screen.getByText("$974K revenue")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: copy.readStory }),
@@ -70,8 +73,7 @@ describe("ImpactCaseStudyCard", () => {
       screen.getByRole("heading", { level: 3, name: "Herconomy" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("$974K revenue")).not.toBeInTheDocument();
-    expect(screen.queryByText(copy.steps.outcome)).not.toBeInTheDocument();
-    expect(screen.getByText(copy.steps.barrier)).toBeInTheDocument();
+    expect(screen.queryByText(copy.steps.barrier)).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: copy.readStory }),
     ).toBeInTheDocument();

@@ -26,6 +26,7 @@ const en: AlumniPageCopy = {
       "Founders face different challenges as companies grow. The Alumni Network is intended to create a practical space for peer connection, founder-to-founder learning, relevant introductions and continued visibility across the ASIP community.",
   },
   benefits: {
+    title: "What continues after the cohort.",
     items: [
       {
         id: "community",
@@ -83,6 +84,7 @@ const fr: AlumniPageCopy = {
       "Les fondateurs rencontrent d’autres défis à mesure que les entreprises grandissent. Le réseau alumni vise à créer un espace concret pour le lien entre pairs, l’apprentissage de fondateur à fondateur, des introductions pertinentes et une visibilité continue au sein de la communauté ASIP.",
   },
   benefits: {
+    title: "Ce qui continue après la cohorte.",
     items: [
       {
         id: "community",

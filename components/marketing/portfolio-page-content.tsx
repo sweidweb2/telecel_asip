@@ -1,10 +1,10 @@
+import { FoundersHeroSection } from "@/components/marketing/founders-hero-section";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
-import { PageHero, Section } from "@/components/marketing/page-elements";
+import { Section } from "@/components/marketing/page-elements";
 import { PortfolioPagination } from "@/components/marketing/portfolio-pagination";
 import { PortfolioStartupsGrid } from "@/components/marketing/portfolio-startups-grid";
 import type { Locale } from "@/constants/locales";
 import { marketingCopyFor } from "@/constants/marketing-copy";
-import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import {
   getActiveStartupFilterOptions,
   getActiveStartupsPage,
@@ -46,16 +46,17 @@ export async function PortfolioPageContent({
 
   return (
     <main>
-      <PageHero
-        variant="index"
-        media={MARKETING_MEDIA.founders}
+      <FoundersHeroSection
         locale={locale}
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
+        copy={{
+          eyebrow: copy.eyebrow,
+          title: copy.title,
+          description: copy.description,
+          cta: copy.cta,
+        }}
       />
 
-      <Section className="border-t pt-8 sm:pt-10">
+      <Section className="pt-8 sm:pt-10">
         <PortfolioStartupsGrid
           locale={locale}
           startups={list.items}

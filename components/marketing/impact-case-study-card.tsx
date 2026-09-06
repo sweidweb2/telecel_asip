@@ -10,7 +10,7 @@ import type { ImpactPageCopy } from "@/types/marketing-page";
 
 type CaseStudyCopy = Pick<
   ImpactPageCopy["caseStudy"],
-  "readStory" | "steps" | "comingSoon"
+  "readStory" | "comingSoon"
 >;
 
 type ImpactCaseStudyCardProps = {
@@ -19,15 +19,10 @@ type ImpactCaseStudyCardProps = {
   story?: ImpactCaseStudyPublic | null;
 };
 
-type TimelineStep = {
-  id: "barrier" | "support" | "outcome";
-  label: string;
-  text: string | null;
-};
-
 /**
  * Compact Impact case-study card.
  * Pending seats keep the same shell — grey reserved fill, no fake copy.
+ * Barrier / connection / outcome narrative lives on the founder story page.
  */
 export function ImpactCaseStudyCard({
   locale,
@@ -37,13 +32,6 @@ export function ImpactCaseStudyCard({
   const isPending = !story || story.status === "pending";
   const name = story?.name?.trim() || "";
   const tags = [story?.sector, story?.country].filter(Boolean) as string[];
-  const steps = (
-    [
-      { id: "barrier", label: copy.steps.barrier, text: story?.barrier ?? null },
-      { id: "support", label: copy.steps.support, text: story?.support ?? null },
-      { id: "outcome", label: copy.steps.outcome, text: story?.outcome ?? null },
-    ] satisfies TimelineStep[]
-  ).filter((step): step is TimelineStep & { text: string } => Boolean(step.text));
   const href =
     !isPending && story?.slug
       ? founderStartupPath(locale, story.slug)
@@ -127,59 +115,24 @@ export function ImpactCaseStudyCard({
             {copy.comingSoon}
           </p>
         ) : (
-          <>
-            {steps.length > 0 ? (
-              <ol className="mt-3 space-y-2">
-                {steps.map((step) => (
-                  <li key={step.id} className="flex gap-2.5">
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "mt-1.5 size-1.5 shrink-0 rounded-full",
-                        step.id === "support"
-                          ? "bg-muted-foreground/50"
-                          : "bg-[#dc395f]",
-                      )}
-                    />
-                    <div className="min-w-0">
-                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                        {step.label}
-                      </p>
-                      <p
-                        className={cn(
-                          "mt-0.5 line-clamp-1 text-sm leading-5",
-                          step.id === "support"
-                            ? "text-muted-foreground"
-                            : "text-foreground",
-                        )}
-                      >
-                        {step.text}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+            {story?.stat ? (
+              <span className="inline-flex min-h-7 max-w-[55%] items-center rounded-md bg-muted px-2 text-[0.7rem] font-semibold tracking-tight text-foreground">
+                {story.stat}
+              </span>
+            ) : (
+              <span />
+            )}
+
+            {href ? (
+              <Link
+                href={href}
+                className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-[#dc395f] underline-offset-4 hover:underline"
+              >
+                {copy.readStory}
+              </Link>
             ) : null}
-
-            <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-              {story?.stat ? (
-                <span className="inline-flex min-h-7 max-w-[55%] items-center rounded-md bg-muted px-2 text-[0.7rem] font-semibold tracking-tight text-foreground">
-                  {story.stat}
-                </span>
-              ) : (
-                <span />
-              )}
-
-              {href ? (
-                <Link
-                  href={href}
-                  className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-[#dc395f] underline-offset-4 hover:underline"
-                >
-                  {copy.readStory}
-                </Link>
-              ) : null}
-            </div>
-          </>
+          </div>
         )}
       </div>
     </article>

@@ -13,6 +13,8 @@ describe("alumniCopyFor", () => {
       fr.benefits.items.map((item) => item.id),
     );
     expect(en.benefits.items).toHaveLength(5);
+    expect(en.benefits.title.length).toBeGreaterThan(0);
+    expect(fr.benefits.title.length).toBeGreaterThan(0);
     expect(en.hero.primaryCta.slug).toBe("founders");
     expect(fr.hero.primaryCta.slug).toBe("founders");
     expect(en.hero.primaryCta.label).toBe("Explore the community");
