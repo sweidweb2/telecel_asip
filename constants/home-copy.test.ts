@@ -16,10 +16,16 @@ describe("homeCopyFor", () => {
     expect(en.ecosystem.roles.map((role) => role.id)).toEqual(
       fr.ecosystem.roles.map((role) => role.id),
     );
+    expect(en.hero.brand).toBe("ASIP");
+    expect(fr.hero.brand).toBe("ASIP");
     expect(en.hero.primaryCta.slug).toBe("founders");
     expect(en.hero.secondaryCta.slug).toBe("register-interest");
+    expect(en.hero.description.length).toBeLessThan(220);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("contact");
-    expect(fr.hero.title.length).toBeGreaterThan(0);
+    expect(en.telecel.title).toContain("Connecting Energies");
+    expect(en.telecel.prompt.length).toBeGreaterThan(0);
+    expect(fr.telecel.prompt.length).toBeGreaterThan(0);
+    expect(fr.telecel.ctaLabel.length).toBeGreaterThan(0);
   });
 });

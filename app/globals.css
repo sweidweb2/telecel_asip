@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -320,6 +321,59 @@ html {
   animation: home-hero-drift 22s ease-in-out infinite;
 }
 
+/*
+ * Founder Continuum — 4 stills, 12s beat, soft crossfade.
+ * Total cycle 48s. First slide starts mid-fade-in via negative delay for LCP.
+ */
+@keyframes home-hero-continuum {
+  0% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  21% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.home-hero-continuum-slide {
+  opacity: 0;
+  animation-name: home-hero-continuum;
+  animation-duration: 48s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.home-hero-continuum-slide:nth-child(1) {
+  /* Skip empty fade-in so first paint is already visible */
+  animation-delay: -1.92s;
+  opacity: 1;
+}
+
+.home-hero-continuum-slide:nth-child(2) {
+  animation-delay: 12s;
+}
+
+.home-hero-continuum-slide:nth-child(3) {
+  animation-delay: 24s;
+}
+
+.home-hero-continuum-slide:nth-child(4) {
+  animation-delay: 36s;
+}
+
+.home-hero-brand-rule {
+  transform-origin: left center;
+  animation: about-story-underline 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
 @keyframes partner-signal-scroll {
   from {
     transform: translateX(0);
@@ -422,6 +476,131 @@ html {
   animation: about-story-float 7s ease-in-out 1.2s infinite;
 }
 
+.honeycomb-float {
+  animation: about-story-float 5.8s ease-in-out infinite;
+}
+
+.honeycomb-float-delayed {
+  animation: about-story-float 7.2s ease-in-out 0.9s infinite;
+}
+
+.honeycomb-float-centre {
+  animation: about-story-float 6.4s ease-in-out 0.4s infinite;
+}
+
+@keyframes blueprint-dash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.blueprint-network path,
+.blueprint-accent-path {
+  animation: blueprint-dash 28s linear infinite;
+}
+
+/* Impact Years — escalator stair belt (one 6-tread cycle up-right) */
+@keyframes impact-stairs-escalator {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    /* CYCLE * STEP_DX / STEP_DY — keep in sync with home-impact-growth-illustration */
+    transform: translate(540px, -360px);
+  }
+}
+
+.impact-stairs-belt {
+  animation: impact-stairs-escalator 9s linear infinite;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+/*
+  Arrow reborn: stroke climbs bottom→tip, holds, fades, resets.
+  Twin starts at 50% so a new arrow replaces the last — infinite.
+  Coral / yellow use separate base delays.
+*/
+@keyframes impact-arrow-stroke-reborn {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  52% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  62% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  72% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  73%,
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes impact-arrow-tip-reborn {
+  0%,
+  46% {
+    opacity: 0;
+  }
+  52%,
+  62% {
+    opacity: 1;
+  }
+  72%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.impact-arrow-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: impact-arrow-stroke-reborn 4.2s linear infinite;
+}
+
+.impact-arrow-tip {
+  opacity: 0;
+  animation: impact-arrow-tip-reborn 4.2s linear infinite;
+}
+
+.impact-arrow-coral {
+  animation-delay: 0s;
+}
+
+.impact-arrow-coral.impact-arrow-twin {
+  animation-delay: 2.1s;
+}
+
+.impact-arrow-yellow {
+  animation-delay: 0.85s;
+}
+
+.impact-arrow-yellow.impact-arrow-twin {
+  animation-delay: 2.95s;
+}
+
+@keyframes impact-kite-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.impact-kite-float {
+  animation: impact-kite-float 6.5s ease-in-out infinite;
+}
+
 @keyframes scroll-horizontal {
   0% {
     transform: translateX(0);
@@ -458,6 +637,8 @@ html {
   .partners-hero-image,
   .partner-signal-track,
   .home-hero-motion,
+  .home-hero-continuum-slide,
+  .home-hero-brand-rule,
   .animate-scroll-horizontal,
   .animate-scroll-horizontal-reverse,
   .animate-fade-in-up,
@@ -466,10 +647,46 @@ html {
   .about-story-float,
   .about-story-float-delayed,
   .next-chapter-float,
-  .next-chapter-float-delayed {
+  .next-chapter-float-delayed,
+  .honeycomb-float,
+  .honeycomb-float-delayed,
+  .honeycomb-float-centre,
+  .blueprint-network path,
+  .blueprint-accent-path,
+  .impact-stairs-belt {
     animation: none !important;
     opacity: 1;
     transform: none;
+  }
+
+  /* Keep a single static stair set when motion is reduced */
+  .impact-stairs-belt-copy {
+    display: none;
+  }
+
+  .impact-arrow-stroke,
+  .impact-arrow-tip {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+
+  .impact-arrow-twin {
+    display: none;
+  }
+
+  .impact-kite-float {
+    animation: none !important;
+    transform: none;
+  }
+
+  /* Continuum: freeze on the first still only */
+  .home-hero-continuum-slide {
+    opacity: 0 !important;
+  }
+
+  .home-hero-continuum-slide:nth-child(1) {
+    opacity: 1 !important;
   }
 }
 
@@ -483,4 +700,29 @@ html {
 
 .metric-numeral {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Home Module 07→08 seam — mirrored puzzle halves.
+ * Same radial strength/size; one anchored at bottom, one at top.
+ * Same linear end/start colour (brand-subtle) so the join is continuous.
+ */
+.home-module-seam-from {
+  background-image:
+    radial-gradient(
+      120% 80% at 50% 100%,
+      color-mix(in oklab, var(--brand) 14%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, var(--background) 0%, var(--brand-subtle) 100%);
+}
+
+.home-module-seam-to {
+  background-image:
+    radial-gradient(
+      120% 80% at 50% 0%,
+      color-mix(in oklab, var(--brand) 14%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, var(--brand-subtle) 0%, var(--background) 70%);
 }

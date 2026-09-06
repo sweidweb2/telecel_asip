@@ -283,6 +283,7 @@ export type ProgrammePageCopy = {
 
 export type HomePageCopy = {
   hero: {
+    brand: string;
     eyebrow: string;
     title: string;
     description: string;
@@ -330,6 +331,10 @@ export type HomePageCopy = {
     title: string;
     description: string;
     ctaLabel: string;
+    /** Chat-style user prompt shown above the answer */
+    prompt: string;
+    /** Decorative input placeholder (send links out) */
+    inputPlaceholder: string;
   };
   nextChapter: {
     title: string;

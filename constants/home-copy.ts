@@ -7,10 +7,11 @@ import type { HomePageCopy } from "@/types/marketing-page";
  */
 const en: HomePageCopy = {
   hero: {
+    brand: "ASIP",
     eyebrow: "Africa Startup Initiative Program · A Telecel Group Program",
     title: "African founders. Real solutions. Impact that scales.",
     description:
-      "Since 2019, ASIP has connected high-potential African technology founders to the expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialise and grow.",
+      "Since 2019, ASIP has connected African technology founders to expertise, capital pathways, markets and relationships that help ambitious businesses build and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
   },
@@ -123,6 +124,8 @@ const en: HomePageCopy = {
     description:
       "ASIP is a Telecel Group Program. It draws on Telecel’s African legacy, digital expertise and relationships to help connect strong founders with opportunities that can accelerate real-world adoption.",
     ctaLabel: "About Telecel Group",
+    prompt: "Who stands behind ASIP?",
+    inputPlaceholder: "Ask about Telecel Group",
   },
   nextChapter: {
     title: "The next chapter starts with the builders.",
@@ -143,11 +146,12 @@ const en: HomePageCopy = {
 
 const fr: HomePageCopy = {
   hero: {
+    brand: "ASIP",
     eyebrow:
       "Programme africain d’initiative pour les startups · Un programme du Groupe Telecel",
     title: "Fondateurs africains. Solutions concrètes. Un impact qui grandit.",
     description:
-      "Depuis 2019, ASIP connecte des fondateurs technologiques africains à fort potentiel à l’expertise, aux voies de financement, à l’accès marché et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
+      "Depuis 2019, ASIP connecte des fondateurs technologiques africains à l’expertise, aux voies de financement, aux marchés et aux relations qui aident les entreprises ambitieuses à construire et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
   },
@@ -256,10 +260,12 @@ const fr: HomePageCopy = {
     ],
   },
   telecel: {
-    title: "Powered by Connecting Energies.",
+    title: "Porté par Connecting Energies.",
     description:
       "ASIP est un programme du Groupe Telecel. Il s’appuie sur l’héritage africain de Telecel, son expertise digitale et ses relations pour connecter des fondateurs solides à des opportunités qui peuvent accélérer l’adoption réelle.",
     ctaLabel: "À propos du Groupe Telecel",
+    prompt: "Qui se tient derrière ASIP ?",
+    inputPlaceholder: "En savoir plus sur le Groupe Telecel",
   },
   nextChapter: {
     title: "Le prochain chapitre commence avec ceux qui construisent.",

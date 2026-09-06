@@ -2,7 +2,6 @@ import { HomePageContent } from "@/components/marketing/home-page-content";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getLatestInsights } from "@/data/insights";
 import { getOpenApplications } from "@/data/settings";
-import { getSpotlightStartups } from "@/data/startups";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -14,9 +13,8 @@ export const metadata = buildMarketingMetadata({
 });
 
 export default async function Page() {
-  const [metrics, founders, articles, openApplications] = await Promise.all([
+  const [metrics, articles, openApplications] = await Promise.all([
     getHomeImpactMetrics(),
-    getSpotlightStartups(5),
     getLatestInsights("en", 8),
     getOpenApplications(),
   ]);
@@ -25,7 +23,6 @@ export default async function Page() {
     <HomePageContent
       locale="en"
       metrics={metrics}
-      founders={founders}
       articles={articles}
       openApplications={openApplications}
     />

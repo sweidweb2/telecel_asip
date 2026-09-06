@@ -1,4 +1,6 @@
 import { LabPageContent } from "@/components/marketing/lab-page-content";
+import { getHomeImpactMetrics } from "@/data/impact-metrics";
+import { getOpenApplications } from "@/data/settings";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 export const metadata = buildMarketingMetadata({
@@ -9,6 +11,17 @@ export const metadata = buildMarketingMetadata({
   noIndex: true,
 });
 
-export default function Page() {
-  return <LabPageContent locale="en" />;
+export default async function Page() {
+  const [openApplications, metrics] = await Promise.all([
+    getOpenApplications(),
+    getHomeImpactMetrics(),
+  ]);
+
+  return (
+    <LabPageContent
+      locale="en"
+      openApplications={openApplications}
+      metrics={metrics}
+    />
+  );
 }

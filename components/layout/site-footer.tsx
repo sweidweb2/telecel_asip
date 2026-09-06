@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType } from "react";
 
@@ -87,9 +88,19 @@ export function SiteFooter({ labels }: SiteFooterProps) {
         {/* 5 columns so the proposition gets 2 and the link lists sit right. */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
           <div className="space-y-4 sm:col-span-2 lg:col-span-2 lg:pr-8">
-            <p className="font-heading text-base font-semibold tracking-tight">
-              {labels.brand}
-            </p>
+            <Link
+              href={labels.explore[0]?.href ?? "/"}
+              className="inline-flex rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <Image
+                src="/ASIP_LOGO_WHITE.png"
+                alt={labels.brand}
+                width={864}
+                height={289}
+                sizes="190px"
+                className="h-10 w-auto sm:h-11"
+              />
+            </Link>
             <p className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">
               {labels.headline}
             </p>

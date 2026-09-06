@@ -1,14 +1,19 @@
 import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
+import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
+import { HomeFounderSpotlightSection } from "@/components/marketing/home-founder-spotlight-section";
+import { HomeHero } from "@/components/marketing/home-hero";
+import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
 import { HomeLatestInsightsSection } from "@/components/marketing/home-latest-insights-section";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
+import { HomePlatformModelSection } from "@/components/marketing/home-platform-model-section";
+import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ArticleListItem } from "@/types/article";
-import type { StartupPublicListItem } from "@/types/startup";
 
 type HomeImpactMetric = {
   id: string;
@@ -20,7 +25,6 @@ type HomeImpactMetric = {
 type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
-  founders: StartupPublicListItem[];
   articles: ArticleListItem[];
   openApplications: boolean;
 };
@@ -62,7 +66,6 @@ function EmptySlot({ label }: { label: string }) {
 export function HomePageContent({
   locale,
   metrics,
-  founders,
   articles,
   openApplications,
 }: HomePageContentProps) {
@@ -87,64 +90,28 @@ export function HomePageContent({
         }}
       />
 
-      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Hero
-          </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Africa Startup Initiative Program
-          </h1>
-          <div className="mt-6 min-h-32 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
-            <EmptySlot label="hero media, headline, and CTAs" />
-          </div>
-        </div>
-      </section>
+      <HomeHero
+        locale={locale}
+        copy={copy.hero}
+        openApplications={openApplications}
+      />
 
-      <HomeSection title="Impact strip" source="Impact Metric">
-        {metrics.length > 0 ? (
-          <ul className="space-y-2 text-sm">
-            {metrics.map((metric) => (
-              <li key={metric.id}>
-                <span className="font-medium">{metric.value}</span>
-                {metric.unit ? ` ${metric.unit}` : null}
-                {" — "}
-                {metric.claim_label}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptySlot label="Impact Metric rows for homepage display" />
-        )}
-      </HomeSection>
+      <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 
-      <HomeSection title="Platform model">
-        <EmptySlot label="Discover → Build → Connect → Commercialise → Scale" />
-      </HomeSection>
+      <HomePlatformModelSection copy={copy.platform} />
 
-      <HomeSection title="Founder spotlight" source="Founder">
-        {founders.length > 0 ? (
-          <ul className="space-y-2 text-sm">
-            {founders.map((founder) => (
-              <li key={founder.id}>{founder.name}</li>
-            ))}
-          </ul>
-        ) : (
-          <EmptySlot label="Founder / startup spotlight items" />
-        )}
-      </HomeSection>
+      <HomeFounderSpotlightSection
+        locale={locale}
+        copy={copy.founders}
+      />
 
       <HomeSection title="Impact module">
         <EmptySlot label="founder outcome stories and impact CTA" />
       </HomeSection>
 
-      <HomeSection title="Ecosystem">
-        <EmptySlot label="partner roles and ecosystem CTA" />
-      </HomeSection>
+      <HomeEcosystemSection locale={locale} copy={copy.ecosystem} />
 
-      <HomeSection title="Telecel module">
-        <EmptySlot label="Telecel connection copy and CTA" />
-      </HomeSection>
+      <HomeTelecelConnectionSection copy={copy.telecel} />
 
       <HomeNextChapterSection
         locale={locale}

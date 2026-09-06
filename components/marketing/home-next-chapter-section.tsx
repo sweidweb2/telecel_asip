@@ -35,13 +35,12 @@ export function HomeNextChapterSection({
   return (
     <section
       className={cn(
-        "relative overflow-hidden border-y border-border",
-        "bg-[radial-gradient(120%_80%_at_50%_0%,color-mix(in_oklab,var(--brand)_14%,transparent),transparent_55%),linear-gradient(180deg,var(--brand-subtle),var(--background)_70%)]",
+        "home-module-seam-to relative overflow-hidden border-b border-border",
         "px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         className,
       )}
     >
-      {/* Soft ambient orbs — atmosphere, not decoration pile */}
+      {/* Soft ambient orbs — top-left mirrors Telecel’s bottom-left seam orb */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"

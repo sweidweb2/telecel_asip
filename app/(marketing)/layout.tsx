@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { AmbientMusicControl } from "@/components/layout/ambient-music-control";
+
 /**
  * Public marketing chrome is always light — ignore OS/browser dark preference.
  * `scheme-light` keeps native controls (scrollbars, inputs) on the light palette.
@@ -10,6 +12,9 @@ export default function MarketingLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col scheme-light">{children}</div>
+    <div className="flex flex-1 flex-col scheme-light">
+      {children}
+      <AmbientMusicControl />
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import { ImpactCaseStudiesSection } from "@/components/marketing/impact-case-studies-section";
 import { ImpactEvidenceRuleSection } from "@/components/marketing/impact-evidence-rule-section";
+import { ImpactFanSection } from "@/components/marketing/impact-fan-section";
 import { ImpactHero } from "@/components/marketing/impact-hero";
 import { ImpactLensesSection } from "@/components/marketing/impact-lenses-section";
 import { ImpactProgressSection } from "@/components/marketing/impact-progress-section";
@@ -31,6 +32,8 @@ export function ImpactPageContent({
       <ImpactProgressSection copy={copy.progress} />
 
       <ImpactLensesSection lenses={copy.lenses} />
+
+      <ImpactFanSection locale={locale} />
 
       <ImpactCaseStudiesSection
         locale={locale}
