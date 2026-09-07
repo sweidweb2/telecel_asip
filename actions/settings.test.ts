@@ -3,26 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   revalidatePath,
   revalidateTag,
-  getUser,
-  rpc,
+  authorizeAdmin,
   maybeSingle,
   update,
-  from,
 } = vi.hoisted(() => {
   const maybeSingle = vi.fn();
-  const selectEq = vi.fn(() => ({ maybeSingle }));
-  const select = vi.fn(() => ({ eq: selectEq }));
   const updateEq = vi.fn(() => ({ select: vi.fn(() => ({ maybeSingle })) }));
   const update = vi.fn(() => ({ eq: updateEq }));
-  const from = vi.fn(() => ({ update, select }));
   return {
     revalidatePath: vi.fn(),
     revalidateTag: vi.fn(),
-    getUser: vi.fn(),
-    rpc: vi.fn(),
+    authorizeAdmin: vi.fn(),
     maybeSingle,
     update,
-    from,
   };
 });
 
@@ -32,12 +25,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: () => Promise<unknown>) => fn,
 }));
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(async () => ({
-    auth: { getUser },
-    rpc,
-    from,
-  })),
+vi.mock("@/lib/admin/authorize-admin", () => ({
+  authorizeAdmin,
 }));
 
 import { updateSiteSettings } from "@/actions/settings";
@@ -49,12 +38,14 @@ const validInput = {
   backupTime: "weekly_sun_03" as const,
 };
 
-function mockAdmin() {
-  getUser.mockResolvedValue({
-    data: { user: { id: "admin-1" } },
-    error: null,
+function mockAdminSession() {
+  authorizeAdmin.mockResolvedValue({
+    status: "success",
+    userId: "admin-1",
+    supabase: {
+      from: vi.fn(() => ({ update })),
+    },
   });
-  rpc.mockResolvedValue({ data: true, error: null });
 }
 
 describe("updateSiteSettings", () => {
@@ -70,11 +61,14 @@ describe("updateSiteSettings", () => {
     });
 
     expect(result.status).toBe("error");
-    expect(getUser).not.toHaveBeenCalled();
+    expect(authorizeAdmin).not.toHaveBeenCalled();
   });
 
   it("requires a signed-in user", async () => {
-    getUser.mockResolvedValue({ data: { user: null }, error: null });
+    authorizeAdmin.mockResolvedValue({
+      status: "error",
+      message: "You must be signed in.",
+    });
 
     const result = await updateSiteSettings(validInput);
 
@@ -85,11 +79,10 @@ describe("updateSiteSettings", () => {
   });
 
   it("rejects non-admins", async () => {
-    getUser.mockResolvedValue({
-      data: { user: { id: "user-1" } },
-      error: null,
+    authorizeAdmin.mockResolvedValue({
+      status: "error",
+      message: "You do not have permission to change site settings.",
     });
-    rpc.mockResolvedValue({ data: false, error: null });
 
     const result = await updateSiteSettings(validInput);
 
@@ -100,7 +93,7 @@ describe("updateSiteSettings", () => {
   });
 
   it("updates settings without starting a backup", async () => {
-    mockAdmin();
+    mockAdminSession();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     const result = await updateSiteSettings(validInput);
@@ -119,7 +112,7 @@ describe("updateSiteSettings", () => {
   });
 
   it("still does not start a backup when schedule value changes", async () => {
-    mockAdmin();
+    mockAdminSession();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     const result = await updateSiteSettings({

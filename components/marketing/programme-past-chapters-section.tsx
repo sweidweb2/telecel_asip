@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useId,
   useMemo,
   useState,
@@ -87,11 +86,12 @@ export function ProgrammePastChaptersSection({
   const [activeId, setActiveId] = useState<string | null>(
     cohorts[0]?.id ?? null,
   );
-
-  useEffect(() => {
+  const [trackedCohorts, setTrackedCohorts] = useState(cohorts);
+  if (trackedCohorts !== cohorts) {
+    setTrackedCohorts(cohorts);
     setPage(0);
     setActiveId(cohorts[0]?.id ?? null);
-  }, [cohorts]);
+  }
 
   const pageItems = cohorts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   const showPager = cohorts.length > PAGE_SIZE;

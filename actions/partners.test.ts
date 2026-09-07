@@ -32,7 +32,7 @@ const validCreate = {
   isActive: true,
   logoPermission: false,
   link: "",
-  sortOrder: 0,
+  sortOrder: 1,
 };
 
 function mockSession(fromImpl: ReturnType<typeof vi.fn>) {
@@ -100,6 +100,7 @@ describe("partners actions", () => {
       })),
       select: vi.fn(() => ({
         eq: vi.fn(() => ({ maybeSingle: existingMaybe })),
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
       })),
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));

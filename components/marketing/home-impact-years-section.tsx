@@ -73,7 +73,7 @@ export function HomeImpactYearsSection({
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <div className="max-w-xl lg:max-w-lg xl:max-w-xl">
+          <div className="mx-auto max-w-xl text-center">
             <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
               Impact
             </p>
@@ -83,14 +83,14 @@ export function HomeImpactYearsSection({
             >
               {copy.title}
             </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
               {copy.description}
             </p>
 
             {metrics.length > 0 ? (
-              <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
+              <ul className="mx-auto mt-8 grid max-w-lg grid-cols-1 justify-items-center gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                 {metrics.map((metric) => (
-                  <li key={metric.id} className="min-w-0">
+                  <li key={metric.id} className="min-w-0 text-center">
                     <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
                       {metric.value}
                       {metric.unit ? (
@@ -106,22 +106,22 @@ export function HomeImpactYearsSection({
                 ))}
               </ul>
             ) : null}
+          </div>
 
-            {/* Charcoal kite sketch — transparent PNG under left copy */}
-            <div
-              aria-hidden
-              className="impact-kite-float mt-8 ml-8 w-[min(100%,18rem)] sm:mt-10 sm:ml-12 sm:w-[min(100%,21rem)] lg:mt-12 lg:ml-14 lg:w-[min(100%,24rem)]"
-            >
-              <Image
-                src="/asip-media/impact-kite-founder.webp"
-                alt=""
-                width={996}
-                height={789}
-                sizes="(max-width: 640px) 18rem, (max-width: 1024px) 21rem, 24rem"
-                className="h-auto w-full select-none bg-transparent object-contain"
-                priority={false}
-              />
-            </div>
+          {/* Charcoal kite sketch — stays left; not shifted with the copy */}
+          <div
+            aria-hidden
+            className="impact-kite-float mt-8 ml-8 w-[min(100%,18rem)] sm:mt-10 sm:ml-12 sm:w-[min(100%,21rem)] lg:mt-12 lg:ml-14 lg:w-[min(100%,24rem)]"
+          >
+            <Image
+              src="/asip-media/impact-kite-founder.webp"
+              alt=""
+              width={996}
+              height={789}
+              sizes="(max-width: 640px) 18rem, (max-width: 1024px) 21rem, 24rem"
+              className="h-auto w-full select-none bg-transparent object-contain"
+              priority={false}
+            />
           </div>
         </div>
       </div>

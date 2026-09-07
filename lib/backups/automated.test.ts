@@ -52,7 +52,7 @@ describe("failStuckInFlightBackups", () => {
     const lt = vi.fn(() => ({ select: updateSelect }));
     update.mockReturnValueOnce({
       in: vi.fn(() => ({ lt })),
-    });
+    } as never);
 
     const now = new Date("2026-09-06T12:00:00.000Z");
     const count = await failStuckInFlightBackups(now);

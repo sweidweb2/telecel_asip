@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -44,10 +44,11 @@ export function PartnerSortOrderMap({
 }: PartnerSortOrderMapProps) {
   const pageCount = getPartnerSortOrderPageCount();
   const [page, setPage] = useState(() => getPartnerSortOrderPageForValue(value));
-
-  useEffect(() => {
+  const [trackedValue, setTrackedValue] = useState(value);
+  if (trackedValue !== value) {
+    setTrackedValue(value);
     setPage(getPartnerSortOrderPageForValue(value));
-  }, [value]);
+  }
 
   const others = useMemo(
     () =>

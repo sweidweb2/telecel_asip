@@ -506,7 +506,9 @@ export function BlogEditorForm({
     <>
     <form
       className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(event) => {
+        void handleSubmit(onSubmit)(event);
+      }}
       noValidate
     >
       <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">

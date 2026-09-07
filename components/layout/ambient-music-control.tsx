@@ -169,7 +169,6 @@ export function AmbientMusicControl() {
 
   useEffect(() => {
     let cancelled = false;
-    let removeVisibility: (() => void) | undefined;
 
     mutedRef.current = readMutedPreference();
 
@@ -230,14 +229,14 @@ export function AmbientMusicControl() {
     };
 
     document.addEventListener("visibilitychange", onVisibility);
-    removeVisibility = () => {
+    const removeVisibility = () => {
       document.removeEventListener("visibilitychange", onVisibility);
     };
 
     return () => {
       cancelled = true;
       cancelSchedule();
-      removeVisibility?.();
+      removeVisibility();
       unlockCleanupRef.current?.();
       unlockCleanupRef.current = null;
       fadeCancelRef.current?.();

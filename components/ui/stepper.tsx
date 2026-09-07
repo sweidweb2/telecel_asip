@@ -96,28 +96,14 @@ function Stepper({
   onValueChange,
   ...props
 }: StepperProps) {
-  const stepperDefRef = useRef<{
-    useStepper: (options?: {
-      defaultStep?: string;
-      step?: string | null;
-      onStepChange?: (id: string) => void;
-    }) => {
-      id: string;
-      index: number;
-      goTo: (id: string) => Promise<boolean> | boolean | void;
-    };
-  } | null>(null);
-
-  if (stepperDefRef.current === null) {
-    // Steps are expected to be stable for the life of this Stepper instance.
-    stepperDefRef.current = defineStepper(
-      steps as [{ id: string }, ...{ id: string }[]],
-      { defaultStep: defaultValue || steps[0]?.id },
-    ) as never;
-  }
+  const [stepperDef] = useState(() =>
+    defineStepper(steps as [{ id: string }, ...{ id: string }[]], {
+      defaultStep: defaultValue || steps[0]?.id,
+    }),
+  );
 
   const isControlled = value !== undefined;
-  const stepperRaw = stepperDefRef.current.useStepper({
+  const stepperRaw = stepperDef.useStepper({
     defaultStep: defaultValue || steps[0]?.id,
     ...(isControlled
       ? {
@@ -337,23 +323,26 @@ function StepperTrigger({
   const panelId = `stepper-panel-${step.id}`;
 
   const btnRef = useRef<HTMLButtonElement | null>(null);
+  const [btnNode, setBtnNode] = useState<HTMLButtonElement | null>(null);
 
   const triggerRef = useCallback(
     (node: HTMLButtonElement | null) => {
       if (node) {
         btnRef.current = node;
+        setBtnNode(node);
         registerTrigger(node);
       } else if (btnRef.current) {
         registerTrigger(btnRef.current, true);
         btnRef.current = null;
+        setBtnNode(null);
       }
     },
     [registerTrigger],
   );
 
   const myIdx = useMemo(
-    () => triggerNodes.findIndex((n) => n === btnRef.current),
-    [triggerNodes],
+    () => triggerNodes.findIndex((n) => n === btnNode),
+    [triggerNodes, btnNode],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {

@@ -7,8 +7,18 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
+
+/** Client-only gate for portals (avoids useEffect + setMounted). */
+function useIsClient() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,8 +63,14 @@ export function SuggestInput({
   const listRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const [listBox, setListBox] = useState<ListBoxRect | null>(null);
+  const mounted = useIsClient();
+  const [activeKey, setActiveKey] = useState(`${value}\0${String(open)}`);
+  const nextActiveKey = `${value}\0${String(open)}`;
+  if (activeKey !== nextActiveKey) {
+    setActiveKey(nextActiveKey);
+    setActiveIndex(0);
+  }
 
   const showList = open && !disabled && suggestions.length > 0;
 
@@ -69,19 +85,8 @@ export function SuggestInput({
     });
   }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [value, open]);
-
   useLayoutEffect(() => {
-    if (!showList) {
-      setListBox(null);
-      return;
-    }
+    if (!showList) return;
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 
@@ -265,8 +270,14 @@ export function SuggestLinesInput({
   const listRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const [listBox, setListBox] = useState<ListBoxRect | null>(null);
+  const mounted = useIsClient();
+  const [activeKey, setActiveKey] = useState(`${value}\0${String(open)}`);
+  const nextActiveKey = `${value}\0${String(open)}`;
+  if (activeKey !== nextActiveKey) {
+    setActiveKey(nextActiveKey);
+    setActiveIndex(0);
+  }
 
   const showList = open && !disabled && suggestions.length > 0;
 
@@ -281,19 +292,8 @@ export function SuggestLinesInput({
     });
   }, []);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [value, open]);
-
   useLayoutEffect(() => {
-    if (!showList) {
-      setListBox(null);
-      return;
-    }
+    if (!showList) return;
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 

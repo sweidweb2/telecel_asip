@@ -2,10 +2,23 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const isCurrentUserAdmin = vi.fn();
 const range = vi.fn();
-const orderId = vi.fn(() => ({ range }));
-const orderCreated = vi.fn(() => ({ order: orderId }));
 const or = vi.fn(() => ({ range }));
-const eqStatus = vi.fn(() => ({ or, range, order: orderCreated }));
+const eqStatus = vi.fn();
+const orderId = vi.fn();
+const orderCreated = vi.fn();
+
+function wireChain() {
+  eqStatus.mockImplementation(() => ({ or, range, order: orderCreated }));
+  orderId.mockImplementation(() => ({ range, or, eq: eqStatus }));
+  orderCreated.mockImplementation(() => ({
+    order: orderId,
+    range,
+    or,
+    eq: eqStatus,
+  }));
+}
+
+wireChain();
 
 function makeSelectChain() {
   return {
@@ -52,32 +65,14 @@ const baseQuery = {
   page: 1,
   pageSize: 10 as const,
   search: "",
-  inboxStatus: "all" as const,
+  inboxStatus: "inbox" as const,
 };
 
 describe("inbox page data loaders", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    orderCreated.mockReturnValue({ order: orderId });
-    orderId.mockReturnValue({ range, or, eq: eqStatus });
-    // Rebuild chain after clear
-    select.mockImplementation(() => ({
-      order: orderCreated,
-      eq: eqStatus,
-      or,
-      range,
-    }));
-    orderCreated.mockImplementation(() => ({
-      order: orderId,
-      range,
-      or,
-      eq: eqStatus,
-    }));
-    orderId.mockImplementation(() => ({
-      range,
-      or,
-      eq: eqStatus,
-    }));
+    wireChain();
+    select.mockImplementation(() => makeSelectChain());
   });
 
   it("returns forbidden for applications when not admin", async () => {
