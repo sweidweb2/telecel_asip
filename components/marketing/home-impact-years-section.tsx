@@ -43,7 +43,7 @@ export function HomeImpactYearsSection({
           "relative overflow-hidden bg-[linear-gradient(180deg,var(--brand-subtle)_0%,var(--background)_50%)]",
           /* Left taller than right — diagonal rises L→R */
           "[clip-path:polygon(0_0,100%_0,100%_72%,0_100%)]",
-          "min-h-[28rem] px-4 pb-16 pt-12 sm:min-h-[32rem] sm:px-6 sm:pb-20 sm:pt-14 lg:min-h-[36rem] lg:px-8 lg:pb-24 lg:pt-16",
+          "min-h-[30rem] px-4 pb-16 pt-12 sm:min-h-[34rem] sm:px-6 sm:pb-20 sm:pt-14 lg:min-h-[40rem] lg:px-8 lg:pb-24 lg:pt-16",
         )}
       >
         {/* Diagonal HR joining the slant — hidden on mobile where #2/#3 share the teal cutaway */}
@@ -67,13 +67,13 @@ export function HomeImpactYearsSection({
         {/* Stairs sit on the bottom-right corner — not floating mid-section */}
         <div
           aria-hidden
-          className="pointer-events-none absolute right-0 bottom-0 w-[min(100%,34rem)] sm:w-[min(92%,40rem)] lg:w-[min(58%,44rem)]"
+          className="pointer-events-none absolute right-0 bottom-0 w-[min(104%,36rem)] origin-bottom-right sm:w-[min(94%,46rem)] lg:w-[min(64%,52rem)] xl:w-[min(60%,55rem)]"
         >
           <HomeImpactGrowthIllustration />
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <div className="mx-auto max-w-xl text-center">
+          <div className="max-w-xl lg:max-w-lg xl:max-w-xl">
             <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
               Impact
             </p>
@@ -83,14 +83,14 @@ export function HomeImpactYearsSection({
             >
               {copy.title}
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
               {copy.description}
             </p>
 
             {metrics.length > 0 ? (
-              <ul className="mx-auto mt-8 grid max-w-lg grid-cols-1 justify-items-center gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
+              <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                 {metrics.map((metric) => (
-                  <li key={metric.id} className="min-w-0 text-center">
+                  <li key={metric.id} className="min-w-0">
                     <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
                       {metric.value}
                       {metric.unit ? (
@@ -106,22 +106,22 @@ export function HomeImpactYearsSection({
                 ))}
               </ul>
             ) : null}
-          </div>
 
-          {/* Charcoal kite sketch — stays left; not shifted with the copy */}
-          <div
-            aria-hidden
-            className="impact-kite-float mt-8 ml-8 w-[min(100%,18rem)] sm:mt-10 sm:ml-12 sm:w-[min(100%,21rem)] lg:mt-12 lg:ml-14 lg:w-[min(100%,24rem)]"
-          >
-            <Image
-              src="/asip-media/impact-kite-founder.webp"
-              alt=""
-              width={996}
-              height={789}
-              sizes="(max-width: 640px) 18rem, (max-width: 1024px) 21rem, 24rem"
-              className="h-auto w-full select-none bg-transparent object-contain"
-              priority={false}
-            />
+            {/* Charcoal kite sketch — transparent PNG under left copy */}
+            <div
+              aria-hidden
+              className="impact-kite-float mt-8 ml-8 w-[min(100%,18rem)] sm:mt-10 sm:ml-12 sm:w-[min(100%,21rem)] lg:mt-12 lg:ml-14 lg:w-[min(100%,24rem)]"
+            >
+              <Image
+                src="/asip-media/impact-kite-founder.webp"
+                alt=""
+                width={996}
+                height={789}
+                sizes="(max-width: 640px) 18rem, (max-width: 1024px) 21rem, 24rem"
+                className="h-auto w-full select-none bg-transparent object-contain"
+                priority={false}
+              />
+            </div>
           </div>
         </div>
       </div>
