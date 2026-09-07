@@ -26,7 +26,7 @@ export default async function NewStartupPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink render={<Link href={ROUTES.portfolio} />}>
-              Portfolio
+              Startup
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

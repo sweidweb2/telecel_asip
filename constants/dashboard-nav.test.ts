@@ -41,7 +41,7 @@ describe("getDashboardPageTitle", () => {
     expect(getDashboardPageTitle(`${ROUTES.partners}/some-id`)).toBe(
       "Partners",
     );
-    expect(getDashboardPageTitle(`${ROUTES.portfolio}/new`)).toBe("Portfolio");
+    expect(getDashboardPageTitle(`${ROUTES.portfolio}/new`)).toBe("Startup");
   });
 
   it("titles Analytics and Backup from System nav", () => {

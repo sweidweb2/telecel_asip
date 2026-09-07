@@ -34,11 +34,10 @@ export const DASHBOARD_NAV_GROUPS = [
     ],
   },
   {
-    label: "Content",
+    label: "Founders",
     items: [
-      { title: ADMIN_RESOURCES.blogs.navTitle, href: ROUTES.blogs },
       { title: ADMIN_RESOURCES.portfolio.navTitle, href: ROUTES.portfolio },
-      { title: ADMIN_RESOURCES.partners.navTitle, href: ROUTES.partners },
+      { title: ADMIN_RESOURCES.cohorts.navTitle, href: ROUTES.cohorts },
       {
         title: ADMIN_RESOURCES.founderStories.navTitle,
         href: ROUTES.founderStories,
@@ -46,9 +45,15 @@ export const DASHBOARD_NAV_GROUPS = [
     ],
   },
   {
+    label: "Content",
+    items: [
+      { title: ADMIN_RESOURCES.blogs.navTitle, href: ROUTES.blogs },
+      { title: ADMIN_RESOURCES.partners.navTitle, href: ROUTES.partners },
+    ],
+  },
+  {
     label: "Programme",
     items: [
-      { title: ADMIN_RESOURCES.cohorts.navTitle, href: ROUTES.cohorts },
       { title: ADMIN_RESOURCES.events.navTitle, href: ROUTES.events },
       { title: ADMIN_RESOURCES.evidence.navTitle, href: ROUTES.evidence },
       {

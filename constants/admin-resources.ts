@@ -58,11 +58,11 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
   portfolio: {
     id: "portfolio",
     listPath: ROUTES.portfolio,
-    navTitle: "Portfolio",
-    pageTitle: "Portfolio",
+    navTitle: "Startup",
+    pageTitle: "Startup",
     description:
       "Manage startups shown on the public portfolio. Only active startups are visible publicly.",
-    metaTitle: "Portfolio | ASIP Admin",
+    metaTitle: "Startup | ASIP Admin",
     cacheTags: ["startups"],
   },
   blogs: {

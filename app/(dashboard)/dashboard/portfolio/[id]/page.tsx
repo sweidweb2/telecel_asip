@@ -37,7 +37,7 @@ export default async function EditStartupPage({ params }: EditStartupPageProps) 
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink render={<Link href={ROUTES.portfolio} />}>
-              Portfolio
+              Startup
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

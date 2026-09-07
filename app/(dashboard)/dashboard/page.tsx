@@ -48,7 +48,7 @@ const QUICK_LINKS: {
     icon: ClipboardListIcon,
   },
   {
-    title: "Portfolio",
+    title: "Startup",
     description: "Startups on the public site",
     href: ROUTES.portfolio,
     icon: BriefcaseIcon,
