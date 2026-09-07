@@ -110,10 +110,13 @@ test("navbar primary CTA points at register-interest or apply", async ({
   expect(href === "/en/apply" || href === "/en/register-interest").toBe(true);
 });
 
-test("/lab renders marketing chrome without entering sitemap pages", async ({
-  page,
-}) => {
-  await page.goto("/en/lab");
+test("/lab is gated in CI production builds", async ({ page }) => {
+  const response = await page.goto("/en/lab");
+  if (process.env.CI) {
+    expect(response?.status()).toBe(404);
+    return;
+  }
+  // Local `npm run dev` still serves the playground.
   await expect(page.locator("header").first()).toBeVisible();
   await expect(page.locator("h1").first()).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");

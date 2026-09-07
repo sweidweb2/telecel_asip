@@ -6,9 +6,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import {
   EVIDENCE_PERMISSION_LABELS,
   EVIDENCE_PERMISSIONS,
@@ -57,7 +57,10 @@ export function EvidenceRecordsFilters({ query }: { query: EvidenceListQuery }) 
           id="evidence-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-48"
         >
-          <SelectValue placeholder="All statuses" />
+          <AdminFilterSelectValue
+            label="Status"
+            optionLabels={EVIDENCE_STATUS_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All statuses</SelectItem>
@@ -83,7 +86,10 @@ export function EvidenceRecordsFilters({ query }: { query: EvidenceListQuery }) 
           id="evidence-permission"
           className="min-h-11 w-full sm:min-h-8 sm:w-56"
         >
-          <SelectValue placeholder="All permissions" />
+          <AdminFilterSelectValue
+            label="Permission"
+            optionLabels={EVIDENCE_PERMISSION_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All permissions</SelectItem>

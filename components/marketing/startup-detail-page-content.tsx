@@ -225,18 +225,26 @@ export function StartupDetailPageContent({
           </header>
 
           {facts.length > 0 ? (
-            <dl className="mt-8 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-5 border-t pt-6 sm:mt-10 sm:grid-cols-2">
-              {facts.map((fact) => (
-                <div key={fact.label} className="min-w-0">
-                  <dt className="text-sm font-semibold text-foreground">
-                    {fact.label}
-                  </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground">
-                    {fact.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <div className="mt-8 overflow-x-auto border-t pt-6 sm:mt-10">
+              <dl className="flex w-max min-w-full flex-row flex-nowrap items-stretch gap-0 sm:w-full sm:flex-wrap sm:gap-y-4">
+                {facts.map((fact, index) => (
+                  <div
+                    key={fact.label}
+                    className={cn(
+                      "flex min-w-[7.5rem] shrink-0 flex-col px-4 first:pl-0 sm:min-w-0 sm:shrink sm:px-5 sm:first:pl-0",
+                      index > 0 && "border-l border-border",
+                    )}
+                  >
+                    <dt className="text-xs font-medium tracking-[0.12em] text-muted-foreground uppercase">
+                      {fact.label}
+                    </dt>
+                    <dd className="mt-1.5 text-sm font-medium text-foreground">
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           ) : null}
 
           {team ? (

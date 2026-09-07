@@ -6,9 +6,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import {
   IMPACT_LENS_LABELS,
   IMPACT_PUBLISH_STATUS_LABELS,
@@ -63,7 +63,10 @@ export function ImpactMetricsFilters({
           id="impact-metrics-lens"
           className="min-h-11 w-full sm:min-h-8 sm:w-52"
         >
-          <SelectValue placeholder="All lenses" />
+          <AdminFilterSelectValue
+            label="Lens"
+            optionLabels={IMPACT_LENS_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All lenses</SelectItem>
@@ -89,7 +92,10 @@ export function ImpactMetricsFilters({
           id="impact-metrics-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-44"
         >
-          <SelectValue placeholder="All statuses" />
+          <AdminFilterSelectValue
+            label="Status"
+            optionLabels={IMPACT_PUBLISH_STATUS_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All statuses</SelectItem>

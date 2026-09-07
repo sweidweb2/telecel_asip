@@ -6,9 +6,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import {
   CMS_PUBLISH_STATUSES,
   CMS_PUBLISH_STATUS_LABELS,
@@ -56,7 +56,10 @@ export function FounderStoriesFilters({
           id="founder-stories-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <SelectValue placeholder="All statuses" />
+          <AdminFilterSelectValue
+            label="Status"
+            optionLabels={CMS_PUBLISH_STATUS_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All statuses</SelectItem>

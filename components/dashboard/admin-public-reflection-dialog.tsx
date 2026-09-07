@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPinnedIcon } from "lucide-react";
+import { CircleAlertIcon, MapPinnedIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   getAdminPublicReflection,
+  hasUnreflectedAdminPublicSurfaces,
   type AdminPublicReflectionId,
 } from "@/constants/admin-public-reflections";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ export function AdminPublicReflectionDialog({
   className,
 }: AdminPublicReflectionDialogProps) {
   const guide = getAdminPublicReflection(resourceId);
+  const hasUnreflected = hasUnreflectedAdminPublicSurfaces(resourceId);
 
   return (
     <Dialog>
@@ -39,11 +41,22 @@ export function AdminPublicReflectionDialog({
             type="button"
             variant="outline"
             className={cn("min-h-11 w-full sm:w-auto", className)}
+            aria-label={
+              hasUnreflected
+                ? "Public pages — some surfaces are not reflected"
+                : undefined
+            }
           />
         }
       >
         <MapPinnedIcon className="size-4" />
         Public pages
+        {hasUnreflected ? (
+          <CircleAlertIcon
+            className="size-4 text-amber-600 dark:text-amber-400"
+            aria-hidden
+          />
+        ) : null}
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-xl">
         <DialogHeader>

@@ -368,13 +368,48 @@ export async function getActiveStartupsPage(
 
 async function fetchActiveStartupFilterOptions(): Promise<StartupFilterOptions> {
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  const { data, error } = await supabase.rpc(
+    "get_active_startup_filter_options",
+  );
+
+  if (!error) {
+    const payload =
+      data && typeof data === "object" && !Array.isArray(data)
+        ? (data as {
+            cohorts?: unknown;
+            countries?: unknown;
+            sectors?: unknown;
+          })
+        : {};
+
+    const asStringList = (value: unknown): string[] =>
+      Array.isArray(value)
+        ? value.filter((item): item is string => typeof item === "string")
+        : [];
+
+    return {
+      cohorts: asStringList(payload.cohorts),
+      countries: asStringList(payload.countries),
+      sectors: asStringList(payload.sectors),
+    };
+  }
+
+  // Fallback until migration `get_active_startup_filter_options` is applied.
+  if (error.code !== "PGRST202") throw error;
+
+  const { data: rows, error: selectError } = await supabase
     .from("startups_public")
     .select("cohort, country_code, sector");
-  if (error) throw error;
+  if (selectError) throw selectError;
 
   const unique = (key: "cohort" | "country_code" | "sector") =>
-    [...new Set((data ?? []).map((row) => row[key]).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b));
+    [
+      ...new Set(
+        (rows ?? [])
+          .map((row) => row[key])
+          .filter((value): value is string => Boolean(value)),
+      ),
+    ].sort((a, b) => a.localeCompare(b));
 
   return {
     cohorts: unique("cohort"),

@@ -1,5 +1,6 @@
 import { ApplyForm } from "@/components/marketing/apply-form";
 import { applyLabelsFor } from "@/components/marketing/apply-labels";
+import { InstitutionalHero } from "@/components/marketing/institutional-hero";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section, SectionHeading } from "@/components/marketing/page-elements";
 import {
@@ -24,25 +25,20 @@ export function ApplyPageContent({
   mode,
 }: ApplyPageContentProps) {
   const labels = applyLabelsFor(locale, mode);
-  const pageLabel = mode === "apply" ? "Apply" : "Register interest";
 
   return (
     <main>
-      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {pageLabel} · Shared template · Cohort-gated
-          </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            {copy.title}
-          </h1>
-          <div className="mt-6 min-h-32 rounded-md border border-dashed border-muted-foreground/35 bg-muted/40 p-4 sm:p-6">
-            <p className="text-sm text-muted-foreground">
-              Skeleton holder — hero ({copy.eyebrow})
-            </p>
-          </div>
-        </div>
-      </section>
+      <InstitutionalHero
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
+        headingId={
+          mode === "register" ? "register-hero-heading" : "apply-hero-heading"
+        }
+        patternId={mode === "register" ? "register-hero" : "apply-hero"}
+        composition={mode === "register" ? "signal" : "gateway"}
+        size="compact"
+      />
 
       <Section>
         <Card>

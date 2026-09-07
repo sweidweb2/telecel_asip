@@ -1,7 +1,13 @@
-import { ImpactCaseStudiesScroller } from "@/components/marketing/impact-case-studies-scroller";
+import { ImpactCaseStudiesLoadMore } from "@/components/marketing/impact-case-studies-load-more";
+import { ImpactCaseStudyCard } from "@/components/marketing/impact-case-study-card";
 import type { Locale } from "@/constants/locales";
 import type { ImpactCaseStudyPublic } from "@/types/founder-story";
 import type { ImpactPageCopy } from "@/types/marketing-page";
+
+/** First paint: 3 cards. Load more adds 3 until the section cap. */
+const INITIAL_VISIBLE = 3;
+/** Hard cap for this Impact section (matches data fetch limit). */
+export const IMPACT_CASE_STUDIES_MAX = 9;
 
 type ImpactCaseStudiesSectionProps = {
   locale: Locale;
@@ -30,8 +36,7 @@ function reservedSeats(): ImpactCaseStudyPublic[] {
 }
 
 /**
- * Impact case studies — live cards plus reserved pending seats so the
- * grid does not jump when a story is cleared.
+ * Impact case studies — first 3 cards SSR; remaining via client load-more.
  */
 export function ImpactCaseStudiesSection({
   locale,
@@ -39,6 +44,9 @@ export function ImpactCaseStudiesSection({
   stories,
 }: ImpactCaseStudiesSectionProps) {
   const slots = stories.length > 0 ? stories : reservedSeats();
+  const cappedStories = slots.slice(0, IMPACT_CASE_STUDIES_MAX);
+  const initialStories = cappedStories.slice(0, INITIAL_VISIBLE);
+  const remainingStories = cappedStories.slice(INITIAL_VISIBLE);
 
   return (
     <section
@@ -60,10 +68,22 @@ export function ImpactCaseStudiesSection({
         </header>
 
         <div className="mt-8 sm:mt-10">
-          <ImpactCaseStudiesScroller
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+            {initialStories.map((story) => (
+              <li key={story.id} className="min-w-0">
+                <ImpactCaseStudyCard
+                  locale={locale}
+                  copy={copy}
+                  story={story}
+                />
+              </li>
+            ))}
+          </ul>
+
+          <ImpactCaseStudiesLoadMore
             locale={locale}
             copy={copy}
-            stories={slots}
+            remaining={remainingStories}
           />
         </div>
       </div>

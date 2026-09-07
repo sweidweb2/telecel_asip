@@ -1,18 +1,30 @@
+import dynamic from "next/dynamic";
+
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
 import { HomeFounderSpotlightSection } from "@/components/marketing/home-founder-spotlight-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
-import { HomeLatestInsightsSection } from "@/components/marketing/home-latest-insights-section";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
-import { HomePlatformModelSection } from "@/components/marketing/home-platform-model-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ArticleListItem } from "@/types/article";
+
+const HomePlatformModelSection = dynamic(() =>
+  import("@/components/marketing/home-platform-model-section").then(
+    (m) => m.HomePlatformModelSection,
+  ),
+);
+
+const HomeLatestInsightsSection = dynamic(() =>
+  import("@/components/marketing/home-latest-insights-section").then(
+    (m) => m.HomeLatestInsightsSection,
+  ),
+);
 
 type HomeImpactMetric = {
   id: string;

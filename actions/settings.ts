@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_CACHE_TAG, SITE_SETTINGS_ID } from "@/data/settings";
-import { createClient } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import {
   updateSiteSettingsSchema,
   type UpdateSiteSettingsInput,
@@ -21,32 +21,6 @@ const MESSAGES = {
   unauthorized: "You do not have permission to change site settings.",
   signedInRequired: "You must be signed in.",
 } as const;
-
-async function requireSettingsAdmin(): Promise<
-  | { status: "error"; message: string }
-  | {
-      status: "ok";
-      userId: string;
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "ok", userId: user.id, supabase };
-}
 
 function revalidateSettingsCaches() {
   revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
@@ -72,7 +46,7 @@ export async function updateSiteSettings(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const auth = await requireSettingsAdmin();
+  const auth = await authorizeAdmin(MESSAGES);
   if (auth.status === "error") return auth;
 
   const { data, error } = await auth.supabase

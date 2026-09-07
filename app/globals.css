@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "@xyflow/react/dist/style.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -1251,4 +1250,412 @@ html {
       transparent 55%
     ),
     linear-gradient(180deg, var(--brand-subtle) 0%, var(--background) 70%);
+}
+
+/* —— Institutional hero field (terms / privacy / FAQ / lab / alumni / auth) ——
+ * Quiet academic night panel in ASIP ink/teal — hatch, dots, outline
+ * motifs, soft orbs, silk ribbons. Compositions reposition layers.
+ */
+.institutional-hero-field__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 70% 55% at 12% 8%,
+      rgb(154 209 191 / 0.16),
+      transparent 58%
+    ),
+    linear-gradient(180deg, #1a3f48 0%, #14333b 48%, #0f282e 100%);
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 88% 12%,
+      rgb(23 145 145 / 0.18),
+      transparent 55%
+    ),
+    linear-gradient(185deg, #163840 0%, #14333b 50%, #0e262c 100%);
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 55% 48% at 50% 0%,
+      rgb(154 209 191 / 0.14),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #1a3f48 0%, #123038 52%, #0f282e 100%);
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 75% 45% at 30% 100%,
+      rgb(129 183 100 / 0.12),
+      transparent 55%
+    ),
+    linear-gradient(175deg, #1c434c 0%, #14333b 46%, #0f282e 100%);
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 50% 40% at 90% 80%,
+      rgb(23 145 145 / 0.16),
+      transparent 50%
+    ),
+    linear-gradient(180deg, #173840 0%, #14333b 50%, #0d2429 100%);
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__wash,
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 65% 50% at 50% 40%,
+      rgb(154 209 191 / 0.12),
+      transparent 62%
+    ),
+    linear-gradient(180deg, #1a3f48 0%, #14333b 48%, #0f282e 100%);
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__wash {
+  background:
+    radial-gradient(
+      ellipse 58% 50% at 70% 20%,
+      rgb(154 209 191 / 0.15),
+      transparent 58%
+    ),
+    linear-gradient(188deg, #1a3f48 0%, #14333b 45%, #0f282e 100%);
+}
+
+.institutional-hero-field__hatch {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image: repeating-linear-gradient(
+    -18deg,
+    transparent 0,
+    transparent 17px,
+    rgb(154 209 191 / 0.22) 17px,
+    rgb(154 209 191 / 0.22) 18px
+  );
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__hatch {
+  opacity: 0.11;
+  background-image: repeating-linear-gradient(
+    22deg,
+    transparent 0,
+    transparent 19px,
+    rgb(154 209 191 / 0.2) 19px,
+    rgb(154 209 191 / 0.2) 20px
+  );
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__hatch {
+  opacity: 0.09;
+  background-image: repeating-linear-gradient(
+    -32deg,
+    transparent 0,
+    transparent 24px,
+    rgb(154 209 191 / 0.18) 24px,
+    rgb(154 209 191 / 0.18) 25px
+  );
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__hatch {
+  opacity: 0.1;
+  background-image: repeating-linear-gradient(
+    8deg,
+    transparent 0,
+    transparent 21px,
+    rgb(129 183 100 / 0.18) 21px,
+    rgb(129 183 100 / 0.18) 22px
+  );
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__hatch {
+  opacity: 0.16;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 14px,
+    rgb(154 209 191 / 0.2) 14px,
+    rgb(154 209 191 / 0.2) 15px
+  );
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__hatch {
+  opacity: 0.1;
+  background-image: repeating-linear-gradient(
+    12deg,
+    transparent 0,
+    transparent 20px,
+    rgb(154 209 191 / 0.18) 20px,
+    rgb(154 209 191 / 0.18) 21px
+  );
+}
+
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__hatch {
+  opacity: 0.12;
+  background-image: repeating-linear-gradient(
+    -28deg,
+    transparent 0,
+    transparent 16px,
+    rgb(154 209 191 / 0.2) 16px,
+    rgb(154 209 191 / 0.2) 17px
+  );
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__hatch {
+  opacity: 0.11;
+  background-image: repeating-linear-gradient(
+    -10deg,
+    transparent 0,
+    transparent 18px,
+    rgb(154 209 191 / 0.2) 18px,
+    rgb(154 209 191 / 0.2) 19px
+  );
+}
+
+.institutional-hero-field__orbs {
+  position: absolute;
+  inset: 0;
+}
+
+.institutional-hero-field__orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+}
+
+/* Default / aurora orbs */
+.institutional-hero-field__orb--a {
+  left: -8%;
+  top: -18%;
+  width: min(42vw, 28rem);
+  height: min(42vw, 28rem);
+  background: rgb(154 209 191 / 0.28);
+}
+
+.institutional-hero-field__orb--b {
+  right: -10%;
+  bottom: -22%;
+  width: min(48vw, 32rem);
+  height: min(48vw, 32rem);
+  background: rgb(23 145 145 / 0.22);
+}
+
+.institutional-hero-field__orb--c {
+  right: 18%;
+  top: 42%;
+  width: 5rem;
+  height: 5rem;
+  background: rgb(255 255 255 / 0.14);
+  filter: blur(28px);
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__orb--a {
+  left: auto;
+  right: -6%;
+  top: -12%;
+  background: rgb(23 145 145 / 0.26);
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__orb--b {
+  right: auto;
+  left: -12%;
+  bottom: -18%;
+  background: rgb(129 183 100 / 0.16);
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__orb--c {
+  right: auto;
+  left: 40%;
+  top: 28%;
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__orb--a {
+  left: 55%;
+  top: -20%;
+  width: min(36vw, 24rem);
+  height: min(36vw, 24rem);
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__orb--b {
+  right: auto;
+  left: -14%;
+  bottom: -16%;
+  background: rgb(20 51 59 / 0.5);
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__orb--c {
+  right: 28%;
+  top: 58%;
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__orb--a {
+  left: -4%;
+  top: 40%;
+  width: min(38vw, 26rem);
+  height: min(38vw, 26rem);
+  background: rgb(129 183 100 / 0.2);
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__orb--b {
+  right: -8%;
+  bottom: auto;
+  top: -16%;
+  background: rgb(154 209 191 / 0.22);
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__orb--c {
+  right: 42%;
+  top: 70%;
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__orb--a {
+  left: auto;
+  right: -10%;
+  top: 50%;
+  background: rgb(23 145 145 / 0.24);
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__orb--b {
+  left: -8%;
+  bottom: auto;
+  top: -20%;
+  background: rgb(154 209 191 / 0.2);
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__orb--c {
+  right: 12%;
+  top: 18%;
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__orb--a {
+  left: 10%;
+  top: -24%;
+  width: min(50vw, 34rem);
+  height: min(50vw, 34rem);
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__orb--b {
+  right: 5%;
+  bottom: -28%;
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__orb--c {
+  right: 48%;
+  top: 48%;
+  width: 6rem;
+  height: 6rem;
+}
+
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__orb--a {
+  left: auto;
+  right: -12%;
+  top: -10%;
+  background: rgb(23 145 145 / 0.26);
+}
+
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__orb--b {
+  left: -10%;
+  bottom: -20%;
+  background: rgb(154 209 191 / 0.22);
+}
+
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__orb--c {
+  right: 22%;
+  top: 62%;
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__orb--a {
+  left: 60%;
+  top: -18%;
+  background: rgb(154 209 191 / 0.26);
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__orb--b {
+  left: -10%;
+  right: auto;
+  bottom: -18%;
+  background: rgb(23 145 145 / 0.2);
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__orb--c {
+  right: 18%;
+  top: 55%;
+}
+
+.institutional-hero-field__dots {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  background-image: radial-gradient(
+    rgb(154 209 191 / 0.55) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    black 18%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(ellipse at center, black 18%, transparent 72%);
+}
+
+.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__dots {
+  background-size: 26px 26px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(ellipse at 70% 30%, black 15%, transparent 70%);
+  mask-image: radial-gradient(ellipse at 70% 30%, black 15%, transparent 70%);
+}
+
+.institutional-hero-field[data-composition="constellation"] .institutional-hero-field__dots {
+  background-size: 18px 18px;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, black 22%, transparent 68%);
+  mask-image: radial-gradient(ellipse at 50% 40%, black 22%, transparent 68%);
+}
+
+.institutional-hero-field[data-composition="horizon"] .institutional-hero-field__dots {
+  background-size: 24px 24px;
+  opacity: 0.32;
+  -webkit-mask-image: radial-gradient(ellipse at 40% 70%, black 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse at 40% 70%, black 20%, transparent 75%);
+}
+
+.institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__dots {
+  background-size: 16px 16px;
+  opacity: 0.38;
+  -webkit-mask-image: radial-gradient(ellipse at 80% 20%, black 12%, transparent 65%);
+  mask-image: radial-gradient(ellipse at 80% 20%, black 12%, transparent 65%);
+}
+
+.institutional-hero-field[data-composition="portal"] .institutional-hero-field__dots,
+.institutional-hero-field[data-composition="gateway"] .institutional-hero-field__dots {
+  background-size: 20px 20px;
+  opacity: 0.3;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 10%, transparent 65%);
+  mask-image: radial-gradient(ellipse at 50% 50%, black 10%, transparent 65%);
+}
+
+.institutional-hero-field[data-composition="signal"] .institutional-hero-field__dots {
+  background-size: 22px 22px;
+  opacity: 0.4;
+  -webkit-mask-image: radial-gradient(ellipse at 65% 35%, black 16%, transparent 70%);
+  mask-image: radial-gradient(ellipse at 65% 35%, black 16%, transparent 70%);
+}
+
+.institutional-hero-field__motifs,
+.institutional-hero-field__silk {
+  opacity: 0.95;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .institutional-hero-field__orb {
+    filter: blur(48px);
+  }
 }

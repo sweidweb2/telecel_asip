@@ -62,6 +62,7 @@ export function HomeNextChapterSection({
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
+                sizes="4.5rem"
                 className="h-5 w-auto max-w-[4.5rem] object-contain opacity-80"
               />
             </li>
@@ -167,6 +168,7 @@ function OrbitLogos({ className }: { className?: string }) {
               alt=""
               width={logo.width}
               height={logo.height}
+              sizes="7.5rem"
               className="h-auto max-h-7 w-auto max-w-[85%] object-contain"
             />
           </div>

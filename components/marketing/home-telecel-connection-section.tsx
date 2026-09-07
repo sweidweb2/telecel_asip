@@ -116,6 +116,7 @@ export function HomeTelecelConnectionSection({
                   alt=""
                   width={slot.logo.width}
                   height={slot.logo.height}
+                  sizes="5.5rem"
                   className="h-auto max-h-8 w-auto max-w-[5.5rem] object-contain opacity-80 sm:max-h-9"
                 />
               </div>

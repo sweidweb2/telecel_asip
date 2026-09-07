@@ -6,13 +6,18 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import { PARTNER_TYPES, type PartnerListQuery } from "@/validations/partner";
+
+const STATUS_OPTION_LABELS = {
+  active: "Active",
+  historical: "Historical",
+} as const;
 
 export function PartnersFilters({ query }: { query: PartnerListQuery }) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
@@ -50,7 +55,10 @@ export function PartnersFilters({ query }: { query: PartnerListQuery }) {
           id="partners-type"
           className="min-h-11 w-full sm:min-h-8 sm:w-52"
         >
-          <SelectValue placeholder="All types" />
+          <AdminFilterSelectValue
+            label="Type"
+            optionLabels={PARTNER_TYPE_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All types</SelectItem>
@@ -76,7 +84,10 @@ export function PartnersFilters({ query }: { query: PartnerListQuery }) {
           id="partners-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <SelectValue placeholder="All statuses" />
+          <AdminFilterSelectValue
+            label="Status"
+            optionLabels={STATUS_OPTION_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All statuses</SelectItem>

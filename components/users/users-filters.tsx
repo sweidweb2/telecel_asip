@@ -6,12 +6,18 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import type { UserListQuery } from "@/validations/users";
+
+const ROLE_OPTION_LABELS = {
+  admin: "Admin",
+  editor: "Editor",
+  viewer: "Viewer",
+} as const;
 
 export function UsersFilters({ query }: { query: UserListQuery }) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
@@ -48,7 +54,10 @@ export function UsersFilters({ query }: { query: UserListQuery }) {
           id="users-role"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <SelectValue placeholder="All roles" />
+          <AdminFilterSelectValue
+            label="Role"
+            optionLabels={ROLE_OPTION_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All roles</SelectItem>

@@ -36,7 +36,6 @@ export const DASHBOARD_NAV_GROUPS = [
   {
     label: "Founders",
     items: [
-      { title: ADMIN_RESOURCES.portfolio.navTitle, href: ROUTES.portfolio },
       { title: ADMIN_RESOURCES.cohorts.navTitle, href: ROUTES.cohorts },
       {
         title: ADMIN_RESOURCES.founderStories.navTitle,
@@ -48,6 +47,7 @@ export const DASHBOARD_NAV_GROUPS = [
     label: "Content",
     items: [
       { title: ADMIN_RESOURCES.blogs.navTitle, href: ROUTES.blogs },
+      { title: ADMIN_RESOURCES.portfolio.navTitle, href: ROUTES.portfolio },
       { title: ADMIN_RESOURCES.partners.navTitle, href: ROUTES.partners },
     ],
   },

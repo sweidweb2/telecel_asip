@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { InstitutionalHero } from "@/components/marketing/institutional-hero";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
@@ -13,7 +14,7 @@ type AlumniHeroSectionProps = {
 };
 
 /**
- * Alumni page hero — simple intro section (no full-bleed media).
+ * Alumni page hero — institutional night panel + founders CTA.
  */
 export function AlumniHeroSection({
   locale,
@@ -23,37 +24,25 @@ export function AlumniHeroSection({
   const ctaHref = publicPath(locale, copy.primaryCta.slug);
 
   return (
-    <section
-      aria-labelledby="alumni-hero-heading"
-      className={cn(
-        "border-b border-border bg-background",
-        "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
-        className,
-      )}
-    >
-      <div className="mx-auto w-full max-w-7xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-          {copy.eyebrow}
-        </p>
-        <h1
-          id="alumni-hero-heading"
-          className="mt-3 max-w-3xl font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl"
-        >
-          {copy.title}
-        </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-8">
-          {copy.description}
-        </p>
+    <InstitutionalHero
+      eyebrow={copy.eyebrow}
+      title={copy.title}
+      description={copy.description}
+      headingId="alumni-hero-heading"
+      patternId="alumni-hero"
+      composition="horizon"
+      className={className}
+      action={
         <Link
           href={ctaHref}
           className={cn(
             buttonVariants({ size: "lg" }),
-            "mt-7 inline-flex min-h-11 w-full rounded-full px-8 sm:mt-8 sm:w-auto",
+            "inline-flex min-h-11 w-full rounded-full px-8 sm:w-auto",
           )}
         >
           {copy.primaryCta.label}
         </Link>
-      </div>
-    </section>
+      }
+    />
   );
 }

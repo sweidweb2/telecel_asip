@@ -30,7 +30,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { ContactEnquiryType } from "@/constants/contact-enquiry";
+import {
+  DEFAULT_CONTACT_ENQUIRY_TYPE,
+  type ContactEnquiryType,
+} from "@/constants/contact-enquiry";
 import type { Locale } from "@/constants/locales";
 import { useTurnstile } from "@/hooks/use-turnstile";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
@@ -42,19 +45,14 @@ import {
 type ContactFormProps = {
   locale: Locale;
   labels: ContactLabels;
-  /** Owned by `ContactExperience` so enquiry routing stays in one place. */
-  enquiryType: ContactEnquiryType;
-  onEnquiryTypeChange: (value: ContactEnquiryType) => void;
 };
 
-export function ContactForm({
-  locale,
-  labels,
-  enquiryType,
-  onEnquiryTypeChange,
-}: ContactFormProps) {
+export function ContactForm({ locale, labels }: ContactFormProps) {
   const [isPending, startTransition] = useTransition();
   const [successOpen, setSuccessOpen] = useState(false);
+  const [enquiryType, setEnquiryType] = useState<ContactEnquiryType>(
+    DEFAULT_CONTACT_ENQUIRY_TYPE,
+  );
 
   const {
     register,
@@ -133,7 +131,7 @@ export function ContactForm({
           <ContactRoutePicker
             routes={labels.routes}
             value={enquiryType}
-            onChange={onEnquiryTypeChange}
+            onChange={setEnquiryType}
             legend={labels.routesLegend}
             hint={labels.routesHint}
             disabled={isPending}

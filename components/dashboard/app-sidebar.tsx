@@ -9,6 +9,7 @@ import {
   BriefcaseIcon,
   CalendarIcon,
   ChartColumnIcon,
+  CircleAlertIcon,
   ClipboardListIcon,
   DatabaseBackupIcon,
   HandshakeIcon,
@@ -39,10 +40,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
+  hasUnreflectedAdminPublicSurfaces,
+  type AdminPublicReflectionId,
+} from "@/constants/admin-public-reflections";
+import {
   DASHBOARD_NAV_GROUPS,
   isDashboardNavActive,
 } from "@/constants/dashboard-nav";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 
 type DashboardNavCounts = Partial<Record<string, number>>;
 
@@ -64,6 +70,20 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.performance]: TimerIcon,
   [ROUTES.backup]: DatabaseBackupIcon,
   [ROUTES.settings]: SettingsIcon,
+};
+
+/** Nav href → public-reflection guide (only CMS resources with a guide). */
+const NAV_PUBLIC_REFLECTION_IDS: Partial<
+  Record<string, AdminPublicReflectionId>
+> = {
+  [ROUTES.portfolio]: "portfolio",
+  [ROUTES.partners]: "partners",
+  [ROUTES.blogs]: "blogs",
+  [ROUTES.founderStories]: "founderStories",
+  [ROUTES.cohorts]: "cohorts",
+  [ROUTES.events]: "events",
+  [ROUTES.evidence]: "evidence",
+  [ROUTES.impactMetrics]: "impactMetrics",
 };
 
 function formatNavCount(count: number) {
@@ -127,6 +147,12 @@ export function AppSidebar({
                 {group.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
                   const count = counts[item.href];
+                  const reflectionId = NAV_PUBLIC_REFLECTION_IDS[item.href];
+                  const hasUnreflected = reflectionId
+                    ? hasUnreflectedAdminPublicSurfaces(reflectionId)
+                    : false;
+                  const hasCount = typeof count === "number";
+                  const showBadge = hasCount || hasUnreflected;
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -137,18 +163,47 @@ export function AppSidebar({
                         isActive={isDashboardNavActive(pathname, item.href)}
                         tooltip={item.title}
                         className={
-                          typeof count === "number" ? "pr-8" : undefined
+                          showBadge
+                            ? hasCount && hasUnreflected
+                              ? "pr-14"
+                              : "pr-8"
+                            : undefined
                         }
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
                       </SidebarMenuButton>
-                      {typeof count === "number" ? (
+                      {showBadge ? (
                         <SidebarMenuBadge
-                          className="rounded-full bg-sidebar-accent text-[10px] leading-none"
-                          aria-label={`${count} records`}
+                          className="gap-1 bg-transparent p-0"
+                          aria-label={
+                            [
+                              hasCount ? `${count} records` : null,
+                              hasUnreflected
+                                ? "some public surfaces are not reflected"
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join("; ")
+                          }
                         >
-                          {formatNavCount(count)}
+                          {hasUnreflected ? (
+                            <span
+                              className="flex size-5 items-center justify-center rounded-full bg-red-500/15 text-red-700 dark:text-red-400"
+                              aria-hidden
+                            >
+                              <CircleAlertIcon className="size-3" />
+                            </span>
+                          ) : null}
+                          {hasCount ? (
+                            <span
+                              className={cn(
+                                "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-[10px] leading-none",
+                              )}
+                            >
+                              {formatNavCount(count)}
+                            </span>
+                          ) : null}
                         </SidebarMenuBadge>
                       ) : null}
                     </SidebarMenuItem>

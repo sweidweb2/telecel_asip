@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -17,7 +18,6 @@ import {
   uploadAuthorAvatar,
   uploadBlogThumbnail,
 } from "@/actions/blogs";
-import { BlogRichTextEditor } from "@/components/blogs/blog-rich-text-editor";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
@@ -38,6 +38,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+const BlogRichTextEditor = dynamic(
+  () =>
+    import("@/components/blogs/blog-rich-text-editor").then(
+      (mod) => mod.BlogRichTextEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="min-h-[12rem] rounded-md border bg-muted/40"
+        aria-hidden
+      />
+    ),
+  },
+);
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,

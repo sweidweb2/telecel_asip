@@ -5,6 +5,7 @@ import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter
 import { HomePlatformModelSection } from "@/components/marketing/home-platform-model-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
 import { ImpactFanSection } from "@/components/marketing/impact-fan-section";
+import { InstitutionalHero } from "@/components/marketing/institutional-hero";
 import { LabAfricaBlueprintSection } from "@/components/marketing/lab-africa-blueprint-section";
 import { LabPartnersHoneycombSection } from "@/components/marketing/lab-partners-honeycomb-section";
 import { ProgrammeAudienceSection } from "@/components/marketing/programme-audience-section";
@@ -41,19 +42,15 @@ export function LabPageContent({
 
   return (
     <main>
-      <section className="border-b border-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Dev · Temporary
-          </p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            {title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {intro}
-          </p>
-        </div>
-      </section>
+      <InstitutionalHero
+        eyebrow="Dev · Temporary"
+        title={title}
+        description={intro}
+        headingId="lab-hero-heading"
+        patternId="lab-hero"
+        composition="blueprint"
+        size="compact"
+      />
 
       <ProgrammeHero
         locale={locale}

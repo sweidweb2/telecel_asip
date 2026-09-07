@@ -6,9 +6,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import {
@@ -16,6 +16,14 @@ import {
   ADMIN_PERF_EVENT_TYPES,
   type AdminPerfListQuery,
 } from "@/validations/admin-perf-events";
+
+const EVENT_TYPE_LABELS = Object.fromEntries(
+  ADMIN_PERF_EVENT_TYPES.map((type) => [type, type]),
+) as Record<(typeof ADMIN_PERF_EVENT_TYPES)[number], string>;
+
+const CACHE_STATUS_LABELS = Object.fromEntries(
+  ADMIN_PERF_CACHE_STATUSES.map((status) => [status, status]),
+) as Record<(typeof ADMIN_PERF_CACHE_STATUSES)[number], string>;
 
 export function AdminPerfEventsFilters({ query }: { query: AdminPerfListQuery }) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
@@ -55,7 +63,10 @@ export function AdminPerfEventsFilters({ query }: { query: AdminPerfListQuery })
           id="admin-perf-event-type"
           className="min-h-11 w-full sm:min-h-8 sm:w-40"
         >
-          <SelectValue placeholder="All types" />
+          <AdminFilterSelectValue
+            label="Type"
+            optionLabels={EVENT_TYPE_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All types</SelectItem>
@@ -81,7 +92,10 @@ export function AdminPerfEventsFilters({ query }: { query: AdminPerfListQuery })
           id="admin-perf-cache-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-32"
         >
-          <SelectValue placeholder="All cache" />
+          <AdminFilterSelectValue
+            label="Cache"
+            optionLabels={CACHE_STATUS_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All cache</SelectItem>

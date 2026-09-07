@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Volume2Icon, VolumeXIcon } from "lucide-react";
 
@@ -35,7 +35,7 @@ function getMutedPreferenceSnapshot() {
 }
 
 function getMutedPreferenceServerSnapshot() {
-  return false;
+  return true;
 }
 
 function setMutedPreference(muted: boolean) {
@@ -61,9 +61,12 @@ function localeFromPath(pathname: string | null): Locale {
 
 function readMutedPreference(): boolean {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "1";
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    // Missing key → muted (do not download the track until the user unmutes).
+    if (raw === null) return true;
+    return raw === "1";
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -140,9 +143,8 @@ function fadeVolume(
 }
 
 /**
- * Fixed mute control + deferred ambient loop for public marketing pages.
- * Audio download starts only after the page has loaded (idle), so first paint
- * is never blocked by the ~5MB track.
+ * Fixed mute control + ambient loop for public marketing pages.
+ * Default is muted; the ~5MB track is fetched only after the user unmutes.
  */
 export function AmbientMusicControl() {
   const pathname = usePathname();
@@ -152,14 +154,14 @@ export function AmbientMusicControl() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeCancelRef = useRef<(() => void) | null>(null);
   const unlockCleanupRef = useRef<(() => void) | null>(null);
-  const mutedRef = useRef(false);
+  const mutedRef = useRef(true);
+  const srcLoadedRef = useRef(false);
 
   const muted = useSyncExternalStore(
     subscribeMutedPreference,
     getMutedPreferenceSnapshot,
     getMutedPreferenceServerSnapshot,
   );
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     mutedRef.current = muted;
@@ -168,91 +170,87 @@ export function AmbientMusicControl() {
   useEffect(() => {
     let cancelled = false;
     let removeVisibility: (() => void) | undefined;
-    let removeCanPlay: (() => void) | undefined;
 
     mutedRef.current = readMutedPreference();
 
-    const cancelSchedule = scheduleAfterPageReady(() => {
-      if (cancelled) return;
+    const audio = new Audio();
+    audio.loop = true;
+    audio.preload = "none";
+    audio.volume = 0;
+    audioRef.current = audio;
 
-      const audio = new Audio();
-      audio.loop = true;
-      audio.preload = "auto";
-      audio.volume = 0;
-      // Defer network until idle — assigning src triggers the fetch.
-      audio.src = MUSIC_SRC;
-      audioRef.current = audio;
+    const ensureSrc = () => {
+      if (srcLoadedRef.current || !audioRef.current) return;
+      audioRef.current.src = MUSIC_SRC;
+      audioRef.current.preload = "auto";
+      srcLoadedRef.current = true;
+      audioRef.current.load();
+    };
 
-      const tryPlay = async () => {
-        if (cancelled || mutedRef.current || !audioRef.current) return;
+    const tryPlay = async () => {
+      if (cancelled || mutedRef.current || !audioRef.current) return;
+      ensureSrc();
 
-        try {
-          await audio.play();
-          fadeCancelRef.current?.();
-          fadeCancelRef.current = fadeVolume(audio, TARGET_VOLUME, FADE_MS);
-          unlockCleanupRef.current?.();
-          unlockCleanupRef.current = null;
-        } catch {
-          // Autoplay with sound is blocked until a user gesture.
-          if (unlockCleanupRef.current) return;
+      try {
+        await audio.play();
+        fadeCancelRef.current?.();
+        fadeCancelRef.current = fadeVolume(audio, TARGET_VOLUME, FADE_MS);
+        unlockCleanupRef.current?.();
+        unlockCleanupRef.current = null;
+      } catch {
+        if (unlockCleanupRef.current) return;
 
-          const unlock = () => {
-            void tryPlay();
-          };
-
-          window.addEventListener("pointerdown", unlock, { once: true });
-          window.addEventListener("keydown", unlock, { once: true });
-          unlockCleanupRef.current = () => {
-            window.removeEventListener("pointerdown", unlock);
-            window.removeEventListener("keydown", unlock);
-          };
-        }
-      };
-
-      const onCanPlay = () => {
-        if (cancelled) return;
-        setReady(true);
-        void tryPlay();
-      };
-
-      audio.addEventListener("canplaythrough", onCanPlay, { once: true });
-      removeCanPlay = () => {
-        audio.removeEventListener("canplaythrough", onCanPlay);
-      };
-      audio.load();
-
-      const onVisibility = () => {
-        if (!audioRef.current || mutedRef.current) return;
-        if (document.hidden) {
-          audio.pause();
-        } else {
+        const unlock = () => {
           void tryPlay();
-        }
-      };
+        };
 
-      document.addEventListener("visibilitychange", onVisibility);
-      removeVisibility = () => {
-        document.removeEventListener("visibilitychange", onVisibility);
-      };
+        window.addEventListener("pointerdown", unlock, { once: true });
+        window.addEventListener("keydown", unlock, { once: true });
+        unlockCleanupRef.current = () => {
+          window.removeEventListener("pointerdown", unlock);
+          window.removeEventListener("keydown", unlock);
+        };
+      }
+    };
+
+    // If the visitor previously unmuted, load + play after idle.
+    const cancelSchedule = scheduleAfterPageReady(() => {
+      if (cancelled || mutedRef.current) return;
+      ensureSrc();
+      void tryPlay();
     });
+
+    const onVisibility = () => {
+      if (!audioRef.current || mutedRef.current) return;
+      if (document.hidden) {
+        audio.pause();
+      } else {
+        void tryPlay();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    removeVisibility = () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
 
     return () => {
       cancelled = true;
       cancelSchedule();
       removeVisibility?.();
-      removeCanPlay?.();
       unlockCleanupRef.current?.();
       unlockCleanupRef.current = null;
       fadeCancelRef.current?.();
       fadeCancelRef.current = null;
 
-      const audio = audioRef.current;
-      if (audio) {
-        audio.pause();
-        audio.removeAttribute("src");
-        audio.load();
+      const current = audioRef.current;
+      if (current) {
+        current.pause();
+        current.removeAttribute("src");
+        current.load();
         audioRef.current = null;
       }
+      srcLoadedRef.current = false;
     };
   }, []);
 
@@ -273,14 +271,20 @@ export function AmbientMusicControl() {
       return;
     }
 
+    if (!srcLoadedRef.current) {
+      audio.src = MUSIC_SRC;
+      audio.preload = "auto";
+      srcLoadedRef.current = true;
+      audio.load();
+    }
+
     audio.volume = 0;
     void audio.play().then(
       () => {
         fadeCancelRef.current = fadeVolume(audio, TARGET_VOLUME, FADE_MS);
       },
       () => {
-        // Still blocked — next document gesture will unlock via tryPlay path
-        // only if listeners are still registered; button click itself counts.
+        // Autoplay still blocked — unmute click usually counts as a gesture.
       },
     );
   };
@@ -297,7 +301,6 @@ export function AmbientMusicControl() {
         className={cn(
           "pointer-events-auto size-11 min-h-11 min-w-11 rounded-full border-border/80 bg-background/90 shadow-md backdrop-blur-sm",
           "hover:bg-background",
-          !ready && "opacity-70",
         )}
       >
         {muted ? (

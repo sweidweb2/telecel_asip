@@ -40,7 +40,7 @@ describe("ProgrammeEligibilitySection", () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute(
       "src",
-      expect.stringContaining("eligibility-bridge-connection.png"),
+      expect.stringContaining("eligibility-bridge-connection.webp"),
     );
   });
 });

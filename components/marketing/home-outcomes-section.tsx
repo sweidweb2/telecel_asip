@@ -115,10 +115,10 @@ export function HomeOutcomesSection({
 
           <div className="relative min-w-0 justify-self-center lg:justify-self-start">
             <Image
-              src="/my-images/window.png"
+              src="/my-images/window.webp"
               alt={copy.imageAlt}
-              width={1536}
-              height={1024}
+              width={1200}
+              height={800}
               sizes="(max-width: 1024px) 100vw, 48rem"
               className={cn(
                 "mx-auto h-auto w-full max-w-none rounded-xl object-cover shadow-lg ring-1 ring-border/60",

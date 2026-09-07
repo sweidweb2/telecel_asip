@@ -241,3 +241,12 @@ export function getAdminPublicReflection(
 ): AdminPublicReflectionGuide {
   return ADMIN_PUBLIC_REFLECTIONS[id];
 }
+
+/** True when any listed public surface is not wired to live CMS rows. */
+export function hasUnreflectedAdminPublicSurfaces(
+  id: AdminPublicReflectionId,
+): boolean {
+  return ADMIN_PUBLIC_REFLECTIONS[id].surfaces.some(
+    (surface) => !surface.reflected,
+  );
+}

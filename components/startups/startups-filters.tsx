@@ -6,15 +6,14 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import { ROUTES } from "@/constants/routes";
 import { useAdminListFilters } from "@/hooks/use-admin-list-filters";
 import type { StartupListQuery } from "@/validations/startup";
 
-const STATUS_LABELS = {
-  all: "All statuses",
+const STATUS_OPTION_LABELS = {
   draft: "Draft",
   active: "Active",
   inactive: "Inactive",
@@ -55,16 +54,20 @@ export function StartupsFilters({ query }: { query: StartupListQuery }) {
           id="startups-status"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <SelectValue placeholder="All statuses" />
+          <AdminFilterSelectValue
+            label="Status"
+            optionLabels={STATUS_OPTION_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
-          {(Object.keys(STATUS_LABELS) as (keyof typeof STATUS_LABELS)[]).map(
-            (status) => (
-              <SelectItem key={status} value={status}>
-                {STATUS_LABELS[status]}
-              </SelectItem>
-            ),
-          )}
+          <SelectItem value="all">All statuses</SelectItem>
+          {(
+            Object.keys(STATUS_OPTION_LABELS) as (keyof typeof STATUS_OPTION_LABELS)[]
+          ).map((status) => (
+            <SelectItem key={status} value={status}>
+              {STATUS_OPTION_LABELS[status]}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </AdminFilterBar>

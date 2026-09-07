@@ -17,8 +17,8 @@ export type AdminSession =
   | { status: "error"; message: string };
 
 /**
- * Session + `is_admin()` gate for dashboard Server Actions.
- * Uses request-cached auth helpers; callers pass entity-specific copy.
+ * Session + admin gate for dashboard Server Actions.
+ * Uses request-cached `getAdminShell` via `isCurrentUserAdmin`; callers pass entity-specific copy.
  */
 export async function authorizeAdmin(
   messages: AuthorizeAdminMessages,

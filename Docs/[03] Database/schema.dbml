@@ -453,6 +453,7 @@ Table startups_public {
 
     Grants: SELECT to anon, authenticated.
     Read by data/startups.ts for the EN/FR public portfolio pages.
+    Distinct filter facets also via RPC get_active_startup_filter_options().
   '''
 }
 

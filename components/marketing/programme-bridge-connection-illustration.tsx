@@ -22,14 +22,13 @@ export function ProgrammeBridgeConnectionIllustration({
       )}
     >
       <Image
-        src="/asip-media/eligibility-bridge-connection.png"
+        src="/asip-media/eligibility-bridge-connection.webp"
         alt=""
-        width={1152}
-        height={864}
+        width={800}
+        height={600}
         sizes="(max-width: 640px) 22rem, (max-width: 1024px) 28rem, 32rem"
         className="h-auto w-full bg-transparent object-contain"
         priority={false}
-        unoptimized
       />
     </div>
   );

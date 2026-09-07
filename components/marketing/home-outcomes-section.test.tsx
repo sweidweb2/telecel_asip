@@ -38,7 +38,7 @@ describe("HomeOutcomesSection", () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute(
       "src",
-      expect.stringContaining("window.png"),
+      expect.stringContaining("window.webp"),
     );
     expect(img).toHaveAttribute("alt", copy.imageAlt);
   });

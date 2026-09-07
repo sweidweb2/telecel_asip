@@ -27,7 +27,7 @@ export function AlumniPurposeSection({
       id="purpose"
       aria-labelledby="alumni-purpose-heading"
       className={cn(
-        "border-b border-border bg-background",
+        "bg-background",
         "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         className,
       )}

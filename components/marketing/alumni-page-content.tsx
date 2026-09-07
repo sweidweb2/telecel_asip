@@ -24,7 +24,11 @@ export function AlumniPageContent({ locale }: AlumniPageContentProps) {
       <AlumniPurposeSection locale={locale} copy={copy.purpose} />
       <AlumniBenefitsSection copy={copy.benefits} />
       <AlumniNoticeSection notice={copy.notice} />
-      <PageCtaSection locale={locale} cta={copy.ctaSection} />
+      <PageCtaSection
+        locale={locale}
+        cta={copy.ctaSection}
+        className="border-t-0"
+      />
     </main>
   );
 }

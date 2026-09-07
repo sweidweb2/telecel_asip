@@ -113,14 +113,13 @@ export function HomeImpactYearsSection({
               className="impact-kite-float mt-8 ml-8 w-[min(100%,18rem)] sm:mt-10 sm:ml-12 sm:w-[min(100%,21rem)] lg:mt-12 lg:ml-14 lg:w-[min(100%,24rem)]"
             >
               <Image
-                src="/asip-media/impact-kite-founder.png"
+                src="/asip-media/impact-kite-founder.webp"
                 alt=""
                 width={996}
                 height={789}
                 sizes="(max-width: 640px) 18rem, (max-width: 1024px) 21rem, 24rem"
                 className="h-auto w-full select-none bg-transparent object-contain"
                 priority={false}
-                unoptimized
               />
             </div>
           </div>

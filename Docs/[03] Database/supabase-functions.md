@@ -312,6 +312,21 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 ---
 
+### `public.get_active_startup_filter_options()`
+
+| | |
+| --- | --- |
+| **Role** | Distinct cohort / country / sector lists for the public founders filters |
+| **Returns** | `jsonb` `{ cohorts: string[], countries: string[], sectors: string[] }` |
+| **Security** | `sql`, `stable`, **`security invoker`**, `search_path = public` |
+| **Grants** | `execute` to `anon`, `authenticated` |
+
+**Details:** Replaces selecting every `startups_public` row's filter columns and uniquifying in JS (`data/startups.ts` → `getActiveStartupFilterOptions`).
+
+**How it works:** Three `distinct` subqueries over `public.startups_public` (non-empty `cohort`, `country_code`, `sector`), each aggregated with `jsonb_agg(... order by value)` into a single `jsonb_build_object`. Invoker + the view's grants keep the public surface unchanged.
+
+---
+
 ### `public.blog_categories_within_bounds(categories text[])`
 
 | | |

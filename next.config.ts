@@ -1,8 +1,13 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 import { legacyRedirectRules } from "./constants/legacy-redirects";
 import { DEFAULT_LOCALE, LOCALES } from "./constants/locales";
 import { PUBLIC_PAGE_SLUGS } from "./constants/public-pages";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * Keeps the cached-route matchers in step with the routes that actually exist,
@@ -163,4 +168,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

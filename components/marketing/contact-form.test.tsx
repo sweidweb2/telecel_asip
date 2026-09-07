@@ -21,21 +21,14 @@ vi.mock("sonner", () => ({
 }));
 
 describe("ContactForm", () => {
-  it("routes enquiry type through the controlled picker", async () => {
-    const onEnquiryTypeChange = vi.fn();
+  it("owns enquiry type state via the route picker", async () => {
     const user = userEvent.setup();
     const labels = contactLabelsFor("en");
 
-    render(
-      <ContactForm
-        locale="en"
-        labels={labels}
-        enquiryType="general"
-        onEnquiryTypeChange={onEnquiryTypeChange}
-      />,
-    );
+    render(<ContactForm locale="en" labels={labels} />);
 
-    await user.click(screen.getByRole("radio", { name: /partner enquiry/i }));
-    expect(onEnquiryTypeChange).toHaveBeenCalledWith("partner");
+    const partner = screen.getByRole("radio", { name: /partner enquiry/i });
+    await user.click(partner);
+    expect(partner).toBeChecked();
   });
 });

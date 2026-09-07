@@ -4,13 +4,18 @@ import {
   getPublishedBlogSlugs,
   getPublishedBlogs,
   getRelatedPublishedBlogs,
+  BLOGS_CACHE_TAG,
 } from "@/data/blogs";
+import { COHORTS_CACHE_TAG } from "@/data/cohorts";
+import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
 import { createPublicClient } from "@/lib/supabase/public";
 import { toArticle, toArticleList, type BlogRelatedLinks } from "@/types/blog";
 import type { Article, ArticleListItem } from "@/types/article";
 import type { BlogSlugRow } from "@/types/blog";
+import { unstable_cache } from "next/cache";
+import { cache } from "react";
 
 export type InsightsIndex = {
   articles: ArticleListItem[];
@@ -53,7 +58,7 @@ export async function getInsightSlugRows(): Promise<BlogSlugRow[]> {
   return getPublishedBlogSlugRows();
 }
 
-async function resolveBlogRelatedLinks(
+async function fetchBlogRelatedLinks(
   startupId: string | null,
   cohortId: string | null,
 ): Promise<BlogRelatedLinks> {
@@ -102,19 +107,38 @@ async function resolveBlogRelatedLinks(
   };
 }
 
-export async function getInsightBySlug(
-  slug: string,
-  locale: Locale = "en",
-): Promise<Article | undefined> {
-  const blog = await getPublishedBlogBySlug(slug);
-  if (!blog) return undefined;
+async function resolveBlogRelatedLinks(
+  startupId: string | null,
+  cohortId: string | null,
+): Promise<BlogRelatedLinks> {
+  if (!startupId && !cohortId) return {};
 
-  const related = await resolveBlogRelatedLinks(
-    blog.startup_id,
-    blog.cohort_id,
-  );
-  return toArticle(blog, locale, related);
+  return unstable_cache(
+    () => fetchBlogRelatedLinks(startupId, cohortId),
+    ["blog-related-links", startupId ?? "none", cohortId ?? "none"],
+    {
+      tags: [STARTUPS_CACHE_TAG, COHORTS_CACHE_TAG, BLOGS_CACHE_TAG],
+      revalidate: 300,
+    },
+  )();
 }
+
+/** Request-memoized so generateMetadata + page share one related-links resolve. */
+export const getInsightBySlug = cache(
+  async (
+    slug: string,
+    locale: Locale = "en",
+  ): Promise<Article | undefined> => {
+    const blog = await getPublishedBlogBySlug(slug);
+    if (!blog) return undefined;
+
+    const related = await resolveBlogRelatedLinks(
+      blog.startup_id,
+      blog.cohort_id,
+    );
+    return toArticle(blog, locale, related);
+  },
+);
 
 export async function getRelatedInsights(
   slug: string,

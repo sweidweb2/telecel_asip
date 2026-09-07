@@ -6,9 +6,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { AdminFilterBar } from "@/components/dashboard/admin-filter-bar";
+import { AdminFilterSelectValue } from "@/components/dashboard/admin-filter-select-value";
 import { AdminInboxStatusFilter } from "@/components/dashboard/admin-inbox-status-filter";
 import {
   CONTACT_ENQUIRY_ADMIN_LABELS,
@@ -68,7 +68,10 @@ export function ContactMessagesFilters({
           id="contact-messages-enquiry-type"
           className="min-h-11 w-full sm:min-h-8 sm:w-40"
         >
-          <SelectValue placeholder="All routes" />
+          <AdminFilterSelectValue
+            label="Route"
+            optionLabels={CONTACT_ENQUIRY_ADMIN_LABELS}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All routes</SelectItem>

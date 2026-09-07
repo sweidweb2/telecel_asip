@@ -1127,6 +1127,10 @@ export type Database = {
           is_admin: boolean
         }[]
       }
+      get_active_startup_filter_options: {
+        Args: never
+        Returns: Json
+      }
       get_related_published_blogs: {
         Args: { p_limit?: number; p_slug: string }
         Returns: {
