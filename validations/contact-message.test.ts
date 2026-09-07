@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   contactMessageSchema,
   contactMessageSchemaFor,
+  deleteContactMessageSchema,
   parseContactMessageListQuery,
+  updateContactMessageSchema,
 } from "@/validations/contact-message";
 
 const validInput = {
@@ -79,6 +81,21 @@ describe("contactMessageSchema", () => {
   });
 });
 
+describe("updateContactMessageSchema / deleteContactMessageSchema", () => {
+  const id = "33333333-3333-4333-8333-333333333333";
+
+  it("accepts an admin update without turnstile", () => {
+    const { turnstileToken: _t, ...fields } = validInput;
+    expect(updateContactMessageSchema.safeParse({ id, ...fields }).success).toBe(
+      true,
+    );
+  });
+
+  it("accepts a delete id", () => {
+    expect(deleteContactMessageSchema.safeParse({ id }).success).toBe(true);
+  });
+});
+
 describe("parseContactMessageListQuery", () => {
   it("accepts a plain search term", () => {
     const query = parseContactMessageListQuery({ search: "ada" });
@@ -101,5 +118,12 @@ describe("parseContactMessageListQuery", () => {
     expect(parseContactMessageListQuery({ enquiryType: "nope" }).enquiryType)
       .toBe("all");
     expect(parseContactMessageListQuery({}).enquiryType).toBe("all");
+  });
+
+  it("defaults inbox filter to inbox", () => {
+    expect(parseContactMessageListQuery({}).inboxStatus).toBe("inbox");
+    expect(
+      parseContactMessageListQuery({ inboxStatus: "archived" }).inboxStatus,
+    ).toBe("archived");
   });
 });

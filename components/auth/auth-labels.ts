@@ -6,6 +6,9 @@ export type LoginLabels = {
   emailLabel: string;
   emailPlaceholder: string;
   passwordLabel: string;
+  passwordPlaceholder: string;
+  showPassword: string;
+  hidePassword: string;
   submitLabel: string;
   submittingLabel: string;
   noAccountPrompt: string;
@@ -51,6 +54,9 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
+    passwordPlaceholder: "••••••••",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     submitLabel: "Sign in",
     submittingLabel: "Signing in…",
     noAccountPrompt: "No account?",
@@ -63,6 +69,9 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "E-mail",
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
+    passwordPlaceholder: "••••••••",
+    showPassword: "Afficher le mot de passe",
+    hidePassword: "Masquer le mot de passe",
     submitLabel: "Se connecter",
     submittingLabel: "Connexion…",
     noAccountPrompt: "Pas de compte ?",

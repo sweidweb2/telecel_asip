@@ -85,6 +85,7 @@ export type MarketingContentSlug = Exclude<
   | "impact"
   | "alumni"
   | "partners"
+  | "lab"
 >;
 
 export type LegalPageSlug = "terms" | "privacy";
@@ -105,6 +106,17 @@ export type LegalPageCopy = {
   sections: LegalSection[];
 };
 
+export type AboutHeroChipKind = "focus" | "chapter";
+
+export type AboutHeroChip = {
+  kind: AboutHeroChipKind;
+  label: string;
+  /** Hide below `sm` when true. */
+  hideSm?: boolean;
+  /** Hide below `md` when true. */
+  hideMd?: boolean;
+};
+
 export type MarketingPageCopy = {
   eyebrow: string;
   title: string;
@@ -114,6 +126,12 @@ export type MarketingPageCopy = {
   sectionDescription: string;
   cards: { title: string; description: string }[];
   cta?: { slug: PublicPageSlug; label: string; hash?: string };
+  /** About hero — floating decorative chips (aria-hidden). */
+  heroChips?: {
+    focusKind: string;
+    chapterKind: string;
+    chips: AboutHeroChip[];
+  };
   /** Optional animated proof-point counters. Omit until figures are verified. */
   statsSection?: {
     eyebrow?: string;
@@ -166,6 +184,11 @@ export type HomePartnerRoleId =
   | "institutions"
   | "ecosystem";
 
+export type HomeOutcomeFeatureId =
+  | "businesses"
+  | "markets"
+  | "readiness";
+
 export type HomePageLink = {
   slug: PublicPageSlug;
   label: string;
@@ -187,6 +210,8 @@ export type ProgrammeValueId =
   | "commercial"
   | "visibility"
   | "continuity";
+
+export type ProgrammeAudienceHighlightId = "team" | "product" | "market";
 
 export type AlumniBenefitId =
   | "community"
@@ -212,6 +237,7 @@ export type AlumniPageCopy = {
     description: string;
   };
   benefits: {
+    title: string;
     items: {
       id: AlumniBenefitId;
       title: string;
@@ -220,6 +246,12 @@ export type AlumniPageCopy = {
   };
   /** Visitor-facing hold: the network is not confirmed as live. */
   notice: string;
+  ctaSection: {
+    title: string;
+    description: string;
+    slug: PublicPageSlug;
+    label: string;
+  };
 };
 
 export type ProgrammePageCopy = {
@@ -234,6 +266,10 @@ export type ProgrammePageCopy = {
     eyebrow: string;
     title: string;
     description: string;
+    highlights: {
+      id: ProgrammeAudienceHighlightId;
+      label: string;
+    }[];
   };
   journey: {
     title: string;
@@ -254,13 +290,23 @@ export type ProgrammePageCopy = {
   eligibility: {
     title: string;
     items: string[];
-    /** Visitor-facing: exact criteria land when a cohort opens. */
+    /**
+     * Kept for future cohort-criteria swap; not rendered on the public page.
+     * Internal cohort-rule notes must never ship as live copy.
+     */
     notice: string;
+  };
+  ctaSection: {
+    title: string;
+    description: string;
+    slug: PublicPageSlug;
+    label: string;
   };
 };
 
 export type HomePageCopy = {
   hero: {
+    brand: string;
     eyebrow: string;
     title: string;
     description: string;
@@ -289,10 +335,17 @@ export type HomePageCopy = {
     empty: string;
   };
   outcomes: {
+    eyebrow: string;
     title: string;
     description: string;
+    features: {
+      id: HomeOutcomeFeatureId;
+      title: string;
+      description: string;
+    }[];
+    /** Secondary link to the Impact page. Primary intake CTA is wired via `intakeCtaFor`. */
     cta: HomePageLink;
-    empty: string;
+    imageAlt: string;
   };
   ecosystem: {
     title: string;
@@ -308,6 +361,10 @@ export type HomePageCopy = {
     title: string;
     description: string;
     ctaLabel: string;
+    /** Chat-style user prompt shown above the answer */
+    prompt: string;
+    /** Decorative input placeholder (send links out) */
+    inputPlaceholder: string;
   };
   nextChapter: {
     title: string;
@@ -333,21 +390,29 @@ export type PartnerTypeId =
   | "media";
 
 /**
- * Partners public page. Logos in `public/partners` are shown as supplied;
- * publication permission remains a Telecel/legal check, not a page gate.
+ * Partners public page. Partner records come from the `partners` table; this
+ * copy supplies the surrounding prose and the per-type group labels, keyed by
+ * the same ids as the `partner_type` enum.
  */
 export type PartnersPageCopy = {
   hero: {
     eyebrow: string;
-    title: string;
+    /** Plain lead before the gradient accent phrase. */
+    titleLead: string;
+    /** Phrase rendered with the warm portal gradient. */
+    titleAccent: string;
     description: string;
     cta: HomePageLink;
+    /** Qualitative proof chips — no unverified capital/count claims. */
+    proof: string[];
   };
   proposition: {
     title: string;
     description: string;
   };
   types: {
+    title: string;
+    description: string;
     columns: {
       type: string;
       value: string;
@@ -396,6 +461,10 @@ export type ImpactPageCopy = {
     description: string;
   };
   lenses: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    footnote: string;
     columns: {
       lens: string;
       framing: string;
@@ -405,6 +474,7 @@ export type ImpactPageCopy = {
       id: ImpactLensId;
       lens: string;
       framing: string;
+      /** Internal CMS note — not rendered on the public page. */
       evidence: string;
     }[];
   };
@@ -412,10 +482,27 @@ export type ImpactPageCopy = {
     eyebrow: string;
     title: string;
     templateLabel: string;
+    /** Internal template — never render as a live founder story. */
     body: string;
     note: string;
+    empty: string;
+    comingSoon: string;
+    readStory: string;
+    loadMore: string;
+    prevLabel: string;
+    nextLabel: string;
+    steps: {
+      barrier: string;
+      support: string;
+      outcome: string;
+    };
   };
-  evidenceRule: string;
+  evidenceRule: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    requirements: { id: string; label: string }[];
+  };
   ctaSection: {
     title: string;
     description: string;

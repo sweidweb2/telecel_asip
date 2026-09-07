@@ -1,15 +1,11 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 import { AuthorAvatar } from "@/components/marketing/author-avatar";
+import { BlogArticlesTabs } from "@/components/marketing/blog-articles-tabs";
 import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categoryToTabId, type BlogTabId } from "@/constants/blog-ui";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
 import type { ArticleListItem } from "@/types/article";
@@ -117,20 +113,16 @@ function FeaturedPost({
   );
 }
 
+/**
+ * Insights index body — featured post stays RSC; tabs/grid are a client island.
+ */
 export function BlogSection({
   locale,
   labels,
   articles,
   featured,
 }: BlogSectionProps) {
-  const [tab, setTab] = useState<BlogTabId>("all");
-
-  const filteredArticles = useMemo(() => {
-    if (tab === "all") return articles;
-    return articles.filter(
-      (article) => categoryToTabId(article.category.name) === tab,
-    );
-  }, [articles, tab]);
+  const hasArticles = articles.length > 0;
 
   return (
     <div className="flex flex-col gap-12 md:gap-16">
@@ -138,37 +130,10 @@ export function BlogSection({
         <FeaturedPost locale={locale} labels={labels} article={featured} />
       ) : null}
 
-      <Tabs
-        value={tab}
-        onValueChange={(value) => setTab(value as BlogTabId)}
-        className="min-w-0 w-full"
-      >
-        <TabsList
-          variant="line"
-          className="h-auto w-full min-h-11 justify-start overflow-x-auto rounded-none p-0"
-        >
-          {labels.tabs.map((item) => (
-            <TabsTrigger
-              key={item.id}
-              value={item.id}
-              className="min-h-11 shrink-0 px-3"
-            >
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      {filteredArticles.length === 0 ? (
-        <p className="text-muted-foreground">{labels.emptyState}</p>
+      {hasArticles ? (
+        <BlogArticlesTabs locale={locale} labels={labels} articles={articles} />
       ) : (
-        <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {filteredArticles.map((article) => (
-            <li key={article.id}>
-              <BlogCard locale={locale} article={article} />
-            </li>
-          ))}
-        </ul>
+        <p className="text-muted-foreground">{labels.emptyState}</p>
       )}
     </div>
   );

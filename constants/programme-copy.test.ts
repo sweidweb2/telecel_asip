@@ -22,6 +22,11 @@ describe("programmeCopyFor", () => {
     expect(fr.hero.primaryCta.slug).toBe("register-interest");
     expect(fr.hero.secondaryCta.slug).toBe("founders");
 
+    expect(en.audience.highlights.map((item) => item.id)).toEqual(
+      fr.audience.highlights.map((item) => item.id),
+    );
+    expect(en.audience.highlights).toHaveLength(3);
+
     expect(en.hero.title).toBe("Build the company, not just the pitch.");
     expect(fr.hero.title.length).toBeGreaterThan(0);
     expect(fr.hero.primaryCta.label.length).toBeGreaterThan(0);

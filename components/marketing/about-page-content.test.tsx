@@ -17,6 +17,8 @@ describe("AboutPageContent", () => {
         name: "Backing the builders shaping Africa’s next chapter.",
       }),
     ).toBeInTheDocument();
+    expect(screen.getAllByText("Knowledge").length).toBeGreaterThan(0);
+    expect(screen.getByText("Barcelona · 2019")).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "Explore the founders" }).length,
     ).toBeGreaterThan(0);

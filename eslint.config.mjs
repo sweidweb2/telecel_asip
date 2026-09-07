@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cursor / skill scripts are not app source
+    ".cursor/**",
+    ".github/skills/**",
   ]),
 ]);
 

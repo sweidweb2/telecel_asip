@@ -78,9 +78,69 @@ async function createConfirmedUser(
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
+    app_metadata: { app_role: "admin" },
   });
 
   if (error) throw error;
+
+  // Remote handle_new_user may ignore app_role; promote via an admin session.
+  await promoteUserToAdmin(email);
+}
+
+/**
+ * Promote a profile to admin using the seed admin session.
+ * service_role cannot change profiles.role (protect trigger requires is_admin()),
+ * and some remote DBs still insert viewer even when app_metadata.app_role is set.
+ */
+async function promoteUserToAdmin(email: string) {
+  if (!supabaseUrl || !anonKey) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required for admin promotion.",
+    );
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  });
+  if (error) throw error;
+
+  const user = data.users.find(
+    (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
+  );
+  if (!user) {
+    throw new Error(`User not found for admin promotion: ${email}`);
+  }
+
+  const seedEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
+  const seedPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+  const sessionClient = createClient(supabaseUrl, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { error: signInError } = await sessionClient.auth.signInWithPassword({
+    email: seedEmail,
+    password: seedPassword,
+  });
+  if (signInError) throw signInError;
+
+  const { error: updateError } = await sessionClient
+    .from("profiles")
+    .update({ role: "admin" })
+    .eq("id", user.id);
+  if (updateError) throw updateError;
+
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (profile?.role !== "admin") {
+    throw new Error(
+      `Expected promoted profile role admin, got ${profile?.role ?? "missing"}`,
+    );
+  }
 }
 
 async function deleteUserByEmail(email: string) {
@@ -145,7 +205,7 @@ test.describe("auth", () => {
             const text = await page
               .locator("[data-sonner-toast][data-type='error']")
               .textContent();
-            if (/email rate limit exceeded/i.test(text ?? "")) {
+            if (/email rate limit exceeded|too many attempts/i.test(text ?? "")) {
               return "rate-limited" as const;
             }
 
@@ -159,17 +219,21 @@ test.describe("auth", () => {
         } else {
           await createConfirmedUser(email, password, fullName);
         }
-
-        await page.goto("/en/login");
-        await page.getByLabel("Email").fill(email);
-        await page.getByLabel("Password").fill(password);
-        await page.getByRole("button", { name: "Sign in" }).click();
-        await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
       }
 
+      // Self-serve signups are viewers; promote so /dashboard is reachable.
+      await promoteUserToAdmin(email);
+
+      await page.context().clearCookies();
+      await page.goto("/en/login?next=%2Fdashboard");
+      await page.getByLabel("Email").fill(email);
+      await page.getByLabel("Password").fill(password);
+      await page.getByRole("button", { name: "Sign in" }).click();
+      await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 30_000 });
+
       await expect(
-        page.getByRole("heading", { name: /dashboard/i })
-      ).toBeVisible();
+        page.getByRole("heading", { name: "Dashboard", exact: true }),
+      ).toBeVisible({ timeout: 20_000 });
 
       await page.getByRole("button", { name: "Open account menu" }).click();
       await page.getByRole("menuitem", { name: /log out/i }).click();

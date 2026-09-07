@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import {
+  firstSearchParam,
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+
 export const STARTUP_PAGE_SIZE = 12;
 export const STARTUP_PUBLIC_PAGE_SIZE = 6;
 export const PORTFOLIO_SEARCH_MAX = 100;
@@ -107,6 +113,18 @@ export const startupDetailsSchema = z
     industry: optionalText(STARTUP_TEXT_SHORT_MAX),
     category: optionalText(STARTUP_TEXT_SHORT_MAX),
     location: optionalText(STARTUP_LOCATION_MAX),
+    cohort: optionalText(40),
+    countryCode: optionalText(2).refine(
+      (value) => !value || /^[A-Za-z]{2}$/.test(value),
+      "Country code must contain two letters",
+    ),
+    sector: optionalText(STARTUP_TEXT_SHORT_MAX),
+    founderNames: optionalText(500),
+    coverImageUrl: optionalUrl,
+    publicOutcome: optionalText(STARTUP_TEAM_MAX),
+    featured: z.boolean().optional().default(false),
+    imageFocalX: z.coerce.number().min(0).max(100).optional().default(50),
+    imageFocalY: z.coerce.number().min(0).max(100).optional().default(50),
     foundingYear: optionalFoundingYear,
     team: optionalText(STARTUP_TEAM_MAX),
     size: optionalText(STARTUP_SIZE_MAX),
@@ -197,67 +215,56 @@ export type StartupListQuery = z.infer<typeof startupListQueryInputSchema> & {
   pageSize: typeof STARTUP_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseStartupListQuery(
   input: RawSearchParams,
 ): StartupListQuery {
-  const parsed = startupListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    search: first(input.search) ?? "",
-    status: first(input.status) ?? "all",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: startupListQueryInputSchema,
     pageSize: STARTUP_PAGE_SIZE,
-  };
+    defaults: { page: "1", search: "", status: "all" },
+  });
 }
 
 export function parsePortfolioPageParam(
   value: string | string[] | undefined,
 ): number {
-  const raw = first(value) ?? "1";
+  const raw = firstSearchParam(value) ?? "1";
   const page = Number.parseInt(raw, 10);
   if (!Number.isFinite(page) || page < 1) return 1;
   return Math.min(page, 10_000);
 }
 
-/** Public portfolio `?year=YYYY` — returns the year or null when absent/invalid. */
-export function parsePortfolioYearParam(
+function parsePublicFilterParam(
   value: string | string[] | undefined,
+  max = 100,
 ): string | null {
-  const raw = first(value)?.trim();
-  if (!raw || !/^\d{4}$/.test(raw)) return null;
-  const year = Number(raw);
-  if (year < 1900 || year > 2100) return null;
-  return raw;
+  const raw = firstSearchParam(value)?.trim();
+  return raw ? raw.slice(0, max) : null;
 }
 
 /** Public founders `?q=` name search. Bounded so it cannot bloat cache keys. */
 export function parsePortfolioSearchParam(
   value: string | string[] | undefined,
 ): string {
-  return (first(value) ?? "").trim().slice(0, PORTFOLIO_SEARCH_MAX);
+  return (firstSearchParam(value) ?? "").trim().slice(0, PORTFOLIO_SEARCH_MAX);
 }
 
 /** Server-side filters for the public founders list. */
 export type ActiveStartupFilters = {
-  /** `null` means every year. */
-  year: string | null;
-  /** Empty string means no name filter. */
-  search: string;
+  cohort: string | null;
+  country: string | null;
+  sector: string | null;
+  query: string;
 };
 
 export function parseActiveStartupFilters(
   input: RawSearchParams,
 ): ActiveStartupFilters {
   return {
-    year: parsePortfolioYearParam(input.year),
-    search: parsePortfolioSearchParam(input.q),
+    cohort: parsePublicFilterParam(input.cohort, 40),
+    country: parsePublicFilterParam(input.country, 2)?.toUpperCase() ?? null,
+    sector: parsePublicFilterParam(input.sector),
+    query: parsePortfolioSearchParam(input.q),
   };
 }

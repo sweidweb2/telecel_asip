@@ -1,82 +1,110 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
-  HOME_HERO_POSTER_SRC,
-  HOME_HERO_VIDEO_SRC,
-} from "@/constants/home-copy";
+  HOME_HERO_CONTINUUM,
+  homeHeroContinuumAlt,
+} from "@/constants/home-hero-media";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import type { HomePageCopy } from "@/types/marketing-page";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
+import type { HomePageCopy } from "@/types/marketing-page";
 
 type HomeHeroProps = {
   locale: Locale;
   copy: HomePageCopy["hero"];
+  openApplications: boolean;
 };
 
-export function HomeHero({ locale, copy }: HomeHeroProps) {
+/**
+ * Home Module 01 — Founder Continuum.
+ * Full-bleed stills soft-crossfade behind a stable brand + headline + CTA lockup.
+ * CSS-only loop (RSC); reduced-motion freezes on the first still.
+ */
+export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
+  const intake = intakeCtaFor(locale, openApplications);
+  const primaryHref = publicPath(locale, copy.primaryCta.slug);
+  const continuumLabel = homeHeroContinuumAlt(locale, 0);
+
   return (
-    <section className="relative isolate flex min-h-[min(92svh,52rem)] items-center overflow-hidden bg-foreground">
+    <section
+      aria-label={continuumLabel}
+      className="relative isolate flex min-h-[calc(100svh-4.75rem)] items-end overflow-hidden bg-[#14333b] text-white md:min-h-[calc(100svh-5.5rem)]"
+    >
+      {/* Media plane — continuum loop */}
       <div className="absolute inset-0" aria-hidden>
-        <div className="home-hero-motion absolute -inset-[12%] bg-[radial-gradient(ellipse_at_20%_20%,var(--brand-mid)_0%,transparent_52%),radial-gradient(ellipse_at_80%_0%,var(--brand)_0%,transparent_48%),radial-gradient(ellipse_at_70%_80%,var(--brand-soft)_0%,transparent_46%)] opacity-70" />
-        {HOME_HERO_POSTER_SRC ? (
-          <Image
-            src={HOME_HERO_POSTER_SRC}
-            alt=""
-            fill
-            priority
-            className="object-cover md:hidden motion-reduce:md:block"
-            sizes="100vw"
-          />
-        ) : null}
-        {HOME_HERO_VIDEO_SRC ? (
-          <video
-            className="absolute inset-0 hidden size-full object-cover md:block motion-reduce:hidden"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={HOME_HERO_POSTER_SRC ?? undefined}
+        {HOME_HERO_CONTINUUM.map((slide, index) => (
+          <div
+            key={slide.src}
+            className={cn("home-hero-continuum-slide absolute inset-0")}
           >
-            <source src={HOME_HERO_VIDEO_SRC} type="video/mp4" />
-          </video>
-        ) : null}
-        <div className="absolute inset-0 bg-linear-to-t from-foreground via-foreground/75 to-foreground/35 sm:bg-linear-to-r sm:from-foreground sm:via-foreground/70 sm:to-foreground/25" />
+            <Image
+              src={slide.src}
+              alt=""
+              fill
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              loading={index === 0 ? "eager" : "lazy"}
+              className="object-cover"
+              style={{ objectPosition: slide.position ?? "center" }}
+              sizes="100vw"
+              quality={90}
+            />
+          </div>
+        ))}
+        <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(20,51,59,.97)_0%,rgba(20,51,59,.88)_36%,rgba(20,51,59,.45)_62%,rgba(20,51,59,.18)_82%,rgba(20,51,59,.08)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,51,59,.55)_0%,transparent_42%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
-        <p className="max-w-xl text-xs font-semibold uppercase tracking-[0.16em] text-brand-soft sm:text-sm">
-          {copy.eyebrow}
-        </p>
-        <h1 className="mt-4 max-w-3xl font-heading text-3xl font-semibold tracking-tight text-balance text-white sm:text-5xl lg:text-6xl">
+      <div
+        data-hero-copy
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-12 pb-28 sm:px-6 sm:pt-14 sm:pb-32 lg:px-8 lg:pt-16 lg:pb-36"
+      >
+        <div>
+          <p className="font-heading text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            {copy.brand}
+          </p>
+          <span
+            aria-hidden
+            className="home-hero-brand-rule mt-3 block h-0.5 w-14 bg-[#dc395f] sm:mt-4 sm:w-16"
+          />
+          <p className="mt-4 max-w-xl text-xs font-semibold tracking-[0.16em] text-[#9ad1bf] uppercase sm:text-sm">
+            {copy.eyebrow}
+          </p>
+        </div>
+
+        <h1 className="mt-5 max-w-4xl font-heading text-3xl font-semibold leading-[1.08] text-balance sm:mt-6 sm:text-5xl lg:text-6xl">
           {copy.title}
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-white/80 sm:mt-6 sm:text-lg sm:leading-8">
+
+        <p className="mt-5 max-w-xl border-l-2 border-[#dc395f] pl-4 text-base leading-7 text-white/80 sm:mt-6 sm:pl-5 sm:text-lg sm:leading-8">
           {copy.description}
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+
+        <div className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Link
-            href={publicPath(locale, copy.primaryCta.slug)}
+            href={primaryHref}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "min-h-11 w-full sm:w-auto",
+              "min-h-11 w-full rounded-full bg-[#dc395f] px-8 text-white hover:bg-[#f04b70] sm:w-auto",
             )}
           >
             {copy.primaryCta.label}
           </Link>
           <Link
-            href={publicPath(locale, copy.secondaryCta.slug)}
+            href={intake.href}
             className={cn(
               buttonVariants({ size: "lg", variant: "outline" }),
-              "min-h-11 w-full border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white sm:w-auto",
+              "min-h-11 w-full rounded-full border-white/55 bg-white/5 px-8 text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
             )}
           >
-            {copy.secondaryCta.label}
+            {intake.label}
           </Link>
         </div>
+
+        <span className="sr-only">{continuumLabel}</span>
       </div>
     </section>
   );

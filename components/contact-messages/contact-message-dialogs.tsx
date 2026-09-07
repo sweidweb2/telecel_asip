@@ -3,30 +3,27 @@
 import { useId, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
-import {
-  EyeIcon,
-  Loader2Icon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { EyeIcon, Loader2Icon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   deleteContactMessage,
   updateContactMessage,
+  updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailGrid,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
+import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
+import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
+import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,7 +36,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -53,9 +49,13 @@ import {
   CONTACT_ENQUIRY_TYPES,
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
+import { formatAdminDateTime } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import type { ContactMessage } from "@/types/contact-message";
 import {
   CONTACT_MESSAGE_BODY_MAX,
+  CONTACT_MESSAGE_BODY_MIN,
   CONTACT_MESSAGE_EMAIL_MAX,
   CONTACT_MESSAGE_FULL_NAME_MAX,
   CONTACT_MESSAGE_PHONE_MAX,
@@ -68,6 +68,9 @@ function FormFieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <FieldError>{message}</FieldError>;
 }
+
+const EDIT_DIALOG_CONTENT_CLASS =
+  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
   return {
@@ -83,21 +86,44 @@ function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
 
 export function ContactMessageRowActions({
   message,
+  viewOpen: controlledViewOpen,
+  onViewOpenChange,
 }: {
   message: ContactMessage;
+  viewOpen?: boolean;
+  onViewOpenChange?: (open: boolean) => void;
 }) {
   const editFormId = useId();
   const router = useRouter();
-  const [viewOpen, setViewOpen] = useState(false);
+  const [uncontrolledViewOpen, setUncontrolledViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
-  const [isDeleting, startDelete] = useTransition();
+  const isViewControlled = onViewOpenChange !== undefined;
+  const viewOpen = isViewControlled
+    ? Boolean(controlledViewOpen)
+    : uncontrolledViewOpen;
+  const setViewOpen = isViewControlled
+    ? onViewOpenChange!
+    : setUncontrolledViewOpen;
+  const { onViewOpenChange: markReviewedOnOpen } = useMarkInboxReviewed({
+    id: message.id,
+    inboxStatus: message.inbox_status,
+    updateAction: updateContactMessageInboxStatus,
+    isOpen: viewOpen,
+  });
+
+  function handleViewOpenChange(open: boolean) {
+    setViewOpen(open);
+    markReviewedOnOpen(open);
+  }
+
   const editDefaults = toEditDefaults(message);
   const form = useForm<UpdateContactMessageInput>({
     resolver: zodResolver(updateContactMessageSchema),
+    mode: "onChange",
     defaultValues: editDefaults,
   });
+  const { errors, isDirty } = form.formState;
   const enquiryType = useWatch({
     control: form.control,
     name: "enquiryType",
@@ -125,91 +151,79 @@ export function ContactMessageRowActions({
     });
   }
 
-  function onDelete() {
-    startDelete(async () => {
-      try {
-        const result = await deleteContactMessage({ id: message.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        setDeleteOpen(false);
-        router.refresh();
-      } catch {
-        toast.error("The message could not be deleted. Please try again.");
-      }
-    });
-  }
-
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
+      <Dialog open={viewOpen} onOpenChange={handleViewOpenChange}>
         <DialogTrigger
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`View ${message.subject}`}
             />
           }
         >
           <EyeIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="truncate pr-8">{message.subject}</DialogTitle>
-            <DialogDescription>Contact message details</DialogDescription>
+        <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+          <DialogHeader className="min-w-0 gap-3">
+            <div className="flex flex-wrap items-start gap-2 pr-8">
+              <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
+                {message.subject}
+              </DialogTitle>
+              <InboxStatusBadge status={message.inbox_status} />
+            </div>
+            <DialogDescription>
+              Contact · submitted {formatAdminDateTime(message.created_at)}
+            </DialogDescription>
           </DialogHeader>
-          <dl className="grid gap-3 text-sm">
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Enquiry route</dt>
-              <dd className="font-medium">
-                {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
-              </dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Name</dt>
-              <dd className="font-medium">{message.full_name}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Email</dt>
-              <dd className="break-all font-medium">{message.email}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Phone</dt>
-              <dd className="font-medium">{message.phone}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Message</dt>
-              <dd className="whitespace-pre-wrap font-medium">
-                {message.message}
-              </dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Submitted</dt>
-              <dd className="font-medium">
-                {format(new Date(message.created_at), "MMM d, yyyy HH:mm")}
-              </dd>
-            </div>
-          </dl>
+
+          <div className="grid min-w-0 gap-6">
+            <AdminDetailSection title="Sender">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Name">
+                  {message.full_name}
+                </AdminDetailRow>
+                <AdminDetailRow label="Route">
+                  <Badge variant="secondary" className="whitespace-nowrap">
+                    {CONTACT_ENQUIRY_ADMIN_LABELS[message.enquiry_type]}
+                  </Badge>
+                </AdminDetailRow>
+                <AdminDetailRow label="Email">{message.email}</AdminDetailRow>
+                <AdminDetailRow label="Phone">{message.phone}</AdminDetailRow>
+              </AdminDetailGrid>
+            </AdminDetailSection>
+
+            <AdminDetailSection title="Message">
+              <AdminDetailRow label="Body">{message.message}</AdminDetailRow>
+            </AdminDetailSection>
+          </div>
+
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
+
+      <AdminInboxArchiveButton
+        id={message.id}
+        inboxStatus={message.inbox_status}
+        updateAction={updateContactMessageInboxStatus}
+      />
 
       <Dialog open={editOpen} onOpenChange={handleEditOpen}>
         <DialogTrigger
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${message.subject}`}
             />
           }
         >
           <PencilIcon />
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
           <DialogHeader>
             <DialogTitle>Edit message</DialogTitle>
             <DialogDescription>
@@ -225,9 +239,12 @@ export function ContactMessageRowActions({
             <input type="hidden" {...form.register("id")} />
             <FieldGroup>
               <Field data-invalid={Boolean(form.formState.errors.enquiryType)}>
-                <Label htmlFor={`edit-enquiry-type-${message.id}`}>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-enquiry-type-${message.id}`}
+                  hint="Required"
+                >
                   Enquiry route
-                </Label>
+                </AdminFormFieldLabel>
                 <Select
                   value={enquiryType}
                   onValueChange={(value) => {
@@ -261,12 +278,18 @@ export function ContactMessageRowActions({
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                  <Label htmlFor={`edit-name-${message.id}`}>Full name</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-name-${message.id}`}
+                    hint={`2–${CONTACT_MESSAGE_FULL_NAME_MAX} chars`}
+                  >
+                    Full name
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-name-${message.id}`}
                     disabled={isUpdating}
                     maxLength={CONTACT_MESSAGE_FULL_NAME_MAX}
                     className="min-h-11"
+                    placeholder="e.g. Ama Mensah"
                     aria-invalid={Boolean(form.formState.errors.fullName)}
                     {...form.register("fullName")}
                   />
@@ -275,13 +298,19 @@ export function ContactMessageRowActions({
                   />
                 </Field>
                 <Field data-invalid={Boolean(form.formState.errors.phone)}>
-                  <Label htmlFor={`edit-phone-${message.id}`}>Phone</Label>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-phone-${message.id}`}
+                    hint={`7–${CONTACT_MESSAGE_PHONE_MAX} · +()- spaces`}
+                  >
+                    Phone
+                  </AdminFormFieldLabel>
                   <Input
                     id={`edit-phone-${message.id}`}
                     type="tel"
                     disabled={isUpdating}
                     maxLength={CONTACT_MESSAGE_PHONE_MAX}
                     className="min-h-11"
+                    placeholder="+233 20 000 0000"
                     aria-invalid={Boolean(form.formState.errors.phone)}
                     {...form.register("phone")}
                   />
@@ -291,13 +320,19 @@ export function ContactMessageRowActions({
                 </Field>
               </div>
               <Field data-invalid={Boolean(form.formState.errors.email)}>
-                <Label htmlFor={`edit-email-${message.id}`}>Email</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-email-${message.id}`}
+                  hint={`max ${CONTACT_MESSAGE_EMAIL_MAX}`}
+                >
+                  Email
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-email-${message.id}`}
                   type="email"
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_EMAIL_MAX}
                   className="min-h-11"
+                  placeholder="name@company.com"
                   aria-invalid={Boolean(form.formState.errors.email)}
                   {...form.register("email")}
                 />
@@ -306,12 +341,18 @@ export function ContactMessageRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.subject)}>
-                <Label htmlFor={`edit-subject-${message.id}`}>Subject</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-subject-${message.id}`}
+                  hint={`2–${CONTACT_MESSAGE_SUBJECT_MAX} chars`}
+                >
+                  Subject
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-subject-${message.id}`}
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_SUBJECT_MAX}
                   className="min-h-11"
+                  placeholder="e.g. Partnership enquiry"
                   aria-invalid={Boolean(form.formState.errors.subject)}
                   {...form.register("subject")}
                 />
@@ -320,13 +361,19 @@ export function ContactMessageRowActions({
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.message)}>
-                <Label htmlFor={`edit-message-${message.id}`}>Message</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-message-${message.id}`}
+                  hint={`${CONTACT_MESSAGE_BODY_MIN}–${CONTACT_MESSAGE_BODY_MAX} chars`}
+                >
+                  Message
+                </AdminFormFieldLabel>
                 <Textarea
                   id={`edit-message-${message.id}`}
                   rows={5}
                   disabled={isUpdating}
                   maxLength={CONTACT_MESSAGE_BODY_MAX}
                   className="min-h-32"
+                  placeholder="What they want to discuss…"
                   aria-invalid={Boolean(form.formState.errors.message)}
                   {...form.register("message")}
                 />
@@ -346,7 +393,15 @@ export function ContactMessageRowActions({
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
@@ -358,44 +413,19 @@ export function ContactMessageRowActions({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Delete ${message.subject}`}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle>Delete message?</AlertDialogTitle>
-            <AlertDialogDescription className="break-all">
-              This permanently deletes the message from {message.full_name} (
-              {message.email}). This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminRowDelete
+        deleteAction={() => deleteContactMessage({ id: message.id })}
+        fallbackError="The message could not be deleted. Please try again."
+        title="Delete message?"
+        description={
+          <>
+            This permanently deletes the message from {message.full_name} (
+            {message.email}). This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        triggerLabel={`Delete ${message.subject}`}
+      />
     </div>
   );
 }

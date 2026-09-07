@@ -1,4 +1,14 @@
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
+import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
+import {
+  fetchInboxTableStats,
+  type InboxTableStats,
+} from "@/data/inbox-stats";
 import type {
   ContactMessage,
   ContactMessageListResult,
@@ -6,7 +16,7 @@ import type {
 import type { ContactMessageListQuery } from "@/validations/contact-message";
 
 const MESSAGE_COLUMNS =
-  "id, enquiry_type, full_name, email, phone, subject, message, created_at" as const;
+  "id, enquiry_type, full_name, email, phone, subject, message, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -14,15 +24,16 @@ async function fetchContactMessages(
   supabase: ServerClient,
   query: ContactMessageListQuery,
 ): Promise<ContactMessageListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("contact_messages")
-    .select(MESSAGE_COLUMNS, { count: "exact" })
+    .select(MESSAGE_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
+
+  request = applyInboxStatusFilter(request, query.inboxStatus);
 
   if (query.enquiryType !== "all") {
     request = request.eq("enquiry_type", query.enquiryType);
@@ -41,7 +52,7 @@ async function fetchContactMessages(
   return {
     messages: (data ?? []) as ContactMessage[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -49,14 +60,16 @@ export async function getContactMessagesPageData(
   query: ContactMessageListQuery,
 ): Promise<
   | { status: "forbidden" }
-  | { status: "ok"; list: ContactMessageListResult }
+  | { status: "ok"; list: ContactMessageListResult; stats: InboxTableStats }
 > {
-  const supabase = await createClient();
-
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const list = await fetchContactMessages(supabase, query);
-  return { status: "ok", list };
+  return gateAdminPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
+        fetchContactMessages(supabase, query),
+        fetchInboxTableStats(supabase, "contact_messages"),
+      ]);
+      return { list, stats };
+    },
+    { name: "getContactMessagesPageData" },
+  );
 }

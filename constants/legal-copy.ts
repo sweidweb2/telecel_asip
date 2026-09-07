@@ -8,10 +8,9 @@ const en: LegalCopy = {
     eyebrow: "Legal",
     title: "Terms of Service",
     description:
-      "These placeholder terms describe how visitors may use the Africa Startup Initiative Program (ASIP) website and related services.",
-    lastUpdated: "Last updated: 26 August 2026 (draft)",
-    notice:
-      "Draft content only — replace with Telecel-approved Terms of Service before launch.",
+      "These terms describe how visitors may use the Africa Startup Initiative Program (ASIP) website and related services.",
+    lastUpdated: "Last updated: 3 September 2026",
+    notice: "",
     sections: [
       {
         title: "1. Acceptance of terms",
@@ -59,15 +58,14 @@ const en: LegalCopy = {
     eyebrow: "Legal",
     title: "Privacy Policy",
     description:
-      "This placeholder policy explains how ASIP may collect, use, and protect personal information when you use the website or related programme services.",
-    lastUpdated: "Last updated: 26 August 2026 (draft)",
-    notice:
-      "Draft content only — replace with Telecel-approved Privacy Policy before launch.",
+      "This policy explains how ASIP may collect, use, and protect personal information when you use the website or related programme services.",
+    lastUpdated: "Last updated: 3 September 2026",
+    notice: "",
     sections: [
       {
         title: "1. Who we are",
         paragraphs: [
-          "ASIP is operated as part of Telecel Group’s programmes. This draft policy describes privacy practices for the public website, interest registrations, and related contact forms.",
+          "ASIP is operated as part of Telecel Group’s programmes. This policy describes privacy practices for the public website, interest registrations, and related contact forms.",
         ],
       },
       {
@@ -121,10 +119,9 @@ const fr: LegalCopy = {
     eyebrow: "Mentions légales",
     title: "Conditions d’utilisation",
     description:
-      "Ces conditions provisoires décrivent comment les visiteurs peuvent utiliser le site du Programme africain d’initiative pour les startups (ASIP) et les services associés.",
-    lastUpdated: "Dernière mise à jour : 26 août 2026 (brouillon)",
-    notice:
-      "Contenu provisoire — à remplacer par les Conditions d’utilisation approuvées par Telecel avant le lancement.",
+      "Ces conditions décrivent comment les visiteurs peuvent utiliser le site du Programme africain d’initiative pour les startups (ASIP) et les services associés.",
+    lastUpdated: "Dernière mise à jour : 3 septembre 2026",
+    notice: "",
     sections: [
       {
         title: "1. Acceptation des conditions",
@@ -172,15 +169,14 @@ const fr: LegalCopy = {
     eyebrow: "Mentions légales",
     title: "Politique de confidentialité",
     description:
-      "Cette politique provisoire explique comment ASIP peut collecter, utiliser et protéger les données personnelles lorsque vous utilisez le site ou les services du programme.",
-    lastUpdated: "Dernière mise à jour : 26 août 2026 (brouillon)",
-    notice:
-      "Contenu provisoire — à remplacer par la Politique de confidentialité approuvée par Telecel avant le lancement.",
+      "Cette politique explique comment ASIP peut collecter, utiliser et protéger les données personnelles lorsque vous utilisez le site ou les services du programme.",
+    lastUpdated: "Dernière mise à jour : 3 septembre 2026",
+    notice: "",
     sections: [
       {
         title: "1. Qui nous sommes",
         paragraphs: [
-          "ASIP est opéré dans le cadre des programmes du Groupe Telecel. Cette politique provisoire décrit les pratiques de confidentialité du site public, des manifestations d’intérêt et des formulaires de contact associés.",
+          "ASIP est opéré dans le cadre des programmes du Groupe Telecel. Cette politique décrit les pratiques de confidentialité du site public, des manifestations d’intérêt et des formulaires de contact associés.",
         ],
       },
       {

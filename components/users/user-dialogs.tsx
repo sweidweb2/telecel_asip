@@ -3,7 +3,6 @@
 import { useId, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import { useRouter } from "nextjs-toploader/app";
 import {
   EyeIcon,
@@ -15,6 +14,8 @@ import {
 import { toast } from "sonner";
 
 import { createUser, deleteUser, updateUser } from "@/actions/users";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
+import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -39,6 +40,9 @@ import {
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatAdminDate } from "@/lib/admin-format";
+import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { cn } from "@/lib/utils";
 import type { Profile } from "@/types/profile";
 import {
   createUserSchema,
@@ -82,6 +86,7 @@ export function CreateUserDialog() {
   const [isPending, startTransition] = useTransition();
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
+    mode: "onChange",
     defaultValues: {
       fullName: "",
       email: "",
@@ -89,6 +94,7 @@ export function CreateUserDialog() {
       role: USER_FORM_ROLE,
     },
   });
+  const { errors, isDirty } = form.formState;
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -146,32 +152,49 @@ export function CreateUserDialog() {
           <input type="hidden" {...form.register("role")} />
           <FieldGroup>
             <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-              <Label htmlFor="create-full-name">Full name</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-full-name"
+                hint={`2–${USER_FULL_NAME_MAX} chars`}
+              >
+                Full name
+              </AdminFormFieldLabel>
               <Input
                 id="create-full-name"
                 autoComplete="name"
                 disabled={isPending}
                 maxLength={USER_FULL_NAME_MAX}
+                placeholder="e.g. Ama Mensah"
                 aria-invalid={Boolean(form.formState.errors.fullName)}
                 {...form.register("fullName")}
               />
               <FormFieldError message={form.formState.errors.fullName?.message} />
             </Field>
             <Field data-invalid={Boolean(form.formState.errors.email)}>
-              <Label htmlFor="create-email">Email</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-email"
+                hint={`max ${USER_EMAIL_MAX}`}
+              >
+                Email
+              </AdminFormFieldLabel>
               <Input
                 id="create-email"
                 type="email"
                 autoComplete="email"
                 disabled={isPending}
                 maxLength={USER_EMAIL_MAX}
+                placeholder="name@company.com"
                 aria-invalid={Boolean(form.formState.errors.email)}
                 {...form.register("email")}
               />
               <FormFieldError message={form.formState.errors.email?.message} />
             </Field>
             <Field data-invalid={Boolean(form.formState.errors.password)}>
-              <Label htmlFor="create-password">Temporary password</Label>
+              <AdminFormFieldLabel
+                htmlFor="create-password"
+                hint={`max ${USER_PASSWORD_MAX}`}
+              >
+                Temporary password
+              </AdminFormFieldLabel>
               <Input
                 id="create-password"
                 type="password"
@@ -199,7 +222,11 @@ export function CreateUserDialog() {
           >
             Cancel
           </Button>
-          <Button type="submit" form={formId} disabled={isPending}>
+          <Button
+            type="submit"
+            form={formId}
+            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
+          >
             {isPending ? (
               <Loader2Icon className="animate-spin" />
             ) : (
@@ -213,14 +240,27 @@ export function CreateUserDialog() {
   );
 }
 
-export function UserRowActions({ user }: { user: Profile }) {
+export function UserRowActions({
+  user,
+  editOpen,
+  onEditOpenChange,
+}: {
+  user: Profile;
+  /** Optional controlled edit dialog (e.g. open from row click). */
+  editOpen?: boolean;
+  onEditOpenChange?: (open: boolean) => void;
+}) {
   const editFormId = useId();
   const router = useRouter();
   const [viewOpen, setViewOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [uncontrolledEditOpen, setUncontrolledEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
   const [isDeleting, startDelete] = useTransition();
+  const isEditControlled = onEditOpenChange !== undefined;
+  const editOpenState = isEditControlled
+    ? Boolean(editOpen)
+    : uncontrolledEditOpen;
   const editDefaults: UpdateUserInput = {
     id: user.id,
     fullName: user.full_name ?? "",
@@ -229,11 +269,17 @@ export function UserRowActions({ user }: { user: Profile }) {
   };
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
+    mode: "onChange",
     defaultValues: editDefaults,
   });
+  const { errors, isDirty } = form.formState;
 
   function handleEditOpen(next: boolean) {
-    setEditOpen(next);
+    if (isEditControlled) {
+      onEditOpenChange?.(next);
+    } else {
+      setUncontrolledEditOpen(next);
+    }
     if (next) form.reset(editDefaults);
   }
 
@@ -246,7 +292,7 @@ export function UserRowActions({ user }: { user: Profile }) {
           return;
         }
         toast.success(result.message);
-        setEditOpen(false);
+        handleEditOpen(false);
         router.refresh();
       } catch {
         toast.error("The user could not be updated. Please try again.");
@@ -278,7 +324,8 @@ export function UserRowActions({ user }: { user: Profile }) {
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`View ${user.email}`}
             />
           }
@@ -311,13 +358,13 @@ export function UserRowActions({ user }: { user: Profile }) {
               <div className="grid gap-1">
                 <dt className="text-muted-foreground">Created</dt>
                 <dd className="font-medium">
-                  {format(new Date(user.created_at), "MMM d, yyyy")}
+                  {formatAdminDate(user.created_at)}
                 </dd>
               </div>
               <div className="grid gap-1">
                 <dt className="text-muted-foreground">Updated</dt>
                 <dd className="font-medium">
-                  {format(new Date(user.updated_at), "MMM d, yyyy")}
+                  {formatAdminDate(user.updated_at)}
                 </dd>
               </div>
             </div>
@@ -326,12 +373,13 @@ export function UserRowActions({ user }: { user: Profile }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={editOpen} onOpenChange={handleEditOpen}>
+      <Dialog open={editOpenState} onOpenChange={handleEditOpen}>
         <DialogTrigger
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
+              className={ADMIN_ICON_BUTTON_CLASS}
               aria-label={`Edit ${user.email}`}
             />
           }
@@ -355,11 +403,17 @@ export function UserRowActions({ user }: { user: Profile }) {
             <input type="hidden" {...form.register("role")} />
             <FieldGroup>
               <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                <Label htmlFor={`edit-name-${user.id}`}>Full name</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-name-${user.id}`}
+                  hint={`2–${USER_FULL_NAME_MAX} chars`}
+                >
+                  Full name
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-name-${user.id}`}
                   disabled={isUpdating}
                   maxLength={USER_FULL_NAME_MAX}
+                  placeholder="e.g. Ama Mensah"
                   aria-invalid={Boolean(form.formState.errors.fullName)}
                   {...form.register("fullName")}
                 />
@@ -368,12 +422,18 @@ export function UserRowActions({ user }: { user: Profile }) {
                 />
               </Field>
               <Field data-invalid={Boolean(form.formState.errors.email)}>
-                <Label htmlFor={`edit-email-${user.id}`}>Email</Label>
+                <AdminFormFieldLabel
+                  htmlFor={`edit-email-${user.id}`}
+                  hint={`max ${USER_EMAIL_MAX}`}
+                >
+                  Email
+                </AdminFormFieldLabel>
                 <Input
                   id={`edit-email-${user.id}`}
                   type="email"
                   disabled={isUpdating}
                   maxLength={USER_EMAIL_MAX}
+                  placeholder="name@company.com"
                   aria-invalid={Boolean(form.formState.errors.email)}
                   {...form.register("email")}
                 />
@@ -389,12 +449,20 @@ export function UserRowActions({ user }: { user: Profile }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setEditOpen(false)}
+              onClick={() => handleEditOpen(false)}
               disabled={isUpdating}
             >
               Cancel
             </Button>
-            <Button type="submit" form={editFormId} disabled={isUpdating}>
+            <Button
+              type="submit"
+              form={editFormId}
+              disabled={isAdminFormSubmitDisabled({
+                isPending: isUpdating,
+                isDirty,
+                errors,
+              })}
+            >
               {isUpdating ? (
                 <Loader2Icon className="animate-spin" />
               ) : (
@@ -411,8 +479,11 @@ export function UserRowActions({ user }: { user: Profile }) {
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              size="icon"
+              className={cn(
+                ADMIN_ICON_BUTTON_CLASS,
+                "text-destructive hover:bg-destructive/10 hover:text-destructive",
+              )}
               aria-label={`Delete ${user.email}`}
             />
           }

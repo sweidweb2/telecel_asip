@@ -4,10 +4,12 @@ import type { PartnersPageCopy } from "@/types/marketing-page";
 const en: PartnersPageCopy = {
   hero: {
     eyebrow: "Partners & mentors",
-    title: "Back the builders. Open the right doors.",
+    titleLead: "The right connection can change a company’s",
+    titleAccent: "trajectory.",
     description:
       "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organisations to connect founders with practical expertise, capital, customers and markets.",
     cta: { slug: "contact", label: "Discuss a partnership" },
+    proof: ["Investors", "Corporates", "Technology partners", "Mentors"],
   },
   proposition: {
     title: "Bring an opportunity to the ecosystem.",
@@ -15,6 +17,9 @@ const en: PartnersPageCopy = {
       "Tell us the market, sector or challenge you want to address. ASIP can help identify relevant founders, shape the right engagement route and connect the people needed to move from conversation to practical opportunity.",
   },
   types: {
+    title: "Ways to work with founders.",
+    description:
+      "Six engagement routes. Choose the one that matches the opportunity you can bring.",
     columns: {
       type: "Partner type",
       value: "Value to the ecosystem",
@@ -84,10 +89,17 @@ const en: PartnersPageCopy = {
 const fr: PartnersPageCopy = {
   hero: {
     eyebrow: "Partenaires et mentors",
-    title: "Soutenez les bâtisseurs. Ouvrez les bonnes portes.",
+    titleLead: "La bonne connexion peut changer la",
+    titleAccent: "trajectoire d’une entreprise.",
     description:
       "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour relier les fondateurs à une expertise concrète, du capital, des clients et des marchés.",
     cta: { slug: "contact", label: "Discuter d’un partenariat" },
+    proof: [
+      "Investisseurs",
+      "Entreprises",
+      "Partenaires technologiques",
+      "Mentors",
+    ],
   },
   proposition: {
     title: "Apportez une opportunité à l’écosystème.",
@@ -95,6 +107,9 @@ const fr: PartnersPageCopy = {
       "Indiquez le marché, le secteur ou le défi que vous souhaitez adresser. ASIP peut aider à identifier les fondateurs pertinents, façonner le bon format d’engagement et réunir les personnes nécessaires pour passer de la conversation à une opportunité concrète.",
   },
   types: {
+    title: "Des façons de travailler avec les fondateurs.",
+    description:
+      "Six formats d’engagement. Choisissez celui qui correspond à l’opportunité que vous pouvez apporter.",
     columns: {
       type: "Type de partenaire",
       value: "Valeur pour l’écosystème",

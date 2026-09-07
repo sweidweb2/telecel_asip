@@ -1,0 +1,212 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => ({
+    get: (name: string) => (name === "x-forwarded-for" ? "127.0.0.1" : null),
+  })),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+}));
+
+vi.mock("@/lib/i18n/request-locale", () => ({
+  getRequestLocale: vi.fn(async () => "en" as const),
+}));
+
+vi.mock("@/lib/turnstile", () => ({
+  verifyTurnstileToken: vi.fn(),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  isRateLimited: vi.fn(() => false),
+  recordRateLimitHit: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/authorize-admin", () => ({
+  authorizeAdmin: vi.fn(),
+}));
+
+const insertMock = vi.fn();
+const updateEqMock = vi.fn();
+const deleteEqMock = vi.fn();
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: vi.fn(() => ({
+    from: vi.fn(() => ({
+      insert: insertMock,
+    })),
+  })),
+}));
+
+import {
+  deleteInterestRegistration,
+  submitInterestRegistration,
+  updateInterestRegistration,
+  updateInterestRegistrationInboxStatus,
+} from "@/actions/interest-registrations";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+
+const validSubmit = {
+  fullName: "Ada Lovelace",
+  founderRole: "Founder & CEO",
+  email: "ada@example.com",
+  phone: "+233 20 123 4567",
+  country: "Ghana",
+  linkedin: "",
+  companyName: "Analytical Engines",
+  website: "",
+  companyCountry: "Ghana",
+  sector: "Fintech",
+  pitch: "",
+  commsOptIn: false,
+  consent: true as const,
+  turnstileToken: "test-turnstile-token",
+};
+
+const regId = "22222222-2222-4222-8222-222222222222";
+
+function mockSessionSupabase() {
+  const maybeSingle = vi.fn();
+  const select = vi.fn(() => ({ maybeSingle }));
+  updateEqMock.mockReturnValue({ select });
+  deleteEqMock.mockReturnValue({ select });
+  return {
+    from: vi.fn(() => ({
+      update: vi.fn(() => ({ eq: updateEqMock })),
+      delete: vi.fn(() => ({ eq: deleteEqMock })),
+    })),
+    maybeSingle,
+  };
+}
+
+describe("submitInterestRegistration", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    insertMock.mockResolvedValue({ error: null });
+    vi.mocked(isRateLimited).mockReturnValue(false);
+  });
+
+  it("rejects invalid payloads before Turnstile", async () => {
+    const result = await submitInterestRegistration({
+      ...validSubmit,
+      email: "not-an-email",
+    });
+
+    expect(result.status).toBe("error");
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+  });
+
+  it("rejects when Turnstile fails", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(false);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Security check failed. Please try again.",
+    });
+  });
+
+  it("rejects when rate limited", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
+    vi.mocked(isRateLimited).mockReturnValue(true);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Too many submissions. Please wait and try again later.",
+    });
+  });
+
+  it("inserts on success", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result.status).toBe("success");
+    expect(insertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "ada@example.com",
+        company_name: "Analytical Engines",
+        linkedin: null,
+        website: null,
+      }),
+    );
+    expect(recordRateLimitHit).toHaveBeenCalled();
+  });
+});
+
+describe("interest registration admin mutations", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns unauthorized when authorizeAdmin fails", async () => {
+    vi.mocked(authorizeAdmin).mockResolvedValue({
+      status: "error",
+      message: "You do not have permission to manage registrations.",
+    });
+
+    const result = await updateInterestRegistration({
+      id: regId,
+      fullName: validSubmit.fullName,
+      founderRole: validSubmit.founderRole,
+      email: validSubmit.email,
+      phone: validSubmit.phone,
+      country: validSubmit.country,
+      linkedin: "",
+      companyName: validSubmit.companyName,
+      website: "",
+      companyCountry: validSubmit.companyCountry,
+      sector: validSubmit.sector,
+      pitch: "",
+      commsOptIn: false,
+    });
+
+    expect(result).toEqual({
+      status: "error",
+      message: "You do not have permission to manage registrations.",
+    });
+  });
+
+  it("updates and deletes successfully", async () => {
+    const supabase = mockSessionSupabase();
+    supabase.maybeSingle.mockResolvedValue({ data: { id: regId }, error: null });
+    vi.mocked(authorizeAdmin).mockResolvedValue({
+      status: "success",
+      userId: "admin-1",
+      supabase: supabase as never,
+    });
+
+    const updateResult = await updateInterestRegistration({
+      id: regId,
+      fullName: validSubmit.fullName,
+      founderRole: validSubmit.founderRole,
+      email: validSubmit.email,
+      phone: validSubmit.phone,
+      country: validSubmit.country,
+      linkedin: "",
+      companyName: validSubmit.companyName,
+      website: "",
+      companyCountry: validSubmit.companyCountry,
+      sector: validSubmit.sector,
+      pitch: "",
+      commsOptIn: false,
+    });
+    expect(updateResult.status).toBe("success");
+
+    const deleteResult = await deleteInterestRegistration({ id: regId });
+    expect(deleteResult.status).toBe("success");
+
+    const inboxResult = await updateInterestRegistrationInboxStatus({
+      id: regId,
+      inboxStatus: "archived",
+    });
+    expect(inboxResult.status).toBe("success");
+  });
+});

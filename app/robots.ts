@@ -18,6 +18,8 @@ export default function robots(): MetadataRoute.Robots {
         "/en/signup",
         "/fr/login",
         "/fr/signup",
+        "/en/lab",
+        "/fr/lab",
       ],
     },
     sitemap: absoluteUrl("/sitemap.xml"),

@@ -36,6 +36,36 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 ---
 
+### `public.get_admin_shell()`
+
+| | |
+| --- | --- |
+| **Role** | RPC (dashboard layout chrome) |
+| **Returns** | One row: `is_admin` (boolean), `full_name` (text), `email` (text) |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** One round-trip for dashboard layout — admin gate + display name/email — instead of separate `is_admin()` and `profiles` selects.
+
+**How it works:** Selects `public.is_admin()` plus a `LEFT JOIN` on `profiles` for `auth.uid()`. Always returns a row; missing session/profile yields `is_admin = false` and null name/email so the layout can redirect. Added `20260905221000`.
+
+---
+
+### `public.get_admin_analytics()`
+
+| | |
+| --- | --- |
+| **Role** | RPC (CMS Analytics page) |
+| **Returns** | `jsonb` snapshot: `applications` / `registrations` / `contactMessages` inbox counts + `content` publish/status counts |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, admin-only |
+| **Granted to** | `authenticated` (raises `42501` for non-admins) |
+
+**Details:** Replaces ~32 exact head-count PostgREST queries on the Analytics page with one RPC.
+
+**How it works:** Raises `42501` unless `is_admin()`. Builds one `jsonb` with inbox totals/status/7d/30d windows (UTC `now() - interval`) and content counts matching prior TS filters (blog `status`, startup `active`, partner `is_active`, cohort/event/story `publish_status`, impact `verified`). Labels/hrefs stay in the app data layer. Added `20260905221100`.
+
+---
+
 ### `public.handle_new_user()`
 
 | | |
@@ -121,6 +151,10 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 ---
 
 ## Tables without functions / triggers
+
+### `public.admin_perf_events`
+
+No RPCs, functions, or triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the `/dashboard/performance` reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
 
 ### `public.interest_registrations`
 
@@ -222,7 +256,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Unfeatures the current hero post and inserts the new post in a single transaction, so a failed insert can no longer leave the site with zero featured posts.
+**Details:** Unfeatures the current hero post and inserts the new post in a single transaction, so a failed insert can no longer leave the site with zero featured posts. Also persists optional Article fields: `startup_id`, `cohort_id`, `sources`, `meta_title`, `meta_description` (from `p_blog` JSON; empty strings → null / empty array).
 
 **How it works:** Raises `42501` unless `is_admin()`. Forces `is_featured = false` when `status = 'draft'`. When the new row is featured, clears `is_featured` on all other rows first — `blogs_one_featured_uidx` is a non-deferrable partial unique index, so the old hero must go before the new one lands. Stamps `published_at = now()` when published. Unique slug violations surface as Postgres `23505`.
 
@@ -235,7 +269,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Same transactional unfeature-then-write as create; returns the previous slug so callers can revalidate renamed public paths.
+**Details:** Same transactional unfeature-then-write as create; returns the previous slug so callers can revalidate renamed public paths. Persists the same optional Article fields as create (`startup_id`, `cohort_id`, `sources`, `meta_title`, `meta_description`).
 
 **How it works:** Raises `42501` unless `is_admin()`. Locks the row (`FOR UPDATE`); raises `P0002` if missing. Drafts are forced unfeatured. Clears `is_featured` on every other row when this one is featured, then updates. `published_at` keeps its original value once set and is only stamped on the first publish.
 
@@ -278,6 +312,21 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 ---
 
+### `public.get_active_startup_filter_options()`
+
+| | |
+| --- | --- |
+| **Role** | Distinct cohort / country / sector lists for the public founders filters |
+| **Returns** | `jsonb` `{ cohorts: string[], countries: string[], sectors: string[] }` |
+| **Security** | `sql`, `stable`, **`security invoker`**, `search_path = public` |
+| **Grants** | `execute` to `anon`, `authenticated` |
+
+**Details:** Replaces selecting every `startups_public` row's filter columns and uniquifying in JS (`data/startups.ts` → `getActiveStartupFilterOptions`).
+
+**How it works:** Three `distinct` subqueries over `public.startups_public` (non-empty `cohort`, `country_code`, `sector`), each aggregated with `jsonb_agg(... order by value)` into a single `jsonb_build_object`. Invoker + the view's grants keep the public surface unchanged.
+
+---
+
 ### `public.blog_categories_within_bounds(categories text[])`
 
 | | |
@@ -292,6 +341,240 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 ---
 
+### `public.blog_sources_within_bounds(sources text[])`
+
+| | |
+| --- | --- |
+| **Role** | CHECK constraint helper for `public.blogs.sources` |
+| **Returns** | `boolean` |
+| **Security** | Plain `sql`, `immutable` |
+
+**Details:** Backs `blogs_sources_bounds_chk`. Exists because a CHECK constraint cannot contain a subquery, and per-element bounds on a `text[]` need `unnest`.
+
+**How it works:** Returns true when `cardinality(sources) <= 20` and every trimmed item is between 1 and 500 characters (empty array allowed). Mirrors `BLOG_SOURCES_MAX` / `BLOG_SOURCE_MAX` in `validations/blog.ts`.
+
+---
+
 ### `public.startup_details`
 
 No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK/FK, `ON DELETE CASCADE`). Public SELECT only when the parent startup `status = active`. Admins CRUD via `is_admin()`.
+
+---
+
+### `public.partners`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_partners_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.partners_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.partners` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_partners_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — `partners` is a single flat table, so `actions/partners.ts` uses plain INSERT/UPDATE/DELETE. Every row is readable by anon/authenticated; admins CRUD via `is_admin()`. Logos live in Storage bucket `partners`.
+
+`logo_permission` is a column-level gate that RLS cannot express, so `data/partners.ts` nulls `logo_url` before returning public rows.
+
+---
+
+### `public.cohorts`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_cohorts_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.cohorts_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.cohorts` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_cohorts_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; admins CRUD via `is_admin()`. Junction tables `cohort_partners` and `cohort_startups` cascade on delete. Prefer the write RPCs below so links stay in the same transaction as the cohort row. Reuses shared `cms_publish_status` when already created by another CMS migration.
+
+### `public.create_cohort_with_links(p_cohort jsonb, p_partner_ids uuid[], p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin cohort create) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Inserts a `cohorts` row and partner/startup junction rows in one transaction.
+
+**How it works:** Raises `42501` unless `is_admin()`. Inserts core fields from `p_cohort` (null-safe dates/text), then inserts each id from `p_partner_ids` / `p_startup_ids`. Unique `(year, public_label)` violations surface as Postgres `23505`.
+
+### `public.update_cohort_with_links(p_id uuid, p_cohort jsonb, p_partner_ids uuid[], p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin cohort update) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Updates the cohort and fully replaces both junction sets atomically.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `cohorts`, deletes existing junction rows for `p_id`, then re-inserts from the uuid arrays.
+
+---
+
+### `public.events`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_events_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.events_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.events` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_events_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. Prefer the write RPCs below so `event_startups` stays in the same transaction as the event row. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Assets are URL strings only (no Storage bucket in Phase 5).
+
+### `public.create_event_with_links(p_event jsonb, p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin event create) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Inserts an `events` row and `event_startups` junction rows in one transaction.
+
+**How it works:** Raises `42501` unless `is_admin()`. Inserts core fields from `p_event` (null-safe location/outcomes/format; speakers/assets as jsonb string arrays), then inserts each id from `p_startup_ids`.
+
+### `public.update_event_with_links(p_id uuid, p_event jsonb, p_startup_ids uuid[])`
+
+| | |
+| --- | --- |
+| **Role** | RPC (admin event update) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Updates the event and fully replaces startup links atomically.
+
+**How it works:** Raises `42501` unless `is_admin()`. Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `events`, deletes existing `event_startups` for `p_id`, then re-inserts from the uuid array.
+
+---
+
+### `public.event_startups`
+
+No triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to both parents. Public SELECT only when the related event is published. Admins write via the event link RPCs (or direct `is_admin()` policies).
+
+---
+
+### `public.founder_stories`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_founder_stories_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.founder_stories_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.founder_stories` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_founder_stories_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — flat table with a unique `startup_id` FK, so `actions/founder-stories.ts` uses plain INSERT/UPDATE/DELETE. Published rows are readable by anon/authenticated; admins CRUD via `is_admin()`. Quote permission for public rendering is an app-layer gate (Phase 6), not RLS.
+
+### `public.evidence_records`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_evidence_records_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.evidence_records_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.evidence_records` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_evidence_records_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — admin CRUD via `actions/evidence-records.ts` and `is_admin()` RLS. Governance-only: no anon grants. Live metrics (Phase 2+) must only reference rows with `status = verified`.
+
+### `public.impact_metrics`
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.set_impact_metrics_updated_at` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Sets `updated_at = now()` on every UPDATE |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.impact_metrics_set_updated_at` |
+| **Kind** | Trigger |
+| **Table** | `public.impact_metrics` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.set_impact_metrics_updated_at()` |
+
+**How it works:** Keeps `updated_at` current. No write RPCs — admin CRUD via `actions/impact-metrics.ts` and `is_admin()` RLS. Admin-only until Phase 6 (no anon grants). `publish_status` reuses `evidence_status`; only `verified` may render on the live site.
+
+---
+
+## Backup cron (ops)
+
+Automated full-DB export is **not** a Postgres function. Hosted Supabase should enable `pg_cron` + `pg_net`, then schedule an **hourly** HTTP POST to the Next.js tick route. The app reads `site_settings.backup_time` (Asia/Beirut cadence) and decides whether to run.
+
+### Schedule (hourly)
+
+Run in the Supabase SQL editor after enabling extensions (Dashboard → Database → Extensions: `pg_cron`, `pg_net`):
+
+```sql
+-- Remove the old weekly job if it exists:
+select cron.unschedule('asip-weekly-backup')
+where exists (
+  select 1 from cron.job where jobname = 'asip-weekly-backup'
+);
+
+-- Hourly tick (replace URL + secret):
+select cron.schedule(
+  'asip-backup-tick',
+  '0 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://YOUR_PRODUCTION_HOST/api/cron/backup',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer YOUR_BACKUP_CRON_SECRET'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+
+**How it works:** `pg_cron` fires every hour; `pg_net` POSTs to `/api/cron/backup` with `Authorization: Bearer ${BACKUP_CRON_SECRET}` only (query-string secrets are rejected). The Node route clears stuck `pending`/`processing` rows older than 20 minutes, then loads `backup_time` via the service role (uncached). If the schedule is due in Asia/Beirut, not overlapping another job, and the schedule window has fewer than 3 failures with no success yet, it inserts one `backups` row (`scope = automated`) and exports to private R2. A partial unique index (`backups_one_in_flight_uidx`) enforces at most one in-flight row. One attempt per tick; up to 3 failures per window across hourly ticks; each failure stays visible in history. Retention: keep months M and M-1 fully; for month M-2 keep nearest-to-start/mid/end (max 3); delete older months.
+
+**Related:** `site_settings.backup_time` (`backup_schedule` enum), `backups.schedule_window` — migration `20260906220000_backup_schedule_settings.sql`.

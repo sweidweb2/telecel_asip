@@ -14,6 +14,7 @@ export const PUBLIC_PAGE_SLUGS = [
   "faq",
   "terms",
   "privacy",
+  "lab",
 ] as const;
 
 export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
@@ -21,16 +22,10 @@ export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
 export const PUBLIC_PAGE_SLUG_SET = new Set<string>(PUBLIC_PAGE_SLUGS);
 
 /**
- * Slugs kept out of the sitemap and search index.
- * `alumni` and `apply` are built and routable, but stay unlisted until the
- * Alumni Network operating model / launch and a cohort's Apply state are
- * formally approved.
+ * Always in the sitemap. `/apply` is added separately when
+ * `site_settings.open_applications` is true (see `app/sitemap.ts`).
+ * `/lab` is a temporary section playground — keep out of the sitemap.
  */
-export const UNLISTED_PAGE_SLUGS = new Set<PublicPageSlug>([
-  "alumni",
-  "apply",
-]);
-
 export const INDEXABLE_PAGE_SLUGS = PUBLIC_PAGE_SLUGS.filter(
-  (slug) => !UNLISTED_PAGE_SLUGS.has(slug),
+  (slug) => slug !== "apply" && slug !== "lab",
 );

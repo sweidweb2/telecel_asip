@@ -29,6 +29,7 @@ const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "impact", label: "Impact" },
   { slug: "partners", label: "Partners" },
   { slug: "insights", label: "Insights" },
+  { slug: "lab", label: "Lab" },
 ];
 
 export function enNavLabels(openApplications = false): SiteNavLabels {
@@ -58,6 +59,7 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
   { slug: "impact", label: "Impact" },
   { slug: "partners", label: "Partenaires" },
   { slug: "insights", label: "Perspectives" },
+  { slug: "lab", label: "Lab" },
 ];
 
 export function frNavLabels(openApplications = false): SiteNavLabels {

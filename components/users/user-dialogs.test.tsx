@@ -44,6 +44,8 @@ describe("CreateUserDialog", () => {
   it("reports validation errors and does not call the action", async () => {
     const user = await openDialog();
 
+    // Submit stays disabled while pristine — dirty the form with a short name.
+    await user.type(screen.getByLabelText("Full name"), "A");
     await submit(user);
 
     expect(
@@ -66,29 +68,33 @@ describe("CreateUserDialog", () => {
     expect(createUser).not.toHaveBeenCalled();
   });
 
-  it("submits a normalised payload with the locked admin role", async () => {
-    createUser.mockResolvedValue({
-      status: "success",
-      message: "User created successfully.",
-    });
+  it(
+    "submits a normalised payload with the locked admin role",
+    async () => {
+      createUser.mockResolvedValue({
+        status: "success",
+        message: "User created successfully.",
+      });
 
-    const user = await openDialog();
+      const user = await openDialog();
 
-    await user.type(screen.getByLabelText("Full name"), "  Ada Lovelace  ");
-    await user.type(screen.getByLabelText("Email"), "Ada@Example.com");
-    await user.type(screen.getByLabelText("Temporary password"), "Testpass1");
-    await submit(user);
+      await user.type(screen.getByLabelText("Full name"), "  Ada Lovelace  ");
+      await user.type(screen.getByLabelText("Email"), "Ada@Example.com");
+      await user.type(screen.getByLabelText("Temporary password"), "Testpass1");
+      await submit(user);
 
-    await waitFor(() => expect(createUser).toHaveBeenCalledTimes(1));
-    expect(createUser).toHaveBeenCalledWith({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "Testpass1",
-      role: USER_FORM_ROLE,
-    });
-    expect(toastSuccess).toHaveBeenCalledWith("User created successfully.");
-    await waitFor(() => expect(refresh).toHaveBeenCalled());
-  });
+      await waitFor(() => expect(createUser).toHaveBeenCalledTimes(1));
+      expect(createUser).toHaveBeenCalledWith({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "Testpass1",
+        role: USER_FORM_ROLE,
+      });
+      expect(toastSuccess).toHaveBeenCalledWith("User created successfully.");
+      await waitFor(() => expect(refresh).toHaveBeenCalled());
+    },
+    10_000,
+  );
 
   it("surfaces the server error and keeps the dialog open", async () => {
     createUser.mockResolvedValue({

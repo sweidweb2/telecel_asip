@@ -1,6 +1,12 @@
 import { cache } from "react";
 
 import { getAuthUser } from "@/data/auth";
+import {
+  adminListRange,
+  adminListTotalPages,
+  gateAdminPageData,
+} from "@/lib/admin/admin-list-query";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   CurrentUserProfile,
@@ -55,12 +61,11 @@ async function fetchUsers(
   supabase: ServerClient,
   query: UserListQuery,
 ): Promise<UserListResult> {
-  const from = (query.page - 1) * query.pageSize;
-  const to = from + query.pageSize - 1;
+  const { from, to } = adminListRange(query.page, query.pageSize);
 
   let request = supabase
     .from("profiles")
-    .select(USER_COLUMNS, { count: "exact" })
+    .select(USER_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -70,8 +75,9 @@ async function fetchUsers(
   }
 
   if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
     request = request.or(
-      `full_name.ilike.%${query.search}%,email.ilike.%${query.search}%`,
+      `full_name.ilike.%${pattern}%,email.ilike.%${pattern}%`,
     );
   }
 
@@ -82,7 +88,7 @@ async function fetchUsers(
   return {
     users: (data ?? []) as Profile[],
     total,
-    totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
+    totalPages: adminListTotalPages(total, query.pageSize),
   };
 }
 
@@ -113,24 +119,20 @@ async function fetchUserStats(supabase: ServerClient): Promise<UserStats> {
 }
 
 /**
- * Single shared client: admin check → list + stats in parallel.
- * Cuts duplicate createClient/getUser round trips on the Users page.
+ * Admin gate then list + stats in parallel on a shared client.
  */
 export async function getUsersPageData(query: UserListQuery): Promise<
   | { status: "forbidden" }
   | { status: "ok"; list: UserListResult; stats: UserStats }
 > {
-  const supabase = await createClient();
-
-  // `is_admin()` uses auth.uid() from the JWT — no extra getUser() needed.
-  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
-  if (adminError) throw adminError;
-  if (!isAdmin) return { status: "forbidden" };
-
-  const [list, stats] = await Promise.all([
-    fetchUsers(supabase, query),
-    fetchUserStats(supabase),
-  ]);
-
-  return { status: "ok", list, stats };
+  return gateAdminPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
+        fetchUsers(supabase, query),
+        fetchUserStats(supabase),
+      ]);
+      return { list, stats };
+    },
+    { name: "getUsersPageData" },
+  );
 }

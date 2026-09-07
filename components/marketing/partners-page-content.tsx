@@ -1,133 +1,93 @@
-import Link from "next/link";
-
-import {
-  PageHero,
-  Section,
-  SectionHeading,
-} from "@/components/marketing/page-elements";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
-import { LogoCloudGrid } from "@/components/ui/logo-cloud";
-import { buttonVariants } from "@/components/ui/button";
-import { PARTNER_LOGOS } from "@/constants/partner-logos";
+import { partnerLabelsFor } from "@/components/marketing/partner-labels";
+import { PartnersHeroSection } from "@/components/marketing/partners-hero-section";
+import { PartnersNetwork } from "@/components/marketing/partners-network";
+import { PartnersPropositionSection } from "@/components/marketing/partners-proposition-section";
+import { PartnersTypesSection } from "@/components/marketing/partners-types-section";
 import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
-import type { PartnersPageCopy } from "@/types/marketing-page";
+import { partnersCopyFor } from "@/constants/partners-copy";
+import type { PartnerPublicItem } from "@/types/partner";
 import { cn } from "@/lib/utils";
 
 type PartnersPageContentProps = {
   locale: Locale;
-  copy: PartnersPageCopy;
+  active: PartnerPublicItem[];
+  historical: PartnerPublicItem[];
 };
 
+/**
+ * Partners marketing page — hero, proposition, type routes, live network logos, CTA.
+ */
 export function PartnersPageContent({
   locale,
-  copy,
+  active,
+  historical,
 }: PartnersPageContentProps) {
-  const { columns, rows } = copy.types;
+  const copy = partnersCopyFor(locale);
+  const labels = partnerLabelsFor(locale);
 
   return (
     <main>
-      <PageHero
-        eyebrow={copy.hero.eyebrow}
-        title={copy.hero.title}
-        description={copy.hero.description}
+      <PartnersHeroSection locale={locale} copy={copy.hero} />
+      <PartnersPropositionSection locale={locale} copy={copy.proposition} />
+      <PartnersTypesSection copy={copy.types} />
+
+      <section
+        id="network"
+        aria-labelledby="partners-network-heading"
+        className={cn(
+          "border-b border-border bg-background",
+          "px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-8",
+        )}
       >
-        <Link
-          href={publicPath(locale, copy.hero.cta.slug)}
+        <div className="mx-auto w-full max-w-7xl">
+          <h2
+            id="partners-network-heading"
+            className="mx-auto max-w-2xl text-center font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+          >
+            {copy.logos.title}
+          </h2>
+          <div className="mt-4 sm:mt-5">
+            <PartnersNetwork
+              locale={locale}
+              partners={active}
+              typeRows={copy.types.rows}
+            />
+          </div>
+        </div>
+      </section>
+
+      {historical.length > 0 ? (
+        <section
+          id="previous-chapters"
+          aria-labelledby="partners-historical-heading"
           className={cn(
-            buttonVariants({ size: "lg" }),
-            "min-h-11 w-full sm:w-auto",
+            "border-b border-border bg-[color-mix(in_oklab,var(--brand-subtle)_40%,var(--background))]",
+            "px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-8",
           )}
         >
-          {copy.hero.cta.label}
-        </Link>
-      </PageHero>
-
-      <Section className="border-t">
-        <SectionHeading
-          title={copy.proposition.title}
-          description={copy.proposition.description}
-          className="max-w-3xl"
-        />
-
-        <ul className="grid grid-cols-1 gap-4 md:hidden">
-          {rows.map((row) => (
-            <li key={row.id} className="rounded-xl border bg-card p-5 sm:p-6">
-              <h3 className="font-heading text-lg font-semibold tracking-tight">
-                {row.type}
-              </h3>
-              <dl className="mt-4 space-y-3 text-sm leading-6 sm:text-base sm:leading-7">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {columns.value}
-                  </dt>
-                  <dd className="mt-1 text-muted-foreground">{row.value}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {columns.examples}
-                  </dt>
-                  <dd className="mt-1 text-muted-foreground">{row.examples}</dd>
-                </div>
-              </dl>
-            </li>
-          ))}
-        </ul>
-
-        <div className="hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
-            <caption className="sr-only">{copy.proposition.title}</caption>
-            <thead>
-              <tr className="border-b">
-                <th
-                  scope="col"
-                  className="pb-3 pr-4 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
-                >
-                  {columns.type}
-                </th>
-                <th
-                  scope="col"
-                  className="px-4 pb-3 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
-                >
-                  {columns.value}
-                </th>
-                <th
-                  scope="col"
-                  className="pb-3 pl-4 font-heading text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
-                >
-                  {columns.examples}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="border-b last:border-b-0">
-                  <th
-                    scope="row"
-                    className="py-4 pr-4 align-top font-heading text-base font-semibold tracking-tight"
-                  >
-                    {row.type}
-                  </th>
-                  <td className="px-4 py-4 align-top leading-6 text-muted-foreground">
-                    {row.value}
-                  </td>
-                  <td className="py-4 pl-4 align-top leading-6 text-muted-foreground">
-                    {row.examples}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section id="partners" className="scroll-mt-20 border-t">
-        <SectionHeading
-          title={copy.logos.title}
-          className="mx-auto mb-10 max-w-2xl text-center sm:mb-12"
-        />
-        <LogoCloudGrid logos={PARTNER_LOGOS} />
-      </Section>
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2
+                id="partners-historical-heading"
+                className="font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+              >
+                {labels.historicalTitle}
+              </h2>
+              <p className="mt-3 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+                {labels.historicalDescription}
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-5">
+              <PartnersNetwork
+                locale={locale}
+                partners={historical}
+                typeRows={copy.types.rows}
+              />
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>

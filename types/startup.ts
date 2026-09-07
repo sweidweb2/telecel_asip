@@ -4,6 +4,7 @@ export type StartupStatus = "draft" | "active" | "inactive";
 
 export type Startup = Tables<"startups">;
 export type StartupDetails = Tables<"startup_details">;
+export type StartupPublicRow = Tables<"startups_public">;
 
 export type StartupListItem = Pick<
   Startup,
@@ -22,20 +23,44 @@ export type StartupWithDetails = Startup & {
   details: StartupDetails | null;
 };
 
-export type StartupPublicListItem = Pick<
-  Startup,
-  "id" | "name" | "slug" | "logo_url" | "description" | "founded_at"
->;
+export type StartupPublicListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  description: string;
+  founded_at: string | null;
+  cohort: string | null;
+  country_code: string | null;
+  sector: string | null;
+  founder_names: string[];
+  cover_image_url: string | null;
+  public_outcome: string | null;
+  featured: boolean;
+  image_focal_x: number;
+  image_focal_y: number;
+};
 
 /**
  * Public detail: core startup fields plus the approved subset of
  * `startup_details`. Funding figures and internal narrative fields
  * (problem, solution, target market, business model) stay admin-only.
  */
-export type StartupPublicDetails = Pick<
-  StartupDetails,
-  "industry" | "category" | "location" | "team"
->;
+export type StartupPublicDetails = {
+  website_url: string | null;
+  industry: string | null;
+  category: string | null;
+  location: string | null;
+  team: string | null;
+  cohort: string | null;
+  country_code: string | null;
+  sector: string | null;
+  founder_names: string[];
+  cover_image_url: string | null;
+  public_outcome: string | null;
+  image_focal_x: number;
+  image_focal_y: number;
+};
 
 export type StartupPublicDetail = StartupPublicListItem & {
   details: StartupPublicDetails | null;
@@ -55,4 +80,10 @@ export type StartupPublicPageResult = {
   totalPages: number;
   currentPage: number;
   pageSize: number;
+};
+
+export type StartupFilterOptions = {
+  cohorts: string[];
+  countries: string[];
+  sectors: string[];
 };

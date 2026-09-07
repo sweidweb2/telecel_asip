@@ -4,12 +4,18 @@ import {
   getPublishedBlogSlugs,
   getPublishedBlogs,
   getRelatedPublishedBlogs,
+  BLOGS_CACHE_TAG,
 } from "@/data/blogs";
+import { COHORTS_CACHE_TAG } from "@/data/cohorts";
+import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
-import { toArticle, toArticleList } from "@/types/blog";
+import { createPublicClient } from "@/lib/supabase/public";
+import { toArticle, toArticleList, type BlogRelatedLinks } from "@/types/blog";
 import type { Article, ArticleListItem } from "@/types/article";
 import type { BlogSlugRow } from "@/types/blog";
+import { unstable_cache } from "next/cache";
+import { cache } from "react";
 
 export type InsightsIndex = {
   articles: ArticleListItem[];
@@ -52,13 +58,87 @@ export async function getInsightSlugRows(): Promise<BlogSlugRow[]> {
   return getPublishedBlogSlugRows();
 }
 
-export async function getInsightBySlug(
-  slug: string,
-  locale: Locale = "en",
-): Promise<Article | undefined> {
-  const blog = await getPublishedBlogBySlug(slug);
-  return blog ? toArticle(blog, locale) : undefined;
+async function fetchBlogRelatedLinks(
+  startupId: string | null,
+  cohortId: string | null,
+): Promise<BlogRelatedLinks> {
+  if (!startupId && !cohortId) return {};
+
+  const supabase = createPublicClient();
+  const [startupResult, cohortResult] = await Promise.all([
+    startupId
+      ? supabase
+          .from("startups_public")
+          .select("id, name, slug")
+          .eq("id", startupId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    cohortId
+      ? supabase
+          .from("cohorts")
+          .select("id, public_label")
+          .eq("id", cohortId)
+          .eq("publish_status", "published")
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  if (startupResult.error) throw startupResult.error;
+  if (cohortResult.error) throw cohortResult.error;
+
+  return {
+    startup:
+      startupResult.data &&
+      startupResult.data.id &&
+      startupResult.data.name &&
+      startupResult.data.slug
+        ? {
+            id: startupResult.data.id,
+            name: startupResult.data.name,
+            slug: startupResult.data.slug,
+          }
+        : undefined,
+    cohort: cohortResult.data
+      ? {
+          id: cohortResult.data.id,
+          label: cohortResult.data.public_label,
+        }
+      : undefined,
+  };
 }
+
+async function resolveBlogRelatedLinks(
+  startupId: string | null,
+  cohortId: string | null,
+): Promise<BlogRelatedLinks> {
+  if (!startupId && !cohortId) return {};
+
+  return unstable_cache(
+    () => fetchBlogRelatedLinks(startupId, cohortId),
+    ["blog-related-links", startupId ?? "none", cohortId ?? "none"],
+    {
+      tags: [STARTUPS_CACHE_TAG, COHORTS_CACHE_TAG, BLOGS_CACHE_TAG],
+      revalidate: 300,
+    },
+  )();
+}
+
+/** Request-memoized so generateMetadata + page share one related-links resolve. */
+export const getInsightBySlug = cache(
+  async (
+    slug: string,
+    locale: Locale = "en",
+  ): Promise<Article | undefined> => {
+    const blog = await getPublishedBlogBySlug(slug);
+    if (!blog) return undefined;
+
+    const related = await resolveBlogRelatedLinks(
+      blog.startup_id,
+      blog.cohort_id,
+    );
+    return toArticle(blog, locale, related);
+  },
+);
 
 export async function getRelatedInsights(
   slug: string,

@@ -1,12 +1,8 @@
-import Link from "next/link";
-
 import { ApplyForm } from "@/components/marketing/apply-form";
 import { applyLabelsFor } from "@/components/marketing/apply-labels";
-import {
-  PageHero,
-  Section,
-  SectionHeading,
-} from "@/components/marketing/page-elements";
+import { InstitutionalHero } from "@/components/marketing/institutional-hero";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import { Section, SectionHeading } from "@/components/marketing/page-elements";
 import {
   Card,
   CardContent,
@@ -14,26 +10,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
 import type { MarketingPageCopy } from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
 
 type ApplyPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
+  mode: "register" | "apply";
 };
 
-export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
-  const labels = applyLabelsFor(locale);
+export function ApplyPageContent({
+  locale,
+  copy,
+  mode,
+}: ApplyPageContentProps) {
+  const labels = applyLabelsFor(locale, mode);
 
   return (
     <main>
-      <PageHero
+      <InstitutionalHero
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
+        headingId={
+          mode === "register" ? "register-hero-heading" : "apply-hero-heading"
+        }
+        patternId={mode === "register" ? "register-hero" : "apply-hero"}
+        composition={mode === "register" ? "signal" : "gateway"}
+        size="compact"
       />
 
       <Section>
@@ -43,7 +47,7 @@ export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
             <CardDescription>{labels.formDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ApplyForm locale={locale} labels={labels} />
+            <ApplyForm locale={locale} labels={labels} mode={mode} />
           </CardContent>
         </Card>
 
@@ -67,19 +71,12 @@ export function ApplyPageContent({ locale, copy }: ApplyPageContentProps) {
               </article>
             ))}
           </div>
-          {copy.cta ? (
-            <Link
-              href={publicPath(locale, copy.cta.slug)}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "mt-8 min-h-11 w-full sm:w-auto",
-              )}
-            >
-              {copy.cta.label}
-            </Link>
-          ) : null}
         </div>
       </Section>
+
+      {copy.ctaSection ? (
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
+      ) : null}
     </main>
   );
 }

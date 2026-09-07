@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
-import { LOCALES } from "./constants/locales";
+import { legacyRedirectRules } from "./constants/legacy-redirects";
+import { DEFAULT_LOCALE, LOCALES } from "./constants/locales";
 import { PUBLIC_PAGE_SLUGS } from "./constants/public-pages";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /**
  * Keeps the cached-route matchers in step with the routes that actually exist,
@@ -61,6 +67,7 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [75, 90],
     remotePatterns: [
       {
         protocol: "https",
@@ -80,6 +87,10 @@ const nextConfig: NextConfig = {
           ]
         : []),
     ],
+  },
+  /** 301s from the retired ASIP site (map in `constants/legacy-redirects.ts`). */
+  async redirects() {
+    return legacyRedirectRules(DEFAULT_LOCALE);
   },
   async headers() {
     return [
@@ -157,4 +168,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

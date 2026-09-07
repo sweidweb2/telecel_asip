@@ -1,108 +1,34 @@
-import Link from "next/link";
-import {
-  Eye,
-  Handshake,
-  HeartHandshake,
-  MessagesSquare,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-
-import {
-  PageHero,
-  Section,
-  SectionHeading,
-} from "@/components/marketing/page-elements";
-import { buttonVariants } from "@/components/ui/button";
+import { AlumniBenefitsSection } from "@/components/marketing/alumni-benefits-section";
+import { AlumniHeroSection } from "@/components/marketing/alumni-hero-section";
+import { AlumniNoticeSection } from "@/components/marketing/alumni-notice-section";
+import { AlumniPurposeSection } from "@/components/marketing/alumni-purpose-section";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
-import type {
-  AlumniBenefitId,
-  AlumniPageCopy,
-} from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
-
-const BENEFIT_ICONS: Record<AlumniBenefitId, LucideIcon> = {
-  community: Users,
-  learning: MessagesSquare,
-  opportunities: Handshake,
-  visibility: Eye,
-  "give-back": HeartHandshake,
-};
+import { alumniCopyFor } from "@/constants/alumni-copy";
 
 type AlumniPageContentProps = {
   locale: Locale;
-  copy: AlumniPageCopy;
 };
 
-function AlumniCta({
-  locale,
-  cta,
-}: {
-  locale: Locale;
-  cta: AlumniPageCopy["hero"]["primaryCta"];
-}) {
-  return (
-    <Link
-      href={publicPath(locale, cta.slug)}
-      className={cn(
-        buttonVariants({ size: "lg" }),
-        "min-h-11 w-full sm:w-auto",
-      )}
-    >
-      {cta.label}
-    </Link>
-  );
-}
+/**
+ * Alumni marketing page — Eleanor-validated static copy.
+ * Routable and in nav; keep noindex until the operating model is confirmed.
+ * Phase 1: no login or member platform — CTA opens the public founders directory.
+ */
+export function AlumniPageContent({ locale }: AlumniPageContentProps) {
+  const copy = alumniCopyFor(locale);
 
-export function AlumniPageContent({ locale, copy }: AlumniPageContentProps) {
   return (
     <main>
-      <PageHero
-        eyebrow={copy.hero.eyebrow}
-        title={copy.hero.title}
-        description={copy.hero.description}
-        action={<AlumniCta locale={locale} cta={copy.hero.primaryCta} />}
+      <AlumniHeroSection locale={locale} copy={copy.hero} />
+      <AlumniPurposeSection locale={locale} copy={copy.purpose} />
+      <AlumniBenefitsSection copy={copy.benefits} />
+      <AlumniNoticeSection notice={copy.notice} />
+      <PageCtaSection
+        locale={locale}
+        cta={copy.ctaSection}
+        className="border-t-0"
       />
-
-      <Section id="community" className="scroll-mt-20 border-t">
-        <SectionHeading
-          title={copy.purpose.title}
-          description={copy.purpose.description}
-          className="max-w-3xl"
-        />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {copy.benefits.items.map((item) => {
-            const Icon = BENEFIT_ICONS[item.id];
-
-            return (
-              <article
-                key={item.id}
-                className="rounded-xl border bg-card p-5 sm:p-6"
-              >
-                <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="size-5" aria-hidden />
-                </div>
-                <h3 className="font-heading text-lg font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                  {item.description}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-      </Section>
-
-      <Section className="border-t pb-16 sm:pb-20 lg:pb-24">
-        <p className="max-w-3xl rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-          {copy.notice}
-        </p>
-        <div className="mt-10">
-          <AlumniCta locale={locale} cta={copy.hero.primaryCta} />
-        </div>
-      </Section>
     </main>
   );
 }

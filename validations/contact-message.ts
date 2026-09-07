@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import { CONTACT_ENQUIRY_TYPES } from "@/constants/contact-enquiry";
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import {
+  parseAdminListQuery,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+import { inboxListFilterSchema } from "@/validations/inbox";
 
 type ContactMessageMessages = {
   enquiryTypeInvalid: string;
@@ -59,6 +64,7 @@ export const CONTACT_MESSAGE_EMAIL_MAX = 254;
 export const CONTACT_MESSAGE_PHONE_MAX = 20;
 export const CONTACT_MESSAGE_SUBJECT_MAX = 120;
 export const CONTACT_MESSAGE_BODY_MAX = 2000;
+export const CONTACT_MESSAGE_BODY_MIN = 20;
 
 function contactMessageFieldsSchema(messages: ContactMessageMessages) {
   return {
@@ -130,6 +136,7 @@ const contactMessageListQueryInputSchema = z.object({
     .max(100, "Search must be 100 characters or fewer")
     .regex(/^[^,%_()]*$/, "Search contains unsupported characters")
     .catch(""),
+  inboxStatus: inboxListFilterSchema,
 });
 
 export type ContactMessageListQuery = z.infer<
@@ -138,25 +145,20 @@ export type ContactMessageListQuery = z.infer<
   pageSize: typeof CONTACT_MESSAGE_PAGE_SIZE;
 };
 
-type RawSearchParams = Record<string, string | string[] | undefined>;
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export function parseContactMessageListQuery(
   input: RawSearchParams,
 ): ContactMessageListQuery {
-  const parsed = contactMessageListQueryInputSchema.parse({
-    page: first(input.page) ?? "1",
-    enquiryType: first(input.enquiryType) ?? "all",
-    search: first(input.search) ?? "",
-  });
-
-  return {
-    ...parsed,
+  return parseAdminListQuery({
+    input,
+    schema: contactMessageListQueryInputSchema,
     pageSize: CONTACT_MESSAGE_PAGE_SIZE,
-  };
+    defaults: {
+      page: "1",
+      enquiryType: "all",
+      search: "",
+      inboxStatus: "inbox",
+    },
+  });
 }
 
 export type UpdateContactMessageInput = z.infer<

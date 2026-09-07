@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType } from "react";
 
@@ -69,7 +70,7 @@ function FooterLinkList({
           <li key={`${link.href}-${link.label}`}>
             <Link
               href={link.href}
-              className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex min-h-11 items-center text-sm text-white/65 transition-colors hover:text-white"
             >
               {link.label}
             </Link>
@@ -82,18 +83,28 @@ function FooterLinkList({
 
 export function SiteFooter({ labels }: SiteFooterProps) {
   return (
-    <footer className="mt-auto border-t bg-muted/30">
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:py-14">
+    <footer className="mt-auto border-t border-white/10 bg-[#14333b] text-white">
+      <div className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         {/* 5 columns so the proposition gets 2 and the link lists sit right. */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
           <div className="space-y-4 sm:col-span-2 lg:col-span-2 lg:pr-8">
-            <p className="font-heading text-base font-semibold tracking-tight">
-              {labels.brand}
-            </p>
+            <Link
+              href={labels.explore[0]?.href ?? "/"}
+              className="inline-flex rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <Image
+                src="/ASIP_LOGO_WHITE.png"
+                alt={labels.brand}
+                width={864}
+                height={289}
+                sizes="190px"
+                className="h-10 w-auto sm:h-11"
+              />
+            </Link>
             <p className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">
               {labels.headline}
             </p>
-            <p className="max-w-md text-sm text-muted-foreground text-pretty">
+            <p className="max-w-md text-sm leading-6 text-white/65 text-pretty">
               {labels.statement}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -103,7 +114,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "min-h-11 w-full justify-center sm:w-auto",
+                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
                 )}
               >
                 {labels.parent.label}
@@ -112,7 +123,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 href={labels.contact.href}
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "min-h-11 w-full justify-center sm:w-auto",
+                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
                 )}
               >
                 {labels.contact.label}
@@ -161,10 +172,10 @@ export function SiteFooter({ labels }: SiteFooterProps) {
           />
         </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-8 bg-white/15" />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">{labels.copyright}</p>
+          <p className="text-sm text-white/55">{labels.copyright}</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <nav
               aria-label="Legal"
@@ -174,7 +185,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="inline-flex min-h-11 items-center text-sm text-white/65 transition-colors hover:text-white"
                 >
                   {link.label}
                 </Link>
@@ -184,7 +195,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               href={labels.apply.href}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "min-h-11 w-full justify-center sm:w-auto",
+                "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
               )}
             >
               {labels.apply.label}

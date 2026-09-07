@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signIn } from "@/actions/auth";
@@ -29,6 +29,7 @@ export function LoginForm({
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("next") ?? ROUTES.dashboard;
   const [isPending, startTransition] = useTransition();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const {
     register,
@@ -76,14 +77,32 @@ export function LoginForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="password">{labels.passwordLabel}</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          aria-invalid={Boolean(errors.password)}
-          disabled={isPending}
-          {...register("password")}
-        />
+        <div className="relative">
+          <Input
+            id="password"
+            type={isPasswordVisible ? "text" : "password"}
+            autoComplete="current-password"
+            placeholder={labels.passwordPlaceholder}
+            aria-invalid={Boolean(errors.password)}
+            disabled={isPending}
+            className="pr-11"
+            {...register("password")}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute top-1/2 right-0.5 size-9 min-h-9 min-w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            disabled={isPending}
+            aria-label={
+              isPasswordVisible ? labels.hidePassword : labels.showPassword
+            }
+            aria-pressed={isPasswordVisible}
+            onClick={() => setIsPasswordVisible((prev) => !prev)}
+          >
+            {isPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
+          </Button>
+        </div>
         {errors.password ? (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         ) : null}

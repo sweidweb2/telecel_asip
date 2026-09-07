@@ -1,83 +1,248 @@
 import type { Locale } from "@/constants/locales";
 
+export type ApplyFormMode = "register" | "apply";
+
 export type ApplyLabels = {
   formTitle: string;
   formDescription: string;
   nameLabel: string;
   namePlaceholder: string;
+  roleLabel: string;
+  rolePlaceholder: string;
   emailLabel: string;
   emailPlaceholder: string;
   phoneLabel: string;
   phonePlaceholder: string;
-  companyLabel: string;
-  companyPlaceholder: string;
-  sectorLabel: string;
-  sectorPlaceholder: string;
   countryLabel: string;
   countryPlaceholder: string;
+  linkedinLabel: string;
+  linkedinPlaceholder: string;
+  linkedinHint: string;
+  companyLabel: string;
+  companyPlaceholder: string;
+  websiteLabel: string;
+  websitePlaceholder: string;
+  websiteHint: string;
+  companyCountryLabel: string;
+  companyCountryPlaceholder: string;
+  sectorLabel: string;
+  sectorPlaceholder: string;
   pitchLabel: string;
   pitchPlaceholder: string;
+  pitchHint: string;
+  problemLabel: string;
+  problemPlaceholder: string;
+  problemHint: string;
+  tractionLabel: string;
+  tractionPlaceholder: string;
+  tractionHint: string;
+  fitLabel: string;
+  fitPlaceholder: string;
+  fitHint: string;
   consentLabel: string;
+  commsLabel: string;
   submitLabel: string;
   submittingLabel: string;
   successToast: string;
   turnstileHint: string;
 };
 
-const EN: ApplyLabels = {
+const EN_REGISTER: ApplyLabels = {
   formTitle: "Register your interest",
   formDescription:
-    "Share a short profile of your venture. The ASIP team will review submissions for each programme cycle.",
-  nameLabel: "Full name",
+    "Share a short profile. The ASIP team uses this for updates when the next chapter opens — not as an official application.",
+  nameLabel: "Founder name",
   namePlaceholder: "Your full name",
+  roleLabel: "Founder role",
+  rolePlaceholder: "e.g. CEO, Co-founder",
   emailLabel: "Email",
   emailPlaceholder: "you@example.com",
-  phoneLabel: "Phone",
+  phoneLabel: "Phone / WhatsApp",
   phonePlaceholder: "+233 20 000 0000",
-  companyLabel: "Company / startup name",
+  countryLabel: "Your country",
+  countryPlaceholder: "Country you are based in",
+  linkedinLabel: "LinkedIn",
+  linkedinPlaceholder: "linkedin.com/in/…",
+  linkedinHint: "Optional",
+  companyLabel: "Startup name",
   companyPlaceholder: "Your venture name",
+  websiteLabel: "Website",
+  websitePlaceholder: "example.com",
+  websiteHint: "Optional",
+  companyCountryLabel: "Company country",
+  companyCountryPlaceholder: "Where the company is based",
   sectorLabel: "Sector",
   sectorPlaceholder: "e.g. Fintech, Healthtech, Telecom",
-  countryLabel: "Country",
-  countryPlaceholder: "Country of operation",
-  pitchLabel: "Short pitch",
-  pitchPlaceholder:
-    "Describe the problem, your solution, and where you are today (20–1000 characters).",
+  pitchLabel: "Short note",
+  pitchPlaceholder: "Anything useful for the team.",
+  pitchHint: "Optional",
+  problemLabel: "",
+  problemPlaceholder: "",
+  problemHint: "",
+  tractionLabel: "",
+  tractionPlaceholder: "",
+  tractionHint: "",
+  fitLabel: "",
+  fitPlaceholder: "",
+  fitHint: "",
   consentLabel:
-    "I agree that ASIP may store and use this information to review my interest in the programme.",
+    "I agree that ASIP may store and use this information to contact me about the programme.",
+  commsLabel: "Send me programme updates by email.",
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
   successToast: "Thank you — your interest has been registered.",
   turnstileHint: "Complete the security check before submitting.",
 };
 
-const FR: ApplyLabels = {
+const EN_APPLY: ApplyLabels = {
+  formTitle: "Apply to ASIP",
+  formDescription:
+    "Official programme intake. Complete the full profile so the team can review your venture.",
+  nameLabel: "Founder name",
+  namePlaceholder: "Your full name",
+  roleLabel: "Founder role",
+  rolePlaceholder: "e.g. CEO, Co-founder",
+  emailLabel: "Email",
+  emailPlaceholder: "you@example.com",
+  phoneLabel: "Phone / WhatsApp",
+  phonePlaceholder: "+233 20 000 0000",
+  countryLabel: "Your country",
+  countryPlaceholder: "Country you are based in",
+  linkedinLabel: "LinkedIn",
+  linkedinPlaceholder: "linkedin.com/in/…",
+  linkedinHint: "Optional",
+  companyLabel: "Startup name",
+  companyPlaceholder: "Your venture name",
+  websiteLabel: "Website",
+  websitePlaceholder: "example.com",
+  websiteHint: "Optional",
+  companyCountryLabel: "Company country",
+  companyCountryPlaceholder: "Where the company is based",
+  sectorLabel: "Sector",
+  sectorPlaceholder: "e.g. Fintech, Healthtech, Telecom",
+  pitchLabel: "",
+  pitchPlaceholder: "",
+  pitchHint: "",
+  problemLabel: "Problem & product",
+  problemPlaceholder: "What problem you solve and what you have built.",
+  problemHint: "40–4000 characters",
+  tractionLabel: "Traction",
+  tractionPlaceholder:
+    "Users, revenue, funding, pilots, or other proof points.",
+  tractionHint: "20–2000 characters",
+  fitLabel: "Programme fit",
+  fitPlaceholder: "Growth needs and why ASIP now.",
+  fitHint: "20–2000 characters",
+  consentLabel:
+    "I agree that ASIP may store and use this information to review my application.",
+  commsLabel: "Send me programme updates by email.",
+  submitLabel: "Submit application",
+  submittingLabel: "Submitting…",
+  successToast: "Thank you — your application has been submitted.",
+  turnstileHint: "Complete the security check before submitting.",
+};
+
+const FR_REGISTER: ApplyLabels = {
   formTitle: "Manifester votre intérêt",
   formDescription:
-    "Présentez brièvement votre entreprise. L’équipe ASIP examinera les candidatures pour chaque cycle.",
-  nameLabel: "Nom complet",
+    "Présentez brièvement votre profil. L’équipe ASIP s’en sert pour les mises à jour — ce n’est pas une candidature officielle.",
+  nameLabel: "Nom du fondateur",
   namePlaceholder: "Votre nom complet",
+  roleLabel: "Rôle",
+  rolePlaceholder: "ex. CEO, co-fondateur",
   emailLabel: "E-mail",
   emailPlaceholder: "vous@exemple.com",
-  phoneLabel: "Téléphone",
+  phoneLabel: "Téléphone / WhatsApp",
   phonePlaceholder: "+233 20 000 0000",
-  companyLabel: "Nom de l’entreprise / startup",
+  countryLabel: "Votre pays",
+  countryPlaceholder: "Pays où vous êtes basé",
+  linkedinLabel: "LinkedIn",
+  linkedinPlaceholder: "linkedin.com/in/…",
+  linkedinHint: "Facultatif",
+  companyLabel: "Nom de la startup",
   companyPlaceholder: "Nom de votre entreprise",
+  websiteLabel: "Site web",
+  websitePlaceholder: "exemple.com",
+  websiteHint: "Facultatif",
+  companyCountryLabel: "Pays de l’entreprise",
+  companyCountryPlaceholder: "Pays du siège",
   sectorLabel: "Secteur",
   sectorPlaceholder: "ex. Fintech, Healthtech, Télécom",
-  countryLabel: "Pays",
-  countryPlaceholder: "Pays d’activité",
-  pitchLabel: "Court message",
-  pitchPlaceholder:
-    "Décrivez le problème, votre solution et votre stade actuel (20–1000 caractères).",
+  pitchLabel: "Note courte",
+  pitchPlaceholder: "Toute information utile pour l’équipe.",
+  pitchHint: "Facultatif",
+  problemLabel: "",
+  problemPlaceholder: "",
+  problemHint: "",
+  tractionLabel: "",
+  tractionPlaceholder: "",
+  tractionHint: "",
+  fitLabel: "",
+  fitPlaceholder: "",
+  fitHint: "",
   consentLabel:
-    "J’accepte qu’ASIP conserve et utilise ces informations pour examiner mon intérêt pour le programme.",
+    "J’accepte qu’ASIP conserve et utilise ces informations pour me contacter au sujet du programme.",
+  commsLabel: "Recevoir des mises à jour du programme par e-mail.",
   submitLabel: "Envoyer",
   submittingLabel: "Envoi…",
   successToast: "Merci — votre intérêt a bien été enregistré.",
   turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
-export function applyLabelsFor(locale: Locale): ApplyLabels {
-  return locale === "fr" ? FR : EN;
+const FR_APPLY: ApplyLabels = {
+  formTitle: "Postuler à ASIP",
+  formDescription:
+    "Candidature officielle. Complétez le profil pour que l’équipe examine votre entreprise.",
+  nameLabel: "Nom du fondateur",
+  namePlaceholder: "Votre nom complet",
+  roleLabel: "Rôle",
+  rolePlaceholder: "ex. CEO, co-fondateur",
+  emailLabel: "E-mail",
+  emailPlaceholder: "vous@exemple.com",
+  phoneLabel: "Téléphone / WhatsApp",
+  phonePlaceholder: "+233 20 000 0000",
+  countryLabel: "Votre pays",
+  countryPlaceholder: "Pays où vous êtes basé",
+  linkedinLabel: "LinkedIn",
+  linkedinPlaceholder: "linkedin.com/in/…",
+  linkedinHint: "Facultatif",
+  companyLabel: "Nom de la startup",
+  companyPlaceholder: "Nom de votre entreprise",
+  websiteLabel: "Site web",
+  websitePlaceholder: "exemple.com",
+  websiteHint: "Facultatif",
+  companyCountryLabel: "Pays de l’entreprise",
+  companyCountryPlaceholder: "Pays du siège",
+  sectorLabel: "Secteur",
+  sectorPlaceholder: "ex. Fintech, Healthtech, Télécom",
+  pitchLabel: "",
+  pitchPlaceholder: "",
+  pitchHint: "",
+  problemLabel: "Problème & produit",
+  problemPlaceholder:
+    "Le problème que vous résolvez et ce que vous avez construit.",
+  problemHint: "40–4000 caractères",
+  tractionLabel: "Traction",
+  tractionPlaceholder: "Utilisateurs, revenus, financement, pilots…",
+  tractionHint: "20–2000 caractères",
+  fitLabel: "Adéquation au programme",
+  fitPlaceholder: "Besoins de croissance et pourquoi ASIP maintenant.",
+  fitHint: "20–2000 caractères",
+  consentLabel:
+    "J’accepte qu’ASIP conserve et utilise ces informations pour examiner ma candidature.",
+  commsLabel: "Recevoir des mises à jour du programme par e-mail.",
+  submitLabel: "Envoyer la candidature",
+  submittingLabel: "Envoi…",
+  successToast: "Merci — votre candidature a bien été envoyée.",
+  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
+};
+
+export function applyLabelsFor(
+  locale: Locale,
+  mode: ApplyFormMode = "register",
+): ApplyLabels {
+  if (locale === "fr") {
+    return mode === "apply" ? FR_APPLY : FR_REGISTER;
+  }
+  return mode === "apply" ? EN_APPLY : EN_REGISTER;
 }

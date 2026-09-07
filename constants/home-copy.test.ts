@@ -11,15 +11,26 @@ describe("homeCopyFor", () => {
       fr.platform.steps.map((step) => step.id),
     );
     expect(en.platform.steps).toHaveLength(5);
-    expect(en.impactYears.metrics).toHaveLength(5);
-    expect(fr.impactYears.metrics).toHaveLength(5);
+    expect(en.impactYears.metrics).toHaveLength(0);
+    expect(fr.impactYears.metrics).toHaveLength(0);
     expect(en.ecosystem.roles.map((role) => role.id)).toEqual(
       fr.ecosystem.roles.map((role) => role.id),
     );
+    expect(en.hero.brand).toBe("ASIP");
+    expect(fr.hero.brand).toBe("ASIP");
     expect(en.hero.primaryCta.slug).toBe("founders");
     expect(en.hero.secondaryCta.slug).toBe("register-interest");
+    expect(en.hero.description.length).toBeLessThan(220);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("contact");
-    expect(fr.hero.title.length).toBeGreaterThan(0);
+    expect(en.outcomes.features.map((feature) => feature.id)).toEqual(
+      fr.outcomes.features.map((feature) => feature.id),
+    );
+    expect(en.outcomes.features).toHaveLength(3);
+    expect(en.outcomes.cta.slug).toBe("impact");
+    expect(en.telecel.title).toContain("Connecting Energies");
+    expect(en.telecel.prompt.length).toBeGreaterThan(0);
+    expect(fr.telecel.prompt.length).toBeGreaterThan(0);
+    expect(fr.telecel.ctaLabel.length).toBeGreaterThan(0);
   });
 });

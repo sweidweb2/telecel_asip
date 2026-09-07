@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type { ComponentProps } from "react";
 
@@ -21,9 +22,27 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   };
 }
 
-export function ThemeProvider({
-  children,
-  ...props
-}: ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+function isDashboardPath(pathname: string) {
+  return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+}
+
+type ThemeProviderProps = ComponentProps<typeof NextThemesProvider>;
+
+/**
+ * Public surfaces (marketing, auth, …) are always the ASIP light look.
+ * Theme toggle / system preference only apply under `/dashboard`.
+ */
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  const pathname = usePathname() ?? "";
+  const allowThemeToggle = isDashboardPath(pathname);
+
+  return (
+    <NextThemesProvider
+      {...props}
+      enableSystem={allowThemeToggle ? (props.enableSystem ?? true) : false}
+      forcedTheme={allowThemeToggle ? undefined : "light"}
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }

@@ -26,6 +26,7 @@ const en: AlumniPageCopy = {
       "Founders face different challenges as companies grow. The Alumni Network is intended to create a practical space for peer connection, founder-to-founder learning, relevant introductions and continued visibility across the ASIP community.",
   },
   benefits: {
+    title: "What continues after the cohort.",
     items: [
       {
         id: "community",
@@ -59,8 +60,14 @@ const en: AlumniPageCopy = {
       },
     ],
   },
-  notice:
-    "The Alumni Network operating model, benefits and launch are still being confirmed.",
+  notice: "",
+  ctaSection: {
+    title: "The cohort ends. The connection continues.",
+    description:
+      "Explore founders across ASIP cohorts while the alumni network takes shape.",
+    slug: "founders",
+    label: "Explore the community",
+  },
 };
 
 const fr: AlumniPageCopy = {
@@ -77,6 +84,7 @@ const fr: AlumniPageCopy = {
       "Les fondateurs rencontrent d’autres défis à mesure que les entreprises grandissent. Le réseau alumni vise à créer un espace concret pour le lien entre pairs, l’apprentissage de fondateur à fondateur, des introductions pertinentes et une visibilité continue au sein de la communauté ASIP.",
   },
   benefits: {
+    title: "Ce qui continue après la cohorte.",
     items: [
       {
         id: "community",
@@ -110,8 +118,14 @@ const fr: AlumniPageCopy = {
       },
     ],
   },
-  notice:
-    "Le fonctionnement, les bénéfices et le lancement du réseau alumni restent à confirmer.",
+  notice: "",
+  ctaSection: {
+    title: "La cohorte s’achève. Le lien continue.",
+    description:
+      "Explorez les fondateurs des cohortes ASIP pendant que le réseau alumni prend forme.",
+    slug: "founders",
+    label: "Explorer la communauté",
+  },
 };
 
 export function alumniCopyFor(locale: Locale): AlumniPageCopy {

@@ -1,13 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-import { ROUTES } from "@/constants/routes";
+import { getAdminResource } from "@/constants/admin-resources";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import {
   TURNSTILE_CONTACT_ACTION,
   verifyTurnstileToken,
@@ -20,10 +23,14 @@ import {
   type DeleteContactMessageInput,
   type UpdateContactMessageInput,
 } from "@/validations/contact-message";
+import {
+  updateInboxStatusSchema,
+  type UpdateInboxStatusInput,
+} from "@/validations/inbox";
 
-export type ContactMessageActionResult =
-  | { status: "success"; message: string }
-  | { status: "error"; message: string };
+export type ContactMessageActionResult = AdminActionResult;
+
+const resource = getAdminResource("contactUs");
 
 /** Public marketing form copy (locale-aware). */
 const PUBLIC_MESSAGES = {
@@ -50,6 +57,7 @@ const ADMIN_MESSAGES = {
   invalidDetails: "Please check the form and try again.",
   updateSuccess: "Message updated successfully.",
   deleteSuccess: "Message deleted successfully.",
+  inboxStatusSuccess: "Inbox status updated.",
   genericError: "Something went wrong. Please try again.",
   unauthorized: "You do not have permission to manage contact messages.",
   signedInRequired: "You must be signed in.",
@@ -59,32 +67,6 @@ const ADMIN_MESSAGES = {
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_PER_IP = 5;
 const RATE_LIMIT_PER_EMAIL = 3;
-
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: ADMIN_MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: ADMIN_MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
 
 async function getClientIp(): Promise<string> {
   const headerStore = await headers();
@@ -97,7 +79,7 @@ async function getClientIp(): Promise<string> {
 }
 
 function refreshContactUsRoute() {
-  revalidatePath(ROUTES.contactUs);
+  refreshAdminResource({ listPath: resource.listPath });
 }
 
 export async function submitContactMessage(
@@ -168,77 +150,96 @@ export async function submitContactMessage(
 export async function updateContactMessage(
   input: UpdateContactMessageInput,
 ): Promise<ContactMessageActionResult> {
-  const parsed = updateContactMessageSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message:
-        parsed.error.issues[0]?.message ?? ADMIN_MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updateContactMessageSchema,
+    input,
+    messages: {
+      ...ADMIN_MESSAGES,
+      success: ADMIN_MESSAGES.updateSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("contact_messages")
+        .update({
+          enquiry_type: data.enquiryType,
+          full_name: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          subject: data.subject,
+          message: data.message,
+        })
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const session = await authorizeAdmin();
-  if (session.status === "error") return session;
-
-  const { id, enquiryType, fullName, email, phone, subject, message } =
-    parsed.data;
-
-  const { data, error } = await session.supabase
-    .from("contact_messages")
-    .update({
-      enquiry_type: enquiryType,
-      full_name: fullName,
-      email,
-      phone,
-      subject,
-      message,
-    })
-    .eq("id", id)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    return { status: "error", message: ADMIN_MESSAGES.genericError };
-  }
-
-  if (!data) {
-    return { status: "error", message: ADMIN_MESSAGES.notFound };
-  }
-
-  refreshContactUsRoute();
-  return { status: "success", message: ADMIN_MESSAGES.updateSuccess };
+      if (error) {
+        return { status: "error", message: ADMIN_MESSAGES.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: ADMIN_MESSAGES.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshContactUsRoute(),
+  });
 }
 
 export async function deleteContactMessage(
   input: DeleteContactMessageInput,
 ): Promise<ContactMessageActionResult> {
-  const parsed = deleteContactMessageSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message:
-        parsed.error.issues[0]?.message ?? ADMIN_MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: deleteContactMessageSchema,
+    input,
+    messages: {
+      ...ADMIN_MESSAGES,
+      success: ADMIN_MESSAGES.deleteSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("contact_messages")
+        .delete()
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  const session = await authorizeAdmin();
-  if (session.status === "error") return session;
+      if (error) {
+        return { status: "error", message: ADMIN_MESSAGES.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: ADMIN_MESSAGES.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshContactUsRoute(),
+  });
+}
 
-  const { data, error } = await session.supabase
-    .from("contact_messages")
-    .delete()
-    .eq("id", parsed.data.id)
-    .select("id")
-    .maybeSingle();
+export async function updateContactMessageInboxStatus(
+  input: UpdateInboxStatusInput,
+): Promise<ContactMessageActionResult> {
+  return runAdminMutation({
+    schema: updateInboxStatusSchema,
+    input,
+    messages: {
+      ...ADMIN_MESSAGES,
+      success: ADMIN_MESSAGES.inboxStatusSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: row, error } = await session.supabase
+        .from("contact_messages")
+        .update({ inbox_status: data.inboxStatus })
+        .eq("id", data.id)
+        .select("id")
+        .maybeSingle();
 
-  if (error) {
-    return { status: "error", message: ADMIN_MESSAGES.genericError };
-  }
-
-  if (!data) {
-    return { status: "error", message: ADMIN_MESSAGES.notFound };
-  }
-
-  refreshContactUsRoute();
-  return { status: "success", message: ADMIN_MESSAGES.deleteSuccess };
+      if (error) {
+        return { status: "error", message: ADMIN_MESSAGES.genericError };
+      }
+      if (!row) {
+        return { status: "error", message: ADMIN_MESSAGES.notFound };
+      }
+      return { status: "success" };
+    },
+    refresh: () => refreshContactUsRoute(),
+  });
 }

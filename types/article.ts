@@ -15,6 +15,18 @@ export type ArticleCategory = {
   href: string;
 };
 
+export type ArticleRelatedStartup = {
+  id: string;
+  name: string;
+  slug: string;
+  href: string;
+};
+
+export type ArticleRelatedCohort = {
+  id: string;
+  label: string;
+};
+
 /** Card / list / related — no HTML body. */
 export type ArticleListItem = {
   id: string;
@@ -31,10 +43,15 @@ export type ArticleListItem = {
   isFeatured?: boolean;
 };
 
-/** Detail page — includes body + ISO dates for SEO. */
+/** Detail page — includes body + ISO dates for SEO + Article gap fields. */
 export type Article = ArticleListItem & {
   /** Sanitized HTML body for the detail page. */
   bodyHtml: string;
   datePublishedIso: string | null;
   dateModifiedIso: string | null;
+  sources: string[];
+  metaTitle: string | null;
+  metaDescription: string | null;
+  relatedStartup?: ArticleRelatedStartup;
+  relatedCohort?: ArticleRelatedCohort;
 };

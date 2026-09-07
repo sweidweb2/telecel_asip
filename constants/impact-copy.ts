@@ -23,6 +23,12 @@ const en: ImpactPageCopy = {
       "Since ASIP launched in 2019, the portfolio has grown across sectors and markets. That journey is told through verified founder outcomes, not broad claims. Every published number leads to a source, a company or a story.",
   },
   lenses: {
+    eyebrow: "Impact lenses",
+    title: "Impact Lens",
+    description:
+      "How we track, evaluate, and measure the long-term growth and reach of our portfolio.",
+    footnote:
+      "Evidence requirements stay internal. Public pages never show unverified figures.",
     columns: {
       lens: "Impact lens",
       framing: "Public framing",
@@ -32,39 +38,39 @@ const en: ImpactPageCopy = {
       {
         id: "pipeline",
         lens: "Pipeline",
-        framing: "Founder and application reach across African markets.",
+        framing: "Founder and application reach across African markets",
         evidence: "Applications, countries, sectors, selection rate, period.",
       },
       {
         id: "inclusion",
         lens: "Inclusion",
-        framing: "Who is building and where opportunities are reaching.",
+        framing: "Who is building and where opportunities are reaching",
         evidence: "Women-led definition, founder data, geography, date.",
       },
       {
         id: "growth",
         lens: "Business growth",
-        framing: "How companies progress after ASIP.",
+        framing: "How companies progress after ASIP",
         evidence: "Funding, revenue, customers, markets, survival/status.",
       },
       {
         id: "commercialisation",
         lens: "Commercialisation",
-        framing: "Where ideas become pilots, customers and partnerships.",
+        framing: "Where ideas become pilots, customers and partnerships",
         evidence:
           "Named pilots, contracts, proof-of-concepts, partner confirmation.",
       },
       {
         id: "jobs",
         lens: "Jobs & capability",
-        framing: "How founder growth translates into opportunity.",
+        framing: "How founder growth translates into opportunity",
         evidence:
           "Direct/indirect jobs, methodology, founder skills, mentor records.",
       },
       {
         id: "sector",
         lens: "Sector outcomes",
-        framing: "The real-world effect of portfolio products.",
+        framing: "Real-world effect of portfolio products",
         evidence:
           "Product-level users, patients, farmers, transactions, tickets, schools, etc.",
       },
@@ -76,9 +82,32 @@ const en: ImpactPageCopy = {
     templateLabel: "Story template",
     body: "[Startup] entered ASIP facing [specific barrier]. Through [specific ASIP support], the team strengthened [product, market, investment or operating capability]. Since then, it has [validated outcome]. The result shows what can happen when a strong founder gets the right connection at the right time.",
     note: "Published case studies replace every placeholder with verified, founder-specific facts. Generic success copy is not published as a real story.",
+    empty:
+      "Founder stories appear here once each one is verified — not as generic success copy.",
+    comingSoon: "Founder story coming soon",
+    readStory: "Read full story",
+    loadMore: "Load more stories",
+    prevLabel: "Previous case studies",
+    nextLabel: "Next case studies",
+    steps: {
+      barrier: "Barrier",
+      support: "Connection",
+      outcome: "Since then",
+    },
   },
-  evidenceRule:
-    "Every published metric has a source, measurement period, owner, last-verified date and permission status. Figures stay unpublished until those are in place.",
+  evidenceRule: {
+    eyebrow: "Evidence rule",
+    title: "No number goes live without a paper trail.",
+    description:
+      "Every published metric has a source, measurement period, owner, last-verified date and permission status. Figures stay unpublished until those are in place.",
+    requirements: [
+      { id: "source", label: "Source" },
+      { id: "period", label: "Measurement period" },
+      { id: "owner", label: "Owner" },
+      { id: "verified", label: "Last verified" },
+      { id: "permission", label: "Permission status" },
+    ],
+  },
   ctaSection: {
     title: "Meet the founders behind the outcomes",
     description:
@@ -103,6 +132,12 @@ const fr: ImpactPageCopy = {
       "Depuis le lancement d’ASIP en 2019, le portefeuille s’est développé à travers les secteurs et les marchés. Ce parcours se raconte par des résultats de fondateurs vérifiés, pas par des affirmations générales. Chaque chiffre publié renvoie à une source, une entreprise ou une histoire.",
   },
   lenses: {
+    eyebrow: "Axes d’impact",
+    title: "Axes d’impact",
+    description:
+      "Comment nous suivons, évaluons et mesurons la croissance et la portée à long terme de notre portefeuille.",
+    footnote:
+      "Les exigences de preuve restent internes. Les pages publiques ne montrent jamais de chiffres non vérifiés.",
     columns: {
       lens: "Axe d’impact",
       framing: "Formulation publique",
@@ -113,27 +148,27 @@ const fr: ImpactPageCopy = {
         id: "pipeline",
         lens: "Pipeline",
         framing:
-          "Portée des fondateurs et des candidatures sur les marchés africains.",
+          "Portée des fondateurs et des candidatures sur les marchés africains",
         evidence: "Candidatures, pays, secteurs, taux de sélection, période.",
       },
       {
         id: "inclusion",
         lens: "Inclusion",
-        framing: "Qui construit, et où les opportunités arrivent.",
+        framing: "Qui construit, et où les opportunités arrivent",
         evidence:
           "Définition des entreprises dirigées par des femmes, données fondateurs, géographie, date.",
       },
       {
         id: "growth",
         lens: "Croissance des entreprises",
-        framing: "Comment les entreprises progressent après ASIP.",
+        framing: "Comment les entreprises progressent après ASIP",
         evidence: "Financement, revenus, clients, marchés, survie/statut.",
       },
       {
         id: "commercialisation",
         lens: "Commercialisation",
         framing:
-          "Là où les idées deviennent pilotes, clients et partenariats.",
+          "Là où les idées deviennent pilotes, clients et partenariats",
         evidence:
           "Pilotes nommés, contrats, preuves de concept, confirmation des partenaires.",
       },
@@ -141,14 +176,14 @@ const fr: ImpactPageCopy = {
         id: "jobs",
         lens: "Emplois et compétences",
         framing:
-          "Comment la croissance des fondateurs se traduit en opportunités.",
+          "Comment la croissance des fondateurs se traduit en opportunités",
         evidence:
           "Emplois directs/indirects, méthodologie, compétences des fondateurs, suivi des mentors.",
       },
       {
         id: "sector",
         lens: "Résultats sectoriels",
-        framing: "L’effet concret des produits du portefeuille.",
+        framing: "L’effet concret des produits du portefeuille",
         evidence:
           "Utilisateurs, patients, agriculteurs, transactions, tickets, écoles, etc. au niveau du produit.",
       },
@@ -156,13 +191,36 @@ const fr: ImpactPageCopy = {
   },
   caseStudy: {
     eyebrow: "Études de cas",
-    title: "D’un problème local à une solution qui scale.",
+    title: "D’un problème local à une solution capable de grandir.",
     templateLabel: "Canevas de récit",
     body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne connexion au bon moment.",
     note: "Les études de cas publiées remplacent chaque crochet par des faits vérifiés, propres au fondateur. Un texte générique de réussite n’est pas publié comme s’il s’agissait d’une vraie histoire.",
+    empty:
+      "Les histoires de fondateurs apparaissent ici une fois vérifiées — pas comme un texte générique de réussite.",
+    comingSoon: "L’histoire du fondateur arrive bientôt",
+    readStory: "Lire l’histoire",
+    loadMore: "Voir plus d’histoires",
+    prevLabel: "Études de cas précédentes",
+    nextLabel: "Études de cas suivantes",
+    steps: {
+      barrier: "Obstacle",
+      support: "Connexion",
+      outcome: "Depuis",
+    },
   },
-  evidenceRule:
-    "Chaque indicateur publié a une source, une période de mesure, un responsable, une date de dernière vérification et un statut d’autorisation. Les chiffres restent non publiés tant que ces éléments ne sont pas en place.",
+  evidenceRule: {
+    eyebrow: "Règle de preuve",
+    title: "Aucun chiffre ne sort sans dossier.",
+    description:
+      "Chaque indicateur publié a une source, une période de mesure, un responsable, une date de dernière vérification et un statut d’autorisation. Les chiffres restent non publiés tant que ces éléments ne sont pas en place.",
+    requirements: [
+      { id: "source", label: "Source" },
+      { id: "period", label: "Période de mesure" },
+      { id: "owner", label: "Responsable" },
+      { id: "verified", label: "Dernière vérification" },
+      { id: "permission", label: "Statut d’autorisation" },
+    ],
+  },
   ctaSection: {
     title: "Rencontrez les fondateurs derrière les résultats",
     description:

@@ -11,6 +11,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      // Keep clear of fixed admin editor action bars at the bottom.
+      position="top-right"
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />

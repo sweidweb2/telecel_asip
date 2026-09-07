@@ -10,11 +10,26 @@ export const ROUTES = {
   dashboard: "/dashboard",
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
+  applications: "/dashboard/applications",
   portfolio: "/dashboard/portfolio",
   portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",
+  blogsNew: "/dashboard/blogs/new",
+  cohorts: "/dashboard/cohorts",
+  cohortsNew: "/dashboard/cohorts/new",
+  partners: "/dashboard/partners",
+  partnersNew: "/dashboard/partners/new",
+  founderStories: "/dashboard/founder-stories",
+  founderStoriesNew: "/dashboard/founder-stories/new",
+  evidence: "/dashboard/evidence",
+  evidenceNew: "/dashboard/evidence/new",
+  impactMetrics: "/dashboard/impact-metrics",
+  impactMetricsNew: "/dashboard/impact-metrics/new",
+  events: "/dashboard/events",
+  eventsNew: "/dashboard/events/new",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
+  performance: "/dashboard/performance",
   backup: "/dashboard/backup",
   settings: "/dashboard/settings",
 } as const;
@@ -39,6 +54,36 @@ export function insightPath(locale: Locale, slug: string): string {
 /** Admin portfolio edit path, e.g. `/dashboard/portfolio/{id}`. */
 export function portfolioEditPath(id: string): string {
   return `${ROUTES.portfolio}/${id}`;
+}
+
+/** Admin partner detail path, e.g. `/dashboard/partners/{id}`. */
+export function partnerDetailPath(id: string): string {
+  return `${ROUTES.partners}/${id}`;
+}
+
+/** Admin cohort edit path, e.g. `/dashboard/cohorts/{id}`. */
+export function cohortEditPath(id: string): string {
+  return `${ROUTES.cohorts}/${id}`;
+}
+
+/** Admin impact metric detail path, e.g. `/dashboard/impact-metrics/{id}`. */
+export function impactMetricDetailPath(id: string): string {
+  return `${ROUTES.impactMetrics}/${id}`;
+}
+
+/** Admin event detail path, e.g. `/dashboard/events/{id}`. */
+export function eventDetailPath(id: string): string {
+  return `${ROUTES.events}/${id}`;
+}
+
+/** Admin evidence detail path, e.g. `/dashboard/evidence/{id}`. */
+export function evidenceDetailPath(id: string): string {
+  return `${ROUTES.evidence}/${id}`;
+}
+
+/** Admin founder story edit path, e.g. `/dashboard/founder-stories/{id}`. */
+export function founderStoryEditPath(id: string): string {
+  return `${ROUTES.founderStories}/${id}`;
 }
 
 /** Locale-prefixed founder/startup detail, e.g. `/en/founders/acme`. */

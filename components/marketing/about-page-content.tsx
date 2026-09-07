@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { AboutHero } from "@/components/marketing/about-hero";
 import { AboutNarrativeSections } from "@/components/marketing/about-narrative-sections";
-import { PageHero, Section } from "@/components/marketing/page-elements";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
+import { Section } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
@@ -20,17 +22,18 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
 
   return (
     <main>
-      <PageHero
+      <AboutHero
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
+        heroChips={copy.heroChips}
         action={
           copy.cta && ctaHref ? (
             <Link
               href={ctaHref}
               className={cn(
-                buttonVariants(),
-                "min-h-11 w-full sm:w-auto",
+                buttonVariants({ size: "lg" }),
+                "min-h-11 w-full rounded-full bg-[#dc395f] px-8 text-white hover:bg-[#f04b70] sm:w-auto",
               )}
             >
               {copy.cta.label}
@@ -43,6 +46,10 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
         <Section className="border-t py-14 sm:py-16 lg:py-20">
           <AboutNarrativeSections locale={locale} narrative={copy.aboutNarrative} />
         </Section>
+      ) : null}
+
+      {copy.ctaSection ? (
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
       ) : null}
     </main>
   );

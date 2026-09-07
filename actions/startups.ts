@@ -4,7 +4,16 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
+import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { emptyToNull } from "@/lib/admin/empty-to-null";
+import { mapPgActionError } from "@/lib/admin/pg-action-error";
+import {
+  runAdminMutation,
+  type AdminActionResult,
+} from "@/lib/admin/run-admin-mutation";
+import { traceAsync } from "@/lib/admin/perf";
 import { processImageBuffer } from "@/lib/media/process-image";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -17,9 +26,7 @@ import {
   type UpdateStartupInput,
 } from "@/validations/startup";
 
-export type StartupActionResult =
-  | { status: "success"; message: string; id?: string }
-  | { status: "error"; message: string };
+export type StartupActionResult = AdminActionResult;
 
 const MESSAGES = {
   unauthorized: "You do not have permission to manage startups.",
@@ -46,35 +53,14 @@ const ALLOWED_MIME = new Set([
   "image/gif",
 ]);
 
-type AdminSession =
-  | {
-      status: "success";
-      supabase: Awaited<ReturnType<typeof createClient>>;
-    }
-  | { status: "error"; message: string };
-
-async function authorizeAdmin(): Promise<AdminSession> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return { status: "error", message: MESSAGES.signedInRequired };
-  }
-
-  const { data: isAdmin, error } = await supabase.rpc("is_admin");
-  if (error || !isAdmin) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-
-  return { status: "success", supabase };
-}
-
-function refreshStartupPaths(slug?: string) {
+function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
+  // Insights embed related startup names — bust blog cache on rename/link changes.
+  revalidateTag(BLOGS_CACHE_TAG, "max");
   revalidatePath(ROUTES.portfolio);
+  if (id) {
+    revalidatePath(`${ROUTES.portfolio}/${id}`);
+  }
   revalidatePath("/en/founders");
   revalidatePath("/fr/founders");
   if (slug) {
@@ -94,10 +80,15 @@ function uniqueConstraintMessage(error: {
   return MESSAGES.slugTaken;
 }
 
-function emptyToNull(value: string | undefined | null): string | null {
-  if (value === undefined || value === null) return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+function rpcErrorMessage(error: { code?: string; message?: string }): string {
+  const unique = uniqueConstraintMessage(error);
+  if (unique) return unique;
+
+  return mapPgActionError(error, {
+    unauthorized: MESSAGES.unauthorized,
+    notFound: MESSAGES.notFound,
+    genericError: MESSAGES.genericError,
+  });
 }
 
 function toStartupCoreJson(input: CreateStartupInput | UpdateStartupInput) {
@@ -118,6 +109,15 @@ function toDetailsJson(
     industry: emptyToNull(details.industry),
     category: emptyToNull(details.category),
     location: emptyToNull(details.location),
+    cohort: emptyToNull(details.cohort),
+    country_code: emptyToNull(details.countryCode)?.toUpperCase() ?? null,
+    sector: emptyToNull(details.sector),
+    founder_names: (details.founderNames ?? "").split(",").map((name) => name.trim()).filter(Boolean),
+    cover_image_url: emptyToNull(details.coverImageUrl),
+    public_outcome: emptyToNull(details.publicOutcome),
+    featured: details.featured ?? false,
+    image_focal_x: details.imageFocalX ?? 50,
+    image_focal_y: details.imageFocalY ?? 50,
     founding_year: details.foundingYear ?? null,
     team: emptyToNull(details.team),
     size: emptyToNull(details.size),
@@ -128,30 +128,6 @@ function toDetailsJson(
     funding_goal: details.fundingGoal ?? null,
     amount_raised: details.amountRaised ?? null,
   };
-}
-
-function rpcErrorMessage(error: {
-  code?: string;
-  message?: string;
-}): string {
-  const unique = uniqueConstraintMessage(error);
-  if (unique) return unique;
-
-  const code = error.code ?? "";
-  const message = (error.message ?? "").toLowerCase();
-
-  if (code === "42501" || message.includes("not authorized")) {
-    return MESSAGES.unauthorized;
-  }
-  if (
-    code === "P0002" ||
-    message.includes("startup not found") ||
-    message.includes("no data")
-  ) {
-    return MESSAGES.notFound;
-  }
-
-  return MESSAGES.genericError;
 }
 
 export async function createStartup(
@@ -165,7 +141,7 @@ export async function createStartup(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -181,7 +157,7 @@ export async function createStartup(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshStartupPaths(row.slug);
+  refreshStartupPaths(row.slug, row.id);
   return {
     status: "success",
     message: MESSAGES.createSuccess,
@@ -200,7 +176,7 @@ export async function updateStartup(
     };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -217,9 +193,9 @@ export async function updateStartup(
     return { status: "error", message: rpcErrorMessage(error ?? {}) };
   }
 
-  refreshStartupPaths(row.slug);
+  refreshStartupPaths(row.slug, row.id);
   if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshStartupPaths(row.previous_slug);
+    refreshStartupPaths(row.previous_slug, row.id);
   }
 
   return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
@@ -228,42 +204,44 @@ export async function updateStartup(
 export async function deleteStartup(
   input: DeleteStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = deleteStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return runAdminMutation({
+    schema: deleteStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.deleteSuccess,
+    },
+    execute: async (session, data) => {
+      const { data: existing, error: existingError } = await session.supabase
+        .from("startups")
+        .select("id, slug, logo_url")
+        .eq("id", data.id)
+        .maybeSingle();
 
-  const session = await authorizeAdmin();
-  if (session.status === "error") return session;
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug, logo_url")
-    .eq("id", parsed.data.id)
-    .maybeSingle();
+      const { error: deleteError } = await session.supabase
+        .from("startups")
+        .delete()
+        .eq("id", data.id);
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (deleteError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const { error: deleteError } = await session.supabase
-    .from("startups")
-    .delete()
-    .eq("id", parsed.data.id);
+      // Storage only after the row is gone: a failure here leaks an orphan object
+      // instead of leaving a live row pointing at a deleted logo.
+      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-  if (deleteError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-
-  // Storage only after the row is gone: a failure here leaks an orphan object
-  // instead of leaving a live row pointing at a deleted logo.
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-
-  refreshStartupPaths(existing.slug);
-  return { status: "success", message: MESSAGES.deleteSuccess };
+      refreshStartupPaths(existing.slug, data.id);
+      return { status: "success" };
+    },
+  });
 }
 
 function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {
@@ -300,78 +278,92 @@ export async function uploadStartupLogo(
   startupId: string,
   formData: FormData,
 ): Promise<StartupActionResult> {
-  if (!startupIdSchema.safeParse(startupId).success) {
-    return { status: "error", message: MESSAGES.invalidDetails };
-  }
+  return traceAsync(
+    "uploadStartupLogo",
+    { eventType: "upload", cacheStatus: "n_a", meta: { startupId } },
+    async () => {
+      if (!startupIdSchema.safeParse(startupId).success) {
+        return { status: "error", message: MESSAGES.invalidDetails };
+      }
 
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      const file = formData.get("file");
+      if (!(file instanceof File)) {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  if (!ALLOWED_MIME.has(file.type) || file.size <= 0 || file.size > LOGO_MAX_BYTES) {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      if (
+        !ALLOWED_MIME.has(file.type) ||
+        file.size <= 0 ||
+        file.size > LOGO_MAX_BYTES
+      ) {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const session = await authorizeAdmin();
-  if (session.status === "error") return session;
+      const session = await authorizeAdmin(MESSAGES);
+      if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug, logo_url")
-    .eq("id", startupId)
-    .maybeSingle();
+      const { data: existing, error: existingError } = await session.supabase
+        .from("startups")
+        .select("id, slug, logo_url")
+        .eq("id", startupId)
+        .maybeSingle();
 
-  if (existingError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
-  if (!existing) {
-    return { status: "error", message: MESSAGES.notFound };
-  }
+      if (existingError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
+      if (!existing) {
+        return { status: "error", message: MESSAGES.notFound };
+      }
 
-  let processed;
-  try {
-    processed = await processImageBuffer(
-      Buffer.from(await file.arrayBuffer()),
-      "startupLogo",
-    );
-  } catch {
-    return { status: "error", message: MESSAGES.invalidImage };
-  }
+      let processed;
+      try {
+        processed = await processImageBuffer(
+          Buffer.from(await file.arrayBuffer()),
+          "startupLogo",
+        );
+      } catch {
+        return { status: "error", message: MESSAGES.invalidImage };
+      }
 
-  const path = `${startupId}/${nanoid(10)}.${processed.extension}`;
+      const path = `${startupId}/${nanoid(10)}.${processed.extension}`;
 
-  const { error: uploadError } = await session.supabase.storage
-    .from(LOGO_BUCKET)
-    .upload(path, processed.buffer, {
-      contentType: processed.contentType,
-      upsert: false,
-      cacheControl: LOGO_CACHE_CONTROL,
-    });
+      const { error: uploadError } = await session.supabase.storage
+        .from(LOGO_BUCKET)
+        .upload(path, processed.buffer, {
+          contentType: processed.contentType,
+          upsert: false,
+          cacheControl: LOGO_CACHE_CONTROL,
+        });
 
-  if (uploadError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (uploadError) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) {
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
-  const { error: updateError } = await session.supabase
-    .from("startups")
-    .update({ logo_url: publicUrl })
-    .eq("id", startupId);
+      const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
+      const { error: updateError } = await session.supabase
+        .from("startups")
+        .update({ logo_url: publicUrl })
+        .eq("id", startupId);
 
-  if (updateError) {
-    await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
-    return { status: "error", message: MESSAGES.genericError };
-  }
+      if (updateError) {
+        await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
+        return { status: "error", message: MESSAGES.genericError };
+      }
 
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
-  refreshStartupPaths(existing.slug);
-  return { status: "success", message: MESSAGES.uploadSuccess, id: startupId };
+      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
+      refreshStartupPaths(existing.slug, startupId);
+      return {
+        status: "success",
+        message: MESSAGES.uploadSuccess,
+        id: startupId,
+      };
+    },
+  );
 }
 
 export async function removeStartupLogo(
@@ -381,7 +373,7 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin();
+  const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -408,6 +400,6 @@ export async function removeStartupLogo(
 
   await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
 
-  refreshStartupPaths(existing.slug);
+  refreshStartupPaths(existing.slug, startupId);
   return { status: "success", message: MESSAGES.removeSuccess, id: startupId };
 }

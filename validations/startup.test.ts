@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   createStartupSchema,
+  parseActiveStartupFilters,
   parsePortfolioPageParam,
-  parsePortfolioYearParam,
   parseStartupListQuery,
   updateStartupSchema,
 } from "@/validations/startup";
@@ -193,15 +193,13 @@ describe("parsePortfolioPageParam", () => {
   });
 });
 
-describe("parsePortfolioYearParam", () => {
-  it("returns null for missing or invalid years", () => {
-    expect(parsePortfolioYearParam(undefined)).toBeNull();
-    expect(parsePortfolioYearParam("abc")).toBeNull();
-    expect(parsePortfolioYearParam("1899")).toBeNull();
-    expect(parsePortfolioYearParam("2101")).toBeNull();
-  });
-
-  it("returns a valid YYYY year", () => {
-    expect(parsePortfolioYearParam("2024")).toBe("2024");
+describe("parseActiveStartupFilters", () => {
+  it("normalizes the public directory filters", () => {
+    expect(parseActiveStartupFilters({ cohort: "Cohort 4", country: "gh", sector: "Health", q: "clinic" })).toEqual({
+      cohort: "Cohort 4",
+      country: "GH",
+      sector: "Health",
+      query: "clinic",
+    });
   });
 });

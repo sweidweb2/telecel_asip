@@ -98,4 +98,19 @@ describe("LoginForm", () => {
     );
     expect(push).not.toHaveBeenCalled();
   });
+
+  it("toggles password visibility with the eye control", async () => {
+    const user = userEvent.setup();
+    renderLoginForm();
+
+    const password = screen.getByLabelText("Password");
+    expect(password).toHaveAttribute("type", "password");
+    expect(password).toHaveAttribute("placeholder", "••••••••");
+
+    await user.click(screen.getByRole("button", { name: "Show password" }));
+    expect(password).toHaveAttribute("type", "text");
+
+    await user.click(screen.getByRole("button", { name: "Hide password" }));
+    expect(password).toHaveAttribute("type", "password");
+  });
 });
