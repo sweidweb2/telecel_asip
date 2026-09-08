@@ -59,9 +59,11 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
   return (
     <header className="grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b px-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
       <div className="flex min-w-0 items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="hidden h-4 sm:block" />
-        <h1 className="min-w-0 truncate font-heading text-base font-semibold tracking-tight">
+        <SidebarTrigger className="-ml-1 shrink-0" />
+        <div className="hidden h-5 items-center sm:flex" aria-hidden>
+          <Separator orientation="vertical" />
+        </div>
+        <h1 className="min-w-0 truncate font-heading text-base leading-5 font-semibold tracking-tight">
           {title}
         </h1>
       </div>

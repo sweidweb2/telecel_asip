@@ -111,7 +111,7 @@ export function ImpactFanSection({
         </div>
 
         {/* Fanned image cards — bottom-aligned so no dead space above the stats */}
-        <div className="relative mx-auto mt-10 h-[12rem] w-full max-w-xl sm:mt-12 sm:h-[15.5rem] sm:max-w-3xl lg:h-[17.5rem] lg:max-w-4xl">
+        <div className="relative mx-auto mt-14 h-[12rem] w-full max-w-xl sm:mt-16 sm:h-[15.5rem] sm:max-w-3xl lg:mt-24 lg:h-[17.5rem] lg:max-w-4xl">
           {copy.images.map((image, index) => {
             const slot = FAN_SLOTS[index];
             if (!slot) return null;
@@ -129,7 +129,7 @@ export function ImpactFanSection({
         </div>
 
         {/* Stats */}
-        <ul className="mt-0 grid grid-cols-1 divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <ul className="mt-5 grid grid-cols-1 divide-y divide-border border-y border-border sm:mt-7 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:mt-10">
           {copy.stats.map((stat) => (
             <li
               key={stat.id}
