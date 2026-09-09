@@ -919,6 +919,46 @@ html {
   --dx: 6px;
 }
 
+/* Keep decorative labels in their own lane while the hero copy is constrained.
+   Percentage-based positions otherwise let the labels overlap each other and
+   the eyebrow at phone and tablet widths. */
+@media (max-width: 1023px) {
+  .about-hero-chips {
+    inset: 0;
+  }
+
+  .about-hero-chip {
+    position: absolute;
+  }
+
+  .about-hero-chip:nth-child(n + 3) {
+    display: none;
+  }
+
+  .about-hero-chip--1 {
+    top: 12%;
+    left: clamp(1rem, 6vw, 4rem);
+  }
+
+  .about-hero-chip--2 {
+    top: 6%;
+    right: clamp(1rem, 6vw, 4rem);
+    left: auto;
+  }
+}
+
+@media (max-width: 479px) {
+  .about-hero-chip--1 {
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .about-hero-chip--2 {
+    display: none;
+  }
+}
+
 @media (min-width: 1024px) {
   .about-hero-chip--1 {
     left: 19%;
