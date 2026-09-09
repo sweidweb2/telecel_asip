@@ -855,8 +855,8 @@ html {
   --dx: 5px;
 }
 .about-hero-chip--2 {
-  left: 42%;
-  top: 20%;
+  left: 43%;
+  top: 8%;
   --delay: 0.16s;
   --dur: 6s;
   --dy: 8px;
@@ -887,7 +887,7 @@ html {
   --dx: -6px;
 }
 .about-hero-chip--6 {
-  left: 88%;
+  right: 0.75rem;
   top: 38%;
   --delay: 0.3s;
   --dur: 6.3s;
@@ -911,12 +911,37 @@ html {
   --dx: -3px;
 }
 .about-hero-chip--9 {
-  left: 28%;
+  left: 5%;
   top: 86%;
   --delay: 0.1s;
   --dur: 6.7s;
   --dy: 7px;
   --dx: 6px;
+}
+
+@media (min-width: 1024px) {
+  .about-hero-chip--1 {
+    left: 19%;
+    top: 9%;
+  }
+
+  .about-hero-chip--3 {
+    left: auto;
+    right: 20%;
+    top: 7%;
+  }
+
+  .about-hero-chip--5 {
+    left: auto;
+    right: 0.75rem;
+    top: 66%;
+  }
+
+  .about-hero-chip--8 {
+    left: auto;
+    right: 15%;
+    top: 84%;
+  }
 }
 
 .about-hero-chip--hide-sm,
