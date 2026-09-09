@@ -108,7 +108,7 @@ function StepSpinner({
             {String(activeIndex + 1).padStart(2, "0")} /{" "}
             {String(count).padStart(2, "0")}
           </p>
-          <p className="mt-1 w-full truncate px-1 font-heading text-sm font-semibold leading-tight text-[#14333b] sm:text-[0.95rem]">
+          <p className="mt-1 w-full truncate px-1 font-heading text-sm font-semibold leading-tight text-asip-ink sm:text-[0.95rem]">
             {active?.title}
           </p>
         </div>
@@ -137,8 +137,8 @@ function StepSpinner({
                   "flex size-12 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-xs font-semibold transition-all duration-300",
                   isReached
                     ? isActive
-                      ? "scale-110 bg-white text-[#14333b] shadow-[0_0_0_6px_color-mix(in_oklab,white_22%,transparent)]"
-                      : "bg-white text-[#14333b] shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent)] hover:scale-105"
+                      ? "scale-110 bg-white text-asip-ink shadow-[0_0_0_6px_color-mix(in_oklab,white_22%,transparent)]"
+                      : "bg-white text-asip-ink shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent)] hover:scale-105"
                     : "bg-[#14333b] text-white shadow-[0_0_0_1px_color-mix(in_oklab,white_35%,transparent)] hover:scale-105 hover:shadow-[0_0_0_4px_color-mix(in_oklab,white_14%,transparent)]",
                 )}
               >

@@ -64,7 +64,7 @@ export function InstitutionalHero({
           )}
         >
           {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9ad1bf]">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-asip-mint">
               {eyebrow}
             </p>
           ) : null}

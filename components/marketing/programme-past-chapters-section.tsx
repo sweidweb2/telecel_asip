@@ -20,9 +20,9 @@ const STATUS_FILL: Record<
   CohortPublicListItem["programme_status"],
   string
 > = {
-  open: "#179191",
-  hold: "#81b764",
-  closed: "#14333b",
+  open: "var(--brand)",
+  hold: "var(--brand-mid)",
+  closed: "var(--asip-ink)",
 };
 
 function formatCohortWindow(cohort: CohortPublicListItem, locale: Locale) {

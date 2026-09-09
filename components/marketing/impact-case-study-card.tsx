@@ -127,7 +127,7 @@ export function ImpactCaseStudyCard({
             {href ? (
               <Link
                 href={href}
-                className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-[#dc395f] underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-asip-coral underline-offset-4 hover:underline"
               >
                 {copy.readStory}
               </Link>

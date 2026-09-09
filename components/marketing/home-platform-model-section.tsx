@@ -29,7 +29,7 @@ export function HomePlatformModelSection({
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 sm:gap-10">
         <header className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-semibold tracking-[0.18em] text-[#9ad1bf] uppercase">
+          <p className="text-xs font-semibold tracking-[0.18em] text-asip-mint uppercase">
             Platform
           </p>
           <h2

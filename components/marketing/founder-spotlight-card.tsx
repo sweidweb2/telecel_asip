@@ -136,18 +136,18 @@ export function FounderSpotlightCard({
         ) : null}
 
         <div className="min-w-0 space-y-1">
-          <h3 className="font-heading text-lg font-semibold tracking-tight text-balance text-[#14333b] group-hover:text-brand sm:text-xl">
+          <h3 className="font-heading text-lg font-semibold tracking-tight text-balance text-foreground group-hover:text-brand sm:text-xl">
             {startup.name}
           </h3>
           {startup.founder_names.length > 0 ? (
-            <p className="text-sm text-[#14333b]/65">
+            <p className="text-sm text-foreground/65">
               {startup.founder_names.join(", ")}
             </p>
           ) : null}
         </div>
 
         {story ? (
-          <p className="mt-auto line-clamp-3 text-sm leading-6 text-[#14333b]/72 sm:text-base sm:leading-7">
+          <p className="mt-auto line-clamp-3 text-sm leading-6 text-foreground/72 sm:text-base sm:leading-7">
             {story}
           </p>
         ) : null}

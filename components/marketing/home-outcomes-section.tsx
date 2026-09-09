@@ -49,7 +49,7 @@ export function HomeOutcomesSection({
       aria-labelledby="home-outcomes-heading"
       className={cn(
         "overflow-hidden border-b border-border bg-background",
-        "px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12",
+        "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         className,
       )}
     >
@@ -96,7 +96,7 @@ export function HomeOutcomesSection({
                 href={intake.href}
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "min-h-11 w-full rounded-full px-8 sm:w-auto",
+                  "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
                 )}
               >
                 {intake.label}

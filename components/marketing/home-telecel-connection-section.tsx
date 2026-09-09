@@ -173,7 +173,7 @@ export function HomeTelecelConnectionSection({
                   rel="noopener noreferrer"
                   aria-label={copy.ctaLabel}
                   className={cn(
-                    "inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[#dc395f] text-white shadow-sm transition-opacity hover:opacity-90 sm:size-12",
+                    "inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-asip-coral text-white shadow-sm transition-opacity hover:opacity-90 sm:size-12",
                     "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                   )}
                 >

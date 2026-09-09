@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import {
   HomeIcon,
+  Loader2Icon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
@@ -16,6 +17,13 @@ import { signOut } from "@/actions/auth";
 import { DashboardPageSearch } from "@/components/dashboard/dashboard-page-search";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,10 +55,12 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
   const pathname = usePathname();
   const title = getDashboardPageTitle(pathname);
   const [isPending, startTransition] = useTransition();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const { theme, setTheme } = useTheme();
   const mounted = useIsClient();
 
   function handleSignOut() {
+    setIsSigningOut(true);
     startTransition(async () => {
       await signOut();
     });
@@ -126,17 +136,42 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
             <DropdownMenuItem
               variant="destructive"
               className="min-h-11 sm:min-h-8"
-              disabled={isPending}
+              disabled={isPending || isSigningOut}
               onClick={() => {
                 handleSignOut();
               }}
             >
               <LogOutIcon />
-              {isPending ? "Signing out…" : "Log out"}
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <Dialog
+        open={isSigningOut}
+        onOpenChange={(open) => {
+          // Keep the dialog open until sign-out redirects away.
+          if (!open && isSigningOut) return;
+          setIsSigningOut(open);
+        }}
+      >
+        <DialogContent
+          className="max-w-xs sm:max-w-xs"
+          showCloseButton={false}
+        >
+          <DialogHeader className="items-center text-center">
+            <Loader2Icon
+              className="mx-auto size-8 animate-spin text-muted-foreground"
+              aria-hidden
+            />
+            <DialogTitle className="pt-2 text-base">Signing out</DialogTitle>
+            <DialogDescription>
+              Ending your session. You will be redirected to login.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

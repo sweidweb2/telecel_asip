@@ -20,7 +20,7 @@ export function ImpactProgressSection({ copy }: ImpactProgressSectionProps) {
         className="mx-auto w-full max-w-[43.75rem] px-4 py-16 text-center sm:px-6 sm:py-20 lg:py-24"
       >
         <span
-          className="mx-auto mb-6 block h-0.5 w-10 bg-[#dc395f] sm:mb-8"
+          className="mx-auto mb-6 block h-0.5 w-10 bg-asip-coral sm:mb-8"
           aria-hidden
         />
 

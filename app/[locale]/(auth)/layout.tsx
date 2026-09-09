@@ -9,6 +9,7 @@ import {
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navLabelsFor } from "@/components/layout/site-nav-labels";
 import { SiteNavbar } from "@/components/layout/site-navbar";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { getOpenApplications } from "@/data/settings";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 
@@ -22,9 +23,10 @@ type LayoutProps = {
 };
 
 export default async function AuthLayout({ children, params }: LayoutProps) {
-  const [locale, openApplications] = await Promise.all([
+  const [locale, openApplications, user] = await Promise.all([
     localeFromParams(params),
     getOpenApplications(),
+    getAuthUser(),
   ]);
   const footerLabels =
     locale === "fr"
@@ -36,6 +38,7 @@ export default async function AuthLayout({ children, params }: LayoutProps) {
       <SiteNavbar
         locale={locale}
         labels={navLabelsFor(locale, openApplications)}
+        email={user?.email ?? null}
       />
       <ApplicationStatusBanner
         locale={locale}

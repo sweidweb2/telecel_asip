@@ -26,7 +26,7 @@ export function ProgrammeEligibilitySection({
           <div className="min-w-0 max-w-[40.625rem] lg:max-w-none">
             <h2
               id="programme-eligibility-heading"
-              className="font-heading text-2xl font-semibold tracking-tight text-balance text-[#14333b] sm:text-3xl"
+              className="font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl"
             >
               {copy.title}
             </h2>
@@ -39,7 +39,7 @@ export function ProgrammeEligibilitySection({
                     strokeWidth={2}
                     aria-hidden
                   />
-                  <span className="text-base leading-7 text-[#14333b] sm:text-lg sm:leading-8">
+                  <span className="text-base leading-7 text-foreground sm:text-lg sm:leading-8">
                     {item}
                   </span>
                 </li>

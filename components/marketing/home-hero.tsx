@@ -68,9 +68,9 @@ export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
           </p>
           <span
             aria-hidden
-            className="home-hero-brand-rule mt-3 block h-0.5 w-14 bg-[#dc395f] sm:mt-4 sm:w-16"
+            className="home-hero-brand-rule mt-3 block h-0.5 w-14 bg-asip-coral sm:mt-4 sm:w-16"
           />
-          <p className="mt-4 max-w-xl text-xs font-semibold tracking-[0.16em] text-[#9ad1bf] uppercase sm:text-sm">
+          <p className="mt-4 max-w-xl text-xs font-semibold tracking-[0.16em] text-asip-mint uppercase sm:text-sm">
             {copy.eyebrow}
           </p>
         </div>
@@ -79,7 +79,7 @@ export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
           {copy.title}
         </h1>
 
-        <p className="mt-5 max-w-xl border-l-2 border-[#dc395f] pl-4 text-base leading-7 text-white/80 sm:mt-6 sm:pl-5 sm:text-lg sm:leading-8">
+        <p className="mt-5 max-w-xl border-l-2 border-asip-coral pl-4 text-base leading-7 text-white/80 sm:mt-6 sm:pl-5 sm:text-lg sm:leading-8">
           {copy.description}
         </p>
 
@@ -88,7 +88,7 @@ export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
             href={primaryHref}
             className={cn(
               buttonVariants({ size: "lg" }),
-              "min-h-11 w-full rounded-full bg-[#dc395f] px-8 text-white hover:bg-[#f04b70] sm:w-auto",
+              "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
             )}
           >
             {copy.primaryCta.label}
@@ -97,7 +97,7 @@ export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
             href={intake.href}
             className={cn(
               buttonVariants({ size: "lg", variant: "outline" }),
-              "min-h-11 w-full rounded-full border-white/55 bg-white/5 px-8 text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
+              "min-h-11 w-full rounded-full border-white/55 bg-white/5 px-8 text-white hover:bg-white hover:text-asip-ink sm:w-auto",
             )}
           >
             {intake.label}

@@ -27,7 +27,7 @@ export function ImpactEvidenceRuleSection({
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-10 xl:gap-14">
             <div className="min-w-0">
               <span
-                className="mb-4 block h-0.5 w-10 bg-[#dc395f] sm:mb-5"
+                className="mb-4 block h-0.5 w-10 bg-asip-coral sm:mb-5"
                 aria-hidden
               />
 
@@ -54,7 +54,7 @@ export function ImpactEvidenceRuleSection({
                   className="inline-flex min-h-11 items-center gap-2.5 rounded-full border border-border/80 bg-white px-3.5 py-2"
                 >
                   <span
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#179191]/12 text-[#179191]"
+                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand/12 text-brand"
                     aria-hidden
                   >
                     <Check className="size-3.5 stroke-[2.5]" />

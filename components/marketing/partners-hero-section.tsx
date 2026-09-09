@@ -51,7 +51,7 @@ export function PartnersHeroSection({
 
         <div className="relative z-10 mx-auto flex min-h-[min(78dvh,40rem)] w-full max-w-7xl flex-col justify-end px-4 pb-10 pt-28 sm:min-h-[min(72dvh,42rem)] sm:px-6 sm:pb-12 sm:pt-32 lg:px-8 lg:pb-14">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-[0.2em] text-[#9ad1bf] uppercase">
+            <p className="text-xs font-semibold tracking-[0.2em] text-asip-mint uppercase">
               {copy.eyebrow}
             </p>
             <h1

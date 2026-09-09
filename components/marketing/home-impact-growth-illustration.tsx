@@ -169,14 +169,14 @@ export function HomeImpactGrowthIllustration({
         lane="coral"
         pathD={CORAL_PATH}
         tipD={CORAL_TIP}
-        stroke="#dc395f"
+        stroke="var(--asip-coral)"
         strokeWidth={3}
       />
       <RebornArrow
         lane="yellow"
         pathD={YELLOW_PATH}
         tipD={YELLOW_TIP}
-        stroke="#e8b84a"
+        stroke="var(--brand-mid)"
         strokeWidth={2.5}
       />
     </svg>

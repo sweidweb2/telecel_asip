@@ -35,7 +35,7 @@ export function AlumniPurposeSection({
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
         <div className="min-w-0 lg:col-span-5" data-reveal="fade">
           <span
-            className="mb-4 block h-0.5 w-10 bg-[#dc395f] sm:mb-5"
+            className="mb-4 block h-0.5 w-10 bg-asip-coral sm:mb-5"
             aria-hidden
           />
           <h2

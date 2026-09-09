@@ -48,6 +48,12 @@
   --color-brand-mid: var(--brand-mid);
   --color-brand-soft: var(--brand-soft);
   --color-brand-subtle: var(--brand-subtle);
+  /* ASIP 30–60–10: ink ≈ secondary surfaces/text; coral ≈ 10% accent; mint on ink panels */
+  --color-asip-ink: var(--asip-ink);
+  --color-asip-coral: var(--asip-coral);
+  --color-asip-coral-hover: var(--asip-coral-hover);
+  --color-asip-magenta: var(--asip-magenta);
+  --color-asip-mint: var(--asip-mint);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -61,7 +67,11 @@
 }
 
 /*
- * ASIP editorial palette. Accents identify content rather than tinting pages.
+ * ASIP editorial palette — public 30–60–10 roles:
+ * ~60% canvas: --background (#fbfaf6) + white cards
+ * ~30% secondary: --asip-ink panels/text, --brand teal, soft greens
+ * ~10% accent: --asip-coral CTAs / key marks (magenta + brand-mid as stripe accents only)
+ * Accents identify actions and hierarchy; they do not tint whole pages.
  */
 :root {
   --brand: #179191;
@@ -72,6 +82,8 @@
   --asip-ink: #14333b;
   --asip-magenta: #c14a9b;
   --asip-coral: #dc395f;
+  --asip-coral-hover: color-mix(in srgb, #dc395f 82%, #ffffff);
+  --asip-mint: #9ad1bf;
 
   --background: #fbfaf6;
   --foreground: #14333b;
@@ -113,6 +125,11 @@
   --brand-mid: oklch(0.625 0.052 177.3);
   --brand-soft: oklch(0.835 0.052 151.3);
   --brand-subtle: oklch(0.947 0.031 131.6);
+  --asip-ink: oklch(0.235 0.026 177.3);
+  --asip-magenta: oklch(0.62 0.16 340);
+  --asip-coral: oklch(0.58 0.19 15);
+  --asip-coral-hover: color-mix(in oklch, var(--asip-coral) 82%, white);
+  --asip-mint: oklch(0.82 0.05 175);
 
   --background: oklch(0.185 0.018 177.3);
   --foreground: oklch(0.947 0.019 131.6);

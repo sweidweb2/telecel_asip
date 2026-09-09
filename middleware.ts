@@ -148,10 +148,12 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAuthPage(pathname) && userId) {
-      const dashboardUrl = request.nextUrl.clone();
-      dashboardUrl.pathname = ROUTES.dashboard;
-      dashboardUrl.search = "";
-      const redirect = NextResponse.redirect(dashboardUrl);
+      // Signed-in users (viewer or admin) cannot open login/signup.
+      // Send them to the locale home — viewers are not dashboard users.
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = `/${locale}`;
+      homeUrl.search = "";
+      const redirect = NextResponse.redirect(homeUrl);
       copyCookies(response, redirect);
       return withNoStore(redirect);
     }

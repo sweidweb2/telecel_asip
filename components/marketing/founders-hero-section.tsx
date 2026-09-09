@@ -43,7 +43,7 @@ export function FoundersHeroSection({
 
       <div className="relative mx-auto flex min-h-[28rem] w-full max-w-3xl flex-col items-center justify-center px-4 pt-8 pb-14 text-center sm:min-h-[32rem] sm:px-6 sm:pt-10 sm:pb-16 lg:min-h-[36rem] lg:px-8 lg:pt-12 lg:pb-20">
         <div data-hero-copy className="flex w-full flex-col items-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#9ad1bf] shadow-sm backdrop-blur-sm">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-asip-mint shadow-sm backdrop-blur-sm">
             <TreeGlyph className="size-4 shrink-0" />
             {copy.eyebrow}
           </p>

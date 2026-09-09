@@ -50,7 +50,7 @@ export function HomeFounderSpotlightSection({
         </div>
 
         <div className="relative z-10 order-1 max-w-xl lg:order-2 lg:col-span-5 lg:max-w-none">
-          <p className="font-mono text-[0.7rem] font-medium tracking-[0.22em] text-brand uppercase">
+          <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
             Spotlight
           </p>
           <h2
@@ -66,7 +66,7 @@ export function HomeFounderSpotlightSection({
             href={ctaHref}
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
-              "mt-8 min-h-11 w-full rounded-none border-foreground/30 bg-background px-6 font-mono text-xs tracking-[0.14em] uppercase sm:w-auto",
+              "mt-8 min-h-11 w-full rounded-full border-foreground/25 bg-background px-8 sm:w-auto",
             )}
           >
             {copy.cta.label}

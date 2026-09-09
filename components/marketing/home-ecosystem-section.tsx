@@ -146,14 +146,14 @@ function EcosystemRole({
         />
       )}
 
-      <div className="relative z-10 mb-4 px-6 text-muted-foreground sm:px-8 lg:px-10">
+      <div className="relative z-10 mb-4 px-6 text-muted-foreground transition-colors duration-200 group-hover/feature:text-brand sm:px-8 lg:px-10">
         <Icon className="size-6" strokeWidth={1.5} aria-hidden />
       </div>
 
       <div className="relative z-10 mb-2 px-6 sm:px-8 lg:px-10">
         <div
           aria-hidden
-          className="absolute inset-y-0 left-0 h-6 w-1 origin-center rounded-tr-full rounded-br-full bg-border transition-all duration-200 group-hover/feature:h-8 group-hover/feature:bg-[#dc395f]"
+          className="absolute inset-y-0 left-0 h-6 w-1 origin-center rounded-tr-full rounded-br-full bg-border transition-all duration-200 group-hover/feature:h-8 group-hover/feature:bg-asip-coral"
         />
         <h3 className="inline-block font-heading text-lg font-semibold tracking-tight text-foreground transition duration-200 group-hover/feature:translate-x-2">
           {title}
