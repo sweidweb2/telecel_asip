@@ -1,12 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  e2eAdminClient,
-  e2eAnonClient,
-  e2eSuffix,
-  hasE2ECredentials,
-  loginAsAdmin,
-} from "./helpers";
+import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -116,7 +110,7 @@ test.describe("applications admin", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fapplications");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 
       const anon = e2eAnonClient();

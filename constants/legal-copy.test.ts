@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { CONTACT } from "@/constants/contact";
 import { legalCopyFor } from "@/constants/legal-copy";
 
 describe("legalCopyFor", () => {
@@ -21,5 +22,21 @@ describe("legalCopyFor", () => {
     expect(legalCopyFor("en", "privacy").sections).toHaveLength(
       legalCopyFor("fr", "privacy").sections.length,
     );
+  });
+
+  it("keeps the cookies anchor and contact details for the live product", () => {
+    const privacy = legalCopyFor("en", "privacy");
+    expect(privacy.sections.some((section) => section.id === "cookies")).toBe(
+      true,
+    );
+    const blob = [
+      ...legalCopyFor("en", "terms").sections.flatMap((s) => s.paragraphs),
+      ...privacy.sections.flatMap((s) => s.paragraphs),
+    ].join(" ");
+    expect(blob).toContain(CONTACT.email);
+    expect(blob).toContain("Turnstile");
+    expect(blob).toMatch(/signed in|sign in/i);
+    expect(blob.toLowerCase()).not.toContain("draft");
+    expect(blob.toLowerCase()).not.toContain("provisional");
   });
 });

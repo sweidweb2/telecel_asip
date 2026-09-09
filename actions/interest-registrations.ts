@@ -3,6 +3,8 @@
 import { headers } from "next/headers";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import {
@@ -39,13 +41,15 @@ const ACTION_MESSAGES = {
     deleteSuccess: "Registration deleted successfully.",
     inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage registrations.",
-    signedInRequired: "You must be signed in.",
+    signedInRequired: "Sign in to register your interest.",
     notFound: "Registration not found.",
     rateLimited:
       "Too many submissions. Please wait and try again later.",
     duplicate:
       "You already registered this company with this email.",
     verificationFailed: "Security check failed. Please try again.",
+    applicationsOpen:
+      "Applications are open. Submit an official application instead of registering interest.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
@@ -55,7 +59,7 @@ const ACTION_MESSAGES = {
     deleteSuccess: "Candidature supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
     unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
-    signedInRequired: "Vous devez être connecté.",
+    signedInRequired: "Connectez-vous pour manifester votre intérêt.",
     notFound: "Candidature introuvable.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
@@ -63,6 +67,8 @@ const ACTION_MESSAGES = {
       "Vous avez déjà enregistré cette entreprise avec cet e-mail.",
     verificationFailed:
       "La vérification de sécurité a échoué. Veuillez réessayer.",
+    applicationsOpen:
+      "Les candidatures sont ouvertes. Envoyez une candidature officielle plutôt que de manifester votre intérêt.",
   },
 } as const;
 
@@ -98,6 +104,16 @@ export async function submitInterestRegistration(
 ): Promise<InterestRegistrationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
+
+  if (await getOpenApplications()) {
+    return { status: "error", message: copy.applicationsOpen };
+  }
+
+  const user = await getAuthUser();
+  if (!user) {
+    return { status: "error", message: copy.signedInRequired };
+  }
+
   const parsed = interestRegistrationSchemaFor(locale).safeParse(input);
 
   if (!parsed.success) {

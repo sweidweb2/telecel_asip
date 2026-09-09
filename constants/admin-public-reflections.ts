@@ -73,13 +73,6 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
           "Name, organisation, type, link, and logo (logo only when logo permission allows).",
         rule: "partners_public; active vs historical split by is_active; sorted by sort_order.",
       },
-      {
-        page: "Lab honeycomb logos",
-        path: "/{locale}/lab (if present)",
-        reflected: false,
-        shows: "Static asset logos — not CMS partner rows.",
-        rule: "Hard-coded marketing assets.",
-      },
     ],
   },
   blogs: {
@@ -208,7 +201,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
     resourceId: "impactMetrics",
     title: "Where impact metrics appear",
     intro:
-      "Verified metrics with the right display-location tags feed home (and lab) impact strips.",
+      "Verified metrics with the right display-location tags feed the home impact strip.",
     surfaces: [
       {
         page: "Home — seven years of impact",

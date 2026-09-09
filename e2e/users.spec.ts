@@ -5,7 +5,7 @@ import {
 } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 
-import { e2eSuffix } from "./helpers";
+import { e2eSuffix, submitLoginForm } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -70,7 +70,7 @@ test.describe("admin users CRUD", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fusers");
       await page.getByLabel("Email").fill(adminEmail);
       await page.getByLabel("Password").fill(adminPassword);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/users/, { timeout: 20_000 });
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
@@ -214,7 +214,7 @@ test.describe("admin users CRUD", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fusers");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/users");

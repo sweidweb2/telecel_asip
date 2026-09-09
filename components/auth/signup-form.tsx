@@ -1,20 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signUp } from "@/actions/auth";
 import type { SignupLabels } from "@/components/auth/auth-labels";
+import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/constants/locales";
 import { authPath } from "@/constants/routes";
+import { useTurnstile } from "@/hooks/use-turnstile";
+import { TURNSTILE_SIGNUP_ACTION } from "@/types/turnstile";
 import { registerSchemaFor, type RegisterInput } from "@/validations/auth";
 
 export function SignupForm({
@@ -25,11 +29,16 @@ export function SignupForm({
   labels: SignupLabels;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("next") ?? undefined;
   const [isPending, startTransition] = useTransition();
 
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchemaFor(locale)),
@@ -38,27 +47,61 @@ export function SignupForm({
       email: "",
       password: "",
       confirmPassword: "",
+      turnstileToken: "",
     },
+  });
+
+  const turnstileToken = useWatch({ control, name: "turnstileToken" });
+  const turnstile = useTurnstile({
+    action: TURNSTILE_SIGNUP_ACTION,
+    onTokenChange: useCallback(
+      (token: string) =>
+        setValue("turnstileToken", token, {
+          shouldValidate: token !== "",
+          shouldDirty: true,
+        }),
+      [setValue],
+    ),
   });
 
   function onSubmit(values: RegisterInput) {
     startTransition(async () => {
-      const result = await signUp(values);
+      try {
+        const payload: RegisterInput = {
+          fullName: values.fullName ?? getValues("fullName") ?? "",
+          email: values.email ?? getValues("email") ?? "",
+          password: values.password ?? getValues("password") ?? "",
+          confirmPassword:
+            values.confirmPassword ?? getValues("confirmPassword") ?? "",
+          turnstileToken:
+            turnstileToken ||
+            values.turnstileToken ||
+            getValues("turnstileToken") ||
+            "",
+        };
+        const result = await signUp(payload, redirectTo);
 
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+
+        toast.success(result.message ?? labels.successToast);
+
+        if (result.redirectTo) {
+          router.push(result.redirectTo);
+          router.refresh();
+          return;
+        }
+
+        const loginBase = authPath(locale, "login");
+        const loginHref = redirectTo
+          ? `${loginBase}?next=${encodeURIComponent(redirectTo)}`
+          : loginBase;
+        router.push(loginHref);
+      } finally {
+        turnstile.reset();
       }
-
-      toast.success(result.message ?? labels.successToast);
-
-      if (result.redirectTo) {
-        router.push(result.redirectTo);
-        router.refresh();
-        return;
-      }
-
-      router.push(authPath(locale, "login"));
     });
   }
 
@@ -73,7 +116,7 @@ export function SignupForm({
           placeholder={labels.namePlaceholder}
           aria-invalid={Boolean(errors.fullName)}
           disabled={isPending}
-          {...register("fullName")}
+          {...register("fullName", { setValueAs: (value) => value ?? "" })}
         />
         {errors.fullName ? (
           <p className="text-sm text-destructive">{errors.fullName.message}</p>
@@ -88,7 +131,7 @@ export function SignupForm({
           placeholder={labels.emailPlaceholder}
           aria-invalid={Boolean(errors.email)}
           disabled={isPending}
-          {...register("email")}
+          {...register("email", { setValueAs: (value) => value ?? "" })}
         />
         {errors.email ? (
           <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -102,7 +145,7 @@ export function SignupForm({
           autoComplete="new-password"
           aria-invalid={Boolean(errors.password)}
           disabled={isPending}
-          {...register("password")}
+          {...register("password", { setValueAs: (value) => value ?? "" })}
         />
         {errors.password ? (
           <p className="text-sm text-destructive">{errors.password.message}</p>
@@ -116,7 +159,9 @@ export function SignupForm({
           autoComplete="new-password"
           aria-invalid={Boolean(errors.confirmPassword)}
           disabled={isPending}
-          {...register("confirmPassword")}
+          {...register("confirmPassword", {
+            setValueAs: (value) => value ?? "",
+          })}
         />
         {errors.confirmPassword ? (
           <p className="text-sm text-destructive">
@@ -124,10 +169,24 @@ export function SignupForm({
           </p>
         ) : null}
       </div>
+      <input
+        type="hidden"
+        value={turnstileToken ?? ""}
+        readOnly
+        aria-hidden
+        tabIndex={-1}
+      />
+      <TurnstileField
+        turnstile={turnstile}
+        hasToken={Boolean(turnstileToken)}
+        hint={labels.turnstileHint}
+        error={errors.turnstileToken?.message}
+        testId="signup-turnstile"
+      />
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending}
+        disabled={isPending || !turnstileToken}
       >
         {isPending ? (
           <>
@@ -141,14 +200,18 @@ export function SignupForm({
       <p className="text-center text-sm text-muted-foreground">
         {labels.hasAccountPrompt}{" "}
         <Link
-          href={authPath(locale, "login")}
+          href={
+            redirectTo
+              ? `${authPath(locale, "login")}?next=${encodeURIComponent(redirectTo)}`
+              : authPath(locale, "login")
+          }
           className="text-foreground underline-offset-4 hover:underline"
         >
           {labels.loginLink}
         </Link>
       </p>
       <p className="text-center text-xs text-muted-foreground">
-        {labels.developerNote}
+        {labels.viewerNote}
       </p>
     </form>
   );

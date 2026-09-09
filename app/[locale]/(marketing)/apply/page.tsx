@@ -29,7 +29,7 @@ export async function generateMetadata({
           path: "/apply",
           title: "Apply — ASIP",
           description: "Prepare and share your ASIP venture profile.",
-          // Index only when applications are formally open; page stays reachable either way.
+          // Index only when applications are formally open; closed redirects to Register Interest.
           noIndex: !openApplications,
         },
   );

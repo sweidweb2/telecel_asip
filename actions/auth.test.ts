@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createClient, getRequestLocale, redirect } = vi.hoisted(() => ({
-  createClient: vi.fn(),
-  getRequestLocale: vi.fn(async () => "en" as const),
-  redirect: vi.fn(),
-}));
+const { createClient, getRequestLocale, redirect, verifyTurnstileToken } =
+  vi.hoisted(() => ({
+    createClient: vi.fn(),
+    getRequestLocale: vi.fn(async () => "en" as const),
+    redirect: vi.fn(),
+    verifyTurnstileToken: vi.fn(),
+  }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient,
@@ -18,11 +20,36 @@ vi.mock("next/navigation", () => ({
   redirect,
 }));
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => ({
+    get: (name: string) => (name === "x-forwarded-for" ? "127.0.0.1" : null),
+  })),
+}));
+
+vi.mock("@/lib/turnstile", () => ({
+  verifyTurnstileToken,
+}));
+
 import { signIn, signOut, signUp } from "@/actions/auth";
+
+const validSignup = {
+  fullName: "Ada Lovelace",
+  email: "ada@example.com",
+  password: "Testpass1",
+  confirmPassword: "Testpass1",
+  turnstileToken: "test-turnstile-token",
+};
+
+const validLogin = {
+  email: "ada@example.com",
+  password: "Testpass1",
+  turnstileToken: "test-turnstile-token",
+};
 
 describe("auth actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    verifyTurnstileToken.mockResolvedValue(true);
   });
 
   it("rejects invalid signup details", async () => {
@@ -31,8 +58,21 @@ describe("auth actions", () => {
       email: "bad",
       password: "short",
       confirmPassword: "short",
+      turnstileToken: "test-turnstile-token",
     });
     expect(result.status).toBe("error");
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects signup when Turnstile fails", async () => {
+    verifyTurnstileToken.mockResolvedValue(false);
+
+    const result = await signUp(validSignup);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Security check failed. Please try again.",
+    });
     expect(createClient).not.toHaveBeenCalled();
   });
 
@@ -49,12 +89,7 @@ describe("auth actions", () => {
       },
     });
 
-    const result = await signUp({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "Testpass1",
-      confirmPassword: "Testpass1",
-    });
+    const result = await signUp(validSignup);
 
     expect(result.status).toBe("error");
     if (result.status === "error") {
@@ -69,11 +104,21 @@ describe("auth actions", () => {
       },
     });
 
-    await expect(
-      signIn({ email: "ada@example.com", password: "Testpass1" }),
-    ).resolves.toMatchObject({
+    await expect(signIn(validLogin)).resolves.toMatchObject({
       status: "success",
     });
+  });
+
+  it("rejects login when Turnstile fails", async () => {
+    verifyTurnstileToken.mockResolvedValue(false);
+
+    const result = await signIn(validLogin);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Security check failed. Please try again.",
+    });
+    expect(createClient).not.toHaveBeenCalled();
   });
 
   it("maps invalid login credentials", async () => {
@@ -85,10 +130,7 @@ describe("auth actions", () => {
       },
     });
 
-    const result = await signIn({
-      email: "ada@example.com",
-      password: "wrong",
-    });
+    const result = await signIn(validLogin);
     expect(result.status).toBe("error");
     if (result.status === "error") {
       expect(result.message.toLowerCase()).toMatch(/invalid|credential/i);

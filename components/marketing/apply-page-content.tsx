@@ -1,5 +1,12 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
 import { ApplyForm } from "@/components/marketing/apply-form";
-import { applyLabelsFor } from "@/components/marketing/apply-labels";
+import {
+  applyAuthGateLabelsFor,
+  applyLabelsFor,
+} from "@/components/marketing/apply-labels";
+import { IntakeAuthGate } from "@/components/marketing/intake-auth-gate";
 import { InstitutionalHero } from "@/components/marketing/institutional-hero";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section, SectionHeading } from "@/components/marketing/page-elements";
@@ -11,6 +18,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Locale } from "@/constants/locales";
+import { publicPath } from "@/constants/routes";
+import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 
 type ApplyPageContentProps = {
@@ -19,12 +29,30 @@ type ApplyPageContentProps = {
   mode: "register" | "apply";
 };
 
-export function ApplyPageContent({
+/**
+ * Mutual gate: only one intake path is live.
+ * - applications closed → register-interest
+ * - applications open → apply
+ */
+export async function ApplyPageContent({
   locale,
   copy,
   mode,
 }: ApplyPageContentProps) {
+  const [user, openApplications] = await Promise.all([
+    getAuthUser(),
+    getOpenApplications(),
+  ]);
+
+  if (mode === "apply" && !openApplications) {
+    redirect(publicPath(locale, "register-interest"));
+  }
+  if (mode === "register" && openApplications) {
+    redirect(publicPath(locale, "apply"));
+  }
+
   const labels = applyLabelsFor(locale, mode);
+  const gateLabels = applyAuthGateLabelsFor(locale, mode);
 
   return (
     <main>
@@ -47,7 +75,16 @@ export function ApplyPageContent({
             <CardDescription>{labels.formDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ApplyForm locale={locale} labels={labels} mode={mode} />
+            {user ? (
+              <ApplyForm
+                locale={locale}
+                labels={labels}
+                mode={mode}
+                defaultEmail={user.email ?? ""}
+              />
+            ) : (
+              <IntakeAuthGate locale={locale} mode={mode} labels={gateLabels} />
+            )}
           </CardContent>
         </Card>
 

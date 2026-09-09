@@ -2,12 +2,12 @@
 
 ### Overview
 
-This system uses a shared page template for two always-live URLs, controlled by a CMS toggle: `site_settings.open_applications` (`true` = open, `false` = closed).
+This system uses a shared page template for two intake URLs, controlled by a CMS toggle: `site_settings.open_applications` (`true` = open, `false` = closed).
 
-- **Closed (default at launch):** Navbar CTA + status banner promote Register Interest
-- **Open (later, when confirmed):** Navbar CTA + status banner promote Apply; `/apply` becomes indexable
+**Only one path is live at a time:**
 
-Both `/register-interest/` and `/apply/` stay reachable at all times. Changing the toggle does **not** redirect between URLs.
+- **Closed (default at launch):** Register Interest is accessible and accepts leads; `/apply` redirects to `/register-interest` and rejects application submits
+- **Open (when confirmed):** Apply is accessible and accepts applications; `/register-interest` redirects to `/apply` and rejects lead submits
 
 ---
 
@@ -54,13 +54,14 @@ _Register Interest_ is a lightweight lead capture. _Apply_ includes all lead dat
 Changing `open_applications` updates:
 
 1. **Status banner:** closed vs open copy and CTA destination
-2. **Navbar CTA:** “Register Interest” vs “Apply to ASIP”
-3. **Apply SEO:** `/apply` is `noindex` + sitemap-excluded when closed; indexable when open
+2. **Navbar / footer CTA:** “Register Interest” vs “Apply to ASIP”
+3. **SEO / sitemap:** only the live intake URL is indexable and listed
+4. **Mutual gate:** the inactive URL redirects to the live one; its Server Action rejects submits
 
-Form fields and submission tables are driven by **page URL** (slug), not the toggle:
+Form fields and submission tables are driven by **page URL** (slug) when that path is live:
 
-- `/register-interest` → Leads form → `interest_registrations`
-- `/apply` → Applications form → `applications`
+- `/register-interest` → Leads form → `interest_registrations` (only when closed)
+- `/apply` → Applications form → `applications` (only when open)
 
 ---
 
@@ -75,4 +76,4 @@ Form fields and submission tables are driven by **page URL** (slug), not the tog
 
 ### Navigation decision (resolved)
 
-**Both `/register-interest/` and `/apply/` coexist as separate live pages.** The CMS toggle controls CTA, status banner, and Apply SEO — not URL exclusivity.
+**Mutual exclusivity.** The CMS toggle picks which intake URL is live. The other redirects and rejects submits.

@@ -12,6 +12,7 @@ type AuthValidationMessages = {
   nameMax: string;
   confirmRequired: string;
   passwordsMismatch: string;
+  turnstileRequired: string;
 };
 
 const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
@@ -25,6 +26,7 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     nameMax: "Name is too long",
     confirmRequired: "Confirm your password",
     passwordsMismatch: "Passwords do not match",
+    turnstileRequired: "Please complete the security check",
   },
   fr: {
     invalidEmail: "Entrez une adresse e-mail valide",
@@ -36,15 +38,35 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     nameMax: "Le nom est trop long",
     confirmRequired: "Confirmez votre mot de passe",
     passwordsMismatch: "Les mots de passe ne correspondent pas",
+    turnstileRequired: "Veuillez compléter la vérification de sécurité",
   },
 };
+
+/** Coerce missing RHF/server fields so Zod never throws the raw "expected string" message. */
+function requiredString(message: string) {
+  return z.preprocess(
+    (value) => (value == null ? "" : value),
+    z.string(message),
+  );
+}
 
 export function loginSchemaFor(locale: Locale = DEFAULT_LOCALE) {
   const messages = VALIDATION_MESSAGES[locale];
 
   return z.object({
-    email: z.email(messages.invalidEmail).trim().toLowerCase(),
-    password: z.string().min(1, messages.passwordRequired),
+    email: requiredString(messages.invalidEmail)
+      .pipe(z.string().trim().toLowerCase())
+      .pipe(z.email(messages.invalidEmail)),
+    password: requiredString(messages.passwordRequired).pipe(
+      z.string().min(1, messages.passwordRequired),
+    ),
+    turnstileToken: requiredString(messages.turnstileRequired).pipe(
+      z
+        .string()
+        .trim()
+        .min(1, messages.turnstileRequired)
+        .max(2048, messages.turnstileRequired),
+    ),
   });
 }
 
@@ -53,18 +75,29 @@ export function registerSchemaFor(locale: Locale = DEFAULT_LOCALE) {
 
   return z
     .object({
-      fullName: z
-        .string()
-        .trim()
-        .min(2, messages.nameMin)
-        .max(80, messages.nameMax),
-      email: z.email(messages.invalidEmail).trim().toLowerCase(),
-      password: z
-        .string()
-        .min(8, messages.passwordMin)
-        .regex(/[A-Za-z]/, messages.passwordLetter)
-        .regex(/[0-9]/, messages.passwordNumber),
-      confirmPassword: z.string().min(1, messages.confirmRequired),
+      fullName: requiredString(messages.nameMin).pipe(
+        z.string().trim().min(2, messages.nameMin).max(80, messages.nameMax),
+      ),
+      email: requiredString(messages.invalidEmail)
+        .pipe(z.string().trim().toLowerCase())
+        .pipe(z.email(messages.invalidEmail)),
+      password: requiredString(messages.passwordMin).pipe(
+        z
+          .string()
+          .min(8, messages.passwordMin)
+          .regex(/[A-Za-z]/, messages.passwordLetter)
+          .regex(/[0-9]/, messages.passwordNumber),
+      ),
+      confirmPassword: requiredString(messages.confirmRequired).pipe(
+        z.string().min(1, messages.confirmRequired),
+      ),
+      turnstileToken: requiredString(messages.turnstileRequired).pipe(
+        z
+          .string()
+          .trim()
+          .min(1, messages.turnstileRequired)
+          .max(2048, messages.turnstileRequired),
+      ),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: messages.passwordsMismatch,

@@ -3,19 +3,32 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useState, useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signIn } from "@/actions/auth";
 import type { LoginLabels } from "@/components/auth/auth-labels";
+import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CONTACT } from "@/constants/contact";
 import type { Locale } from "@/constants/locales";
 import { authPath, ROUTES } from "@/constants/routes";
+import { useTurnstile } from "@/hooks/use-turnstile";
+import { TURNSTILE_LOGIN_ACTION } from "@/types/turnstile";
 import { loginSchemaFor, type LoginInput } from "@/validations/auth";
 
 export function LoginForm({
@@ -30,33 +43,68 @@ export function LoginForm({
   const redirectTo = searchParams.get("next") ?? ROUTES.dashboard;
   const [isPending, startTransition] = useTransition();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchemaFor(locale)),
     defaultValues: {
       email: "",
       password: "",
+      turnstileToken: "",
     },
+  });
+
+  const turnstileToken = useWatch({ control, name: "turnstileToken" });
+  const turnstile = useTurnstile({
+    action: TURNSTILE_LOGIN_ACTION,
+    onTokenChange: useCallback(
+      (token: string) =>
+        setValue("turnstileToken", token, {
+          shouldValidate: token !== "",
+          shouldDirty: true,
+        }),
+      [setValue],
+    ),
   });
 
   function onSubmit(values: LoginInput) {
     startTransition(async () => {
-      const result = await signIn(values, redirectTo);
+      try {
+        // Prefer watched token — hidden register + setValue can race on submit.
+        const payload: LoginInput = {
+          email: values.email ?? getValues("email") ?? "",
+          password: values.password ?? getValues("password") ?? "",
+          turnstileToken:
+            turnstileToken || values.turnstileToken || getValues("turnstileToken") || "",
+        };
+        const result = await signIn(payload, redirectTo);
 
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+
+        toast.success(result.message ?? labels.successToast);
+        router.push(result.redirectTo ?? ROUTES.dashboard);
+        router.refresh();
+      } finally {
+        turnstile.reset();
       }
-
-      toast.success(result.message ?? labels.successToast);
-      router.push(result.redirectTo ?? ROUTES.dashboard);
-      router.refresh();
     });
   }
+
+  const signupHref = (() => {
+    const next = searchParams.get("next");
+    const base = authPath(locale, "signup");
+    return next ? `${base}?next=${encodeURIComponent(next)}` : base;
+  })();
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -69,7 +117,7 @@ export function LoginForm({
           placeholder={labels.emailPlaceholder}
           aria-invalid={Boolean(errors.email)}
           disabled={isPending}
-          {...register("email")}
+          {...register("email", { setValueAs: (value) => value ?? "" })}
         />
         {errors.email ? (
           <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -86,31 +134,95 @@ export function LoginForm({
             aria-invalid={Boolean(errors.password)}
             disabled={isPending}
             className="pr-11"
-            {...register("password")}
+            {...register("password", { setValueAs: (value) => value ?? "" })}
           />
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute top-1/2 right-0.5 size-9 min-h-9 min-w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute top-1/2 right-0.5 inline-flex size-9 min-h-9 min-w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
             disabled={isPending}
             aria-label={
               isPasswordVisible ? labels.hidePassword : labels.showPassword
             }
             aria-pressed={isPasswordVisible}
+            // Keep focus on the password field so the type swap does not glitch.
+            onMouseDown={(event) => event.preventDefault()}
             onClick={() => setIsPasswordVisible((prev) => !prev)}
           >
-            {isPasswordVisible ? <EyeOffIcon /> : <EyeIcon />}
-          </Button>
+            <EyeIcon
+              className={isPasswordVisible ? "hidden size-4" : "size-4"}
+              aria-hidden
+            />
+            <EyeOffIcon
+              className={isPasswordVisible ? "size-4" : "hidden size-4"}
+              aria-hidden
+            />
+          </button>
         </div>
         {errors.password ? (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         ) : null}
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto min-h-11 px-0 py-0 text-sm font-normal text-muted-foreground sm:min-h-0"
+            disabled={isPending}
+            onClick={() => setIsForgotOpen(true)}
+          >
+            {labels.forgotPasswordLink}
+          </Button>
+        </div>
       </div>
+      <Dialog open={isForgotOpen} onOpenChange={setIsForgotOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{labels.forgotPasswordTitle}</DialogTitle>
+            <DialogDescription>{labels.forgotPasswordBody}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-1">
+            <p className="text-sm font-medium text-foreground">
+              {labels.forgotPasswordEmailLabel}
+            </p>
+            <a
+              href={CONTACT.emailHref}
+              className="text-sm text-foreground underline-offset-4 hover:underline"
+            >
+              {CONTACT.email}
+            </a>
+          </div>
+          <DialogFooter>
+            <DialogClose
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11 sm:min-h-8"
+                />
+              }
+            >
+              {labels.forgotPasswordClose}
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <input
+        type="hidden"
+        value={turnstileToken ?? ""}
+        readOnly
+        aria-hidden
+        tabIndex={-1}
+      />
+      <TurnstileField
+        turnstile={turnstile}
+        hasToken={Boolean(turnstileToken)}
+        hint={labels.turnstileHint}
+        error={errors.turnstileToken?.message}
+        testId="login-turnstile"
+      />
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending}
+        disabled={isPending || !turnstileToken}
       >
         {isPending ? (
           <>
@@ -124,7 +236,7 @@ export function LoginForm({
       <p className="text-center text-sm text-muted-foreground">
         {labels.noAccountPrompt}{" "}
         <Link
-          href={authPath(locale, "signup")}
+          href={signupHref}
           className="text-foreground underline-offset-4 hover:underline"
         >
           {labels.signUpLink}

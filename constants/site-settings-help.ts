@@ -3,23 +3,24 @@ import type { AdminFormHelpSection } from "@/types/admin-form-help";
 export const SITE_SETTINGS_HELP = {
   applications: {
     title: "Applications open",
-    intro: "Controls public Apply vs Register Interest messaging — not page availability.",
+    intro:
+      "Mutual gate between Apply and Register Interest — only one intake path is live.",
     fields: [
       {
         name: "Applications open",
         detail:
-          "On: navbar promotes Apply and a status banner can show under the nav. Off: navbar promotes Register Interest and the banner is hidden. Both Apply and Register Interest pages stay live; submissions still land in separate Applications and Leads tables.",
+          "On: navbar/footer promote Apply, banner can show, Apply is indexable/in sitemap and accepts submits; /register-interest redirects to Apply and rejects lead submits. Off: navbar/footer promote Register Interest, banner hidden, Register Interest is indexable/in sitemap and accepts leads; /apply redirects to Register Interest and rejects application submits.",
       },
     ],
   },
   newsletter: {
     title: "Newsletter signup",
-    intro: "Gates the Insights newsletter module.",
+    intro: "Phase 1 status only — not a live control.",
     fields: [
       {
         name: "Newsletter signup",
         detail:
-          "Off: Insights signup UI stays inactive and submissions are rejected. On: email + consent + Turnstile can collect subscribers into the database. Turn on only after privacy, routing, and ownership are confirmed.",
+          "The Insights newsletter module is hidden for phase 1. There is no public signup UI and the setting stays off. A toggle returns in a later phase after privacy, routing, and ownership are confirmed.",
       },
     ],
   },

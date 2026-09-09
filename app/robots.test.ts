@@ -22,10 +22,9 @@ describe("robots", () => {
         "/signup",
         "/en/login",
         "/fr/login",
-        "/en/lab",
-        "/fr/lab",
       ]),
     );
+    expect(disallow).not.toEqual(expect.arrayContaining(["/en/lab", "/fr/lab"]));
     expect(result.sitemap).toBe("https://example.com/sitemap.xml");
   });
 });

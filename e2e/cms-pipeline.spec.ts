@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { submitLoginForm } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -32,7 +33,7 @@ test.describe("applications inbox", () => {
     await page.goto("/en/login?next=%2Fdashboard%2Fapplications");
     await page.getByLabel("Email").fill(adminEmail);
     await page.getByLabel("Password").fill(adminPassword);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await submitLoginForm(page);
     await expect(page).toHaveURL(/\/dashboard\/applications/, {
       timeout: 20_000,
     });
@@ -61,7 +62,7 @@ test.describe("cohorts cms smoke", () => {
     await page.goto("/en/login?next=%2Fdashboard%2Fcohorts");
     await page.getByLabel("Email").fill(adminEmail);
     await page.getByLabel("Password").fill(adminPassword);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await submitLoginForm(page);
     await expect(page).toHaveURL(/\/dashboard\/cohorts/, { timeout: 20_000 });
 
     await expect(page.getByRole("heading", { name: /Cohorts/i })).toBeVisible();

@@ -99,7 +99,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Founder stories",
     pageTitle: "Founder stories",
     description:
-      "Narrative modules for founder profiles. Public wiring lands in a later phase.",
+      "Narrative modules on public founder profiles and Impact case studies when published.",
     metaTitle: "Founder stories | ASIP Admin",
     cacheTags: ["founder-stories"],
   },
@@ -108,7 +108,8 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     listPath: ROUTES.evidence,
     navTitle: "Evidence",
     pageTitle: "Evidence",
-    description: "Internal evidence register for claims and impact metrics.",
+    description:
+      "Internal evidence register for claims and impact metrics. Not listed on the public site.",
     metaTitle: "Evidence | ASIP Admin",
   },
   impactMetrics: {
@@ -117,7 +118,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Impact metrics",
     pageTitle: "Impact metrics",
     description:
-      "Evidence-backed claims for Home and Impact. Only verified metrics may go live later.",
+      "Evidence-backed claims. Verified + homepage_module_02 feed the home impact strip; Impact page strip is not wired yet.",
     metaTitle: "Impact metrics | ASIP Admin",
     cacheTags: ["impact-metrics"],
   },
@@ -126,7 +127,8 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     listPath: ROUTES.events,
     navTitle: "Events",
     pageTitle: "Events",
-    description: "Programme events, speakers, assets, and linked startups.",
+    description:
+      "Programme events catalogue (speakers, assets, linked startups). No public events marketing page yet.",
     metaTitle: "Events | ASIP Admin",
     cacheTags: ["events"],
   },

@@ -183,8 +183,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (first && isLocale(first)) {
-    // /apply and /register-interest both stay live; open_applications only
-    // drives nav CTA, status banner, and Apply SEO — not URL exclusivity.
+    // Mutual intake gate: open_applications also drives nav CTA, banner, and SEO.
+    // Wrong intake URL redirects in page render; Server Actions reject the inactive path.
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(LOCALE_HEADER, first);
     const next = NextResponse.next({

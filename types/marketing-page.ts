@@ -85,7 +85,6 @@ export type MarketingContentSlug = Exclude<
   | "impact"
   | "alumni"
   | "partners"
-  | "lab"
 >;
 
 export type LegalPageSlug = "terms" | "privacy";

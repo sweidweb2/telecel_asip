@@ -36,11 +36,7 @@ describe("SiteSettingsForm", () => {
     const user = userEvent.setup();
 
     render(
-      <SiteSettingsForm
-        openApplications={false}
-        newsletterSignupEnabled={false}
-        backupTime="off"
-      />,
+      <SiteSettingsForm openApplications={false} backupTime="off" />,
     );
 
     await user.click(screen.getAllByRole("switch")[0]!);
@@ -55,15 +51,13 @@ describe("SiteSettingsForm", () => {
     expect(toastSuccess).toHaveBeenCalledWith("Settings saved.");
   });
 
-  it("shows backup schedule without run now", () => {
+  it("shows newsletter as a phase 1 note, not a toggle", () => {
     render(
-      <SiteSettingsForm
-        openApplications={false}
-        newsletterSignupEnabled={false}
-        backupTime="weekly_sun_03"
-      />,
+      <SiteSettingsForm openApplications={false} backupTime="weekly_sun_03" />,
     );
 
+    expect(screen.getByText(/hidden — phase 1/i)).toBeTruthy();
+    expect(screen.queryByRole("switch", { name: /newsletter/i })).toBeNull();
     expect(
       screen.queryByRole("button", { name: /run backup now/i }),
     ).not.toBeInTheDocument();

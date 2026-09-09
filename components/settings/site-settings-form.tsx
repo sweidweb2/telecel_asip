@@ -37,13 +37,11 @@ import {
 
 type SiteSettingsFormProps = {
   openApplications: boolean;
-  newsletterSignupEnabled: boolean;
   backupTime: BackupScheduleValue;
 };
 
 export function SiteSettingsForm({
   openApplications,
-  newsletterSignupEnabled,
   backupTime,
 }: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -64,21 +62,21 @@ export function SiteSettingsForm({
     mode: "onChange",
     defaultValues: {
       openApplications,
-      newsletterSignupEnabled,
+      // Phase 1: Insights newsletter is hidden; keep the flag off on save.
+      newsletterSignupEnabled: false,
       backupTime,
     },
   });
 
   const isOpen = useWatch({ control, name: "openApplications" });
-  const isNewsletterOn = useWatch({
-    control,
-    name: "newsletterSignupEnabled",
-  });
   const selectedBackupTime = useWatch({ control, name: "backupTime" });
 
   function onSubmit(values: UpdateSiteSettingsInput) {
     startTransition(async () => {
-      const result = await updateSiteSettings(values);
+      const result = await updateSiteSettings({
+        ...values,
+        newsletterSignupEnabled: false,
+      });
 
       if (result.status === "error") {
         toast.error(result.message);
@@ -86,7 +84,7 @@ export function SiteSettingsForm({
       }
 
       toast.success(result.message);
-      reset(values);
+      reset({ ...values, newsletterSignupEnabled: false });
     });
   }
 
@@ -106,10 +104,10 @@ export function SiteSettingsForm({
                 <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
               </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When on, the public navbar promotes Apply and a status banner
-                appears under the nav. When off, the navbar promotes Register
-                Interest and the banner is hidden. Both pages stay live;
-                submissions still go to separate Leads and Applications tables.
+                When on, the public navbar promotes Apply, Apply accepts
+                submissions, and Register Interest redirects to Apply. When off,
+                Register Interest is the live intake, Apply redirects there, and
+                the open banner is hidden.
               </p>
             </div>
             <div className="flex min-h-11 items-center gap-3">
@@ -130,32 +128,17 @@ export function SiteSettingsForm({
           <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <Label htmlFor="newsletter-signup" className="text-base">
-                  Newsletter signup
-                </Label>
+                <p className="text-base font-medium">Newsletter signup</p>
                 <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
               </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When off, the Insights updates form stays inactive and rejects
-                submissions. Turn on only after privacy, routing, and owner are
-                confirmed.
+                The Insights newsletter module is hidden for phase 1. Signup is
+                not shown publicly and stays off until a later release.
               </p>
             </div>
-            <div className="flex min-h-11 items-center gap-3">
-              <Switch
-                id="newsletter-signup"
-                checked={isNewsletterOn}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  setValue("newsletterSignupEnabled", checked, {
-                    shouldDirty: true,
-                  })
-                }
-              />
-              <span className="text-sm font-medium">
-                {isNewsletterOn ? "Enabled" : "Disabled"}
-              </span>
-            </div>
+            <p className="flex min-h-11 items-center text-sm font-medium text-muted-foreground">
+              Hidden — phase 1
+            </p>
           </div>
 
           <div className="grid gap-4 border-t pt-6">

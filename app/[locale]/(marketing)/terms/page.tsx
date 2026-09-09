@@ -20,14 +20,14 @@ export async function generateMetadata({
           path: "/terms",
           title: "Conditions d’utilisation — ASIP",
           description:
-            "Conditions d’utilisation provisoires du site du Programme africain d’initiative pour les startups.",
+            "Conditions d’utilisation du site ASIP : comptes, formulaires d’admission, contact et usage acceptable.",
         }
       : {
           locale,
           path: "/terms",
           title: "Terms of Service — ASIP",
           description:
-            "Draft terms of service for the Africa Startup Initiative Program website.",
+            "Terms of service for the ASIP website: accounts, intake forms, contact, and acceptable use.",
         },
   );
 }

@@ -28,6 +28,14 @@ vi.mock("@/lib/admin/authorize-admin", () => ({
   authorizeAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/admin/get-auth-user", () => ({
+  getAuthUser: vi.fn(),
+}));
+
+vi.mock("@/data/settings", () => ({
+  getOpenApplications: vi.fn(),
+}));
+
 const insertMock = vi.fn();
 const updateEqMock = vi.fn();
 const deleteEqMock = vi.fn();
@@ -46,7 +54,9 @@ import {
   updateInterestRegistration,
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
+import { getOpenApplications } from "@/data/settings";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
@@ -88,6 +98,39 @@ describe("submitInterestRegistration", () => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
     vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(getOpenApplications).mockResolvedValue(false);
+    vi.mocked(getAuthUser).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+    } as Awaited<ReturnType<typeof getAuthUser>>);
+  });
+
+  it("rejects when applications are open", async () => {
+    vi.mocked(getOpenApplications).mockResolvedValue(true);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message:
+        "Applications are open. Submit an official application instead of registering interest.",
+    });
+    expect(getAuthUser).not.toHaveBeenCalled();
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the visitor is not signed in", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue(null);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Sign in to register your interest.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("rejects invalid payloads before Turnstile", async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition, type ReactNode } from "react";
+import { useCallback, useState, useTransition, type ReactNode } from "react";
 import {
   Controller,
   useForm,
@@ -21,6 +21,15 @@ import type {
 import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +50,7 @@ type ApplyFormProps = {
   locale: Locale;
   labels: ApplyLabels;
   mode: ApplyFormMode;
+  defaultEmail?: string;
 };
 
 const REGISTER_DEFAULTS: InterestRegistrationInput = {
@@ -79,20 +89,43 @@ const APPLY_DEFAULTS: ApplicationInput = {
   turnstileToken: "",
 };
 
-export function ApplyForm({ locale, labels, mode }: ApplyFormProps) {
+export function ApplyForm({
+  locale,
+  labels,
+  mode,
+  defaultEmail = "",
+}: ApplyFormProps) {
   if (mode === "apply") {
-    return <ApplyIntakeForm locale={locale} labels={labels} />;
+    return (
+      <ApplyIntakeForm
+        locale={locale}
+        labels={labels}
+        defaultEmail={defaultEmail}
+      />
+    );
   }
-  return <RegisterIntakeForm locale={locale} labels={labels} />;
+  return (
+    <RegisterIntakeForm
+      locale={locale}
+      labels={labels}
+      defaultEmail={defaultEmail}
+    />
+  );
 }
 
 type IntakeFormProps = {
   locale: Locale;
   labels: ApplyLabels;
+  defaultEmail: string;
 };
 
-function RegisterIntakeForm({ locale, labels }: IntakeFormProps) {
+function RegisterIntakeForm({
+  locale,
+  labels,
+  defaultEmail,
+}: IntakeFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [successOpen, setSuccessOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -102,7 +135,7 @@ function RegisterIntakeForm({ locale, labels }: IntakeFormProps) {
     formState: { errors },
   } = useForm<InterestRegistrationInput>({
     resolver: zodResolver(interestRegistrationSchemaFor(locale)),
-    defaultValues: REGISTER_DEFAULTS,
+    defaultValues: { ...REGISTER_DEFAULTS, email: defaultEmail },
   });
 
   const turnstileToken = useWatch({ control, name: "turnstileToken" });
@@ -123,8 +156,8 @@ function RegisterIntakeForm({ locale, labels }: IntakeFormProps) {
           toast.error(result.message);
           return;
         }
-        toast.success(result.message || labels.successToast);
-        reset(REGISTER_DEFAULTS);
+        reset({ ...REGISTER_DEFAULTS, email: defaultEmail });
+        setSuccessOpen(true);
       } finally {
         turnstile.reset();
       }
@@ -132,54 +165,66 @@ function RegisterIntakeForm({ locale, labels }: IntakeFormProps) {
   }
 
   return (
-    <form
-      className="grid gap-4"
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-    >
-      <SharedFields
-        labels={labels}
-        register={register as unknown as UseFormRegister<FieldValues>}
-        errors={errors}
-        isPending={isPending}
-      />
-      <div className="grid gap-2">
-        <ApplyFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
-          {labels.pitchLabel}
-        </ApplyFieldLabel>
-        <Textarea
-          id="intake-pitch"
-          rows={4}
-          placeholder={labels.pitchPlaceholder}
-          aria-invalid={Boolean(errors.pitch)}
-          disabled={isPending}
-          {...register("pitch")}
+    <>
+      <form
+        className="grid gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
+        <SharedFields
+          labels={labels}
+          register={register as unknown as UseFormRegister<FieldValues>}
+          errors={errors}
+          isPending={isPending}
         />
-        {errors.pitch ? (
-          <p className="text-sm text-destructive">{errors.pitch.message}</p>
-        ) : null}
-      </div>
-      <ConsentFields
+        <div className="grid gap-2">
+          <ApplyFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
+            {labels.pitchLabel}
+          </ApplyFieldLabel>
+          <Textarea
+            id="intake-pitch"
+            rows={4}
+            placeholder={labels.pitchPlaceholder}
+            aria-invalid={Boolean(errors.pitch)}
+            disabled={isPending}
+            {...register("pitch")}
+          />
+          {errors.pitch ? (
+            <p className="text-sm text-destructive">{errors.pitch.message}</p>
+          ) : null}
+        </div>
+        <ConsentFields
+          labels={labels}
+          control={control}
+          consentError={errors.consent?.message}
+          isPending={isPending}
+        />
+        <input type="hidden" {...register("turnstileToken")} />
+        <TurnstileField
+          turnstile={turnstile}
+          hasToken={Boolean(turnstileToken)}
+          hint={labels.turnstileHint}
+          error={errors.turnstileToken?.message}
+          testId="register-turnstile"
+        />
+        <SubmitButton labels={labels} isPending={isPending} />
+      </form>
+      <ApplySuccessDialog
+        open={successOpen}
+        onOpenChange={setSuccessOpen}
         labels={labels}
-        control={control}
-        consentError={errors.consent?.message}
-        isPending={isPending}
       />
-      <input type="hidden" {...register("turnstileToken")} />
-      <TurnstileField
-        turnstile={turnstile}
-        hasToken={Boolean(turnstileToken)}
-        hint={labels.turnstileHint}
-        error={errors.turnstileToken?.message}
-        testId="register-turnstile"
-      />
-      <SubmitButton labels={labels} isPending={isPending} />
-    </form>
+    </>
   );
 }
 
-function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
+function ApplyIntakeForm({
+  locale,
+  labels,
+  defaultEmail,
+}: IntakeFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [successOpen, setSuccessOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -189,7 +234,7 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
     formState: { errors },
   } = useForm<ApplicationInput>({
     resolver: zodResolver(applicationSchemaFor(locale)),
-    defaultValues: APPLY_DEFAULTS,
+    defaultValues: { ...APPLY_DEFAULTS, email: defaultEmail },
   });
 
   const turnstileToken = useWatch({ control, name: "turnstileToken" });
@@ -210,8 +255,8 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
           toast.error(result.message);
           return;
         }
-        toast.success(result.message || labels.successToast);
-        reset(APPLY_DEFAULTS);
+        reset({ ...APPLY_DEFAULTS, email: defaultEmail });
+        setSuccessOpen(true);
       } finally {
         turnstile.reset();
       }
@@ -219,91 +264,130 @@ function ApplyIntakeForm({ locale, labels }: IntakeFormProps) {
   }
 
   return (
-    <form
-      className="grid gap-4"
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-    >
-      <SharedFields
+    <>
+      <form
+        className="grid gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
+        <SharedFields
+          labels={labels}
+          register={register as unknown as UseFormRegister<FieldValues>}
+          errors={errors}
+          isPending={isPending}
+        />
+        <div className="grid gap-2">
+          <ApplyFieldLabel
+            htmlFor="intake-problem"
+            hint={labels.problemHint}
+          >
+            {labels.problemLabel}
+          </ApplyFieldLabel>
+          <Textarea
+            id="intake-problem"
+            rows={5}
+            placeholder={labels.problemPlaceholder}
+            aria-invalid={Boolean(errors.problemProduct)}
+            disabled={isPending}
+            {...register("problemProduct")}
+          />
+          {errors.problemProduct ? (
+            <p className="text-sm text-destructive">
+              {errors.problemProduct.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="grid gap-2">
+          <ApplyFieldLabel
+            htmlFor="intake-traction"
+            hint={labels.tractionHint}
+          >
+            {labels.tractionLabel}
+          </ApplyFieldLabel>
+          <Textarea
+            id="intake-traction"
+            rows={4}
+            placeholder={labels.tractionPlaceholder}
+            aria-invalid={Boolean(errors.traction)}
+            disabled={isPending}
+            {...register("traction")}
+          />
+          {errors.traction ? (
+            <p className="text-sm text-destructive">{errors.traction.message}</p>
+          ) : null}
+        </div>
+        <div className="grid gap-2">
+          <ApplyFieldLabel htmlFor="intake-fit" hint={labels.fitHint}>
+            {labels.fitLabel}
+          </ApplyFieldLabel>
+          <Textarea
+            id="intake-fit"
+            rows={4}
+            placeholder={labels.fitPlaceholder}
+            aria-invalid={Boolean(errors.programmeFit)}
+            disabled={isPending}
+            {...register("programmeFit")}
+          />
+          {errors.programmeFit ? (
+            <p className="text-sm text-destructive">
+              {errors.programmeFit.message}
+            </p>
+          ) : null}
+        </div>
+        <ConsentFields
+          labels={labels}
+          control={control}
+          consentError={errors.consent?.message}
+          isPending={isPending}
+        />
+        <input type="hidden" {...register("turnstileToken")} />
+        <TurnstileField
+          turnstile={turnstile}
+          hasToken={Boolean(turnstileToken)}
+          hint={labels.turnstileHint}
+          error={errors.turnstileToken?.message}
+          testId="apply-turnstile"
+        />
+        <SubmitButton labels={labels} isPending={isPending} />
+      </form>
+      <ApplySuccessDialog
+        open={successOpen}
+        onOpenChange={setSuccessOpen}
         labels={labels}
-        register={register as unknown as UseFormRegister<FieldValues>}
-        errors={errors}
-        isPending={isPending}
       />
-      <div className="grid gap-2">
-        <ApplyFieldLabel
-          htmlFor="intake-problem"
-          hint={labels.problemHint}
-        >
-          {labels.problemLabel}
-        </ApplyFieldLabel>
-        <Textarea
-          id="intake-problem"
-          rows={5}
-          placeholder={labels.problemPlaceholder}
-          aria-invalid={Boolean(errors.problemProduct)}
-          disabled={isPending}
-          {...register("problemProduct")}
-        />
-        {errors.problemProduct ? (
-          <p className="text-sm text-destructive">
-            {errors.problemProduct.message}
-          </p>
-        ) : null}
-      </div>
-      <div className="grid gap-2">
-        <ApplyFieldLabel
-          htmlFor="intake-traction"
-          hint={labels.tractionHint}
-        >
-          {labels.tractionLabel}
-        </ApplyFieldLabel>
-        <Textarea
-          id="intake-traction"
-          rows={4}
-          placeholder={labels.tractionPlaceholder}
-          aria-invalid={Boolean(errors.traction)}
-          disabled={isPending}
-          {...register("traction")}
-        />
-        {errors.traction ? (
-          <p className="text-sm text-destructive">{errors.traction.message}</p>
-        ) : null}
-      </div>
-      <div className="grid gap-2">
-        <ApplyFieldLabel htmlFor="intake-fit" hint={labels.fitHint}>
-          {labels.fitLabel}
-        </ApplyFieldLabel>
-        <Textarea
-          id="intake-fit"
-          rows={4}
-          placeholder={labels.fitPlaceholder}
-          aria-invalid={Boolean(errors.programmeFit)}
-          disabled={isPending}
-          {...register("programmeFit")}
-        />
-        {errors.programmeFit ? (
-          <p className="text-sm text-destructive">
-            {errors.programmeFit.message}
-          </p>
-        ) : null}
-      </div>
-      <ConsentFields
-        labels={labels}
-        control={control}
-        consentError={errors.consent?.message}
-        isPending={isPending}
-      />
-      <input type="hidden" {...register("turnstileToken")} />
-      <TurnstileField
-        turnstile={turnstile}
-        hasToken={Boolean(turnstileToken)}
-        hint={labels.turnstileHint}
-        error={errors.turnstileToken?.message}
-        testId="apply-turnstile"
-      />
-      <SubmitButton labels={labels} isPending={isPending} />
-    </form>
+    </>
+  );
+}
+
+function ApplySuccessDialog({
+  open,
+  onOpenChange,
+  labels,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  labels: ApplyLabels;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md" showCloseButton>
+        <DialogHeader>
+          <DialogTitle className="pr-8 text-lg">
+            {labels.successTitle}
+          </DialogTitle>
+          <DialogDescription>{labels.successDescription}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:justify-end">
+          <DialogClose
+            render={
+              <Button variant="default" className="min-h-11 w-full sm:w-auto" />
+            }
+          >
+            {labels.successCloseLabel}
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

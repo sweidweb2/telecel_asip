@@ -1,6 +1,6 @@
 /**
  * Technical blueprint schematic — Africa outline, network nodes, CAD annotations.
- * Stroke-only illustration for the lab playground / home spotlight.
+ * Stroke-only illustration for the home founder spotlight.
  */
 
 import {

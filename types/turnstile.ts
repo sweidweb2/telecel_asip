@@ -7,6 +7,12 @@ export const TURNSTILE_APPLY_ACTION = "apply";
 /** Stable Turnstile `data-action` for the Insights newsletter signup. */
 export const TURNSTILE_NEWSLETTER_ACTION = "newsletter";
 
+/** Stable Turnstile `data-action` for the login form. */
+export const TURNSTILE_LOGIN_ACTION = "login";
+
+/** Stable Turnstile `data-action` for the signup form. */
+export const TURNSTILE_SIGNUP_ACTION = "signup";
+
 export type TurnstileWidgetId = string;
 
 export type TurnstileRenderOptions = {

@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 import { nanoid } from "nanoid";
 
+import { waitForTurnstileReady, submitLoginForm } from "./helpers";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -185,6 +187,10 @@ test.describe("auth", () => {
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
       await page.getByLabel("Confirm password").fill(password);
+      await waitForTurnstileReady(page, {
+        testId: "signup-turnstile",
+        submitName: "Create account",
+      });
       await page.getByRole("button", { name: "Create account" }).click();
 
       const outcome = await Promise.race([
@@ -228,7 +234,7 @@ test.describe("auth", () => {
       await page.goto("/en/login?next=%2Fdashboard");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password").fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 30_000 });
 
       await expect(
@@ -256,6 +262,10 @@ test.describe("auth", () => {
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByLabel("Confirm password").fill(password);
+    await waitForTurnstileReady(page, {
+      testId: "signup-turnstile",
+      submitName: "Create account",
+    });
     await page.getByRole("button", { name: "Create account" }).click();
 
     await expect(

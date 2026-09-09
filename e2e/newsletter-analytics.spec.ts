@@ -6,73 +6,16 @@ import {
   expectViewerRedirectedFrom,
   hasE2ECredentials,
   loginAsAdmin,
-  waitForTurnstileReady,
 } from "./helpers";
 
 test.describe("newsletter signup e2e", () => {
-  test.beforeEach(() => {
-    test.skip(
-      !hasE2ECredentials(),
-      "Newsletter E2E requires real Supabase credentials.",
-    );
-  });
-
-  test("visitor can subscribe when newsletter is enabled", async ({ page }) => {
-    test.setTimeout(120_000);
-    const suffix = e2eSuffix();
-    const email = `newsletter.${suffix}@example.com`;
-    const admin = e2eAdminClient();
-
-    const { data: before } = await admin
-      .from("site_settings")
-      .select("newsletter_signup_enabled")
-      .eq("id", 1)
-      .maybeSingle();
-    const previous = Boolean(before?.newsletter_signup_enabled);
-
-    try {
-      // Flip via admin UI so Next cache tags revalidate (service-role DB writes alone do not).
-      await loginAsAdmin(page, "/dashboard/settings");
-      const newsletterSwitch = page.getByRole("switch").nth(1);
-      if ((await newsletterSwitch.getAttribute("aria-checked")) !== "true") {
-        await newsletterSwitch.click();
-        await page.getByRole("button", { name: "Save changes" }).click();
-        await expect(
-          page
-            .locator("[data-sonner-toast]")
-            .filter({ hasText: "Settings saved" }),
-        ).toBeVisible({ timeout: 20_000 });
-      }
-
-      await page.goto("/en/insights");
-      const emailField = page.locator("#newsletter-email");
-      await expect(emailField).toBeEnabled({ timeout: 20_000 });
-      await emailField.fill(email);
-      await page.locator("label").filter({ hasText: /agree to ASIP storing/i }).click();
-      await waitForTurnstileReady(page, {
-        testId: "newsletter-turnstile",
-        submitName: "Register for updates",
-      });
-      await page.getByRole("button", { name: "Register for updates" }).click();
-      await expect(
-        page.locator("[data-sonner-toast]").filter({
-          hasText: /thank|subscribed|registered|success|update/i,
-        }),
-      ).toBeVisible({ timeout: 20_000 });
-
-      const { data: row } = await admin
-        .from("newsletter_subscribers")
-        .select("id")
-        .ilike("email", email)
-        .maybeSingle();
-      expect(row?.id).toBeTruthy();
-    } finally {
-      await admin.from("newsletter_subscribers").delete().ilike("email", email);
-      await admin
-        .from("site_settings")
-        .update({ newsletter_signup_enabled: previous })
-        .eq("id", 1);
-    }
+  test("Insights newsletter signup is hidden in phase 1", async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto("/en/insights");
+    await expect(page.locator("#newsletter-email")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Register for updates" }),
+    ).toHaveCount(0);
   });
 });
 

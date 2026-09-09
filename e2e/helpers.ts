@@ -59,7 +59,7 @@ export async function loginAsAdmin(
   await page.goto(`/en/login?next=${encoded}`);
   await page.getByLabel("Email").fill(e2eAdminEmail);
   await page.getByLabel("Password").fill(e2eAdminPassword);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await submitLoginForm(page);
   await expect(page).toHaveURL(new RegExp(nextPath.replace(/\//g, "\\/")), {
     timeout: 20_000,
   });
@@ -90,6 +90,15 @@ export async function waitForTurnstileReady(
   ).toBeEnabled({ timeout: 5_000 });
 }
 
+/** Complete the login form Turnstile challenge and click Sign in. */
+export async function submitLoginForm(page: Page): Promise<void> {
+  await waitForTurnstileReady(page, {
+    testId: "login-turnstile",
+    submitName: "Sign in",
+  });
+  await page.getByRole("button", { name: "Sign in" }).click();
+}
+
 /**
  * Create a temporary viewer, sign in with `next=` to a dashboard path, and
  * assert the app redirects them to the locale home.
@@ -118,7 +127,7 @@ export async function expectViewerRedirectedFrom(
     );
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password").fill(password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await submitLoginForm(page);
     await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
   } finally {
     if (created.user?.id) await admin.auth.admin.deleteUser(created.user.id);

@@ -20,7 +20,6 @@ export default async function SettingsPage() {
     >
       <SiteSettingsForm
         openApplications={settings.openApplications}
-        newsletterSignupEnabled={settings.newsletterSignupEnabled}
         backupTime={settings.backupTime}
       />
     </AdminListPageShell>

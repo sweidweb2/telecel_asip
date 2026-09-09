@@ -56,7 +56,7 @@ export const IMPACT_METRIC_EDITOR_HELP = {
       {
         name: "Display locations",
         detail:
-          "Where this metric may appear (one tag per line, e.g. homepage_module_02, impact_page). Suggestions replace the line you are typing.",
+          "Where this metric may appear (one tag per line). homepage_module_02 feeds the home impact strip when the metric is verified. impact_page is reserved but the Impact page strip is not wired yet. Suggestions replace the line you are typing.",
       },
     ],
   },

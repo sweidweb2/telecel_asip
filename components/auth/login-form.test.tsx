@@ -11,8 +11,30 @@ const push = vi.hoisted(() => vi.fn());
 const refresh = vi.hoisted(() => vi.fn());
 const toastError = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
+const turnstileToken = vi.hoisted(() => ({ value: "test-turnstile-token" }));
 
 vi.mock("@/actions/auth", () => ({ signIn }));
+
+vi.mock("@/hooks/use-turnstile", async () => {
+  const React = await import("react");
+  return {
+    useTurnstile: ({
+      onTokenChange,
+    }: {
+      onTokenChange: (token: string) => void;
+    }) => {
+      React.useEffect(() => {
+        onTokenChange(turnstileToken.value);
+      }, [onTokenChange]);
+      return {
+        siteKey: "test-site-key",
+        setContainer: vi.fn(),
+        render: vi.fn(),
+        reset: vi.fn(),
+      };
+    },
+  };
+});
 
 vi.mock("nextjs-toploader/app", () => ({
   useRouter: () => ({ push, refresh }),
@@ -33,15 +55,14 @@ function renderLoginForm() {
 describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    turnstileToken.value = "test-turnstile-token";
   });
 
-  it("blocks submit and shows field errors when the form is empty", async () => {
-    const user = userEvent.setup();
+  it("blocks submit when the security check has no token", async () => {
+    turnstileToken.value = "";
     renderLoginForm();
 
-    await user.click(screen.getByRole("button", { name: "Sign in" }));
-
-    expect(await screen.findByText(/enter a valid email/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeDisabled();
     expect(signIn).not.toHaveBeenCalled();
   });
 
@@ -51,6 +72,9 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText("Email"), "not-an-email");
     await user.type(screen.getByLabelText("Password"), "Testpass1");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled(),
+    );
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
     expect(await screen.findByText(/enter a valid email/i)).toBeInTheDocument();
@@ -69,11 +93,18 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText("Email"), "admin@example.com");
     await user.type(screen.getByLabelText("Password"), "Testpass1");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled(),
+    );
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
     await waitFor(() => expect(signIn).toHaveBeenCalledTimes(1));
     expect(signIn).toHaveBeenCalledWith(
-      { email: "admin@example.com", password: "Testpass1" },
+      {
+        email: "admin@example.com",
+        password: "Testpass1",
+        turnstileToken: "test-turnstile-token",
+      },
       ROUTES.users,
     );
     await waitFor(() => expect(push).toHaveBeenCalledWith(ROUTES.users));
@@ -91,6 +122,9 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText("Email"), "admin@example.com");
     await user.type(screen.getByLabelText("Password"), "Testpass1");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled(),
+    );
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
     await waitFor(() =>
@@ -112,5 +146,19 @@ describe("LoginForm", () => {
 
     await user.click(screen.getByRole("button", { name: "Hide password" }));
     expect(password).toHaveAttribute("type", "password");
+  });
+
+  it("opens the forgot-password dialog with the contact email", async () => {
+    const user = userEvent.setup();
+    renderLoginForm();
+
+    await user.click(screen.getByRole("button", { name: "Forgot password?" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Reset password" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "info@telecelgroup.com" }),
+    ).toHaveAttribute("href", "mailto:info@telecelgroup.com");
   });
 });

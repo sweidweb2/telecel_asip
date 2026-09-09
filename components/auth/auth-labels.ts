@@ -9,11 +9,17 @@ export type LoginLabels = {
   passwordPlaceholder: string;
   showPassword: string;
   hidePassword: string;
+  forgotPasswordLink: string;
+  forgotPasswordTitle: string;
+  forgotPasswordBody: string;
+  forgotPasswordEmailLabel: string;
+  forgotPasswordClose: string;
   submitLabel: string;
   submittingLabel: string;
   noAccountPrompt: string;
   signUpLink: string;
   successToast: string;
+  turnstileHint: string;
 };
 
 export type SignupLabels = {
@@ -29,8 +35,9 @@ export type SignupLabels = {
   submittingLabel: string;
   hasAccountPrompt: string;
   loginLink: string;
-  developerNote: string;
+  viewerNote: string;
   successToast: string;
+  turnstileHint: string;
 };
 
 export type AuthActionMessages = {
@@ -45,6 +52,7 @@ export type AuthActionMessages = {
   accountCreated: string;
   confirmEmail: string;
   signedIn: string;
+  verificationFailed: string;
 };
 
 const LOGIN: Record<Locale, LoginLabels> = {
@@ -57,11 +65,18 @@ const LOGIN: Record<Locale, LoginLabels> = {
     passwordPlaceholder: "••••••••",
     showPassword: "Show password",
     hidePassword: "Hide password",
+    forgotPasswordLink: "Forgot password?",
+    forgotPasswordTitle: "Reset password",
+    forgotPasswordBody:
+      "There is no self-serve password reset. Email the ASIP team and they will help you regain access.",
+    forgotPasswordEmailLabel: "Contact email",
+    forgotPasswordClose: "Close",
     submitLabel: "Sign in",
     submittingLabel: "Signing in…",
     noAccountPrompt: "No account?",
     signUpLink: "Sign up",
     successToast: "Signed in.",
+    turnstileHint: "Complete the security check before signing in.",
   },
   fr: {
     title: "Connexion",
@@ -72,18 +87,26 @@ const LOGIN: Record<Locale, LoginLabels> = {
     passwordPlaceholder: "••••••••",
     showPassword: "Afficher le mot de passe",
     hidePassword: "Masquer le mot de passe",
+    forgotPasswordLink: "Mot de passe oublié ?",
+    forgotPasswordTitle: "Réinitialiser le mot de passe",
+    forgotPasswordBody:
+      "Il n’y a pas de réinitialisation en libre-service. Écrivez à l’équipe ASIP pour récupérer l’accès.",
+    forgotPasswordEmailLabel: "E-mail de contact",
+    forgotPasswordClose: "Fermer",
     submitLabel: "Se connecter",
     submittingLabel: "Connexion…",
     noAccountPrompt: "Pas de compte ?",
     signUpLink: "S’inscrire",
     successToast: "Connecté.",
+    turnstileHint: "Complétez la vérification de sécurité avant de vous connecter.",
   },
 };
 
 const SIGNUP: Record<Locale, SignupLabels> = {
   en: {
     title: "Sign up",
-    description: "Create a developer admin account to access the dashboard.",
+    description:
+      "Create an account to register interest or apply to ASIP.",
     nameLabel: "Name",
     namePlaceholder: "Your name",
     emailLabel: "Email",
@@ -94,14 +117,15 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     submittingLabel: "Creating account…",
     hasAccountPrompt: "Already have an account?",
     loginLink: "Login",
-    developerNote:
-      "Developer testing only — new accounts receive the admin role.",
+    viewerNote:
+      "New accounts are viewers. They can use intake forms, not the admin dashboard.",
     successToast: "Account created.",
+    turnstileHint: "Complete the security check before creating your account.",
   },
   fr: {
     title: "Inscription",
     description:
-      "Créez un compte admin développeur pour accéder au tableau de bord.",
+      "Créez un compte pour manifester votre intérêt ou candidater à ASIP.",
     nameLabel: "Nom",
     namePlaceholder: "Votre nom",
     emailLabel: "E-mail",
@@ -112,9 +136,11 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     submittingLabel: "Création…",
     hasAccountPrompt: "Déjà un compte ?",
     loginLink: "Connexion",
-    developerNote:
-      "Réservé aux tests développeur — les nouveaux comptes reçoivent le rôle admin.",
+    viewerNote:
+      "Les nouveaux comptes sont des viewers. Ils peuvent utiliser les formulaires d’admission, pas le tableau de bord admin.",
     successToast: "Compte créé.",
+    turnstileHint:
+      "Complétez la vérification de sécurité avant de créer votre compte.",
   },
 };
 
@@ -132,6 +158,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     accountCreated: "Account created.",
     confirmEmail: "Check your email to confirm your account, then sign in.",
     signedIn: "Signed in.",
+    verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
     invalidCredentials: "E-mail ou mot de passe invalide.",
@@ -147,6 +174,8 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     confirmEmail:
       "Vérifiez votre e-mail pour confirmer votre compte, puis connectez-vous.",
     signedIn: "Connecté.",
+    verificationFailed:
+      "La vérification de sécurité a échoué. Veuillez réessayer.",
   },
 };
 

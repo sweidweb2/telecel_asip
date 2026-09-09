@@ -34,6 +34,8 @@ function revalidateSettingsCaches() {
   revalidatePath("/fr/insights");
   revalidatePath("/en/apply");
   revalidatePath("/fr/apply");
+  revalidatePath("/en/register-interest");
+  revalidatePath("/fr/register-interest");
   revalidatePath(ROUTES.settings);
   revalidatePath(ROUTES.backup);
 }

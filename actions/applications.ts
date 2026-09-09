@@ -3,6 +3,8 @@
 import { headers } from "next/headers";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import {
   refreshAdminResource,
   runAdminMutation,
@@ -39,11 +41,13 @@ const ACTION_MESSAGES = {
     deleteSuccess: "Application deleted successfully.",
     inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage applications.",
-    signedInRequired: "You must be signed in.",
+    signedInRequired: "Sign in to submit an application.",
     notFound: "Application not found.",
     rateLimited: "Too many submissions. Please wait and try again later.",
     duplicate: "You already applied with this company and email.",
     verificationFailed: "Security check failed. Please try again.",
+    applicationsClosed:
+      "Applications are closed. Register your interest to hear when the next chapter opens.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
@@ -53,7 +57,7 @@ const ACTION_MESSAGES = {
     deleteSuccess: "Candidature supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
     unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
-    signedInRequired: "Vous devez être connecté.",
+    signedInRequired: "Connectez-vous pour envoyer une candidature.",
     notFound: "Candidature introuvable.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
@@ -61,6 +65,8 @@ const ACTION_MESSAGES = {
       "Vous avez déjà candidaté avec cette entreprise et cet e-mail.",
     verificationFailed:
       "La vérification de sécurité a échoué. Veuillez réessayer.",
+    applicationsClosed:
+      "Les candidatures sont fermées. Manifestez votre intérêt pour être informé de l’ouverture du prochain chapitre.",
   },
 } as const;
 
@@ -96,6 +102,16 @@ export async function submitApplication(
 ): Promise<ApplicationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
+
+  if (!(await getOpenApplications())) {
+    return { status: "error", message: copy.applicationsClosed };
+  }
+
+  const user = await getAuthUser();
+  if (!user) {
+    return { status: "error", message: copy.signedInRequired };
+  }
+
   const parsed = applicationSchemaFor(locale).safeParse(input);
 
   if (!parsed.success) {

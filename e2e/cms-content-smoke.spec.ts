@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminEmail, e2eAdminPassword, hasE2ECredentials } from "./helpers";
+import { e2eAdminEmail, e2eAdminPassword, hasE2ECredentials, submitLoginForm } from "./helpers";
 
 /**
  * Lightweight open-list smoke for inbox-style routes that are not covered by
@@ -20,7 +20,7 @@ test.describe("cms content smoke", () => {
     await page.goto("/en/login?next=%2Fdashboard%2Fregistrations");
     await page.getByLabel("Email").fill(e2eAdminEmail);
     await page.getByLabel("Password").fill(e2eAdminPassword);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await submitLoginForm(page);
     await expect(page).toHaveURL(/\/dashboard\/registrations/, {
       timeout: 20_000,
     });

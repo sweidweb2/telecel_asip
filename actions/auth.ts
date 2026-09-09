@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { match, P } from "ts-pattern";
 
@@ -8,6 +9,11 @@ import type { Locale } from "@/constants/locales";
 import { authPath, ROUTES } from "@/constants/routes";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { createClient } from "@/lib/supabase/server";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import {
+  TURNSTILE_LOGIN_ACTION,
+  TURNSTILE_SIGNUP_ACTION,
+} from "@/types/turnstile";
 import {
   loginSchemaFor,
   registerSchemaFor,
@@ -28,9 +34,9 @@ function mapAuthError(message: string, locale: Locale): string {
       P.when(
         (value) =>
           value.includes("invalid login credentials") ||
-          value.includes("invalid credentials")
+          value.includes("invalid credentials"),
       ),
-      () => copy.invalidCredentials
+      () => copy.invalidCredentials,
     )
     .with(
       P.when(
@@ -38,9 +44,9 @@ function mapAuthError(message: string, locale: Locale): string {
           value.includes("already registered") ||
           value.includes("user already registered") ||
           value.includes("already been registered") ||
-          value.includes("email address is already")
+          value.includes("email address is already"),
       ),
-      () => copy.emailExists
+      () => copy.emailExists,
     )
     .with(
       P.when(
@@ -49,22 +55,22 @@ function mapAuthError(message: string, locale: Locale): string {
           (value.includes("weak") ||
             value.includes("at least") ||
             value.includes("too short") ||
-            value.includes("should be"))
+            value.includes("should be")),
       ),
-      () => copy.weakPassword
+      () => copy.weakPassword,
     )
     .with(
       P.when((value) => value.includes("email not confirmed")),
-      () => copy.emailNotConfirmed
+      () => copy.emailNotConfirmed,
     )
     .with(
       P.when(
         (value) =>
           value.includes("rate limit") ||
           value.includes("too many requests") ||
-          value.includes("over_request_rate_limit")
+          value.includes("over_request_rate_limit"),
       ),
-      () => copy.rateLimited
+      () => copy.rateLimited,
     )
     .otherwise(() => {
       // Unmapped GoTrue messages can name internals or confirm account state.
@@ -81,8 +87,19 @@ function safeRedirectPath(path: string | undefined): string {
   return path;
 }
 
+async function getClientIp(): Promise<string> {
+  const headerStore = await headers();
+  const forwarded = headerStore.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return headerStore.get("x-real-ip")?.trim() || "unknown";
+}
+
 export async function signUp(
-  input: RegisterInput
+  input: RegisterInput,
+  redirectTo?: string,
 ): Promise<AuthActionResult> {
   const locale = await getRequestLocale();
   const copy = authActionMessagesFor(locale);
@@ -95,13 +112,26 @@ export async function signUp(
     };
   }
 
-  const { fullName, email, password } = parsed.data;
+  const { fullName, email, password, turnstileToken } = parsed.data;
+  const ip = await getClientIp();
+  const turnstileOk = await verifyTurnstileToken({
+    token: turnstileToken,
+    expectedAction: TURNSTILE_SIGNUP_ACTION,
+    remoteip: ip,
+  });
+  if (!turnstileOk) {
+    return { status: "error", message: copy.verificationFailed };
+  }
+
   const supabase = await createClient();
+  const afterAuthPath = safeRedirectPath(redirectTo);
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
+      // Public signup never sets app_metadata.app_role — handle_new_user
+      // defaults the profile to viewer.
       data: { full_name: fullName },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/callback`,
     },
@@ -123,7 +153,7 @@ export async function signUp(
     return {
       status: "success",
       message: copy.accountCreated,
-      redirectTo: ROUTES.dashboard,
+      redirectTo: afterAuthPath === ROUTES.dashboard ? `/${locale}` : afterAuthPath,
     };
   }
 
@@ -135,7 +165,7 @@ export async function signUp(
 
 export async function signIn(
   input: LoginInput,
-  redirectTo?: string
+  redirectTo?: string,
 ): Promise<AuthActionResult> {
   const locale = await getRequestLocale();
   const copy = authActionMessagesFor(locale);
@@ -146,6 +176,16 @@ export async function signIn(
       status: "error",
       message: parsed.error.issues[0]?.message ?? copy.invalidLoginDetails,
     };
+  }
+
+  const ip = await getClientIp();
+  const turnstileOk = await verifyTurnstileToken({
+    token: parsed.data.turnstileToken,
+    expectedAction: TURNSTILE_LOGIN_ACTION,
+    remoteip: ip,
+  });
+  if (!turnstileOk) {
+    return { status: "error", message: copy.verificationFailed };
   }
 
   const supabase = await createClient();
