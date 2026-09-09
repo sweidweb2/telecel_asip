@@ -95,7 +95,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     hasAccountPrompt: "Already have an account?",
     loginLink: "Login",
     developerNote:
-      "Developer testing only — new accounts receive the admin role.",
+      "Developer testing only - new accounts receive the admin role.",
     successToast: "Account created.",
   },
   fr: {
@@ -113,7 +113,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     hasAccountPrompt: "Déjà un compte ?",
     loginLink: "Connexion",
     developerNote:
-      "Réservé aux tests développeur — les nouveaux comptes reçoivent le rôle admin.",
+      "Réservé aux tests développeur - les nouveaux comptes reçoivent le rôle admin.",
     successToast: "Compte créé.",
   },
 };

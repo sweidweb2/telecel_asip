@@ -216,7 +216,7 @@ export function SiteSettingsForm({
                   Current selection:{" "}
                   {selectedBackupTime
                     ? backupScheduleLabel(selectedBackupTime)
-                    : "—"}
+                    : "-"}
                 </p>
               </div>
             </div>

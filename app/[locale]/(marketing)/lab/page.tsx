@@ -20,14 +20,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/lab",
-          title: "Labo de sections — ASIP",
+          title: "Labo de sections - ASIP",
           description: "Espace temporaire pour sections marketing.",
           noIndex: true,
         }
       : {
           locale,
           path: "/lab",
-          title: "Sections lab — ASIP",
+          title: "Sections lab - ASIP",
           description: "Temporary playground for marketing sections.",
           noIndex: true,
         },

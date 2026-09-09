@@ -33,7 +33,7 @@ const resource = getAdminResource("applications");
 const ACTION_MESSAGES = {
   en: {
     invalidDetails: "Please check the form and try again.",
-    success: "Thank you — your application has been submitted.",
+    success: "Thank you - your application has been submitted.",
     genericError: "Something went wrong. Please try again.",
     updateSuccess: "Application updated successfully.",
     deleteSuccess: "Application deleted successfully.",
@@ -47,7 +47,7 @@ const ACTION_MESSAGES = {
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
-    success: "Merci — votre candidature a bien été envoyée.",
+    success: "Merci - votre candidature a bien été envoyée.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     updateSuccess: "Candidature mise à jour avec succès.",
     deleteSuccess: "Candidature supprimée avec succès.",

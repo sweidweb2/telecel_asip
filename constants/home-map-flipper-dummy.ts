@@ -103,7 +103,7 @@ export const HOME_MAP_FLIPPER_SLIDES: MapFlipperSlide[] = [
     eyebrow: "Demo · West Africa",
     title: "West Africa focus",
     description:
-      "Dummy stats for a regional zoom — replace with verified metrics later.",
+      "Dummy stats for a regional zoom - replace with verified metrics later.",
     center: [-5, 10],
     scale: 720,
     stats: [

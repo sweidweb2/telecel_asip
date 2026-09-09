@@ -127,7 +127,7 @@ export function ImpactMetricsTable({
                 </span>
               </Badge>
             ) : (
-              <span className="text-muted-foreground">—</span>
+              <span className="text-muted-foreground">-</span>
             )}
           </TableCell>
           <TableCell className="whitespace-nowrap">
@@ -140,7 +140,7 @@ export function ImpactMetricsTable({
               className="block truncate"
               title={metric.evidence_primary_source ?? undefined}
             >
-              {metric.evidence_primary_source || "—"}
+              {metric.evidence_primary_source || "-"}
             </span>
           </TableCell>
           <TableCell

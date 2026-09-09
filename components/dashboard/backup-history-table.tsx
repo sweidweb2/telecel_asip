@@ -19,7 +19,7 @@ import {
 } from "@/validations/backup";
 
 function formatBytes(size: number | null): string {
-  if (size == null || size < 0) return "—";
+  if (size == null || size < 0) return "-";
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -163,7 +163,7 @@ export function BackupHistoryTable({
               {row.status === "completed" && row.file_path ? (
                 <BackupDownloadButton backupId={row.id} />
               ) : (
-                <span className="text-sm text-muted-foreground">—</span>
+                <span className="text-sm text-muted-foreground">-</span>
               )}
             </TableCell>
           </TableRow>

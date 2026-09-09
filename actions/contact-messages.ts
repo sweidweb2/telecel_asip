@@ -36,14 +36,14 @@ const resource = getAdminResource("contactUs");
 const PUBLIC_MESSAGES = {
   en: {
     invalidDetails: "Please check the form and try again.",
-    success: "Thank you — your message has been sent.",
+    success: "Thank you - your message has been sent.",
     genericError: "Something went wrong. Please try again.",
     rateLimited: "Too many submissions. Please wait and try again later.",
     verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
-    success: "Merci — votre message a bien été envoyé.",
+    success: "Merci - votre message a bien été envoyé.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",

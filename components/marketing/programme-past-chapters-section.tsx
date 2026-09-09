@@ -163,7 +163,7 @@ export function ProgrammePastChaptersSection({
                             >
                               {cohort.year}
                               <span className="font-medium text-[#14333b]">
-                                {" — "}
+                                {" - "}
                                 {cohort.public_label}
                               </span>
                             </span>
@@ -462,7 +462,7 @@ function PastChaptersGraph({
               transform={`translate(${x} ${y})`}
               role="button"
               tabIndex={0}
-              aria-label={`${cohort.year} — ${cohort.public_label}`}
+              aria-label={`${cohort.year} - ${cohort.public_label}`}
               aria-current={isActive ? "true" : undefined}
               className="cursor-pointer outline-none"
               onClick={() => onSelect(cohort.id)}

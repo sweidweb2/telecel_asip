@@ -83,7 +83,7 @@ const en: ImpactPageCopy = {
     body: "[Startup] entered ASIP facing [specific barrier]. Through [specific ASIP support], the team strengthened [product, market, investment or operating capability]. Since then, it has [validated outcome]. The result shows what can happen when a strong founder gets the right connection at the right time.",
     note: "Published case studies replace every placeholder with verified, founder-specific facts. Generic success copy is not published as a real story.",
     empty:
-      "Founder stories appear here once each one is verified — not as generic success copy.",
+      "Founder stories appear here once each one is verified - not as generic success copy.",
     comingSoon: "Founder story coming soon",
     readStory: "Read full story",
     loadMore: "Load more stories",
@@ -111,7 +111,7 @@ const en: ImpactPageCopy = {
   ctaSection: {
     title: "Meet the founders behind the outcomes",
     description:
-      "ASIP’s impact lives in companies, products and markets — not in unsupported headline numbers.",
+      "ASIP’s impact lives in companies, products and markets - not in unsupported headline numbers.",
     slug: "founders",
     label: "Explore founder stories",
   },
@@ -196,7 +196,7 @@ const fr: ImpactPageCopy = {
     body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne connexion au bon moment.",
     note: "Les études de cas publiées remplacent chaque crochet par des faits vérifiés, propres au fondateur. Un texte générique de réussite n’est pas publié comme s’il s’agissait d’une vraie histoire.",
     empty:
-      "Les histoires de fondateurs apparaissent ici une fois vérifiées — pas comme un texte générique de réussite.",
+      "Les histoires de fondateurs apparaissent ici une fois vérifiées - pas comme un texte générique de réussite.",
     comingSoon: "L’histoire du fondateur arrive bientôt",
     readStory: "Lire l’histoire",
     loadMore: "Voir plus d’histoires",
@@ -224,7 +224,7 @@ const fr: ImpactPageCopy = {
   ctaSection: {
     title: "Rencontrez les fondateurs derrière les résultats",
     description:
-      "L’impact d’ASIP vit dans des entreprises, des produits et des marchés — pas dans des chiffres sans source.",
+      "L’impact d’ASIP vit dans des entreprises, des produits et des marchés - pas dans des chiffres sans source.",
     slug: "founders",
     label: "Découvrir les histoires de fondateurs",
   },

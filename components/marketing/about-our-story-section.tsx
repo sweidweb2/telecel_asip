@@ -1,11 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Globe,
   Heart,
   Rocket,
   TrendingUp,
-  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -93,22 +93,19 @@ function StoryHeroVisual({
   imageCta?: AboutStoryCopy["imageCta"];
 }) {
   return (
-    <div className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border-2 border-border bg-gradient-to-br from-primary/15 via-muted/80 to-primary/5 shadow-sm lg:max-w-none">
-      <span
-        aria-hidden
-        className="about-story-float absolute -right-3 top-8 size-16 rounded-full bg-primary/10 blur-sm"
+    <div className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border-2 border-border bg-muted shadow-sm lg:max-w-none">
+      <Image
+        src="/asip-media/founders-community.webp"
+        alt={
+          locale === "fr"
+            ? "Fondateurs ASIP et communauté du programme"
+            : "ASIP founders and programme community"
+        }
+        fill
+        className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+        style={{ objectPosition: "center 42%" }}
+        sizes="(max-width: 1024px) 24rem, 33vw"
       />
-      <span
-        aria-hidden
-        className="about-story-float-delayed absolute -left-4 bottom-16 size-20 rounded-full bg-primary/15 blur-sm"
-      />
-
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Users
-          className="size-24 text-primary/25 sm:size-28"
-          aria-hidden
-        />
-      </div>
 
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
 

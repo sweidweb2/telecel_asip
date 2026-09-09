@@ -8,8 +8,8 @@ import {
   waitForTurnstileReady,
 } from "./helpers";
 
-const REGISTER_SUCCESS = "Thank you — your interest has been registered.";
-const APPLY_SUCCESS = "Thank you — your application has been submitted.";
+const REGISTER_SUCCESS = "Thank you - your interest has been registered.";
+const APPLY_SUCCESS = "Thank you - your application has been submitted.";
 
 test.describe.configure({ mode: "serial" });
 

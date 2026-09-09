@@ -120,7 +120,7 @@ const en: ImpactFanCopy = {
   titleLead: "Founders building traction,",
   titleAccent: "and scale",
   description:
-    "Named portfolio outcomes across revenue, operations and customers — the progress ASIP tracks with founders as they grow.",
+    "Named portfolio outcomes across revenue, operations and customers - the progress ASIP tracks with founders as they grow.",
   images: sharedImagesEn,
   stats: [
     {
@@ -156,7 +156,7 @@ const fr: ImpactFanCopy = {
   titleLead: "Des fondateurs qui créent de la traction,",
   titleAccent: "et de l’échelle",
   description:
-    "Des résultats nommés du portefeuille — revenus, opérations et clients — le progrès qu’ASIP suit avec les fondateurs qui grandissent.",
+    "Des résultats nommés du portefeuille - revenus, opérations et clients - le progrès qu’ASIP suit avec les fondateurs qui grandissent.",
   images: sharedImagesFr,
   stats: [
     {

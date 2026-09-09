@@ -22,7 +22,7 @@ export const COHORT_EDITOR_HELP = {
       {
         name: "Programme status",
         detail:
-          "Lifecycle of the programme itself (e.g. upcoming, active, completed) — separate from publish visibility.",
+          "Lifecycle of the programme itself (e.g. upcoming, active, completed) - separate from publish visibility.",
       },
       {
         name: "Publish status",

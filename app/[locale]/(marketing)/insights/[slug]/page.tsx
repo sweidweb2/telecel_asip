@@ -35,15 +35,15 @@ export async function generateMetadata({
     return {
       title:
         locale === "fr"
-          ? "Perspective introuvable — ASIP"
-          : "Insight not found — ASIP",
+          ? "Perspective introuvable - ASIP"
+          : "Insight not found - ASIP",
     };
   }
 
   return buildMarketingMetadata({
     locale,
     path: `/insights/${slug}`,
-    title: `${article.metaTitle ?? article.title} — ASIP`,
+    title: `${article.metaTitle ?? article.title} - ASIP`,
     description: article.metaDescription ?? article.summary,
     image: article.thumbnailUrl || undefined,
     ogType: "article",

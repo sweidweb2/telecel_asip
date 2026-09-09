@@ -28,7 +28,7 @@ const en: MarketingCopy = {
       "The leadership message stays unpublished until Telecel Group supplies approved text and media.",
     sectionTitle: "Origin, purpose and the journey ahead",
     sectionDescription:
-      "From Barcelona in 2019 to the 2026 next chapter — how ASIP connects African founders to knowledge, capital pathways, markets and relationships.",
+      "From Barcelona in 2019 to the 2026 next chapter - how ASIP connects African founders to knowledge, capital pathways, markets and relationships.",
     cards: [],
     heroChips: {
       focusKind: "Focus",
@@ -49,7 +49,7 @@ const en: MarketingCopy = {
     ctaSection: {
       title: "Meet the founders building Africa’s next chapter.",
       description:
-        "Explore ventures across ASIP cohorts — real companies, markets and progress.",
+        "Explore ventures across ASIP cohorts - real companies, markets and progress.",
       slug: "founders",
       label: "Explore the founders",
     },
@@ -171,7 +171,7 @@ const en: MarketingCopy = {
       },
       ceoMessage: {
         published: false,
-        imageLabel: "Leadership portrait — to be supplied by Telecel Group",
+        imageLabel: "Leadership portrait - to be supplied by Telecel Group",
       },
       telecel: {
         eyebrow: "Telecel connection",
@@ -214,7 +214,7 @@ const en: MarketingCopy = {
     ctaSection: {
       title: "Explore our impact",
       description:
-        "See how ASIP ventures contribute to communities across Africa — with verified reach, founder outcomes, and programme stories.",
+        "See how ASIP ventures contribute to communities across Africa - with verified reach, founder outcomes, and programme stories.",
       slug: "impact",
       label: "Explore our impact",
     },
@@ -356,7 +356,7 @@ const fr: MarketingCopy = {
       "Le message de direction reste non publié tant que le Groupe Telecel n’a pas fourni le texte et les visuels approuvés.",
     sectionTitle: "Origine, mission et parcours",
     sectionDescription:
-      "De Barcelone en 2019 au prochain chapitre 2026 — comment ASIP relie les fondateurs africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
+      "De Barcelone en 2019 au prochain chapitre 2026 - comment ASIP relie les fondateurs africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
     cards: [],
     heroChips: {
       focusKind: "Axe",
@@ -377,7 +377,7 @@ const fr: MarketingCopy = {
     ctaSection: {
       title: "Rencontrez les fondateurs qui construisent le prochain chapitre de l’Afrique.",
       description:
-        "Explorez des entreprises issues des cohortes ASIP — des sociétés, des marchés et des progrès concrets.",
+        "Explorez des entreprises issues des cohortes ASIP - des sociétés, des marchés et des progrès concrets.",
       slug: "founders",
       label: "Découvrir les fondateurs",
     },
@@ -497,7 +497,7 @@ const fr: MarketingCopy = {
       },
       ceoMessage: {
         published: false,
-        imageLabel: "Portrait de direction — à fournir par le Groupe Telecel",
+        imageLabel: "Portrait de direction - à fournir par le Groupe Telecel",
       },
       telecel: {
         eyebrow: "Lien Telecel",
@@ -540,7 +540,7 @@ const fr: MarketingCopy = {
     ctaSection: {
       title: "Découvrir notre impact",
       description:
-        "Découvrez comment les entreprises ASIP contribuent aux communautés en Afrique — portée vérifiée, résultats des fondateurs et histoires du programme.",
+        "Découvrez comment les entreprises ASIP contribuent aux communautés en Afrique - portée vérifiée, résultats des fondateurs et histoires du programme.",
       slug: "impact",
       label: "Découvrir notre impact",
     },

@@ -35,7 +35,7 @@ const en: LegalCopy = {
       {
         title: "4. Acceptable use",
         paragraphs: [
-          "You agree not to misuse the site — including attempting unauthorised access, disrupting services, scraping content at scale without permission, or submitting unlawful, harmful, or misleading material.",
+          "You agree not to misuse the site - including attempting unauthorised access, disrupting services, scraping content at scale without permission, or submitting unlawful, harmful, or misleading material.",
           "Programme materials, branding, and site content remain the property of Telecel Group or its licensors and may not be reused commercially without prior written consent.",
         ],
       },
@@ -71,7 +71,7 @@ const en: LegalCopy = {
       {
         title: "2. Information we may collect",
         paragraphs: [
-          "We may collect information you provide directly — such as name, email, organisation, country, and message content when you contact us or register interest.",
+          "We may collect information you provide directly - such as name, email, organisation, country, and message content when you contact us or register interest.",
           "We may also collect technical data such as device type, browser, approximate location, and pages visited, including via cookies or similar technologies used to operate the site (for example language preference and session).",
         ],
       },
@@ -146,7 +146,7 @@ const fr: LegalCopy = {
       {
         title: "4. Utilisation acceptable",
         paragraphs: [
-          "Vous vous engagez à ne pas faire un usage abusif du site — notamment tentatives d’accès non autorisé, perturbation des services, extraction massive de contenus sans permission, ou envoi de contenus illicites, nuisibles ou trompeurs.",
+          "Vous vous engagez à ne pas faire un usage abusif du site - notamment tentatives d’accès non autorisé, perturbation des services, extraction massive de contenus sans permission, ou envoi de contenus illicites, nuisibles ou trompeurs.",
           "Les supports du programme, la marque et le contenu du site restent la propriété du Groupe Telecel ou de ses concédants et ne peuvent être réutilisés à des fins commerciales sans accord écrit préalable.",
         ],
       },
@@ -182,7 +182,7 @@ const fr: LegalCopy = {
       {
         title: "2. Informations susceptibles d’être collectées",
         paragraphs: [
-          "Nous pouvons collecter les informations que vous fournissez directement — nom, e-mail, organisation, pays et contenu des messages lorsque vous nous contactez ou manifestez votre intérêt.",
+          "Nous pouvons collecter les informations que vous fournissez directement - nom, e-mail, organisation, pays et contenu des messages lorsque vous nous contactez ou manifestez votre intérêt.",
           "Nous pouvons également collecter des données techniques telles que le type d’appareil, le navigateur, une localisation approximative et les pages consultées, y compris via des cookies ou technologies similaires utilisés pour faire fonctionner le site (par exemple la langue préférée et la session).",
         ],
       },

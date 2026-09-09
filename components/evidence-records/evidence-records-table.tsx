@@ -29,7 +29,7 @@ import {
 function ownerDisplay(record: EvidenceListItem): string {
   if (record.owner?.full_name?.trim()) return record.owner.full_name;
   if (record.owner?.email) return record.owner.email;
-  return "—";
+  return "-";
 }
 
 export function EvidenceRecordsTable({

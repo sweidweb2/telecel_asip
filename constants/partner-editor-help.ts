@@ -51,7 +51,7 @@ export const PARTNER_EDITOR_HELP = {
       {
         name: "Active partner",
         detail:
-          "On = current partner eligible for public listing. Off = historical — kept in the CMS but not treated as active on the site.",
+          "On = current partner eligible for public listing. Off = historical - kept in the CMS but not treated as active on the site.",
       },
       {
         name: "Logo publication permission",

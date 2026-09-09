@@ -33,7 +33,7 @@ const resource = getAdminResource("registrations");
 const ACTION_MESSAGES = {
   en: {
     invalidDetails: "Please check the form and try again.",
-    success: "Thank you — your interest has been registered.",
+    success: "Thank you - your interest has been registered.",
     genericError: "Something went wrong. Please try again.",
     updateSuccess: "Registration updated successfully.",
     deleteSuccess: "Registration deleted successfully.",
@@ -49,7 +49,7 @@ const ACTION_MESSAGES = {
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
-    success: "Merci — votre intérêt a bien été enregistré.",
+    success: "Merci - votre intérêt a bien été enregistré.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     updateSuccess: "Candidature mise à jour avec succès.",
     deleteSuccess: "Candidature supprimée avec succès.",

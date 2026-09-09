@@ -152,7 +152,7 @@ export function PartnerSortOrderMap({
                     disabled={disabled}
                     title={
                       occupant
-                        ? `${order} · ${occupant.name} (taken — moves on save)`
+                        ? `${order} · ${occupant.name} (taken - moves on save)`
                         : `${order} · available`
                     }
                     aria-pressed={isSelected}

@@ -18,14 +18,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/privacy",
-          title: "Politique de confidentialité — ASIP",
+          title: "Politique de confidentialité - ASIP",
           description:
             "Politique de confidentialité provisoire du site du Programme africain d’initiative pour les startups.",
         }
       : {
           locale,
           path: "/privacy",
-          title: "Privacy Policy — ASIP",
+          title: "Privacy Policy - ASIP",
           description:
             "Draft privacy policy for the Africa Startup Initiative Program website.",
         },

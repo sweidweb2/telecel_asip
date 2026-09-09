@@ -3,7 +3,7 @@ import type { AdminFormHelpSection } from "@/types/admin-form-help";
 export const SITE_SETTINGS_HELP = {
   applications: {
     title: "Applications open",
-    intro: "Controls public Apply vs Register Interest messaging — not page availability.",
+    intro: "Controls public Apply vs Register Interest messaging - not page availability.",
     fields: [
       {
         name: "Applications open",

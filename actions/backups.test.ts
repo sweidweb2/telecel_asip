@@ -115,7 +115,7 @@ describe("createBackup", () => {
     expect(result).toEqual({
       status: "success",
       message:
-        "Backup started. Watch history — download when it completes.",
+        "Backup started. Watch history - download when it completes.",
       id: backupId,
     });
     expect(enqueueBackupAttempt).toHaveBeenCalledWith({
@@ -216,7 +216,7 @@ describe("runBackupNow", () => {
     expect(result).toEqual({
       status: "success",
       message:
-        "Backup started. Watch history — download when it completes.",
+        "Backup started. Watch history - download when it completes.",
       id: backupId,
     });
     expect(enqueueBackupAttempt).toHaveBeenCalledWith(

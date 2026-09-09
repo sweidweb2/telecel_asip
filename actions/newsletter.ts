@@ -20,7 +20,7 @@ export type NewsletterActionResult =
 const PUBLIC_MESSAGES = {
   en: {
     invalidDetails: "Please check the form and try again.",
-    success: "Thanks — you are on the updates list.",
+    success: "Thanks - you are on the updates list.",
     genericError: "Something went wrong. Please try again.",
     rateLimited: "Too many submissions. Please wait and try again later.",
     verificationFailed: "Security check failed. Please try again.",
@@ -30,7 +30,7 @@ const PUBLIC_MESSAGES = {
   },
   fr: {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
-    success: "Merci — vous êtes sur la liste des mises à jour.",
+    success: "Merci - vous êtes sur la liste des mises à jour.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",

@@ -90,7 +90,7 @@ export function UsersTable({
             index={index}
           />
           <TableCell className="max-w-[10rem] truncate font-medium sm:max-w-[14rem]">
-            {user.full_name || "—"}
+            {user.full_name || "-"}
           </TableCell>
           <TableCell className="max-w-[11rem] truncate sm:max-w-[16rem]">
             {user.email}

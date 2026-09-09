@@ -37,8 +37,8 @@ export function LabPageContent({
   const title = locale === "fr" ? "Labo de sections" : "Sections lab";
   const intro =
     locale === "fr"
-      ? "Sections marketing en réserve — à réutiliser plus tard."
-      : "Parked marketing sections — reuse later.";
+      ? "Sections marketing en réserve - à réutiliser plus tard."
+      : "Parked marketing sections - reuse later.";
 
   return (
     <main>

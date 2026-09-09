@@ -82,7 +82,7 @@ export async function waitForTurnstileReady(
   } catch {
     test.skip(
       true,
-      "Turnstile did not issue a token — check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
+      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
     );
   }
   await expect(

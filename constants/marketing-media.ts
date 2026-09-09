@@ -12,10 +12,10 @@ export const MARKETING_MEDIA = {
   programme: { src: "/asip-media/programme-mentor.webp", alt: { en: "A mentor working directly with an ASIP founder", fr: "Un mentor travaillant directement avec un fondateur ASIP" }, position: "center 40%" },
   founders: { src: "/asip-media/founders-community.webp", alt: { en: "ASIP founders and programme community", fr: "Fondateurs ASIP et communaute du programme" }, position: "center 42%" },
   impact: {
-    src: "/asip-media/about-ecosystem.webp",
+    src: "/asip-media/impact-community.webp",
     alt: {
-      en: "ASIP founders and partners in an ecosystem gathering",
-      fr: "Fondateurs et partenaires ASIP lors d’une rencontre d’écosystème",
+      en: "ASIP founders, mentors, and partners celebrating Demo Day",
+      fr: "Fondateurs, mentors et partenaires ASIP célébrant le Demo Day",
     },
     position: "center 42%",
   },
@@ -23,5 +23,5 @@ export const MARKETING_MEDIA = {
   insights: { src: "/asip-media/insights-conversation.webp", alt: { en: "Founder conversation at an ASIP gathering", fr: "Conversation entre fondateurs lors d'une rencontre ASIP" }, position: "center 46%" },
   alumni: { src: "/asip-media/alumni-community.webp", alt: { en: "ASIP alumni celebrating together", fr: "Les alumni ASIP reunis pour celebrer" }, position: "center 42%" },
   apply: { src: "/asip-media/apply-founder.webp", alt: { en: "An African technology founder presenting at ASIP", fr: "Un fondateur technologique africain presente son projet a ASIP" }, position: "center 38%" },
-  contact: { src: "/asip-media/contact-workshop.webp", alt: { en: "ASIP workshop participants in discussion", fr: "Participants a un atelier ASIP en discussion" }, position: "center 42%" },
+  contact: { src: "/asip-media/contact-workshop.webp", alt: { en: "Two ASIP founders collaborating during a workshop", fr: "Deux fondatrices ASIP collaborant pendant un atelier" }, position: "center 42%" },
 } satisfies Record<string, MarketingMedia>;

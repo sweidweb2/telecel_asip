@@ -134,7 +134,7 @@ export function truncatePartnerCardName(
 }
 
 function PartnerMark({ partner }: { partner: PartnerPublicItem }) {
-  const label = partner.org ? `${partner.name} — ${partner.org}` : partner.name;
+  const label = partner.org ? `${partner.name} - ${partner.org}` : partner.name;
 
   if (partner.logo_url) {
     return (
@@ -168,7 +168,7 @@ function PartnerShell({
   partner: PartnerPublicItem;
   className?: string;
 }) {
-  const label = partner.org ? `${partner.name} — ${partner.org}` : partner.name;
+  const label = partner.org ? `${partner.name} - ${partner.org}` : partner.name;
 
   const shell = (
     <span

@@ -18,14 +18,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/terms",
-          title: "Conditions d’utilisation — ASIP",
+          title: "Conditions d’utilisation - ASIP",
           description:
             "Conditions d’utilisation provisoires du site du Programme africain d’initiative pour les startups.",
         }
       : {
           locale,
           path: "/terms",
-          title: "Terms of Service — ASIP",
+          title: "Terms of Service - ASIP",
           description:
             "Draft terms of service for the Africa Startup Initiative Program website.",
         },

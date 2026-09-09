@@ -92,7 +92,7 @@ const EN: ContactLabels = {
   messagePlaceholder: "Write your message (at least 20 characters)",
   submitLabel: "Send message",
   submittingLabel: "Sending…",
-  successToast: "Thank you — your message has been sent.",
+  successToast: "Thank you - your message has been sent.",
   successTitle: "Thank you",
   successDescription:
     "Your message has been sent. The ASIP team will get back to you shortly.",
@@ -153,7 +153,7 @@ const FR: ContactLabels = {
   messagePlaceholder: "Écrivez votre message (au moins 20 caractères)",
   submitLabel: "Envoyer le message",
   submittingLabel: "Envoi…",
-  successToast: "Merci — votre message a bien été envoyé.",
+  successToast: "Merci - votre message a bien été envoyé.",
   successTitle: "Merci",
   successDescription:
     "Votre message a bien été envoyé. L’équipe ASIP vous répondra rapidement.",

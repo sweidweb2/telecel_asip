@@ -33,12 +33,12 @@ const MESSAGES = {
   signedInRequired: "Sign in to manage backups.",
   unauthorized: "Only admins can manage backups.",
   invalidDetails: "Check the backup options and try again.",
-  createStarted: "Backup started. Watch history — download when it completes.",
+  createStarted: "Backup started. Watch history - download when it completes.",
   downloadReady: "Download ready.",
   notFound: "Backup not found.",
   notReady: "This backup is not ready to download.",
   inFlight: "A backup is already running. Try again when it finishes.",
-  runNowStarted: "Backup started. Watch history — download when it completes.",
+  runNowStarted: "Backup started. Watch history - download when it completes.",
   genericError: "Could not complete the backup.",
 } as const;
 

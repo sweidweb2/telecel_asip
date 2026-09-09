@@ -168,7 +168,7 @@ export function BackupCreateForm() {
           Create backup
         </h2>
         <p className="text-sm text-muted-foreground">
-          Export on demand to private R2. Jobs run in the background — watch
+          Export on demand to private R2. Jobs run in the background - watch
           Backup history for status and download. Scheduled runs are configured
           in Settings.
         </p>
@@ -231,7 +231,7 @@ export function BackupCreateForm() {
       </div>
       <p className="text-xs text-muted-foreground">
         Run backup now starts one automated full JSON backup without changing
-        the schedule in Settings. You do not need to keep this tab locked — the
+        the schedule in Settings. You do not need to keep this tab locked - the
         job continues in the background.
       </p>
 

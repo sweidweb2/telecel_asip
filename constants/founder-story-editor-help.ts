@@ -32,7 +32,7 @@ export const FOUNDER_STORY_EDITOR_HELP = {
       {
         name: "The ASIP connection",
         detail:
-          "How ASIP and Telecel networks relate to the journey — keep attribution honest.",
+          "How ASIP and Telecel networks relate to the journey - keep attribution honest.",
       },
       {
         name: "Where they are now",
@@ -50,7 +50,7 @@ export const FOUNDER_STORY_EDITOR_HELP = {
       },
       {
         name: "Attribution name",
-        detail: "Who said it — shown with the quote when set.",
+        detail: "Who said it - shown with the quote when set.",
       },
       {
         name: "Attribution title",

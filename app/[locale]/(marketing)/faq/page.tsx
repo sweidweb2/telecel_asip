@@ -17,14 +17,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/faq",
-          title: "FAQ — ASIP",
+          title: "FAQ - ASIP",
           description:
             "Réponses sur le programme ASIP, les candidatures et les partenariats.",
         }
       : {
           locale,
           path: "/faq",
-          title: "FAQ — ASIP",
+          title: "FAQ - ASIP",
           description:
             "Answers about the ASIP programme, applications, and partnerships.",
         },

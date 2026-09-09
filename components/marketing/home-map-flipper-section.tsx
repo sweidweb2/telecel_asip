@@ -87,7 +87,7 @@ export function HomeMapFlipperSection({ className }: { className?: string }) {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Demo data only — not verified impact claims.
+          Demo data only - not verified impact claims.
         </p>
 
         <div className="mt-6 grid grid-cols-1 gap-8 md:mt-8 md:grid-cols-2 md:items-center md:gap-10 lg:gap-12">
