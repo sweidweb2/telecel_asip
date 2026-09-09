@@ -220,7 +220,8 @@ export type AlumniBenefitId =
   | "give-back";
 
 /**
- * Alumni public page. Built and routable; keep unpublished in nav/sitemap
+ * Alumni public page. Built and routable; keep `noindex` and out of the sitemap
+ * until the Alumni Network is formally launched.
  * until the operating model, benefits and launch are formally confirmed.
  * Phase 1: no login, member dashboard, chat or community platform.
  */

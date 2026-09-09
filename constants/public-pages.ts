@@ -21,10 +21,13 @@ export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
 export const PUBLIC_PAGE_SLUG_SET = new Set<string>(PUBLIC_PAGE_SLUGS);
 
 /**
- * Always in the sitemap except intake exclusivity.
+ * Always in the sitemap except intake exclusivity and HOLD alumni.
  * `/apply` is added when open; `/register-interest` is included only when closed
- * (see `app/sitemap.ts`).
+ * (see `app/sitemap.ts`). Alumni stays routable + `noindex` but out of the sitemap.
  */
 export const INDEXABLE_PAGE_SLUGS = PUBLIC_PAGE_SLUGS.filter(
-  (slug) => slug !== "apply" && slug !== "register-interest",
+  (slug) =>
+    slug !== "apply" &&
+    slug !== "register-interest" &&
+    slug !== "alumni",
 );

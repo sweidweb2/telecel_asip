@@ -411,23 +411,6 @@ function identityFields(startup: CaseStartupRow) {
   };
 }
 
-function toPendingSeat(
-  startup: CaseStartupRow,
-): ImpactCaseStudyPublic | null {
-  if (!startup.id || !startup.name || !startup.slug) return null;
-
-  return {
-    id: `pending-${startup.id}`,
-    ...identityFields(startup),
-    coverImageUrl: null,
-    barrier: null,
-    support: null,
-    outcome: null,
-    stat: null,
-    status: "pending",
-  };
-}
-
 function anonymousPendingSeat(index: number): ImpactCaseStudyPublic {
   return {
     id: `pending-slot-${index}`,
@@ -457,33 +440,25 @@ function toCaseStudy(
   const barrier = publicLine(story.the_problem);
   const support = publicLine(story.the_asip_connection);
   const outcome = publicLine(story.where_they_are_now);
-  const isCleared = Boolean(barrier || support || outcome);
+  // Incomplete published stories stay off Impact until narrative fields clear.
+  if (!barrier && !support && !outcome) return null;
 
   return {
-    id: isCleared ? story.id : `pending-${startup.id}`,
+    id: story.id,
     ...identityFields(startup),
-    coverImageUrl: isCleared ? startup.cover_image_url : null,
+    coverImageUrl: startup.cover_image_url,
     barrier,
     support,
     outcome,
-    stat: isCleared ? publicStat(startup.public_outcome) : null,
-    status: isCleared ? "live" : "pending",
+    stat: publicStat(startup.public_outcome),
+    status: "live",
   };
 }
 
 function padPendingSeats(
   live: ImpactCaseStudyPublic[],
-  known: ImpactCaseStudyPublic[],
 ): ImpactCaseStudyPublic[] {
   const slots = [...live];
-  const taken = new Set(slots.map((item) => item.startupId).filter(Boolean));
-
-  for (const seat of known) {
-    if (slots.length >= IMPACT_CASE_STUDY_MIN_SLOTS) break;
-    if (seat.startupId && taken.has(seat.startupId)) continue;
-    slots.push(seat);
-    if (seat.startupId) taken.add(seat.startupId);
-  }
 
   let index = 0;
   while (slots.length < IMPACT_CASE_STUDY_MIN_SLOTS) {
@@ -549,20 +524,7 @@ async function fetchPublishedImpactCaseStudies(): Promise<
     return item ? [item] : [];
   });
 
-  const live = fromStories.filter((item) => item.status === "live");
-  if (live.length >= IMPACT_CASE_STUDY_MIN_SLOTS) {
-    return live.slice(0, IMPACT_CASE_STUDY_LIMIT);
-  }
-
-  const knownPending = [
-    ...fromStories.filter((item) => item.status === "pending"),
-    ...directory.flatMap((row) => {
-      const seat = toPendingSeat(row);
-      return seat ? [seat] : [];
-    }),
-  ];
-
-  return padPendingSeats(live, knownPending);
+  return padPendingSeats(fromStories);
 }
 
 /** Published founder stories for the Impact case-study module. */
