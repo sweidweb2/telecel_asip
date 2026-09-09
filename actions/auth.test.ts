@@ -18,7 +18,7 @@ vi.mock("next/navigation", () => ({
   redirect,
 }));
 
-import { signIn, signOut, signUp } from "@/actions/auth";
+import { signIn, signInWithGoogle, signOut, signUp } from "@/actions/auth";
 
 describe("auth actions", () => {
   beforeEach(() => {
@@ -93,6 +93,45 @@ describe("auth actions", () => {
     if (result.status === "error") {
       expect(result.message.toLowerCase()).toMatch(/invalid|credential/i);
     }
+  });
+
+  it("starts Google OAuth with the safe destination and locale", async () => {
+    const signInWithOAuth = vi.fn().mockResolvedValue({
+      data: { url: "https://accounts.google.com/oauth" },
+      error: null,
+    });
+    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
+
+    await expect(signInWithGoogle("/dashboard/users")).resolves.toEqual({
+      status: "success",
+      redirectTo: "https://accounts.google.com/oauth",
+    });
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: {
+        redirectTo:
+          "http://localhost:3000/auth/callback?next=%2Fdashboard%2Fusers&locale=en",
+      },
+    });
+  });
+
+  it("does not forward an external Google OAuth destination", async () => {
+    const signInWithOAuth = vi.fn().mockResolvedValue({
+      data: { url: "https://accounts.google.com/oauth" },
+      error: null,
+    });
+    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
+
+    await signInWithGoogle("//evil.example");
+
+    expect(signInWithOAuth).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: {
+          redirectTo:
+            "http://localhost:3000/auth/callback?next=%2Fdashboard&locale=en",
+        },
+      }),
+    );
   });
 
   it("signs out and redirects to login", async () => {

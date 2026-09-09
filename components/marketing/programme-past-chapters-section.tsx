@@ -25,7 +25,7 @@ const STATUS_FILL: Record<
   closed: "#14333b",
 };
 
-function formatCohortWindow(cohort: CohortPublicListItem, locale: Locale) {
+function formatCohortWindow(cohort: CohortPublicListItem) {
   if (!cohort.programme_dates_start || !cohort.programme_dates_end) {
     return null;
   }
@@ -136,7 +136,7 @@ export function ProgrammePastChaptersSection({
               >
                 <ul className="space-y-0 divide-y divide-[#14333b]/12">
                   {pageItems.map((cohort) => {
-                    const window = formatCohortWindow(cohort, locale);
+                    const window = formatCohortWindow(cohort);
                     const isActive = cohort.id === activeId;
                     return (
                       <li key={cohort.id}>

@@ -32,7 +32,6 @@ const SHAPE_CLASSES = [
 
 /**
  * About page hero — centered copy over floating shapes and decorative chips.
- * Adapted from `public/embedded/index.html` into ASIP ink / teal theme.
  */
 export function AboutHero({
   eyebrow,

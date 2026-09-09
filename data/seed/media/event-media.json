@@ -1,0 +1,487 @@
+{
+  "schema_version": 1,
+  "media_category": "event-media",
+  "records": [
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8409.JPG",
+      "sha256": "ef3c2f01a4d2150976e4cc2277963576453712e59f182d9ed6cd68d689e5f373",
+      "size_bytes": 4066531,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8436.JPG",
+      "sha256": "85c0044e08fa21e04eb06becb1570ae5343db3e7ab0462a8951fccaaba0d2352",
+      "size_bytes": 4374462,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8542.JPG",
+      "sha256": "b1b9a363699784a29f8ed1b47256a1aa9ec3ce27972f938b7d41d5fa3be99a92",
+      "size_bytes": 3925261,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192254.jpg",
+      "sha256": "10254340e299d4ea7e51a590fe86c49bcdfeb0cbeb5f1b09c3806b6e01b5b119",
+      "size_bytes": 1937047,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192281.jpg",
+      "sha256": "22ba1d111140dddf4816a3588c1eb76c45194cc614d773c7bd1978a3a864d16c",
+      "size_bytes": 1657569,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192363.jpg",
+      "sha256": "1b92d0995bb972cb515f3f05106196e09c20e8398839f19135fe2e86c49b27bc",
+      "size_bytes": 2121406,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192503.jpg",
+      "sha256": "91a1b7b9b2d001fcbddccf6be6cdf3163a76b356a2e546e89c1d9cec5abc35a7",
+      "size_bytes": 1753136,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/_DSC6836.jpg",
+      "sha256": "143919beda411f6521dc04be2fe0e4e1dfe6f7b807c39da10a6653753ab0d77d",
+      "size_bytes": 4442041,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/_MG_0204.jpg",
+      "sha256": "a01bcfbd073d61fa9e9b673743cf56e4c65525e7df45afca4cacca039f82aaa4",
+      "size_bytes": 3170824,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/ASIP Video FINAL (1).mp4",
+      "sha256": "5748f0e79038f0fd46ec2435a44267a3b4b1d81aade0434d35d4616574e9de4a",
+      "size_bytes": 33089729,
+      "mime_type": "video/mp4",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/ASIP-5 3.jpg",
+      "sha256": "37d4c54a7864b665acdccdd0d2c2669765be6474179178b9e8da24f2ab691fad",
+      "size_bytes": 7925986,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-145.jpg",
+      "sha256": "64b4ae69b0da9c4346ea6d68bf00449dd6472e2d3e34c22a96d18501be21628d",
+      "size_bytes": 9035553,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-209 (1).jpg",
+      "sha256": "7a1fe8b9ff1653b2b329a8642a0187b61f994ccc306b615990a144fb2ef558af",
+      "size_bytes": 5782936,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/b-27.jpg",
+      "sha256": "867c25d25db6087e2492301f79c1ee1d9a13c57592a6ed51ea209a0e6a152baf",
+      "size_bytes": 10613907,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-3.jpg",
+      "sha256": "a21c930ab0b9264b5fd177f8cc296a7603979f6f7e83e6bd60e25d196bb2e7c6",
+      "size_bytes": 7938548,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/b-33.jpg",
+      "sha256": "4dc3846fa836cb512107a458d9d4477ac1195aead19e86c51555c2f43ae677d9",
+      "size_bytes": 8912531,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-53.jpg",
+      "sha256": "25b7663ec1af55b7a6c44ea80d9e0b6796ce5922daa4031b4fcd13c2a923bc70",
+      "size_bytes": 6421646,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/best group.png",
+      "sha256": "5aeaa645acdf31eb181d3e80cf46571b31a0e3641f0d881f5f9c49077870ba26",
+      "size_bytes": 30948000,
+      "mime_type": "image/png",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/c-441 (1).jpg",
+      "sha256": "7f7ec5282cc69150c4311f6a631b355bb190ab19b1751c1df30ab0e109c5c2a6",
+      "size_bytes": 7305740,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/c-54.jpg",
+      "sha256": "7f43e980846cdceacc499dd9e2f5387ab210a41aaf596d9170cb40c264b8c77d",
+      "size_bytes": 6967592,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6497.jpg",
+      "sha256": "c51d06c40af65f795ee09671660a79b290d7362e1d1211c18d0c0d345d25039b",
+      "size_bytes": 3578874,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6821.jpg",
+      "sha256": "c294df129e51bb3054b7590afc7d10321d6ac261c4c6e8ccbcd973ea5d2d1f7c",
+      "size_bytes": 4366347,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6827.jpg",
+      "sha256": "543f93ecceee88efac7fd46a310d3032fc4fc7874b6f09363f6ee0ea0bf047f2",
+      "size_bytes": 4271522,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6831.jpg",
+      "sha256": "04204b1bd6493a6b65e8ba5222e89269b7ccbaf3395ebd5b1dea7f2926f383e8",
+      "size_bytes": 3699782,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/dakar 1.jpeg",
+      "sha256": "6d27ea01856de56987193f48dc4ba8e079295cbea51e862dd5b8a1500a77e537",
+      "size_bytes": 2636651,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 4.jpeg",
+      "sha256": "347ec8e2a6f2519d41cb75ebf74f284bc66f617a02106cd23c6d9db0b6be7c5f",
+      "size_bytes": 3251868,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 8.jpeg",
+      "sha256": "b2544d1863af7230f71925fad0d98f6069c0aeb94f546ab93fd2b2eaf14db81b",
+      "size_bytes": 114992,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 9.jpeg",
+      "sha256": "e5fa420d8352bac2861d33bd603c727d65dc07359ab3f9b61e1bb9c79d4e5fd6",
+      "size_bytes": 1379635,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/full event (1).png",
+      "sha256": "065385bb199661cf156010e4e10da4a98a7b91c7745b93e0e1778b220221f8cb",
+      "size_bytes": 38092767,
+      "mime_type": "image/png",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_3085.JPG",
+      "sha256": "8c6284ae876a584a1bebc126badb136167f9205eeb8127258239a3d9b1426859",
+      "size_bytes": 2901211,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_6254.jpeg",
+      "sha256": "196e296d83aa73b8eba303b5863615558ac730c01e32f7b5b18f8af8c2ff4a93",
+      "size_bytes": 3107687,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9667.jpeg",
+      "sha256": "5e55a538ce8aef407e250e6379c7450dbfa69ce4d200e9c5a5a7701ab8b10879",
+      "size_bytes": 3515162,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9748.jpeg",
+      "sha256": "0c181c0f7ff301c26af9ba381b8be7fa2ef70b51203451e9caf9e7c950e8139a",
+      "size_bytes": 3175005,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9754.jpeg",
+      "sha256": "5c4b1cbc8b01e9ada78fb35ae31cf2c4940f70022f0108bd27f53e85330b114a",
+      "size_bytes": 2767586,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/RFH.png",
+      "sha256": "2f285dd73cf2c329cc4bf71334c178666d6491c9b8808795b37ebf2497cf6d60",
+      "size_bytes": 18188030,
+      "mime_type": "image/png",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2021-09-30 at 17.40.41.jpeg",
+      "sha256": "9fdee262fbe9a7ed466cb737b351597995baad082255629a1ed1d27c7f7690b6",
+      "size_bytes": 138758,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2023-11-30 at 10.47.09_d1dabbb3.jpg",
+      "sha256": "c586c98d9926b14c2b3a4a4e3c5392d618c36e74457f3b22c02bf2015245556e",
+      "size_bytes": 221945,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    }
+  ]
+}

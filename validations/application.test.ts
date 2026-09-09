@@ -109,6 +109,7 @@ describe("updateApplicationSchema / deleteApplicationSchema", () => {
 
   it("accepts an admin update without consent or turnstile", () => {
     const { consent: _c, turnstileToken: _t, ...fields } = validInput;
+    void [_c, _t];
     const result = updateApplicationSchema.safeParse({ id, ...fields });
     expect(result.success).toBe(true);
   });

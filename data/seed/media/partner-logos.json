@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "media_category": "partner-logo",
+  "records": [
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/A2 logo.png",
+      "sha256": "b41a93b202a82adb1072ad9dcdc76983a644aec4c0f1e16b6140ca813c6bce85",
+      "size_bytes": 10344,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/ASIP LOGO (large)-30.jpg",
+      "sha256": "f3056f5329cc197c3a220d3260ae8e4e2990b5ae71dd6a08ac1960332582a2e1",
+      "size_bytes": 702776,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/AWS_Logo_file.png",
+      "sha256": "2c55dd9a366862e026c1b4ace7eabf15dddb7c056f3c6f08bc630961eeec7a2b",
+      "size_bytes": 127208,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Cloudworx logo new.png",
+      "sha256": "159ef2aaf6a053e0ac52729e08c292ecde0f6ab185ec7783cab80a860b5ac80f",
+      "size_bytes": 95627,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/DER logo only-33.jpg",
+      "sha256": "75e2b2198a8427d6278cbfb3c18332b03cfdb2fcd79f257ade5ff8251e8ae53b",
+      "size_bytes": 186920,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Dhub logo.png",
+      "sha256": "21044952632d8e8cf14738a795c549a936eea66e63d2f91d2a05cd10d8ce276d",
+      "size_bytes": 613226,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Firstbase.io_Logo.jpg",
+      "sha256": "42ecf4ef8b8c137d1ff760fe6352bc219ff18aaaaf823347d4cbc921c98926ba",
+      "size_bytes": 28914,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/FMO_ventures_Logo (1) (1).png",
+      "sha256": "396c034872b979e0ee402788da46d271eecc155e0811faaf2b02edcad32e7088",
+      "size_bytes": 135362,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Freshworks-vector-logo.svg.png",
+      "sha256": "5bc4c305daf2c80a8d200873663a3202c81cd091de1921203f3e57244771d077",
+      "size_bytes": 82760,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Google Cloud logo.png",
+      "sha256": "7b6f8f794b235eeea579107ba4be44d6c2ef477fa5dabfb87d533b7a935da82b",
+      "size_bytes": 98879,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Hubspot logo.png",
+      "sha256": "5e0e135cbf96a2afba7e5b157c0e6d4baebc45b3f681e5e61f24fc77fcb51f78",
+      "size_bytes": 42080,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Miro logo.png",
+      "sha256": "f8fc9d239e54565bde78bc0514a71d568d8eb80a3d993fd4a0102df23d5d67ba",
+      "size_bytes": 24432,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/SBC AfriTech logo (1).png",
+      "sha256": "8a51728cb831344a466dcd4cc8efc3a72595559e4ff7f7e66395604be2a8e166",
+      "size_bytes": 18791,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/VC4A Logo + Tagline.png",
+      "sha256": "7a5245a4db4626bd0e0ee18c1e47504849d05e3b462f47bfe8b3cee5fc1ef5bb",
+      "size_bytes": 30476,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo",
+      "storage_bucket": "partners",
+      "cms_field_targets": [
+        "partners.logo_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    }
+  ]
+}

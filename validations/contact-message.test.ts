@@ -86,6 +86,7 @@ describe("updateContactMessageSchema / deleteContactMessageSchema", () => {
 
   it("accepts an admin update without turnstile", () => {
     const { turnstileToken: _t, ...fields } = validInput;
+    void _t;
     expect(updateContactMessageSchema.safeParse({ id, ...fields }).success).toBe(
       true,
     );

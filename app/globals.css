@@ -492,7 +492,7 @@ html {
   animation: about-story-float 6.4s ease-in-out 0.4s infinite;
 }
 
-/* —— About hero (from public/embedded/index.html, ASIP ink/teal) —— */
+/* —— About hero — ASIP ink/teal —— */
 .about-hero {
   --about-hero-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --about-hero-accent: #179191;

@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "entity": "impact_metrics",
+  "records": [
+    {
+      "metric_key": "Cohort 1 applications:2021-09-30",
+      "claim_label": "Cohort 1 applications",
+      "value": "2220",
+      "unit": "applications",
+      "period_start": "2021-03-24",
+      "period_end": "2021-09-30",
+      "impact_lens": "pipeline",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf:page:9"
+    },
+    {
+      "metric_key": "Cohort 2 applications:2022-07-06",
+      "claim_label": "Cohort 2 applications",
+      "value": "2295",
+      "unit": "applications",
+      "period_start": "2022-01-01",
+      "period_end": "2022-07-06",
+      "impact_lens": "pipeline",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf:page:14"
+    },
+    {
+      "metric_key": "Cohort 3 applications:2023-05-25",
+      "claim_label": "Cohort 3 applications",
+      "value": "2300",
+      "unit": "applications (nearly)",
+      "period_start": "2023-01-01",
+      "period_end": "2023-05-25",
+      "impact_lens": "pipeline",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf:page:4"
+    },
+    {
+      "metric_key": "Cohort 4 applications:2024-02-07",
+      "claim_label": "Cohort 4 applications",
+      "value": "1800",
+      "unit": "applications (over)",
+      "period_start": "2023-10-01",
+      "period_end": "2024-02-07",
+      "impact_lens": "pipeline",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf:page:4"
+    },
+    {
+      "metric_key": "FY2025 active portfolio companies:2025-12-31",
+      "claim_label": "FY2025 active portfolio companies",
+      "value": "23",
+      "unit": "companies",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "impact_lens": "business_growth",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1"
+    },
+    {
+      "metric_key": "FY2025 fund size:2025-12-31",
+      "claim_label": "FY2025 fund size",
+      "value": "3536000",
+      "unit": "USD",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "impact_lens": "business_growth",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1"
+    },
+    {
+      "metric_key": "FY2025 MOIC:2025-12-31",
+      "claim_label": "FY2025 MOIC",
+      "value": "4.02",
+      "unit": "x",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "impact_lens": "business_growth",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1"
+    },
+    {
+      "metric_key": "FY2025 TVPI:2025-12-31",
+      "claim_label": "FY2025 TVPI",
+      "value": "1.46",
+      "unit": "x",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "impact_lens": "business_growth",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1"
+    },
+    {
+      "metric_key": "FY2025 indicative IRR:2025-12-31",
+      "claim_label": "FY2025 indicative IRR",
+      "value": "13.2",
+      "unit": "percent",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "impact_lens": "business_growth",
+      "geography": "Africa",
+      "display_locations": [
+        "impact"
+      ],
+      "publish_status": "pending",
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1"
+    }
+  ]
+}

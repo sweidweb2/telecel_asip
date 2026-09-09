@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "media_category": "cohort-slide",
+  "records": [
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides 2022-01.jpg",
+      "sha256": "58e2d4af6a8ab000627f458fbd8a4af869d780cb6758880e2a69ef80bf82f425",
+      "size_bytes": 2617473,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides 2022-02.jpg",
+      "sha256": "d7aad2ffcac0a01ab9e0bd5b1cdac5696cd5a5adcafcdf1d6033fea9dec3a752",
+      "size_bytes": 4327055,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides-cohort 3-01.jpg",
+      "sha256": "f56573a00d0d8d22b2c7a059c02c7b5568df590433072465d242384047f156a4",
+      "size_bytes": 1095837,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides-cohort 3-02.jpg",
+      "sha256": "de1f79281ad8e1357507ccccb26470e02b498a9baa5135eefc727561822b5a89",
+      "size_bytes": 1309715,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides2021-01.jpg",
+      "sha256": "79c6a40c4a9fedd220f0806abe95124ac701db8a64cdb915734c4e30c3b2ce32",
+      "size_bytes": 2582522,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides2021-02.jpg",
+      "sha256": "2284abe0144dcfb5383176040ed54671feb4c5ded08d2696f5c380e4a7413971",
+      "size_bytes": 4002596,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides4-01.jpg",
+      "sha256": "b3720642c46fca9cc37738a2a20081f3a0088c21b7ccd1899c2398ab3f2b4f5b",
+      "size_bytes": 1019786,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides4-02.jpg",
+      "sha256": "eae7fce88df2f58d0576f8698b1fbdca2ce096d7204e44d0841240af25347d9d",
+      "size_bytes": 1553221,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "cohorts.media_url",
+        "events.assets"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    }
+  ]
+}

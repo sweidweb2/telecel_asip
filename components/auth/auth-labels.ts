@@ -14,6 +14,10 @@ export type LoginLabels = {
   noAccountPrompt: string;
   signUpLink: string;
   successToast: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type SignupLabels = {
@@ -31,6 +35,10 @@ export type SignupLabels = {
   loginLink: string;
   developerNote: string;
   successToast: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type AuthActionMessages = {
@@ -62,6 +70,10 @@ const LOGIN: Record<Locale, LoginLabels> = {
     noAccountPrompt: "No account?",
     signUpLink: "Sign up",
     successToast: "Signed in.",
+    googleLabel: "Continue with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or continue with email",
+    googleError: "Could not start Google sign-in. Please try again.",
   },
   fr: {
     title: "Connexion",
@@ -77,6 +89,10 @@ const LOGIN: Record<Locale, LoginLabels> = {
     noAccountPrompt: "Pas de compte ?",
     signUpLink: "S’inscrire",
     successToast: "Connecté.",
+    googleLabel: "Continuer avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou continuer avec l’e-mail",
+    googleError: "Impossible de lancer la connexion Google. Réessayez.",
   },
 };
 
@@ -97,6 +113,10 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     developerNote:
       "Developer testing only - new accounts receive the admin role.",
     successToast: "Account created.",
+    googleLabel: "Sign up with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or sign up with email",
+    googleError: "Could not start Google sign-up. Please try again.",
   },
   fr: {
     title: "Inscription",
@@ -115,6 +135,10 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     developerNote:
       "Réservé aux tests développeur - les nouveaux comptes reçoivent le rôle admin.",
     successToast: "Compte créé.",
+    googleLabel: "S’inscrire avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou s’inscrire avec l’e-mail",
+    googleError: "Impossible de lancer l’inscription Google. Réessayez.",
   },
 };
 
