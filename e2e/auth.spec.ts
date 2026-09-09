@@ -227,7 +227,7 @@ test.describe("auth", () => {
       await page.context().clearCookies();
       await page.goto("/en/login?next=%2Fdashboard");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
       await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 30_000 });
 
@@ -288,7 +288,7 @@ test("french login page renders localized copy", async ({ page }) => {
     page.getByText("Connexion", { exact: true }).first()
   ).toBeVisible();
   await expect(page.getByLabel("E-mail")).toBeVisible();
-  await expect(page.getByLabel("Mot de passe")).toBeVisible();
+  await expect(page.getByLabel("Mot de passe", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Se connecter" })
   ).toBeVisible();

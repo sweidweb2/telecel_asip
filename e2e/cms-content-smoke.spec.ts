@@ -19,7 +19,7 @@ test.describe("cms content smoke", () => {
 
     await page.goto("/en/login?next=%2Fdashboard%2Fregistrations");
     await page.getByLabel("Email").fill(e2eAdminEmail);
-    await page.getByLabel("Password").fill(e2eAdminPassword);
+    await page.getByLabel("Password", { exact: true }).fill(e2eAdminPassword);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(/\/dashboard\/registrations/, {
       timeout: 20_000,

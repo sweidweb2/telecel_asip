@@ -58,7 +58,8 @@ export async function loginAsAdmin(
   const encoded = encodeURIComponent(nextPath);
   await page.goto(`/en/login?next=${encoded}`);
   await page.getByLabel("Email").fill(e2eAdminEmail);
-  await page.getByLabel("Password").fill(e2eAdminPassword);
+  // exact: true — "Show password" toggle also matches a bare "Password" label.
+  await page.getByLabel("Password", { exact: true }).fill(e2eAdminPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(new RegExp(nextPath.replace(/\//g, "\\/")), {
     timeout: 20_000,
@@ -117,7 +118,7 @@ export async function expectViewerRedirectedFrom(
       `/en/login?next=${encodeURIComponent(dashboardPath)}`,
     );
     await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Password").fill(password);
+    await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
   } finally {

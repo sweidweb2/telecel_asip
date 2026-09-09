@@ -109,7 +109,7 @@ test.describe("registrations admin", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fregistrations");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await page.getByRole("button", { name: "Sign in" }).click();
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 
