@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/alumi/ASIP Accelerator Cohort 4 Report EN .pdf",
+      "sha256": "9631fefd19ac8c649d4fcd56effe01b6c110385d06964e618d1b44511c682638",
+      "size_bytes": 16634067,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Accelerator Cohort 4 Report EN .pdf",
+      "sha256": "9631fefd19ac8c649d4fcd56effe01b6c110385d06964e618d1b44511c682638",
+      "size_bytes": 16634067,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Accelerator Summary.pdf",
+      "sha256": "b4924f8fe4fe237690fb62b73d408eac149be7650f827918304818a99be54d35",
+      "size_bytes": 2147120,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2022 PRINT.pdf",
+      "sha256": "1bdc04d81315f97fe538b6e77b7a69f27500c62a4f04c7ef377ef0f973c29366",
+      "size_bytes": 16747957,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf",
+      "sha256": "1081393d92bad63acfb68da1e14b021d981faf2cbfd1636f9ad31a7d1129dce5",
+      "size_bytes": 6668619,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf",
+      "sha256": "fef897454daaf54f36250fb9f82b6d9bd8b49d32541a8e7b0496e71faf689d54",
+      "size_bytes": 9288822,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf",
+      "sha256": "863c854ab4201e0e6b535e9cd50ccb72f2071d9f179155ef5c2ae363109ef194",
+      "size_bytes": 9689808,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2021.pptx.pdf",
+      "sha256": "30791d1d8d51c324e336707cc8c395c5830e3549b4d355e8c3e70bfa464a5a00",
+      "size_bytes": 14509487,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf",
+      "sha256": "330cf9a321c6e9faa4ec42db653d44554532ed148398e69a719b2aeb774636ef",
+      "size_bytes": 2206102,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/program/ASIP Accelerator Summary.pdf",
+      "sha256": "b4924f8fe4fe237690fb62b73d408eac149be7650f827918304818a99be54d35",
+      "size_bytes": 2147120,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/SBC Cohort 3 Report (1) - idk some analysis.pdf",
+      "sha256": "f60ab824e46fd36a72f7e24c48f8c64d155a007581e0203f9963001b53033ed7",
+      "size_bytes": 24999943,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/SBC Cohort 3 Report (1).pdf",
+      "sha256": "f60ab824e46fd36a72f7e24c48f8c64d155a007581e0203f9963001b53033ed7",
+      "size_bytes": 24999943,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet 2022 PRINT.pdf",
+      "sha256": "1bdc04d81315f97fe538b6e77b7a69f27500c62a4f04c7ef377ef0f973c29366",
+      "size_bytes": 16747957,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet 2023 English_.pdf",
+      "sha256": "1081393d92bad63acfb68da1e14b021d981faf2cbfd1636f9ad31a7d1129dce5",
+      "size_bytes": 6668619,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet C4.pdf",
+      "sha256": "fef897454daaf54f36250fb9f82b6d9bd8b49d32541a8e7b0496e71faf689d54",
+      "size_bytes": 9288822,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet FINAL_2021.pdf",
+      "sha256": "863c854ab4201e0e6b535e9cd50ccb72f2071d9f179155ef5c2ae363109ef194",
+      "size_bytes": 9689808,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP Program Report 2021.pptx.pdf",
+      "sha256": "30791d1d8d51c324e336707cc8c395c5830e3549b4d355e8c3e70bfa464a5a00",
+      "size_bytes": 14509487,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP Program Report 2022 (1).pdf",
+      "sha256": "330cf9a321c6e9faa4ec42db653d44554532ed148398e69a719b2aeb774636ef",
+      "size_bytes": 2206102,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/ASIP FSD Booklet '22 PRINT COPY.pdf",
+      "sha256": "b6ca1764c2328fbc1854f0e981bfb95713cbeaf16c55f782c5b84cce87837635",
+      "size_bytes": 13472363,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/ASIP Media Coverage.pdf",
+      "sha256": "bea2e5d3cf7a29b837dccf2d9f7d7664eb1c4f4c54de6e8da77a920a3638ab80",
+      "size_bytes": 421580,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Booklet 2023 Final Adjusted-compressed.pdf",
+      "sha256": "52220a05debaa1fa9f37e05fe12e488bf11aa8cf1091ea73b5a5a30ece1309c5",
+      "size_bytes": 11581686,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Booklet_C4 4.pdf",
+      "sha256": "8e3601ec1c0d73b9dfeb96fa464d06d14d519c0fdf483996645ceac619c77758",
+      "size_bytes": 10027842,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides 2022-01.jpg",
+      "sha256": "58e2d4af6a8ab000627f458fbd8a4af869d780cb6758880e2a69ef80bf82f425",
+      "size_bytes": 2617473,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides 2022-02.jpg",
+      "sha256": "d7aad2ffcac0a01ab9e0bd5b1cdac5696cd5a5adcafcdf1d6033fea9dec3a752",
+      "size_bytes": 4327055,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides-cohort 3-01.jpg",
+      "sha256": "f56573a00d0d8d22b2c7a059c02c7b5568df590433072465d242384047f156a4",
+      "size_bytes": 1095837,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides-cohort 3-02.jpg",
+      "sha256": "de1f79281ad8e1357507ccccb26470e02b498a9baa5135eefc727561822b5a89",
+      "size_bytes": 1309715,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides2021-01.jpg",
+      "sha256": "79c6a40c4a9fedd220f0806abe95124ac701db8a64cdb915734c4e30c3b2ce32",
+      "size_bytes": 2582522,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides2021-02.jpg",
+      "sha256": "2284abe0144dcfb5383176040ed54671feb4c5ded08d2696f5c380e4a7413971",
+      "size_bytes": 4002596,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides4-01.jpg",
+      "sha256": "b3720642c46fca9cc37738a2a20081f3a0088c21b7ccd1899c2398ab3f2b4f5b",
+      "size_bytes": 1019786,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Slides4-02.jpg",
+      "sha256": "eae7fce88df2f58d0576f8698b1fbdca2ce096d7204e44d0841240af25347d9d",
+      "size_bytes": 1553221,
+      "mime_type": "image/jpeg",
+      "seed_role": "cohort-slide"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf",
+      "sha256": "a502542418e43eb57baf224b358af062f9769bb32a7e19a09f53ff51fe49806b",
+      "size_bytes": 246608,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/A2 logo.png",
+      "sha256": "b41a93b202a82adb1072ad9dcdc76983a644aec4c0f1e16b6140ca813c6bce85",
+      "size_bytes": 10344,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/ASIP LOGO (large)-30.jpg",
+      "sha256": "f3056f5329cc197c3a220d3260ae8e4e2990b5ae71dd6a08ac1960332582a2e1",
+      "size_bytes": 702776,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/AWS_Logo_file.png",
+      "sha256": "2c55dd9a366862e026c1b4ace7eabf15dddb7c056f3c6f08bc630961eeec7a2b",
+      "size_bytes": 127208,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Cloudworx logo new.png",
+      "sha256": "159ef2aaf6a053e0ac52729e08c292ecde0f6ab185ec7783cab80a860b5ac80f",
+      "size_bytes": 95627,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/DER logo only-33.jpg",
+      "sha256": "75e2b2198a8427d6278cbfb3c18332b03cfdb2fcd79f257ade5ff8251e8ae53b",
+      "size_bytes": 186920,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Dhub logo.png",
+      "sha256": "21044952632d8e8cf14738a795c549a936eea66e63d2f91d2a05cd10d8ce276d",
+      "size_bytes": 613226,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Firstbase.io_Logo.jpg",
+      "sha256": "42ecf4ef8b8c137d1ff760fe6352bc219ff18aaaaf823347d4cbc921c98926ba",
+      "size_bytes": 28914,
+      "mime_type": "image/jpeg",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/FMO_ventures_Logo (1) (1).png",
+      "sha256": "396c034872b979e0ee402788da46d271eecc155e0811faaf2b02edcad32e7088",
+      "size_bytes": 135362,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Freshworks-vector-logo.svg.png",
+      "sha256": "5bc4c305daf2c80a8d200873663a3202c81cd091de1921203f3e57244771d077",
+      "size_bytes": 82760,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Google Cloud logo.png",
+      "sha256": "7b6f8f794b235eeea579107ba4be44d6c2ef477fa5dabfb87d533b7a935da82b",
+      "size_bytes": 98879,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Hubspot logo.png",
+      "sha256": "5e0e135cbf96a2afba7e5b157c0e6d4baebc45b3f681e5e61f24fc77fcb51f78",
+      "size_bytes": 42080,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/Miro logo.png",
+      "sha256": "f8fc9d239e54565bde78bc0514a71d568d8eb80a3d993fd4a0102df23d5d67ba",
+      "size_bytes": 24432,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/SBC AfriTech logo (1).png",
+      "sha256": "8a51728cb831344a466dcd4cc8efc3a72595559e4ff7f7e66395604be2a8e166",
+      "size_bytes": 18791,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/05 Partners, Sponsors & Permissions/VC4A Logo + Tagline.png",
+      "sha256": "7a5245a4db4626bd0e0ee18c1e47504849d05e3b462f47bfe8b3cee5fc1ef5bb",
+      "size_bytes": 30476,
+      "mime_type": "image/png",
+      "seed_role": "partner-logo"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8409.JPG",
+      "sha256": "ef3c2f01a4d2150976e4cc2277963576453712e59f182d9ed6cd68d689e5f373",
+      "size_bytes": 4066531,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8436.JPG",
+      "sha256": "85c0044e08fa21e04eb06becb1570ae5343db3e7ab0462a8951fccaaba0d2352",
+      "size_bytes": 4374462,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8542.JPG",
+      "sha256": "b1b9a363699784a29f8ed1b47256a1aa9ec3ce27972f938b7d41d5fa3be99a92",
+      "size_bytes": 3925261,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192254.jpg",
+      "sha256": "10254340e299d4ea7e51a590fe86c49bcdfeb0cbeb5f1b09c3806b6e01b5b119",
+      "size_bytes": 1937047,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192281.jpg",
+      "sha256": "22ba1d111140dddf4816a3588c1eb76c45194cc614d773c7bd1978a3a864d16c",
+      "size_bytes": 1657569,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192363.jpg",
+      "sha256": "1b92d0995bb972cb515f3f05106196e09c20e8398839f19135fe2e86c49b27bc",
+      "size_bytes": 2121406,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/87192503.jpg",
+      "sha256": "91a1b7b9b2d001fcbddccf6be6cdf3163a76b356a2e546e89c1d9cec5abc35a7",
+      "size_bytes": 1753136,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/_DSC6836.jpg",
+      "sha256": "143919beda411f6521dc04be2fe0e4e1dfe6f7b807c39da10a6653753ab0d77d",
+      "size_bytes": 4442041,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/_MG_0204.jpg",
+      "sha256": "a01bcfbd073d61fa9e9b673743cf56e4c65525e7df45afca4cacca039f82aaa4",
+      "size_bytes": 3170824,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/ASIP Video FINAL (1).mp4",
+      "sha256": "5748f0e79038f0fd46ec2435a44267a3b4b1d81aade0434d35d4616574e9de4a",
+      "size_bytes": 33089729,
+      "mime_type": "video/mp4",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/ASIP-5 3.jpg",
+      "sha256": "37d4c54a7864b665acdccdd0d2c2669765be6474179178b9e8da24f2ab691fad",
+      "size_bytes": 7925986,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-145.jpg",
+      "sha256": "64b4ae69b0da9c4346ea6d68bf00449dd6472e2d3e34c22a96d18501be21628d",
+      "size_bytes": 9035553,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-209 (1).jpg",
+      "sha256": "7a1fe8b9ff1653b2b329a8642a0187b61f994ccc306b615990a144fb2ef558af",
+      "size_bytes": 5782936,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/b-27.jpg",
+      "sha256": "867c25d25db6087e2492301f79c1ee1d9a13c57592a6ed51ea209a0e6a152baf",
+      "size_bytes": 10613907,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-3.jpg",
+      "sha256": "a21c930ab0b9264b5fd177f8cc296a7603979f6f7e83e6bd60e25d196bb2e7c6",
+      "size_bytes": 7938548,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/b-33.jpg",
+      "sha256": "4dc3846fa836cb512107a458d9d4477ac1195aead19e86c51555c2f43ae677d9",
+      "size_bytes": 8912531,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/B-53.jpg",
+      "sha256": "25b7663ec1af55b7a6c44ea80d9e0b6796ce5922daa4031b4fcd13c2a923bc70",
+      "size_bytes": 6421646,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/best group.png",
+      "sha256": "5aeaa645acdf31eb181d3e80cf46571b31a0e3641f0d881f5f9c49077870ba26",
+      "size_bytes": 30948000,
+      "mime_type": "image/png",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/c-441 (1).jpg",
+      "sha256": "7f7ec5282cc69150c4311f6a631b355bb190ab19b1751c1df30ab0e109c5c2a6",
+      "size_bytes": 7305740,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/c-54.jpg",
+      "sha256": "7f43e980846cdceacc499dd9e2f5387ab210a41aaf596d9170cb40c264b8c77d",
+      "size_bytes": 6967592,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6497.jpg",
+      "sha256": "c51d06c40af65f795ee09671660a79b290d7362e1d1211c18d0c0d345d25039b",
+      "size_bytes": 3578874,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6821.jpg",
+      "sha256": "c294df129e51bb3054b7590afc7d10321d6ac261c4c6e8ccbcd973ea5d2d1f7c",
+      "size_bytes": 4366347,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6827.jpg",
+      "sha256": "543f93ecceee88efac7fd46a310d3032fc4fc7874b6f09363f6ee0ea0bf047f2",
+      "size_bytes": 4271522,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Copy of _DSC6831.jpg",
+      "sha256": "04204b1bd6493a6b65e8ba5222e89269b7ccbaf3395ebd5b1dea7f2926f383e8",
+      "size_bytes": 3699782,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/dakar 1.jpeg",
+      "sha256": "6d27ea01856de56987193f48dc4ba8e079295cbea51e862dd5b8a1500a77e537",
+      "size_bytes": 2636651,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 4.jpeg",
+      "sha256": "347ec8e2a6f2519d41cb75ebf74f284bc66f617a02106cd23c6d9db0b6be7c5f",
+      "size_bytes": 3251868,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 8.jpeg",
+      "sha256": "b2544d1863af7230f71925fad0d98f6069c0aeb94f546ab93fd2b2eaf14db81b",
+      "size_bytes": 114992,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/Dakar 9.jpeg",
+      "sha256": "e5fa420d8352bac2861d33bd603c727d65dc07359ab3f9b61e1bb9c79d4e5fd6",
+      "size_bytes": 1379635,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/full event (1).png",
+      "sha256": "065385bb199661cf156010e4e10da4a98a7b91c7745b93e0e1778b220221f8cb",
+      "size_bytes": 38092767,
+      "mime_type": "image/png",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_3085.JPG",
+      "sha256": "8c6284ae876a584a1bebc126badb136167f9205eeb8127258239a3d9b1426859",
+      "size_bytes": 2901211,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_6254.jpeg",
+      "sha256": "196e296d83aa73b8eba303b5863615558ac730c01e32f7b5b18f8af8c2ff4a93",
+      "size_bytes": 3107687,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9667.jpeg",
+      "sha256": "5e55a538ce8aef407e250e6379c7450dbfa69ce4d200e9c5a5a7701ab8b10879",
+      "size_bytes": 3515162,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9748.jpeg",
+      "sha256": "0c181c0f7ff301c26af9ba381b8be7fa2ef70b51203451e9caf9e7c950e8139a",
+      "size_bytes": 3175005,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/IMG_9754.jpeg",
+      "sha256": "5c4b1cbc8b01e9ada78fb35ae31cf2c4940f70022f0108bd27f53e85330b114a",
+      "size_bytes": 2767586,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/RFH.png",
+      "sha256": "2f285dd73cf2c329cc4bf71334c178666d6491c9b8808795b37ebf2497cf6d60",
+      "size_bytes": 18188030,
+      "mime_type": "image/png",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2021-09-30 at 17.40.41.jpeg",
+      "sha256": "9fdee262fbe9a7ed466cb737b351597995baad082255629a1ed1d27c7f7690b6",
+      "size_bytes": 138758,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2023-11-30 at 10.47.09_d1dabbb3.jpg",
+      "sha256": "c586c98d9926b14c2b3a4a4e3c5392d618c36e74457f3b22c02bf2015245556e",
+      "size_bytes": 221945,
+      "mime_type": "image/jpeg",
+      "seed_role": "event-media"
+    }
+  ]
+}
