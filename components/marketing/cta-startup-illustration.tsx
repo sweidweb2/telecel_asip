@@ -116,7 +116,14 @@ function Wave({
   opacity?: number;
 }) {
   const d = ribbonFromCubics(points, width / 2);
-  return <path d={d} fill={color} opacity={opacity} />;
+  return (
+    <path
+      d={d}
+      fill={color}
+      opacity={opacity}
+      vectorEffect="non-scaling-stroke"
+    />
+  );
 }
 
 export function CtaStartupIllustration({
@@ -209,6 +216,26 @@ export function CtaStartupIllustration({
       focusable="false"
       preserveAspectRatio="xMidYMid meet"
     >
+      <defs>
+        <linearGradient id="cta-orbit" x1="506" y1="116" x2="694" y2="30">
+          <stop stopColor="#c14a9b" />
+          <stop offset="0.52" stopColor="#179191" />
+          <stop offset="1" stopColor="#81b764" />
+        </linearGradient>
+        <linearGradient id="cta-pillar" x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#25a3a0" />
+          <stop offset="1" stopColor="#147879" />
+        </linearGradient>
+        <filter id="cta-shadow" x="-30%" y="-30%" width="160%" height="180%">
+          <feDropShadow
+            dx="0"
+            dy="8"
+            stdDeviation="8"
+            floodColor="#14333b"
+            floodOpacity="0.12"
+          />
+        </filter>
+      </defs>
       <Wave points={leftTeal} color="#179191" width={2} />
       <Wave points={leftPink} color="#c14a9b" width={1.85} opacity={0.9} />
       <Wave points={leftBlue} color="#3b82c4" width={1.6} opacity={0.85} />
@@ -219,76 +246,62 @@ export function CtaStartupIllustration({
 
       <ellipse
         cx="600"
-        cy="118"
-        rx="72"
-        ry="8"
+        cy="132"
+        rx="104"
+        ry="10"
         fill="#14333b"
         opacity="0.08"
       />
 
-      <rect x="548" y="68" width="18" height="36" rx="5" fill="#f59e0b" />
-      <rect x="572" y="50" width="18" height="54" rx="5" fill="#179191" />
-      <rect x="596" y="34" width="18" height="70" rx="5" fill="#dc395f" />
+      <g filter="url(#cta-shadow)">
+        <rect
+          x="522"
+          y="48"
+          width="156"
+          height="78"
+          rx="24"
+          fill="#fbfaf6"
+          stroke="#14333b"
+          strokeOpacity="0.08"
+        />
 
-      <rect x="628" y="52" width="42" height="52" rx="8" fill="#14333b" />
-      <rect
-        x="636"
-        y="62"
-        width="10"
-        height="10"
-        rx="2"
-        fill="#fbfaf6"
-        opacity="0.9"
-      />
-      <rect
-        x="652"
-        y="62"
-        width="10"
-        height="10"
-        rx="2"
-        fill="#fbfaf6"
-        opacity="0.9"
-      />
-      <rect
-        x="636"
-        y="78"
-        width="10"
-        height="10"
-        rx="2"
-        fill="#fbfaf6"
-        opacity="0.7"
-      />
-      <rect
-        x="652"
-        y="78"
-        width="10"
-        height="10"
-        rx="2"
-        fill="#fbfaf6"
-        opacity="0.7"
-      />
+        <path
+          d="M544 105V91c0-5 4-9 9-9s9 4 9 9v14M574 105V73c0-5 4-9 9-9s9 4 9 9v32M604 105V55c0-5 4-9 9-9s9 4 9 9v50M634 105V37c0-5 4-9 9-9s9 4 9 9v68"
+          stroke="url(#cta-pillar)"
+          strokeWidth="15"
+          strokeLinecap="round"
+          opacity="0.96"
+        />
 
-      <path
-        d="M516 90c0-22 14-42 28-52 4 16 8 30 4 48-10 2-22 4-32 4Z"
-        fill="#c14a9b"
-      />
-      <circle cx="538" cy="60" r="5" fill="#fbfaf6" />
-      <path
-        d="M516 90c-8 4-14 12-16 18 10-2 18-6 24-12Z"
-        fill="#dc395f"
-      />
-      <path
-        d="M528 94c6 6 14 10 22 12-2-8-8-16-14-20Z"
-        fill="#f59e0b"
-      />
+        <path
+          d="M540 94C560 91 569 78 582 78c15 0 18 10 31 5 15-6 18-28 34-34 9-4 17-4 27-2"
+          fill="none"
+          stroke="url(#cta-orbit)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d="M667 40l9 7-10 5"
+          fill="none"
+          stroke="#81b764"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
 
-      <circle cx="612" cy="22" r="14" fill="#179191" opacity="0.95" />
-      <path
-        d="M612 14v8M606 18l4 4M618 18l-4 4"
-        stroke="#fbfaf6"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+        <circle cx="540" cy="94" r="7" fill="#c14a9b" />
+        <circle cx="540" cy="94" r="3" fill="#fbfaf6" />
+        <circle cx="582" cy="78" r="5" fill="#f59e0b" stroke="#fbfaf6" strokeWidth="2" />
+        <circle cx="613" cy="83" r="5" fill="#179191" stroke="#fbfaf6" strokeWidth="2" />
+        <circle cx="647" cy="49" r="5" fill="#81b764" stroke="#fbfaf6" strokeWidth="2" />
+      </g>
+
+      <circle cx="510" cy="54" r="3" fill="#c14a9b" opacity="0.7" />
+      <circle cx="690" cy="92" r="3" fill="#179191" opacity="0.65" />
+      <circle cx="688" cy="34" r="2" fill="#81b764" opacity="0.8" />
     </svg>
   );
 }

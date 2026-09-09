@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "entity": "programme_milestones",
+  "records": [
+    {
+      "date": "2021-03-24",
+      "title": "Cohort 1 applications opened",
+      "description": "Applications opened for the first ASIP Accelerator cohort."
+    },
+    {
+      "date": "2021-07-05",
+      "title": "Cohort 1 began",
+      "description": "The first three-month virtual accelerator began on Accelerator Squared."
+    },
+    {
+      "date": "2021-09-30",
+      "title": "Cohort 1 Demo Day",
+      "description": "Eleven companies completed the first ASIP accelerator cohort in Dakar."
+    },
+    {
+      "date": "2022-04-11",
+      "title": "Cohort 2 began",
+      "description": "Eleven startups began the second accelerator cohort."
+    },
+    {
+      "date": "2022-07-06",
+      "title": "Cohort 2 Demo Day",
+      "description": "The second accelerator cohort concluded with Demo Day in Dakar."
+    },
+    {
+      "date": "2023-02-20",
+      "title": "Cohort 3 began",
+      "description": "Eleven startups began the third accelerator cohort."
+    },
+    {
+      "date": "2023-05-25",
+      "title": "Cohort 3 Demo Day",
+      "description": "The third accelerator cohort concluded at the Museum of Black Civilisations."
+    },
+    {
+      "date": "2023-11-13",
+      "title": "Cohort 4 began",
+      "description": "Ten startups began the fourth accelerator cohort."
+    },
+    {
+      "date": "2024-02-07",
+      "title": "Cohort 4 Demo Day",
+      "description": "The fourth accelerator cohort concluded with Demo Day."
+    },
+    {
+      "date": "2025-12-31",
+      "title": "ASIP Holdings FY2025",
+      "description": "The portfolio reported 23 active companies and a total fund size of $3.536M."
+    }
+  ]
+}

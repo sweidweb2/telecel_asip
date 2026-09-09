@@ -107,7 +107,7 @@ export function AdminPerfEventsTable({
               {event.duration_ms.toFixed(1)}
             </TableCell>
             <TableCell className="max-w-[10rem] truncate pr-4 text-muted-foreground">
-              {event.route ?? "—"}
+              {event.route ?? "-"}
             </TableCell>
           </TableRow>
         ))}
@@ -137,7 +137,7 @@ export function AdminPerfEventsTable({
                 </div>
                 <div className="sm:col-span-2">
                   <dt className="text-muted-foreground">Route</dt>
-                  <dd className="break-all">{selected.route ?? "—"}</dd>
+                  <dd className="break-all">{selected.route ?? "-"}</dd>
                 </div>
                 {selected.error_message ? (
                   <div className="sm:col-span-2">

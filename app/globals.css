@@ -509,7 +509,7 @@ html {
   animation: about-story-float 6.4s ease-in-out 0.4s infinite;
 }
 
-/* —— About hero (from public/embedded/index.html, ASIP ink/teal) —— */
+/* —— About hero — ASIP ink/teal —— */
 .about-hero {
   --about-hero-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --about-hero-accent: #179191;
@@ -872,8 +872,8 @@ html {
   --dx: 5px;
 }
 .about-hero-chip--2 {
-  left: 42%;
-  top: 20%;
+  left: 43%;
+  top: 8%;
   --delay: 0.16s;
   --dur: 6s;
   --dy: 8px;
@@ -904,7 +904,7 @@ html {
   --dx: -6px;
 }
 .about-hero-chip--6 {
-  left: 88%;
+  right: 0.75rem;
   top: 38%;
   --delay: 0.3s;
   --dur: 6.3s;
@@ -928,12 +928,77 @@ html {
   --dx: -3px;
 }
 .about-hero-chip--9 {
-  left: 28%;
+  left: 5%;
   top: 86%;
   --delay: 0.1s;
   --dur: 6.7s;
   --dy: 7px;
   --dx: 6px;
+}
+
+/* Keep decorative labels in their own lane while the hero copy is constrained.
+   Percentage-based positions otherwise let the labels overlap each other and
+   the eyebrow at phone and tablet widths. */
+@media (max-width: 1023px) {
+  .about-hero-chips {
+    inset: 0;
+  }
+
+  .about-hero-chip {
+    position: absolute;
+  }
+
+  .about-hero-chip:nth-child(n + 3) {
+    display: none;
+  }
+
+  .about-hero-chip--1 {
+    top: 12%;
+    left: clamp(1rem, 6vw, 4rem);
+  }
+
+  .about-hero-chip--2 {
+    top: 6%;
+    right: clamp(1rem, 6vw, 4rem);
+    left: auto;
+  }
+}
+
+@media (max-width: 479px) {
+  .about-hero-chip--1 {
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .about-hero-chip--2 {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-hero-chip--1 {
+    left: 19%;
+    top: 9%;
+  }
+
+  .about-hero-chip--3 {
+    left: auto;
+    right: 20%;
+    top: 7%;
+  }
+
+  .about-hero-chip--5 {
+    left: auto;
+    right: 0.75rem;
+    top: 66%;
+  }
+
+  .about-hero-chip--8 {
+    left: auto;
+    right: 15%;
+    top: 84%;
+  }
 }
 
 .about-hero-chip--hide-sm,

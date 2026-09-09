@@ -60,7 +60,7 @@ describe("failStuckInFlightBackups", () => {
     expect(count).toBe(1);
     expect(update).toHaveBeenCalledWith({
       status: "failed",
-      error_message: "Timed out — job did not finish. Try again.",
+      error_message: "Timed out - job did not finish. Try again.",
     });
     expect(lt).toHaveBeenCalledWith(
       "created_at",

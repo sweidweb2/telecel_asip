@@ -15,7 +15,7 @@ export type NewsletterSignupLabels = {
 const EN: NewsletterSignupLabels = {
   title: "Get ASIP updates",
   description:
-    "Occasional programme and portfolio notes. No spam — unsubscribe any time once delivery is live.",
+    "Occasional programme and portfolio notes. No spam - unsubscribe any time once delivery is live.",
   inactiveNote:
     "Updates signup is built but inactive until privacy, routing and an owner are confirmed.",
   emailLabel: "Email",
@@ -29,7 +29,7 @@ const EN: NewsletterSignupLabels = {
 const FR: NewsletterSignupLabels = {
   title: "Recevoir les mises à jour ASIP",
   description:
-    "Notes ponctuelles sur le programme et le portefeuille. Pas de spam — désinscription une fois l’envoi activé.",
+    "Notes ponctuelles sur le programme et le portefeuille. Pas de spam - désinscription une fois l’envoi activé.",
   inactiveNote:
     "L’inscription est prête mais inactive tant que la confidentialité, le routage et un responsable ne sont pas confirmés.",
   emailLabel: "E-mail",

@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "relation": "event_startups",
+  "records": [
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "agrix-tech"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "agrodata"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "ags-tribe-herconomy"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "chekkit-technologies"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "dawa-health"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "motito"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "nucleus-is"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "thumeza"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "ustacky"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "weza-ventures"
+    },
+    {
+      "event_key": "asip-demo-day-2021",
+      "startup_key": "worldbay-technologies-grocedy"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "agrodata"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "crowdyvest"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "ecampus-llc"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "ecomak-recyclers"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "neural-labs-africa"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "parcsmart"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "powerstove-energy"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "proxalys"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "qataloog"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "rural-farmers-hub"
+    },
+    {
+      "event_key": "asip-demo-day-2022",
+      "startup_key": "vooli-mobile-insurance"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "bd-waste"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "cargoplug"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "chestify-ai"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "kyanda"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "limawa"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "moja-ride"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "parkwell"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "pharmaserv"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "safetrack-cognx"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "sodishop"
+    },
+    {
+      "event_key": "asip-demo-day-2023",
+      "startup_key": "yoonema"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "10mg-pharma"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "babimo"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "betapawa-solutions"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "edusko"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "koritech"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "lyfplus"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "messenger"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "munakyalo-agrofresh"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "ostafandy"
+    },
+    {
+      "event_key": "asip-demo-day-2024",
+      "startup_key": "primed-e-health"
+    }
+  ]
+}

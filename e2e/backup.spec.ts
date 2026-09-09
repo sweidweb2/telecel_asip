@@ -119,7 +119,7 @@ test.describe("backup export API", () => {
     try {
       await page.goto("/en/login");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 

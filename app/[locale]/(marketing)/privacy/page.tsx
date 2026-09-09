@@ -18,14 +18,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/privacy",
-          title: "Politique de confidentialité — ASIP",
+          title: "Politique de confidentialité - ASIP",
           description:
             "Politique de confidentialité ASIP : données collectées, cookies, formulaires et droits.",
         }
       : {
           locale,
           path: "/privacy",
-          title: "Privacy Policy — ASIP",
+          title: "Privacy Policy - ASIP",
           description:
             "ASIP privacy policy: data we collect, cookies, forms, processors, and your rights.",
         },

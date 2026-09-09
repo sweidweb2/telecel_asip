@@ -32,7 +32,6 @@ const SHAPE_CLASSES = [
 
 /**
  * About page hero — centered copy over floating shapes and decorative chips.
- * Adapted from `public/embedded/index.html` into ASIP ink / teal theme.
  */
 export function AboutHero({
   eyebrow,
@@ -57,7 +56,10 @@ export function AboutHero({
       </div>
 
       {heroChips ? (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div
+          className="about-hero-chips pointer-events-none absolute inset-0 overflow-hidden"
+          aria-hidden
+        >
           {heroChips.chips.map((chip, index) => {
             const kindLabel =
               chip.kind === "focus" ? heroChips.focusKind : heroChips.chapterKind;

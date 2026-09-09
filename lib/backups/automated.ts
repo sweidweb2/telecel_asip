@@ -17,7 +17,7 @@ const MAX_WINDOW_ATTEMPTS = 3;
 export const BACKUP_STUCK_AFTER_MS = 20 * 60 * 1000;
 
 const STUCK_ERROR_MESSAGE =
-  "Timed out — job did not finish. Try again.";
+  "Timed out - job did not finish. Try again.";
 
 /**
  * Mark abandoned pending/processing rows as failed so overlap does not block forever.

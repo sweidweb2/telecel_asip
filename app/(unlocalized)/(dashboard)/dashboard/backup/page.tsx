@@ -66,7 +66,7 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
           <Card>
             <CardContent className="grid gap-4 pt-6 text-sm text-muted-foreground">
               <p>
-                In-app and scheduled R2 backups are operational copies for export —
+                In-app and scheduled R2 backups are operational copies for export -
                 they are not a substitute for Supabase automated backups or
                 point-in-time recovery. Use the Supabase project dashboard for
                 restore operations.

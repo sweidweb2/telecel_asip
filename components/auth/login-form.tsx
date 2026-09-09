@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 import { signIn } from "@/actions/auth";
 import type { LoginLabels } from "@/components/auth/auth-labels";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -108,6 +109,17 @@ export function LoginForm({
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <GoogleAuthButton
+        label={labels.googleLabel}
+        loadingLabel={labels.googleLoadingLabel}
+        errorMessage={labels.googleError}
+        redirectTo={redirectTo}
+      />
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        <span>{labels.dividerLabel}</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
       <div className="grid gap-2">
         <Label htmlFor="email">{labels.emailLabel}</Label>
         <Input

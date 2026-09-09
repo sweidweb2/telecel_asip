@@ -121,6 +121,7 @@ describe("updateInterestRegistrationSchema / deleteInterestRegistrationSchema", 
 
   it("accepts an admin update without consent or turnstile", () => {
     const { consent: _c, turnstileToken: _t, ...fields } = validInput;
+    void [_c, _t];
     expect(
       updateInterestRegistrationSchema.safeParse({ id, ...fields }).success,
     ).toBe(true);

@@ -99,14 +99,14 @@ export function EventsTable({
             {formatAdminDate(event.event_date)}
           </TableCell>
           <TableCell className="whitespace-nowrap">
-            {event.format ? EVENT_FORMAT_LABELS[event.format] : "—"}
+            {event.format ? EVENT_FORMAT_LABELS[event.format] : "-"}
           </TableCell>
           <TableCell className="max-w-[10rem] text-muted-foreground sm:max-w-[14rem]">
             <span
               className="block truncate"
               title={event.location ?? undefined}
             >
-              {event.location || "—"}
+              {event.location || "-"}
             </span>
           </TableCell>
           <TableCell className="whitespace-nowrap">

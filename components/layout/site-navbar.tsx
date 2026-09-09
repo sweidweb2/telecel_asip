@@ -57,7 +57,7 @@ function LanguageToggle({
 }) {
   return (
     <div
-      className="flex items-center border border-black/10 bg-white"
+      className="inline-flex w-fit shrink-0 self-start items-center gap-0.5 overflow-hidden rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
       role="group"
       aria-label={groupLabel}
     >
@@ -70,7 +70,7 @@ function LanguageToggle({
             hrefLang={loc}
             onClick={onLinkClick}
             className={cn(
-              "inline-flex min-h-10 min-w-11 items-center justify-center text-xs font-semibold uppercase transition-colors hover:bg-muted",
+              "inline-flex min-h-9 min-w-10 items-center justify-center rounded-full px-3 text-xs font-semibold uppercase transition-colors hover:bg-muted",
               active
                 ? "bg-[#14333b] text-white hover:bg-[#14333b]"
                 : "text-muted-foreground",
@@ -164,12 +164,20 @@ export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
             >
               <MenuIcon className="size-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-sm">
-              <SheetHeader className="border-b">
-                <SheetTitle>{labels.menuLabel}</SheetTitle>
+            <SheetContent
+              side="right"
+              className="!inset-y-2 !right-2 !h-auto w-3/4 max-w-[20rem] gap-0 overflow-hidden rounded-3xl border border-[#14333b]/12 bg-[#fbfaf6] p-0 shadow-2xl"
+            >
+              <SheetHeader className="shrink-0 border-b border-[#14333b]/10 px-6 py-5">
+                <SheetTitle className="text-lg font-semibold text-[#14333b]">
+                  {labels.menuLabel}
+                </SheetTitle>
+                <p className="pr-10 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  {mastheadLabel}
+                </p>
               </SheetHeader>
               <nav
-                className="flex flex-1 flex-col gap-1 overflow-y-auto p-5"
+                className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4 py-5"
                 aria-label="Primary"
               >
                 {labels.items.map((item) => (
@@ -179,16 +187,16 @@ export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
                     onClick={() => setOpen(false)}
                     className={cn(
                       buttonVariants({ variant: "ghost" }),
-                      "h-12 justify-start text-base",
+                      "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
                       isNavActive(pathname, item.href, locale) &&
-                        "bg-muted text-primary",
+                        "bg-[#179191]/10 font-semibold text-[#179191]",
                     )}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <div className="my-3 border-t" />
-                <p className="px-3 text-xs font-semibold uppercase text-muted-foreground">
+                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
+                <p className="mb-1 shrink-0 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {labels.languageGroupLabel}
                 </p>
                 <LanguageToggle
@@ -197,13 +205,13 @@ export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
                   groupLabel={labels.languageGroupLabel}
                   onLinkClick={() => setOpen(false)}
                 />
-                <div className="my-3 border-t" />
+                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
                 <Link
                   href={labels.apply.href}
                   onClick={() => setOpen(false)}
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "w-full gap-2",
+                    "w-full shrink-0 gap-2 rounded-full",
                   )}
                 >
                   {labels.apply.label}

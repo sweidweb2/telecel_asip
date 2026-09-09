@@ -74,7 +74,7 @@ export const STARTUP_EDITOR_HELP = {
   detailsExtra: {
     title: "Company details",
     intro:
-      "Deeper company, narrative, and funding fields. Optional — fill what you need for the public profile.",
+      "Deeper company, narrative, and funding fields. Optional - fill what you need for the public profile.",
     fields: [
       {
         name: "Website & company facts",
@@ -84,7 +84,7 @@ export const STARTUP_EDITOR_HELP = {
       {
         name: "Narrative",
         detail:
-          "Problem, solution, target market, and business model — shown when the public profile uses these modules.",
+          "Problem, solution, target market, and business model - shown when the public profile uses these modules.",
       },
       {
         name: "Funding",

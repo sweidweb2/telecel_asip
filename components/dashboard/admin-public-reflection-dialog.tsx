@@ -43,7 +43,7 @@ export function AdminPublicReflectionDialog({
             className={cn("min-h-11 w-full sm:w-auto", className)}
             aria-label={
               hasUnreflected
-                ? "Public pages — some surfaces are not reflected"
+                ? "Public pages - some surfaces are not reflected"
                 : undefined
             }
           />

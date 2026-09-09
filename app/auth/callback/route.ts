@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { DEFAULT_LOCALE } from "@/constants/locales";
+import { DEFAULT_LOCALE, isLocale } from "@/constants/locales";
 import { authPath, ROUTES } from "@/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,6 +8,10 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next");
+  const requestedLocale = searchParams.get("locale");
+  const locale = requestedLocale && isLocale(requestedLocale)
+    ? requestedLocale
+    : DEFAULT_LOCALE;
   const redirectTo =
     next && next.startsWith("/") && !next.startsWith("//")
       ? next
@@ -23,6 +27,6 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(
-    new URL(authPath(DEFAULT_LOCALE, "login"), origin)
+    new URL(authPath(locale, "login"), origin)
   );
 }

@@ -50,7 +50,7 @@ test.describe("partners cms", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
       await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/partners/, {
         timeout: 20_000,
@@ -131,7 +131,7 @@ test.describe("partners cms", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
       await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/partners/, {
         timeout: 20_000,
@@ -250,7 +250,7 @@ test.describe("partners cms", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 

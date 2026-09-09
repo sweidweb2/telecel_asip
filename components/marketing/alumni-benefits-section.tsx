@@ -38,13 +38,16 @@ function AlumniBenefitsField() {
     >
       <div className="absolute inset-0 bg-background" />
 
-      {/* Left wash */}
-      <span className="absolute -left-[18%] top-1/2 size-[min(55vw,28rem)] -translate-y-1/2 rounded-full bg-[#9ad1bf]/40 blur-[90px]" />
-      <span className="absolute left-0 top-[20%] h-[60%] w-[min(28vw,14rem)] bg-[linear-gradient(90deg,rgb(220_233_223/0.7),transparent)]" />
-
-      {/* Right wash */}
-      <span className="absolute -right-[16%] top-1/2 size-[min(52vw,26rem)] -translate-y-1/2 rounded-full bg-[#179191]/16 blur-[90px]" />
-      <span className="absolute right-0 top-[22%] h-[56%] w-[min(26vw,13rem)] bg-[linear-gradient(270deg,rgb(227_238_230/0.65),transparent)]" />
+      {/* Continuous side washes avoid visible rectangular gradient edges. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 38% 82% at -6% 50%, rgb(154 209 191 / 0.42) 0%, rgb(220 233 223 / 0.24) 46%, transparent 100%),
+            radial-gradient(ellipse 36% 80% at 106% 50%, rgb(23 145 145 / 0.18) 0%, rgb(227 238 230 / 0.2) 48%, transparent 100%)
+          `,
+        }}
+      />
 
       {/* Side-weighted teal grain — fades hard at top/bottom */}
       <div
@@ -56,11 +59,11 @@ function AlumniBenefitsField() {
           backgroundSize: "18px 18px",
           WebkitMaskImage: `
             linear-gradient(90deg, black 0%, transparent 28%, transparent 72%, black 100%),
-            linear-gradient(180deg, transparent 0%, black 18%, black 82%, transparent 100%)
+            linear-gradient(180deg, transparent 0%, black 26%, black 74%, transparent 100%)
           `,
           maskImage: `
             linear-gradient(90deg, black 0%, transparent 28%, transparent 72%, black 100%),
-            linear-gradient(180deg, transparent 0%, black 18%, black 82%, transparent 100%)
+            linear-gradient(180deg, transparent 0%, black 26%, black 74%, transparent 100%)
           `,
           WebkitMaskComposite: "source-in",
           maskComposite: "intersect",

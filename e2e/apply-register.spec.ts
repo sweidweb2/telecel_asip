@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, waitForTurnstileReady, submitLoginForm } from "./helpers";
 
-const REGISTER_SUCCESS = "Your interest has been registered.";
-const APPLY_SUCCESS = "Your application has been submitted.";
+const REGISTER_SUCCESS = "Thank you - your interest has been registered.";
+const APPLY_SUCCESS = "Thank you - your application has been submitted.";
 
 test.describe.configure({ mode: "serial" });
 
@@ -28,7 +28,7 @@ async function createViewerAndSignIn(
   await page.context().clearCookies();
   await page.goto(`/en/login?next=${encodeURIComponent(nextPath)}`);
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await submitLoginForm(page);
   await expect(page).toHaveURL(new RegExp(nextPath.replace(/\//g, "\\/")), {
     timeout: 20_000,

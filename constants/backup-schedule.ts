@@ -60,7 +60,7 @@ export function backupScheduleSelectOptions(
   ) {
     base.push({
       value: current,
-      label: `${ALL_LABELS[current]} (legacy — pick weekly or Off)`,
+      label: `${ALL_LABELS[current]} (legacy - pick weekly or Off)`,
     });
   }
   return base;

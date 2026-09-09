@@ -125,7 +125,7 @@ export function PartnersTable({
           </TableCell>
           <TableCell className="max-w-[10rem] text-muted-foreground sm:max-w-[14rem]">
             <span className="block truncate" title={partner.org ?? undefined}>
-              {partner.org || "—"}
+              {partner.org || "-"}
             </span>
           </TableCell>
           <TableCell className="max-w-[12rem]">

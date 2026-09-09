@@ -64,7 +64,7 @@ export function BackupProgressDialog({
           )}
           <p className="text-sm text-muted-foreground">
             {phase === "running"
-              ? "Working in the background. You can leave this dialog open — history updates when it finishes."
+              ? "Working in the background. You can leave this dialog open - history updates when it finishes."
               : phase === "success"
                 ? "The archive is in Backup history and ready to download."
                 : "Check Backup history for details, then try again."}

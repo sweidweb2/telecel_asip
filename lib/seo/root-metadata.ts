@@ -30,7 +30,7 @@ export const rootMetadata: Metadata = {
         url: "/opengraph-image.png",
         width: 1200,
         height: 630,
-        alt: "ASIP — Africa Startup Initiative Program",
+        alt: "ASIP - Africa Startup Initiative Program",
       },
     ],
   },

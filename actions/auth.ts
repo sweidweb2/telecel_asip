@@ -205,6 +205,35 @@ export async function signIn(
   };
 }
 
+export async function signInWithGoogle(
+  redirectTo?: string
+): Promise<AuthActionResult> {
+  const locale = await getRequestLocale();
+  const copy = authActionMessagesFor(locale);
+  const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const callbackUrl = new URL("/auth/callback", siteUrl);
+
+  callbackUrl.searchParams.set("next", safeRedirectPath(redirectTo));
+  callbackUrl.searchParams.set("locale", locale);
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: callbackUrl.toString(),
+    },
+  });
+
+  if (error || !data.url) {
+    if (error) {
+      console.error("[auth] Google OAuth failed", error);
+    }
+    return { status: "error", message: copy.genericError };
+  }
+
+  return { status: "success", redirectTo: data.url };
+}
+
 export async function signOut(): Promise<void> {
   const locale = await getRequestLocale();
   const supabase = await createClient();

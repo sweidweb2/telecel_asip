@@ -60,7 +60,7 @@ export type ApplyLabels = {
 const EN_REGISTER: ApplyLabels = {
   formTitle: "Register your interest",
   formDescription:
-    "Share a short profile. The ASIP team uses this for updates when the next chapter opens — not as an official application.",
+    "Share a short profile. The ASIP team uses this for updates when the next chapter opens - not as an official application.",
   nameLabel: "Founder name",
   namePlaceholder: "Your full name",
   roleLabel: "Founder role",
@@ -100,7 +100,7 @@ const EN_REGISTER: ApplyLabels = {
   commsLabel: "Send me programme updates by email.",
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
-  successToast: "Thank you — your interest has been registered.",
+  successToast: "Thank you - your interest has been registered.",
   successTitle: "Thank you",
   successDescription:
     "Your interest has been registered. The ASIP team will use this for updates when the next chapter opens.",
@@ -152,7 +152,7 @@ const EN_APPLY: ApplyLabels = {
   commsLabel: "Send me programme updates by email.",
   submitLabel: "Submit application",
   submittingLabel: "Submitting…",
-  successToast: "Thank you — your application has been submitted.",
+  successToast: "Thank you - your application has been submitted.",
   successTitle: "Thank you",
   successDescription:
     "Your application has been submitted. The ASIP team will review it and follow up when ready.",
@@ -163,7 +163,7 @@ const EN_APPLY: ApplyLabels = {
 const FR_REGISTER: ApplyLabels = {
   formTitle: "Manifester votre intérêt",
   formDescription:
-    "Présentez brièvement votre profil. L’équipe ASIP s’en sert pour les mises à jour — ce n’est pas une candidature officielle.",
+    "Présentez brièvement votre profil. L’équipe ASIP s’en sert pour les mises à jour - ce n’est pas une candidature officielle.",
   nameLabel: "Nom du fondateur",
   namePlaceholder: "Votre nom complet",
   roleLabel: "Rôle",
@@ -203,7 +203,7 @@ const FR_REGISTER: ApplyLabels = {
   commsLabel: "Recevoir des mises à jour du programme par e-mail.",
   submitLabel: "Envoyer",
   submittingLabel: "Envoi…",
-  successToast: "Merci — votre intérêt a bien été enregistré.",
+  successToast: "Merci - votre intérêt a bien été enregistré.",
   successTitle: "Merci",
   successDescription:
     "Votre intérêt a bien été enregistré. L’équipe ASIP s’en servira pour les mises à jour lorsque le prochain chapitre ouvrira.",
@@ -255,7 +255,7 @@ const FR_APPLY: ApplyLabels = {
   commsLabel: "Recevoir des mises à jour du programme par e-mail.",
   submitLabel: "Envoyer la candidature",
   submittingLabel: "Envoi…",
-  successToast: "Merci — votre candidature a bien été envoyée.",
+  successToast: "Merci - votre candidature a bien été envoyée.",
   successTitle: "Merci",
   successDescription:
     "Votre candidature a bien été envoyée. L’équipe ASIP l’examinera et vous contactera le moment venu.",

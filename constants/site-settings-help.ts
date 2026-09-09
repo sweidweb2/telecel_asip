@@ -4,7 +4,7 @@ export const SITE_SETTINGS_HELP = {
   applications: {
     title: "Applications open",
     intro:
-      "Mutual gate between Apply and Register Interest — only one intake path is live.",
+      "Mutual gate between Apply and Register Interest - only one intake path is live.",
     fields: [
       {
         name: "Applications open",

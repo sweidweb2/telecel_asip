@@ -19,7 +19,7 @@ export const BLOG_EDITOR_HELP = {
       {
         name: "Author",
         detail:
-          "Display name shown with the article (byline). Not a CMS login — any attribution string is fine.",
+          "Display name shown with the article (byline). Not a CMS login - any attribution string is fine.",
       },
     ],
   },
@@ -49,7 +49,7 @@ export const BLOG_EDITOR_HELP = {
   relatedSeo: {
     title: "Related & SEO",
     intro:
-      "Optional links and search metadata. Leave blank when not needed — the site falls back to title and summary.",
+      "Optional links and search metadata. Leave blank when not needed - the site falls back to title and summary.",
     fields: [
       {
         name: "Related founder",

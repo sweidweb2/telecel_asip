@@ -27,6 +27,8 @@ vi.mock("next/image", () => ({
     height?: number;
   }) => {
     const { fill: _fill, priority: _priority, sizes: _sizes, ...rest } = props;
+    void [_fill, _priority, _sizes];
+    // eslint-disable-next-line @next/next/no-img-element -- Test double for next/image.
     return <img alt={alt} {...rest} />;
   },
 }));

@@ -71,7 +71,7 @@ const en: HomePageCopy = {
     eyebrow: "Impact",
     title: "The story is what happened next.",
     description:
-      "Impact is more than the number of startups in a cohort. It is what founders built afterwards — stronger businesses, new markets, and technology that improves how people live and work.",
+      "Impact is more than the number of startups in a cohort. It is what founders built afterwards - stronger businesses, new markets, and technology that improves how people live and work.",
     features: [
       {
         id: "businesses",
@@ -94,7 +94,7 @@ const en: HomePageCopy = {
     ],
     cta: { slug: "impact", label: "See the impact" },
     imageAlt:
-      "ASIP founders building ventures — register interest for the next chapter",
+      "ASIP founders building ventures - register interest for the next chapter",
   },
   ecosystem: {
     title: "The right connection can change a company’s trajectory.",
@@ -112,7 +112,7 @@ const en: HomePageCopy = {
         id: "investors",
         title: "Investors",
         description:
-          "Introductions to capital pathways when a venture is ready for the next round — not a generic pitch pipeline.",
+          "Introductions to capital pathways when a venture is ready for the next round - not a generic pitch pipeline.",
       },
       {
         id: "corporates",
@@ -232,7 +232,7 @@ const fr: HomePageCopy = {
     eyebrow: "Impact",
     title: "L’histoire, c’est ce qui s’est passé ensuite.",
     description:
-      "L’impact ne se résume pas au nombre de startups d’une cohorte. C’est ce que les fondateurs ont construit après — des entreprises plus solides, de nouveaux marchés et des technologies qui améliorent la façon dont les gens vivent et travaillent.",
+      "L’impact ne se résume pas au nombre de startups d’une cohorte. C’est ce que les fondateurs ont construit après - des entreprises plus solides, de nouveaux marchés et des technologies qui améliorent la façon dont les gens vivent et travaillent.",
     features: [
       {
         id: "businesses",
@@ -255,7 +255,7 @@ const fr: HomePageCopy = {
     ],
     cta: { slug: "impact", label: "Voir l’impact" },
     imageAlt:
-      "Des fondateurs ASIP qui construisent — manifestez votre intérêt pour le prochain chapitre",
+      "Des fondateurs ASIP qui construisent - manifestez votre intérêt pour le prochain chapitre",
   },
   ecosystem: {
     title: "La bonne connexion peut changer la trajectoire d’une entreprise.",
@@ -273,7 +273,7 @@ const fr: HomePageCopy = {
         id: "investors",
         title: "Investisseurs",
         description:
-          "Des introductions vers des voies de financement lorsque l’entreprise est prête pour le tour suivant — pas un pipeline de pitchs génériques.",
+          "Des introductions vers des voies de financement lorsque l’entreprise est prête pour le tour suivant - pas un pipeline de pitchs génériques.",
       },
       {
         id: "corporates",

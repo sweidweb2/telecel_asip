@@ -106,7 +106,7 @@ export function FounderStoriesTable({
           <TableCell className="text-muted-foreground">
             {story.quote_permission_status
               ? QUOTE_PERMISSION_STATUS_LABELS[story.quote_permission_status]
-              : "—"}
+              : "-"}
           </TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">
             {formatAdminDate(story.updated_at)}

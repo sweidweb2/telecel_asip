@@ -50,7 +50,7 @@ test.describe("evidence cms", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
       await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/evidence/, {
         timeout: 20_000,
@@ -129,7 +129,7 @@ test.describe("evidence cms", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await submitLoginForm(page);
       await expect(page).not.toHaveURL(/\/dashboard\/evidence/, {
         timeout: 20_000,

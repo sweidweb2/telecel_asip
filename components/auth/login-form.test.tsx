@@ -13,7 +13,7 @@ const toastError = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
 const turnstileToken = vi.hoisted(() => ({ value: "test-turnstile-token" }));
 
-vi.mock("@/actions/auth", () => ({ signIn }));
+vi.mock("@/actions/auth", () => ({ signIn, signInWithGoogle: vi.fn() }));
 
 vi.mock("@/hooks/use-turnstile", async () => {
   const React = await import("react");

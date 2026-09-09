@@ -12,7 +12,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
 const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
 
-const SUCCESS_TOAST = "Thank you — your message has been sent.";
+const SUCCESS_TOAST = "Thank you - your message has been sent.";
 const RATE_LIMIT_TOAST = "Too many submissions. Please wait and try again later.";
 const BODY =
   "I would like to learn more about partnering with ASIP for the next cohort.";
@@ -84,7 +84,7 @@ async function waitForTurnstileReady(page: import("@playwright/test").Page) {
   } catch {
     test.skip(
       true,
-      "Turnstile did not issue a token — check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
+      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
     );
   }
 }
@@ -218,7 +218,7 @@ test.describe("contact messages", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fcontact-us");
       await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password").fill(adminPassword);
+      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/contact-us/, {
         timeout: 20_000,
@@ -298,7 +298,7 @@ test.describe("contact messages", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fcontact-us");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 

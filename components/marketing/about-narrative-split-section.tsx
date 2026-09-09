@@ -1,4 +1,4 @@
-import { Compass, Eye, Waypoints, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
@@ -6,19 +6,19 @@ type AboutNarrativeVisualVariant = "vision" | "mission" | "telecel";
 
 const VISUAL_CONFIG: Record<
   AboutNarrativeVisualVariant,
-  { Icon: LucideIcon; gradient: string }
+  { src: string; position: string }
 > = {
   vision: {
-    Icon: Eye,
-    gradient: "from-primary/20 via-muted/70 to-secondary/40",
+    src: "/asip-media/insights-conversation.webp",
+    position: "center 46%",
   },
   mission: {
-    Icon: Compass,
-    gradient: "from-secondary/50 via-muted/70 to-primary/15",
+    src: "/asip-media/about-origin.webp",
+    position: "center 42%",
   },
   telecel: {
-    Icon: Waypoints,
-    gradient: "from-primary/25 via-muted/60 to-primary/10",
+    src: "/asip-media/about-journey.webp",
+    position: "center 42%",
   },
 };
 
@@ -39,34 +39,24 @@ function NarrativeVisual({
   variant: AboutNarrativeVisualVariant;
   label: string;
 }) {
-  const { Icon, gradient } = VISUAL_CONFIG[variant];
+  const media = VISUAL_CONFIG[variant];
 
   return (
-    <div
-      className={cn(
-        "relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 border-border bg-gradient-to-br shadow-sm sm:aspect-[5/4]",
-        gradient,
-      )}
-      role="img"
-      aria-label={label}
-    >
-      <span
-        aria-hidden
-        className="about-story-float absolute -right-4 top-6 size-20 rounded-full bg-primary/10 blur-sm"
+    <figure className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 border-border bg-muted shadow-sm sm:aspect-[5/4]">
+      <Image
+        src={media.src}
+        alt={label}
+        fill
+        className="object-cover transition-transform duration-700 hover:scale-[1.02]"
+        style={{ objectPosition: media.position }}
+        sizes="(max-width: 1024px) 100vw, 50vw"
       />
-      <span
-        aria-hidden
-        className="about-story-float-delayed absolute -left-5 bottom-10 size-24 rounded-full bg-primary/15 blur-sm"
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Icon className="size-20 text-primary/30 sm:size-24" aria-hidden />
-      </div>
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/10 to-transparent p-4 sm:p-5">
-        <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#14333b]/80 via-[#14333b]/35 to-transparent p-4 pt-16 sm:p-5 sm:pt-20">
+        <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-white">
           {label}
         </p>
       </div>
-    </div>
+    </figure>
   );
 }
 

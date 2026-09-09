@@ -88,7 +88,7 @@ test.describe("site settings", () => {
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fsettings");
       await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password").fill(password);
+      await page.getByLabel("Password", { exact: true }).fill(password);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
     } finally {

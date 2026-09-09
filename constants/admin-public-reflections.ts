@@ -51,7 +51,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         page: "Home founder spotlight",
         path: "/{locale} (home)",
         reflected: false,
-        shows: "Not wired — home uses static copy today.",
+        shows: "Not wired - home uses static copy today.",
         rule: "getSpotlightStartups exists but is unused on home.",
       },
     ],
@@ -137,7 +137,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
     intro: "Published cohorts show as past programme chapters and as related labels on insights.",
     surfaces: [
       {
-        page: "Programme — past chapters",
+        page: "Programme - past chapters",
         path: "/{locale}/programme",
         reflected: true,
         shows:
@@ -161,11 +161,11 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
     surfaces: [
       {
         page: "Public events listing / detail",
-        path: "—",
+        path: "-",
         reflected: false,
         shows:
           "Would include name, date, location, format, speakers, outcomes when a route is wired.",
-        rule: "getPublishedEvents filters publish_status = published — unused by marketing today.",
+        rule: "getPublishedEvents filters publish_status = published - unused by marketing today.",
       },
     ],
     notes: [
@@ -180,7 +180,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
     surfaces: [
       {
         page: "Public site",
-        path: "—",
+        path: "-",
         reflected: false,
         shows: "No public evidence API or listing.",
         rule: "Admin-only; linked from impact metrics via evidence_id.",
@@ -189,7 +189,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         page: "Impact “evidence rule” copy",
         path: "/{locale}/impact",
         reflected: false,
-        shows: "Static marketing copy — not CMS evidence rows.",
+        shows: "Static marketing copy - not CMS evidence rows.",
         rule: "Hard-coded section text.",
       },
     ],
@@ -204,7 +204,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
       "Verified metrics with the right display-location tags feed the home impact strip.",
     surfaces: [
       {
-        page: "Home — seven years of impact",
+        page: "Home - seven years of impact",
         path: "/{locale} (home)",
         reflected: true,
         shows: "claim_label, value, and unit.",

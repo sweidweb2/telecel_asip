@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "entity": "cohorts",
+  "records": [
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "year": 2021,
+      "public_label": "ASIP Accelerator Cohort 1",
+      "programme_dates_start": "2021-07-05",
+      "programme_dates_end": "2021-09-30",
+      "programme_status": "closed",
+      "summary": "ASIP's first, fully virtual three-month accelerator cohort, powered by Startupbootcamp AfriTech.",
+      "media_url": null,
+      "publish_status": "published"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "year": 2022,
+      "public_label": "ASIP Accelerator Cohort 2",
+      "programme_dates_start": "2022-04-11",
+      "programme_dates_end": "2022-07-06",
+      "programme_status": "closed",
+      "summary": "The second ASIP accelerator cohort combined the Accelerator Squared platform with in-person support in Dakar.",
+      "media_url": null,
+      "publish_status": "published"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "year": 2023,
+      "public_label": "ASIP Accelerator Cohort 3",
+      "programme_dates_start": "2023-02-20",
+      "programme_dates_end": "2023-05-25",
+      "programme_status": "closed",
+      "summary": "The third ASIP accelerator cohort selected 11 companies after Final Selection Days in January 2023.",
+      "media_url": null,
+      "publish_status": "published"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "year": 2024,
+      "public_label": "ASIP Accelerator Cohort 4",
+      "programme_dates_start": "2023-11-13",
+      "programme_dates_end": "2024-02-07",
+      "programme_status": "closed",
+      "summary": "The fourth ASIP accelerator cohort selected 10 companies after Final Selection Days in October 2023.",
+      "media_url": null,
+      "publish_status": "published"
+    }
+  ]
+}

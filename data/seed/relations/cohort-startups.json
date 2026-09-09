@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "relation": "cohort_startups",
+  "records": [
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "agrix-tech"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "agrodata"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "ags-tribe-herconomy"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "chekkit-technologies"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "dawa-health"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "motito"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "nucleus-is"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "thumeza"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "ustacky"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "weza-ventures"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "startup_slug": "worldbay-technologies-grocedy"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "agrodata"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "crowdyvest"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "ecampus-llc"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "ecomak-recyclers"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "neural-labs-africa"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "parcsmart"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "powerstove-energy"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "proxalys"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "qataloog"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "rural-farmers-hub"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "startup_slug": "vooli-mobile-insurance"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "bd-waste"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "cargoplug"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "chestify-ai"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "kyanda"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "limawa"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "moja-ride"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "parkwell"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "pharmaserv"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "safetrack-cognx"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "sodishop"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "startup_slug": "yoonema"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "10mg-pharma"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "babimo"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "betapawa-solutions"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "edusko"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "koritech"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "lyfplus"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "messenger"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "munakyalo-agrofresh"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "ostafandy"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "startup_slug": "primed-e-health"
+    }
+  ]
+}

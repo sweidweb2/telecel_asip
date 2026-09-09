@@ -20,6 +20,10 @@ export type LoginLabels = {
   signUpLink: string;
   successToast: string;
   turnstileHint: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type SignupLabels = {
@@ -38,6 +42,10 @@ export type SignupLabels = {
   viewerNote: string;
   successToast: string;
   turnstileHint: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type AuthActionMessages = {
@@ -77,6 +85,10 @@ const LOGIN: Record<Locale, LoginLabels> = {
     signUpLink: "Sign up",
     successToast: "Signed in.",
     turnstileHint: "Complete the security check before signing in.",
+    googleLabel: "Continue with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or continue with email",
+    googleError: "Could not start Google sign-in. Please try again.",
   },
   fr: {
     title: "Connexion",
@@ -99,6 +111,10 @@ const LOGIN: Record<Locale, LoginLabels> = {
     signUpLink: "S’inscrire",
     successToast: "Connecté.",
     turnstileHint: "Complétez la vérification de sécurité avant de vous connecter.",
+    googleLabel: "Continuer avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou continuer avec l’e-mail",
+    googleError: "Impossible de lancer la connexion Google. Réessayez.",
   },
 };
 
@@ -121,6 +137,10 @@ const SIGNUP: Record<Locale, SignupLabels> = {
       "New accounts are viewers. They can use intake forms, not the admin dashboard.",
     successToast: "Account created.",
     turnstileHint: "Complete the security check before creating your account.",
+    googleLabel: "Sign up with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or sign up with email",
+    googleError: "Could not start Google sign-up. Please try again.",
   },
   fr: {
     title: "Inscription",
@@ -141,6 +161,10 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     successToast: "Compte créé.",
     turnstileHint:
       "Complétez la vérification de sécurité avant de créer votre compte.",
+    googleLabel: "S’inscrire avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou s’inscrire avec l’e-mail",
+    googleError: "Impossible de lancer l’inscription Google. Réessayez.",
   },
 };
 

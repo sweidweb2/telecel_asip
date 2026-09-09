@@ -52,7 +52,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Applications",
     pageTitle: "Applications",
     description:
-      "Official Apply submissions. Separate from Register Interest leads — there is no automatic conversion.",
+      "Official Apply submissions. Separate from Register Interest leads - there is no automatic conversion.",
     metaTitle: "Applications | ASIP Admin",
   },
   portfolio: {

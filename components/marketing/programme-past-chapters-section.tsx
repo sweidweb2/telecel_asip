@@ -25,7 +25,7 @@ const STATUS_FILL: Record<
   closed: "var(--asip-ink)",
 };
 
-function formatCohortWindow(cohort: CohortPublicListItem, locale: Locale) {
+function formatCohortWindow(cohort: CohortPublicListItem) {
   if (!cohort.programme_dates_start || !cohort.programme_dates_end) {
     return null;
   }
@@ -136,7 +136,7 @@ export function ProgrammePastChaptersSection({
               >
                 <ul className="space-y-0 divide-y divide-[#14333b]/12">
                   {pageItems.map((cohort) => {
-                    const window = formatCohortWindow(cohort, locale);
+                    const window = formatCohortWindow(cohort);
                     const isActive = cohort.id === activeId;
                     return (
                       <li key={cohort.id}>
@@ -163,7 +163,7 @@ export function ProgrammePastChaptersSection({
                             >
                               {cohort.year}
                               <span className="font-medium text-[#14333b]">
-                                {" — "}
+                                {" - "}
                                 {cohort.public_label}
                               </span>
                             </span>
@@ -462,7 +462,7 @@ function PastChaptersGraph({
               transform={`translate(${x} ${y})`}
               role="button"
               tabIndex={0}
-              aria-label={`${cohort.year} — ${cohort.public_label}`}
+              aria-label={`${cohort.year} - ${cohort.public_label}`}
               aria-current={isActive ? "true" : undefined}
               className="cursor-pointer outline-none"
               onClick={() => onSelect(cohort.id)}

@@ -618,7 +618,7 @@ const SEED_EVIDENCE = [
   {
     key: "disputed-jobs-claim",
     primary_source:
-      "External press claim of jobs created — under review against survey methodology.",
+      "External press claim of jobs created - under review against survey methodology.",
     measurement_period_start: "2022-01-01",
     measurement_period_end: "2024-12-31",
     status: "disputed",
@@ -629,7 +629,7 @@ const SEED_EVIDENCE = [
   {
     key: "internal-pipeline-only",
     primary_source:
-      "CRM pipeline snapshot for internal ops — not cleared for public pages.",
+      "CRM pipeline snapshot for internal ops - not cleared for public pages.",
     measurement_period_start: "2025-01-01",
     measurement_period_end: "2025-03-31",
     status: "not_for_publication",
@@ -1069,12 +1069,12 @@ function storyForStartup(startup) {
       startup.details.solution ??
       `${startup.name} shipped a product that buyers could pilot within weeks.`,
     the_asip_connection:
-      `Through ASIP, ${startup.name} joined workshops, met operators, and used Telecel network introductions to open doors for pilots — without claiming Telecel created their outcomes.`,
+      `Through ASIP, ${startup.name} joined workshops, met operators, and used Telecel network introductions to open doors for pilots - without claiming Telecel created their outcomes.`,
     where_they_are_now:
       startup.details.public_outcome ??
       `${startup.name} is still building product and commercial traction.`,
     founder_quote_text: withQuote
-      ? `ASIP helped us test faster with real buyers. The introductions mattered — the execution stayed on us.`
+      ? `ASIP helped us test faster with real buyers. The introductions mattered - the execution stayed on us.`
       : null,
     quote_attribution_name: withQuote ? founder : null,
     quote_attribution_title: withQuote ? "Founder & CEO" : null,
@@ -1281,7 +1281,7 @@ async function seedEvidenceAndMetrics(supabase, ownerId) {
   for (const metric of SEED_METRICS) {
     const evidenceId = keyToId.get(metric.evidenceKey);
     if (!evidenceId) {
-      console.warn(`Metric skip — missing evidence ${metric.evidenceKey}`);
+      console.warn(`Metric skip - missing evidence ${metric.evidenceKey}`);
       continue;
     }
     process.stdout.write(`Metric ${metric.claim_label.slice(0, 40)}… `);
@@ -1392,7 +1392,7 @@ async function seedFounderStories(supabase, slugToId) {
     const startupId = slugToId.get(slug);
     const startup = bySlug.get(slug);
     if (!startupId || !startup) {
-      console.warn(`Founder story skip — missing startup ${slug}`);
+      console.warn(`Founder story skip - missing startup ${slug}`);
       continue;
     }
     process.stdout.write(`Founder story ${slug}… `);
@@ -1543,7 +1543,7 @@ function buildContactMessages() {
       phone: phoneFor(n + 100),
       subject: `${enquiry} enquiry #${n} about ASIP`,
       message:
-        `Hello ASIP team — this is a seeded ${enquiry} message (#${n}) to exercise the contact inbox filters, ` +
+        `Hello ASIP team - this is a seeded ${enquiry} message (#${n}) to exercise the contact inbox filters, ` +
         `search, and triage flows. Please ignore in production.`,
       enquiry_type: enquiry,
       inbox_status: pick(INBOX_STATUSES, n + 2),

@@ -13,7 +13,7 @@ export const EVIDENCE_EDITOR_HELP = {
       {
         name: "Source file URL",
         detail:
-          "Optional URL to the underlying file or page. Not uploaded here — paste a stable link.",
+          "Optional URL to the underlying file or page. Not uploaded here - paste a stable link.",
       },
     ],
   },
