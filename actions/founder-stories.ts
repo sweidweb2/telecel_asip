@@ -3,14 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { getStartupsForStoryPicker } from "@/data/founder-stories";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { StartupStoryOption } from "@/types/founder-story";
 import {
   createFounderStorySchema,
   deleteFounderStorySchema,
@@ -35,24 +33,6 @@ const MESSAGES = {
   duplicateStartup: "This startup already has a founder story.",
   genericError: "Something went wrong. Please try again.",
 } as const;
-
-/** Lazy searchable startup options for the founder-story editor. */
-export async function loadStoryStartupOptions(input?: {
-  search?: string;
-  includeStartupId?: string;
-}): Promise<
-  | { status: "ok"; startups: StartupStoryOption[] }
-  | { status: "error"; message: string }
-> {
-  const result = await getStartupsForStoryPicker({
-    search: input?.search,
-    includeStartupId: input?.includeStartupId,
-  });
-  if (result.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return { status: "ok", startups: result.startups };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,

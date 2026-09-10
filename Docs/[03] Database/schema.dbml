@@ -40,8 +40,12 @@ Table profiles {
     Policies (authenticated):
     - Users can read own profile — SELECT USING (auth.uid() = id)
     - Users can update own profile — UPDATE USING/WITH CHECK (auth.uid() = id)
-    - Admins can read all profiles — SELECT USING (is_staff())  -- admin|editor
-    - Admins can update all profiles — UPDATE USING/WITH CHECK (is_staff())
+    - Admins can read all profiles — SELECT USING (
+        is_admin() OR (is_editor() AND role <> 'admin')
+      )  -- admins: all rows; editors: non-admin only (20260910220000)
+    - Admins can update all profiles — UPDATE USING/WITH CHECK (
+        is_admin() OR (is_editor() AND role <> 'admin')
+      )
 
     Role changes on own-profile UPDATE are blocked by trigger profiles_protect_role
     (20260910180000): is_admin() may set any role; is_editor() may change only
@@ -51,6 +55,8 @@ Table profiles {
 
     Helpers (see supabase-functions.md): is_admin, is_editor, is_staff.
     CMS/intake/settings/media RLS uses is_editor(); backups + admin_perf stay is_admin().
+    Profiles staff list uses is_admin/is_editor (not raw is_staff) so editors
+    never see administrator accounts in Manage Users.
 
     email and full_name are owned by auth.users: trigger on_auth_user_updated
     mirrors them into this table in the same transaction as the Auth write.
@@ -61,6 +67,7 @@ Table profiles {
 
 Table interest_registrations {
   id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [note: 'auth.users; ON DELETE SET NULL; bound by Server Action from session']
   full_name text [not null, note: 'Founder name; CHECK char_length 2..100']
   founder_role text [note: 'CHECK 2..80 when set']
   email text [not null, note: 'CHECK char_length 3..254']
@@ -81,6 +88,8 @@ Table interest_registrations {
     (created_at) [name: 'interest_registrations_created_at_idx', note: 'created_at DESC — admin lists']
     (email) [name: 'interest_registrations_email_idx']
     (email, company_name) [name: 'interest_registrations_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
+    (user_id) [name: 'interest_registrations_user_id_idx', note: 'partial WHERE user_id IS NOT NULL']
+    (user_id, company_name) [name: 'interest_registrations_user_company_uidx', note: 'UNIQUE user_id, lower(company_name) WHERE user_id IS NOT NULL']
     (inbox_status, created_at) [name: 'interest_registrations_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
     full_name [type: gin, name: 'interest_registrations_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
     email [type: gin, name: 'interest_registrations_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
@@ -97,14 +106,17 @@ Table interest_registrations {
 
     Policies (authenticated):
     - Admins can read/update/delete — is_editor() (editor CMS panel; 20260910180000)
+      (historical policy titles still say "Admins"; behaviour is editor-gated)
 
     Public inserts only via Server Action + service role client.
     No automatic conversion to applications when Apply opens.
+    user_id added in 20260910210000.
   '''
 }
 
 Table applications {
   id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [note: 'auth.users; ON DELETE SET NULL; bound by Server Action from session']
   full_name text [not null, note: 'CHECK 2..100']
   founder_role text [not null, note: 'CHECK 2..80']
   email text [not null, note: 'CHECK 3..254']
@@ -127,6 +139,8 @@ Table applications {
     (created_at) [name: 'applications_created_at_idx', note: 'created_at DESC']
     (email) [name: 'applications_email_idx']
     (email, company_name) [name: 'applications_email_company_uidx', note: 'UNIQUE lower(email), lower(company_name)']
+    (user_id) [name: 'applications_user_id_idx', note: 'partial WHERE user_id IS NOT NULL']
+    (user_id, company_name) [name: 'applications_user_company_uidx', note: 'UNIQUE user_id, lower(company_name) WHERE user_id IS NOT NULL']
     (inbox_status, created_at) [name: 'applications_inbox_status_created_at_idx', note: 'created_at DESC — admin triage filter']
     full_name [type: gin, name: 'applications_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
     email [type: gin, name: 'applications_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — admin ILIKE search']
@@ -146,6 +160,7 @@ Table applications {
 
     Public inserts via Server Action + service role only.
     No automatic conversion from interest_registrations.
+    user_id added in 20260910210000.
   '''
 }
 
@@ -213,16 +228,46 @@ Table site_settings {
     RLS enabled.
 
     Grants:
-    - anon, authenticated: SELECT
-    - authenticated: UPDATE
+    - authenticated (staff): SELECT, UPDATE via is_staff()
     - service_role: SELECT, INSERT, UPDATE, DELETE
+    - anon: no SELECT on base table (use site_settings_public)
 
     Policies:
-    - Anyone can read site settings — SELECT USING (true) for anon, authenticated
-    - Admins can update site settings — UPDATE USING/WITH CHECK (is_editor())
+    - Staff can read site settings — SELECT USING (is_staff())
+    - Staff can update site settings — UPDATE USING/WITH CHECK (is_staff())
+    - protect_site_settings_backup_time blocks non-admin backup_time changes
 
     No INSERT/DELETE policy: the single row is seeded by the migration.
     Trigger site_settings_set_updated_at maintains updated_at.
+    View site_settings_public exposes id + open_applications + newsletter_signup_enabled to anon/authenticated.
+  '''
+}
+
+Table rate_limit_buckets {
+  bucket_key text [pk, not null]
+  hits bigint[] [not null, default: `'{}'`, note: 'Epoch-ms hit timestamps for sliding window']
+  updated_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+    RLS enabled. Service-role / security definer only (consume_rate_limit).
+
+    Grants:
+    - service_role: ALL
+    - anon, authenticated: none (REVOKED)
+
+    Used by public.consume_rate_limit (20260910210000).
+  '''
+}
+
+Table site_settings_public {
+  id smallint
+  open_applications boolean
+  newsletter_signup_enabled boolean
+
+  Note: '''
+    VIEW, not a table: selects id, open_applications, newsletter_signup_enabled
+    from public.site_settings. Grants SELECT to anon + authenticated.
+    backup_time is intentionally omitted (20260910200000).
   '''
 }
 
@@ -971,6 +1016,8 @@ Table "auth.users" {
 }
 
 Ref: profiles.id > "auth.users".id [delete: cascade]
+Ref: applications.user_id > "auth.users".id [delete: set null]
+Ref: interest_registrations.user_id > "auth.users".id [delete: set null]
 Ref: blogs.startup_id > startups.id [delete: set null]
 Ref: blogs.cohort_id > cohorts.id [delete: set null]
 Ref: startup_details.startup_id > startups.id [delete: cascade]

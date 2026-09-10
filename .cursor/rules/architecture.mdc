@@ -32,6 +32,7 @@ components/, hooks/  →  types/, validations/, constants/
 
 - Components and hooks never import Supabase
 - `data/` and `actions/` never import from `app/`
-- `lib/supabase/admin.ts` only from server-only files (`actions/`, `app/api/`)
+- `lib/supabase/admin.ts` only from server-only files (`actions/`, `app/api/`, `lib/backups/**`)
+- `lib/admin/**` is the staff/auth kernel (`authorize*`, shell, list helpers) — intentionally lives under `lib/` even though it knows about staff roles
 
 `data/` (reads during render) and `actions/` (writes from forms) stay separate. They are service + repository in one — do not add a extra repository layer unless we swap databases later.

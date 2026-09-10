@@ -12,7 +12,8 @@ export type AdminResourceId =
   | "evidence"
   | "impactMetrics"
   | "events"
-  | "contactUs";
+  | "contactUs"
+  | "newsletter";
 
 export type AdminResource = {
   id: AdminResourceId;
@@ -140,6 +141,15 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     description:
       "Review and manage messages submitted from the public contact form.",
     metaTitle: "Contact us | ASIP Editor",
+  },
+  newsletter: {
+    id: "newsletter",
+    listPath: ROUTES.newsletter,
+    navTitle: "Newsletter",
+    pageTitle: "Newsletter",
+    description:
+      "Emails that opted in for ASIP updates. Public signup stays off until privacy and routing are confirmed. Outbound transactional email is not wired yet.",
+    metaTitle: "Newsletter | ASIP Editor",
   },
 };
 

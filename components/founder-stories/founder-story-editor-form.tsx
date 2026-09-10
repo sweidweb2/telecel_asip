@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import {
   createFounderStory,
   deleteFounderStory,
-  loadStoryStartupOptions,
   updateFounderStory,
 } from "@/actions/founder-stories";
+import { loadStoryStartupOptions } from "@/actions/admin-pickers";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {

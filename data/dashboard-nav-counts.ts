@@ -11,6 +11,7 @@ const NAV_COUNT_TABLES = [
   { href: ROUTES.registrations, table: "interest_registrations" },
   { href: ROUTES.applications, table: "applications" },
   { href: ROUTES.contactUs, table: "contact_messages" },
+  { href: ROUTES.newsletter, table: "newsletter_subscribers" },
   { href: ROUTES.blogs, table: "blogs" },
   { href: ROUTES.portfolio, table: "startups" },
   { href: ROUTES.partners, table: "partners" },

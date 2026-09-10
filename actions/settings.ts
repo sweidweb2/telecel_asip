@@ -4,10 +4,13 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_CACHE_TAG, SITE_SETTINGS_ID } from "@/data/settings";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeStaff } from "@/lib/admin/authorize-staff";
 import {
-  updateSiteSettingsSchema,
-  type UpdateSiteSettingsInput,
+  updateAdminSiteSettingsSchema,
+  updateEditorSiteSettingsSchema,
+  type UpdateAdminSiteSettingsInput,
+  type UpdateEditorSiteSettingsInput,
 } from "@/validations/settings";
 
 export type SiteSettingsActionResult =
@@ -20,6 +23,7 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
   unauthorized: "You do not have permission to change site settings.",
   signedInRequired: "You must be signed in.",
+  backupUnauthorized: "Only administrators can change the backup schedule.",
 } as const;
 
 function revalidateSettingsCaches() {
@@ -37,19 +41,59 @@ function revalidateSettingsCaches() {
   revalidatePath("/en/register-interest");
   revalidatePath("/fr/register-interest");
   revalidatePath(ROUTES.settings);
-  revalidatePath(ROUTES.backup);
+  revalidatePath(ROUTES.adminSettings);
+  revalidatePath(ROUTES.adminBackup);
 }
 
-export async function updateSiteSettings(
-  input: UpdateSiteSettingsInput,
+/** Editors and admins may toggle applications / newsletter. */
+export async function updateEditorSiteSettings(
+  input: UpdateEditorSiteSettingsInput,
 ): Promise<SiteSettingsActionResult> {
-  const parsed = updateSiteSettingsSchema.safeParse(input);
+  const parsed = updateEditorSiteSettingsSchema.safeParse(input);
   if (!parsed.success) {
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const auth = await authorizeEditor(MESSAGES);
+  const auth = await authorizeStaff(MESSAGES);
   if (auth.status === "error") return auth;
+
+  const { data, error } = await auth.supabase
+    .from("site_settings")
+    .update({
+      open_applications: parsed.data.openApplications,
+      newsletter_signup_enabled: parsed.data.newsletterSignupEnabled,
+    })
+    .eq("id", SITE_SETTINGS_ID)
+    .select("id")
+    .maybeSingle();
+
+  if (error || !data) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+
+  revalidateSettingsCaches();
+  return { status: "success", message: MESSAGES.updateSuccess };
+}
+
+/** Admins may also set backup_time (and applications for sole-admin ops). */
+export async function updateAdminSiteSettings(
+  input: UpdateAdminSiteSettingsInput,
+): Promise<SiteSettingsActionResult> {
+  const parsed = updateAdminSiteSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
+
+  const auth = await authorizeAdmin(MESSAGES);
+  if (auth.status === "error") {
+    return {
+      status: "error",
+      message:
+        auth.message === MESSAGES.unauthorized
+          ? MESSAGES.backupUnauthorized
+          : auth.message,
+    };
+  }
 
   const { data, error } = await auth.supabase
     .from("site_settings")
@@ -68,4 +112,14 @@ export async function updateSiteSettings(
 
   revalidateSettingsCaches();
   return { status: "success", message: MESSAGES.updateSuccess };
+}
+
+/** @deprecated Use updateEditorSiteSettings — kept for older imports/tests. */
+export async function updateSiteSettings(
+  input: UpdateAdminSiteSettingsInput,
+): Promise<SiteSettingsActionResult> {
+  if ("backupTime" in input && input.backupTime !== undefined) {
+    return updateAdminSiteSettings(input);
+  }
+  return updateEditorSiteSettings(input);
 }

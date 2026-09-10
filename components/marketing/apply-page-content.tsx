@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 import { ApplyForm } from "@/components/marketing/apply-form";
 import {
@@ -19,14 +20,14 @@ import {
 } from "@/components/ui/card";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { getOpenApplications } from "@/data/settings";
-import { getAuthUser } from "@/lib/admin/get-auth-user";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 
 type ApplyPageContentProps = {
   locale: Locale;
   copy: MarketingPageCopy;
   mode: "register" | "apply";
+  user: User | null;
+  openApplications: boolean;
 };
 
 /**
@@ -34,16 +35,13 @@ type ApplyPageContentProps = {
  * - applications closed → register-interest
  * - applications open → apply
  */
-export async function ApplyPageContent({
+export function ApplyPageContent({
   locale,
   copy,
   mode,
+  user,
+  openApplications,
 }: ApplyPageContentProps) {
-  const [user, openApplications] = await Promise.all([
-    getAuthUser(),
-    getOpenApplications(),
-  ]);
-
   if (mode === "apply" && !openApplications) {
     redirect(publicPath(locale, "register-interest"));
   }

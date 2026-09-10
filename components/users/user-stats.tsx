@@ -13,28 +13,43 @@ const STATS = [
     key: "total",
     label: "Total users",
     icon: UsersIcon,
+    adminOnly: false,
   },
   {
     key: "admins",
     label: "Admins",
     icon: ShieldCheckIcon,
+    adminOnly: true,
   },
   {
     key: "newThisWeek",
     label: "New this week",
     icon: CalendarDaysIcon,
+    adminOnly: false,
   },
   {
     key: "newThisMonth",
     label: "New this month",
     icon: CalendarRangeIcon,
+    adminOnly: false,
   },
 ] as const;
 
-export function UserStatsCards({ stats }: { stats: UserStats }) {
+export function UserStatsCards({
+  stats,
+  actorRole = "admin",
+}: {
+  stats: UserStats;
+  actorRole?: "admin" | "editor";
+}) {
+  const visibleStats =
+    actorRole === "admin"
+      ? STATS
+      : STATS.filter((stat) => !stat.adminOnly);
+
   return (
     <div className="flex w-full flex-row flex-nowrap gap-2 sm:gap-3">
-      {STATS.map((stat) => {
+      {visibleStats.map((stat) => {
         const Icon = stat.icon;
         return (
           <Card

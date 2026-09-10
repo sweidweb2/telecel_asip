@@ -6,7 +6,7 @@ import { getAdminResource } from "@/constants/admin-resources";
 import { getOpenApplications } from "@/data/settings";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import {
   refreshAdminResource,
   runAdminMutation,
@@ -55,12 +55,13 @@ const ACTION_MESSAGES = {
     invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
     success: "Merci - votre intérêt a bien été enregistré.",
     genericError: "Une erreur s’est produite. Veuillez réessayer.",
-    updateSuccess: "Candidature mise à jour avec succès.",
-    deleteSuccess: "Candidature supprimée avec succès.",
+    updateSuccess: "Inscription mise à jour avec succès.",
+    deleteSuccess: "Inscription supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
-    unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
+    unauthorized:
+      "Vous n’avez pas la permission de gérer les inscriptions d’intérêt.",
     signedInRequired: "Connectez-vous pour manifester votre intérêt.",
-    notFound: "Candidature introuvable.",
+    notFound: "Inscription introuvable.",
     rateLimited:
       "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
     duplicate:
@@ -82,7 +83,10 @@ function isUniqueViolation(error: {
 }): boolean {
   if (error.code === "23505") return true;
   const message = (error.message ?? "").toLowerCase();
-  return message.includes("interest_registrations_email_company");
+  return (
+    message.includes("interest_registrations_email_company") ||
+    message.includes("interest_registrations_user_company")
+  );
 }
 
 async function getClientIp(): Promise<string> {
@@ -110,11 +114,15 @@ export async function submitInterestRegistration(
   }
 
   const user = await getAuthUser();
-  if (!user) {
+  if (!user?.email) {
     return { status: "error", message: copy.signedInRequired };
   }
 
-  const parsed = interestRegistrationSchemaFor(locale).safeParse(input);
+  const sessionEmail = user.email.trim().toLowerCase();
+  const parsed = interestRegistrationSchemaFor(locale).safeParse({
+    ...input,
+    email: sessionEmail,
+  });
 
   if (!parsed.success) {
     return {
@@ -126,7 +134,6 @@ export async function submitInterestRegistration(
   const {
     fullName,
     founderRole,
-    email,
     phone,
     country,
     linkedin,
@@ -150,21 +157,32 @@ export async function submitInterestRegistration(
     return { status: "error", message: copy.verificationFailed };
   }
 
+  const admin = createAdminClient();
   const ipKey = `apply:ip:${ip}`;
-  const emailKey = `apply:email:${email}`;
+  const userKey = `apply:user:${user.id}`;
 
   if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
+    !(await consumeSharedRateLimit(
+      admin,
+      ipKey,
+      RATE_LIMIT_PER_IP,
+      RATE_LIMIT_WINDOW_MS,
+    )) ||
+    !(await consumeSharedRateLimit(
+      admin,
+      userKey,
+      RATE_LIMIT_PER_EMAIL,
+      RATE_LIMIT_WINDOW_MS,
+    ))
   ) {
     return { status: "error", message: copy.rateLimited };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from("interest_registrations").insert({
+    user_id: user.id,
     full_name: fullName,
     founder_role: founderRole,
-    email,
+    email: sessionEmail,
     phone,
     country,
     linkedin: linkedin?.trim() ? linkedin.trim() : null,
@@ -183,9 +201,6 @@ export async function submitInterestRegistration(
     }
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshRegistrationsRoute();
   return { status: "success", message: copy.success };

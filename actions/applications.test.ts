@@ -20,8 +20,7 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  isRateLimited: vi.fn(() => false),
-  recordRateLimitHit: vi.fn(),
+  consumeSharedRateLimit: vi.fn(async () => true),
 }));
 
 vi.mock("@/lib/admin/authorize-editor", () => ({
@@ -57,7 +56,7 @@ import {
 import { getOpenApplications } from "@/data/settings";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
@@ -102,7 +101,7 @@ describe("submitApplication", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
-    vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
     vi.mocked(getOpenApplications).mockResolvedValue(true);
     vi.mocked(getAuthUser).mockResolvedValue({
       id: "user-1",
@@ -163,7 +162,7 @@ describe("submitApplication", () => {
 
   it("rejects when rate limited", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
-    vi.mocked(isRateLimited).mockReturnValue(true);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitApplication(validSubmit);
 
@@ -174,20 +173,24 @@ describe("submitApplication", () => {
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("inserts and records rate-limit hits on success", async () => {
+  it("inserts with session email and user_id on success", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
-    const result = await submitApplication(validSubmit);
+    const result = await submitApplication({
+      ...validSubmit,
+      email: "spoofed@example.com",
+    });
 
     expect(result.status).toBe("success");
     expect(insertMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        user_id: "user-1",
         email: "ada@example.com",
         company_name: "Analytical Engines",
         consent: true,
       }),
     );
-    expect(recordRateLimitHit).toHaveBeenCalled();
+    expect(consumeSharedRateLimit).toHaveBeenCalled();
   });
 
   it("stores empty LinkedIn and website as null", async () => {

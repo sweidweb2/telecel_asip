@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { AboutPageContent } from "@/components/marketing/about-page-content";
-import { ApplyPageContent } from "@/components/marketing/apply-page-content";
 import { FaqPageContent } from "@/components/marketing/faq-page-content";
 import { PageHero, Section, SectionHeading } from "@/components/marketing/page-elements";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -55,16 +54,6 @@ export function MarketingContentPage({ locale, slug }: { locale: Locale; slug: M
 
   if (slug === "about") {
     return <AboutPageContent locale={locale} copy={copy} />;
-  }
-
-  if (slug === "apply" || slug === "register-interest") {
-    return (
-      <ApplyPageContent
-        locale={locale}
-        copy={copy}
-        mode={slug === "apply" ? "apply" : "register"}
-      />
-    );
   }
 
   return (

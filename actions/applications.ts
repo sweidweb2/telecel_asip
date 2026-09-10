@@ -11,7 +11,7 @@ import {
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
@@ -80,7 +80,10 @@ function isUniqueViolation(error: {
 }): boolean {
   if (error.code === "23505") return true;
   const message = (error.message ?? "").toLowerCase();
-  return message.includes("applications_email_company");
+  return (
+    message.includes("applications_email_company") ||
+    message.includes("applications_user_company")
+  );
 }
 
 async function getClientIp(): Promise<string> {
@@ -108,11 +111,15 @@ export async function submitApplication(
   }
 
   const user = await getAuthUser();
-  if (!user) {
+  if (!user?.email) {
     return { status: "error", message: copy.signedInRequired };
   }
 
-  const parsed = applicationSchemaFor(locale).safeParse(input);
+  const sessionEmail = user.email.trim().toLowerCase();
+  const parsed = applicationSchemaFor(locale).safeParse({
+    ...input,
+    email: sessionEmail,
+  });
 
   if (!parsed.success) {
     return {
@@ -132,23 +139,34 @@ export async function submitApplication(
     return { status: "error", message: copy.verificationFailed };
   }
 
+  const admin = createAdminClient();
   const ipKey = `application:ip:${ip}`;
-  const emailKey = `application:email:${data.email}`;
+  const userKey = `application:user:${user.id}`;
 
   if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
+    !(await consumeSharedRateLimit(
+      admin,
+      ipKey,
+      RATE_LIMIT_PER_IP,
+      RATE_LIMIT_WINDOW_MS,
+    )) ||
+    !(await consumeSharedRateLimit(
+      admin,
+      userKey,
+      RATE_LIMIT_PER_EMAIL,
+      RATE_LIMIT_WINDOW_MS,
+    ))
   ) {
     return { status: "error", message: copy.rateLimited };
   }
 
-  const admin = createAdminClient();
   const linkedin = data.linkedin?.trim() ? data.linkedin.trim() : null;
   const website = data.website?.trim() ? data.website.trim() : null;
   const { error } = await admin.from("applications").insert({
+    user_id: user.id,
     full_name: data.fullName,
     founder_role: data.founderRole,
-    email: data.email,
+    email: sessionEmail,
     phone: data.phone,
     country: data.country,
     linkedin,
@@ -169,9 +187,6 @@ export async function submitApplication(
     }
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshApplicationsRoute();
   return { status: "success", message: copy.success };

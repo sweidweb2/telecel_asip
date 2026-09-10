@@ -20,6 +20,7 @@ test.describe("viewer dashboard redirect matrix", () => {
     "/dashboard/events",
     "/admin/performance",
     "/admin/backup",
+    "/admin/settings",
     "/admin/users",
   ] as const) {
     test(`viewer is redirected from ${path}`, async ({ page }) => {

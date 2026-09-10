@@ -15,6 +15,7 @@ import {
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
+  MailsIcon,
   NewspaperIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -69,10 +70,12 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.impactMetrics]: ChartColumnIcon,
   [ROUTES.events]: CalendarIcon,
   [ROUTES.contactUs]: MailIcon,
+  [ROUTES.newsletter]: MailsIcon,
   [ROUTES.analytics]: BarChart3Icon,
   [ROUTES.adminPerformance]: TimerIcon,
   [ROUTES.adminBackup]: DatabaseBackupIcon,
   [ROUTES.settings]: SettingsIcon,
+  [ROUTES.adminSettings]: SettingsIcon,
 };
 
 /** Nav href → public-reflection guide (only CMS resources with a guide). */

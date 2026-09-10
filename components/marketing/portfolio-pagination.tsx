@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "nextjs-toploader/app";
+
 import {
   Pagination,
   PaginationContent,
@@ -21,6 +25,8 @@ type PortfolioPaginationLabels = {
 /** Filters preserved across pages; empty/undefined values are dropped. */
 type PortfolioPaginationFilters = Record<string, string | undefined>;
 
+export const FOUNDERS_RESULTS_ID = "founders-results";
+
 function pageHref(
   locale: Locale,
   page: number,
@@ -34,6 +40,15 @@ function pageHref(
   }
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
+}
+
+function scrollToFoundersResults() {
+  const el = document.getElementById(FOUNDERS_RESULTS_ID);
+  if (!el) return;
+  // After soft navigation paint — next frame is enough for the new page content.
+  requestAnimationFrame(() => {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 export function PortfolioPagination({
@@ -53,6 +68,7 @@ export function PortfolioPagination({
   labels: PortfolioPaginationLabels;
   filters?: PortfolioPaginationFilters;
 }) {
+  const router = useRouter();
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
   const showing = labels.showing
@@ -60,6 +76,12 @@ export function PortfolioPagination({
     .replace("{to}", String(to))
     .replace("{total}", String(total));
   const pageItems = getPaginationItems(currentPage, totalPages);
+
+  function goTo(page: number) {
+    if (page === currentPage || page < 1 || page > totalPages) return;
+    router.push(pageHref(locale, page, filters), { scroll: false });
+    scrollToFoundersResults();
+  }
 
   return (
     <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-between">
@@ -77,11 +99,17 @@ export function PortfolioPagination({
                     ? pageHref(locale, currentPage - 1, filters)
                     : undefined
                 }
+                scroll={false}
                 text={labels.previous}
                 aria-disabled={currentPage === 1}
                 className={cn(
                   currentPage === 1 && "pointer-events-none opacity-50",
                 )}
+                onClick={(event) => {
+                  if (currentPage <= 1) return;
+                  event.preventDefault();
+                  goTo(currentPage - 1);
+                }}
               />
             </PaginationItem>
 
@@ -94,9 +122,14 @@ export function PortfolioPagination({
                 <PaginationItem key={item}>
                   <PaginationLink
                     href={pageHref(locale, item, filters)}
+                    scroll={false}
                     isActive={item === currentPage}
                     aria-label={`Page ${item} of ${totalPages}`}
                     className="min-w-9"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goTo(item);
+                    }}
                   >
                     {item}
                   </PaginationLink>
@@ -111,12 +144,18 @@ export function PortfolioPagination({
                     ? pageHref(locale, currentPage + 1, filters)
                     : undefined
                 }
+                scroll={false}
                 text={labels.next}
                 aria-disabled={currentPage === totalPages}
                 className={cn(
                   currentPage === totalPages &&
                     "pointer-events-none opacity-50",
                 )}
+                onClick={(event) => {
+                  if (currentPage >= totalPages) return;
+                  event.preventDefault();
+                  goTo(currentPage + 1);
+                }}
               />
             </PaginationItem>
           </PaginationContent>

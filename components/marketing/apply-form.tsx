@@ -473,8 +473,9 @@ function SharedFields({
             autoComplete="email"
             placeholder={labels.emailPlaceholder}
             aria-invalid={Boolean(err("email"))}
+            readOnly
             disabled={isPending}
-            className="min-h-11"
+            className="min-h-11 bg-muted"
             {...register("email")}
           />
           {err("email") ? (

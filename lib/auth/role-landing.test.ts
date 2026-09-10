@@ -19,9 +19,13 @@ describe("roleHomePath", () => {
 describe("isPathAllowedForRole", () => {
   it("keeps admins on /admin and editors on /dashboard", () => {
     expect(isPathAllowedForRole("/admin/users", "admin")).toBe(true);
+    expect(isPathAllowedForRole("/admin/settings", "admin")).toBe(true);
+    expect(isPathAllowedForRole("/dashboard/settings", "admin")).toBe(false);
     expect(isPathAllowedForRole("/dashboard", "admin")).toBe(false);
     expect(isPathAllowedForRole("/dashboard/blogs", "editor")).toBe(true);
+    expect(isPathAllowedForRole("/dashboard/settings", "editor")).toBe(true);
     expect(isPathAllowedForRole("/admin", "editor")).toBe(false);
+    expect(isPathAllowedForRole("/admin/settings", "editor")).toBe(false);
     expect(isPathAllowedForRole("/en/apply", "viewer")).toBe(true);
     expect(isPathAllowedForRole("/dashboard", "viewer")).toBe(false);
   });

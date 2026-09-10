@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import {
   createCohort,
   deleteCohort,
-  loadCohortLinkOptions,
   updateCohort,
 } from "@/actions/cohorts";
+import { loadCohortLinkOptions } from "@/actions/admin-pickers";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {

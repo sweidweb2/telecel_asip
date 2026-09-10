@@ -21,8 +21,7 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  isRateLimited: vi.fn(() => false),
-  recordRateLimitHit: vi.fn(),
+  consumeSharedRateLimit: vi.fn(async () => true),
 }));
 
 vi.mock("@/lib/admin/authorize-editor", () => ({
@@ -48,7 +47,7 @@ import {
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
@@ -82,7 +81,7 @@ describe("submitContactMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
-    vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
   });
 
   it("rejects invalid payloads before Turnstile", async () => {
@@ -108,7 +107,7 @@ describe("submitContactMessage", () => {
 
   it("rejects when rate limited", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
-    vi.mocked(isRateLimited).mockReturnValue(true);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitContactMessage(validSubmit);
 
@@ -132,7 +131,7 @@ describe("submitContactMessage", () => {
       subject: "Partnership inquiry",
       message: validSubmit.message,
     });
-    expect(recordRateLimitHit).toHaveBeenCalled();
+    expect(consumeSharedRateLimit).toHaveBeenCalled();
   });
 });
 

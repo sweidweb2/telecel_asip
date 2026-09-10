@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { updateSiteSettings } from "@/actions/settings";
+import { updateEditorSiteSettings } from "@/actions/settings";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -15,65 +15,41 @@ import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  backupScheduleLabel,
-  backupScheduleSelectOptions,
-  type BackupScheduleValue,
-} from "@/constants/backup-schedule";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import {
-  updateSiteSettingsSchema,
-  type UpdateSiteSettingsInput,
+  updateEditorSiteSettingsSchema,
+  type UpdateEditorSiteSettingsInput,
 } from "@/validations/settings";
 
 type SiteSettingsFormProps = {
   openApplications: boolean;
-  backupTime: BackupScheduleValue;
 };
 
-export function SiteSettingsForm({
-  openApplications,
-  backupTime,
-}: SiteSettingsFormProps) {
+export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
 
-  const scheduleOptions = useMemo(
-    () => backupScheduleSelectOptions(backupTime),
-    [backupTime],
-  );
-
   const {
-    control,
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors, isDirty },
-  } = useForm<UpdateSiteSettingsInput>({
-    resolver: zodResolver(updateSiteSettingsSchema),
+  } = useForm<UpdateEditorSiteSettingsInput>({
+    resolver: zodResolver(updateEditorSiteSettingsSchema),
     mode: "onChange",
     defaultValues: {
       openApplications,
-      // Phase 1: Insights newsletter is hidden; keep the flag off on save.
       newsletterSignupEnabled: false,
-      backupTime,
     },
   });
 
   const isOpen = useWatch({ control, name: "openApplications" });
-  const selectedBackupTime = useWatch({ control, name: "backupTime" });
 
-  function onSubmit(values: UpdateSiteSettingsInput) {
+  function onSubmit(values: UpdateEditorSiteSettingsInput) {
     startTransition(async () => {
-      const result = await updateSiteSettings({
+      const result = await updateEditorSiteSettings({
         ...values,
         newsletterSignupEnabled: false,
       });
@@ -133,7 +109,8 @@ export function SiteSettingsForm({
               </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
                 The Insights newsletter module is hidden for phase 1. Signup is
-                not shown publicly and stays off until a later release.
+                not shown publicly and stays off until a later release. Subscribers
+                collected earlier are listed under Newsletter.
               </p>
             </div>
             <p className="flex min-h-11 items-center text-sm font-medium text-muted-foreground">
@@ -141,69 +118,10 @@ export function SiteSettingsForm({
             </p>
           </div>
 
-          <div className="grid gap-4 border-t pt-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <Label htmlFor="backup-time" className="text-base">
-                    Automated backup schedule
-                  </Label>
-                  <AdminFormSectionHelp help={SITE_SETTINGS_HELP.backup} />
-                </div>
-                <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                  Times use Lebanon (Asia/Beirut). Choose Off or a weekly
-                  Sunday/Monday 03:00 window. The hourly job follows this
-                  cadence. Run a one-shot from the Backup page.
-                </p>
-              </div>
-              <div className="grid w-full gap-3 sm:max-w-xs">
-                <Controller
-                  control={control}
-                  name="backupTime"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      items={scheduleOptions.map((option) => ({
-                        value: option.value,
-                        label: option.label,
-                      }))}
-                      onValueChange={(value) => {
-                        if (value) {
-                          field.onChange(value as BackupScheduleValue);
-                        }
-                      }}
-                      disabled={isPending}
-                    >
-                      <SelectTrigger
-                        id="backup-time"
-                        className="min-h-11 w-full"
-                      >
-                        <SelectValue placeholder="Select schedule" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {scheduleOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.backupTime ? (
-                  <p className="text-sm text-destructive">
-                    {errors.backupTime.message}
-                  </p>
-                ) : null}
-                <p className="text-xs text-muted-foreground">
-                  Current selection:{" "}
-                  {selectedBackupTime
-                    ? backupScheduleLabel(selectedBackupTime)
-                    : "-"}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="border-t pt-6 text-sm text-muted-foreground">
+            Automated backup schedule is managed by administrators on the Backup
+            page.
+          </p>
 
           <AdminEditorActionsBar>
             <span className="hidden sm:block" />

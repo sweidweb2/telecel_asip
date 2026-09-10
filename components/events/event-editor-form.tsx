@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import {
   createEvent,
   deleteEvent,
-  loadEventStartupOptions,
   updateEvent,
 } from "@/actions/events";
+import { loadEventStartupOptions } from "@/actions/admin-pickers";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {

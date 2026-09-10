@@ -22,6 +22,10 @@ const EXPORT_TABLES = {
     columns:
       "id,enquiry_type,full_name,email,phone,subject,message,inbox_status,created_at" as const,
   },
+  newsletter_subscribers: {
+    filename: "newsletter-subscribers",
+    columns: "id,email,consent,source_page,created_at" as const,
+  },
 } as const;
 
 type ExportTable = keyof typeof EXPORT_TABLES;

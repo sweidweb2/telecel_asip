@@ -1,7 +1,6 @@
 "use server";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { getEventStartupOptions } from "@/data/events";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
@@ -10,7 +9,6 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { EventStartupOption } from "@/types/event";
 import {
   createEventSchema,
   deleteEventSchema,
@@ -34,21 +32,6 @@ const MESSAGES = {
   notFound: "Event not found.",
   genericError: "Something went wrong. Please try again.",
 } as const;
-
-/** Lazy option load for the create dialog (list page skips eager fetch). */
-export async function loadEventStartupOptions(
-  search = "",
-  includeIds: string[] = [],
-): Promise<
-  | { status: "ok"; options: EventStartupOption[] }
-  | { status: "error"; message: string }
-> {
-  const result = await getEventStartupOptions(search, includeIds);
-  if (result.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return { status: "ok", options: result.options };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,

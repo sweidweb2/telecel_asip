@@ -5,19 +5,23 @@ import { ArrowUpRight } from "lucide-react";
 import { AuthorAvatar } from "@/components/marketing/author-avatar";
 import type { Locale } from "@/constants/locales";
 import { insightPath } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 import type { ArticleListItem } from "@/types/article";
 
 type BlogCardProps = {
   article: ArticleListItem;
   locale: Locale;
+  className?: string;
 };
 
-export function BlogCard({ article, locale }: BlogCardProps) {
+export function BlogCard({ article, locale, className }: BlogCardProps) {
   const href = insightPath(locale, article.slug);
 
   return (
-    <Link href={href} className="group flex flex-col gap-5 outline-none">
-      <div className="relative aspect-[1.5] w-full overflow-hidden rounded-2xl bg-muted">
+    <Link
+      href={href}
+      className={cn("group flex flex-col gap-5 outline-none", className)}
+    >      <div className="relative aspect-[1.5] w-full overflow-hidden rounded-2xl bg-muted">
         {article.thumbnailUrl ? (
           <Image
             src={article.thumbnailUrl}

@@ -56,6 +56,9 @@ describe("resolveDashboardSearchHref", () => {
     expect(resolveDashboardSearchHref(ROUTES.adminUsers)).toBe(
       ROUTES.adminUsers,
     );
+    expect(resolveDashboardSearchHref(ROUTES.adminSettings)).toBe(
+      ROUTES.adminSettings,
+    );
     expect(resolveDashboardSearchHref("/dashboard/../login")).toBeNull();
     expect(resolveDashboardSearchHref("https://evil.example")).toBeNull();
     expect(resolveDashboardSearchHref("//evil.example")).toBeNull();

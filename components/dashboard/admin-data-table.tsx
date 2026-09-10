@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type AdminDataTablePagination = AdminPaginationProps;
 
@@ -48,7 +49,13 @@ export function AdminDataTable({
 
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <Table>
+          <Table
+            className={cn(
+              "[&_tbody>tr]:border-l-[3px] [&_tbody>tr]:border-l-transparent",
+              "[&_tbody>tr]:transition-[border-color,background-color]",
+              "[&_tbody>tr:hover]:border-l-brand",
+            )}
+          >
             <TableHeader>{header}</TableHeader>
             <TableBody>
               {isEmpty ? (

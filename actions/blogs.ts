@@ -5,8 +5,6 @@ import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
-import { getCohortsForBlogPicker } from "@/data/cohorts";
-import { getStartupsForBlogPicker } from "@/data/startups";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
@@ -51,42 +49,6 @@ const MESSAGES = {
   featuredTaken: "Another post is already featured. Unfeature it first, or save again.",
   invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under the size limit.",
 } as const;
-
-/** Lazy searchable options for blog related-founder / cohort selects. */
-export async function loadBlogLinkOptions(input?: {
-  /** Shared search applied to both lists when specific searches are omitted. */
-  search?: string;
-  startupSearch?: string;
-  cohortSearch?: string;
-  includeStartupId?: string | null;
-  includeCohortId?: string | null;
-}): Promise<
-  | {
-      status: "ok";
-      startups: { id: string; name: string }[];
-      cohorts: { id: string; label: string }[];
-    }
-  | { status: "error"; message: string }
-> {
-  const shared = input?.search ?? "";
-  const startupSearch = input?.startupSearch ?? shared;
-  const cohortSearch = input?.cohortSearch ?? shared;
-  const [startupsResult, cohortsResult] = await Promise.all([
-    getStartupsForBlogPicker(startupSearch, input?.includeStartupId),
-    getCohortsForBlogPicker(cohortSearch, input?.includeCohortId),
-  ]);
-  if (
-    startupsResult.status === "forbidden" ||
-    cohortsResult.status === "forbidden"
-  ) {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return {
-    status: "ok",
-    startups: startupsResult.startups,
-    cohorts: cohortsResult.cohorts,
-  };
-}
 
 const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";

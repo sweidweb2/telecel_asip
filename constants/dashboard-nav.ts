@@ -31,6 +31,7 @@ export const DASHBOARD_NAV_GROUPS = [
         href: ROUTES.applications,
       },
       { title: ADMIN_RESOURCES.contactUs.navTitle, href: ROUTES.contactUs },
+      { title: ADMIN_RESOURCES.newsletter.navTitle, href: ROUTES.newsletter },
     ],
   },
   {

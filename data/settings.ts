@@ -21,7 +21,7 @@ export type SiteSettingsAdmin = SiteSettingsPublic & {
 async function fetchSiteSettings(): Promise<SiteSettingsPublic> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
-    .from("site_settings")
+    .from("site_settings_public")
     .select("open_applications, newsletter_signup_enabled")
     .eq("id", SITE_SETTINGS_ID)
     .maybeSingle();

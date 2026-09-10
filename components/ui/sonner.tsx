@@ -11,8 +11,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      // Keep clear of fixed admin editor action bars at the bottom.
-      position="top-right"
+      position="bottom-right"
+      closeButton
+      offset={{ bottom: "1.25rem", right: "1.25rem" }}
+      mobileOffset={{ bottom: "1rem", right: "1rem" }}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />
@@ -36,11 +38,29 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
+          "--success-bg": "var(--popover)",
+          "--success-border": "var(--brand)",
+          "--success-text": "var(--popover-foreground)",
+          "--error-bg": "var(--popover)",
+          "--error-border": "var(--destructive)",
+          "--error-text": "var(--popover-foreground)",
+          "--warning-bg": "var(--popover)",
+          "--warning-border": "var(--brand-mid)",
+          "--warning-text": "var(--popover-foreground)",
+          "--info-bg": "var(--popover)",
+          "--info-border": "var(--primary)",
+          "--info-text": "var(--popover-foreground)",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
+          toast:
+            "cn-toast !border-l-[3px] !border-y !border-r !border-y-border !border-r-border",
+          success: "!border-l-brand",
+          error: "!border-l-destructive",
+          warning: "!border-l-brand-mid",
+          info: "!border-l-primary",
+          loading: "!border-l-muted-foreground",
         },
       }}
       {...props}

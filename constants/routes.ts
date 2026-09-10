@@ -28,6 +28,7 @@ export const ROUTES = {
   events: "/dashboard/events",
   eventsNew: "/dashboard/events/new",
   contactUs: "/dashboard/contact-us",
+  newsletter: "/dashboard/newsletter",
   analytics: "/dashboard/analytics",
   /** @deprecated Prefer `adminPerformance` — kept as alias for admin path. */
   performance: "/admin/performance",
@@ -36,6 +37,7 @@ export const ROUTES = {
   settings: "/dashboard/settings",
   admin: "/admin",
   adminUsers: "/admin/users",
+  adminSettings: "/admin/settings",
   adminPerformance: "/admin/performance",
   adminBackup: "/admin/backup",
 } as const;

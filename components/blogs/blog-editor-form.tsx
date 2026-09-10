@@ -12,12 +12,12 @@ import { toast } from "sonner";
 import {
   createBlog,
   deleteBlog,
-  loadBlogLinkOptions,
   removeBlogImage,
   updateBlog,
   uploadAuthorAvatar,
   uploadBlogThumbnail,
 } from "@/actions/blogs";
+import { loadBlogLinkOptions } from "@/actions/admin-pickers";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";

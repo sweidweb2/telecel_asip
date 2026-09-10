@@ -7,13 +7,14 @@ import type {
 } from "@/constants/dashboard-nav";
 
 /**
- * Admin panel sidebar — Users, Performance, Backup only (no CMS).
+ * Admin panel sidebar — Users, Settings, Performance, Backup (no CMS).
  */
 export const ADMIN_NAV_GROUPS = [
   {
     label: "Admin",
     items: [
       { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.adminUsers },
+      { title: "Settings", href: ROUTES.adminSettings },
       { title: "Performance", href: ROUTES.adminPerformance },
       { title: "Backup", href: ROUTES.adminBackup },
     ],

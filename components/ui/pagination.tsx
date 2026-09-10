@@ -45,6 +45,9 @@ function PaginationLink({
   isActive,
   size = "icon",
   href,
+  scroll,
+  prefetch,
+  replace,
   ...props
 }: PaginationLinkProps) {
   const classes = cn(
@@ -70,6 +73,9 @@ function PaginationLink({
   return (
     <Link
       href={href}
+      scroll={scroll}
+      prefetch={prefetch}
+      replace={replace}
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}

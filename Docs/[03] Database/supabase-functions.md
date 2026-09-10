@@ -1,6 +1,6 @@
 # Supabase functions, RPCs & triggers
 
-Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
+Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/schema.dbml`.
 
 ---
 
@@ -47,7 +47,22 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 **Details:** True when `profiles.role` is `admin` or `editor`.
 
-**How it works:** Used for profiles list/update policies and `get_user_stats()` so both Admin and Editor Users pages can load staff-visible profile data.
+**How it works:** Used for shared staff gates that both shells need (e.g. `get_user_stats` auth check, site settings). Profiles list/update policies no longer use raw `is_staff()` alone — after `20260910220000` they use `is_admin()` for full access and `is_editor() AND role <> 'admin'` so editors cannot see or mutate administrator rows.
+
+---
+
+### `public.consume_rate_limit(p_key, p_limit, p_window_ms)`
+
+| | |
+| --- | --- |
+| **Role** | Shared sliding-window rate limit (multi-instance) |
+| **Returns** | `boolean` — `true` when the attempt is allowed (and recorded) |
+| **Security** | `SECURITY DEFINER`, `search_path = public` |
+| **Granted to** | `service_role` only |
+
+**Details:** Atomically prunes hits older than `p_window_ms`, then records the current epoch-ms hit when under `p_limit`. Backed by `public.rate_limit_buckets` (service-role only; no anon/authenticated grants).
+
+**How it works:** Upserts the bucket row, locks it (`FOR UPDATE`), filters hits, and either rejects or appends. App actions call this via `createAdminClient` + `consumeSharedRateLimit` (falls back to in-memory if the RPC is missing). Migration `20260910210000_intake_user_id_and_rate_limit.sql`.
 
 ---
 
@@ -62,7 +77,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/schema.dbml`.
 
 **Details:** Replaces multiple head-count queries with one round-trip for dashboard stats.
 
-**How it works:** Raises `42501` unless `is_staff()` (`20260910180000`; previously `is_admin()` from `20260828191100`). Then a single `SELECT` over `public.profiles` with `COUNT(*)` and filtered counts by role and by `created_at` vs UTC week/month truncations. Invoker, so RLS still applies on top of the guard.
+**How it works:** Raises `42501` unless `is_staff()` (`20260910180000`; previously `is_admin()` from `20260828191100`). Then a single `SELECT` over `public.profiles` with `COUNT(*)` and filtered counts by role and by `created_at` vs UTC week/month truncations. Invoker, so RLS still applies on top of the guard — editors (`20260910220000`) only count non-admin profiles (`admins` is therefore `0` in the editor shell).
 
 ---
 
@@ -260,7 +275,36 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_site_settings_updated_at()` |
 
-**How it works:** Singleton row (`id = 1`, seeded by the migration) holding `open_applications`. Readable by anon and authenticated so the marketing navbar and middleware can route between `/apply` and `/register-interest`; only `is_editor()` may UPDATE, and there is no INSERT/DELETE policy.
+**How it works:** Singleton row (`id = 1`, seeded by the migration) holding `open_applications`, `newsletter_signup_enabled`, and `backup_time`. Anonymous clients read flags via `site_settings_public` (no `backup_time`). Base table SELECT/UPDATE is staff-only (`is_staff()`). Non-admins cannot change `backup_time` — see `protect_site_settings_backup_time` below. There is no INSERT/DELETE policy.
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.protect_site_settings_backup_time` |
+| **Kind** | Trigger function |
+| **Role** | Invoked by trigger only |
+| **Details** | Raises `42501` when a non-admin UPDATE changes `backup_time` |
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.site_settings_protect_backup_time` |
+| **Kind** | Trigger |
+| **Table** | `public.site_settings` |
+| **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
+| **Calls** | `public.protect_site_settings_backup_time()` |
+
+**How it works:** Staff may update application/newsletter toggles; only `is_admin()` may change the backup schedule. Migration `20260910200000_site_settings_public_and_backup_guard.sql`.
+
+**Policy naming note:** CMS table policies still use historical `"Admins can …"` labels in older migrations even when they now call `is_editor()` / `is_staff()`. `site_settings` was renamed to staff wording in `20260910200000`; a full CMS policy rename pass was skipped as low value / high churn.
+
+### `public.site_settings_public`
+
+| | |
+| --- | --- |
+| **Role** | Public-safe settings view |
+| **Columns** | `id`, `open_applications`, `newsletter_signup_enabled` |
+| **Granted to** | `anon`, `authenticated` |
+
+**Details:** Exposes marketing/intake toggles without `backup_time`. Prefer this view for anonymous Server Component reads.
 
 ### `public.startups`
 

@@ -7,6 +7,7 @@ import {
   gateStaffPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { getStaffShell } from "@/lib/admin/get-staff-shell";
 import { createClient } from "@/lib/supabase/server";
 import type {
   CurrentUserProfile,
@@ -43,7 +44,9 @@ export const getCurrentUserProfile = cache(
 
 export async function getUsers(query: UserListQuery): Promise<UserListResult> {
   const supabase = await createClient();
-  return fetchUsers(supabase, query);
+  const shell = await getStaffShell();
+  const hideAdmins = shell.isEditor && !shell.isAdmin;
+  return fetchUsers(supabase, query, { hideAdmins });
 }
 
 /**
@@ -52,26 +55,39 @@ export async function getUsers(query: UserListQuery): Promise<UserListResult> {
  */
 export const getUserStats = cache(async (): Promise<UserStats> => {
   const supabase = await createClient();
-  return fetchUserStats(supabase);
+  const shell = await getStaffShell();
+  const hideAdmins = shell.isEditor && !shell.isAdmin;
+  return fetchUserStats(supabase, { hideAdmins });
 });
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
+type UsersVisibility = {
+  /** Editors never list or count administrator profiles. */
+  hideAdmins: boolean;
+};
+
 async function fetchUsers(
   supabase: ServerClient,
   query: UserListQuery,
+  visibility: UsersVisibility,
 ): Promise<UserListResult> {
   const { from, to } = adminListRange(query.page, query.pageSize);
+  const roleFilter =
+    visibility.hideAdmins && query.role === "admin" ? "all" : query.role;
 
   let request = supabase
     .from("profiles")
     .select(USER_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
-    .order("id", { ascending: true })
-    .range(from, to);
+    .order("id", { ascending: true });
 
-  if (query.role !== "all") {
-    request = request.eq("role", query.role);
+  if (visibility.hideAdmins) {
+    request = request.neq("role", "admin");
+  }
+
+  if (roleFilter !== "all") {
+    request = request.eq("role", roleFilter);
   }
 
   if (query.search) {
@@ -81,7 +97,7 @@ async function fetchUsers(
     );
   }
 
-  const { data, count, error } = await request;
+  const { data, count, error } = await request.range(from, to);
   if (error) throw error;
 
   const total = count ?? 0;
@@ -92,7 +108,10 @@ async function fetchUsers(
   };
 }
 
-async function fetchUserStats(supabase: ServerClient): Promise<UserStats> {
+async function fetchUserStats(
+  supabase: ServerClient,
+  visibility: UsersVisibility,
+): Promise<UserStats> {
   const { data, error } = await supabase.rpc("get_user_stats");
   if (error) throw error;
 
@@ -108,7 +127,7 @@ async function fetchUserStats(supabase: ServerClient): Promise<UserStats> {
     };
   }
 
-  return {
+  const stats: UserStats = {
     total: Number(row.total ?? 0),
     admins: Number(row.admins ?? 0),
     editors: Number(row.editors ?? 0),
@@ -116,10 +135,19 @@ async function fetchUserStats(supabase: ServerClient): Promise<UserStats> {
     newThisWeek: Number(row.new_this_week ?? 0),
     newThisMonth: Number(row.new_this_month ?? 0),
   };
+
+  // RLS + invoker RPC already hide admin rows for editors; zero explicitly
+  // so the editor shell never surfaces an admin count.
+  if (visibility.hideAdmins) {
+    return { ...stats, admins: 0 };
+  }
+
+  return stats;
 }
 
 /**
- * Admin gate then list + stats in parallel on a shared client.
+ * Staff gate then list + stats in parallel on a shared client.
+ * Editors never receive administrator rows (query filter + RLS).
  */
 export async function getUsersPageData(query: UserListQuery): Promise<
   | { status: "forbidden" }
@@ -127,9 +155,13 @@ export async function getUsersPageData(query: UserListQuery): Promise<
 > {
   return gateStaffPageData(
     async (supabase) => {
+      const shell = await getStaffShell();
+      const hideAdmins = shell.isEditor && !shell.isAdmin;
+      const visibility = { hideAdmins };
+
       const [list, stats] = await Promise.all([
-        fetchUsers(supabase, query),
-        fetchUserStats(supabase),
+        fetchUsers(supabase, query, visibility),
+        fetchUserStats(supabase, visibility),
       ]);
       return { list, stats };
     },

@@ -114,7 +114,7 @@ export async function waitForTurnstileReady(
   });
   const tokenInput = page.locator('input[name="turnstileToken"]');
   try {
-    await expect(tokenInput).not.toHaveValue("", { timeout: 20_000 });
+    await expect(tokenInput).not.toHaveValue("", { timeout: 10_000 });
   } catch {
     test.skip(
       true,

@@ -18,7 +18,7 @@ export type AdminSession =
 
 /**
  * Session + admin gate for dashboard Server Actions.
- * Uses request-cached `getAdminShell` via `isCurrentUserAdmin`; callers pass entity-specific copy.
+ * Uses request-cached `getStaffShell` via `isCurrentUserAdmin`; callers pass entity-specific copy.
  */
 export async function authorizeAdmin(
   messages: AuthorizeAdminMessages,

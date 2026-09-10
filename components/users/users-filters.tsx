@@ -22,9 +22,11 @@ const ROLE_OPTION_LABELS = {
 export function UsersFilters({
   query,
   listPath = ROUTES.users,
+  actorRole = "admin",
 }: {
   query: UserListQuery;
   listPath?: string;
+  actorRole?: "admin" | "editor";
 }) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
@@ -32,7 +34,16 @@ export function UsersFilters({
       search: query.search,
     });
 
-  const hasFilters = query.search !== "" || query.role !== "all";
+  const canFilterAdmins = actorRole === "admin";
+  const roleValue =
+    !canFilterAdmins && query.role === "admin" ? "all" : query.role;
+  const hasFilters = query.search !== "" || roleValue !== "all";
+  const optionLabels = canFilterAdmins
+    ? ROLE_OPTION_LABELS
+    : {
+        editor: ROLE_OPTION_LABELS.editor,
+        viewer: ROLE_OPTION_LABELS.viewer,
+      };
 
   return (
     <AdminFilterBar
@@ -50,7 +61,7 @@ export function UsersFilters({
         Role
       </Label>
       <Select
-        value={query.role}
+        value={roleValue}
         onValueChange={(value) => {
           if (value) navigate({ role: value });
         }}
@@ -60,14 +71,13 @@ export function UsersFilters({
           id="users-role"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <AdminFilterSelectValue
-            label="Role"
-            optionLabels={ROLE_OPTION_LABELS}
-          />
+          <AdminFilterSelectValue label="Role" optionLabels={optionLabels} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All roles</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
+          {canFilterAdmins ? (
+            <SelectItem value="admin">Admin</SelectItem>
+          ) : null}
           <SelectItem value="editor">Editor</SelectItem>
           <SelectItem value="viewer">Viewer</SelectItem>
         </SelectContent>

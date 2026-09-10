@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
+import {
+  e2eAdminClient,
+  e2eSuffix,
+  hasE2ECredentials,
+  loginAsAdmin,
+  loginAsEditor,
+  submitLoginForm,
+} from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -60,6 +67,13 @@ test.describe("site settings", () => {
         })
         .eq("id", 1);
     }
+  });
+
+  test("admin can open settings in the admin shell", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/admin/settings");
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await expect(page.getByText("Applications open")).toBeVisible();
   });
 
   test("newsletter signup shows phase 1 note only", async ({ page }) => {

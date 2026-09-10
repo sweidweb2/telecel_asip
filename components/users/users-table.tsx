@@ -49,7 +49,13 @@ export function UsersTable({
 
   return (
     <AdminDataTable
-      filters={<UsersFilters query={query} listPath={listPath} />}
+      filters={
+        <UsersFilters
+          query={query}
+          listPath={listPath}
+          actorRole={actorRole}
+        />
+      }
       header={
         <TableRow>
           <AdminRowNumberHead />

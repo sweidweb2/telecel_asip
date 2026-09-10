@@ -166,22 +166,28 @@ export async function createUser(
     return { status: "error", message: mapSupabaseError(error.message) };
   }
 
-  if (created.user) {
-    const { error: profileError } = await session.supabase
-      .from("profiles")
-      .update({
-        role: parsed.data.role,
-        full_name: parsed.data.fullName,
-        email: parsed.data.email,
-      })
-      .eq("id", created.user.id);
+  if (!created.user) {
+    return {
+      status: "error",
+      message: "The user operation failed.",
+    };
+  }
 
-    if (profileError) {
-      return {
-        status: "error",
-        message: mapSupabaseError(profileError.message),
-      };
-    }
+  const { error: profileError } = await session.supabase
+    .from("profiles")
+    .update({
+      role: parsed.data.role,
+      full_name: parsed.data.fullName,
+      email: parsed.data.email,
+    })
+    .eq("id", created.user.id);
+
+  if (profileError) {
+    await admin.auth.admin.deleteUser(created.user.id);
+    return {
+      status: "error",
+      message: mapSupabaseError(profileError.message),
+    };
   }
 
   refreshUsersRoute();
@@ -259,6 +265,16 @@ export async function updateUser(
     }
   }
 
+  const { data: snapshot, error: snapshotError } = await session.supabase
+    .from("profiles")
+    .select("email, full_name, role")
+    .eq("id", parsed.data.id)
+    .maybeSingle();
+
+  if (snapshotError || !snapshot) {
+    return { status: "error", message: "User not found." };
+  }
+
   const admin = createAdminClient();
   const { error: authError } = await admin.auth.admin.updateUserById(
     parsed.data.id,
@@ -286,6 +302,11 @@ export async function updateUser(
     .eq("id", parsed.data.id);
 
   if (profileError) {
+    await admin.auth.admin.updateUserById(parsed.data.id, {
+      email: snapshot.email,
+      user_metadata: { full_name: snapshot.full_name },
+      app_metadata: { app_role: snapshot.role },
+    });
     return {
       status: "error",
       message: mapSupabaseError(profileError.message),

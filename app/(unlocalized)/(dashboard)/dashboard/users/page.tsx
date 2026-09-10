@@ -41,7 +41,7 @@ export default async function EditorUsersPage({ searchParams }: UsersPageProps) 
       title={resource.pageTitle}
       actions={<CreateUserDialog actorRole="editor" />}
     >
-      <UserStatsCards stats={stats} />
+      <UserStatsCards stats={stats} actorRole="editor" />
 
       <UsersTable
         users={list.users}

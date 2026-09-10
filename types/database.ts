@@ -89,6 +89,7 @@ export type Database = {
           programme_fit: string
           sector: string
           traction: string
+          user_id: string | null
           website: string | null
         }
         Insert: {
@@ -109,6 +110,7 @@ export type Database = {
           programme_fit: string
           sector: string
           traction: string
+          user_id?: string | null
           website?: string | null
         }
         Update: {
@@ -129,6 +131,7 @@ export type Database = {
           programme_fit?: string
           sector?: string
           traction?: string
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -712,6 +715,7 @@ export type Database = {
           phone: string
           pitch: string | null
           sector: string
+          user_id: string | null
           website: string | null
         }
         Insert: {
@@ -730,6 +734,7 @@ export type Database = {
           phone: string
           pitch?: string | null
           sector: string
+          user_id?: string | null
           website?: string | null
         }
         Update: {
@@ -748,6 +753,7 @@ export type Database = {
           phone?: string
           pitch?: string | null
           sector?: string
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -844,6 +850,24 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rate_limit_buckets: {
+        Row: {
+          bucket_key: string
+          hits: number[]
+          updated_at: string
+        }
+        Insert: {
+          bucket_key: string
+          hits?: number[]
+          updated_at?: string
+        }
+        Update: {
+          bucket_key?: string
+          hits?: number[]
           updated_at?: string
         }
         Relationships: []
@@ -1036,6 +1060,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings_public: {
+        Row: {
+          id: number | null
+          newsletter_signup_enabled: boolean | null
+          open_applications: boolean | null
+        }
+        Insert: {
+          id?: number | null
+          newsletter_signup_enabled?: never
+          open_applications?: never
+        }
+        Update: {
+          id?: number | null
+          newsletter_signup_enabled?: never
+          open_applications?: never
+        }
+        Relationships: []
+      }
       startups_public: {
         Row: {
           category: string | null
@@ -1102,6 +1144,10 @@ export type Database = {
           id: string
           slug: string
         }[]
+      }
+      consume_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_ms: number }
+        Returns: boolean
       }
       get_active_startup_filter_options: { Args: never; Returns: Json }
       get_admin_analytics: { Args: never; Returns: Json }

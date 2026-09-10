@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 
 import { getNewsletterSignupEnabled } from "@/data/settings";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { TURNSTILE_NEWSLETTER_ACTION } from "@/types/turnstile";
@@ -88,15 +88,25 @@ export async function subscribeNewsletter(
 
   const ipKey = `newsletter:ip:${ip}`;
   const emailKey = `newsletter:email:${email.toLowerCase()}`;
+  const admin = createAdminClient();
 
   if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
+    !(await consumeSharedRateLimit(
+      admin,
+      ipKey,
+      RATE_LIMIT_PER_IP,
+      RATE_LIMIT_WINDOW_MS,
+    )) ||
+    !(await consumeSharedRateLimit(
+      admin,
+      emailKey,
+      RATE_LIMIT_PER_EMAIL,
+      RATE_LIMIT_WINDOW_MS,
+    ))
   ) {
     return { status: "error", message: copy.rateLimited };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from("newsletter_subscribers").insert({
     email,
     consent,
@@ -109,9 +119,6 @@ export async function subscribeNewsletter(
     }
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   return { status: "success", message: copy.success };
 }

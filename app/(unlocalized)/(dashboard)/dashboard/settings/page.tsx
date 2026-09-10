@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { SiteSettingsForm } from "@/components/settings/site-settings-form";
+import { SettingsPageContent } from "@/components/settings/settings-page-content";
 import { requireEditor } from "@/data/auth";
 import { getSiteSettingsForAdmin } from "@/data/settings";
 
@@ -15,13 +14,6 @@ export default async function SettingsPage() {
   const settings = await getSiteSettingsForAdmin();
 
   return (
-    <AdminListPageShell
-      title="Settings"
-    >
-      <SiteSettingsForm
-        openApplications={settings.openApplications}
-        backupTime={settings.backupTime}
-      />
-    </AdminListPageShell>
+    <SettingsPageContent openApplications={settings.openApplications} />
   );
 }

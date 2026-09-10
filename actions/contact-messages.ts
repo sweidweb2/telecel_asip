@@ -9,7 +9,7 @@ import {
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   TURNSTILE_CONTACT_ACTION,
@@ -118,15 +118,25 @@ export async function submitContactMessage(
 
   const ipKey = `contact:ip:${ip}`;
   const emailKey = `contact:email:${email}`;
+  const admin = createAdminClient();
 
   if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
+    !(await consumeSharedRateLimit(
+      admin,
+      ipKey,
+      RATE_LIMIT_PER_IP,
+      RATE_LIMIT_WINDOW_MS,
+    )) ||
+    !(await consumeSharedRateLimit(
+      admin,
+      emailKey,
+      RATE_LIMIT_PER_EMAIL,
+      RATE_LIMIT_WINDOW_MS,
+    ))
   ) {
     return { status: "error", message: copy.rateLimited };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from("contact_messages").insert({
     enquiry_type: enquiryType,
     full_name: fullName,
@@ -139,9 +149,6 @@ export async function submitContactMessage(
   if (error) {
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshContactUsRoute();
   return { status: "success", message: copy.success };
