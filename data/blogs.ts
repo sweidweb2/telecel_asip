@@ -222,13 +222,13 @@ async function fetchRelatedPublishedBlogs(
 
 export const getPublishedBlogs = unstable_cache(
   fetchPublishedBlogs,
-  ["published-blogs"],
+  ["published-blogs-v2"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
 export const getPublishedBlogSlugRows = unstable_cache(
   fetchPublishedBlogSlugRows,
-  ["published-blog-slug-rows"],
+  ["published-blog-slug-rows-v2"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
@@ -237,7 +237,7 @@ export async function getPublishedBlogBySlug(
 ): Promise<BlogPublicDetail | null> {
   return unstable_cache(
     async () => fetchPublishedBlogBySlug(slug),
-    ["published-blog-by-slug", slug],
+    ["published-blog-by-slug-v2", slug],
     { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
   )();
 }
@@ -248,7 +248,7 @@ export async function getRelatedPublishedBlogs(
 ): Promise<BlogPublicListItem[]> {
   return unstable_cache(
     async () => fetchRelatedPublishedBlogs(slug, limit),
-    ["related-published-blogs", slug, String(limit)],
+    ["related-published-blogs-v2", slug, String(limit)],
     { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
   )();
 }
