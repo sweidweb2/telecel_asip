@@ -26,6 +26,9 @@ const startupId = "77777777-7777-4777-8777-777777777777";
 
 const validCreate = {
   startupId,
+  storyTitle: "Opening new markets through partnerships",
+  coverImageUrl: "",
+  headlineStat: "20K deliveries",
   theProblem: "Distribution was fragmented.",
   whatTheyBuilt: "A marketplace for retailers.",
   theAsipConnection: "ASIP opened mentor intros.",

@@ -24,6 +24,16 @@
       "classification": "project"
     },
     {
+      "path": "cms/founder-stories.json",
+      "record_count": 3,
+      "classification": "project"
+    },
+    {
+      "path": "cms/blogs.json",
+      "record_count": 4,
+      "classification": "project"
+    },
+    {
       "path": "cms/impact-metrics.json",
       "record_count": 9,
       "classification": "project"
@@ -94,6 +104,8 @@
     "media_assets": 82,
     "partners": 14,
     "events": 4,
+    "founder_stories": 3,
+    "blogs": 4,
     "cohort_partner_relations": 8,
     "event_startup_relations": 43
   }

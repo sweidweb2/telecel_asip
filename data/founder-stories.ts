@@ -35,7 +35,7 @@ const LIST_COLUMNS =
   "id, publish_status, quote_permission_status, updated_at, startups!inner(name)" as const;
 
 const DETAIL_COLUMNS =
-  "id, startup_id, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
+  "id, startup_id, story_title, cover_image_url, headline_stat, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
 
 const PUBLIC_COLUMNS =
   "the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status" as const;
@@ -352,10 +352,10 @@ const IMPACT_CASE_STUDY_LIMIT = 9;
 const IMPACT_CASE_STUDY_MIN_SLOTS = 3;
 
 const CASE_STORY_COLUMNS =
-  "id, startup_id, the_problem, the_asip_connection, where_they_are_now" as const;
+  "id, startup_id, story_title, cover_image_url, headline_stat, the_problem, the_asip_connection, where_they_are_now" as const;
 
 const CASE_STARTUP_COLUMNS =
-  "id, name, slug, founder_names, sector, country_code, cover_image_url, public_outcome, image_focal_x, image_focal_y" as const;
+  "id, name, slug, founder_names, sector, country_code, image_focal_x, image_focal_y" as const;
 
 /** Bracketed CMS placeholders must not ship as live copy. */
 const UNRESOLVED_PLACEHOLDER_RE = /\[[^\]\n]{1,80}\]/;
@@ -363,6 +363,9 @@ const UNRESOLVED_PLACEHOLDER_RE = /\[[^\]\n]{1,80}\]/;
 type CaseStoryRow = {
   id: string;
   startup_id: string;
+  story_title: string | null;
+  cover_image_url: string | null;
+  headline_stat: string | null;
   the_problem: string;
   the_asip_connection: string;
   where_they_are_now: string;
@@ -375,8 +378,6 @@ type CaseStartupRow = {
   founder_names: string[] | null;
   sector: string | null;
   country_code: string | null;
-  cover_image_url: string | null;
-  public_outcome: string | null;
   image_focal_x: number | null;
   image_focal_y: number | null;
 };
@@ -415,6 +416,7 @@ function anonymousPendingSeat(index: number): ImpactCaseStudyPublic {
   return {
     id: `pending-slot-${index}`,
     startupId: null,
+    title: "",
     name: "",
     slug: "",
     founderNames: [],
@@ -437,20 +439,22 @@ function toCaseStudy(
 ): ImpactCaseStudyPublic | null {
   if (!startup.id || !startup.name || !startup.slug) return null;
 
+  const title = publicLine(story.story_title, 200);
   const barrier = publicLine(story.the_problem);
   const support = publicLine(story.the_asip_connection);
   const outcome = publicLine(story.where_they_are_now);
   // Incomplete published stories stay off Impact until narrative fields clear.
-  if (!barrier && !support && !outcome) return null;
+  if (!title || (!barrier && !support && !outcome)) return null;
 
   return {
     id: story.id,
     ...identityFields(startup),
-    coverImageUrl: startup.cover_image_url,
+    title,
+    coverImageUrl: story.cover_image_url,
     barrier,
     support,
     outcome,
-    stat: publicStat(startup.public_outcome),
+    stat: publicStat(story.headline_stat),
     status: "live",
   };
 }

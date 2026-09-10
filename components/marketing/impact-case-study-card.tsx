@@ -31,6 +31,7 @@ export function ImpactCaseStudyCard({
 }: ImpactCaseStudyCardProps) {
   const isPending = !story || story.status === "pending";
   const name = story?.name?.trim() || "";
+  const title = story?.title?.trim() || "";
   const tags = [story?.sector, story?.country].filter(Boolean) as string[];
   const href =
     !isPending && story?.slug
@@ -94,8 +95,14 @@ export function ImpactCaseStudyCard({
         ) : null}
 
         {name ? (
-          <h3 className="font-heading text-base font-semibold tracking-tight text-balance sm:text-lg">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-asip-coral">
             {name}
+          </p>
+        ) : null}
+
+        {title ? (
+          <h3 className="font-heading text-base font-semibold tracking-tight text-balance sm:text-lg">
+            {title}
           </h3>
         ) : null}
 

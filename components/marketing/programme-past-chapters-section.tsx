@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useId,
   useMemo,
@@ -152,45 +153,59 @@ export function ProgrammePastChaptersSection({
                           )}
                           aria-current={isActive ? "true" : undefined}
                         >
-                          <div className="flex items-baseline justify-between gap-2">
-                            <span
-                              className={cn(
-                                "font-heading text-sm font-semibold tracking-tight sm:text-base",
-                                isActive
-                                  ? "text-[#179191]"
-                                  : "text-[#14333b] group-hover:text-[#179191]",
-                              )}
-                            >
-                              {cohort.year}
-                              <span className="font-medium text-[#14333b]">
-                                {" - "}
-                                {cohort.public_label}
-                              </span>
-                            </span>
-                            <span
-                              className={cn(
-                                "shrink-0 text-[10px] font-medium tracking-wide uppercase sm:text-xs",
-                                isActive
-                                  ? "text-[#179191]"
-                                  : "text-[#14333b]/55",
-                              )}
-                            >
-                              {programmeStatusLabel(
-                                cohort.programme_status,
-                                locale,
-                              )}
-                            </span>
+                          <div className="flex items-center gap-3">
+                            {cohort.media_url ? (
+                              <Image
+                                src={cohort.media_url}
+                                alt=""
+                                width={160}
+                                height={90}
+                                sizes="96px"
+                                className="hidden aspect-video w-24 shrink-0 rounded-md border border-[#14333b]/10 object-cover sm:block"
+                              />
+                            ) : null}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <span
+                                  className={cn(
+                                    "font-heading text-sm font-semibold tracking-tight sm:text-base",
+                                    isActive
+                                      ? "text-[#179191]"
+                                      : "text-[#14333b] group-hover:text-[#179191]",
+                                  )}
+                                >
+                                  {cohort.year}
+                                  <span className="font-medium text-[#14333b]">
+                                    {" - "}
+                                    {cohort.public_label}
+                                  </span>
+                                </span>
+                                <span
+                                  className={cn(
+                                    "shrink-0 text-[10px] font-medium tracking-wide uppercase sm:text-xs",
+                                    isActive
+                                      ? "text-[#179191]"
+                                      : "text-[#14333b]/55",
+                                  )}
+                                >
+                                  {programmeStatusLabel(
+                                    cohort.programme_status,
+                                    locale,
+                                  )}
+                                </span>
+                              </div>
+                              {window ? (
+                                <p className="mt-0.5 text-xs text-[#14333b]/60">
+                                  {window}
+                                </p>
+                              ) : null}
+                              {cohort.summary ? (
+                                <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-[#14333b]/65">
+                                  {cohort.summary}
+                                </p>
+                              ) : null}
+                            </div>
                           </div>
-                          {window ? (
-                            <p className="mt-0.5 text-xs text-[#14333b]/60">
-                              {window}
-                            </p>
-                          ) : null}
-                          {cohort.summary ? (
-                            <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-[#14333b]/65">
-                              {cohort.summary}
-                            </p>
-                          ) : null}
                         </button>
                       </li>
                     );

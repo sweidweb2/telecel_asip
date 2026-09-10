@@ -33,7 +33,6 @@ begin
   return new;
 end;
 $$;
-
 create or replace function public.handle_auth_user_updated()
 returns trigger
 language plpgsql

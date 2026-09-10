@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "entity": "founder_stories",
+  "records": [
+    {
+      "startup_slug": "betapawa-solutions",
+      "story_title": "Powering 1,500 households through new energy partnerships",
+      "cover_image_path": "impact/source-seed/betapawa-solutions.webp",
+      "headline_stat": "1,500 households served",
+      "the_problem": "Energy poverty across Sub-Saharan Africa limits economic growth, healthcare access, and community development.",
+      "what_they_built": "BetaSunlight provides solar energy solutions as a sustainable alternative to slow grid expansion.",
+      "the_asip_connection": "During the programme, SBC AfriTech helped facilitate partnerships with UBA Senegal, ANER, GOGLA, USADF, the All On-Shell Foundation, GIZ, and the Global Alliance for People and Planet.",
+      "where_they_are_now": "The Cohort 4 report records $5K in monthly recurring revenue and 1,500 households served.",
+      "quote_permission_status": null,
+      "publish_status": "published"
+    },
+    {
+      "startup_slug": "messenger",
+      "story_title": "Opening Francophone markets through logistics partnerships",
+      "cover_image_path": "impact/source-seed/messenger.webp",
+      "headline_stat": "20K deliveries",
+      "the_problem": "Businesses expanding across Africa need dependable end-to-end logistics and supply-chain operations.",
+      "what_they_built": "Messenger finances and aggregates logistics operations that connect businesses with their customers.",
+      "the_asip_connection": "SBC AfriTech helped Messenger expand into Francophone Africa through partnerships with Yassir and PAPS Logistics in Senegal.",
+      "where_they_are_now": "The Cohort 4 report records $25K in monthly recurring revenue, 20K deliveries, and 150 bikes financed.",
+      "quote_permission_status": null,
+      "publish_status": "published"
+    },
+    {
+      "startup_slug": "ostafandy",
+      "story_title": "Building a regional network for faster home renovation",
+      "cover_image_path": "impact/source-seed/ostafandy.webp",
+      "headline_stat": "4,400 quotes issued",
+      "the_problem": "Home finishing and renovation can be fragmented, slow, and difficult to price reliably.",
+      "what_they_built": "Ostafandy combines online home design, instant smart quotes, payments, and a network of service providers in one workflow.",
+      "the_asip_connection": "During the programme, Ostafandy signed partnerships with Fanni, Adeer, and 15 local partners, and opened discussions with Senegal's National Association of Carpenters.",
+      "where_they_are_now": "The Cohort 4 report records $175K generated, 560 service providers, and 4,400 quotes issued.",
+      "quote_permission_status": null,
+      "publish_status": "published"
+    }
+  ]
+}

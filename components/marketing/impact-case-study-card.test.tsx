@@ -13,6 +13,7 @@ function story(
   return {
     id: "story-1",
     startupId: "startup-1",
+    title: "From introductions to institutional growth",
     name: "Herconomy",
     slug: "herconomy",
     founderNames: ["Adaora"],
@@ -37,7 +38,7 @@ describe("ImpactCaseStudyCard", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 3, name: "Herconomy" }),
+      screen.getByRole("heading", { level: 3, name: "From introductions to institutional growth" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Adaora")).toBeInTheDocument();
     expect(screen.getByText("Fintech")).toBeInTheDocument();
@@ -70,7 +71,7 @@ describe("ImpactCaseStudyCard", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 3, name: "Herconomy" }),
+      screen.getByRole("heading", { level: 3, name: "From introductions to institutional growth" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("$974K revenue")).not.toBeInTheDocument();
     expect(screen.queryByText(copy.steps.barrier)).not.toBeInTheDocument();
@@ -96,7 +97,7 @@ describe("ImpactCaseStudyCard", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 3, name: "Herconomy" }),
+      screen.getByRole("heading", { level: 3, name: "From introductions to institutional growth" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Fintech")).toBeInTheDocument();
     expect(screen.getByText("NG")).toBeInTheDocument();

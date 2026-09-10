@@ -207,6 +207,9 @@ export function dummyFounderStoryValues(
 ): CreateFounderStoryInput {
   return {
     startupId: current.startupId || "",
+    storyTitle: "Dummy impact story title",
+    coverImageUrl: "",
+    headlineStat: "18 clinics live",
     theProblem:
       "Dummy problem: small clinics could not track medicine stock reliably across branches.",
     whatTheyBuilt:
