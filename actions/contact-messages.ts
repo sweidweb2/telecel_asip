@@ -7,6 +7,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
@@ -22,7 +23,6 @@ import {
   type UpdateContactMessageInput,
 } from "@/validations/contact-message";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
@@ -179,28 +179,12 @@ export async function deleteContactMessage(
 export async function updateContactMessageInboxStatus(
   input: UpdateInboxStatusInput,
 ): Promise<ContactMessageActionResult> {
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "contact_messages",
     input,
     messages: {
       ...ADMIN_MESSAGES,
       success: ADMIN_MESSAGES.inboxStatusSuccess,
-    },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("contact_messages")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: ADMIN_MESSAGES.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: ADMIN_MESSAGES.notFound };
-      }
-      return { status: "success" };
     },
     refresh: () => refreshContactUsRoute(),
   });

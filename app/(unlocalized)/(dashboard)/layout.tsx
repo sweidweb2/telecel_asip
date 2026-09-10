@@ -2,12 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { StaffHeader } from "@/components/dashboard/staff-header";
-import { StaffKeyboardShortcuts } from "@/components/dashboard/staff-keyboard-shortcuts";
-import { SkipToContent } from "@/components/dashboard/skip-to-content";
-import { StaffOfflineBanner } from "@/components/dashboard/staff-offline-banner";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { StaffShellLayout } from "@/components/dashboard/staff-shell-layout";
 import { DASHBOARD_NAV_GROUPS } from "@/constants/dashboard-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
 import { getStaffShell } from "@/data/admin-shell";
@@ -49,23 +44,16 @@ export default async function DashboardLayout({
 
   setAdminPerfRoute("/dashboard");
 
-  const navCountsPromise = getDashboardNavCounts();
-
   return (
-    <SidebarProvider>
-      <SkipToContent />
-      <StaffKeyboardShortcuts />
-      <AppSidebar
-        countsPromise={navCountsPromise}
-        homeHref={ROUTES.dashboard}
-        brandLabel="Editor panel"
-        navGroups={DASHBOARD_NAV_GROUPS}
-      />
-      <SidebarInset>
-        <StaffOfflineBanner />
-        <StaffHeader account={account} panelLabel="Editor panel" />
-        <div className="flex flex-1 flex-col">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <StaffShellLayout
+      account={account}
+      homeHref={ROUTES.dashboard}
+      brandLabel="Editor panel"
+      panelLabel="Editor panel"
+      navGroups={DASHBOARD_NAV_GROUPS}
+      countsPromise={getDashboardNavCounts()}
+    >
+      {children}
+    </StaffShellLayout>
   );
 }

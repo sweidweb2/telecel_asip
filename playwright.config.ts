@@ -3,6 +3,22 @@ import { defineConfig, devices } from "@playwright/test";
 
 loadEnvConfig(process.cwd());
 
+/**
+ * Local Windows + Playwright often cannot reach Cloudflare challenge-platform
+ * hosts (AAAA-only / broken IPv6 → Turnstile never mints a token and most of
+ * the suite skips). Default to Cloudflare's published always-pass test keys
+ * for the Playwright-managed webServer. Set E2E_TURNSTILE_LIVE=1 to use .env
+ * keys instead (requires working challenge DNS/IPv6).
+ *
+ * @see https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+ */
+const useDummyTurnstile = process.env.E2E_TURNSTILE_LIVE !== "1";
+
+if (useDummyTurnstile) {
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
+  process.env.TURNSTILE_SECRET = "1x0000000000000000000000000000000AA";
+}
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -12,23 +28,23 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    launchOptions: {
-      executablePath: process.env.PLAYWRIGHT_CHROME_PATH || undefined,
-      // Challenge platform hosts (e.g. brunhild.challenges.cloudflare.com) are
-      // often AAAA-only. Bundled Chromium on this Windows host fails those
-      // lookups (ERR_NAME_NOT_RESOLVED), so Turnstile never mints a token and
-      // the auth/CMS suite skips. Pin challenge hosts to Cloudflare anycast v4.
-      args: [
-        // Derived from current AAAA 2606:4700::6812:1092 / ::6812:1192
-        "--host-resolver-rules=MAP brunhild.challenges.cloudflare.com 104.18.16.146, MAP *.challenges.cloudflare.com 104.18.16.146, MAP challenges.cloudflare.com 104.18.94.41, EXCLUDE localhost",
-      ],
-    },
+    launchOptions: process.env.PLAYWRIGHT_CHROME_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROME_PATH }
+      : undefined,
   },
   webServer: {
     command: process.env.CI ? "npm run start" : "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true,
+    // Dummy keys only apply to the Playwright-spawned server — do not reuse a
+    // manually started `next dev` that still has the real site key.
+    reuseExistingServer: useDummyTurnstile ? false : !process.env.CI,
     timeout: 120_000,
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY:
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
+      TURNSTILE_SECRET: process.env.TURNSTILE_SECRET ?? "",
+    },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

@@ -129,72 +129,67 @@ function toDetailsJson(
 export async function createStartup(
   input: CreateStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = createStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
-
-  const session = await authorizeEditor(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc(
-    "create_startup_with_details",
-    {
-      p_core: toStartupCoreJson(parsed.data),
-      p_details: toDetailsJson(parsed.data.details),
+  return runAdminMutation({
+    schema: createStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
     },
-  );
+    perfName: "createStartup",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_startup_with_details",
+        {
+          p_core: toStartupCoreJson(data),
+          p_details: toDetailsJson(data.details),
+        },
+      );
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
-
-  refreshStartupPaths(row.slug, row.id);
-  return {
-    status: "success",
-    message: MESSAGES.createSuccess,
-    id: row.id,
-  };
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (data, id) => refreshStartupPaths(data.slug, id),
+  });
 }
 
 export async function updateStartup(
   input: UpdateStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = updateStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
-
-  const session = await authorizeEditor(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc(
-    "update_startup_with_details",
-    {
-      p_id: parsed.data.id,
-      p_core: toStartupCoreJson(parsed.data),
-      p_details: toDetailsJson(parsed.data.details),
+  return runAdminMutation({
+    schema: updateStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
     },
-  );
+    perfName: "updateStartup",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_startup_with_details",
+        {
+          p_id: data.id,
+          p_core: toStartupCoreJson(data),
+          p_details: toDetailsJson(data.details),
+        },
+      );
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
 
-  refreshStartupPaths(row.slug, row.id);
-  if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshStartupPaths(row.previous_slug, row.id);
-  }
+      refreshStartupPaths(row.slug, row.id);
+      if (row.previous_slug && row.previous_slug !== row.slug) {
+        refreshStartupPaths(row.previous_slug, row.id);
+      }
 
-  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
+      return { status: "success", id: row.id };
+    },
+  });
 }
 
 export async function deleteStartup(

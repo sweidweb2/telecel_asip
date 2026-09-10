@@ -2,12 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { StaffHeader } from "@/components/dashboard/staff-header";
-import { StaffKeyboardShortcuts } from "@/components/dashboard/staff-keyboard-shortcuts";
-import { SkipToContent } from "@/components/dashboard/skip-to-content";
-import { StaffOfflineBanner } from "@/components/dashboard/staff-offline-banner";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { StaffShellLayout } from "@/components/dashboard/staff-shell-layout";
 import { ADMIN_NAV_GROUPS } from "@/constants/admin-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
 import { getStaffShell } from "@/data/admin-shell";
@@ -49,23 +44,15 @@ export default async function AdminLayout({
   setAdminPerfRoute("/admin");
 
   return (
-    <SidebarProvider>
-      <SkipToContent />
-      <StaffKeyboardShortcuts />
-      <AppSidebar
-        homeHref={ROUTES.admin}
-        brandLabel="Admin panel"
-        navGroups={ADMIN_NAV_GROUPS}
-      />
-      <SidebarInset>
-        <StaffOfflineBanner />
-        <StaffHeader
-          account={account}
-          panelLabel="Admin panel"
-          titleResolver="admin"
-        />
-        <div className="flex flex-1 flex-col">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <StaffShellLayout
+      account={account}
+      homeHref={ROUTES.admin}
+      brandLabel="Admin panel"
+      panelLabel="Admin panel"
+      navGroups={ADMIN_NAV_GROUPS}
+      titleResolver="admin"
+    >
+      {children}
+    </StaffShellLayout>
   );
 }

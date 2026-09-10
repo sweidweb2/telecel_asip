@@ -255,7 +255,8 @@ test.describe("auth", () => {
 
   test("duplicate signup email shows a toast error", async ({ page }) => {
     const email = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
-    const password = process.env.E2E_EDITOR_PASSWORD ?? "password";
+    // Must satisfy signup Zod (number required). Need not match the real account password.
+    const password = "Testpass1";
 
     await page.goto("/en/signup");
     await page.getByLabel("Name").fill("Duplicate User");

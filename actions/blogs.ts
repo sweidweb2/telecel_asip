@@ -124,67 +124,62 @@ function toBlogJson(input: CreateBlogInput) {
 export async function createBlog(
   input: CreateBlogInput,
 ): Promise<BlogActionResult> {
-  const parsed = createBlogSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: createBlogSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
+    },
+    perfName: "createBlog",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_blog_with_featured",
+        { p_blog: toBlogJson(data) },
+      );
 
-  const session = await authorizeEditor(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc(
-    "create_blog_with_featured",
-    { p_blog: toBlogJson(parsed.data) },
-  );
-
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
-
-  refreshBlogPaths(row.slug, row.id);
-  return {
-    status: "success",
-    message: MESSAGES.createSuccess,
-    id: row.id,
-  };
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (data, id) => refreshBlogPaths(data.slug, id),
+  });
 }
 
 export async function updateBlog(
   input: UpdateBlogInput,
 ): Promise<BlogActionResult> {
-  const parsed = updateBlogSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updateBlogSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
+    },
+    perfName: "updateBlog",
+    execute: async (session, data) => {
+      const { id, ...rest } = data;
 
-  const session = await authorizeEditor(MESSAGES);
-  if (session.status === "error") return session;
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_blog_with_featured",
+        { p_id: id, p_blog: toBlogJson(rest) },
+      );
 
-  const { id, ...rest } = parsed.data;
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
 
-  const { data, error } = await session.supabase.rpc(
-    "update_blog_with_featured",
-    { p_id: id, p_blog: toBlogJson(rest) },
-  );
+      refreshBlogPaths(row.slug, row.id);
+      if (row.previous_slug && row.previous_slug !== row.slug) {
+        refreshBlogPaths(row.previous_slug, row.id);
+      }
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
-
-  refreshBlogPaths(row.slug, row.id);
-  if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshBlogPaths(row.previous_slug, row.id);
-  }
-
-  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
+      return { status: "success", id: row.id };
+    },
+  });
 }
 
 export async function updateBlogStatus(

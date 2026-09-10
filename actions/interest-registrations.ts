@@ -10,6 +10,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import {
   guardPublicFormSubmission,
   PUBLIC_SUBMIT_GUARD_COPY,
@@ -24,7 +25,6 @@ import {
   type UpdateInterestRegistrationInput,
 } from "@/validations/interest-registration";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
@@ -273,8 +273,8 @@ export async function updateInterestRegistrationInboxStatus(
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
 
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "interest_registrations",
     input,
     messages: {
       unauthorized: copy.unauthorized,
@@ -283,22 +283,6 @@ export async function updateInterestRegistrationInboxStatus(
       success: copy.inboxStatusSuccess,
       genericError: copy.genericError,
       notFound: copy.notFound,
-    },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("interest_registrations")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: copy.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: copy.notFound };
-      }
-      return { status: "success" };
     },
     refresh: () => refreshRegistrationsRoute(),
   });

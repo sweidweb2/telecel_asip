@@ -9,6 +9,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
@@ -24,7 +25,6 @@ import {
   type UpdateApplicationInput,
 } from "@/validations/application";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
@@ -247,8 +247,8 @@ export async function updateApplicationInboxStatus(
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
 
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "applications",
     input,
     messages: {
       unauthorized: copy.unauthorized,
@@ -257,22 +257,6 @@ export async function updateApplicationInboxStatus(
       success: copy.inboxStatusSuccess,
       genericError: copy.genericError,
       notFound: copy.notFound,
-    },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("applications")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: copy.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: copy.notFound };
-      }
-      return { status: "success" };
     },
     refresh: () => refreshApplicationsRoute(),
   });
