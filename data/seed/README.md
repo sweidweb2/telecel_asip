@@ -110,9 +110,10 @@ The seeder validates the 42 source-derived 1600x1000 WebP startup covers in
 stores their Supabase public URLs in `startup_details.cover_image_url`. It also
 validates the 14 approved optimized PNGs in `public/partners`, uploads them under
 `partners/seed/`, and stores their Supabase public URLs in `partners.logo_url`.
-Four 1600x900 WebP covers in `public/insights/source-seed` are uploaded under
-`blogs/seed/{slug}/`; their public URLs supply both article thumbnails and cohort
-media.
+Four 1600x900 WebP editorial covers in `public/insights/source-seed` are built
+from programme photography and uploaded under `blogs/seed/{slug}/cover-v2.webp`;
+their public URLs supply both article thumbnails and cohort media. The v2 path
+ensures clients do not reuse the earlier application-slide covers from cache.
 Three 1600x900 portrait-led case-study covers in `public/impact/source-seed`
 are uploaded under `startups/impact/{slug}/` and stored only on the matching
 founder-story records.
@@ -162,7 +163,7 @@ or crop rules change (requires Poppler's `pdftoppm`):
 npm run seed:asip-startup-images
 ```
 
-Rebuild the cohort and Insights covers from the supplied FSD slides:
+Rebuild the cohort and Insights covers from the supplied programme photos:
 
 ```powershell
 npm run seed:asip-cms-media

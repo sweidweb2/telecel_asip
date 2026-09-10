@@ -151,8 +151,7 @@ async function uploadCmsCovers(supabase, blogs) {
   const coverUrls = new Map();
 
   for (const blog of blogs) {
-    const year = blog.cohort_key.slice(0, 4);
-    const filename = `insights/source-seed/cohort-${year}.webp`;
+    const filename = blog.cover_image_path;
     const bytes = await readFile(new URL(filename, PUBLIC_ROOT));
     const metadata = await sharp(bytes).metadata();
     if (
@@ -163,7 +162,7 @@ async function uploadCmsCovers(supabase, blogs) {
       throw new Error(`CMS cover ${filename} must be a valid 1600x900 WebP image`);
     }
 
-    const objectPath = `seed/${blog.slug}/cover.webp`;
+    const objectPath = `seed/${blog.slug}/cover-v2.webp`;
     const { error } = await supabase.storage.from("blogs").upload(objectPath, bytes, {
       contentType: "image/webp",
       cacheControl: "31536000",

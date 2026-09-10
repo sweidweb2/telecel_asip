@@ -14,6 +14,8 @@
       "reading_time_minutes": 3,
       "published_at": "2024-02-07T09:00:00.000Z",
       "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "cover_image_path": "insights/source-seed/cohort-2024.webp",
+      "cover_source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/705A8542.JPG",
       "sources": ["Docs/[05] Guy Data/01 Program History & Milestones/ASIP Accelerator Cohort 4 Report EN .pdf", "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf"],
       "meta_title": "ASIP Accelerator Cohort 4 | Ten African Ventures",
       "meta_description": "Explore the ten companies in ASIP Accelerator Cohort 4 and the practical market challenges they address."
@@ -30,6 +32,8 @@
       "reading_time_minutes": 3,
       "published_at": "2023-05-25T09:00:00.000Z",
       "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "cover_image_path": "insights/source-seed/cohort-2023.webp",
+      "cover_source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2023-11-30 at 10.47.09_d1dabbb3.jpg",
       "sources": ["Docs/[05] Guy Data/01 Program History & Milestones/SBC Cohort 3 Report (1).pdf", "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf"],
       "meta_title": "ASIP Accelerator Cohort 3 | Eleven African Startups",
       "meta_description": "Meet the eleven companies selected for ASIP Accelerator Cohort 3 across eight African markets."
@@ -46,6 +50,8 @@
       "reading_time_minutes": 3,
       "published_at": "2022-07-06T09:00:00.000Z",
       "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "cover_image_path": "insights/source-seed/cohort-2022.webp",
+      "cover_source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/best group.png",
       "sources": ["Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf", "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2022 PRINT.pdf"],
       "meta_title": "ASIP Accelerator Cohort 2 | Dakar Programme",
       "meta_description": "Explore ASIP Accelerator Cohort 2 and its combination of digital acceleration and in-person support in Dakar."
@@ -62,6 +68,8 @@
       "reading_time_minutes": 3,
       "published_at": "2021-09-30T09:00:00.000Z",
       "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "cover_image_path": "insights/source-seed/cohort-2021.webp",
+      "cover_source_path": "Docs/[05] Guy Data/06 Photos, Videos & Event Assets/WhatsApp Image 2021-09-30 at 17.40.41.jpeg",
       "sources": ["Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2021.pptx.pdf", "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf"],
       "meta_title": "ASIP Accelerator Cohort 1 | Programme History",
       "meta_description": "Learn how ASIP's first virtual accelerator connected eleven African ventures with mentors, partners, and programme support."
