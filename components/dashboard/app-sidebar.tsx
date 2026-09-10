@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense, use } from "react";
 import { usePathname } from "next/navigation";
 import {
   BarChart3Icon,
@@ -38,7 +39,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  useSidebar,
+  useSidebarMobile,
 } from "@/components/ui/sidebar";
 import {
   hasUnreflectedAdminPublicSurfaces,
@@ -49,11 +50,13 @@ import {
   isDashboardNavActive,
   type DashboardNavGroup,
 } from "@/constants/dashboard-nav";
+import {
+  isDashboardNavCountHref,
+  type DashboardNavCounts,
+} from "@/constants/dashboard-nav-counts";
 import { isAdminNavActive } from "@/constants/admin-nav";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
-
-type DashboardNavCounts = Partial<Record<string, number>>;
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.dashboard]: LayoutDashboardIcon,
@@ -106,17 +109,19 @@ function isNavActive(pathname: string, href: string, homeHref: string) {
 
 export function AppSidebar({
   counts = {},
+  countsPromise,
   homeHref = ROUTES.dashboard,
   brandLabel = "Editor panel",
   navGroups = DASHBOARD_NAV_GROUPS,
 }: {
   counts?: DashboardNavCounts;
+  countsPromise?: Promise<DashboardNavCounts>;
   homeHref?: string;
   brandLabel?: string;
   navGroups?: readonly DashboardNavGroup[];
 }) {
   const pathname = usePathname();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile } = useSidebarMobile();
 
   function closeMobileSidebar() {
     setOpenMobile(false);
@@ -170,13 +175,16 @@ export function AppSidebar({
               <SidebarMenu>
                 {group.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
-                  const count = counts[item.href];
                   const reflectionId = NAV_PUBLIC_REFLECTION_IDS[item.href];
                   const hasUnreflected = reflectionId
                     ? hasUnreflectedAdminPublicSurfaces(reflectionId)
                     : false;
-                  const hasCount = typeof count === "number";
-                  const showBadge = hasCount || hasUnreflected;
+                  const expectsCount =
+                    Boolean(countsPromise) && isDashboardNavCountHref(item.href);
+                  const resolvedCount = counts[item.href];
+                  const hasResolvedCount = typeof resolvedCount === "number";
+                  const showBadge =
+                    hasResolvedCount || hasUnreflected || expectsCount;
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -188,7 +196,8 @@ export function AppSidebar({
                         tooltip={item.title}
                         className={
                           showBadge
-                            ? hasCount && hasUnreflected
+                            ? (hasResolvedCount || expectsCount) &&
+                              hasUnreflected
                               ? "pr-14"
                               : "pr-8"
                             : undefined
@@ -198,37 +207,31 @@ export function AppSidebar({
                         <span>{item.title}</span>
                       </SidebarMenuButton>
                       {showBadge ? (
-                        <SidebarMenuBadge
-                          className="gap-1 bg-transparent p-0"
-                          aria-label={
-                            [
-                              hasCount ? `${count} records` : null,
-                              hasUnreflected
-                                ? "some public surfaces are not reflected"
-                                : null,
-                            ]
-                              .filter(Boolean)
-                              .join("; ")
-                          }
-                        >
-                          {hasUnreflected ? (
-                            <span
-                              className="flex size-5 items-center justify-center rounded-full bg-red-500/15 text-red-700 dark:text-red-400"
-                              aria-hidden
-                            >
-                              <CircleAlertIcon className="size-3" />
-                            </span>
-                          ) : null}
-                          {hasCount ? (
-                            <span
-                              className={cn(
-                                "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-[10px] leading-none",
-                              )}
-                            >
-                              {formatNavCount(count)}
-                            </span>
-                          ) : null}
-                        </SidebarMenuBadge>
+                        countsPromise && expectsCount ? (
+                          <Suspense
+                            fallback={
+                              hasUnreflected ? (
+                                <NavItemBadge
+                                  count={undefined}
+                                  hasUnreflected
+                                />
+                              ) : null
+                            }
+                          >
+                            <NavItemBadgeFromPromise
+                              href={item.href}
+                              countsPromise={countsPromise}
+                              hasUnreflected={hasUnreflected}
+                            />
+                          </Suspense>
+                        ) : (
+                          <NavItemBadge
+                            count={
+                              hasResolvedCount ? resolvedCount : undefined
+                            }
+                            hasUnreflected={hasUnreflected}
+                          />
+                        )
                       ) : null}
                     </SidebarMenuItem>
                   );
@@ -240,5 +243,69 @@ export function AppSidebar({
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function NavItemBadgeFromPromise({
+  href,
+  countsPromise,
+  hasUnreflected,
+}: {
+  href: string;
+  countsPromise: Promise<DashboardNavCounts>;
+  hasUnreflected: boolean;
+}) {
+  const counts = use(countsPromise);
+  const count = counts[href];
+  const hasCount = typeof count === "number";
+  if (!hasCount && !hasUnreflected) return null;
+  return (
+    <NavItemBadge
+      count={hasCount ? count : undefined}
+      hasUnreflected={hasUnreflected}
+    />
+  );
+}
+
+function NavItemBadge({
+  count,
+  hasUnreflected,
+}: {
+  count: number | undefined;
+  hasUnreflected: boolean;
+}) {
+  const hasCount = typeof count === "number";
+  if (!hasCount && !hasUnreflected) return null;
+
+  return (
+    <SidebarMenuBadge
+      className="gap-1 bg-transparent p-0"
+      aria-label={
+        [
+          hasCount ? `${count} records` : null,
+          hasUnreflected ? "some public surfaces are not reflected" : null,
+        ]
+          .filter(Boolean)
+          .join("; ")
+      }
+    >
+      {hasUnreflected ? (
+        <span
+          className="flex size-5 items-center justify-center rounded-full bg-destructive/15 text-destructive"
+          aria-hidden
+        >
+          <CircleAlertIcon className="size-3" />
+        </span>
+      ) : null}
+      {hasCount ? (
+        <span
+          className={cn(
+            "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-xs leading-none",
+          )}
+        >
+          {formatNavCount(count)}
+        </span>
+      ) : null}
+    </SidebarMenuBadge>
   );
 }

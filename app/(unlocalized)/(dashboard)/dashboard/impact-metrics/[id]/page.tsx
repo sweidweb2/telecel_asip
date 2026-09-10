@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getImpactMetricByIdForAdmin } from "@/data/impact-metrics";
 
@@ -24,9 +25,9 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getImpactMetricByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Impact metric | ASIP Admin" };
+    return { title: "Impact metric | ASIP Editor" };
   }
-  return { title: `${result.metric.claim_label} | ASIP Admin` };
+  return { title: `${result.metric.claim_label} | ASIP Editor` };
 }
 
 export default async function EditImpactMetricPage({
@@ -41,7 +42,7 @@ export default async function EditImpactMetricPage({
   const pageLabel = result.metric.claim_label.trim() || "Edit metric";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -62,6 +63,6 @@ export default async function EditImpactMetricPage({
         metric={result.metric}
         heading="Edit impact metric"
       />
-    </main>
+    </StaffMain>
   );
 }

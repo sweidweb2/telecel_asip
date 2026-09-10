@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import type { z } from "zod";
 
+import { DASHBOARD_NAV_COUNTS_CACHE_TAG } from "@/constants/dashboard-nav-counts";
 import {
   authorizeEditor,
   type AuthorizeEditorMessages,
@@ -109,6 +110,11 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   );
 }
 
+/** Bust Editor sidebar badge totals after a counted table changes. */
+export function revalidateDashboardNavCounts() {
+  revalidateTag(DASHBOARD_NAV_COUNTS_CACHE_TAG, "max");
+}
+
 /** Revalidate a list path and optional detail path / cache tags. */
 export function refreshAdminResource({
   listPath,
@@ -121,6 +127,7 @@ export function refreshAdminResource({
 }) {
   revalidatePath(listPath);
   if (detailPath) revalidatePath(detailPath);
+  revalidateDashboardNavCounts();
   if (cacheTags) {
     for (const tag of cacheTags) {
       revalidateTag(tag, "max");

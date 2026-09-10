@@ -108,12 +108,19 @@ function isProtectedPath(pathname: string): boolean {
 async function refreshSupabaseSession(request: NextRequest): Promise<{
   response: NextResponse;
   userId: string | null;
+  isAdmin: boolean;
+  isEditor: boolean;
 }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    return { response: NextResponse.next({ request }), userId: null };
+    return {
+      response: NextResponse.next({ request }),
+      userId: null,
+      isAdmin: false,
+      isEditor: false,
+    };
   }
 
   let response = NextResponse.next({ request });
@@ -139,7 +146,29 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { response, userId: user?.id ?? null };
+  if (!user) {
+    return { response, userId: null, isAdmin: false, isEditor: false };
+  }
+
+  const { data: shell, error } = await supabase
+    .rpc("get_staff_shell")
+    .maybeSingle();
+
+  if (error || !shell) {
+    return {
+      response,
+      userId: user.id,
+      isAdmin: false,
+      isEditor: false,
+    };
+  }
+
+  return {
+    response,
+    userId: user.id,
+    isAdmin: Boolean(shell.is_admin),
+    isEditor: Boolean(shell.is_editor),
+  };
 }
 
 export async function middleware(request: NextRequest) {
@@ -149,7 +178,8 @@ export async function middleware(request: NextRequest) {
     isProtectedPath(pathname) || isAuthPage(pathname) || isIntakePath(pathname);
 
   if (needsSession) {
-    const { response, userId } = await refreshSupabaseSession(request);
+    const { response, userId, isAdmin, isEditor } =
+      await refreshSupabaseSession(request);
 
     if (isProtectedPath(pathname) && !userId) {
       const loginUrl = request.nextUrl.clone();
@@ -158,6 +188,35 @@ export async function middleware(request: NextRequest) {
       const redirect = NextResponse.redirect(loginUrl);
       copyCookies(response, redirect);
       return withNoStore(withLocaleHeaders(redirect, locale, request));
+    }
+
+    if (isProtectedPath(pathname) && userId) {
+      // Role gate here avoids painting the wrong shell HTML for viewers.
+      // Layouts still call get_staff_shell (request-cached) as source of truth
+      // for chrome fields; middleware + RSC do not share React.cache (P2.8).
+      const isAdminPath =
+        pathname === ROUTES.admin || pathname.startsWith(`${ROUTES.admin}/`);
+      const isDashboardPath =
+        pathname === ROUTES.dashboard ||
+        pathname.startsWith(`${ROUTES.dashboard}/`);
+
+      if (isAdminPath && !isAdmin) {
+        const target = request.nextUrl.clone();
+        target.pathname = isEditor ? ROUTES.dashboard : `/${locale}`;
+        target.search = "";
+        const redirect = NextResponse.redirect(target);
+        copyCookies(response, redirect);
+        return withNoStore(withLocaleHeaders(redirect, locale, request));
+      }
+
+      if (isDashboardPath && !isEditor) {
+        const target = request.nextUrl.clone();
+        target.pathname = isAdmin ? ROUTES.admin : `/${locale}`;
+        target.search = "";
+        const redirect = NextResponse.redirect(target);
+        copyCookies(response, redirect);
+        return withNoStore(withLocaleHeaders(redirect, locale, request));
+      }
     }
 
     if (isAuthPage(pathname) && userId) {

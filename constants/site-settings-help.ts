@@ -15,12 +15,12 @@ export const SITE_SETTINGS_HELP = {
   },
   newsletter: {
     title: "Newsletter signup",
-    intro: "Phase 1 status only — not a live control.",
+    intro: "Informational for phase 1 — not a live control.",
     fields: [
       {
         name: "Newsletter signup",
         detail:
-          "The Insights newsletter module is hidden for phase 1. There is no public signup UI and the setting stays off. A toggle returns in a later phase after privacy, routing, and ownership are confirmed.",
+          "Phase 1 status only. The Insights newsletter module stays hidden, public signup is off, and there is no toggle. A control returns in a later phase after privacy, routing, and ownership are confirmed.",
       },
     ],
   },

@@ -35,7 +35,12 @@ describe("SiteSettingsForm", () => {
     });
     const user = userEvent.setup();
 
-    render(<SiteSettingsForm openApplications={false} />);
+    render(
+      <SiteSettingsForm
+        openApplications={false}
+        newsletterSignupEnabled={true}
+      />,
+    );
 
     await user.click(screen.getAllByRole("switch")[0]!);
     await user.click(screen.getByRole("button", { name: /save changes/i }));
@@ -45,15 +50,21 @@ describe("SiteSettingsForm", () => {
     );
     expect(updateEditorSiteSettings).toHaveBeenCalledWith({
       openApplications: true,
-      newsletterSignupEnabled: false,
+      newsletterSignupEnabled: true,
     });
     expect(toastSuccess).toHaveBeenCalledWith("Settings saved.");
   });
 
   it("shows newsletter as a phase 1 note, not a toggle", () => {
-    render(<SiteSettingsForm openApplications={false} />);
+    render(
+      <SiteSettingsForm
+        openApplications={false}
+        newsletterSignupEnabled={false}
+      />,
+    );
 
-    expect(screen.getByText(/hidden — phase 1/i)).toBeTruthy();
+    expect(screen.getByText(/phase 1 — informational only/i)).toBeTruthy();
+    expect(screen.getAllByRole("switch")).toHaveLength(1);
     expect(screen.queryByRole("switch", { name: /newsletter/i })).toBeNull();
     expect(
       screen.queryByRole("button", { name: /run backup now/i }),

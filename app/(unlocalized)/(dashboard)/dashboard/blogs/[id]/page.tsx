@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getBlogByIdForAdmin } from "@/data/blogs";
 
@@ -24,9 +25,9 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getBlogByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Blog | ASIP Admin" };
+    return { title: "Blog | ASIP Editor" };
   }
-  return { title: `${result.blog.title} | ASIP Admin` };
+  return { title: `${result.blog.title} | ASIP Editor` };
 }
 
 export default async function EditBlogPage({ params }: EditBlogPageProps) {
@@ -39,7 +40,7 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
   const pageLabel = result.blog.title.trim() || "Edit blog";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -60,6 +61,6 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
         blog={result.blog}
         heading="Edit blog"
       />
-    </main>
+    </StaffMain>
   );
 }

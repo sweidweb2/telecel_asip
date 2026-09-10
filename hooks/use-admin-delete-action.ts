@@ -13,6 +13,8 @@ type UseAdminDeleteActionOptions = {
   redirectTo?: string;
   /** Toast when the action throws. */
   fallbackError: string;
+  /** After a successful delete (before refresh/redirect). */
+  onSuccess?: () => void;
 };
 
 /**
@@ -22,6 +24,7 @@ export function useAdminDeleteAction({
   deleteAction,
   redirectTo,
   fallbackError,
+  onSuccess,
 }: UseAdminDeleteActionOptions) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -37,6 +40,7 @@ export function useAdminDeleteAction({
         }
         toast.success(result.message);
         setDeleteOpen(false);
+        onSuccess?.();
         if (redirectTo) {
           router.push(redirectTo);
           return;

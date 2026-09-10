@@ -10,18 +10,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { requireEditor } from "@/data/auth";
 
 export const metadata: Metadata = {
-  title: "New blog | ASIP Admin",
+  title: "New blog | ASIP Editor",
 };
 
 export default async function NewBlogPage() {
   await requireEditor();
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -39,6 +40,6 @@ export default async function NewBlogPage() {
         mode="create"
         heading="New blog"
       />
-    </main>
+    </StaffMain>
   );
 }

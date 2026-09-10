@@ -7,7 +7,7 @@ import { ROUTES } from "@/constants/routes";
 import { getAdminAnalytics } from "@/data/admin-analytics";
 
 export const metadata: Metadata = {
-  title: "Analytics | ASIP Admin",
+  title: "Analytics | ASIP Editor",
 };
 
 export default async function AnalyticsPage() {

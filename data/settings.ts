@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 
 import type { BackupScheduleValue } from "@/constants/backup-schedule";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -17,6 +18,8 @@ export type SiteSettingsPublic = {
 export type SiteSettingsAdmin = SiteSettingsPublic & {
   backupTime: BackupScheduleValue;
 };
+
+const DEFAULT_BACKUP_TIME: BackupScheduleValue = "weekly_sun_03";
 
 async function fetchSiteSettings(): Promise<SiteSettingsPublic> {
   const supabase = createPublicClient();
@@ -47,16 +50,24 @@ export async function getSiteSettings(): Promise<SiteSettingsPublic> {
   return getSiteSettingsCached();
 }
 
+async function fetchAdminBackupSchedule(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<BackupScheduleValue> {
+  const { data, error } = await supabase.rpc("get_admin_backup_schedule");
+  if (error || !data) return DEFAULT_BACKUP_TIME;
+  return data as BackupScheduleValue;
+}
+
 /**
- * Uncached read for the admin Settings form so the editor always sees the
- * live row after navigation (public marketing still uses the 60s cache).
- * Includes backup_time (admin UI only — cron uses createAdminClient).
+ * Uncached staff read for Settings / Backup forms.
+ * Flags come from the base table (no backup_time column grant).
+ * backup_time is loaded only for admins via get_admin_backup_schedule.
  */
 export async function getSiteSettingsForAdmin(): Promise<SiteSettingsAdmin> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("site_settings")
-    .select("open_applications, newsletter_signup_enabled, backup_time")
+    .select("open_applications, newsletter_signup_enabled")
     .eq("id", SITE_SETTINGS_ID)
     .maybeSingle();
 
@@ -64,14 +75,18 @@ export async function getSiteSettingsForAdmin(): Promise<SiteSettingsAdmin> {
     return {
       openApplications: false,
       newsletterSignupEnabled: false,
-      backupTime: "weekly_sun_03",
+      backupTime: DEFAULT_BACKUP_TIME,
     };
   }
+
+  const backupTime = (await isCurrentUserAdmin())
+    ? await fetchAdminBackupSchedule(supabase)
+    : DEFAULT_BACKUP_TIME;
 
   return {
     openApplications: Boolean(data.open_applications),
     newsletterSignupEnabled: Boolean(data.newsletter_signup_enabled),
-    backupTime: data.backup_time as BackupScheduleValue,
+    backupTime,
   };
 }
 

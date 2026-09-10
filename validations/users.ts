@@ -22,7 +22,6 @@ export const USER_FULL_NAME_MAX = 80;
 export const USER_EMAIL_MAX = 254;
 export const USER_PASSWORD_MIN = 8;
 export const USER_PASSWORD_MAX = 128;
-export const USER_DEFAULT_PASSWORD = "password";
 
 const fullNameSchema = z
   .string()
@@ -45,18 +44,12 @@ const passwordSchema = z
   .regex(/[A-Za-z]/, "Password must include a letter")
   .regex(/[0-9]/, "Password must include a number");
 
-const createPasswordSchema = z
-  .string()
-  .trim()
-  .transform((value) => (value === "" ? USER_DEFAULT_PASSWORD : value))
-  .pipe(z.union([z.literal(USER_DEFAULT_PASSWORD), passwordSchema]));
-
 const userRoleSchema = z.enum(USER_ROLES);
 
 export const createUserSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
-  password: createPasswordSchema,
+  password: passwordSchema,
   role: userRoleSchema,
 });
 
@@ -75,6 +68,16 @@ export const hardDeleteUserSchema = z.object({
   id: z.uuid("Invalid user id"),
 });
 
+export const USER_LIST_SORTS = [
+  "full_name",
+  "email",
+  "role",
+  "created_at",
+  "updated_at",
+] as const;
+
+export type UserListSort = (typeof USER_LIST_SORTS)[number];
+
 const userListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
   search: z
@@ -84,6 +87,8 @@ const userListQueryInputSchema = z.object({
     .regex(/^[^,%_()]*$/, "Search contains unsupported characters")
     .catch(""),
   role: z.enum(["all", ...USER_ROLES]).catch("all"),
+  sort: z.enum(USER_LIST_SORTS).catch("created_at"),
+  dir: z.enum(["asc", "desc"]).catch("desc"),
 });
 
 export type UserListQuery = z.infer<typeof userListQueryInputSchema> & {
@@ -95,7 +100,13 @@ export function parseUserListQuery(input: RawSearchParams): UserListQuery {
     input,
     schema: userListQueryInputSchema,
     pageSize: USER_PAGE_SIZE,
-    defaults: { page: "1", search: "", role: "all" },
+    defaults: {
+      page: "1",
+      search: "",
+      role: "all",
+      sort: "created_at",
+      dir: "desc",
+    },
   });
 }
 

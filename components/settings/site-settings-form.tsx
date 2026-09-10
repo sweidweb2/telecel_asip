@@ -25,9 +25,13 @@ import {
 
 type SiteSettingsFormProps = {
   openApplications: boolean;
+  newsletterSignupEnabled: boolean;
 };
 
-export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
+export function SiteSettingsForm({
+  openApplications,
+  newsletterSignupEnabled,
+}: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -41,7 +45,7 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
     mode: "onChange",
     defaultValues: {
       openApplications,
-      newsletterSignupEnabled: false,
+      newsletterSignupEnabled,
     },
   });
 
@@ -49,10 +53,7 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
 
   function onSubmit(values: UpdateEditorSiteSettingsInput) {
     startTransition(async () => {
-      const result = await updateEditorSiteSettings({
-        ...values,
-        newsletterSignupEnabled: false,
-      });
+      const result = await updateEditorSiteSettings(values);
 
       if (result.status === "error") {
         toast.error(result.message);
@@ -60,7 +61,7 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
       }
 
       toast.success(result.message);
-      reset({ ...values, newsletterSignupEnabled: false });
+      reset(values);
     });
   }
 
@@ -101,21 +102,19 @@ export function SiteSettingsForm({ openApplications }: SiteSettingsFormProps) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-medium">Newsletter signup</p>
-                <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
-              </div>
-              <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                The Insights newsletter module is hidden for phase 1. Signup is
-                not shown publicly and stays off until a later release. Subscribers
-                collected earlier are listed under Newsletter.
+          <div className="grid gap-3 border-t pt-6">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-base font-medium">Newsletter signup</p>
+              <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Phase 1 — informational only</p>
+              <p className="mt-1 max-w-prose">
+                The Insights newsletter module is hidden for phase 1. Public
+                signup is off and there is no toggle yet. Subscribers collected
+                earlier are listed under Newsletter.
               </p>
             </div>
-            <p className="flex min-h-11 items-center text-sm font-medium text-muted-foreground">
-              Hidden — phase 1
-            </p>
           </div>
 
           <p className="border-t pt-6 text-sm text-muted-foreground">

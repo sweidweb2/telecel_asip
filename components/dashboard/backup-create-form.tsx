@@ -170,7 +170,7 @@ export function BackupCreateForm() {
         <p className="text-sm text-muted-foreground">
           Export on demand to private R2. Jobs run in the background - watch
           Backup history for status and download. Scheduled runs are configured
-          in Settings.
+          in the schedule section below.
         </p>
       </div>
 
@@ -214,6 +214,7 @@ export function BackupCreateForm() {
           disabled={pending || runNowPending || Boolean(activeBackupId && phase === "running")}
           onClick={onSubmit}
         >
+          {pending ? <Loader2Icon className="animate-spin" /> : null}
           {pending ? "Starting…" : "Create backup"}
         </Button>
         <Button
@@ -231,8 +232,8 @@ export function BackupCreateForm() {
       </div>
       <p className="text-xs text-muted-foreground">
         Run backup now starts one automated full JSON backup without changing
-        the schedule in Settings. You do not need to keep this tab locked - the
-        job continues in the background.
+        the schedule below. You do not need to keep this tab locked - the job
+        continues in the background.
       </p>
 
       <BackupProgressDialog

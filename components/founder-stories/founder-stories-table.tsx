@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { BookOpenIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -16,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { FounderStoryListItem } from "@/types/founder-story";
 import {
   CMS_PUBLISH_STATUS_LABELS,
@@ -36,6 +38,11 @@ export function FounderStoriesTable({
   query: FounderStoryListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search || undefined,
+    status: query.status === "all" ? undefined : query.status,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -55,8 +62,11 @@ export function FounderStoriesTable({
       empty={
         <AdminEmptyState
           icon={BookOpenIcon}
-          title="No founder stories found"
-          description="Try changing the filters, or create a new story."
+          isFiltered={isFiltered}
+          emptyTitle="No founder stories yet"
+          emptyDescription="Create the first founder story to publish on the site."
+          noResultsTitle="No founder stories found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.founderStoriesNew}
           createLabel="New story"
         />
@@ -67,17 +77,14 @@ export function FounderStoriesTable({
         pageSize: FOUNDER_STORY_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search || undefined,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {stories.map((story, index) => (
-        <TableRow
+        <AdminClickableRow
           key={story.id}
-          className="cursor-pointer"
-          onClick={() => router.push(founderStoryEditPath(story.id))}
+          ariaLabel={`Edit founder story ${story.startup_name || "Untitled startup"}`}
+          onActivate={() => router.push(founderStoryEditPath(story.id))}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -117,7 +124,7 @@ export function FounderStoriesTable({
           >
             <FounderStoryRowActions story={story} />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
   );

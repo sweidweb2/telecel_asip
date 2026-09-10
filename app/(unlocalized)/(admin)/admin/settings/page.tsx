@@ -14,6 +14,9 @@ export default async function AdminSettingsPage() {
   const settings = await getSiteSettingsForAdmin();
 
   return (
-    <SettingsPageContent openApplications={settings.openApplications} />
+    <SettingsPageContent
+      openApplications={settings.openApplications}
+      newsletterSignupEnabled={settings.newsletterSignupEnabled}
+    />
   );
 }

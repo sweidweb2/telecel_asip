@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import {
   getPartnerByIdForAdmin,
@@ -27,9 +28,9 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getPartnerByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Partner | ASIP Admin" };
+    return { title: "Partner | ASIP Editor" };
   }
-  return { title: `${result.partner.name} | ASIP Admin` };
+  return { title: `${result.partner.name} | ASIP Editor` };
 }
 
 export default async function EditPartnerPage({
@@ -47,7 +48,7 @@ export default async function EditPartnerPage({
   if (result.status === "not_found") notFound();
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -70,6 +71,6 @@ export default async function EditPartnerPage({
         heading="Edit partner"
         orderSlots={orderResult.partners}
       />
-    </main>
+    </StaffMain>
   );
 }

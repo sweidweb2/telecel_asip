@@ -3,24 +3,29 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const isCurrentUserStaff = vi.fn();
 const getStaffShell = vi.fn();
 const range = vi.fn();
-const orderId = vi.fn();
-const orderCreated = vi.fn();
 const eqRole = vi.fn();
 const neqRole = vi.fn();
 const or = vi.fn();
-const select = vi.fn();
 const rpc = vi.fn();
-const from = vi.fn(() => ({ select }));
+const from = vi.fn();
 
-function chainable(extra: Record<string, unknown> = {}) {
-  return {
-    order: orderCreated,
+/** Fluent PostgREST stub — every filter/order returns the same builder. */
+function mockQuery() {
+  const query = {
+    select: vi.fn(),
+    order: vi.fn(),
     eq: eqRole,
     neq: neqRole,
     or,
     range,
-    ...extra,
   };
+  query.select.mockReturnValue(query);
+  query.order.mockReturnValue(query);
+  eqRole.mockReturnValue(query);
+  neqRole.mockReturnValue(query);
+  or.mockReturnValue(query);
+  from.mockReturnValue(query);
+  return query;
 }
 
 vi.mock("@/lib/admin/is-current-user-staff", () => ({
@@ -44,6 +49,7 @@ import { getUsersPageData } from "@/data/users";
 describe("getUsersPageData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockQuery();
     getStaffShell.mockResolvedValue({
       role: "admin",
       isAdmin: true,
@@ -51,14 +57,6 @@ describe("getUsersPageData", () => {
       fullName: "Ada",
       email: "ada@example.com",
     });
-    select.mockImplementation(() => chainable());
-    orderCreated.mockImplementation(() =>
-      chainable({ order: orderId }),
-    );
-    orderId.mockImplementation(() => chainable());
-    neqRole.mockImplementation(() => chainable());
-    eqRole.mockImplementation(() => chainable());
-    or.mockImplementation(() => chainable());
   });
 
   it("returns forbidden for non-staff", async () => {
@@ -71,6 +69,8 @@ describe("getUsersPageData", () => {
       pageSize: 10,
       search: "",
       role: "all",
+      sort: "created_at",
+      dir: "desc",
     });
     expect(result.status).toBe("forbidden");
   });
@@ -108,6 +108,8 @@ describe("getUsersPageData", () => {
       pageSize: 10,
       search: "",
       role: "all",
+      sort: "created_at",
+      dir: "desc",
     });
 
     expect(result.status).toBe("ok");
@@ -164,6 +166,8 @@ describe("getUsersPageData", () => {
       pageSize: 10,
       search: "",
       role: "admin",
+      sort: "created_at",
+      dir: "desc",
     });
 
     expect(result.status).toBe("ok");

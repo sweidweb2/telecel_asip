@@ -32,7 +32,7 @@ type AdminDataTableProps = {
 
 /**
  * Shared CMS list table chrome: filters, scrollable table, empty state, pagination.
- * Column cells and filter controls stay entity-specific.
+ * One scroll region (max-height) so thead can stick; no nested overflow wrappers.
  */
 export function AdminDataTable({
   filters,
@@ -48,15 +48,19 @@ export function AdminDataTable({
       {filters}
 
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table
+        <div className="max-h-[min(70vh,calc(100dvh-14rem))] overflow-auto">
+          <table
+            data-slot="table"
             className={cn(
+              "w-full caption-bottom text-sm",
               "[&_tbody>tr]:border-l-[3px] [&_tbody>tr]:border-l-transparent",
-              "[&_tbody>tr]:transition-[border-color,background-color]",
+              "[&_tbody>tr]:transition-[border-color,background-color] motion-reduce:[&_tbody>tr]:transition-none",
               "[&_tbody>tr:hover]:border-l-brand",
             )}
           >
-            <TableHeader>{header}</TableHeader>
+            <TableHeader className="sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_0_var(--border)] [&_th]:bg-card">
+              {header}
+            </TableHeader>
             <TableBody>
               {isEmpty ? (
                 <TableRow>
@@ -68,7 +72,7 @@ export function AdminDataTable({
                 children
               )}
             </TableBody>
-          </Table>
+          </table>
         </div>
       </CardContent>
 

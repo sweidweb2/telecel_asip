@@ -8,6 +8,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { getStaffShell } from "@/lib/admin/get-staff-shell";
+import { adminOrderAscending } from "@/lib/admin/list-sort";
 import { createClient } from "@/lib/supabase/server";
 import type {
   CurrentUserProfile,
@@ -79,7 +80,7 @@ async function fetchUsers(
   let request = supabase
     .from("profiles")
     .select(USER_COLUMNS, { count: "estimated" })
-    .order("created_at", { ascending: false })
+    .order(query.sort, { ascending: adminOrderAscending(query.dir) })
     .order("id", { ascending: true });
 
   if (visibility.hideAdmins) {

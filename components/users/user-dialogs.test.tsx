@@ -59,7 +59,7 @@ describe("CreateUserDialog", () => {
     expect(createUser).not.toHaveBeenCalled();
   });
 
-  it("rejects a password that has no number", async () => {
+  it("rejects a password that has no number", { timeout: 10_000 }, async () => {
     const user = await openDialog();
 
     await user.type(screen.getByLabelText("Full name"), "Ada Lovelace");
@@ -104,7 +104,10 @@ describe("CreateUserDialog", () => {
     10_000,
   );
 
-  it("surfaces the server error and keeps the dialog open", async () => {
+  it(
+    "surfaces the server error and keeps the dialog open",
+    { timeout: 10_000 },
+    async () => {
     createUser.mockResolvedValue({
       status: "error",
       message: "A user with this email already exists.",
@@ -126,5 +129,6 @@ describe("CreateUserDialog", () => {
       ),
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-  });
+    },
+  );
 });

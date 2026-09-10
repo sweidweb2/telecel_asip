@@ -12,6 +12,7 @@ import { NewsletterSubscribersFilters } from "@/components/newsletter/newsletter
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { NewsletterSubscriber } from "@/types/newsletter-subscriber";
 import {
   NEWSLETTER_PAGE_SIZE,
@@ -29,6 +30,11 @@ export function NewsletterSubscribersTable({
   totalPages: number;
   query: NewsletterListQuery;
 }) {
+  const listFilters = {
+    search: query.search,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
+
   return (
     <AdminDataTable
       filters={<NewsletterSubscribersFilters query={query} />}
@@ -46,8 +52,11 @@ export function NewsletterSubscribersTable({
       empty={
         <AdminEmptyState
           icon={MailsIcon}
-          title="No subscribers found"
-          description="Try changing the search, or wait for opt-ins once public newsletter signup is enabled."
+          isFiltered={isFiltered}
+          emptyTitle="No subscribers yet"
+          emptyDescription="Wait for opt-ins once public newsletter signup is enabled."
+          noResultsTitle="No subscribers found"
+          noResultsDescription="Try changing the filters or clearing search."
         />
       }
       pagination={{
@@ -56,9 +65,7 @@ export function NewsletterSubscribersTable({
         pageSize: NEWSLETTER_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-        },
+        filters: listFilters,
       }}
     >
       {subscribers.map((subscriber, index) => (

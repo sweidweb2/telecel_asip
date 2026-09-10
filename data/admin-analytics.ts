@@ -93,7 +93,7 @@ function mapContent(payload: ContentPayload | undefined): ContentSnapshotRow[] {
       secondaryLabel: "Draft",
     },
     {
-      label: "Startup",
+      label: "Startups",
       href: ROUTES.portfolio,
       primary: asNumber(payload?.startupsActive),
       primaryLabel: "Active",

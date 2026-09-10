@@ -55,6 +55,8 @@ Table profiles {
 
     Helpers (see supabase-functions.md): is_admin, is_editor, is_staff.
     CMS/intake/settings/media RLS uses is_editor(); backups + admin_perf stay is_admin().
+    Editor sidebar badge totals: get_dashboard_nav_counts (20260910230000).
+    Editor list-page stat cards: get_admin_list_stats (20260910250000).
     Profiles staff list uses is_admin/is_editor (not raw is_staff) so editors
     never see administrator accounts in Manage Users.
 
@@ -228,7 +230,8 @@ Table site_settings {
     RLS enabled.
 
     Grants:
-    - authenticated (staff): SELECT, UPDATE via is_staff()
+    - authenticated (staff): SELECT on id, open_applications, newsletter_signup_enabled, updated_at only (no backup_time — 20260910240000)
+    - authenticated (staff): UPDATE via is_staff() (backup_time writes still blocked by trigger for non-admins)
     - service_role: SELECT, INSERT, UPDATE, DELETE
     - anon: no SELECT on base table (use site_settings_public)
 
@@ -236,6 +239,7 @@ Table site_settings {
     - Staff can read site settings — SELECT USING (is_staff())
     - Staff can update site settings — UPDATE USING/WITH CHECK (is_staff())
     - protect_site_settings_backup_time blocks non-admin backup_time changes
+    - get_admin_backup_schedule() SECURITY DEFINER returns backup_time for is_admin() only
 
     No INSERT/DELETE policy: the single row is seeded by the migration.
     Trigger site_settings_set_updated_at maintains updated_at.
@@ -331,6 +335,8 @@ Table blogs {
     (status, published_at) [name: 'blogs_status_published_at_idx', note: 'published_at DESC']
     (created_at) [name: 'blogs_created_at_idx', note: 'created_at DESC']
     categories [type: gin, name: 'blogs_categories_gin_idx']
+    title [type: gin, name: 'blogs_title_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20260910250000)']
+    author_name [type: gin, name: 'blogs_author_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20260910250000)']
     (startup_id) [name: 'blogs_startup_id_idx', note: 'WHERE startup_id IS NOT NULL']
     (cohort_id) [name: 'blogs_cohort_id_idx', note: 'WHERE cohort_id IS NOT NULL']
   }

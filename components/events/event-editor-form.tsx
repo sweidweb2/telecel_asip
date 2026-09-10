@@ -52,7 +52,11 @@ import {
 import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import { dummyEventValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
 import type { EventDetail, EventStartupOption } from "@/types/event";
@@ -74,8 +78,18 @@ import {
 } from "@/validations/event";
 
 const EVENT_EDITOR_STEPS = [
-  { id: "event", title: "Event", description: "Basics & details" },
-  { id: "content", title: "Content", description: "Speakers & links" },
+  {
+    id: "event",
+    title: "Event",
+    description: "Basics & details",
+    fields: ["name", "eventDate", "location", "format", "publishStatus"],
+  },
+  {
+    id: "content",
+    title: "Content",
+    description: "Speakers & links",
+    fields: ["speakers", "assets", "outcomes", "startupIds"],
+  },
 ];
 
 function defaultsFor(event?: EventDetail): EventFormValues {
@@ -104,7 +118,6 @@ export function EventEditorForm({
   mode,
   event,
   startupOptions: initialOptions = [],
-  heading,
 }: EventEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -122,6 +135,7 @@ export function EventEditorForm({
       createEventSchema,
     ) as Resolver<EventFormValues, unknown, CreateEventInput>,
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(event),
   });
 
@@ -202,13 +216,11 @@ export function EventEditorForm({
   }
 
   const { errors, isDirty } = form.formState;
+  useUnsavedChangesGuard(isDirty && !isPending);
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -225,7 +237,10 @@ export function EventEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, EVENT_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -263,7 +278,6 @@ export function EventEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="event"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -281,7 +295,7 @@ export function EventEditorForm({
                   </AdminFormFieldLabel>
                   <Input
                     id="event-name"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     required
                     maxLength={EVENT_NAME_MAX}
@@ -305,7 +319,7 @@ export function EventEditorForm({
                     <Input
                       id="event-date"
                       type="date"
-                      className="min-h-11 bg-white dark:bg-card"
+                      className="min-h-11"
                       disabled={isPending}
                       aria-invalid={Boolean(errors.eventDate)}
                       {...form.register("eventDate")}
@@ -339,7 +353,7 @@ export function EventEditorForm({
                         >
                           <SelectTrigger
                             id="event-status"
-                            className="min-h-11 w-full bg-white dark:bg-card"
+                            className="min-h-11 w-full"
                           >
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
@@ -389,7 +403,7 @@ export function EventEditorForm({
                           disabled={isPending}
                           maxLength={EVENT_LOCATION_MAX}
                           placeholder="City or venue"
-                          className="min-h-11 bg-white dark:bg-card"
+                          className="min-h-11"
                           aria-invalid={Boolean(errors.location)}
                         />
                       )}
@@ -430,7 +444,7 @@ export function EventEditorForm({
                         >
                           <SelectTrigger
                             id="event-format"
-                            className="min-h-11 w-full bg-white dark:bg-card"
+                            className="min-h-11 w-full"
                           >
                             <SelectValue placeholder="Select format" />
                           </SelectTrigger>
@@ -455,7 +469,6 @@ export function EventEditorForm({
 
             <StepperContent
               value="content"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -480,7 +493,6 @@ export function EventEditorForm({
                     }
                     placeholder={"Amina Diallo\nKwame Mensah"}
                     aria-invalid={Boolean(errors.speakers)}
-                    className="bg-white dark:bg-card"
                     {...form.register("speakers")}
                   />
                   {errors.speakers ? (
@@ -508,7 +520,6 @@ export function EventEditorForm({
                     }
                     placeholder="https://example.com/deck.pdf"
                     aria-invalid={Boolean(errors.assets)}
-                    className="bg-white dark:bg-card"
                     {...form.register("assets")}
                   />
                   {errors.assets ? (
@@ -534,7 +545,6 @@ export function EventEditorForm({
                     maxLength={EVENT_OUTCOMES_MAX}
                     placeholder="What happened after the event."
                     aria-invalid={Boolean(errors.outcomes)}
-                    className="bg-white dark:bg-card"
                     {...form.register("outcomes")}
                   />
                   {errors.outcomes ? (

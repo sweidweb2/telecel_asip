@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getFounderStoryByIdForAdmin } from "@/data/founder-stories";
 
@@ -24,10 +25,10 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getFounderStoryByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Founder story | ASIP Admin" };
+    return { title: "Founder story | ASIP Editor" };
   }
   return {
-    title: `${result.story.startup_name || "Founder story"} | ASIP Admin`,
+    title: `${result.story.startup_name || "Founder story"} | ASIP Editor`,
   };
 }
 
@@ -43,7 +44,7 @@ export default async function EditFounderStoryPage({
   const pageLabel = result.story.startup_name.trim() || "Edit story";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -70,6 +71,6 @@ export default async function EditFounderStoryPage({
         ]}
         heading="Edit founder story"
       />
-    </main>
+    </StaffMain>
   );
 }

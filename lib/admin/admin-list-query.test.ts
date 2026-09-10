@@ -48,12 +48,12 @@ describe("gateAdminPageData", () => {
     createClient.mockResolvedValue({ tag: "supabase" });
   });
 
-  it("runs load concurrently with the admin check", async () => {
+  it("awaits the admin check before loading data", async () => {
     const order: string[] = [];
 
     isCurrentUserAdmin.mockImplementation(async () => {
       order.push("admin-start");
-      await new Promise((resolve) => setTimeout(resolve, 40));
+      await new Promise((resolve) => setTimeout(resolve, 20));
       order.push("admin-end");
       return true;
     });
@@ -61,21 +61,27 @@ describe("gateAdminPageData", () => {
     const result = await gateAdminPageData(async (supabase) => {
       order.push("load-start");
       expect(supabase).toEqual({ tag: "supabase" });
-      await new Promise((resolve) => setTimeout(resolve, 40));
       order.push("load-end");
       return { rows: [1] };
     });
 
     expect(result).toEqual({ status: "ok", rows: [1] });
-    expect(order.indexOf("load-start")).toBeLessThan(order.indexOf("admin-end"));
-    expect(order.indexOf("admin-start")).toBeLessThan(order.indexOf("load-end"));
+    expect(order).toEqual([
+      "admin-start",
+      "admin-end",
+      "load-start",
+      "load-end",
+    ]);
   });
 
-  it("returns forbidden when the user is not an admin", async () => {
+  it("returns forbidden without loading when the user is not an admin", async () => {
     isCurrentUserAdmin.mockResolvedValue(false);
+    const load = vi.fn(async () => ({ rows: [] }));
 
-    const result = await gateAdminPageData(async () => ({ rows: [] }));
+    const result = await gateAdminPageData(load);
 
     expect(result).toEqual({ status: "forbidden" });
+    expect(load).not.toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
   });
 });

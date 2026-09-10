@@ -19,7 +19,10 @@ type HtmlNode = {
 
 function safeHref(value: string) {
   const href = value.trim();
-  if (/^(https?:|mailto:|tel:)/i.test(href) || href.startsWith("/") || href.startsWith("#")) return href;
+  if (/^(https?:|mailto:|tel:)/i.test(href)) return href;
+  if (href.startsWith("#")) return href;
+  // Single-slash relative paths only — reject protocol-relative `//evil`.
+  if (href.startsWith("/") && !href.startsWith("//")) return href;
   return "";
 }
 

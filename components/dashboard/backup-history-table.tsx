@@ -1,16 +1,21 @@
 "use client";
 
-import { DownloadIcon } from "lucide-react";
+import { ArchiveIcon, DownloadIcon } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { getBackupDownloadUrl } from "@/actions/backups";
+import { BackupHistoryFilters } from "@/components/dashboard/backup-history-filters";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import { AdminSortableHead } from "@/components/dashboard/admin-sortable-head";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import type { BackupListRow } from "@/data/backups";
+import { formatAdminDateTime } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import {
   BACKUP_DEFAULT_PAGE_SIZE,
   BACKUP_PAGE_SIZES,
@@ -25,13 +30,6 @@ function formatBytes(size: number | null): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(iso));
-}
-
 function scopeLabel(row: BackupListRow): string {
   if (row.scope === "automated") return "Automated";
   if (row.scope === "full") return "Full DB";
@@ -41,6 +39,13 @@ function scopeLabel(row: BackupListRow): string {
   if (tables.length <= 2) return tables.join(", ");
   return `${tables.slice(0, 2).join(", ")} +${tables.length - 2}`;
 }
+
+const STATUS_LABELS: Record<BackupListRow["status"], string> = {
+  completed: "Completed",
+  failed: "Failed",
+  processing: "Processing",
+  pending: "Pending",
+};
 
 function statusVariant(
   status: BackupListRow["status"],
@@ -97,6 +102,17 @@ export function BackupHistoryTable({
   totalPages,
   query,
 }: BackupHistoryTableProps) {
+  const listFilters = backupListFilterParams(query);
+  const sortFilters = {
+    status: listFilters.status,
+    scope: listFilters.scope,
+    pageSize: listFilters.pageSize,
+  };
+  const isFiltered = adminListFiltersActive({
+    status: listFilters.status,
+    scope: listFilters.scope,
+  });
+
   return (
     <section className="grid gap-3">
       <div className="grid gap-1">
@@ -110,12 +126,41 @@ export function BackupHistoryTable({
       </div>
 
       <AdminDataTable
+        filters={<BackupHistoryFilters query={query} />}
         header={
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Scope</TableHead>
-            <TableHead>Size</TableHead>
-            <TableHead>Status</TableHead>
+            <AdminSortableHead
+              label="Date"
+              sortKey="created_at"
+              currentSort={query.sort}
+              currentDir={query.dir}
+              basePath={ROUTES.adminBackup}
+              filters={sortFilters}
+            />
+            <AdminSortableHead
+              label="Scope"
+              sortKey="scope"
+              currentSort={query.sort}
+              currentDir={query.dir}
+              basePath={ROUTES.adminBackup}
+              filters={sortFilters}
+            />
+            <AdminSortableHead
+              label="Size"
+              sortKey="file_size"
+              currentSort={query.sort}
+              currentDir={query.dir}
+              basePath={ROUTES.adminBackup}
+              filters={sortFilters}
+            />
+            <AdminSortableHead
+              label="Status"
+              sortKey="status"
+              currentSort={query.sort}
+              currentDir={query.dir}
+              basePath={ROUTES.adminBackup}
+              filters={sortFilters}
+            />
             <TableHead>Actor</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -123,21 +168,22 @@ export function BackupHistoryTable({
         isEmpty={backups.length === 0}
         emptyColSpan={6}
         empty={
-          <div className="grid gap-1 py-6">
-            <p className="font-medium">No backups yet</p>
-            <p className="text-sm text-muted-foreground">
-              Create a full DB or storage backup above. Scheduled automated
-              runs will also appear here.
-            </p>
-          </div>
+          <AdminEmptyState
+            icon={ArchiveIcon}
+            isFiltered={isFiltered}
+            emptyTitle="No backups yet"
+            emptyDescription="Create a full DB or storage backup above. Scheduled automated runs will also appear here."
+            noResultsTitle="No backups found"
+            noResultsDescription="Try changing the status or scope filters."
+          />
         }
         pagination={{
-          basePath: ROUTES.backup,
+          basePath: ROUTES.adminBackup,
           page: query.page,
           pageSize: query.pageSize,
           total,
           totalPages,
-          filters: backupListFilterParams(query),
+          filters: listFilters,
           pageSizeOptions: BACKUP_PAGE_SIZES,
           defaultPageSize: BACKUP_DEFAULT_PAGE_SIZE,
         }}
@@ -145,14 +191,16 @@ export function BackupHistoryTable({
         {backups.map((row) => (
           <TableRow key={row.id}>
             <TableCell className="whitespace-nowrap">
-              {formatDate(row.created_at)}
+              {formatAdminDateTime(row.created_at)}
             </TableCell>
             <TableCell className="max-w-[14rem] truncate" title={scopeLabel(row)}>
               {scopeLabel(row)}
             </TableCell>
             <TableCell>{formatBytes(row.file_size)}</TableCell>
             <TableCell>
-              <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
+              <Badge variant={statusVariant(row.status)}>
+                {STATUS_LABELS[row.status]}
+              </Badge>
             </TableCell>
             <TableCell>
               {row.scope === "automated"

@@ -32,11 +32,16 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
     query,
     fetchPage: getBlogsPageData,
     listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
+    buildClampParams: (q, totalPages) => {
+      const isDefaultSort =
+        q.sort === "created_at" && q.dir === "desc";
+      return adminListClampParams(totalPages, {
         search: q.search || undefined,
         status: q.status !== "all" ? q.status : undefined,
-      }),
+        sort: isDefaultSort ? undefined : q.sort,
+        dir: isDefaultSort ? undefined : q.dir,
+      });
+    },
   });
 
   return (

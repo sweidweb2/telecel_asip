@@ -1,5 +1,11 @@
-import { DashboardPageSkeleton } from "@/components/dashboard/page-skeleton";
+import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
+import { StaffPageSkeleton } from "@/components/dashboard/page-skeleton";
 
 export default function PerformanceLoading() {
-  return <DashboardPageSkeleton />;
+  return (
+    <RouteSkeleton
+      name="admin-performance"
+      fallback={<StaffPageSkeleton />}
+    />
+  );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { InboxCsvDownloadLink } from "@/components/dashboard/inbox-csv-download-link";
 import { CreateUserDialog } from "@/components/users/user-dialogs";
 import { UserStatsCards } from "@/components/users/user-stats";
 import { UsersTable } from "@/components/users/users-table";
@@ -23,6 +24,17 @@ type UsersPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+function usersClampFilters(query: ReturnType<typeof parseUserListQuery>) {
+  const isDefaultSort =
+    query.sort === "created_at" && query.dir === "desc";
+  return {
+    search: query.search || undefined,
+    role: query.role !== "all" ? query.role : undefined,
+    sort: isDefaultSort ? undefined : query.sort,
+    dir: isDefaultSort ? undefined : query.dir,
+  };
+}
+
 export default async function EditorUsersPage({ searchParams }: UsersPageProps) {
   const query = parseUserListQuery(await searchParams);
   const { list, stats } = await loadAdminListPage({
@@ -30,16 +42,18 @@ export default async function EditorUsersPage({ searchParams }: UsersPageProps) 
     fetchPage: getUsersPageData,
     listPath: ROUTES.users,
     buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        role: q.role !== "all" ? q.role : undefined,
-      }),
+      adminListClampParams(totalPages, usersClampFilters(q)),
   });
 
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      actions={<CreateUserDialog actorRole="editor" />}
+      actions={
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+          <CreateUserDialog actorRole="editor" />
+          <InboxCsvDownloadLink href="/api/admin/export/profiles" />
+        </div>
+      }
     >
       <UserStatsCards stats={stats} actorRole="editor" />
 

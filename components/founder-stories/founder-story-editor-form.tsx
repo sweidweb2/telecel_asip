@@ -54,7 +54,11 @@ import {
 import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import { dummyFounderStoryValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
 import type {
@@ -131,7 +135,6 @@ export function FounderStoryEditorForm({
   mode,
   story,
   startups: initialStartups = [],
-  heading,
 }: FounderStoryEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -190,6 +193,8 @@ export function FounderStoryEditorForm({
     defaultValues: defaultsFor(story),
   });
 
+  useUnsavedChangesGuard(isDirty && !isPending);
+
   const quoteText = useWatch({ control, name: "founderQuoteText" }) ?? "";
   const hasQuote = quoteText.trim().length > 0;
 
@@ -238,10 +243,7 @@ export function FounderStoryEditorForm({
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -456,7 +458,7 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="theProblem"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="What problem they set out to solve"
@@ -478,7 +480,7 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="whatTheyBuilt"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="Product or service they shipped"
@@ -500,7 +502,7 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="theAsipConnection"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="How ASIP connected to their progress"
@@ -522,7 +524,7 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="whereTheyAreNow"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="Current traction or next step"
@@ -558,7 +560,7 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="founderQuoteText"
-                      className="min-h-24 bg-white dark:bg-card"
+                      className="min-h-24"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_QUOTE_MAX}
                       placeholder="A short quote in the founder’s voice"
@@ -586,7 +588,7 @@ export function FounderStoryEditorForm({
                       <Input
                         id="quoteAttributionName"
                         disabled={isPending}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         maxLength={FOUNDER_STORY_ATTRIBUTION_NAME_MAX}
                         placeholder="e.g. Ama Mensah"
                         aria-invalid={Boolean(errors.quoteAttributionName)}
@@ -616,7 +618,7 @@ export function FounderStoryEditorForm({
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             disabled={isPending}
-                            className="min-h-11 bg-white dark:bg-card"
+                            className="min-h-11"
                             maxLength={FOUNDER_STORY_ATTRIBUTION_TITLE_MAX}
                             placeholder="e.g. Founder & CEO"
                             aria-invalid={Boolean(errors.quoteAttributionTitle)}
@@ -636,7 +638,7 @@ export function FounderStoryEditorForm({
                         id="quoteDate"
                         type="date"
                         disabled={isPending}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         aria-invalid={Boolean(errors.quoteDate)}
                         {...register("quoteDate")}
                       />
@@ -668,7 +670,7 @@ export function FounderStoryEditorForm({
                           >
                             <SelectTrigger
                               id="quotePermissionStatus"
-                              className="min-h-11 w-full bg-white dark:bg-card"
+                              className="min-h-11 w-full"
                               aria-invalid={Boolean(
                                 errors.quotePermissionStatus,
                               )}

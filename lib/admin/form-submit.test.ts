@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 
 describe("isAdminFormSubmitDisabled", () => {
   it("disables when pristine with no external changes", () => {
@@ -54,5 +57,47 @@ describe("isAdminFormSubmitDisabled", () => {
         hasExternalChanges: true,
       }),
     ).toBe(true);
+  });
+});
+
+const EDITOR_STEPS = [
+  { id: "core", fields: ["name", "slug"] },
+  { id: "profile", fields: ["details.cohort", "details.featured"] },
+  { id: "details", fields: ["details.websiteUrl", "details.industry"] },
+] as const;
+
+describe("firstInvalidEditorStep", () => {
+  it("returns undefined when there are no errors", () => {
+    expect(firstInvalidEditorStep({}, EDITOR_STEPS)).toBeUndefined();
+  });
+
+  it("returns the first step that owns an error path", () => {
+    expect(
+      firstInvalidEditorStep(
+        { details: { industry: { type: "too_small", message: "Required" } } },
+        EDITOR_STEPS,
+      ),
+    ).toBe("details");
+  });
+
+  it("prefers an earlier step when several have errors", () => {
+    expect(
+      firstInvalidEditorStep(
+        {
+          slug: { type: "too_small", message: "Required" },
+          details: { industry: { type: "too_small", message: "Required" } },
+        },
+        EDITOR_STEPS,
+      ),
+    ).toBe("core");
+  });
+
+  it("falls back to the first step when errors are unmapped", () => {
+    expect(
+      firstInvalidEditorStep(
+        { unknown: { type: "custom", message: "Nope" } },
+        EDITOR_STEPS,
+      ),
+    ).toBe("core");
   });
 });

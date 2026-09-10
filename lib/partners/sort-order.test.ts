@@ -75,14 +75,18 @@ describe("getPartnerSortOrderRange", () => {
 });
 
 describe("sort order pagination", () => {
-  it("puts 1–170 on page 1", () => {
-    expect(PARTNER_SORT_ORDER_PAGE_SIZE).toBe(170);
-    expect(getPartnerSortOrderPageCount()).toBe(1);
-    expect(getPartnerSortOrderPageBounds(1)).toEqual({ start: 1, end: 170 });
+  it("slices orders into pages of PARTNER_SORT_ORDER_PAGE_SIZE", () => {
+    expect(PARTNER_SORT_ORDER_PAGE_SIZE).toBe(34);
+    expect(getPartnerSortOrderPageCount()).toBe(5);
+    expect(getPartnerSortOrderPageBounds(1)).toEqual({ start: 1, end: 34 });
+    expect(getPartnerSortOrderPageBounds(2)).toEqual({ start: 35, end: 68 });
+    expect(getPartnerSortOrderPageBounds(5)).toEqual({ start: 137, end: 170 });
   });
 
   it("maps a selected value to its page", () => {
     expect(getPartnerSortOrderPageForValue(1)).toBe(1);
-    expect(getPartnerSortOrderPageForValue(170)).toBe(1);
+    expect(getPartnerSortOrderPageForValue(34)).toBe(1);
+    expect(getPartnerSortOrderPageForValue(35)).toBe(2);
+    expect(getPartnerSortOrderPageForValue(170)).toBe(5);
   });
 });

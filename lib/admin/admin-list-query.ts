@@ -8,6 +8,8 @@ type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
 /** Inclusive PostgREST `.range()` bounds for a 1-based page. */
 export function adminListRange(page: number, pageSize: number) {
+  // Intentional OFFSET pagination: CMS pages are 10–25 rows and not deep-paged.
+  // Switch to cursor keys only if a list is routinely walked far past early pages.
   const from = (page - 1) * pageSize;
   return { from, to: from + pageSize - 1 };
 }
@@ -28,12 +30,9 @@ async function gatePageData<TPayload extends Record<string, unknown>>(
     options?.name ?? "gatePageData",
     { eventType: "data_read", cacheStatus: "n_a" },
     async () => {
+      if (!(await canAccess())) return { status: "forbidden" };
       const supabase = await createClient();
-      const [allowed, payload] = await Promise.all([
-        canAccess(),
-        load(supabase),
-      ]);
-      if (!allowed) return { status: "forbidden" };
+      const payload = await load(supabase);
       return { status: "ok", ...payload };
     },
   );

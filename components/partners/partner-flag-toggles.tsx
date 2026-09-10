@@ -9,6 +9,7 @@ import {
   updatePartnerLogoPermission,
 } from "@/actions/partners";
 import { Switch } from "@/components/ui/switch";
+import { toastWithUndo } from "@/lib/admin/toast-with-undo";
 
 function PartnerFlagToggle({
   checked,
@@ -80,7 +81,21 @@ export function PartnerActiveToggle({
           toast.error(result.message);
           return;
         }
-        toast.success(result.message);
+        toastWithUndo({
+          message: result.message,
+          onUndo: async () => {
+            setChecked(previous);
+            const undoResult = await updatePartnerActive({
+              id: partnerId,
+              isActive: previous,
+            });
+            if (undoResult.status === "error") {
+              setChecked(nextChecked);
+              throw new Error(undoResult.message);
+            }
+            router.refresh();
+          },
+        });
         router.refresh();
       } catch {
         setChecked(previous);
@@ -136,7 +151,21 @@ export function PartnerLogoPermissionToggle({
           toast.error(result.message);
           return;
         }
-        toast.success(result.message);
+        toastWithUndo({
+          message: result.message,
+          onUndo: async () => {
+            setChecked(previous);
+            const undoResult = await updatePartnerLogoPermission({
+              id: partnerId,
+              logoPermission: previous,
+            });
+            if (undoResult.status === "error") {
+              setChecked(nextChecked);
+              throw new Error(undoResult.message);
+            }
+            router.refresh();
+          },
+        });
         router.refresh();
       } catch {
         setChecked(previous);

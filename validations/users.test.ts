@@ -20,29 +20,25 @@ describe("users validation", () => {
     expect(result.password).toBe("Password1");
   });
 
-  it("defaults empty password to password", () => {
-    const result = createUserSchema.parse({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "",
-      role: "viewer",
-    });
+  it("requires a password and rejects empty or weak values", () => {
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "",
+        role: "viewer",
+      }).success,
+    ).toBe(false);
 
-    expect(result.password).toBe("password");
-  });
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "   ",
+        role: "admin",
+      }).success,
+    ).toBe(false);
 
-  it("defaults whitespace password to password", () => {
-    const result = createUserSchema.parse({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "   ",
-      role: "admin",
-    });
-
-    expect(result.password).toBe("password");
-  });
-
-  it("rejects invalid emails and weak passwords", () => {
     expect(
       createUserSchema.safeParse({
         fullName: "Ada Lovelace",
@@ -52,6 +48,17 @@ describe("users validation", () => {
       }).success,
     ).toBe(false);
 
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "Password1",
+        role: "editor",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects invalid emails and short names", () => {
     expect(
       createUserSchema.safeParse({
         fullName: "Ada Lovelace",
@@ -104,10 +111,30 @@ describe("users validation", () => {
       pageSize: 10,
       search: "ada@example.com",
       role: "admin",
+      sort: "created_at",
+      dir: "desc",
     });
 
     expect(
       parseUserListQuery({ page: "-1", pageSize: "999", role: "owner" }),
-    ).toEqual({ page: 1, pageSize: 10, search: "", role: "all" });
+    ).toEqual({
+      page: 1,
+      pageSize: 10,
+      search: "",
+      role: "all",
+      sort: "created_at",
+      dir: "desc",
+    });
+
+    expect(
+      parseUserListQuery({
+        sort: "email",
+        dir: "asc",
+      }),
+    ).toMatchObject({ sort: "email", dir: "asc" });
+
+    expect(parseUserListQuery({ sort: "nope", dir: "sideways" })).toMatchObject(
+      { sort: "created_at", dir: "desc" },
+    );
   });
 });

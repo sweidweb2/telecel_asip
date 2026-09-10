@@ -6,6 +6,10 @@ vi.mock("next/headers", () => ({
   })),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidateTag: vi.fn(),
+}));
+
 vi.mock("@/lib/i18n/request-locale", () => ({
   getRequestLocale: vi.fn(async () => "en" as const),
 }));

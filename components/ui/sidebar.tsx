@@ -32,25 +32,45 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-type SidebarContextProps = {
+type SidebarLayoutContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
 }
 
-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
+type SidebarMobileContextProps = {
+  openMobile: boolean
+  setOpenMobile: (open: boolean) => void
+}
 
-function useSidebar() {
-  const context = React.useContext(SidebarContext)
+const SidebarLayoutContext =
+  React.createContext<SidebarLayoutContextProps | null>(null)
+const SidebarMobileContext =
+  React.createContext<SidebarMobileContextProps | null>(null)
+
+/** Desktop collapse + mobile detection (stable when only the mobile sheet toggles). */
+function useSidebarLayout() {
+  const context = React.useContext(SidebarLayoutContext)
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.")
+    throw new Error("useSidebarLayout must be used within a SidebarProvider.")
   }
-
   return context
+}
+
+/** Mobile sheet open state only. */
+function useSidebarMobile() {
+  const context = React.useContext(SidebarMobileContext)
+  if (!context) {
+    throw new Error("useSidebarMobile must be used within a SidebarProvider.")
+  }
+  return context
+}
+
+/** Full sidebar API (layout + mobile). Prefer the narrower hooks when possible. */
+function useSidebar() {
+  return { ...useSidebarLayout(), ...useSidebarMobile() }
 }
 
 function SidebarProvider({
@@ -113,39 +133,47 @@ function SidebarProvider({
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
 
-  const contextValue = React.useMemo<SidebarContextProps>(
+  const layoutValue = React.useMemo<SidebarLayoutContextProps>(
     () => ({
       state,
       open,
       setOpen,
       isMobile,
-      openMobile,
-      setOpenMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [state, open, setOpen, isMobile, toggleSidebar]
+  )
+
+  const mobileValue = React.useMemo<SidebarMobileContextProps>(
+    () => ({
+      openMobile,
+      setOpenMobile,
+    }),
+    [openMobile, setOpenMobile]
   )
 
   return (
-    <SidebarContext.Provider value={contextValue}>
-      <div
-        data-slot="sidebar-wrapper"
-        style={
-          {
-            "--sidebar-width": SIDEBAR_WIDTH,
-            "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-            ...style,
-          } as React.CSSProperties
-        }
-        className={cn(
-          "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    </SidebarContext.Provider>
+    <SidebarLayoutContext.Provider value={layoutValue}>
+      <SidebarMobileContext.Provider value={mobileValue}>
+        <div
+          data-slot="sidebar-wrapper"
+          style={
+            {
+              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+              ...style,
+            } as React.CSSProperties
+          }
+          className={cn(
+            "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </div>
+      </SidebarMobileContext.Provider>
+    </SidebarLayoutContext.Provider>
   )
 }
 
@@ -218,7 +246,7 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear motion-reduce:transition-none",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -230,7 +258,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear motion-reduce:transition-none data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
@@ -263,8 +291,8 @@ function SidebarTrigger({
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       variant="ghost"
-      size="icon-sm"
-      className={cn(className)}
+      size="icon"
+      className={cn("min-h-11 min-w-11 sm:size-7 sm:min-h-7 sm:min-w-7", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -302,9 +330,9 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   )
 }
 
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+function SidebarInset({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <main
+    <div
       data-slot="sidebar-inset"
       className={cn(
         "relative flex min-w-0 w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
@@ -728,4 +756,6 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  useSidebarLayout,
+  useSidebarMobile,
 }

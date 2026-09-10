@@ -17,6 +17,10 @@ vi.mock("@/lib/admin/get-staff-shell", () => ({
   getStaffShell: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({
+  consumeStaffMutationRateLimit: vi.fn(async () => true),
+}));
+
 const createUserMock = vi.fn();
 const updateUserByIdMock = vi.fn();
 const deleteUserMock = vi.fn();
@@ -176,6 +180,37 @@ describe("users actions", () => {
     expect(deleteUserMock).not.toHaveBeenCalled();
   });
 
+  it("deleteUser blocks editors from deleting peer editors", async () => {
+    vi.mocked(getStaffShell).mockResolvedValue({
+      role: "editor",
+      isAdmin: false,
+      isEditor: true,
+      fullName: "Editor",
+      email: "editor@example.com",
+    });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { role: "editor" },
+      error: null,
+    });
+    const select = vi.fn(() => ({
+      eq: vi.fn(() => ({ maybeSingle })),
+    }));
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        userId: "editor-1",
+        from: vi.fn(() => ({ select })),
+      }),
+    );
+
+    const result = await deleteUser({ id: userId });
+
+    expect(result).toMatchObject({
+      status: "error",
+      message: "Editors can only delete viewer accounts.",
+    });
+    expect(deleteUserMock).not.toHaveBeenCalled();
+  });
+
   it("hardDeleteUser requires admin and calls RPC", async () => {
     vi.mocked(authorizeAdmin).mockResolvedValue(
       staffSession({ rpc: rpcMock }) as never,
@@ -221,5 +256,111 @@ describe("users actions", () => {
       code: "LAST_ADMIN",
     });
     expect(updateUserByIdMock).not.toHaveBeenCalled();
+  });
+
+  it("updateUser blocks editors from changing account emails", async () => {
+    vi.mocked(getStaffShell).mockResolvedValue({
+      role: "editor",
+      isAdmin: false,
+      isEditor: true,
+      fullName: "Editor",
+      email: "editor@example.com",
+    });
+
+    const roleMaybeSingle = vi.fn().mockResolvedValue({
+      data: { role: "editor" },
+      error: null,
+    });
+    const snapshotMaybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        email: "peer@example.com",
+        full_name: "Peer Editor",
+        role: "editor",
+      },
+      error: null,
+    });
+    let selectCall = 0;
+    const select = vi.fn(() => {
+      selectCall += 1;
+      return {
+        eq: vi.fn(() => ({
+          maybeSingle:
+            selectCall === 1 ? roleMaybeSingle : snapshotMaybeSingle,
+        })),
+      };
+    });
+
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        userId: "editor-1",
+        from: vi.fn(() => ({ select, update: vi.fn() })),
+      }),
+    );
+
+    const result = await updateUser({
+      id: userId,
+      fullName: "Peer Editor",
+      email: "attacker@evil.example",
+      role: "editor",
+    });
+
+    expect(result).toMatchObject({
+      status: "error",
+      message: "Only administrators can change account emails.",
+    });
+    expect(updateUserByIdMock).not.toHaveBeenCalled();
+  });
+
+  it("updateUser allows editors to update name without changing email", async () => {
+    vi.mocked(getStaffShell).mockResolvedValue({
+      role: "editor",
+      isAdmin: false,
+      isEditor: true,
+      fullName: "Editor",
+      email: "editor@example.com",
+    });
+
+    const roleMaybeSingle = vi.fn().mockResolvedValue({
+      data: { role: "viewer" },
+      error: null,
+    });
+    const snapshotMaybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        email: "viewer@example.com",
+        full_name: "Old Name",
+        role: "viewer",
+      },
+      error: null,
+    });
+    let selectCall = 0;
+    const select = vi.fn(() => {
+      selectCall += 1;
+      return {
+        eq: vi.fn(() => ({
+          maybeSingle:
+            selectCall === 1 ? roleMaybeSingle : snapshotMaybeSingle,
+        })),
+      };
+    });
+    const profileUpdateEq = vi.fn().mockResolvedValue({ error: null });
+    const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
+
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        userId: "editor-1",
+        from: vi.fn(() => ({ select, update: profileUpdate })),
+      }),
+    );
+    updateUserByIdMock.mockResolvedValue({ error: null });
+
+    const result = await updateUser({
+      id: userId,
+      fullName: "New Name",
+      email: "viewer@example.com",
+      role: "viewer",
+    });
+
+    expect(result.status).toBe("success");
+    expect(updateUserByIdMock).toHaveBeenCalled();
   });
 });

@@ -67,7 +67,11 @@ import { UrlInput } from "@/components/ui/url-input";
 import { PARTNER_EDITOR_HELP } from "@/constants/partner-editor-help";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import { cn } from "@/lib/utils";
 import type { PartnerListItem, PartnerSortOrderOccupant } from "@/types/partner";
 import {
@@ -98,9 +102,24 @@ const LOGO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 
 const PARTNER_EDITOR_STEPS = [
-  { id: "main", title: "Main", description: "Details & logo" },
-  { id: "profile", title: "Profile", description: "Link & contribution" },
-  { id: "settings", title: "Settings", description: "Visibility & permission" },
+  {
+    id: "main",
+    title: "Main",
+    description: "Details & logo",
+    fields: ["name", "org", "type", "sortOrder"],
+  },
+  {
+    id: "profile",
+    title: "Profile",
+    description: "Link & contribution",
+    fields: ["link", "contribution"],
+  },
+  {
+    id: "settings",
+    title: "Settings",
+    description: "Visibility & permission",
+    fields: ["isActive", "logoPermission"],
+  },
 ];
 
 function defaultsFor(partner?: PartnerListItem): PartnerFormValues {
@@ -127,13 +146,13 @@ type PartnerEditorFormProps = {
 export function PartnerEditorForm({
   mode,
   partner,
-  heading,
   orderSlots = [],
 }: PartnerEditorFormProps) {
   const formId = useId();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
@@ -144,6 +163,7 @@ export function PartnerEditorForm({
   const form = useForm<PartnerFormValues, unknown, CreatePartnerInput>({
     resolver: zodResolver(createPartnerSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(partner),
   });
 
@@ -196,10 +216,20 @@ export function PartnerEditorForm({
     if (!pendingFile) return true;
     const formData = new FormData();
     formData.append("file", pendingFile);
-    const result = await uploadPartnerLogo(partnerId, formData);
-    if (result.status === "error") return false;
-    replacePendingLogo(null);
-    return true;
+    setIsProcessingImage(true);
+    const uploadToast = toast.loading("Processing image…");
+    try {
+      const result = await uploadPartnerLogo(partnerId, formData);
+      if (result.status === "error") {
+        toast.error(result.message, { id: uploadToast });
+        return false;
+      }
+      toast.dismiss(uploadToast);
+      replacePendingLogo(null);
+      return true;
+    } finally {
+      setIsProcessingImage(false);
+    }
   }
 
   function onSubmit(values: CreatePartnerInput) {
@@ -262,6 +292,7 @@ export function PartnerEditorForm({
 
   const displayLogo = previewUrl ?? storedLogoUrl;
   const { errors, isDirty } = form.formState;
+  useUnsavedChangesGuard(isDirty && !isPending);
   const saveDisabled = isAdminFormSubmitDisabled({
     isPending,
     isDirty,
@@ -269,6 +300,11 @@ export function PartnerEditorForm({
     hasExternalChanges: Boolean(pendingFile),
   });
   const saveLabel = mode === "create" ? "Create partner" : "Save changes";
+  const pendingLabel = isProcessingImage
+    ? "Processing image…"
+    : mode === "create"
+      ? "Creating…"
+      : "Saving…";
 
   function fillDummy() {
     applyDummyFormValues(form, dummyPartnerValues());
@@ -281,8 +317,7 @@ export function PartnerEditorForm({
 
   return (
     <>
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           onDummy={fillDummy}
           onClear={clearForm}
@@ -292,7 +327,10 @@ export function PartnerEditorForm({
 
       <form
         id={formId}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, PARTNER_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
         className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       >
@@ -329,7 +367,7 @@ export function PartnerEditorForm({
           </StepperNav>
 
           <StepperPanel className="w-full">
-            <StepperContent value="main" forceMount className="space-y-6">
+            <StepperContent value="main" className="space-y-6">
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start lg:gap-8">
                 <AdminFormSection
                   title={PARTNER_EDITOR_HELP.identity.title}
@@ -350,7 +388,7 @@ export function PartnerEditorForm({
                       </AdminFormFieldLabel>
                       <Input
                         id={`${formId}-name`}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         disabled={isPending}
                         required
                         maxLength={PARTNER_NAME_MAX}
@@ -375,7 +413,7 @@ export function PartnerEditorForm({
                       </AdminFormFieldLabel>
                       <Input
                         id={`${formId}-org`}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         disabled={isPending}
                         maxLength={PARTNER_ORG_MAX}
                         placeholder="Leave empty for solo mentors"
@@ -447,7 +485,7 @@ export function PartnerEditorForm({
                         min={PARTNER_SORT_ORDER_MIN}
                         max={PARTNER_SORT_ORDER_MAX}
                         step={1}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         disabled={isPending}
                         placeholder="e.g. 10"
                         aria-invalid={Boolean(errors.sortOrder)}
@@ -599,7 +637,7 @@ export function PartnerEditorForm({
               </div>
             </StepperContent>
 
-            <StepperContent value="profile" forceMount className="space-y-6">
+            <StepperContent value="profile" className="space-y-6">
               <AdminFormSection
                 title={PARTNER_EDITOR_HELP.profile.title}
                 description={PARTNER_EDITOR_HELP.profile.intro}
@@ -615,7 +653,7 @@ export function PartnerEditorForm({
                   </AdminFormFieldLabel>
                   <UrlInput
                     id={`${formId}-link`}
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     maxLength={PARTNER_LINK_MAX}
                     placeholder="example.com"
@@ -640,7 +678,7 @@ export function PartnerEditorForm({
                     render={({ field }) => (
                       <PartnerContributionInput
                         id={`${formId}-contribution`}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         disabled={isPending}
                         maxLength={PARTNER_CONTRIBUTION_MAX}
                         placeholder="e.g. Technology Partner"
@@ -658,7 +696,7 @@ export function PartnerEditorForm({
               </AdminFormSection>
             </StepperContent>
 
-            <StepperContent value="settings" forceMount className="space-y-6">
+            <StepperContent value="settings" className="space-y-6">
               <AdminFormSection
                 title={PARTNER_EDITOR_HELP.visibility.title}
                 description={PARTNER_EDITOR_HELP.visibility.intro}
@@ -739,7 +777,7 @@ export function PartnerEditorForm({
             {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />
             ) : null}
-            {saveLabel}
+            {isPending ? pendingLabel : saveLabel}
           </Button>
         </AdminEditorActionsBar>
       </form>

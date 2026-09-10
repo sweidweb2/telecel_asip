@@ -6,9 +6,15 @@ const or = vi.fn(() => ({ range }));
 const eqStatus = vi.fn();
 const orderId = vi.fn();
 const orderCreated = vi.fn();
+const maybeSingle = vi.fn();
 
 function wireChain() {
-  eqStatus.mockImplementation(() => ({ or, range, order: orderCreated }));
+  eqStatus.mockImplementation(() => ({
+    or,
+    range,
+    order: orderCreated,
+    maybeSingle,
+  }));
   orderId.mockImplementation(() => ({ range, or, eq: eqStatus }));
   orderCreated.mockImplementation(() => ({
     order: orderId,
@@ -57,9 +63,9 @@ vi.mock("@/lib/admin/apply-inbox-status-filter", () => ({
   applyInboxStatusFilter: <T>(request: T) => request,
 }));
 
-import { getApplicationsPageData } from "@/data/applications";
-import { getInterestRegistrationsPageData } from "@/data/interest-registrations";
-import { getContactMessagesPageData } from "@/data/contact-messages";
+import { getApplicationById, getApplicationsPageData } from "@/data/applications";
+import { getInterestRegistrationById, getInterestRegistrationsPageData } from "@/data/interest-registrations";
+import { getContactMessageById, getContactMessagesPageData } from "@/data/contact-messages";
 
 const baseQuery = {
   page: 1,
@@ -142,5 +148,59 @@ describe("inbox page data loaders", () => {
     expect(result.status).toBe("ok");
     if (result.status !== "ok") return;
     expect(result.list.messages[0]?.full_name).toBe("Cy");
+  });
+
+  it("loads a full application by id for the shared dialog", async () => {
+    isCurrentUserEditor.mockResolvedValue(true);
+    maybeSingle.mockResolvedValue({
+      data: {
+        id: "11111111-1111-4111-8111-111111111111",
+        problem_product: "essay",
+        traction: "users",
+        programme_fit: "fit",
+      },
+      error: null,
+    });
+
+    const result = await getApplicationById(
+      "11111111-1111-4111-8111-111111111111",
+    );
+    expect(result.status).toBe("ok");
+    if (result.status !== "ok") return;
+    expect(result.record.problem_product).toBe("essay");
+  });
+
+  it("returns not_found for an invalid application id", async () => {
+    const result = await getApplicationById("not-a-uuid");
+    expect(result).toEqual({ status: "not_found" });
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("loads registration and contact details by id", async () => {
+    isCurrentUserEditor.mockResolvedValue(true);
+    maybeSingle
+      .mockResolvedValueOnce({
+        data: { id: "11111111-1111-4111-8111-111111111111", pitch: "hello" },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { id: "11111111-1111-4111-8111-111111111111", message: "body" },
+        error: null,
+      });
+
+    const registration = await getInterestRegistrationById(
+      "11111111-1111-4111-8111-111111111111",
+    );
+    const message = await getContactMessageById(
+      "11111111-1111-4111-8111-111111111111",
+    );
+    expect(registration.status).toBe("ok");
+    expect(message.status).toBe("ok");
+    if (registration.status === "ok") {
+      expect(registration.record.pitch).toBe("hello");
+    }
+    if (message.status === "ok") {
+      expect(message.record.message).toBe("body");
+    }
   });
 });

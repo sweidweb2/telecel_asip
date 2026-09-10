@@ -25,7 +25,7 @@ export function AdminListPageSkeleton({
   rowCount = 8,
 }: AdminListPageSkeletonProps) {
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
       {showHeaderAction ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-end">
           <Skeleton className="h-11 w-full shrink-0 sm:h-8 sm:w-36" />
@@ -62,6 +62,6 @@ export function AdminListPageSkeleton({
           <Skeleton className="h-8 w-40" />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

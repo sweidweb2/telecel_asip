@@ -1,11 +1,11 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -20,7 +20,11 @@ import type {
   PartnerPublicItem,
   PartnerSortOrderOccupant,
 } from "@/types/partner";
-import { partnerIdSchema, type PartnerListQuery } from "@/validations/partner";
+import {
+  PARTNER_SORT_ORDER_MAX,
+  partnerIdSchema,
+  type PartnerListQuery,
+} from "@/validations/partner";
 
 export const PARTNERS_CACHE_TAG = "partners";
 
@@ -90,28 +94,12 @@ export type PartnerListStats = {
 async function fetchPartnerListStats(
   supabase: ServerClient,
 ): Promise<PartnerListStats> {
-  const [total, active, historical, logoGranted] = await Promise.all([
-    supabase.from("partners").select("id", { count: "exact", head: true }),
-    supabase
-      .from("partners")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
-    supabase
-      .from("partners")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", false),
-    supabase
-      .from("partners")
-      .select("id", { count: "exact", head: true })
-      .eq("logo_permission", true),
+  return fetchAdminListStats(supabase, "partners", [
+    "total",
+    "active",
+    "historical",
+    "logoGranted",
   ]);
-
-  return {
-    total: countExact(total),
-    active: countExact(active),
-    historical: countExact(historical),
-    logoGranted: countExact(logoGranted),
-  };
 }
 
 export async function getPartnersPageData(
@@ -245,11 +233,13 @@ export async function getPartnerSortOrderOccupants(): Promise<
       const supabase = await createClient();
       if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
+      // Cap at the display-order range — map + displacement only need 1…MAX.
       const { data, error } = await supabase
         .from("partners")
         .select(ORDER_COLUMNS)
         .order("sort_order", { ascending: true })
-        .order("name", { ascending: true });
+        .order("name", { ascending: true })
+        .limit(PARTNER_SORT_ORDER_MAX);
 
       if (error) throw error;
 

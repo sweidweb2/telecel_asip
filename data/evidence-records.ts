@@ -1,10 +1,10 @@
 import { cache } from "react";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -107,30 +107,12 @@ export type EvidenceListStats = {
 async function fetchEvidenceListStats(
   supabase: ServerClient,
 ): Promise<EvidenceListStats> {
-  const [total, verified, pending, attention] = await Promise.all([
-    supabase
-      .from("evidence_records")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("evidence_records")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "verified"),
-    supabase
-      .from("evidence_records")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending"),
-    supabase
-      .from("evidence_records")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["outdated", "disputed"]),
+  return fetchAdminListStats(supabase, "evidence_records", [
+    "total",
+    "verified",
+    "pending",
+    "attention",
   ]);
-
-  return {
-    total: countExact(total),
-    verified: countExact(verified),
-    pending: countExact(pending),
-    attention: countExact(attention),
-  };
 }
 
 export async function getEvidenceRecordsPageData(

@@ -21,8 +21,8 @@ import type { BackupScheduleValue } from "@/constants/backup-schedule";
 import type { AdminActionResult } from "@/types/admin-action";
 import type { Database } from "@/types/database";
 import { ROUTES } from "@/constants/routes";
-import { SITE_SETTINGS_ID } from "@/data/settings";
-import {
+import { consumeStaffMutationRateLimit } from "@/lib/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";import {
   createBackupSchema,
   getBackupDownloadUrlSchema,
   type CreateBackupInput,
@@ -40,6 +40,7 @@ const MESSAGES = {
   inFlight: "A backup is already running. Try again when it finishes.",
   runNowStarted: "Backup started. Watch history - download when it completes.",
   genericError: "Could not complete the backup.",
+  rateLimited: "Too many backup requests. Try again later.",
 } as const;
 
 export type CreateBackupResult = AdminActionResult;
@@ -108,6 +109,17 @@ export async function createBackup(
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
+  const rateAdmin = createAdminClient();
+  if (
+    !(await consumeStaffMutationRateLimit(
+      rateAdmin,
+      session.userId,
+      "backupCreate",
+    ))
+  ) {
+    return { status: "error", message: MESSAGES.rateLimited };
+  }
+
   await failStuckInFlightBackups();
   if (await hasInFlightBackup()) {
     return { status: "error", message: MESSAGES.inFlight };
@@ -155,26 +167,35 @@ export async function runBackupNow(): Promise<RunBackupNowResult> {
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
+  const rateAdmin = createAdminClient();
+  if (
+    !(await consumeStaffMutationRateLimit(
+      rateAdmin,
+      session.userId,
+      "backupCreate",
+    ))
+  ) {
+    return { status: "error", message: MESSAGES.rateLimited };
+  }
+
   await failStuckInFlightBackups();
   if (await hasInFlightBackup()) {
     return { status: "error", message: MESSAGES.inFlight };
   }
 
-  const { data: settings, error } = await session.supabase
-    .from("site_settings")
-    .select("backup_time")
-    .eq("id", SITE_SETTINGS_ID)
-    .maybeSingle();
+  const { data: backupTime, error } = await session.supabase.rpc(
+    "get_admin_backup_schedule",
+  );
 
-  if (error || !settings) {
+  if (error || !backupTime) {
     return { status: "error", message: MESSAGES.genericError };
   }
 
-  const backupTime = settings.backup_time as BackupScheduleValue;
+  const schedule = backupTime as BackupScheduleValue;
   const now = new Date();
   const windowKey =
-    backupTime !== "off" && isScheduleDue(backupTime, now)
-      ? (scheduleWindowKey(backupTime, now) ?? immediateScheduleWindow(now))
+    schedule !== "off" && isScheduleDue(schedule, now)
+      ? (scheduleWindowKey(schedule, now) ?? immediateScheduleWindow(now))
       : immediateScheduleWindow(now);
 
   const enqueued = await enqueueBackupAttempt({

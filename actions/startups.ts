@@ -10,6 +10,7 @@ import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
+  revalidateDashboardNavCounts,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
@@ -57,6 +58,7 @@ function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
   // Insights embed related startup names — bust blog cache on rename/link changes.
   revalidateTag(BLOGS_CACHE_TAG, "max");
+  revalidateDashboardNavCounts();
   revalidatePath(ROUTES.portfolio);
   if (id) {
     revalidatePath(`${ROUTES.portfolio}/${id}`);

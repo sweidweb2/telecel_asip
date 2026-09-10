@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { ShieldCheckIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@/constants/evidence-labels";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { EvidenceListItem } from "@/types/evidence-record";
 import {
   EVIDENCE_PAGE_SIZE,
@@ -44,6 +46,12 @@ export function EvidenceRecordsTable({
   query: EvidenceListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search,
+    status: query.status === "all" ? undefined : query.status,
+    permission: query.permission === "all" ? undefined : query.permission,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -64,8 +72,11 @@ export function EvidenceRecordsTable({
       empty={
         <AdminEmptyState
           icon={ShieldCheckIcon}
-          title="No evidence records found"
-          description="Try changing the filters, or create a new evidence record."
+          isFiltered={isFiltered}
+          emptyTitle="No evidence records yet"
+          emptyDescription="Create the first evidence record to back impact claims."
+          noResultsTitle="No evidence records found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.evidenceNew}
           createLabel="New evidence"
         />
@@ -76,19 +87,14 @@ export function EvidenceRecordsTable({
         pageSize: EVIDENCE_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-          status: query.status === "all" ? undefined : query.status,
-          permission:
-            query.permission === "all" ? undefined : query.permission,
-        },
+        filters: listFilters,
       }}
     >
       {records.map((record, index) => (
-        <TableRow
+        <AdminClickableRow
           key={record.id}
-          className="cursor-pointer"
-          onClick={() => router.push(evidenceDetailPath(record.id))}
+          ariaLabel={`Edit evidence ${record.primary_source}`}
+          onActivate={() => router.push(evidenceDetailPath(record.id))}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -139,7 +145,7 @@ export function EvidenceRecordsTable({
           >
             <EvidenceRowActions record={record} />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
   );

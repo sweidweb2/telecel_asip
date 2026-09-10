@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { StaffHeader } from "@/components/dashboard/staff-header";
+import { StaffKeyboardShortcuts } from "@/components/dashboard/staff-keyboard-shortcuts";
+import { SkipToContent } from "@/components/dashboard/skip-to-content";
+import { StaffOfflineBanner } from "@/components/dashboard/staff-offline-banner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ADMIN_NAV_GROUPS } from "@/constants/admin-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
@@ -47,13 +50,16 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
+      <SkipToContent />
+      <StaffKeyboardShortcuts />
       <AppSidebar
         homeHref={ROUTES.admin}
         brandLabel="Admin panel"
         navGroups={ADMIN_NAV_GROUPS}
       />
       <SidebarInset>
-        <DashboardHeader
+        <StaffOfflineBanner />
+        <StaffHeader
           account={account}
           panelLabel="Admin panel"
           titleResolver="admin"

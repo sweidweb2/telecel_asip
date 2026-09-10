@@ -126,6 +126,36 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ---
 
+### `public.get_dashboard_nav_counts()`
+
+| | |
+| --- | --- |
+| **Role** | RPC (Editor sidebar record badges) |
+| **Returns** | `jsonb` of table → total: `interest_registrations`, `applications`, `contact_messages`, `newsletter_subscribers`, `blogs`, `startups`, `partners`, `founder_stories`, `cohorts`, `events`, `evidence_records`, `impact_metrics`, `profiles` |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, editor-only |
+| **Granted to** | `authenticated` (raises `42501` unless `is_editor()`) |
+
+**Details:** Replaces 13 parallel PostgREST `count: exact` head queries on the Editor layout with one round-trip. The app maps table keys to nav hrefs. The Editor layout does not await this RPC before streaming the page; badges resolve in `Suspense`. Writes that call `refreshAdminResource` also `revalidateTag('dashboard-nav-counts')`.
+
+**How it works:** Raises `42501` unless `is_editor()`. Each value is `count(*)` on that table. Invoker, so RLS still applies — editors do not count administrator `profiles` (`20260910220000`). Added `20260910230000`.
+
+---
+
+### `public.get_admin_list_stats(p_resource text)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (Editor CMS / inbox list-page stat cards) |
+| **Returns** | `jsonb` of filtered counts for one resource (camelCase keys matching the app) |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, editor-only |
+| **Granted to** | `authenticated` (raises `42501` unless `is_editor()`; `22023` on unknown `p_resource`) |
+
+**Details:** Replaces 3–4 parallel PostgREST `count: exact` head queries per list page (blogs, partners, startups, cohorts, events, founder stories, evidence, impact metrics, applications, interest registrations, contact messages). Sidebar totals stay on `get_dashboard_nav_counts`; this RPC is one extra round-trip for the page cards, not a recount of every nav table.
+
+**How it works:** Raises `42501` unless `is_editor()`. `CASE` on `p_resource` runs one `count(*)` + `FILTER` scan of that table. Event `upcoming` uses UTC `now()::date`. Inbox `last7Days` uses UTC `now() - 7 days`. Invoker, so RLS applies. Added `20260910250000`.
+
+---
+
 ### `public.admin_hard_delete_user(p_target uuid)`
 
 | | |
@@ -275,7 +305,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_site_settings_updated_at()` |
 
-**How it works:** Singleton row (`id = 1`, seeded by the migration) holding `open_applications`, `newsletter_signup_enabled`, and `backup_time`. Anonymous clients read flags via `site_settings_public` (no `backup_time`). Base table SELECT/UPDATE is staff-only (`is_staff()`). Non-admins cannot change `backup_time` — see `protect_site_settings_backup_time` below. There is no INSERT/DELETE policy.
+**How it works:** Singleton row (`id = 1`, seeded by the migration) holding `open_applications`, `newsletter_signup_enabled`, and `backup_time`. Anonymous clients read flags via `site_settings_public` (no `backup_time`). Base table SELECT/UPDATE is staff-only (`is_staff()`). Column grant on `authenticated` excludes `backup_time` (migration `20260910240000`); admins read the schedule via `get_admin_backup_schedule`. Non-admins cannot change `backup_time` — see `protect_site_settings_backup_time` below. There is no INSERT/DELETE policy.
 
 | Field | Value |
 | --- | --- |
@@ -293,6 +323,16 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Calls** | `public.protect_site_settings_backup_time()` |
 
 **How it works:** Staff may update application/newsletter toggles; only `is_admin()` may change the backup schedule. Migration `20260910200000_site_settings_public_and_backup_guard.sql`.
+
+| Field | Value |
+| --- | --- |
+| **Name** | `public.get_admin_backup_schedule` |
+| **Kind** | Function (`SECURITY DEFINER`) |
+| **Returns** | `backup_schedule` |
+| **Details** | Raises `42501` unless `is_admin()`; otherwise returns `site_settings.backup_time` for id = 1 |
+| **Execute** | `authenticated` |
+
+**How it works:** JWT clients cannot SELECT `backup_time` (column privilege revoked). Admin UI and `runBackupNow` call this RPC instead. Migration `20260910240000_site_settings_backup_time_admin_select.sql`.
 
 **Policy naming note:** CMS table policies still use historical `"Admins can …"` labels in older migrations even when they now call `is_editor()` / `is_staff()`. `site_settings` was renamed to staff wording in `20260910200000`; a full CMS policy rename pass was skipped as low value / high churn.
 

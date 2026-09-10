@@ -84,3 +84,30 @@ export async function consumeSharedRateLimit(
 export function resetRateLimitBuckets(): void {
   windows.clear();
 }
+
+export const STAFF_MUTATION_WINDOW_MS = 60 * 60 * 1000;
+
+/** Shared hourly caps for sensitive staff mutations (per userId). */
+export const STAFF_RATE_LIMITS = {
+  userCreate: 20,
+  userDelete: 20,
+  userHardDelete: 10,
+  backupCreate: 10,
+} as const;
+
+/**
+ * Rate-limit a staff mutation by acting user id.
+ * Returns true when the attempt is allowed.
+ */
+export async function consumeStaffMutationRateLimit(
+  admin: AdminClient,
+  userId: string,
+  action: keyof typeof STAFF_RATE_LIMITS,
+): Promise<boolean> {
+  return consumeSharedRateLimit(
+    admin,
+    `staff:${action}:${userId}`,
+    STAFF_RATE_LIMITS[action],
+    STAFF_MUTATION_WINDOW_MS,
+  );
+}

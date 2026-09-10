@@ -1,11 +1,11 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -105,30 +105,12 @@ export type ImpactMetricListStats = {
 async function fetchImpactMetricListStats(
   supabase: ServerClient,
 ): Promise<ImpactMetricListStats> {
-  const [total, verified, pending, notForPublication] = await Promise.all([
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "verified"),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "pending"),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "not_for_publication"),
+  return fetchAdminListStats(supabase, "impact_metrics", [
+    "total",
+    "verified",
+    "pending",
+    "notForPublication",
   ]);
-
-  return {
-    total: countExact(total),
-    verified: countExact(verified),
-    pending: countExact(pending),
-    notForPublication: countExact(notForPublication),
-  };
 }
 
 export async function getImpactMetricsPageData(

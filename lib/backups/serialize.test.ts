@@ -14,15 +14,28 @@ describe("backup serializers", () => {
     expect(escapeCsvCell(null)).toBe("");
   });
 
+  it("neutralizes spreadsheet formula injection prefixes", () => {
+    expect(escapeCsvCell("=CMD('calc')")).toBe("'=CMD('calc')");
+    expect(escapeCsvCell("+1+1")).toBe("'+1+1");
+    expect(escapeCsvCell("-2+3")).toBe("'-2+3");
+    expect(escapeCsvCell("@SUM(A1)")).toBe("'@SUM(A1)");
+    expect(escapeCsvCell(' =HYPERLINK("http://evil")')).toBe(
+      `"' =HYPERLINK(""http://evil"")"`,
+    );
+    expect(escapeCsvCell("safe text")).toBe("safe text");
+    expect(escapeCsvCell("email@example.com")).toBe("email@example.com");
+  });
+
   it("serializes rows to CSV with explicit columns", () => {
     const csv = rowsToCsv(
       ["id", "name"],
       [
         { id: "1", name: "Ada" },
         { id: "2", name: "Bo, Jr" },
+        { id: "3", name: "=1+1" },
       ],
     );
-    expect(csv).toBe('id,name\n1,Ada\n2,"Bo, Jr"\n');
+    expect(csv).toBe('id,name\n1,Ada\n2,"Bo, Jr"\n3,\'=1+1\n');
   });
 
   it("writes JSON table dumps", () => {

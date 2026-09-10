@@ -36,16 +36,48 @@ describe("getDashboardPageTitle", () => {
     expect(getDashboardPageTitle(ROUTES.blogs)).toBe("Blogs");
   });
 
-  it("resolves nested routes to the parent resource", () => {
-    expect(getDashboardPageTitle(`${ROUTES.blogs}/new`)).toBe("Blogs");
+  it("uses action titles for nested create/edit routes", () => {
+    expect(getDashboardPageTitle(ROUTES.blogsNew)).toBe("New blog");
+    expect(getDashboardPageTitle(`${ROUTES.blogs}/some-id`)).toBe("Edit blog");
+    expect(getDashboardPageTitle(ROUTES.partnersNew)).toBe("New partner");
     expect(getDashboardPageTitle(`${ROUTES.partners}/some-id`)).toBe(
-      "Partners",
+      "Edit partner",
     );
-    expect(getDashboardPageTitle(`${ROUTES.portfolio}/new`)).toBe("Startup");
+    expect(getDashboardPageTitle(ROUTES.portfolioNew)).toBe("New startup");
+    expect(getDashboardPageTitle(`${ROUTES.portfolio}/abc`)).toBe(
+      "Edit startup",
+    );
+    expect(getDashboardPageTitle(ROUTES.cohortsNew)).toBe("New cohort");
+    expect(getDashboardPageTitle(`${ROUTES.cohorts}/abc`)).toBe("Edit cohort");
+    expect(getDashboardPageTitle(ROUTES.eventsNew)).toBe("New event");
+    expect(getDashboardPageTitle(`${ROUTES.events}/abc`)).toBe("Edit event");
+    expect(getDashboardPageTitle(ROUTES.founderStoriesNew)).toBe(
+      "New founder story",
+    );
+    expect(getDashboardPageTitle(`${ROUTES.founderStories}/abc`)).toBe(
+      "Edit founder story",
+    );
+    expect(getDashboardPageTitle(ROUTES.evidenceNew)).toBe(
+      "New evidence record",
+    );
+    expect(getDashboardPageTitle(`${ROUTES.evidence}/abc`)).toBe(
+      "Edit evidence record",
+    );
+    expect(getDashboardPageTitle(ROUTES.impactMetricsNew)).toBe(
+      "New impact metric",
+    );
+    expect(getDashboardPageTitle(`${ROUTES.impactMetrics}/abc`)).toBe(
+      "Edit impact metric",
+    );
   });
 
-  it("titles Analytics and Backup from System nav", () => {
+  it("keeps list routes as nav titles", () => {
+    expect(getDashboardPageTitle(ROUTES.blogs)).toBe("Blogs");
+    expect(getDashboardPageTitle(ROUTES.partners)).toBe("Partners");
+    expect(getDashboardPageTitle(ROUTES.portfolio)).toBe("Startups");
+  });
+
+  it("titles Analytics from System nav", () => {
     expect(getDashboardPageTitle(ROUTES.analytics)).toBe("Analytics");
-    expect(getDashboardPageTitle(ROUTES.backup)).toBe("Backup");
   });
 });

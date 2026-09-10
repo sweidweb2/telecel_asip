@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { updateBlogStatus } from "@/actions/blogs";
 import { Switch } from "@/components/ui/switch";
 import { CMS_PUBLISH_STATUS_LABELS } from "@/constants/cms-publish";
+import { toastWithUndo } from "@/lib/admin/toast-with-undo";
 import type { BlogStatus } from "@/types/blog";
 
 export function BlogStatusToggle({
@@ -44,7 +45,22 @@ export function BlogStatusToggle({
           toast.error(result.message);
           return;
         }
-        toast.success(result.message);
+        toastWithUndo({
+          message: result.message,
+          onUndo: async () => {
+            const undoStatus: BlogStatus = previous ? "published" : "draft";
+            setChecked(previous);
+            const undoResult = await updateBlogStatus({
+              id: blogId,
+              status: undoStatus,
+            });
+            if (undoResult.status === "error") {
+              setChecked(nextChecked);
+              throw new Error(undoResult.message);
+            }
+            router.refresh();
+          },
+        });
         router.refresh();
       } catch {
         setChecked(previous);

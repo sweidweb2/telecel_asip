@@ -5,6 +5,7 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
 } from "react";
 import { SearchIcon } from "lucide-react";
@@ -12,18 +13,30 @@ import { useRouter } from "nextjs-toploader/app";
 
 import { Input } from "@/components/ui/input";
 import {
-  DASHBOARD_PAGE_SEARCH_MAX_LENGTH,
-  filterDashboardSearchPages,
-  resolveDashboardSearchHref,
-  sanitizeDashboardPageSearchQuery,
-} from "@/lib/admin/dashboard-page-search";
+  STAFF_PAGE_SEARCH_MAX_LENGTH,
+  filterStaffSearchPages,
+  resolveStaffSearchHref,
+  sanitizeStaffPageSearchQuery,
+} from "@/lib/admin/staff-page-search";
 import { cn } from "@/lib/utils";
 import type { DashboardSearchPage } from "@/constants/dashboard-nav";
+
+const emptySubscribe = () => () => {};
+
+function useIsMacShortcut() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () =>
+      typeof navigator !== "undefined" &&
+      /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent),
+    () => false,
+  );
+}
 
 /**
  * Header typeahead: search staff pages by name and navigate via allowlisted hrefs.
  */
-export function DashboardPageSearch({
+export function StaffPageSearch({
   className,
   catalog,
   label = "Search pages",
@@ -35,10 +48,13 @@ export function DashboardPageSearch({
   const router = useRouter();
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isMac = useIsMacShortcut();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [results, setResults] = useState<DashboardSearchPage[]>([]);
+  const shortcutLabel = isMac ? "⌘K" : "Ctrl+K";
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -50,17 +66,45 @@ export function DashboardPageSearch({
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
 
+  useEffect(() => {
+    function onGlobalKeyDown(event: globalThis.KeyboardEvent) {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") {
+        return;
+      }
+
+      const target = event.target;
+      if (target instanceof HTMLElement) {
+        const tag = target.tagName;
+        const isTypingField =
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          tag === "SELECT" ||
+          target.isContentEditable;
+        if (isTypingField && target !== inputRef.current) {
+          return;
+        }
+      }
+
+      event.preventDefault();
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+
+    window.addEventListener("keydown", onGlobalKeyDown);
+    return () => window.removeEventListener("keydown", onGlobalKeyDown);
+  }, []);
+
   function updateQuery(nextRaw: string) {
-    const next = sanitizeDashboardPageSearchQuery(nextRaw);
+    const next = sanitizeStaffPageSearchQuery(nextRaw);
     setQuery(next);
-    const nextResults = filterDashboardSearchPages(next, catalog);
+    const nextResults = filterStaffSearchPages(next, catalog);
     setResults(nextResults);
     setActiveIndex(0);
     setOpen(nextResults.length > 0);
   }
 
   function navigateTo(page: DashboardSearchPage) {
-    const href = resolveDashboardSearchHref(page.href);
+    const href = resolveStaffSearchHref(page.href);
     if (!href) return;
     setOpen(false);
     setQuery("");
@@ -111,6 +155,7 @@ export function DashboardPageSearch({
           aria-hidden
         />
         <Input
+          ref={inputRef}
           id={`${listId}-input`}
           type="search"
           role="combobox"
@@ -118,7 +163,7 @@ export function DashboardPageSearch({
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="go"
-          maxLength={DASHBOARD_PAGE_SEARCH_MAX_LENGTH}
+          maxLength={STAFF_PAGE_SEARCH_MAX_LENGTH}
           value={query}
           placeholder="Search pages…"
           aria-autocomplete="list"
@@ -129,7 +174,7 @@ export function DashboardPageSearch({
               ? `${listId}-option-${activeIndex}`
               : undefined
           }
-          className="h-9 min-h-9 bg-background pl-8 md:h-8 md:min-h-8"
+          className="h-11 min-h-11 bg-background pr-14 pl-8 md:h-9 md:min-h-9"
           onChange={(event) => {
             updateQuery(event.target.value);
           }}
@@ -138,6 +183,14 @@ export function DashboardPageSearch({
           }}
           onKeyDown={onKeyDown}
         />
+        {query.trim() === "" ? (
+          <kbd
+            className="pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 items-center rounded border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground sm:inline-flex"
+            aria-hidden
+          >
+            {shortcutLabel}
+          </kbd>
+        ) : null}
       </div>
 
       {open && results.length > 0 ? (

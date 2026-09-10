@@ -4,9 +4,13 @@ import { revalidatePath } from "next/cache";
 import { match, P } from "ts-pattern";
 
 import { ROUTES } from "@/constants/routes";
+import { revalidateDashboardNavCounts } from "@/lib/admin/run-admin-mutation";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { authorizeStaff } from "@/lib/admin/authorize-staff";
 import { getStaffShell } from "@/lib/admin/get-staff-shell";
+import {
+  consumeStaffMutationRateLimit,
+} from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import {
@@ -35,6 +39,7 @@ type ProfileRole = Database["public"]["Enums"]["user_role"];
 const AUTH_MESSAGES = {
   signedInRequired: "You must be signed in.",
   unauthorized: "You do not have permission to manage users.",
+  rateLimited: "Too many user changes. Try again later.",
 } as const;
 
 function validationMessage(error: { issues: { message: string }[] }): string {
@@ -74,6 +79,7 @@ function mapSupabaseError(message: string): string {
 function refreshUsersRoute() {
   revalidatePath(ROUTES.users);
   revalidatePath(ROUTES.adminUsers);
+  revalidateDashboardNavCounts();
 }
 
 async function actorStaffRole(): Promise<"admin" | "editor" | null> {
@@ -154,6 +160,16 @@ export async function createUser(
   }
 
   const admin = createAdminClient();
+  if (
+    !(await consumeStaffMutationRateLimit(
+      admin,
+      session.userId,
+      "userCreate",
+    ))
+  ) {
+    return { status: "error", message: AUTH_MESSAGES.rateLimited };
+  }
+
   const { data: created, error } = await admin.auth.admin.createUser({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -275,6 +291,18 @@ export async function updateUser(
     return { status: "error", message: "User not found." };
   }
 
+  const emailChanged =
+    parsed.data.email.trim().toLowerCase() !==
+    snapshot.email.trim().toLowerCase();
+
+  // Editors must not change Auth emails (peer takeover via password reset).
+  if (emailChanged && actor !== "admin") {
+    return {
+      status: "error",
+      message: "Only administrators can change account emails.",
+    };
+  }
+
   const admin = createAdminClient();
   const { error: authError } = await admin.auth.admin.updateUserById(
     parsed.data.id,
@@ -342,10 +370,10 @@ export async function deleteUser(
     return { status: "error", message: "User not found." };
   }
 
-  if (actor === "editor" && targetRole === "admin") {
+  if (actor === "editor" && targetRole !== "viewer") {
     return {
       status: "error",
-      message: "Editors cannot delete administrator accounts.",
+      message: "Editors can only delete viewer accounts.",
     };
   }
 
@@ -387,6 +415,16 @@ export async function deleteUser(
   }
 
   const admin = createAdminClient();
+  if (
+    !(await consumeStaffMutationRateLimit(
+      admin,
+      session.userId,
+      "userDelete",
+    ))
+  ) {
+    return { status: "error", message: AUTH_MESSAGES.rateLimited };
+  }
+
   const { error } = await admin.auth.admin.deleteUser(parsed.data.id);
 
   if (error) {
@@ -417,6 +455,17 @@ export async function hardDeleteUser(
       status: "error",
       message: "You cannot hard-delete your own account.",
     };
+  }
+
+  const admin = createAdminClient();
+  if (
+    !(await consumeStaffMutationRateLimit(
+      admin,
+      session.userId,
+      "userHardDelete",
+    ))
+  ) {
+    return { status: "error", message: AUTH_MESSAGES.rateLimited };
   }
 
   const { error } = await session.supabase.rpc("admin_hard_delete_user", {

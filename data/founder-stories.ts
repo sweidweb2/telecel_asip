@@ -1,12 +1,12 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -123,30 +123,12 @@ export type FounderStoryListStats = {
 async function fetchFounderStoryListStats(
   supabase: ServerClient,
 ): Promise<FounderStoryListStats> {
-  const [total, published, draft, quotePending] = await Promise.all([
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "published"),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "draft"),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("quote_permission_status", "pending"),
+  return fetchAdminListStats(supabase, "founder_stories", [
+    "total",
+    "published",
+    "draft",
+    "quotePending",
   ]);
-
-  return {
-    total: countExact(total),
-    published: countExact(published),
-    draft: countExact(draft),
-    quotePending: countExact(quotePending),
-  };
 }
 
 export async function getFounderStoriesPageData(

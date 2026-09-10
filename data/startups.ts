@@ -1,12 +1,12 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
@@ -147,28 +147,12 @@ export type StartupListStats = {
 async function fetchStartupListStats(
   supabase: ServerClient,
 ): Promise<StartupListStats> {
-  const [total, active, draft, inactive] = await Promise.all([
-    supabase.from("startups").select("id", { count: "exact", head: true }),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "active"),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "draft"),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "inactive"),
+  return fetchAdminListStats(supabase, "startups", [
+    "total",
+    "active",
+    "draft",
+    "inactive",
   ]);
-
-  return {
-    total: countExact(total),
-    active: countExact(active),
-    draft: countExact(draft),
-    inactive: countExact(inactive),
-  };
 }
 
 export async function getStartupsPageData(

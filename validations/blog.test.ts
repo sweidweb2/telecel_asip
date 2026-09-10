@@ -91,6 +91,18 @@ describe("blog validations", () => {
     expect(query.page).toBe(1);
     expect(query.pageSize).toBe(BLOG_PAGE_SIZE);
     expect(query.status).toBe("all");
+    expect(query.sort).toBe("created_at");
+    expect(query.dir).toBe("desc");
+  });
+
+  it("accepts list sort and dir overrides", () => {
+    expect(
+      parseBlogListQuery({ sort: "title", dir: "asc" }),
+    ).toMatchObject({ sort: "title", dir: "asc" });
+
+    expect(
+      parseBlogListQuery({ sort: "author_name", dir: "nope" }),
+    ).toMatchObject({ sort: "author_name", dir: "desc" });
   });
 
   it("exposes blog statuses", () => {

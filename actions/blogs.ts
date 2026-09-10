@@ -9,6 +9,7 @@ import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
+  revalidateDashboardNavCounts,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
@@ -64,6 +65,7 @@ const ALLOWED_MIME = new Set([
 
 function refreshBlogPaths(slug?: string, id?: string) {
   revalidateTag(BLOGS_CACHE_TAG, "max");
+  revalidateDashboardNavCounts();
   revalidatePath(ROUTES.blogs);
   if (id) {
     revalidatePath(`${ROUTES.blogs}/${id}`);

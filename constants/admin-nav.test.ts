@@ -29,6 +29,7 @@ describe("isAdminNavActive", () => {
 
 describe("getAdminPageTitle", () => {
   it("returns nav titles for admin routes", () => {
+    expect(getAdminPageTitle(ROUTES.admin)).toBe("Overview");
     expect(getAdminPageTitle(ROUTES.adminUsers)).toBe("Users");
     expect(getAdminPageTitle(ROUTES.adminSettings)).toBe("Settings");
     expect(getAdminPageTitle(ROUTES.adminPerformance)).toBe("Performance");

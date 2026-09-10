@@ -7,18 +7,32 @@ import { NewspaperIcon } from "lucide-react";
 import { BlogRowActions } from "@/components/blogs/blog-row-actions";
 import { BlogStatusToggle } from "@/components/blogs/blog-status-toggle";
 import { BlogsFilters } from "@/components/blogs/blogs-filters";
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
+import { AdminSortableHead } from "@/components/dashboard/admin-sortable-head";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { BlogListItem } from "@/types/blog";
 import { BLOG_PAGE_SIZE, type BlogListQuery } from "@/validations/blog";
+
+function blogsListFilters(query: BlogListQuery) {
+  const isDefaultSort =
+    query.sort === "created_at" && query.dir === "desc";
+  return {
+    search: query.search || undefined,
+    status: query.status === "all" ? undefined : query.status,
+    sort: isDefaultSort ? undefined : query.sort,
+    dir: isDefaultSort ? undefined : query.dir,
+  };
+}
 
 export function BlogsTable({
   blogs,
@@ -32,6 +46,15 @@ export function BlogsTable({
   query: BlogListQuery;
 }) {
   const router = useRouter();
+  const listFilters = blogsListFilters(query);
+  const sortFilters = {
+    search: listFilters.search,
+    status: listFilters.status,
+  };
+  const isFiltered = adminListFiltersActive({
+    search: listFilters.search,
+    status: listFilters.status,
+  });
 
   return (
     <AdminDataTable
@@ -39,10 +62,38 @@ export function BlogsTable({
       header={
         <TableRow>
           <AdminRowNumberHead />
-          <TableHead>Title</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Author</TableHead>
-          <TableHead>Updated</TableHead>
+          <AdminSortableHead
+            label="Title"
+            sortKey="title"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={ROUTES.blogs}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Status"
+            sortKey="status"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={ROUTES.blogs}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Author"
+            sortKey="author_name"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={ROUTES.blogs}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Updated"
+            sortKey="updated_at"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={ROUTES.blogs}
+            filters={sortFilters}
+          />
           <TableHead className="w-24 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
@@ -51,8 +102,11 @@ export function BlogsTable({
       empty={
         <AdminEmptyState
           icon={NewspaperIcon}
-          title="No blogs found"
-          description="Try changing the filters, or create a new blog."
+          isFiltered={isFiltered}
+          emptyTitle="No blogs yet"
+          emptyDescription="Create the first Insights article to publish on the site."
+          noResultsTitle="No blogs found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.blogsNew}
           createLabel="New blog"
         />
@@ -63,23 +117,17 @@ export function BlogsTable({
         pageSize: BLOG_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search || undefined,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {blogs.map((blog, index) => {
         const href = `${ROUTES.blogs}/${blog.id}`;
         return (
-          <TableRow
+          <AdminClickableRow
             key={blog.id}
-            className={
-              blog.is_featured
-                ? "cursor-pointer border-l-4 border-l-primary"
-                : "cursor-pointer"
-            }
-            onClick={() => router.push(href)}
+            ariaLabel={`Edit blog ${blog.title || "Untitled"}`}
+            className={blog.is_featured ? "border-l-4 border-l-primary" : undefined}
+            onActivate={() => router.push(href)}
           >
             <AdminRowNumberCell
               page={query.page}
@@ -116,7 +164,7 @@ export function BlogsTable({
             >
               <BlogRowActions blog={blog} />
             </TableCell>
-          </TableRow>
+          </AdminClickableRow>
         );
       })}
     </AdminDataTable>

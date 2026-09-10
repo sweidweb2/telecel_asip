@@ -14,8 +14,8 @@ export const PARTNER_LINK_MAX = 500;
 /** Inclusive display-order bounds (map + Zod + DB check). */
 export const PARTNER_SORT_ORDER_MIN = 1;
 export const PARTNER_SORT_ORDER_MAX = 170;
-/** Orders shown per map page (page 1 = 1–170). */
-export const PARTNER_SORT_ORDER_PAGE_SIZE = 170;
+/** Orders shown per map page (page 1 = 1–34, page 2 = 35–68, …). */
+export const PARTNER_SORT_ORDER_PAGE_SIZE = 34;
 
 /**
  * Mirrors `public.partner_type` and the `rows[].id` keys in

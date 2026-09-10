@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 
 import { getNewsletterSignupEnabled } from "@/data/settings";
+import { revalidateDashboardNavCounts } from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -120,5 +121,6 @@ export async function subscribeNewsletter(
     return { status: "error", message: copy.genericError };
   }
 
+  revalidateDashboardNavCounts();
   return { status: "success", message: copy.success };
 }

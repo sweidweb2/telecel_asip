@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { StaffHeader } from "@/components/dashboard/staff-header";
+import { StaffKeyboardShortcuts } from "@/components/dashboard/staff-keyboard-shortcuts";
+import { SkipToContent } from "@/components/dashboard/skip-to-content";
+import { StaffOfflineBanner } from "@/components/dashboard/staff-offline-banner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { DASHBOARD_NAV_GROUPS } from "@/constants/dashboard-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
@@ -37,12 +40,6 @@ export default async function DashboardLayout({
     redirect(publicPath(await getRequestLocale()));
   }
 
-  const navCounts = await traceAsync(
-    "dashboardNavCounts",
-    { eventType: "layout", meta: { ops: ["getDashboardNavCounts"] } },
-    () => getDashboardNavCounts(),
-  );
-
   const email = shell.email ?? "";
   const account: DashboardAccount = {
     name: userDisplayName(shell.fullName, email),
@@ -52,16 +49,21 @@ export default async function DashboardLayout({
 
   setAdminPerfRoute("/dashboard");
 
+  const navCountsPromise = getDashboardNavCounts();
+
   return (
     <SidebarProvider>
+      <SkipToContent />
+      <StaffKeyboardShortcuts />
       <AppSidebar
-        counts={navCounts}
+        countsPromise={navCountsPromise}
         homeHref={ROUTES.dashboard}
         brandLabel="Editor panel"
         navGroups={DASHBOARD_NAV_GROUPS}
       />
       <SidebarInset>
-        <DashboardHeader account={account} panelLabel="Editor panel" />
+        <StaffOfflineBanner />
+        <StaffHeader account={account} panelLabel="Editor panel" />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>

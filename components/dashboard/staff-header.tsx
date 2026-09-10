@@ -14,7 +14,7 @@ import {
 import { useTheme } from "next-themes";
 
 import { signOut } from "@/actions/auth";
-import { DashboardPageSearch } from "@/components/dashboard/dashboard-page-search";
+import { StaffPageSearch } from "@/components/dashboard/staff-page-search";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -35,7 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ADMIN_SEARCH_PAGES, getAdminPageTitle } from "@/constants/admin-nav";
 import {
-  DASHBOARD_SEARCH_PAGES,
+  DASHBOARD_COMMAND_PAGES,
   getDashboardPageTitle,
 } from "@/constants/dashboard-nav";
 import { DEFAULT_LOCALE } from "@/constants/locales";
@@ -55,7 +55,7 @@ function useIsClient() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
-export function DashboardHeader({
+export function StaffHeader({
   account,
   panelLabel = "Editor panel",
   titleResolver = "editor",
@@ -70,7 +70,7 @@ export function DashboardHeader({
       ? getAdminPageTitle(pathname)
       : getDashboardPageTitle(pathname);
   const searchCatalog =
-    titleResolver === "admin" ? ADMIN_SEARCH_PAGES : DASHBOARD_SEARCH_PAGES;
+    titleResolver === "admin" ? ADMIN_SEARCH_PAGES : DASHBOARD_COMMAND_PAGES;
   const [isPending, startTransition] = useTransition();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -84,9 +84,9 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b px-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
+    <header className="sticky top-0 z-30 grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-backdrop-filter:bg-background/80 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
       <div className="flex min-w-0 items-center gap-2">
-        <SidebarTrigger className="-ml-1 shrink-0" />
+        <SidebarTrigger className="-ml-1 min-h-11 min-w-11 shrink-0 sm:min-h-8 sm:min-w-8" />
         <div className="hidden h-5 items-center sm:flex" aria-hidden>
           <Separator orientation="vertical" />
         </div>
@@ -95,7 +95,7 @@ export function DashboardHeader({
         </h1>
       </div>
 
-      <DashboardPageSearch
+      <StaffPageSearch
         className="justify-self-center"
         catalog={searchCatalog}
         label={`Search ${panelLabel.toLowerCase()} pages`}
@@ -182,7 +182,7 @@ export function DashboardHeader({
         >
           <DialogHeader className="items-center text-center">
             <Loader2Icon
-              className="mx-auto size-8 animate-spin text-muted-foreground"
+              className="mx-auto size-8 animate-spin text-muted-foreground motion-reduce:animate-none"
               aria-hidden
             />
             <DialogTitle className="pt-2 text-base">Signing out</DialogTitle>

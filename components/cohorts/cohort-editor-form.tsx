@@ -47,7 +47,11 @@ import {
 import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import {
   applyClearFormValues,
   applyDummyFormValues,
@@ -69,8 +73,27 @@ import {
 } from "@/validations/cohort";
 
 const COHORT_EDITOR_STEPS = [
-  { id: "programme", title: "Programme", description: "Identity & dates" },
-  { id: "links", title: "Links", description: "Partners & founders" },
+  {
+    id: "programme",
+    title: "Programme",
+    description: "Identity & dates",
+    fields: [
+      "year",
+      "publicLabel",
+      "programmeDatesStart",
+      "programmeDatesEnd",
+      "programmeStatus",
+      "publishStatus",
+      "summary",
+      "mediaUrl",
+    ],
+  },
+  {
+    id: "links",
+    title: "Links",
+    description: "Partners & founders",
+    fields: ["partnerIds", "startupIds"],
+  },
 ];
 
 type CohortEditorFormProps = {
@@ -105,7 +128,6 @@ export function CohortEditorForm({
   cohort,
   partners: initialPartners = [],
   startups: initialStartups = [],
-  heading,
 }: CohortEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -131,6 +153,7 @@ export function CohortEditorForm({
   const form = useForm<CreateCohortInput>({
     resolver: zodResolver(createCohortSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: {
       year: cohort?.year ?? new Date().getFullYear(),
       publicLabel: cohort?.public_label ?? "",
@@ -232,6 +255,8 @@ export function CohortEditorForm({
     formState: { errors, isDirty },
   } = form;
 
+  useUnsavedChangesGuard(isDirty && !isPending);
+
   function onSubmit(values: CreateCohortInput) {
     startTransition(async () => {
       const result =
@@ -270,10 +295,7 @@ export function CohortEditorForm({
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -287,7 +309,10 @@ export function CohortEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, COHORT_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -325,7 +350,6 @@ export function CohortEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="programme"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
                 title={COHORT_EDITOR_HELP.programme.title}
@@ -338,7 +362,7 @@ export function CohortEditorForm({
                   <Input
                     id="year"
                     type="number"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     placeholder="e.g. 2026"
                     {...register("year", { valueAsNumber: true })}
@@ -359,7 +383,7 @@ export function CohortEditorForm({
                   </FieldLabel>
                   <Input
                     id="publicLabel"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     maxLength={COHORT_PUBLIC_LABEL_MAX}
                     placeholder="e.g. Cohort 6"
@@ -379,7 +403,7 @@ export function CohortEditorForm({
                   <Input
                     id="programmeDatesStart"
                     type="date"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     aria-invalid={Boolean(errors.programmeDatesStart)}
                     {...register("programmeDatesStart")}
@@ -398,7 +422,7 @@ export function CohortEditorForm({
                   <Input
                     id="programmeDatesEnd"
                     type="date"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     aria-invalid={Boolean(errors.programmeDatesEnd)}
                     {...register("programmeDatesEnd")}
@@ -431,7 +455,7 @@ export function CohortEditorForm({
                       >
                         <SelectTrigger
                           id="programmeStatus"
-                          className="min-h-11 w-full bg-white dark:bg-card"
+                          className="min-h-11 w-full"
                         >
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -471,7 +495,7 @@ export function CohortEditorForm({
                       >
                         <SelectTrigger
                           id="publishStatus"
-                          className="min-h-11 w-full bg-white dark:bg-card"
+                          className="min-h-11 w-full"
                         >
                           <SelectValue placeholder="Publish" />
                         </SelectTrigger>
@@ -502,7 +526,6 @@ export function CohortEditorForm({
                   <Textarea
                     id="summary"
                     rows={5}
-                    className="bg-white dark:bg-card"
                     disabled={isPending}
                     maxLength={COHORT_SUMMARY_MAX}
                     placeholder="What this cohort focuses on"
@@ -525,7 +548,7 @@ export function CohortEditorForm({
                   <UrlInput
                     id="mediaUrl"
                     placeholder="example.com/media"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     maxLength={COHORT_MEDIA_URL_MAX}
                     {...register("mediaUrl")}
@@ -541,7 +564,6 @@ export function CohortEditorForm({
 
             <StepperContent
               value="links"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
                 title={COHORT_EDITOR_HELP.links.title}

@@ -1151,6 +1151,8 @@ export type Database = {
       }
       get_active_startup_filter_options: { Args: never; Returns: Json }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_list_stats: { Args: { p_resource: string }; Returns: Json }
+      get_dashboard_nav_counts: { Args: never; Returns: Json }
       get_admin_shell: {
         Args: never
         Returns: {
@@ -1186,6 +1188,10 @@ export type Database = {
           is_editor: boolean
           role: Database["public"]["Enums"]["user_role"]
         }[]
+      }
+      get_admin_backup_schedule: {
+        Args: never
+        Returns: Database["public"]["Enums"]["backup_schedule"]
       }
       get_user_stats: {
         Args: never

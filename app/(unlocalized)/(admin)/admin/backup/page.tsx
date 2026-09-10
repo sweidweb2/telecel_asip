@@ -54,13 +54,19 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
 
   return (
     <AdminListPageShell title="Backup">
-      <div className="grid gap-10">
-        <AdminBackupSettingsForm
-          openApplications={settings.openApplications}
-          backupTime={settings.backupTime}
-        />
-
+      <div className="grid gap-8">
         <BackupCreateForm />
+
+        <section className="grid gap-3">
+          <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+            Schedule
+          </h2>
+          <AdminBackupSettingsForm
+            openApplications={settings.openApplications}
+            newsletterSignupEnabled={settings.newsletterSignupEnabled}
+            backupTime={settings.backupTime}
+          />
+        </section>
 
         <BackupHistoryTable
           backups={result.list.backups}
@@ -69,11 +75,11 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
           query={query}
         />
 
-        <section className="grid gap-3">
+        <section className="grid gap-3 opacity-90">
           <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
             Recovery
           </h2>
-          <Card>
+          <Card className="border-dashed bg-muted/20">
             <CardContent className="grid gap-4 pt-6 text-sm text-muted-foreground">
               <p>
                 In-app and scheduled R2 backups are operational copies for export -

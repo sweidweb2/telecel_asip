@@ -3,7 +3,7 @@
 **Date:** 10 September 2026  
 **Reference:** `Docs/[10] Skills/security-audit.md` (auth, access control, injection, XSS, uploads, secrets, rate limiting)  
 **Scope:** Admin panel (`/admin`, `lib/admin/`, admin actions, `app/api/admin/`) and Editor shell (`/dashboard` — there is no `/editor` route)  
-**Status:** Findings only — no remediations applied in this pass  
+**Status:** Findings report + remediations for **ADM-02**–**ADM-12** (10 Sep 2026; **ADM-01** still open)  
 **Related:** `Docs/[02] Reports/[2.3] Admin panel ui-ux/5-9-2026 Admin panel ui-ux report.md`
 
 ---
@@ -14,10 +14,27 @@ Staff access control is mostly solid: layouts gate roles via `getStaffShell()`, 
 
 The highest-impact gaps are:
 
-1. Default staff password `"password"` on user create  
-2. Editors can change peer editors’ Auth emails (account-takeover path)  
-3. Broken `/admin/performance` self-redirect (monitoring UI unreachable)  
-4. CSV exports: formula injection + unbounded PII dump without rate limits  
+1. Default staff password `"password"` on user create *(still open — ADM-01)*  
+2. ~~Editors can change peer editors’ Auth emails (account-takeover path)~~ ✅ **Fixed (ADM-02)**  
+3. ~~Broken `/admin/performance` self-redirect (monitoring UI unreachable)~~ ✅ **Fixed (ADM-03)**  
+4. ~~CSV exports: formula injection + unbounded PII dump without rate limits~~ ✅ **Fixed (ADM-04, ADM-05)**  
+
+**Remediation log**
+
+| ID | Status | Fix |
+| --- | --- | --- |
+| ADM-01 | open | Default staff password `"password"` — still open |
+| ADM-02 | ✅ | `updateUser` rejects email changes unless actor is admin; edit dialog email field is read-only for editors |
+| ADM-03 | ✅ | Restored `AdminPerfDashboard` on `/admin/performance`; `/dashboard/performance` remains a one-way redirect |
+| ADM-04 | ✅ | `escapeCsvCell` prefixes cells matching formula triggers (`=`, `+`, `-`, `@`, incl. leading whitespace) with `'` |
+| ADM-05 | ✅ | Export capped at 5 000 rows; rate-limited 10/user and 20/IP per hour; structured `[admin-export]` log; 429 + `Retry-After` |
+| ADM-06 | ✅ | Editors may delete viewers only; peer editor/admin delete is admin-only |
+| ADM-07 | ✅ | `safeHref` rejects protocol-relative `//` URLs |
+| ADM-08 | ✅ | Settings forms load and persist real `newsletterSignupEnabled` (no forced `false`) |
+| ADM-09 | ✅ | `consumeStaffMutationRateLimit` on createUser / deleteUser / hardDelete / createBackup / runBackupNow (export already limited) |
+| ADM-10 | ✅ | Column grant hides `backup_time`; `get_admin_backup_schedule` RPC for admins only |
+| ADM-11 | ✅ | Middleware calls `get_staff_shell` and redirects wrong roles before layout HTML |
+| ADM-12 | ✅ | `gatePageData` awaits auth first; load skipped on forbidden |
 
 ---
 
@@ -59,7 +76,7 @@ The highest-impact gaps are:
 
 ### High
 
-#### ADM-01 — Default staff password is `"password"`
+#### ADM-01 — Default staff password is `"password"` *(open)*
 
 | | |
 | --- | --- |
@@ -69,31 +86,31 @@ The highest-impact gaps are:
 | **Risk** | New editor/viewer accounts are guessable; pairs badly with email confirm-on-create. |
 | **Fix** | Always require a strong password; remove the default; prefer invite / change-on-first-login; never allow `"password"`. |
 
-#### ADM-02 — Editors can change peer editors’ Auth emails
+#### ✅ ADM-02 — Editors can change peer editors’ Auth emails — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Privilege escalation / IDOR-adjacent |
-| **Where** | `actions/users.ts` `updateUser` — `createAdminClient().auth.admin.updateUserById` with new email |
+| **Where** | `actions/users.ts` `updateUser`; `components/users/user-dialogs.tsx` |
 | **Problem** | After `authorizeStaff`, an editor may update another `editor`/`viewer` email via the service-role Auth Admin API with no step-up or ownership proof. |
 | **Risk** | Editor A sets Editor B’s email to an attacker mailbox → password reset → peer account takeover (CMS + exports + user mgmt). |
-| **Fix** | Restrict email changes to admins; or require re-auth + confirmation to the current email; block editors from mutating other editors; prefer invite/reset flows. |
+| **Fix applied** | Server: if email changes and actor is not admin → error `"Only administrators can change account emails."`. UI: email input is `readOnly` for editors. |
 
-#### ADM-03 — `/admin/performance` infinite self-redirect
+#### ✅ ADM-03 — `/admin/performance` infinite self-redirect — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Admin route / monitoring availability |
-| **Where** | `app/(unlocalized)/(admin)/admin/performance/page.tsx` and `app/(unlocalized)/(dashboard)/dashboard/performance/page.tsx` both `redirect(ROUTES.adminPerformance)` |
-| **Problem** | Admin performance page redirects to itself. `AdminPerfDashboard` exists in `components/dashboard/admin-perf-dashboard.tsx` but is not mounted. |
+| **Where** | `app/(unlocalized)/(admin)/admin/performance/page.tsx`; dashboard redirect kept at `app/(unlocalized)/(dashboard)/dashboard/performance/page.tsx` |
+| **Problem** | Admin performance page redirected to itself. `AdminPerfDashboard` existed but was not mounted. |
 | **Risk** | Not a data breach; removes admin performance visibility and loops staff who open that nav item. |
-| **Fix** | Restore the performance UI under `/admin/performance` (admin-gated). Keep `/dashboard/performance` as a one-way bookmark redirect only. |
+| **Fix applied** | Restored admin-gated performance UI (`getAdminPerfEventsPageData` + `AdminPerfDashboard`). `/dashboard/performance` still redirects to `/admin/performance` only. |
 
 ---
 
 ### Medium
 
-#### ADM-04 — CSV formula injection in Quick Export
+#### ✅ ADM-04 — CSV formula injection in Quick Export — **FIXED**
 
 | | |
 | --- | --- |
@@ -101,87 +118,87 @@ The highest-impact gaps are:
 | **Where** | `lib/backups/serialize.ts` `escapeCsvCell`; used by `app/api/admin/export/[table]/route.ts` |
 | **Problem** | Escapes quotes/newlines only; cells starting with `=`, `+`, `-`, `@` are not neutralized. |
 | **Risk** | Malicious intake content (e.g. `=CMD(...)`) opens as a formula when staff open the CSV in Excel. |
-| **Fix** | Prefix risky cells (e.g. `'`) or force text for all user-influenced columns. |
+| **Fix applied** | Prefix cells matching `/^[\t\r ]*[=+\-@]/` with `'` before CSV quoting. |
 
-#### ADM-05 — Unbounded, unrate-limited PII CSV export
+#### ✅ ADM-05 — Unbounded, unrate-limited PII CSV export — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | API & rate limiting / data exposure |
 | **Where** | `app/api/admin/export/[table]/route.ts` |
-| **Problem** | Editor GET dumps full allowlisted tables (applications, registrations, contact, newsletter) with no row cap and no `consumeSharedRateLimit`. |
+| **Problem** | Editor GET dumps full allowlisted tables with no row cap and no `consumeSharedRateLimit`. |
 | **Risk** | Stolen editor session or insider repeatedly exports full applicant/contact PII; large responses stress the app. |
-| **Fix** | Cap/paginate; rate-limit by userId+IP; audit-log exports; consider admin-only or dual-control for bulk PII. |
+| **Fix applied** | `.limit(5000)`; shared rate limits by userId (10/h) and IP (20/h); 429 + `Retry-After`; `[admin-export]` structured log; `X-Export-Row-Count` / `X-Export-Truncated` headers. |
 
-#### ADM-06 — Editors can delete peer editors
+#### ✅ ADM-06 — Editors can delete peer editors — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Function-level permissions |
-| **Where** | `actions/users.ts` `deleteUser` |
-| **Problem** | Editors may delete other editors (blocked only for admins / last editor / self). Uses Auth Admin `deleteUser`. |
+| **Where** | `actions/users.ts` `deleteUser`; `components/users/user-dialogs.tsx` |
+| **Problem** | Editors may delete other editors (blocked only for admins / last editor / self). |
 | **Risk** | Compromised editor removes peers, then recreates accounts (worse with ADM-01). |
-| **Fix** | Editor deletes → viewers only; peer editor delete admin-only. |
+| **Fix applied** | Editors may delete `viewer` only; UI disables delete for non-viewers. |
 
-#### ADM-07 — Protocol-relative URLs allowed in blog HTML sanitizer
+#### ✅ ADM-07 — Protocol-relative URLs allowed in blog HTML sanitizer — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | XSS / phishing via output encoding |
-| **Where** | `lib/sanitize-html.ts` `safeHref` — `href.startsWith("/")` also matches `//evil.example` |
-| **Problem** | Unlike `safeRedirectPath`, the sanitizer accepts protocol-relative links. |
-| **Risk** | Malicious editor publishes `//attacker` links on Insights; readers phished. Classic script XSS is otherwise mitigated. |
-| **Fix** | Reject `href.startsWith("//")`; allow only `https?:`, `mailto:`, `tel:`, single-slash paths, `#`. |
+| **Where** | `lib/sanitize-html.ts` `safeHref` |
+| **Problem** | `href.startsWith("/")` also matched `//evil.example`. |
+| **Risk** | Malicious editor publishes `//attacker` links on Insights; readers phished. |
+| **Fix applied** | Allow only `https?:`, `mailto:`, `tel:`, `#`, and single-slash paths (`/` but not `//`). |
 
-#### ADM-08 — Settings save always writes `newsletterSignupEnabled: false`
+#### ✅ ADM-08 — Settings save always writes `newsletterSignupEnabled: false` — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Integrity / input handling |
-| **Where** | `components/settings/site-settings-form.tsx`; `components/settings/admin-backup-settings-form.tsx` |
-| **Problem** | Every settings save forces newsletter signup off regardless of DB state. |
-| **Risk** | Not classic attacker-driven; any staff save silently disables a public feature. |
-| **Fix** | Load and persist the real `newsletterSignupEnabled` value; do not hardcode `false`. |
+| **Where** | `components/settings/site-settings-form.tsx`; `admin-backup-settings-form.tsx`; settings/backup pages |
+| **Problem** | Every settings save forced newsletter signup off regardless of DB state. |
+| **Risk** | Any staff save silently disabled a public feature. |
+| **Fix applied** | Prop from `getSiteSettingsForAdmin`; persist submitted value; phase-1 UI remains non-toggleable but no longer overwrites. |
 
 ---
 
 ### Low
 
-#### ADM-09 — No rate limits on sensitive staff mutations
+#### ✅ ADM-09 — No rate limits on sensitive staff mutations — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | API & rate limiting |
-| **Where** | `actions/users.ts`, `actions/backups.ts`, export route (contrast public forms using `lib/rate-limit.ts`) |
-| **Problem** | User create/delete, backups, and exports lack shared rate limits. |
-| **Fix** | Apply per-staff-userId limits on createUser, hardDelete, backup create, CSV export. |
+| **Where** | `actions/users.ts`, `actions/backups.ts`, export route |
+| **Problem** | User create/delete, backups, and exports lacked shared rate limits. |
+| **Fix applied** | `consumeStaffMutationRateLimit` (hourly): create 20, delete 20, hard-delete 10, backup create/run-now 10; CSV export already limited (ADM-05). |
 
-#### ADM-10 — Staff can read `backup_time` via RLS
+#### ✅ ADM-10 — Staff can read `backup_time` via RLS — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Data over-exposure |
-| **Where** | site_settings RLS / `data/settings.ts` `getSiteSettingsForAdmin` |
-| **Problem** | UPDATE of `backup_time` is admin-only; SELECT of base `site_settings` is `is_staff()`, so editors can still read the schedule (UI hides it). |
-| **Fix** | Column privilege / editor view without `backup_time`, or tighter SELECT policy. |
+| **Where** | migration `20260910240000_…`; `data/settings.ts`; `get_admin_backup_schedule` |
+| **Problem** | Editors could SELECT `backup_time` via base `site_settings`. |
+| **Fix applied** | Column grant excludes `backup_time` for `authenticated`; admins read via SECURITY DEFINER RPC. |
 
-#### ADM-11 — Middleware is role-blind (auth only)
+#### ✅ ADM-11 — Middleware is role-blind (auth only) — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Default-deny / admin lockdown |
-| **Where** | `middleware.ts` `isProtectedPath` — session refresh for `/admin` and `/dashboard` |
-| **Problem** | Viewers hitting `/admin` get HTML then layout redirect. Safe if layouts/actions/RLS hold; not early deny. |
-| **Fix** | Optional early role check in middleware; keep layout/action checks as source of truth. |
+| **Where** | `middleware.ts` |
+| **Problem** | Viewers hitting `/admin` got HTML then layout redirect. |
+| **Fix applied** | After session refresh, middleware calls `get_staff_shell` and redirects wrong roles early; layouts remain the source of truth. |
 
-#### ADM-12 — `gatePageData` loads data in parallel with auth
+#### ✅ ADM-12 — `gatePageData` loads data in parallel with auth — **FIXED**
 
 | | |
 | --- | --- |
 | **Area** | Authorization hygiene |
 | **Where** | `lib/admin/admin-list-query.ts` |
-| **Problem** | Query may run even when access will be denied; response is still `forbidden`. Relies on RLS. |
-| **Fix** | Await auth first for admin-only datasets, or keep as-is with RLS as the hard boundary. |
+| **Problem** | Query could run even when access would be denied. |
+| **Fix applied** | Await `canAccess()` first; skip `createClient`/`load` on forbidden. |
 
 ---
 
@@ -218,7 +235,7 @@ The highest-impact gaps are:
 
 ## Needs verification
 
-1. Whether PostgREST silently caps export row counts (~1000) vs a true full-table dump.
+1. ~~Whether PostgREST silently caps export row counts (~1000) vs a true full-table dump.~~ **App now enforces `EXPORT_MAX_ROWS = 5000`.**
 2. Whether any admin TipTap preview path renders HTML without going through `sanitizeBlogHtml`.
 3. Whether any production staff accounts already use password `password` — rotate if so (ADM-01).
 
@@ -226,14 +243,15 @@ The highest-impact gaps are:
 
 ## Priority remediation order
 
-1. **ADM-01** — Kill default `"password"`; harden create-user passwords.  
-2. **ADM-02 / ADM-06** — Lock down editor peer email change and peer delete.  
-3. **ADM-03** — Restore `/admin/performance` UI (stop self-redirect).  
-4. **ADM-04 / ADM-05 / ADM-09** — Harden CSV export (formulas + limits + rate limits).  
-5. **ADM-07 / ADM-08** — Fix `safeHref` and settings newsletter overwrite.
+1. **ADM-01** — Kill default `"password"`; harden create-user passwords. *(still open)*  
+2. ✅ ~~**ADM-02 / ADM-06** — Lock down editor peer email change and peer delete.~~  
+3. ✅ ~~**ADM-03** — Restore `/admin/performance` UI (stop self-redirect).~~  
+4. ✅ ~~**ADM-04 / ADM-05 / ADM-09** — Harden CSV export + staff mutation rate limits.~~  
+5. ✅ ~~**ADM-07 / ADM-08** — Fix `safeHref` and settings newsletter overwrite.~~  
+6. ✅ ~~**ADM-10 / ADM-11 / ADM-12** — backup_time column hide, middleware role gate, sequential gatePageData.~~
 
 ---
 
 ## Suggested next step
 
-Say if you want these remediations applied (recommended: High first, then Medium), as a single branch or one commit per finding.
+Only **ADM-01** remains open from this audit.

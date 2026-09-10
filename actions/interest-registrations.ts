@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { getInterestRegistrationById } from "@/data/interest-registrations";
 import { getOpenApplications } from "@/data/settings";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -347,4 +348,9 @@ export async function updateInterestRegistrationInboxStatus(
     },
     refresh: () => refreshRegistrationsRoute(),
   });
+}
+
+/** Full registration for the shared inbox view/edit dialog. */
+export async function loadInterestRegistration(id: string) {
+  return getInterestRegistrationById(id);
 }

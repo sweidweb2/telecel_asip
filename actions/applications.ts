@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { getApplicationById } from "@/data/applications";
 import { getOpenApplications } from "@/data/settings";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import {
@@ -319,4 +320,9 @@ export async function updateApplicationInboxStatus(
     },
     refresh: () => refreshApplicationsRoute(),
   });
+}
+
+/** Full application for the shared inbox view/edit dialog. */
+export async function loadApplication(id: string) {
+  return getApplicationById(id);
 }

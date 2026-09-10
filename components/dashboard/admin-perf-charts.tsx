@@ -54,12 +54,12 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
                 <Legend />
                 <Bar
                   dataKey="miss"
-                  fill="var(--color-chart-1, #c2410c)"
+                  fill="var(--color-chart-1)"
                   name="Miss / n_a avg"
                 />
                 <Bar
                   dataKey="hit"
-                  fill="var(--color-chart-2, #15803d)"
+                  fill="var(--color-chart-2)"
                   name="Hit avg"
                 />
               </BarChart>
@@ -89,21 +89,21 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
                 <Line
                   type="monotone"
                   dataKey="miss"
-                  stroke="#c2410c"
+                  stroke="var(--color-chart-1)"
                   name="Miss / n_a"
                   dot={false}
                 />
                 <Line
                   type="monotone"
                   dataKey="hit"
-                  stroke="#15803d"
+                  stroke="var(--color-chart-2)"
                   name="Hit"
                   dot={false}
                 />
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#334155"
+                  stroke="var(--color-chart-3)"
                   name="Total"
                   dot={false}
                 />
@@ -127,7 +127,7 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
               <XAxis dataKey="eventType" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Bar dataKey="count" fill="#334155" name="Count" />
+              <Bar dataKey="count" fill="var(--brand)" name="Count" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

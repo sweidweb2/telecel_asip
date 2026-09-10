@@ -4,6 +4,7 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { createClient } from "@/lib/supabase/server";
 import {
   fetchInboxTableStats,
@@ -11,11 +12,18 @@ import {
 } from "@/data/inbox-stats";
 import type {
   InterestRegistration,
+  InterestRegistrationListItem,
   InterestRegistrationListResult,
 } from "@/types/interest-registration";
-import type { InterestRegistrationListQuery } from "@/validations/interest-registration";
+import {
+  deleteInterestRegistrationSchema,
+  type InterestRegistrationListQuery,
+} from "@/validations/interest-registration";
 
-const REGISTRATION_COLUMNS =
+const REGISTRATION_LIST_COLUMNS =
+  "id, full_name, email, company_name, inbox_status, created_at" as const;
+
+const REGISTRATION_DETAIL_COLUMNS =
   "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, pitch, consent, comms_opt_in, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -28,7 +36,7 @@ async function fetchInterestRegistrations(
 
   let request = supabase
     .from("interest_registrations")
-    .select(REGISTRATION_COLUMNS, { count: "estimated" })
+    .select(REGISTRATION_LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -46,7 +54,7 @@ async function fetchInterestRegistrations(
 
   const total = count ?? 0;
   return {
-    registrations: (data ?? []) as InterestRegistration[],
+    registrations: (data ?? []) as InterestRegistrationListItem[],
     total,
     totalPages: adminListTotalPages(total, query.pageSize),
   };
@@ -72,4 +80,29 @@ export async function getInterestRegistrationsPageData(
     },
     { name: "getInterestRegistrationsPageData" },
   );
+}
+
+export async function getInterestRegistrationById(
+  id: string,
+): Promise<
+  | { status: "forbidden" }
+  | { status: "not_found" }
+  | { status: "ok"; record: InterestRegistration }
+> {
+  if (!deleteInterestRegistrationSchema.safeParse({ id }).success) {
+    return { status: "not_found" };
+  }
+
+  const supabase = await createClient();
+  if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+
+  const { data, error } = await supabase
+    .from("interest_registrations")
+    .select(REGISTRATION_DETAIL_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return { status: "not_found" };
+  return { status: "ok", record: data as InterestRegistration };
 }

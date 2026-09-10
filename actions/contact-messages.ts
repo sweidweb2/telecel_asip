@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { getContactMessageById } from "@/data/contact-messages";
 import {
   refreshAdminResource,
   runAdminMutation,
@@ -249,4 +250,9 @@ export async function updateContactMessageInboxStatus(
     },
     refresh: () => refreshContactUsRoute(),
   });
+}
+
+/** Full contact message for the shared inbox view/edit dialog. */
+export async function loadContactMessage(id: string) {
+  return getContactMessageById(id);
 }
