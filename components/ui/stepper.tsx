@@ -125,7 +125,7 @@ function Stepper({
   const [triggerNodes, setTriggerNodes] = useState<HTMLButtonElement[]>([]);
 
   const [isMdUp, setIsMdUp] = useState<boolean>(() =>
-    typeof window !== "undefined"
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
       ? window.matchMedia("(min-width: 768px)").matches
       : true,
   );
@@ -539,6 +539,7 @@ function StepperPanel({ children, className }: React.ComponentProps<"div">) {
 
 interface StepperContentProps extends React.ComponentProps<"div"> {
   value: string;
+  /** Keep inactive panels in the DOM (`hidden`). Leave unset on CMS editors. */
   forceMount?: boolean;
 }
 

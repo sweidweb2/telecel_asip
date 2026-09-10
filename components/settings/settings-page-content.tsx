@@ -13,6 +13,10 @@ export function SettingsPageContent({
 }: SettingsPageContentProps) {
   return (
     <AdminListPageShell title="Settings">
+      <p className="text-sm text-muted-foreground">
+        Same site-wide intake switches for editors and admins — not two
+        different settings products.
+      </p>
       <SiteSettingsForm
         openApplications={openApplications}
         newsletterSignupEnabled={newsletterSignupEnabled}

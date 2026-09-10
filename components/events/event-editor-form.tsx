@@ -52,7 +52,7 @@ import {
 import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import {
   firstInvalidEditorStep,
   isAdminFormSubmitDisabled,
@@ -216,10 +216,10 @@ export function EventEditorForm({
   }
 
   const { errors, isDirty } = form.formState;
-  useUnsavedChangesGuard(isDirty && !isPending);
 
   return (
     <div className="grid w-full gap-6">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}

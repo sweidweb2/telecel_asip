@@ -3,8 +3,19 @@
 **Date:** 10 September 2026  
 **Scope:** Staff shells only — Editor (`/dashboard/*`) and Admin (`/admin/*`). Marketing, auth, and public pages are out of scope.  
 **Method:** The 100 prompts in `Docs/[10] Skills/ui-audit.md` applied as a read-only checklist against live code.  
-**Progress:** ✅ = fixed in code. Unmarked items are still open.  
+**Progress:** ✅ = fixed in code (or accepted N/A). Unmarked items are still open.  
 **Related:** `Docs/[02] Reports/[2.3] Admin panel ui-ux/5-9-2026 Admin panel ui-ux report.md` (older, pre staff-split; still useful for list/editor patterns).
+
+### Still open
+
+| # | Area | Issue |
+| --- | --- | --- |
+| 9 (partial) | Shared tables | Bulk select |
+| 28 | Admin | Perf “delete old events” has no confirm; user delete has no undo |
+| 41–42 | Editor | Dual Settings shells; Users in editor System nav (product confirm) |
+| 43–46 | Editor | Field error a11y; section-help touch; Hero vs Featured; portfolio crumb truncate |
+| 47–49 | Editor Low | ✅ Group loading content-only; nested error/not-found; redirect-stub loading removed |
+| — | Tables | Sort/export on CMS lists beyond Users/Blogs/inbox |
 
 ---
 
@@ -33,7 +44,7 @@ The two shells are split correctly (admin is redirected away from `/dashboard`, 
 The problems that matter most:
 
 1. ✅ ~~**`/admin/performance` never loads** — the page redirects to itself.~~ Restored (`AdminPerfDashboard` mounted).  
-2. ✅ ~~**Editor create/edit forms can lose work**~~ — `useUnsavedChangesGuard` on all CMS editors (`beforeunload`, link click, back).
+2. ✅ ~~**Editor create/edit forms can lose work**~~ — `UnsavedChangesGuard` AlertDialog (Continue editing / Discard); native `beforeunload` on refresh/tab close.
 3. ✅ ~~**Dummy / Clear buttons ship in production**~~ — gated to non-production in `AdminFormDevTools`.
 4. ✅ ~~**Empty lists and filtered no-results use the same copy**~~ — `AdminEmptyState` splits empty vs no-results; create CTAs only on true empty.
 5. ✅ ~~**Browser tabs still say “ASIP Admin”**~~ — editor dashboard document titles use `| ASIP Editor`.
@@ -170,7 +181,8 @@ Chrome: `app/(unlocalized)/(admin)/layout.tsx` — sidebar brand **Admin panel**
     *Prompts 11, 18.*
 
 28. **Destructive user delete has confirm, no undo;** `DeleteOldPerfEventsButton` has **no confirm** (Performance page is reachable again ✅).  
-    *Prompt 80.*
+    *Prompt 80.*  
+    *(Still open — not fixed.)*
 
 29. ✅ **Admin Backup/Settings/Performance loading is generic** — **done.**  
     Those routes use `RouteSkeleton` + `StaffPageSkeleton`.  
@@ -193,7 +205,7 @@ Chrome: `app/(unlocalized)/(dashboard)/layout.tsx` — sidebar brand **Editor pa
 ### High
 
 32. ✅ **No unsaved-changes protection** — **done.**  
-    `useUnsavedChangesGuard` on all eight `*-editor-form.tsx` (refresh, same-origin links, best-effort back).  
+    `UnsavedChangesGuard` AlertDialog (Continue editing / Discard) on all eight `*-editor-form.tsx`; native `beforeunload` only for refresh/tab close.  
     *Prompts 71, 80, 94.*
 
 33. ✅ **Dummy / Clear is always visible in production** — **done.**  
@@ -214,51 +226,57 @@ Chrome: `app/(unlocalized)/(dashboard)/layout.tsx` — sidebar brand **Editor pa
 
 ### Medium
 
-37. **Editor home is an incomplete launcher**  
-    Nine tiles; sidebar also has Events, Evidence, Impact, Newsletter, Analytics, Cohorts. Home does not match IA. Label “Startup” vs route `portfolio` is slightly opaque. No stats / “what’s waiting”.  
+37. ✅ **Editor home is an incomplete launcher** — **done.**  
+    Home matches sidebar IA (grouped launcher), **Startups** label (not opaque “Startup”), and **What’s waiting** unread counts from analytics.  
     File: `app/(unlocalized)/(dashboard)/dashboard/page.tsx`.  
     *Prompts 6, 87.*
 
-38. **Edit/new `loading.tsx` reuses list skeletons**  
-    Example: `dashboard/blogs/[id]/loading.tsx` → `BlogsPageSkeleton` (table shape) instead of a long form + save bar. Same pattern on cohorts, events, partners, etc.  
+38. ✅ **Edit/new `loading.tsx` reuses list skeletons** — **done.**  
+    Shared `AdminEditorPageSkeleton` (form + save bar) on create/edit routes.  
     *Prompt 35.*
 
-39. **Startup stepper does not gate steps**  
-    All steps `forceMount`; Save is available from any step; errors elsewhere are easy to miss.  
+39. ✅ **Startup stepper does not gate steps** — **done.**  
+    No `forceMount`; Continue validates the current step; Save only on the last step; invalid Save jumps to the first bad step.  
     File: `components/startups/startup-editor-form.tsx`.  
     *Prompt 72.*
 
-40. **Image upload progress is toast-only**  
-    “Uploading image…” spinner, no percent, no cancel. Create can succeed then fail mid-upload.  
+40. ✅ **Image upload progress is toast-only** — **done.**  
+    Inline `AdminImageProcessingBanner` + honest “Processing image…” (no fake %). Clear selection before save skips upload; create-then-fail copy points staff to the edit page.  
     *Prompts 76, 83.*
 
-41. **Settings exist in both shells**  
+41. **Settings exist in both shells** — still open.  
     Editors have `/dashboard/settings`; admins have `/admin/settings`. Same `SettingsPageContent`. Fine if both roles may flip Applications; easy to think they are different products.  
     *Prompts 10, 87.*
 
-42. **Users live in the editor System nav**  
-    Editors can create other editors/viewers. Not a leftover admin link, but it is a powerful System item sitting next to Analytics. Confirm this is intended.  
+42. **Users live in the editor System nav** — still open (confirm intended).  
+    Editors can create other editors/viewers. Not a leftover admin link, but it is a powerful System item sitting next to Analytics.  
     *Prompt 87.*
 
-43. **Form field errors are inconsistent**  
+43. **Form field errors are inconsistent** — still open.  
     Some fields use FieldError / `aria-invalid`; many editors use a plain `<p className="text-destructive">` with no `role="alert"` / `aria-describedby`.  
     *Prompts 48, 67, 68.*
 
-44. **Section help info buttons are `size-8`** — tight for thumbs.  
+44. **Section help info buttons are `size-8`** — still open (tight for thumbs).  
     File: `components/dashboard/admin-form-section-help.tsx`.  
     *Prompt 14.*
 
-45. **Featured naming drifts** — list badge “Hero” vs form “Featured hero” (`blogs-table.tsx` vs `blog-editor-form.tsx`). *Prompt 30.*
+45. **Featured naming drifts** — still open.  
+    List badge “Hero” vs form “Featured hero” (`blogs-table.tsx` vs `blog-editor-form.tsx`). *Prompt 30.*
 
-46. **Portfolio edit breadcrumb does not truncate**; other editors use `max-w-[16rem] truncate`. Long startup names can blow the crumb row.  
+46. **Portfolio edit breadcrumb does not truncate** — still open.  
+    Other editors use `max-w-[16rem] truncate`. Long startup names can blow the crumb row.  
     *Prompt 27.*
 
 ### Low
 
-47. **Group `(dashboard)/loading.tsx` can flash a fake sidebar** while the real layout already mounted the shell. *Prompt 15.*  
-48. **No nested `error.tsx` / `not-found.tsx`** under dashboard — one group boundary for every CMS page. *Prompt 79.*  
-49. **Redirect stubs** `/dashboard/backup` and `/dashboard/performance` still have `loading.tsx` that can flash before redirect. *Prompt 94.*  
-50. **No drag-and-drop reorder** for partners (`sortOrder` is a number). Not required; prompt 64 is N/A unless you want visual reorder.
+47. ✅ **Group `(dashboard)/loading.tsx` can flash a fake sidebar** — **done.**  
+    Content-only `StaffPageSkeleton` (layout already owns the shell). Same fix on `(admin)/loading.tsx`. *Prompt 15.*  
+48. ✅ **No nested `error.tsx` / `not-found.tsx`** under dashboard — **done.**  
+    `dashboard/error.tsx` + `dashboard/not-found.tsx` (staff chrome, link home to dashboard). *Prompt 79.*  
+49. ✅ **Redirect stubs** `/dashboard/backup` and `/dashboard/performance` still have `loading.tsx` — **done.**  
+    Removed those `loading.tsx` files so soft-nav does not flash chrome before redirect. *Prompt 94.*  
+50. ✅ **No drag-and-drop reorder** for partners — **N/A.**  
+    `sortOrder` is a number; prompt 64 is N/A unless product wants visual reorder.
 
 ---
 
@@ -271,36 +289,36 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | # | Prompt | Problem |
 | --- | --- | --- |
 | 1–2 | Tokens / semantic color | ✅ Semantic tokens / no `bg-white` on editor fields |
-| 6 | Hierarchy | Header h1 vs form h2; admin has no home; editor home incomplete |
+| 6 | Hierarchy | ✅ Create/edit header titles; admin has home; editor home matches sidebar |
 | 8 | Empty states | ✅ Empty vs no-results split |
-| 10 | Consistency | “ASIP Admin” vs “Editor panel”; Dummy in prod; Backup vs Settings copy |
+| 10 | Consistency | ✅ Editor titles; Dummy gated; Backup vs Settings copy mostly fixed |
 
 ### Layout & responsive (11–20)
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 11 | Breakpoints | User stats cards squeeze on phone |
+| 11 | Breakpoints | ✅ User stats cards wrap on narrow widths |
 | 12 | Horizontal scroll | ✅ Single table scroll region |
 | 14 | Touch targets | ✅ Sidebar trigger + header search; section-help icon still tight |
-| 15 | Layout shift | ✅ List/generic skeletons match header-owned titles; edit-route skeletons still list-shaped |
+| 15 | Layout shift | ✅ List/generic skeletons match header titles; edit routes use `AdminEditorPageSkeleton` |
 | 17 | Sticky header | ✅ Sticky `StaffHeader` |
-| 18 | Density | Backup `gap-10` vs lists `gap-6`; admin page is four equal blocks |
+| 18 | Density | ✅ Backup order Create → Schedule → History → Recovery |
 
 ### Typography (21–30)
 
 | # | Prompt | Problem |
 | --- | --- | --- |
 | 21 | Type scale | ✅ Nav badges `text-xs`; other one-offs may remain |
-| 26 | Heading structure | ✅ Nested mains fixed; header h1 still not create/edit title |
+| 26 | Heading structure | ✅ Nested mains fixed; create/edit header uses action titles |
 | 27 | Overflow | Some emails/names truncate without tooltip; portfolio crumb |
-| 28 | Dates | Backup history vs Users date formatting |
-| 30 | Casing / labels | ✅ Staff chrome renamed; Hero vs Featured / ASIP Admin titles still open |
+| 28 | Dates | ✅ Backup history uses `formatAdminDateTime` |
+| 30 | Casing / labels | ✅ Staff chrome renamed; Hero vs Featured still open |
 
 ### Performance (31–44) — UI-facing only
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 35 | Skeletons | ✅ Staff list/admin loadings fixed; edit routes still list-shaped |
+| 35 | Skeletons | ✅ Staff list/admin loadings; edit routes use `AdminEditorPageSkeleton` |
 | 39 | Optimistic UI | ✅ Undo toast on toggles/archive |
 | 41 | Debounce | ✅ ⌘K + Actions catalog (not full record search) |
 
@@ -308,16 +326,16 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 45–46 | Keyboard | ✅ Row keyboard + skip link; RTE prompt still open |
+| 45–46 | Keyboard | ✅ Row keyboard + skip link; RTE link Dialog |
 | 47 | Focus | ✅ Clickable rows have focus-visible ring |
-| 48 | Forms | Error association incomplete; password create field |
+| 48 | Forms | ✅ Password create field; error association still incomplete |
 | 49 | Semantics | ✅ Single `<main>` |
 | 51 | Reduced motion | ✅ Staff chrome respects it |
 | 52 | Live regions | ✅ Filter pending announced |
-| 53 | Modals | Delete dialogs OK; RTE `window.prompt` is not a dialog |
+| 53 | Modals | ✅ Delete dialogs + RTE link Dialog |
 | 54 | Color alone | ✅ Perf cache badges labeled + semantic |
 | 55 | Skip link | ✅ Present in staff layouts |
-| 56 | Titles / lang | Editor routes titled “ASIP Admin”; `lang` itself is OK (`en`) |
+| 56 | Titles / lang | ✅ Editor routes `| ASIP Editor`; `lang` OK (`en`) |
 
 ### Motion (57–66)
 
@@ -325,19 +343,19 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | --- | --- | --- |
 | 58 | Motion tokens | ✅ Reduced-motion on sidebar / toploader |
 | 61 | Hover/focus | ✅ Rows keyboard-operable |
-| 63 | Loading→content | ✅ List skeletons improved; edit-route mismatch remains |
+| 63 | Loading→content | ✅ List skeletons; edit routes use form skeleton |
 | 64 | Drag affordances | N/A (no DnD) |
 
 ### Forms (67–76)
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 67–68 | Validation / errors | Timing OK; copy/association incomplete; Backup “Settings” lie |
-| 71 | Autosave | None; no dirty-leave warning |
-| 72 | Multi-step | Startup stepper does not validate per step |
-| 74 | Password | Create-user default `"password"`, no visibility toggle |
-| 75 | Hints | Dummy tools look like real editor actions |
-| 76 | Submit feedback | Create backup “Starting…” has no spinner |
+| 67–68 | Validation / errors | ✅ Backup “Settings” copy fixed; field error association still incomplete |
+| 71 | Autosave | None; ✅ dirty-leave warning on editors |
+| 72 | Multi-step | ✅ Continue validates the current step; Save on last step |
+| 74 | Password | ✅ Strong password + show/hide; no default `"password"` |
+| 75 | Hints | ✅ Dummy/Clear hidden in production |
+| 76 | Submit feedback | ✅ Create backup spinner; uploads show processing banner |
 
 ### Feedback (77–86)
 
@@ -348,21 +366,21 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | 80 | Destructive confirm | Users OK; perf delete reachable again but still no confirm |
 | 81 | Undo | ✅ Toast undo on toggles/archive |
 | 82 | Offline | ✅ Staff offline banner |
-| 83 | Long ops | Uploads and some backup actions lack determinate progress |
-| 85 | Contextual help | Newsletter “phase 1” dead block; Dummy unlabeled as dev-only |
-| 86 | Status system | Backup raw enums; Hero vs Featured |
+| 83 | Long ops | ✅ Uploads: processing banner (no fake %); some backup actions still indeterminate |
+| 85 | Contextual help | ✅ Newsletter phase-1 callout; Dummy gated in prod |
+| 86 | Status system | ✅ Backup title-case badges; Hero vs Featured still open |
 
 ### Navigation (87–94)
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 87 | Primary nav | ✅ Performance reachable; home tiles ≠ sidebar; Settings in two shells |
+| 87 | Primary nav | ✅ Performance reachable; editor home matches sidebar; Settings still in two shells |
 | 88 | Command palette | ✅ ⌘K page/actions search (not full record palette) |
-| 89 | Active location | Header title stays on parent (“Blogs”) on `/blogs/new` |
+| 89 | Active location | ✅ Create/edit header titles (New/Edit …) |
 | 90 | Breadcrumbs | Present on editors; missing on admin Backup’s inner sections |
 | 91 | Search | ✅ Nav + Actions typeahead |
 | 93 | Shortcuts | ✅ `?` / save / new (+ ⌘B / ⌘K) |
-| 94 | Friction | Dirty leave; Dummy; password default; dual Applications toggle |
+| 94 | Friction | ✅ Dirty leave + Dummy gated; Applications toggle owned on Settings |
 
 ### Tables (95–100)
 
@@ -370,7 +388,7 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | --- | --- | --- |
 | 95 | Usable tables | ✅ Sticky thead, single scroll, keyboard rows; sort on Users/Blogs |
 | 96 | Filter/sort | ✅ Empty/no-results split; sort on Users/Blogs |
-| 97 | Pagination | Present and OK |
+| 97 | Pagination | ✅ Present |
 | 98 | Charts | ✅ Performance charts reachable on `/admin/performance` |
 | 99 | Bulk | None (still open) |
 | 100 | Export | ✅ Users CSV + inbox CSV; other CMS tables still no export |
@@ -397,12 +415,12 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 
 | Route | Issue |
 | --- | --- |
-| `/dashboard` | Incomplete launcher; title `Dashboard \| ASIP Admin` |
+| `/dashboard` | ✅ Launcher matches sidebar; title `| ASIP Editor` |
 | CMS lists | ✅ Empty/no-results + keyboard rows; sort on Users/Blogs; bulk still open |
-| `/dashboard/*/new` and `[id]` | Dirty leave; Dummy in prod; `\| ASIP Admin` titles; list-shaped skeletons; heading clash |
-| `/dashboard/settings` | Title `\| ASIP Admin`; duplicate of admin Settings |
+| `/dashboard/*/new` and `[id]` | ✅ Dirty leave + Dummy gated + `| ASIP Editor` + header action titles + editor page skeleton |
+| `/dashboard/settings` | Dual shell vs admin Settings (still open); title ✅ `| ASIP Editor` |
 | `/dashboard/users` | ✅ Same shared-table fixes as admin Users |
-| `/dashboard/backup`, `/performance` | Redirects (correct) but loading chrome can flash |
+| `/dashboard/backup`, `/performance` | ✅ Redirects; stub `loading.tsx` removed |
 
 ---
 

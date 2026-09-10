@@ -25,6 +25,7 @@ import {
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -67,7 +68,7 @@ import { UrlInput } from "@/components/ui/url-input";
 import { PARTNER_EDITOR_HELP } from "@/constants/partner-editor-help";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import {
   firstInvalidEditorStep,
   isAdminFormSubmitDisabled,
@@ -292,7 +293,6 @@ export function PartnerEditorForm({
 
   const displayLogo = previewUrl ?? storedLogoUrl;
   const { errors, isDirty } = form.formState;
-  useUnsavedChangesGuard(isDirty && !isPending);
   const saveDisabled = isAdminFormSubmitDisabled({
     isPending,
     isDirty,
@@ -317,6 +317,7 @@ export function PartnerEditorForm({
 
   return (
     <>
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           onDummy={fillDummy}
@@ -591,10 +592,12 @@ export function PartnerEditorForm({
                         </Button>
                         <p className="text-xs text-muted-foreground">
                           JPEG, PNG, WebP, or GIF under 2 MB. Resized and
-                          converted to WebP on upload.
+                          converted to WebP on save. Clear the selection before
+                          save to skip the upload.
                         </p>
                       </div>
                     </div>
+                    <AdminImageProcessingBanner active={isProcessingImage} />
 
                     <AlertDialog open={removeOpen} onOpenChange={setRemoveOpen}>
                       <AlertDialogContent>

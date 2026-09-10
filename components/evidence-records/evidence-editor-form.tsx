@@ -58,8 +58,11 @@ import {
 import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import {
   dummyEvidenceValues,
   todayIsoDate,
@@ -78,9 +81,24 @@ import {
 } from "@/validations/evidence-record";
 
 const EVIDENCE_EDITOR_STEPS = [
-  { id: "source", title: "Source", description: "Citation & file" },
-  { id: "period", title: "Period", description: "Dates & owner" },
-  { id: "governance", title: "Governance", description: "Status & review" },
+  {
+    id: "source",
+    title: "Source",
+    description: "Citation & file",
+    fields: ["primarySource", "sourceFileUrl"],
+  },
+  {
+    id: "period",
+    title: "Period",
+    description: "Dates & owner",
+    fields: ["measurementPeriodStart", "measurementPeriodEnd", "ownerId"],
+  },
+  {
+    id: "governance",
+    title: "Governance",
+    description: "Status & review",
+    fields: ["status", "permission", "lastVerifiedDate", "reviewDate"],
+  },
 ];
 
 function ownerLabel(owner: EvidenceOwnerOption): string {
@@ -140,11 +158,11 @@ export function EvidenceEditorForm({
   const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
     resolver: zodResolver(createEvidenceRecordSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(record, initialDefaultOwnerId),
   });
   const ownerId = useWatch({ control: form.control, name: "ownerId" });
   const { errors, isDirty } = form.formState;
-  useUnsavedChangesGuard(isDirty && !isPending);
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -238,6 +256,7 @@ export function EvidenceEditorForm({
 
   return (
     <div className="grid w-full gap-6">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
@@ -268,7 +287,10 @@ export function EvidenceEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, EVIDENCE_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -306,7 +328,6 @@ export function EvidenceEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="source"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -357,7 +378,6 @@ export function EvidenceEditorForm({
 
             <StepperContent
               value="period"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -461,7 +481,6 @@ export function EvidenceEditorForm({
 
             <StepperContent
               value="governance"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection

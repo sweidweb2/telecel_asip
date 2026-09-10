@@ -21,6 +21,7 @@ import {
 } from "@/components/dashboard/admin-editor-actions-bar";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
@@ -74,7 +75,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
 import { ROUTES } from "@/constants/routes";
 import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import {
   firstInvalidEditorStep,
   isAdminFormSubmitDisabled,
@@ -253,6 +254,7 @@ function defaultsFromStartup(startup?: StartupWithDetails): StartupFormValues {
 export function StartupEditorForm({
   mode,
   startup,
+  heading,
 }: StartupEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -321,7 +323,10 @@ export function StartupEditorForm({
           try {
             const upload = await uploadStartupLogo(result.id, formData);
             if (upload.status === "error") {
-              toast.error(upload.message, { id: uploadToast });
+              toast.error(
+                "Startup created, but the logo could not be processed. Add it from this page.",
+                { id: uploadToast },
+              );
               router.push(`${ROUTES.portfolio}/${result.id}`);
               router.refresh();
               return;
@@ -410,7 +415,6 @@ export function StartupEditorForm({
   }
 
   const { errors, isDirty } = form.formState;
-  useUnsavedChangesGuard(isDirty && !isPending);
   const saveDisabled = isAdminFormSubmitDisabled({
     isPending,
     isDirty,
@@ -424,9 +428,46 @@ export function StartupEditorForm({
       ? "Creating…"
       : "Saving…";
 
+  const stepIndex = STARTUP_EDITOR_STEPS.findIndex((s) => s.id === step);
+  const isLastStep = stepIndex === STARTUP_EDITOR_STEPS.length - 1;
+  const isFirstStep = stepIndex <= 0;
+
+  async function goToNextStep() {
+    const current = STARTUP_EDITOR_STEPS[stepIndex];
+    if (!current) return;
+    const ok = await form.trigger([...current.fields] as never, {
+      shouldFocus: true,
+    });
+    if (!ok) {
+      toast.error("Fix the highlighted fields before continuing.");
+      return;
+    }
+    const next = STARTUP_EDITOR_STEPS[stepIndex + 1];
+    if (next) setStep(next.id);
+  }
+
+  function goToPreviousStep() {
+    const prev = STARTUP_EDITOR_STEPS[stepIndex - 1];
+    if (prev) setStep(prev.id);
+  }
+
+  function onStepChange(nextId: string) {
+    const nextIndex = STARTUP_EDITOR_STEPS.findIndex((s) => s.id === nextId);
+    if (nextIndex < 0) return;
+    if (nextIndex <= stepIndex) {
+      setStep(nextId);
+      return;
+    }
+    if (nextIndex === stepIndex + 1) {
+      void goToNextStep();
+    }
+  }
+
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -455,7 +496,7 @@ export function StartupEditorForm({
       <Stepper
         steps={STARTUP_EDITOR_STEPS}
         value={step}
-        onValueChange={setStep}
+        onValueChange={onStepChange}
         orientation="horizontal"
         className="flex flex-col gap-6"
       >
@@ -464,6 +505,7 @@ export function StartupEditorForm({
             <StepperItem
               key={s.id}
               stepId={s.id}
+              disabled={index > stepIndex + 1}
               className="relative flex-1"
             >
               <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
@@ -521,9 +563,7 @@ export function StartupEditorForm({
                       })}
                     />
                     {errors.name ? (
-                      <p className="text-sm text-destructive">
-                        {errors.name.message}
-                      </p>
+                      <AdminFieldError message={errors.name.message} />
                     ) : null}
                   </div>
 
@@ -545,9 +585,7 @@ export function StartupEditorForm({
                       })}
                     />
                     {errors.slug ? (
-                      <p className="text-sm text-destructive">
-                        {errors.slug.message}
-                      </p>
+                      <AdminFieldError message={errors.slug.message} />
                     ) : null}
                   </div>
                 </div>
@@ -568,9 +606,7 @@ export function StartupEditorForm({
                     {...form.register("description")}
                   />
                   {errors.description ? (
-                    <p className="text-sm text-destructive">
-                      {errors.description.message}
-                    </p>
+                    <AdminFieldError message={errors.description.message} />
                   ) : null}
                 </div>
 
@@ -604,9 +640,7 @@ export function StartupEditorForm({
                       </SelectContent>
                     </Select>
                     {errors.status ? (
-                      <p className="text-sm text-destructive">
-                        {errors.status.message}
-                      </p>
+                      <AdminFieldError message={errors.status.message} />
                     ) : null}
                   </div>
 
@@ -629,9 +663,7 @@ export function StartupEditorForm({
                       )}
                     />
                     {errors.foundedAt ? (
-                      <p className="text-sm text-destructive">
-                        {errors.foundedAt.message}
-                      </p>
+                      <AdminFieldError message={errors.foundedAt.message} />
                     ) : null}
                   </div>
                 </div>
@@ -710,9 +742,11 @@ export function StartupEditorForm({
                     {pendingLogo || logoUrl ? "Replace logo" : "Choose logo"}
                   </Button>
                 </div>
+                <AdminImageProcessingBanner active={isProcessingImage} />
                 <p className="text-xs text-muted-foreground">
-                  Optional. On create, the file uploads after the startup is
-                  saved.
+                  Optional. On create, the file uploads after the startup row is
+                  saved. Clear the selection before save to skip the upload.
+                  Percent and cancel are not available while processing.
                 </p>
               </CardContent>
             </Card>
@@ -904,9 +938,7 @@ export function StartupEditorForm({
                     {...form.register("details.websiteUrl")}
                   />
                   {errors.details?.websiteUrl ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.websiteUrl.message}
-                    </p>
+                    <AdminFieldError message={errors.details.websiteUrl.message} />
                   ) : null}
                 </div>
 
@@ -977,9 +1009,7 @@ export function StartupEditorForm({
                     {...form.register("details.foundingYear")}
                   />
                   {errors.details?.foundingYear ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.foundingYear.message}
-                    </p>
+                    <AdminFieldError message={errors.details.foundingYear.message} />
                   ) : null}
                 </div>
 
@@ -1107,9 +1137,7 @@ export function StartupEditorForm({
                     {...form.register("details.fundingGoal")}
                   />
                   {errors.details?.fundingGoal ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.fundingGoal.message}
-                    </p>
+                    <AdminFieldError message={errors.details.fundingGoal.message} />
                   ) : null}
                 </div>
                 <div className="grid gap-2">
@@ -1130,9 +1158,7 @@ export function StartupEditorForm({
                     {...form.register("details.amountRaised")}
                   />
                   {errors.details?.amountRaised ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.amountRaised.message}
-                    </p>
+                    <AdminFieldError message={errors.details.amountRaised.message} />
                   ) : null}
                 </div>
               </div>
@@ -1143,30 +1169,57 @@ export function StartupEditorForm({
       </Stepper>
 
       <AdminEditorActionsBar>
-        {mode === "edit" ? (
-          <Button
-            type="button"
-            variant="destructive"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Delete
-          </Button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
-        <Button
-          type="submit"
-          className="min-h-11 w-full sm:ml-auto sm:w-auto"
-          disabled={saveDisabled}
-        >
-          {isPending ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : null}
-          {isPending ? pendingLabel : saveLabel}
-        </Button>
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending || isFirstStep}
+                onClick={goToPreviousStep}
+              >
+                Back
+              </Button>
+              {isLastStep ? (
+                <Button
+                  type="submit"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={saveDisabled}
+                >
+                  {isPending ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : null}
+                  {isPending ? pendingLabel : saveLabel}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={isPending}
+                  onClick={() => void goToNextStep()}
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
       </AdminEditorActionsBar>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

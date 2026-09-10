@@ -38,12 +38,14 @@ export default async function EditStartupPage({ params }: EditStartupPageProps) 
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink render={<Link href={ROUTES.portfolio} />}>
-              Startup
+              Startups
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{startup.name}</BreadcrumbPage>
+            <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
+              {startup.name}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

@@ -39,6 +39,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebarLayout,
   useSidebarMobile,
 } from "@/components/ui/sidebar";
 import {
@@ -122,6 +123,8 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebarMobile();
+  const { state, isMobile } = useSidebarLayout();
+  const showWordmark = isMobile || state === "expanded";
 
   function closeMobileSidebar() {
     setOpenMobile(false);
@@ -140,24 +143,29 @@ export function AppSidebar({
                 <Link href={homeHref} onClick={closeMobileSidebar} />
               }
             >
-              <Image
-                src="/ASIP_LOGO.png"
-                alt="Africa Startup Initiative Program"
-                width={864}
-                height={289}
-                priority
-                sizes="160px"
-                className="h-8 w-auto max-w-[10rem] object-contain object-left group-data-[collapsible=icon]:hidden"
-              />
-              <Image
-                src="/icon.png"
-                alt="ASIP"
-                width={64}
-                height={64}
-                priority
-                sizes="32px"
-                className="hidden size-7 rounded-full object-cover group-data-[collapsible=icon]:block"
-              />
+              {showWordmark ? (
+                <Image
+                  src="/asip-logo-sidebar.webp"
+                  alt="Africa Startup Initiative Program"
+                  width={320}
+                  height={107}
+                  priority
+                  quality={90}
+                  sizes="160px"
+                  className="h-8 w-auto max-w-[10rem] object-contain object-left"
+                />
+              ) : (
+                <Image
+                  src="/asip-icon-sidebar.webp"
+                  alt="ASIP"
+                  width={64}
+                  height={64}
+                  priority
+                  quality={90}
+                  sizes="32px"
+                  className="size-7 rounded-full object-cover"
+                />
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">

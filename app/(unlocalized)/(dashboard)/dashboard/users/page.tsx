@@ -55,6 +55,11 @@ export default async function EditorUsersPage({ searchParams }: UsersPageProps) 
         </div>
       }
     >
+      <p className="text-sm text-muted-foreground">
+        Editors can create editor and viewer accounts for CMS work. Admin
+        accounts are managed in the Admin panel.
+      </p>
+
       <UserStatsCards stats={stats} actorRole="editor" />
 
       <UsersTable

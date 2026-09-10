@@ -19,6 +19,7 @@ import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,7 @@ import {
 import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import {
   firstInvalidEditorStep,
   isAdminFormSubmitDisabled,
@@ -255,8 +256,6 @@ export function CohortEditorForm({
     formState: { errors, isDirty },
   } = form;
 
-  useUnsavedChangesGuard(isDirty && !isPending);
-
   function onSubmit(values: CreateCohortInput) {
     startTransition(async () => {
       const result =
@@ -295,6 +294,7 @@ export function CohortEditorForm({
 
   return (
     <div className="grid w-full gap-6">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
@@ -368,9 +368,7 @@ export function CohortEditorForm({
                     {...register("year", { valueAsNumber: true })}
                   />
                   {errors.year ? (
-                    <p className="text-sm text-destructive">
-                      {errors.year.message}
-                    </p>
+                    <AdminFieldError message={errors.year.message} />
                   ) : null}
                 </div>
 
@@ -390,9 +388,7 @@ export function CohortEditorForm({
                     {...register("publicLabel")}
                   />
                   {errors.publicLabel ? (
-                    <p className="text-sm text-destructive">
-                      {errors.publicLabel.message}
-                    </p>
+                    <AdminFieldError message={errors.publicLabel.message} />
                   ) : null}
                 </div>
 
@@ -409,9 +405,7 @@ export function CohortEditorForm({
                     {...register("programmeDatesStart")}
                   />
                   {errors.programmeDatesStart ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeDatesStart.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeDatesStart.message} />
                   ) : null}
                 </div>
 
@@ -428,9 +422,7 @@ export function CohortEditorForm({
                     {...register("programmeDatesEnd")}
                   />
                   {errors.programmeDatesEnd ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeDatesEnd.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeDatesEnd.message} />
                   ) : null}
                 </div>
 
@@ -470,9 +462,7 @@ export function CohortEditorForm({
                     )}
                   />
                   {errors.programmeStatus ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeStatus.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeStatus.message} />
                   ) : null}
                 </div>
 
@@ -510,9 +500,7 @@ export function CohortEditorForm({
                     )}
                   />
                   {errors.publishStatus ? (
-                    <p className="text-sm text-destructive">
-                      {errors.publishStatus.message}
-                    </p>
+                    <AdminFieldError message={errors.publishStatus.message} />
                   ) : null}
                 </div>
 
@@ -532,9 +520,7 @@ export function CohortEditorForm({
                     {...register("summary")}
                   />
                   {errors.summary ? (
-                    <p className="text-sm text-destructive">
-                      {errors.summary.message}
-                    </p>
+                    <AdminFieldError message={errors.summary.message} />
                   ) : null}
                 </div>
 
@@ -554,9 +540,7 @@ export function CohortEditorForm({
                     {...register("mediaUrl")}
                   />
                   {errors.mediaUrl ? (
-                    <p className="text-sm text-destructive">
-                      {errors.mediaUrl.message}
-                    </p>
+                    <AdminFieldError message={errors.mediaUrl.message} />
                   ) : null}
                 </div>
               </AdminFormSection>
@@ -648,14 +632,10 @@ export function CohortEditorForm({
                   )}
                 />
                 {errors.partnerIds ? (
-                  <p className="text-sm text-destructive sm:col-span-2">
-                    {errors.partnerIds.message}
-                  </p>
+                  <AdminFieldError message={errors.partnerIds.message} className="sm:col-span-2" />
                 ) : null}
                 {errors.startupIds ? (
-                  <p className="text-sm text-destructive sm:col-span-2">
-                    {errors.startupIds.message}
-                  </p>
+                  <AdminFieldError message={errors.startupIds.message} className="sm:col-span-2" />
                 ) : null}
               </AdminFormSection>
             </StepperContent>

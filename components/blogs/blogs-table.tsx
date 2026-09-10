@@ -145,7 +145,7 @@ export function BlogsTable({
               </Link>
               {blog.is_featured ? (
                 <Badge variant="outline" className="mt-1">
-                  Hero
+                  Featured
                 </Badge>
               ) : null}
             </TableCell>

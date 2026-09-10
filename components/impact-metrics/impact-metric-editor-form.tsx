@@ -64,8 +64,11 @@ import {
 } from "@/constants/impact-suggestions";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import {
   dummyImpactMetricValues,
   todayIsoDate,
@@ -87,9 +90,24 @@ import {
 } from "@/validations/impact-metric";
 
 const IMPACT_METRIC_EDITOR_STEPS = [
-  { id: "claim", title: "Claim", description: "Label & value" },
-  { id: "period", title: "Period", description: "Dates & evidence" },
-  { id: "publishing", title: "Publishing", description: "Scope & surfaces" },
+  {
+    id: "claim",
+    title: "Claim",
+    description: "Label & value",
+    fields: ["claimLabel", "value", "unit"],
+  },
+  {
+    id: "period",
+    title: "Period",
+    description: "Dates & evidence",
+    fields: ["periodStart", "periodEnd", "evidenceId"],
+  },
+  {
+    id: "publishing",
+    title: "Publishing",
+    description: "Scope & surfaces",
+    fields: ["publishStatus", "impactLens", "geography", "displayLocations"],
+  },
 ];
 
 function defaultsFor(metric?: ImpactMetric): ImpactMetricFormValues {
@@ -142,6 +160,7 @@ export function ImpactMetricEditorForm({
   >({
     resolver: zodResolver(createImpactMetricSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(metric),
   });
 
@@ -187,8 +206,6 @@ export function ImpactMetricEditorForm({
     formState: { errors, isDirty },
   } = form;
 
-  useUnsavedChangesGuard(isDirty && !isPending);
-
   function onSubmit(values: CreateImpactMetricInput) {
     startTransition(async () => {
       const result =
@@ -227,6 +244,7 @@ export function ImpactMetricEditorForm({
 
   return (
     <div className="grid w-full gap-6">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
@@ -251,7 +269,10 @@ export function ImpactMetricEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, IMPACT_METRIC_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -289,7 +310,6 @@ export function ImpactMetricEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="claim"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -379,7 +399,6 @@ export function ImpactMetricEditorForm({
 
             <StepperContent
               value="period"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -472,7 +491,6 @@ export function ImpactMetricEditorForm({
 
             <StepperContent
               value="publishing"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection

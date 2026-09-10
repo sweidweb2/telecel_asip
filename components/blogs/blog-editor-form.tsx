@@ -25,7 +25,9 @@ import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,7 +72,7 @@ import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
@@ -210,8 +212,6 @@ export function BlogEditorForm({
     },
   });
 
-  useUnsavedChangesGuard(isDirty && !isPending);
-
   const title = useWatch({ control, name: "title" });
   const categories = useWatch({ control, name: "categories" }) ?? [];
   const sources = useWatch({ control, name: "sources" }) ?? [];
@@ -335,7 +335,10 @@ export function BlogEditorForm({
           try {
             const upload = await uploadBlogThumbnail(result.id, formData);
             if (upload.status === "error") {
-              toast.error(upload.message, { id: uploadToast });
+              toast.error(
+                "Blog created, but the cover image could not be processed. Add it from the edit page.",
+                { id: uploadToast },
+              );
             } else {
               toast.dismiss(uploadToast);
             }
@@ -352,7 +355,10 @@ export function BlogEditorForm({
           try {
             const upload = await uploadAuthorAvatar(result.id, formData);
             if (upload.status === "error") {
-              toast.error(upload.message, { id: uploadToast });
+              toast.error(
+                "Blog created, but the author image could not be processed. Add it from the edit page.",
+                { id: uploadToast },
+              );
             } else {
               toast.dismiss(uploadToast);
             }
@@ -527,6 +533,7 @@ export function BlogEditorForm({
 
   return (
     <>
+    <UnsavedChangesGuard enabled={isDirty && !isPending} />
     <form
       className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       onSubmit={(event) => {
@@ -539,7 +546,7 @@ export function BlogEditorForm({
           <Badge variant={status === "published" ? "default" : "secondary"}>
             {status === "published" ? "Published" : "Draft"}
           </Badge>
-          {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
+          {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
         </div>
         <AdminFormDevTools
           disabled={isPending}
@@ -603,7 +610,7 @@ export function BlogEditorForm({
                 })}
               />
               {errors.title ? (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
+                <AdminFieldError message={errors.title.message} />
               ) : null}
             </div>
             <div className="grid gap-2">
@@ -627,7 +634,7 @@ export function BlogEditorForm({
                 })}
               />
               {errors.slug ? (
-                <p className="text-sm text-destructive">{errors.slug.message}</p>
+                <AdminFieldError message={errors.slug.message} />
               ) : null}
             </div>
             <div className="grid gap-2 sm:col-span-2 xl:col-span-1">
@@ -647,9 +654,7 @@ export function BlogEditorForm({
                 {...register("authorName")}
               />
               {errors.authorName ? (
-                <p className="text-sm text-destructive">
-                  {errors.authorName.message}
-                </p>
+                <AdminFieldError message={errors.authorName.message} />
               ) : null}
             </div>
             </CardContent>
@@ -683,7 +688,7 @@ export function BlogEditorForm({
               {...register("summary")}
             />
             {errors.summary ? (
-              <p className="text-sm text-destructive">{errors.summary.message}</p>
+              <AdminFieldError message={errors.summary.message} />
             ) : null}
             </CardContent>
           </Card>
@@ -715,9 +720,7 @@ export function BlogEditorForm({
               )}
             />
             {errors.bodyHtml ? (
-              <p className="text-sm text-destructive">
-                {errors.bodyHtml.message}
-              </p>
+              <AdminFieldError message={errors.bodyHtml.message} />
             ) : null}
             </CardContent>
           </Card>
@@ -830,9 +833,7 @@ export function BlogEditorForm({
                   {...register("metaTitle")}
                 />
                 {errors.metaTitle ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaTitle.message}
-                  </p>
+                  <AdminFieldError message={errors.metaTitle.message} />
                 ) : null}
               </div>
 
@@ -852,9 +853,7 @@ export function BlogEditorForm({
                   {...register("metaDescription")}
                 />
                 {errors.metaDescription ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaDescription.message}
-                  </p>
+                  <AdminFieldError message={errors.metaDescription.message} />
                 ) : null}
               </div>
 
@@ -905,11 +904,11 @@ export function BlogEditorForm({
                     ))}
                   </ul>
                 ) : null}
-                {errors.sources ? (
-                  <p className="text-sm text-destructive">
-                    {errors.sources.message ?? errors.sources.root?.message}
-                  </p>
-                ) : null}
+                <AdminFieldError
+                  message={
+                    errors.sources?.message ?? errors.sources?.root?.message
+                  }
+                />
               </div>
             </CardContent>
           </Card>
@@ -919,7 +918,7 @@ export function BlogEditorForm({
               <CardHeader className="border-b">
                 <CardTitle>Publishing</CardTitle>
                 <CardDescription>
-                  Visibility and hero placement
+                  Visibility and featured placement
                 </CardDescription>
                 <CardAction>
                   <AdminFormSectionHelp help={BLOG_EDITOR_HELP.publishing} />
@@ -977,13 +976,11 @@ export function BlogEditorForm({
                         : "font-normal"
                     }
                   >
-                    Featured hero (only one at a time)
+                    Featured (only one at a time)
                   </Label>
                 </div>
                 {errors.isFeatured ? (
-                  <p className="text-sm text-destructive">
-                    {errors.isFeatured.message}
-                  </p>
+                  <AdminFieldError message={errors.isFeatured.message} />
                 ) : null}
               </CardContent>
             </Card>
@@ -1130,6 +1127,7 @@ export function BlogEditorForm({
                   />
                 ) : null}
               </div>
+              <AdminImageProcessingBanner active={isProcessingImage} />
             </CardContent>
           </Card>
 
@@ -1209,20 +1207,23 @@ export function BlogEditorForm({
                   ))}
                 </ul>
               ) : null}
-              {errors.categories ? (
-                <p className="text-sm text-destructive">
-                  {typeof errors.categories.message === "string"
+              <AdminFieldError
+                message={
+                  typeof errors.categories?.message === "string"
                     ? errors.categories.message
-                    : errors.categories.root?.message ??
-                      errors.categories[0]?.message}
-                </p>
-              ) : null}
+                    : (errors.categories?.root?.message ??
+                      errors.categories?.[0]?.message)
+                }
+              />
             </CardContent>
           </Card>
         </aside>
       </div>
 
       <AdminEditorActionsBar>
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         {mode === "edit" ? (
           <Button
             type="button"
@@ -1258,6 +1259,8 @@ export function BlogEditorForm({
             "Save changes"
           )}
         </Button>
+          </div>
+        </div>
       </AdminEditorActionsBar>
     </form>
 
