@@ -34,6 +34,7 @@ export type SignupLabels = {
   emailLabel: string;
   emailPlaceholder: string;
   passwordLabel: string;
+  passwordPlaceholder: string;
   confirmPasswordLabel: string;
   submitLabel: string;
   submittingLabel: string;
@@ -70,7 +71,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
-    passwordPlaceholder: "••••••••",
+    passwordPlaceholder: "Enter your passworrd",
     showPassword: "Show password",
     hidePassword: "Hide password",
     forgotPasswordLink: "Forgot password?",
@@ -96,7 +97,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "E-mail",
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
-    passwordPlaceholder: "••••••••",
+    passwordPlaceholder: "Entrez votre mot de passe",
     showPassword: "Afficher le mot de passe",
     hidePassword: "Masquer le mot de passe",
     forgotPasswordLink: "Mot de passe oublié ?",
@@ -128,6 +129,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
+    passwordPlaceholder: "Enter your passworrd",
     confirmPasswordLabel: "Confirm password",
     submitLabel: "Create account",
     submittingLabel: "Creating account…",
@@ -151,6 +153,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     emailLabel: "E-mail",
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
+    passwordPlaceholder: "Entrez votre mot de passe",
     confirmPasswordLabel: "Confirmer le mot de passe",
     submitLabel: "Créer un compte",
     submittingLabel: "Création…",

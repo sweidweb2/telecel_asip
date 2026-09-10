@@ -111,6 +111,9 @@ function FieldLabel({
 function defaultsFor(story?: FounderStoryDetail): FounderStoryFormValues {
   return {
     startupId: story?.startup_id ?? "",
+    storyTitle: story?.story_title ?? "",
+    coverImageUrl: story?.cover_image_url ?? "",
+    headlineStat: story?.headline_stat ?? "",
     theProblem: story?.the_problem ?? "",
     whatTheyBuilt: story?.what_they_built ?? "",
     theAsipConnection: story?.the_asip_connection ?? "",
@@ -429,6 +432,21 @@ export function FounderStoryEditorForm({
                   </CardAction>
                 </CardHeader>
                 <CardContent className="grid gap-5">
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-2 md:col-span-2">
+                      <FieldLabel htmlFor="storyTitle">Impact story title</FieldLabel>
+                      <Input id="storyTitle" disabled={isPending} maxLength={200} placeholder="A result-led editorial headline" {...register("storyTitle")} />
+                      {errors.storyTitle ? <p className="text-sm text-destructive">{errors.storyTitle.message}</p> : null}
+                    </div>
+                    <div className="grid gap-2">
+                      <FieldLabel htmlFor="coverImageUrl">Impact cover image URL</FieldLabel>
+                      <Input id="coverImageUrl" disabled={isPending} maxLength={2048} placeholder="https://…" {...register("coverImageUrl")} />
+                    </div>
+                    <div className="grid gap-2">
+                      <FieldLabel htmlFor="headlineStat">Headline stat</FieldLabel>
+                      <Input id="headlineStat" disabled={isPending} maxLength={80} placeholder="e.g. 1,500 households served" {...register("headlineStat")} />
+                    </div>
+                  </div>
                   <div className="grid gap-2">
                     <FieldLabel
                       htmlFor="theProblem"

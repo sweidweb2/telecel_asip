@@ -155,6 +155,7 @@ export function SignupForm({
           id="password"
           type="password"
           autoComplete="new-password"
+          placeholder={labels.passwordPlaceholder}
           aria-invalid={Boolean(errors.password)}
           disabled={isPending}
           {...register("password", { setValueAs: (value) => value ?? "" })}

@@ -70,6 +70,9 @@ function toFounderStoryRow(
 
   return {
     startup_id: input.startupId,
+    story_title: input.storyTitle,
+    cover_image_url: emptyToNull(input.coverImageUrl),
+    headline_stat: emptyToNull(input.headlineStat),
     the_problem: input.theProblem,
     what_they_built: input.whatTheyBuilt,
     the_asip_connection: input.theAsipConnection,

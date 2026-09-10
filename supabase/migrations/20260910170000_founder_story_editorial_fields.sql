@@ -1,5 +1,4 @@
 -- Keep Impact case-study presentation separate from startup directory metadata.
-
 alter table public.founder_stories
   add column story_title text,
   add column cover_image_url text,

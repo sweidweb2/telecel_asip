@@ -17,6 +17,8 @@ when a developer intentionally runs `npm run seed:asip-source`.
 | `cms/cohorts.json` | 4 | Cohort identity, dates, status, summaries, and source reference | `cohorts` |
 | `cms/partners.json` | 14 | Programme partners with approved local logo references | `partners` |
 | `cms/events.json` | 4 | Source-backed Demo Day events | `events` |
+| `cms/founder-stories.json` | 3 | Explicit “Achievements at ASIP” case studies | `founder_stories` |
+| `cms/blogs.json` | 4 | Programme-history articles for Insights | `blogs` |
 | `cms/evidence-records.json` | 5 | Evidence entries shared by impact claims | `evidence_records` |
 | `cms/impact-metrics.json` | 9 | Application and FY2025 portfolio metrics | `impact_metrics` |
 | `relations/cohort-startups.json` | 43 | Explicit cohort-to-startup foreign-key relationships | `cohort_startups` |
@@ -57,11 +59,13 @@ columns.
 | Evidence | `primary_source`, `source_file_url`, measurement dates, resolved `owner_id`, `status`, `last_verified_date`, `permission`, `review_date` |
 | Impact metric | `claim_label`, `value`, `unit`, period dates, `geography`, `impact_lens`, `display_locations`, resolved `evidence_id`, `publish_status` |
 
-The current CMS also contains users, registrations, applications, blogs,
-founder stories, contact messages, settings, and backups. Those entities are not
-seeded from these programme documents: the source material either does not
-contain the required attributes, represents real user submissions, or lacks the
-consent/quote fields needed for a valid record.
+The current CMS also contains users, registrations, applications, contact
+messages, settings, and backups. Those entities are not seeded from these
+programme documents because they represent real user submissions or operational
+state. Founder stories are limited to the three profiles that have an explicit
+“Achievements at ASIP” section in the Cohort 4 report. Their editorial titles,
+portrait covers, and outcome stats remain separate from directory metadata. No founder quote is seeded
+because the supplied material does not establish quote permission.
 
 Cohorts use a stable `cohort_key` in the form `YEAR:PUBLIC_LABEL`. Impact metrics
 use `metric_key` and reference evidence by `evidence_key`, keeping foreign-key
@@ -101,30 +105,46 @@ The manifests contain 82 source-file records: 14 partner logos, 8 cohort
 slides, 37 event-media files, and 23 report/booklet files. Several reports are
 intentional duplicate copies; matching hashes make those duplicates clear.
 
-The current database has no general-purpose media-library table, so the seed
-script catalogs these files but does not upload or invent database rows for
-them. Existing optimized selections remain in `public/partners` and
-`public/asip-media`. When a media table or storage mapping is approved, these
-manifests are the migration input and integrity source.
+The seeder validates the 42 source-derived 1600x1000 WebP startup covers in
+`public/startups/source-seed`, uploads them under `startups/seed/{slug}/`, and
+stores their Supabase public URLs in `startup_details.cover_image_url`. It also
+validates the 14 approved optimized PNGs in `public/partners`, uploads them under
+`partners/seed/`, and stores their Supabase public URLs in `partners.logo_url`.
+Four 1600x900 WebP covers in `public/insights/source-seed` are uploaded under
+`blogs/seed/{slug}/`; their public URLs supply both article thumbnails and cohort
+media.
+Three 1600x900 portrait-led case-study covers in `public/impact/source-seed`
+are uploaded under `startups/impact/{slug}/` and stored only on the matching
+founder-story records.
+The current database has no general-purpose media-library table or dedicated
+cohort/event/report buckets, so the remaining manifested assets are catalogued
+without inventing storage destinations or database rows.
+When those mappings are approved, these manifests are the migration input and
+integrity source.
 
 ## Seed order and behavior
 
 The seeder resolves dependencies in this order:
 
-1. `cms/partners.json`
-2. `cms/startups.json`
+1. validate and upload startup, cohort/Insights, and partner media
+2. seed `cms/partners.json` and `cms/startups.json`
 3. `cms/cohorts.json`
 4. cohort/startup and cohort/partner relations
 5. `cms/events.json` and event/startup relations
-6. `cms/evidence-records.json`
-7. `cms/impact-metrics.json`
-8. media manifests are loaded and counted, with no upload side effect
+6. `cms/founder-stories.json` and `cms/blogs.json`
+7. `cms/evidence-records.json`
+8. `cms/impact-metrics.json`
+9. all media manifests are loaded and counted
 
 The operation is idempotent:
 
 - startups upsert by `slug`;
+- startup covers overwrite stable `startups/seed/{slug}/cover.webp` objects;
 - partners resolve by exact `name` and are inserted or updated;
+- partner logos overwrite stable `partners/seed/{partner_key}.png` objects;
 - cohorts upsert by `year,public_label`;
+- founder stories upsert by their unique `startup_id`;
+- Insights articles upsert by `slug` and reuse stable cover paths;
 - cohort and event relationships are replaced from relation datasets;
 - events resolve by exact `name,event_date` and are inserted or updated;
 - evidence uses a stable source/page key;
@@ -134,6 +154,27 @@ The command requires `NEXT_PUBLIC_SUPABASE_URL` and
 `SUPABASE_SERVICE_ROLE_KEY`. Evidence ownership defaults to the seeded admin
 `asweid657@gmail.com`; set `ASIP_SEED_ADMIN_EMAIL` to select another existing
 profile.
+
+Rebuild the startup covers from their cited source-report pages when the PDFs
+or crop rules change (requires Poppler's `pdftoppm`):
+
+```powershell
+npm run seed:asip-startup-images
+```
+
+Rebuild the cohort and Insights covers from the supplied FSD slides:
+
+```powershell
+npm run seed:asip-cms-media
+```
+
+Rebuild the Impact portraits after rendering report pages 37–39:
+
+```powershell
+npm run seed:asip-impact-images
+```
+
+Then run the database and storage seed:
 
 ```powershell
 npm run seed:asip-source
