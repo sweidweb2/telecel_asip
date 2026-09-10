@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useCallback, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ export function SignupForm({
     getValues,
     formState: { errors },
   } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchemaFor(locale)),
+    resolver: zodResolver(registerSchemaFor(locale)) as Resolver<RegisterInput>,
     defaultValues: {
       fullName: "",
       email: "",
@@ -112,6 +112,7 @@ export function SignupForm({
         label={labels.googleLabel}
         loadingLabel={labels.googleLoadingLabel}
         errorMessage={labels.googleError}
+        redirectTo={redirectTo}
       />
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
         <span className="h-px flex-1 bg-border" />
@@ -182,6 +183,7 @@ export function SignupForm({
       </div>
       <input
         type="hidden"
+        name="turnstileToken"
         value={turnstileToken ?? ""}
         readOnly
         aria-hidden

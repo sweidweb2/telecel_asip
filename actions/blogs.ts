@@ -8,7 +8,7 @@ import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { getCohortsForBlogPicker } from "@/data/cohorts";
 import { getStartupsForBlogPicker } from "@/data/startups";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   runAdminMutation,
@@ -174,7 +174,7 @@ export async function createBlog(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -206,7 +206,7 @@ export async function updateBlog(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { id, ...rest } = parsed.data;
@@ -394,7 +394,7 @@ async function uploadImage(options: {
         return { status: "error", message: MESSAGES.invalidImage };
       }
 
-      const session = await authorizeAdmin(MESSAGES);
+      const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
       const { data: existing, error: existingError } = await session.supabase
@@ -511,7 +511,7 @@ export async function removeBlogImage(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const bucket = parsed.data.kind === "thumbnail" ? COVER_BUCKET : AUTHOR_BUCKET;

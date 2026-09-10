@@ -29,9 +29,15 @@ export const ROUTES = {
   eventsNew: "/dashboard/events/new",
   contactUs: "/dashboard/contact-us",
   analytics: "/dashboard/analytics",
-  performance: "/dashboard/performance",
-  backup: "/dashboard/backup",
+  /** @deprecated Prefer `adminPerformance` — kept as alias for admin path. */
+  performance: "/admin/performance",
+  /** @deprecated Prefer `adminBackup` — kept as alias for admin path. */
+  backup: "/admin/backup",
   settings: "/dashboard/settings",
+  admin: "/admin",
+  adminUsers: "/admin/users",
+  adminPerformance: "/admin/performance",
+  adminBackup: "/admin/backup",
 } as const;
 
 export type AuthPage = "login" | "signup";

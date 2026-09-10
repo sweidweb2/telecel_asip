@@ -176,7 +176,7 @@ export function HomeImpactGrowthIllustration({
         lane="yellow"
         pathD={YELLOW_PATH}
         tipD={YELLOW_TIP}
-        stroke="var(--brand-mid)"
+        stroke="#e8b84a"
         strokeWidth={2.5}
       />
     </svg>

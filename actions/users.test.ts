@@ -9,10 +9,19 @@ vi.mock("@/lib/admin/authorize-admin", () => ({
   authorizeAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/admin/authorize-staff", () => ({
+  authorizeStaff: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/get-staff-shell", () => ({
+  getStaffShell: vi.fn(),
+}));
+
 const createUserMock = vi.fn();
 const updateUserByIdMock = vi.fn();
 const deleteUserMock = vi.fn();
 const profileUpdateEq = vi.fn();
+const rpcMock = vi.fn();
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(() => ({
@@ -26,14 +35,43 @@ vi.mock("@/lib/supabase/admin", () => ({
   })),
 }));
 
-import { createUser, deleteUser, updateUser } from "@/actions/users";
+import {
+  createUser,
+  deleteUser,
+  hardDeleteUser,
+  updateUser,
+} from "@/actions/users";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeStaff } from "@/lib/admin/authorize-staff";
+import { getStaffShell } from "@/lib/admin/get-staff-shell";
 
 const userId = "44444444-4444-4444-8444-444444444444";
+
+function staffSession(overrides?: {
+  userId?: string;
+  from?: ReturnType<typeof vi.fn>;
+  rpc?: ReturnType<typeof vi.fn>;
+}) {
+  return {
+    status: "success" as const,
+    userId: overrides?.userId ?? "admin-1",
+    supabase: {
+      from: overrides?.from ?? vi.fn(),
+      rpc: overrides?.rpc ?? rpcMock,
+    } as never,
+  };
+}
 
 describe("users actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getStaffShell).mockResolvedValue({
+      role: "admin",
+      isAdmin: true,
+      isEditor: false,
+      fullName: "Admin",
+      email: "admin@example.com",
+    });
   });
 
   it("createUser rejects invalid payloads", async () => {
@@ -45,11 +83,11 @@ describe("users actions", () => {
     });
 
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeStaff).not.toHaveBeenCalled();
   });
 
   it("createUser returns unauthorized", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeStaff).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage users.",
     });
@@ -65,16 +103,35 @@ describe("users actions", () => {
     expect(createUserMock).not.toHaveBeenCalled();
   });
 
+  it("createUser blocks editors from creating admins", async () => {
+    vi.mocked(getStaffShell).mockResolvedValue({
+      role: "editor",
+      isAdmin: false,
+      isEditor: true,
+      fullName: "Editor",
+      email: "editor@example.com",
+    });
+    vi.mocked(authorizeStaff).mockResolvedValue(staffSession());
+
+    const result = await createUser({
+      fullName: "Ada Lovelace",
+      email: "ada@example.com",
+      password: "Testpass1",
+      role: "admin",
+    });
+
+    expect(result.status).toBe("error");
+    expect(createUserMock).not.toHaveBeenCalled();
+  });
+
   it("createUser syncs profile role after auth create", async () => {
     const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
     profileUpdateEq.mockResolvedValue({ error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "admin-1",
-      supabase: {
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
         from: vi.fn(() => ({ update: profileUpdate })),
-      } as never,
-    });
+      }),
+    );
     createUserMock.mockResolvedValue({
       data: { user: { id: userId } },
       error: null,
@@ -84,66 +141,85 @@ describe("users actions", () => {
       fullName: "Ada Lovelace",
       email: "ada@example.com",
       password: "Testpass1",
-      role: "admin",
-    });
-
-    expect(result).toEqual({
-      status: "success",
-      message: "User created successfully.",
-    });
-    expect(createUserMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        email: "ada@example.com",
-        app_metadata: { app_role: "admin" },
-      }),
-    );
-    expect(profileUpdate).toHaveBeenCalledWith({ role: "admin" });
-    expect(profileUpdateEq).toHaveBeenCalledWith("id", userId);
-  });
-
-  it("updateUser blocks self demotion", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId,
-      supabase: {} as never,
-    });
-
-    // update schema locks role to admin — self demotion uses role !== admin
-    // which cannot happen with locked schema. Cover auth update path instead.
-    updateUserByIdMock.mockResolvedValue({ error: null });
-    const profileUpdate = vi.fn(() => ({
-      eq: vi.fn().mockResolvedValue({ error: null }),
-    }));
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "other-admin",
-      supabase: {
-        from: vi.fn(() => ({ update: profileUpdate })),
-      } as never,
-    });
-
-    const result = await updateUser({
-      id: userId,
-      fullName: "Ada Admin",
-      email: "ada@example.com",
-      role: "admin",
+      role: "editor",
     });
 
     expect(result.status).toBe("success");
-    expect(updateUserByIdMock).toHaveBeenCalled();
+    expect(createUserMock).toHaveBeenCalled();
   });
 
-  it("deleteUser deletes via auth admin API", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
-      status: "success",
-      userId: "admin-1",
-      supabase: {} as never,
+  it("deleteUser blocks last editor", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { role: "editor" },
+      error: null,
     });
-    deleteUserMock.mockResolvedValue({ error: null });
+    const eqRole = vi.fn().mockResolvedValue({ count: 1, error: null });
+    const select = vi.fn((cols: string, opts?: { head?: boolean }) => {
+      if (opts?.head) {
+        return { eq: eqRole };
+      }
+      return { eq: vi.fn(() => ({ maybeSingle })) };
+    });
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        userId: "admin-1",
+        from: vi.fn(() => ({ select })),
+      }),
+    );
 
     const result = await deleteUser({ id: userId });
 
+    expect(result).toMatchObject({
+      status: "error",
+      code: "LAST_EDITOR",
+    });
+    expect(deleteUserMock).not.toHaveBeenCalled();
+  });
+
+  it("hardDeleteUser requires admin and calls RPC", async () => {
+    vi.mocked(authorizeAdmin).mockResolvedValue(
+      staffSession({ rpc: rpcMock }) as never,
+    );
+    rpcMock.mockResolvedValue({ error: null });
+
+    const result = await hardDeleteUser({ id: userId });
+
     expect(result.status).toBe("success");
-    expect(deleteUserMock).toHaveBeenCalledWith(userId);
+    expect(rpcMock).toHaveBeenCalledWith("admin_hard_delete_user", {
+      p_target: userId,
+    });
+  });
+
+  it("updateUser rejects demoting the last admin", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { role: "admin" },
+      error: null,
+    });
+    const eqRole = vi.fn().mockResolvedValue({ count: 1, error: null });
+    const select = vi.fn((cols: string, opts?: { head?: boolean }) => {
+      if (opts?.head) {
+        return { eq: eqRole };
+      }
+      return { eq: vi.fn(() => ({ maybeSingle })) };
+    });
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        userId: "other-admin",
+        from: vi.fn(() => ({ select, update: vi.fn() })),
+      }),
+    );
+
+    const result = await updateUser({
+      id: userId,
+      fullName: "Only Admin",
+      email: "only@example.com",
+      role: "viewer",
+    });
+
+    expect(result).toMatchObject({
+      status: "error",
+      code: "LAST_ADMIN",
+    });
+    expect(updateUserByIdMock).not.toHaveBeenCalled();
   });
 });

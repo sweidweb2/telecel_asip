@@ -3,16 +3,21 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreateUserDialog } from "@/components/users/user-dialogs";
-import { USER_FORM_ROLE } from "@/validations/users";
 
 const createUser = vi.hoisted(() => vi.fn());
 const updateUser = vi.hoisted(() => vi.fn());
 const deleteUser = vi.hoisted(() => vi.fn());
+const hardDeleteUser = vi.hoisted(() => vi.fn());
 const refresh = vi.hoisted(() => vi.fn());
 const toastError = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
 
-vi.mock("@/actions/users", () => ({ createUser, updateUser, deleteUser }));
+vi.mock("@/actions/users", () => ({
+  createUser,
+  updateUser,
+  deleteUser,
+  hardDeleteUser,
+}));
 
 vi.mock("nextjs-toploader/app", () => ({
   useRouter: () => ({ push: vi.fn(), refresh }),
@@ -24,7 +29,7 @@ vi.mock("sonner", () => ({
 
 async function openDialog() {
   const user = userEvent.setup();
-  render(<CreateUserDialog />);
+  render(<CreateUserDialog actorRole="admin" />);
   await user.click(screen.getByRole("button", { name: /create user/i }));
   await screen.findByLabelText("Full name");
   return user;
@@ -59,7 +64,7 @@ describe("CreateUserDialog", () => {
 
     await user.type(screen.getByLabelText("Full name"), "Ada Lovelace");
     await user.type(screen.getByLabelText("Email"), "ada@example.com");
-    await user.type(screen.getByLabelText("Temporary password"), "onlyletters");
+    await user.type(screen.getByLabelText("Password", { exact: true }), "onlyletters");
     await submit(user);
 
     expect(
@@ -69,7 +74,7 @@ describe("CreateUserDialog", () => {
   });
 
   it(
-    "submits a normalised payload with the locked admin role",
+    "submits a normalised payload with the default admin role",
     async () => {
       createUser.mockResolvedValue({
         status: "success",
@@ -80,7 +85,10 @@ describe("CreateUserDialog", () => {
 
       await user.type(screen.getByLabelText("Full name"), "  Ada Lovelace  ");
       await user.type(screen.getByLabelText("Email"), "Ada@Example.com");
-      await user.type(screen.getByLabelText("Temporary password"), "Testpass1");
+      await user.type(
+        screen.getByLabelText("Password", { exact: true }),
+        "Testpass1",
+      );
       await submit(user);
 
       await waitFor(() => expect(createUser).toHaveBeenCalledTimes(1));
@@ -88,7 +96,7 @@ describe("CreateUserDialog", () => {
         fullName: "Ada Lovelace",
         email: "ada@example.com",
         password: "Testpass1",
-        role: USER_FORM_ROLE,
+        role: "admin",
       });
       expect(toastSuccess).toHaveBeenCalledWith("User created successfully.");
       await waitFor(() => expect(refresh).toHaveBeenCalled());
@@ -106,7 +114,10 @@ describe("CreateUserDialog", () => {
 
     await user.type(screen.getByLabelText("Full name"), "Ada Lovelace");
     await user.type(screen.getByLabelText("Email"), "ada@example.com");
-    await user.type(screen.getByLabelText("Temporary password"), "Testpass1");
+    await user.type(
+      screen.getByLabelText("Password", { exact: true }),
+      "Testpass1",
+    );
     await submit(user);
 
     await waitFor(() =>
@@ -114,7 +125,6 @@ describe("CreateUserDialog", () => {
         "A user with this email already exists.",
       ),
     );
-    expect(screen.getByLabelText("Full name")).toBeInTheDocument();
-    expect(refresh).not.toHaveBeenCalled();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });

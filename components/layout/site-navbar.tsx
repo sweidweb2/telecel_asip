@@ -7,7 +7,6 @@ import { ArrowUpRight, MenuIcon } from "lucide-react";
 import { useState } from "react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
-import { SiteAccountMenu } from "@/components/layout/site-account-menu";
 import { buttonVariants } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -32,8 +31,6 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-  /** Signed-in account email; shows desktop avatar menu when set. */
-  email?: string | null;
   startupYears?: string[];
 };
 
@@ -85,7 +82,7 @@ function LanguageToggle({
   );
 }
 
-export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
+export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const homeHref = publicPath(locale, "");
@@ -96,7 +93,6 @@ export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
     locale === "fr"
       ? "Un programme du Groupe Telecel"
       : "A Telecel Group programme";
-  const accountEmail = email?.trim() ? email.trim() : null;
 
   const desktopLinkClass = (active: boolean) =>
     cn(
@@ -148,9 +144,6 @@ export function SiteNavbar({ locale, labels, email = null }: SiteNavbarProps) {
             {labels.apply.label}
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>
-          {accountEmail ? (
-            <SiteAccountMenu email={accountEmail} locale={locale} />
-          ) : null}
         </div>
 
         <div className="flex justify-end md:hidden">

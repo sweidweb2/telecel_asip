@@ -4,7 +4,7 @@ import { getAuthUser } from "@/data/auth";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateStaffPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
@@ -125,7 +125,7 @@ export async function getUsersPageData(query: UserListQuery): Promise<
   | { status: "forbidden" }
   | { status: "ok"; list: UserListResult; stats: UserStats }
 > {
-  return gateAdminPageData(
+  return gateStaffPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchUsers(supabase, query),

@@ -6,8 +6,8 @@ import { e2eSuffix, submitLoginForm } from "./helpers";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -49,8 +49,8 @@ test.describe("evidence cms", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/evidence/, {
         timeout: 20_000,

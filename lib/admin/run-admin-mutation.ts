@@ -2,10 +2,10 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import type { z } from "zod";
 
 import {
-  authorizeAdmin,
-  type AdminSession,
-  type AuthorizeAdminMessages,
-} from "@/lib/admin/authorize-admin";
+  authorizeEditor,
+  type AuthorizeEditorMessages,
+  type EditorSession,
+} from "@/lib/admin/authorize-editor";
 import { traceAsync } from "@/lib/admin/perf";
 import {
   mapPgActionError,
@@ -17,7 +17,7 @@ import type { AdminActionResult } from "@/types/admin-action";
 
 export type { AdminActionResult } from "@/types/admin-action";
 
-export type AdminMutationMessages = AuthorizeAdminMessages & {
+export type AdminMutationMessages = AuthorizeEditorMessages & {
   invalidDetails: string;
   success: string;
   notFound?: string;
@@ -39,7 +39,7 @@ type ExecuteError = {
 export type AdminMutationExecuteResult = ExecuteSuccess | ExecuteError;
 
 /**
- * Shared admin Server Action flow: Zod → authorizeAdmin → execute → map PG errors → refresh.
+ * Shared CMS Server Action flow: Zod → authorizeEditor → execute → map PG errors → refresh.
  */
 export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   schema,
@@ -55,7 +55,7 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   messages: AdminMutationMessages;
   pgMessages?: PgActionErrorMessages;
   execute: (
-    session: Extract<AdminSession, { status: "success" }>,
+    session: Extract<EditorSession, { status: "success" }>,
     data: z.infer<TSchema>,
   ) => Promise<AdminMutationExecuteResult>;
   refresh?: (data: z.infer<TSchema>, id?: string) => void;
@@ -74,7 +74,7 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
         };
       }
 
-      const session = await authorizeAdmin(messages);
+      const session = await authorizeEditor(messages);
       if (session.status === "error") return session;
 
       const result = await execute(session, parsed.data);

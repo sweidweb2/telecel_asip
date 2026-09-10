@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eAdminEmail, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -10,10 +10,10 @@ async function seedEvidence(primarySource: string): Promise<string> {
     await admin.auth.admin.listUsers({ perPage: 200 });
   if (userError) throw userError;
   const seed = users.users.find(
-    (user) => user.email?.toLowerCase() === e2eAdminEmail.toLowerCase(),
+    (user) => user.email?.toLowerCase() === e2eEditorEmail.toLowerCase(),
   );
   if (!seed?.id) {
-    throw new Error(`Seed admin ${e2eAdminEmail} not found for evidence owner.`);
+    throw new Error(`Seed editor ${e2eEditorEmail} not found for evidence owner.`);
   }
 
   const { data, error } = await admin
@@ -53,7 +53,7 @@ test.describe("impact metrics cms", () => {
     const evidenceId = await seedEvidence(evidenceSource);
 
     try {
-      await loginAsAdmin(page, "/dashboard/impact-metrics");
+      await loginAsEditor(page, "/dashboard/impact-metrics");
       await page
         .locator('a[href="/dashboard/impact-metrics/new"]')
         .first()

@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { createClient } from "@/lib/supabase/server";
@@ -62,7 +62,7 @@ export async function getInterestRegistrationsPageData(
       stats: InboxTableStats;
     }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchInterestRegistrations(supabase, query),

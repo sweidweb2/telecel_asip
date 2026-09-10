@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, loginAsEditor, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -17,11 +17,11 @@ test.describe("backup export API", () => {
     );
   });
 
-  test("admin settings shows backup schedule without run now", async ({
+  test("editor settings shows backup schedule without run now", async ({
     page,
   }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/settings");
+    await loginAsEditor(page, "/dashboard/settings");
     await expect(
       page.getByText(/automated backup schedule/i).first(),
     ).toBeVisible();
@@ -34,7 +34,7 @@ test.describe("backup export API", () => {
     page,
   }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/backup");
+    await loginAsAdmin(page, "/admin/backup");
     await expect(
       page.getByRole("heading", { name: "Create backup" }),
     ).toBeVisible();
@@ -61,17 +61,17 @@ test.describe("backup export API", () => {
     ).toHaveCount(0);
   });
 
-  test("admin applications page offers CSV download", async ({ page }) => {
+  test("editor applications page offers CSV download", async ({ page }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/applications");
+    await loginAsEditor(page, "/dashboard/applications");
     await expect(
       page.getByRole("link", { name: /download csv/i }),
     ).toBeVisible();
   });
 
-  test("admin can export an allowed table", async ({ page, request }) => {
+  test("editor can export an allowed table", async ({ page, request }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/applications");
+    await loginAsEditor(page, "/dashboard/applications");
     const cookies = await page.context().cookies();
     const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
 
@@ -84,12 +84,12 @@ test.describe("backup export API", () => {
     expect(body).toContain("email");
   });
 
-  test("unknown export table returns 404 for admins", async ({
+  test("unknown export table returns 404 for editors", async ({
     page,
     request,
   }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/applications");
+    await loginAsEditor(page, "/dashboard/applications");
     const cookies = await page.context().cookies();
     const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
 

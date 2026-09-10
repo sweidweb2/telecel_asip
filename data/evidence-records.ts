@@ -6,7 +6,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -146,7 +146,7 @@ export async function getEvidenceRecordsPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchEvidencePage(supabase, query),
         fetchEvidenceListStats(supabase),
       ]);
@@ -173,7 +173,7 @@ export const getEvidenceRecordByIdForAdmin = wrapCached(
       }
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const { data, error } = await supabase
         .from("evidence_records")
@@ -214,7 +214,7 @@ export async function getEvidenceOwnerOptions(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

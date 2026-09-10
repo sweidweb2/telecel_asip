@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { rowsToCsv } from "@/lib/backups/serialize";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,7 +39,7 @@ export async function GET(
     return NextResponse.json({ error: "Unknown export table." }, { status: 404 });
   }
 
-  if (!(await isCurrentUserAdmin())) {
+  if (!(await isCurrentUserEditor())) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

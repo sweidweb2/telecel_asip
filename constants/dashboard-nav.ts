@@ -67,8 +67,6 @@ export const DASHBOARD_NAV_GROUPS = [
     items: [
       { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.users },
       { title: "Analytics", href: ROUTES.analytics },
-      { title: "Performance", href: ROUTES.performance },
-      { title: "Backup", href: ROUTES.backup },
       { title: "Settings", href: ROUTES.settings },
     ],
   },

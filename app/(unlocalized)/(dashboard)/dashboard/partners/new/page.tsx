@@ -12,7 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { requireAdmin } from "@/data/auth";
+import { requireEditor } from "@/data/auth";
 import { getPartnerSortOrderOccupants } from "@/data/partners";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewPartnerPage() {
-  await requireAdmin();
+  await requireEditor();
   const orderResult = await getPartnerSortOrderOccupants();
   if (orderResult.status === "forbidden") redirect(ROUTES.dashboard);
 

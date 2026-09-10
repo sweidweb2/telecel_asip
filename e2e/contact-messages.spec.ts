@@ -9,8 +9,8 @@ import { submitLoginForm } from "./helpers";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 const SUCCESS_TOAST = "Thank you - your message has been sent.";
 const RATE_LIMIT_TOAST = "Too many submissions. Please wait and try again later.";
@@ -217,8 +217,8 @@ test.describe("contact messages", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fcontact-us");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/contact-us/, {
         timeout: 20_000,

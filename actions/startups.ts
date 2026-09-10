@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import { ROUTES } from "@/constants/routes";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -141,7 +141,7 @@ export async function createStartup(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -176,7 +176,7 @@ export async function updateStartup(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc(
@@ -299,7 +299,7 @@ export async function uploadStartupLogo(
         return { status: "error", message: MESSAGES.invalidImage };
       }
 
-      const session = await authorizeAdmin(MESSAGES);
+      const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
       const { data: existing, error: existingError } = await session.supabase
@@ -373,7 +373,7 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase

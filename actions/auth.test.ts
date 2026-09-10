@@ -100,12 +100,26 @@ describe("auth actions", () => {
   it("signs in successfully", async () => {
     createClient.mockResolvedValue({
       auth: {
-        signInWithPassword: vi.fn().mockResolvedValue({ error: null }),
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: { user: { id: "u1" } },
+          error: null,
+        }),
       },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: { role: "editor" },
+              error: null,
+            }),
+          })),
+        })),
+      })),
     });
 
     await expect(signIn(validLogin)).resolves.toMatchObject({
       status: "success",
+      redirectTo: "/dashboard",
     });
   });
 
@@ -170,7 +184,7 @@ describe("auth actions", () => {
       expect.objectContaining({
         options: {
           redirectTo:
-            "http://localhost:3000/auth/callback?next=%2Fdashboard&locale=en",
+            "http://localhost:3000/auth/callback?next=%2Fen&locale=en",
         },
       }),
     );

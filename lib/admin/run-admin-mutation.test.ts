@@ -3,8 +3,8 @@ import { z } from "zod";
 
 import { runAdminMutation } from "@/lib/admin/run-admin-mutation";
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(async () => ({
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(async () => ({
     status: "success" as const,
     userId: "user-1",
     supabase: {},

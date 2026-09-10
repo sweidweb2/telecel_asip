@@ -8,7 +8,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -162,7 +162,7 @@ export async function getFounderStoriesPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchFounderStoriesPage(supabase, query),
         fetchFounderStoryListStats(supabase),
       ]);
@@ -189,7 +189,7 @@ export const getFounderStoryByIdForAdmin = wrapCached(
       }
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const { data, error } = await supabase
         .from("founder_stories")
@@ -225,7 +225,7 @@ export async function getStartupsForStoryPicker(options?: {
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const includeId = options?.includeStartupId;
       const term = (options?.search ?? "").trim().slice(0, 100);

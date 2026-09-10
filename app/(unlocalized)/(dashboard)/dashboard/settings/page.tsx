@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { SiteSettingsForm } from "@/components/settings/site-settings-form";
-import { requireAdmin } from "@/data/auth";
+import { requireEditor } from "@/data/auth";
 import { getSiteSettingsForAdmin } from "@/data/settings";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  await requireAdmin();
+  await requireEditor();
 
   const settings = await getSiteSettingsForAdmin();
 

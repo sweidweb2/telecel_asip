@@ -6,11 +6,16 @@ import {
 } from "@/validations/admin-list-query";
 
 export const USER_ROLES = ["admin", "editor", "viewer"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
 /** Fixed page size — not configurable via URL or UI. */
 export const USER_PAGE_SIZE = 10;
 
-/** Create/edit forms always assign admin for now. */
-export const USER_FORM_ROLE = "admin" as const;
+/** Roles an admin may assign on create/update. */
+export const ADMIN_ASSIGNABLE_ROLES = ["admin", "editor", "viewer"] as const;
+
+/** Roles an editor may assign on create/update (never admin). */
+export const EDITOR_ASSIGNABLE_ROLES = ["editor", "viewer"] as const;
 
 export const USER_FULL_NAME_MIN = 2;
 export const USER_FULL_NAME_MAX = 80;
@@ -46,23 +51,27 @@ const createPasswordSchema = z
   .transform((value) => (value === "" ? USER_DEFAULT_PASSWORD : value))
   .pipe(z.union([z.literal(USER_DEFAULT_PASSWORD), passwordSchema]));
 
-const lockedAdminRoleSchema = z.literal(USER_FORM_ROLE);
+const userRoleSchema = z.enum(USER_ROLES);
 
 export const createUserSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
   password: createPasswordSchema,
-  role: lockedAdminRoleSchema,
+  role: userRoleSchema,
 });
 
 export const updateUserSchema = z.object({
   id: z.uuid("Invalid user id"),
   fullName: fullNameSchema,
   email: emailSchema,
-  role: lockedAdminRoleSchema,
+  role: userRoleSchema,
 });
 
 export const deleteUserSchema = z.object({
+  id: z.uuid("Invalid user id"),
+});
+
+export const hardDeleteUserSchema = z.object({
   id: z.uuid("Invalid user id"),
 });
 
@@ -93,3 +102,16 @@ export function parseUserListQuery(input: RawSearchParams): UserListQuery {
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type DeleteUserInput = z.infer<typeof deleteUserSchema>;
+export type HardDeleteUserInput = z.infer<typeof hardDeleteUserSchema>;
+
+export function assignableRolesForActor(
+  actorRole: "admin" | "editor",
+): readonly UserRole[] {
+  return actorRole === "admin"
+    ? ADMIN_ASSIGNABLE_ROLES
+    : EDITOR_ASSIGNABLE_ROLES;
+}
+
+export function defaultRoleForActor(actorRole: "admin" | "editor"): UserRole {
+  return actorRole === "admin" ? "admin" : "editor";
+}

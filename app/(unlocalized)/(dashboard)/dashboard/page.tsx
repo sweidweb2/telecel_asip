@@ -16,7 +16,7 @@ import {
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
-import { requireAdmin } from "@/data/auth";
+import { requireEditor } from "@/data/auth";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -86,7 +86,7 @@ const QUICK_LINKS: {
 ];
 
 export default async function DashboardPage() {
-  await requireAdmin();
+  await requireEditor();
 
   return (
     <AdminListPageShell

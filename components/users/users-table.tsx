@@ -35,17 +35,21 @@ export function UsersTable({
   total,
   totalPages,
   query,
+  listPath = ROUTES.users,
+  actorRole,
 }: {
   users: Profile[];
   total: number;
   totalPages: number;
   query: UserListQuery;
+  listPath?: string;
+  actorRole: "admin" | "editor";
 }) {
   const [editUserId, setEditUserId] = useState<string | null>(null);
 
   return (
     <AdminDataTable
-      filters={<UsersFilters query={query} />}
+      filters={<UsersFilters query={query} listPath={listPath} />}
       header={
         <TableRow>
           <AdminRowNumberHead />
@@ -67,7 +71,7 @@ export function UsersTable({
         />
       }
       pagination={{
-        basePath: ROUTES.users,
+        basePath: listPath,
         page: query.page,
         pageSize: USER_PAGE_SIZE,
         total,
@@ -112,6 +116,7 @@ export function UsersTable({
           >
             <UserRowActions
               user={user}
+              actorRole={actorRole}
               editOpen={editUserId === user.id}
               onEditOpenChange={(open) =>
                 setEditUserId(open ? user.id : null)

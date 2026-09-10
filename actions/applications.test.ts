@@ -24,8 +24,8 @@ vi.mock("@/lib/rate-limit", () => ({
   recordRateLimitHit: vi.fn(),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("@/lib/admin/get-auth-user", () => ({
@@ -55,7 +55,7 @@ import {
   updateApplicationInboxStatus,
 } from "@/actions/applications";
 import { getOpenApplications } from "@/data/settings";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
@@ -226,8 +226,8 @@ describe("application admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("updateApplication returns unauthorized from authorizeAdmin", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("updateApplication returns unauthorized from authorizeEditor", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage applications.",
     });
@@ -256,10 +256,10 @@ describe("application admin mutations", () => {
     });
   });
 
-  it("updateApplication succeeds when authorizeAdmin and row update work", async () => {
+  it("updateApplication succeeds when authorizeEditor and row update work", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: appId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,
@@ -290,7 +290,7 @@ describe("application admin mutations", () => {
   it("deleteApplication returns not found when no row", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: null, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,
@@ -307,7 +307,7 @@ describe("application admin mutations", () => {
   it("updateApplicationInboxStatus updates status", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: appId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

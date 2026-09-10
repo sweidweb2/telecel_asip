@@ -4,10 +4,10 @@ import { unstable_cache } from "next/cache";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { countExact } from "@/lib/admin/count-exact";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -116,7 +116,7 @@ export async function getBlogsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: BlogListResult; stats: BlogListStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchBlogsPage(supabase, query),
@@ -146,7 +146,7 @@ export const getBlogByIdForAdmin = wrapCached(
     if (!blogIdSchema.safeParse(id).success) return { status: "not_found" };
 
     const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+    if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("blogs")

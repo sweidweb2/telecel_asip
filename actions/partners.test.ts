@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { revalidatePath, revalidateTag, authorizeAdmin } = vi.hoisted(() => ({
+const { revalidatePath, revalidateTag, authorizeEditor } = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
   revalidateTag: vi.fn(),
-  authorizeAdmin: vi.fn(),
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -12,8 +12,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin,
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor,
 }));
 
 import {
@@ -36,7 +36,7 @@ const validCreate = {
 };
 
 function mockSession(fromImpl: ReturnType<typeof vi.fn>) {
-  authorizeAdmin.mockResolvedValue({
+  authorizeEditor.mockResolvedValue({
     status: "success",
     userId: "admin-1",
     supabase: {
@@ -60,11 +60,11 @@ describe("partners actions", () => {
   it("rejects invalid create input", async () => {
     const result = await createPartner({ ...validCreate, name: "x" });
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeEditor).not.toHaveBeenCalled();
   });
 
   it("rejects unauthorized create", async () => {
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage partners.",
     });

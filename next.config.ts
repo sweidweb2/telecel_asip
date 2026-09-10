@@ -14,7 +14,13 @@ const withBundleAnalyzer = bundleAnalyzer({
  * so a newly added public page cannot silently ship without a cache header.
  */
 const LOCALE_MATCHER = LOCALES.join("|");
-const PUBLIC_SLUG_MATCHER = PUBLIC_PAGE_SLUGS.filter(Boolean).join("|");
+
+/** Auth-agnostic marketing slugs only — intake reads the session and must not share HTML. */
+const INTAKE_SLUGS = new Set(["apply", "register-interest"]);
+const MARKETING_SLUG_MATCHER = PUBLIC_PAGE_SLUGS.filter(
+  (slug) => Boolean(slug) && !INTAKE_SLUGS.has(slug),
+).join("|");
+const INTAKE_SLUG_MATCHER = [...INTAKE_SLUGS].join("|");
 
 function supabaseStorageHostname(): string | null {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -117,7 +123,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: `/:locale(${LOCALE_MATCHER})/:slug(${PUBLIC_SLUG_MATCHER})`,
+        source: `/:locale(${LOCALE_MATCHER})/:slug(${MARKETING_SLUG_MATCHER})`,
         headers: [
           { key: "Cache-Control", value: MARKETING_HTML_CACHE },
         ],
@@ -148,6 +154,18 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/dashboard/:path*",
+        headers: [
+          { key: "Cache-Control", value: PRIVATE_NO_STORE },
+        ],
+      },
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: PRIVATE_NO_STORE },
+        ],
+      },
+      {
+        source: `/:locale(${LOCALE_MATCHER})/:intake(${INTAKE_SLUG_MATCHER})`,
         headers: [
           { key: "Cache-Control", value: PRIVATE_NO_STORE },
         ],

@@ -51,8 +51,11 @@ describe("filterDashboardSearchPages", () => {
 });
 
 describe("resolveDashboardSearchHref", () => {
-  it("allows only catalog hrefs", () => {
+  it("allows catalog hrefs under /dashboard or /admin", () => {
     expect(resolveDashboardSearchHref(ROUTES.blogs)).toBe(ROUTES.blogs);
+    expect(resolveDashboardSearchHref(ROUTES.adminUsers)).toBe(
+      ROUTES.adminUsers,
+    );
     expect(resolveDashboardSearchHref("/dashboard/../login")).toBeNull();
     expect(resolveDashboardSearchHref("https://evil.example")).toBeNull();
     expect(resolveDashboardSearchHref("//evil.example")).toBeNull();

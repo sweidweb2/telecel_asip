@@ -46,7 +46,9 @@ import {
 import {
   DASHBOARD_NAV_GROUPS,
   isDashboardNavActive,
+  type DashboardNavGroup,
 } from "@/constants/dashboard-nav";
+import { isAdminNavActive } from "@/constants/admin-nav";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +57,7 @@ type DashboardNavCounts = Partial<Record<string, number>>;
 const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.dashboard]: LayoutDashboardIcon,
   [ROUTES.users]: UsersIcon,
+  [ROUTES.adminUsers]: UsersIcon,
   [ROUTES.registrations]: UserPlusIcon,
   [ROUTES.applications]: ClipboardListIcon,
   [ROUTES.portfolio]: BriefcaseIcon,
@@ -67,8 +70,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.events]: CalendarIcon,
   [ROUTES.contactUs]: MailIcon,
   [ROUTES.analytics]: BarChart3Icon,
-  [ROUTES.performance]: TimerIcon,
-  [ROUTES.backup]: DatabaseBackupIcon,
+  [ROUTES.adminPerformance]: TimerIcon,
+  [ROUTES.adminBackup]: DatabaseBackupIcon,
   [ROUTES.settings]: SettingsIcon,
 };
 
@@ -91,10 +94,23 @@ function formatNavCount(count: number) {
   return String(count);
 }
 
+function isNavActive(pathname: string, href: string, homeHref: string) {
+  if (homeHref.startsWith(ROUTES.admin)) {
+    return isAdminNavActive(pathname, href);
+  }
+  return isDashboardNavActive(pathname, href);
+}
+
 export function AppSidebar({
   counts = {},
+  homeHref = ROUTES.dashboard,
+  brandLabel = "Editor panel",
+  navGroups = DASHBOARD_NAV_GROUPS,
 }: {
   counts?: DashboardNavCounts;
+  homeHref?: string;
+  brandLabel?: string;
+  navGroups?: readonly DashboardNavGroup[];
 }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
@@ -110,10 +126,10 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              tooltip="ASIP"
+              tooltip={brandLabel}
               className="justify-start group-data-[collapsible=icon]:justify-center"
               render={
-                <Link href={ROUTES.dashboard} onClick={closeMobileSidebar} />
+                <Link href={homeHref} onClick={closeMobileSidebar} />
               }
             >
               <Image
@@ -136,10 +152,15 @@ export function AppSidebar({
               />
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
+            <p className="truncate px-2 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              {brandLabel}
+            </p>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {DASHBOARD_NAV_GROUPS.map((group) => (
+        {navGroups.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -160,7 +181,7 @@ export function AppSidebar({
                         render={
                           <Link href={item.href} onClick={closeMobileSidebar} />
                         }
-                        isActive={isDashboardNavActive(pathname, item.href)}
+                        isActive={isNavActive(pathname, item.href, homeHref)}
                         tooltip={item.title}
                         className={
                           showBadge

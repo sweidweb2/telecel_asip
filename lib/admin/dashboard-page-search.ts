@@ -2,6 +2,7 @@ import {
   DASHBOARD_SEARCH_PAGES,
   type DashboardSearchPage,
 } from "@/constants/dashboard-nav";
+import { ADMIN_SEARCH_PAGES } from "@/constants/admin-nav";
 
 /** Hard cap on the header page-search field (characters). */
 export const DASHBOARD_PAGE_SEARCH_MAX_LENGTH = 64;
@@ -12,9 +13,12 @@ export const DASHBOARD_PAGE_SEARCH_MAX_RESULTS = 8;
 /** Minimum typed characters before filtering (1 = match as you type). */
 export const DASHBOARD_PAGE_SEARCH_MIN_LENGTH = 1;
 
-const ALLOWED_HREFS = new Set(
-  DASHBOARD_SEARCH_PAGES.map((page) => page.href),
-);
+const STAFF_SEARCH_PAGES: readonly DashboardSearchPage[] = [
+  ...DASHBOARD_SEARCH_PAGES,
+  ...ADMIN_SEARCH_PAGES,
+];
+
+const ALLOWED_HREFS = new Set(STAFF_SEARCH_PAGES.map((page) => page.href));
 
 /**
  * Strip control chars / normalize whitespace and enforce length.
@@ -36,11 +40,12 @@ function normalizeForMatch(value: string): string {
 }
 
 /**
- * Filter the static admin page catalog by title / group.
+ * Filter a static staff page catalog by title / group.
  * Matching is substring-only against known labels — never builds hrefs from input.
  */
 export function filterDashboardSearchPages(
   rawQuery: string,
+  catalog: readonly DashboardSearchPage[] = DASHBOARD_SEARCH_PAGES,
 ): DashboardSearchPage[] {
   const query = sanitizeDashboardPageSearchQuery(rawQuery).trimEnd();
   if (query.length < DASHBOARD_PAGE_SEARCH_MIN_LENGTH) return [];
@@ -49,7 +54,7 @@ export function filterDashboardSearchPages(
   if (!needle) return [];
 
   const matches: DashboardSearchPage[] = [];
-  for (const page of DASHBOARD_SEARCH_PAGES) {
+  for (const page of catalog) {
     const haystack = normalizeForMatch(`${page.title} ${page.group}`);
     if (!haystack.includes(needle)) continue;
     matches.push(page);
@@ -65,7 +70,9 @@ export function filterDashboardSearchPages(
 export function resolveDashboardSearchHref(href: unknown): string | null {
   if (typeof href !== "string") return null;
   if (!ALLOWED_HREFS.has(href)) return null;
-  if (!href.startsWith("/dashboard")) return null;
+  const isStaffPath =
+    href.startsWith("/dashboard") || href.startsWith("/admin");
+  if (!isStaffPath) return null;
   if (href.includes("//") || href.includes("\\") || href.includes("@")) {
     return null;
   }

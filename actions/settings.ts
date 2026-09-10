@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_CACHE_TAG, SITE_SETTINGS_ID } from "@/data/settings";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import {
   updateSiteSettingsSchema,
   type UpdateSiteSettingsInput,
@@ -48,7 +48,7 @@ export async function updateSiteSettings(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const auth = await authorizeAdmin(MESSAGES);
+  const auth = await authorizeEditor(MESSAGES);
   if (auth.status === "error") return auth;
 
   const { data, error } = await auth.supabase

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -16,7 +16,7 @@ test.describe("events cms", () => {
     const admin = e2eAdminClient();
 
     try {
-      await loginAsAdmin(page, "/dashboard/events");
+      await loginAsEditor(page, "/dashboard/events");
       await page.locator('a[href="/dashboard/events/new"]').first().click();
       await expect(page).toHaveURL(/\/dashboard\/events\/new/, { timeout: 20_000 });
 

@@ -10,8 +10,8 @@ import { e2eSuffix, submitLoginForm } from "./helpers";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -68,8 +68,8 @@ test.describe("admin users CRUD", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fusers");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
       await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/users/, { timeout: 20_000 });
 
@@ -112,7 +112,7 @@ test.describe("admin users CRUD", () => {
       ).toBeVisible();
       await createDialog.getByLabel("Full name").fill("Users E2E Viewer");
       await createDialog.getByLabel("Email").fill(email);
-      await createDialog.getByLabel("Temporary password").fill(password);
+      await createDialog.getByLabel("Password", { exact: true }).fill(password);
       await createDialog
         .getByRole("button", { name: "Create user", exact: true })
         .click();
@@ -127,7 +127,7 @@ test.describe("admin users CRUD", () => {
       const duplicateDialog = page.getByRole("dialog");
       await duplicateDialog.getByLabel("Full name").fill("Duplicate E2E User");
       await duplicateDialog.getByLabel("Email").fill(email);
-      await duplicateDialog.getByLabel("Temporary password").fill(password);
+      await duplicateDialog.getByLabel("Password", { exact: true }).fill(password);
       await duplicateDialog
         .getByRole("button", { name: "Create user", exact: true })
         .click();
@@ -261,7 +261,7 @@ test.describe("admin users CRUD", () => {
       if (ownProfileError) throw ownProfileError;
       expect(ownProfile.role).toBe("viewer");
 
-      const adminUser = await findUserByEmail(adminEmail);
+      const adminUser = await findUserByEmail(editorEmail);
       expect(adminUser).toBeDefined();
       const { data: changedRows, error: updateError } = await viewerClient
         .from("profiles")

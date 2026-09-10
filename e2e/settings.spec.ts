@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -24,7 +24,7 @@ test.describe("site settings", () => {
       .maybeSingle();
 
     try {
-      await loginAsAdmin(page, "/dashboard/settings");
+      await loginAsEditor(page, "/dashboard/settings");
       const schedule = page.getByRole("combobox", {
         name: /automated backup schedule/i,
       });
@@ -64,7 +64,7 @@ test.describe("site settings", () => {
 
   test("newsletter signup shows phase 1 note only", async ({ page }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/settings");
+    await loginAsEditor(page, "/dashboard/settings");
     await expect(page.getByText("Newsletter signup")).toBeVisible();
     await expect(page.getByText("Hidden — phase 1")).toBeVisible();
     await expect(page.locator("#newsletter-signup")).toHaveCount(0);

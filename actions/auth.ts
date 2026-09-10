@@ -6,9 +6,12 @@ import { match, P } from "ts-pattern";
 
 import { authActionMessagesFor } from "@/components/auth/auth-labels";
 import type { Locale } from "@/constants/locales";
-import { authPath, ROUTES } from "@/constants/routes";
+import { authPath, publicPath } from "@/constants/routes";
+import { resolvePostAuthRedirect } from "@/lib/auth/role-landing";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect-path";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import {
   TURNSTILE_LOGIN_ACTION,
@@ -80,13 +83,6 @@ function mapAuthError(message: string, locale: Locale): string {
     });
 }
 
-function safeRedirectPath(path: string | undefined): string {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return ROUTES.dashboard;
-  }
-  return path;
-}
-
 async function getClientIp(): Promise<string> {
   const headerStore = await headers();
   const forwarded = headerStore.get("x-forwarded-for");
@@ -124,7 +120,8 @@ export async function signUp(
   }
 
   const supabase = await createClient();
-  const afterAuthPath = safeRedirectPath(redirectTo);
+  const homePath = publicPath(locale, "");
+  const afterAuthPath = safeRedirectPath(redirectTo, homePath);
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -133,7 +130,7 @@ export async function signUp(
       // Public signup never sets app_metadata.app_role — handle_new_user
       // defaults the profile to viewer.
       data: { full_name: fullName },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/callback?next=${encodeURIComponent(afterAuthPath)}&locale=${locale}`,
     },
   });
 
@@ -153,7 +150,11 @@ export async function signUp(
     return {
       status: "success",
       message: copy.accountCreated,
-      redirectTo: afterAuthPath === ROUTES.dashboard ? `/${locale}` : afterAuthPath,
+      redirectTo: resolvePostAuthRedirect({
+        next: redirectTo,
+        role: "viewer",
+        locale,
+      }),
     };
   }
 
@@ -189,7 +190,7 @@ export async function signIn(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: signedIn, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password,
   });
@@ -198,10 +199,24 @@ export async function signIn(
     return { status: "error", message: mapAuthError(error.message, locale) };
   }
 
+  let role: Database["public"]["Enums"]["user_role"] | null = null;
+  if (signedIn.user?.id) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", signedIn.user.id)
+      .maybeSingle();
+    role = profile?.role ?? null;
+  }
+
   return {
     status: "success",
     message: copy.signedIn,
-    redirectTo: safeRedirectPath(redirectTo),
+    redirectTo: resolvePostAuthRedirect({
+      next: redirectTo,
+      role,
+      locale,
+    }),
   };
 }
 
@@ -214,7 +229,10 @@ export async function signInWithGoogle(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const callbackUrl = new URL("/auth/callback", siteUrl);
 
-  callbackUrl.searchParams.set("next", safeRedirectPath(redirectTo));
+  callbackUrl.searchParams.set(
+    "next",
+    safeRedirectPath(redirectTo, publicPath(locale, "")),
+  );
   callbackUrl.searchParams.set("locale", locale);
 
   const { data, error } = await supabase.auth.signInWithOAuth({

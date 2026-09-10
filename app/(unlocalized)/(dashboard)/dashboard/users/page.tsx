@@ -5,6 +5,7 @@ import { CreateUserDialog } from "@/components/users/user-dialogs";
 import { UserStatsCards } from "@/components/users/user-stats";
 import { UsersTable } from "@/components/users/users-table";
 import { getAdminResource } from "@/constants/admin-resources";
+import { ROUTES } from "@/constants/routes";
 import { getUsersPageData } from "@/data/users";
 import {
   adminListClampParams,
@@ -15,19 +16,19 @@ import { parseUserListQuery } from "@/validations/users";
 const resource = getAdminResource("users");
 
 export const metadata: Metadata = {
-  title: resource.metaTitle,
+  title: "Users | ASIP Editor",
 };
 
 type UsersPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function UsersPage({ searchParams }: UsersPageProps) {
+export default async function EditorUsersPage({ searchParams }: UsersPageProps) {
   const query = parseUserListQuery(await searchParams);
   const { list, stats } = await loadAdminListPage({
     query,
     fetchPage: getUsersPageData,
-    listPath: resource.listPath,
+    listPath: ROUTES.users,
     buildClampParams: (q, totalPages) =>
       adminListClampParams(totalPages, {
         search: q.search || undefined,
@@ -38,7 +39,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   return (
     <AdminListPageShell
       title={resource.pageTitle}
-      actions={<CreateUserDialog />}
+      actions={<CreateUserDialog actorRole="editor" />}
     >
       <UserStatsCards stats={stats} />
 
@@ -47,6 +48,8 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         total={list.total}
         totalPages={list.totalPages}
         query={query}
+        listPath={ROUTES.users}
+        actorRole="editor"
       />
     </AdminListPageShell>
   );

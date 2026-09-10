@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   revalidatePath,
   revalidateTag,
-  authorizeAdmin,
+  authorizeEditor,
   maybeSingle,
   update,
 } = vi.hoisted(() => {
@@ -13,7 +13,7 @@ const {
   return {
     revalidatePath: vi.fn(),
     revalidateTag: vi.fn(),
-    authorizeAdmin: vi.fn(),
+    authorizeEditor: vi.fn(),
     maybeSingle,
     update,
   };
@@ -25,8 +25,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: () => Promise<unknown>) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin,
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor,
 }));
 
 import { updateSiteSettings } from "@/actions/settings";
@@ -39,7 +39,7 @@ const validInput = {
 };
 
 function mockAdminSession() {
-  authorizeAdmin.mockResolvedValue({
+  authorizeEditor.mockResolvedValue({
     status: "success",
     userId: "admin-1",
     supabase: {
@@ -61,11 +61,11 @@ describe("updateSiteSettings", () => {
     });
 
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeEditor).not.toHaveBeenCalled();
   });
 
   it("requires a signed-in user", async () => {
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "error",
       message: "You must be signed in.",
     });
@@ -79,7 +79,7 @@ describe("updateSiteSettings", () => {
   });
 
   it("rejects non-admins", async () => {
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "error",
       message: "You do not have permission to change site settings.",
     });

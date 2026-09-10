@@ -1,9 +1,10 @@
 -- Local development seed data belongs here.
 -- Keep production data and credentials out of this file.
 --
--- Seeds a confirmed admin for dashboard testing:
--- email: asweid657@gmail.com
--- password: ali@1234
+-- Seed accounts (local only — not for production):
+--   Admin:  asweid657@gmail.com / ali@1234 → /admin
+--   Editor: gbitar@telecelglobal.com / password → /dashboard
+-- Evidence ownership is reassigned to the editor after seed.
 
 create extension if not exists pgcrypto with schema extensions;
 
@@ -191,72 +192,151 @@ on conflict do nothing;
 
 do $$
 declare
-  seed_user_id uuid := gen_random_uuid();
-  seed_email text := 'asweid657@gmail.com';
-  seed_password text := 'ali@1234';
+  admin_user_id uuid := gen_random_uuid();
+  admin_email text := 'asweid657@gmail.com';
+  admin_password text := 'ali@1234';
+  editor_user_id uuid := gen_random_uuid();
+  editor_email text := 'gbitar@telecelglobal.com';
+  editor_password text := 'password';
 begin
-  if exists (select 1 from auth.users where email = seed_email) then
-    return;
+  if not exists (select 1 from auth.users where email = admin_email) then
+    insert into auth.users (
+      instance_id,
+      id,
+      aud,
+      role,
+      email,
+      encrypted_password,
+      email_confirmed_at,
+      raw_app_meta_data,
+      raw_user_meta_data,
+      created_at,
+      updated_at,
+      confirmation_token,
+      email_change,
+      email_change_token_new,
+      recovery_token
+    )
+    values (
+      '00000000-0000-0000-0000-000000000000',
+      admin_user_id,
+      'authenticated',
+      'authenticated',
+      admin_email,
+      extensions.crypt(admin_password, extensions.gen_salt('bf')),
+      now(),
+      '{"provider":"email","providers":["email"],"app_role":"admin"}'::jsonb,
+      '{"full_name":"ASIP Admin"}'::jsonb,
+      now(),
+      now(),
+      '',
+      '',
+      '',
+      ''
+    );
+
+    insert into auth.identities (
+      id,
+      user_id,
+      identity_data,
+      provider,
+      provider_id,
+      last_sign_in_at,
+      created_at,
+      updated_at
+    )
+    values (
+      gen_random_uuid(),
+      admin_user_id,
+      jsonb_build_object(
+        'sub', admin_user_id::text,
+        'email', admin_email,
+        'email_verified', true
+      ),
+      'email',
+      admin_user_id::text,
+      now(),
+      now(),
+      now()
+    );
   end if;
 
-  insert into auth.users (
-    instance_id,
-    id,
-    aud,
-    role,
-    email,
-    encrypted_password,
-    email_confirmed_at,
-    raw_app_meta_data,
-    raw_user_meta_data,
-    created_at,
-    updated_at,
-    confirmation_token,
-    email_change,
-    email_change_token_new,
-    recovery_token
-  )
-  values (
-    '00000000-0000-0000-0000-000000000000',
-    seed_user_id,
-    'authenticated',
-    'authenticated',
-    seed_email,
-    extensions.crypt(seed_password, extensions.gen_salt('bf')),
-    now(),
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    '{"full_name":"ASIP Admin"}'::jsonb,
-    now(),
-    now(),
-    '',
-    '',
-    '',
-    ''
-  );
+  update public.profiles
+  set role = 'admin'
+  where email = admin_email
+    and role is distinct from 'admin';
 
-  insert into auth.identities (
-    id,
-    user_id,
-    identity_data,
-    provider,
-    provider_id,
-    last_sign_in_at,
-    created_at,
-    updated_at
-  )
-  values (
-    gen_random_uuid(),
-    seed_user_id,
-    jsonb_build_object(
-      'sub', seed_user_id::text,
-      'email', seed_email,
-      'email_verified', true
-    ),
-    'email',
-    seed_user_id::text,
-    now(),
-    now(),
-    now()
-  );
+  if not exists (select 1 from auth.users where email = editor_email) then
+    insert into auth.users (
+      instance_id,
+      id,
+      aud,
+      role,
+      email,
+      encrypted_password,
+      email_confirmed_at,
+      raw_app_meta_data,
+      raw_user_meta_data,
+      created_at,
+      updated_at,
+      confirmation_token,
+      email_change,
+      email_change_token_new,
+      recovery_token
+    )
+    values (
+      '00000000-0000-0000-0000-000000000000',
+      editor_user_id,
+      'authenticated',
+      'authenticated',
+      editor_email,
+      extensions.crypt(editor_password, extensions.gen_salt('bf')),
+      now(),
+      '{"provider":"email","providers":["email"],"app_role":"editor"}'::jsonb,
+      '{"full_name":"ASIP Editor"}'::jsonb,
+      now(),
+      now(),
+      '',
+      '',
+      '',
+      ''
+    );
+
+    insert into auth.identities (
+      id,
+      user_id,
+      identity_data,
+      provider,
+      provider_id,
+      last_sign_in_at,
+      created_at,
+      updated_at
+    )
+    values (
+      gen_random_uuid(),
+      editor_user_id,
+      jsonb_build_object(
+        'sub', editor_user_id::text,
+        'email', editor_email,
+        'email_verified', true
+      ),
+      'email',
+      editor_user_id::text,
+      now(),
+      now(),
+      now()
+    );
+  end if;
+
+  update public.profiles
+  set role = 'editor'
+  where email = editor_email
+    and role is distinct from 'editor';
+
+  update public.evidence_records
+  set owner_id = p.id
+  from public.profiles p
+  where p.email = editor_email
+    and evidence_records.owner_id is distinct from p.id;
 end;
 $$;

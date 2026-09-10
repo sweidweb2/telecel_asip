@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ApplyForm } from "@/components/marketing/apply-form";
@@ -10,6 +9,7 @@ import { IntakeAuthGate } from "@/components/marketing/intake-auth-gate";
 import { InstitutionalHero } from "@/components/marketing/institutional-hero";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section, SectionHeading } from "@/components/marketing/page-elements";
+import { SiteAccountMenu } from "@/components/layout/site-account-menu";
 import {
   Card,
   CardContent,
@@ -65,14 +65,21 @@ export async function ApplyPageContent({
         }
         patternId={mode === "register" ? "register-hero" : "apply-hero"}
         composition={mode === "register" ? "signal" : "gateway"}
-        size="compact"
+        size="default"
       />
 
       <Section>
         <Card>
           <CardHeader>
-            <CardTitle>{labels.formTitle}</CardTitle>
-            <CardDescription>{labels.formDescription}</CardDescription>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-1.5">
+                <CardTitle>{labels.formTitle}</CardTitle>
+                <CardDescription>{labels.formDescription}</CardDescription>
+              </div>
+              {user?.email ? (
+                <SiteAccountMenu email={user.email} locale={locale} />
+              ) : null}
+            </div>
           </CardHeader>
           <CardContent>
             {user ? (

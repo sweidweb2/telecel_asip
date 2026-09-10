@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -46,7 +46,7 @@ test.describe("applications admin", () => {
     if (insertError) throw insertError;
 
     try {
-      await loginAsAdmin(page, "/dashboard/applications");
+      await loginAsEditor(page, "/dashboard/applications");
       await page.getByLabel("Search applications").fill(email);
       await expect(page).toHaveURL(new RegExp(`search=apps\\.admin\\.${suffix}`), {
         timeout: 15_000,

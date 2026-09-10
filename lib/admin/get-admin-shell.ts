@@ -1,26 +1,27 @@
 import { cache } from "react";
 
-import { createClient } from "@/lib/supabase/server";
+import { getStaffShell, type StaffShell } from "@/lib/admin/get-staff-shell";
 
 export type AdminShell = {
   isAdmin: boolean;
+  isEditor: boolean;
+  role: StaffShell["role"];
   fullName: string | null;
   email: string | null;
 };
 
 /**
- * One round-trip for dashboard chrome: is_admin + display profile fields.
- * Request-memoized so layout, `isCurrentUserAdmin`, and nested spans share one RPC.
+ * Compat shell via expanded `get_admin_shell` columns.
+ * Prefer `getStaffShell` (`get_staff_shell`) for new callers — both share the
+ * same request-memoized staff shell so layout + gates stay one RPC.
  */
 export const getAdminShell = cache(async (): Promise<AdminShell> => {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_admin_shell").maybeSingle();
-
-  if (error) throw error;
-
+  const shell = await getStaffShell();
   return {
-    isAdmin: Boolean(data?.is_admin),
-    fullName: data?.full_name ?? null,
-    email: data?.email ?? null,
+    isAdmin: shell.isAdmin,
+    isEditor: shell.isEditor,
+    role: shell.role,
+    fullName: shell.fullName,
+    email: shell.email,
   };
 });

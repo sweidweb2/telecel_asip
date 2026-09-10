@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserAdmin = vi.fn();
+const isCurrentUserStaff = vi.fn();
 const range = vi.fn();
 const orderId = vi.fn(() => ({ range }));
 const orderCreated = vi.fn(() => ({ order: orderId }));
@@ -15,8 +15,8 @@ const select = vi.fn(() => ({
 const rpc = vi.fn();
 const from = vi.fn(() => ({ select }));
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
-  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+vi.mock("@/lib/admin/is-current-user-staff", () => ({
+  isCurrentUserStaff: (...args: unknown[]) => isCurrentUserStaff(...args),
 }));
 
 vi.mock("@/lib/admin/perf", () => ({
@@ -47,8 +47,8 @@ describe("getUsersPageData", () => {
     }));
   });
 
-  it("returns forbidden for non-admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(false);
+  it("returns forbidden for non-staff", async () => {
+    isCurrentUserStaff.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
     rpc.mockResolvedValue({ data: null, error: null });
 
@@ -61,8 +61,8 @@ describe("getUsersPageData", () => {
     expect(result.status).toBe("forbidden");
   });
 
-  it("returns users list and mapped stats for admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+  it("returns users list and mapped stats for staff", async () => {
+    isCurrentUserStaff.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {

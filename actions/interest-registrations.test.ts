@@ -24,8 +24,8 @@ vi.mock("@/lib/rate-limit", () => ({
   recordRateLimitHit: vi.fn(),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("@/lib/admin/get-auth-user", () => ({
@@ -55,7 +55,7 @@ import {
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
 import { getOpenApplications } from "@/data/settings";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
@@ -189,8 +189,8 @@ describe("interest registration admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("returns unauthorized when authorizeAdmin fails", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("returns unauthorized when authorizeEditor fails", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage registrations.",
     });
@@ -220,7 +220,7 @@ describe("interest registration admin mutations", () => {
   it("updates and deletes successfully", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: regId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { nanoid } from "nanoid";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -410,7 +410,7 @@ export async function uploadPartnerLogo(
         return { status: "error", message: MESSAGES.invalidImage };
       }
 
-      const session = await authorizeAdmin(MESSAGES);
+      const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
       const { data: existing, error: existingError } = await session.supabase
@@ -484,7 +484,7 @@ export async function removePartnerLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase

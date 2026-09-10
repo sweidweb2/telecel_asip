@@ -80,24 +80,24 @@ async function createConfirmedUser(
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
-    app_metadata: { app_role: "admin" },
+    app_metadata: { app_role: "editor" },
   });
 
   if (error) throw error;
 
-  // Remote handle_new_user may ignore app_role; promote via an admin session.
-  await promoteUserToAdmin(email);
+  // Remote handle_new_user may ignore app_role; promote via an editor session.
+  await promoteUserToEditor(email);
 }
 
 /**
- * Promote a profile to admin using the seed admin session.
- * service_role cannot change profiles.role (protect trigger requires is_admin()),
+ * Promote a profile to editor using the seed editor session.
+ * service_role cannot change profiles.role (protect trigger requires staff),
  * and some remote DBs still insert viewer even when app_metadata.app_role is set.
  */
-async function promoteUserToAdmin(email: string) {
+async function promoteUserToEditor(email: string) {
   if (!supabaseUrl || !anonKey) {
     throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required for admin promotion.",
+      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required for editor promotion.",
     );
   }
 
@@ -112,11 +112,11 @@ async function promoteUserToAdmin(email: string) {
     (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
   );
   if (!user) {
-    throw new Error(`User not found for admin promotion: ${email}`);
+    throw new Error(`User not found for editor promotion: ${email}`);
   }
 
-  const seedEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-  const seedPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+  const seedEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+  const seedPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
   const sessionClient = createClient(supabaseUrl, anonKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
@@ -128,7 +128,7 @@ async function promoteUserToAdmin(email: string) {
 
   const { error: updateError } = await sessionClient
     .from("profiles")
-    .update({ role: "admin" })
+    .update({ role: "editor" })
     .eq("id", user.id);
   if (updateError) throw updateError;
 
@@ -138,9 +138,9 @@ async function promoteUserToAdmin(email: string) {
     .eq("id", user.id)
     .maybeSingle();
   if (profileError) throw profileError;
-  if (profile?.role !== "admin") {
+  if (profile?.role !== "editor") {
     throw new Error(
-      `Expected promoted profile role admin, got ${profile?.role ?? "missing"}`,
+      `Expected promoted profile role editor, got ${profile?.role ?? "missing"}`,
     );
   }
 }
@@ -195,7 +195,7 @@ test.describe("auth", () => {
 
       const outcome = await Promise.race([
         page
-          .waitForURL(/\/dashboard/, { timeout: 20_000 })
+          .waitForURL(/\/(en|fr)\/?$/, { timeout: 20_000 })
           .then(() => "session" as const),
         page
           .locator("[data-sonner-toast]")
@@ -228,7 +228,7 @@ test.describe("auth", () => {
       }
 
       // Self-serve signups are viewers; promote so /dashboard is reachable.
-      await promoteUserToAdmin(email);
+      await promoteUserToEditor(email);
 
       await page.context().clearCookies();
       await page.goto("/en/login?next=%2Fdashboard");
@@ -254,8 +254,8 @@ test.describe("auth", () => {
   });
 
   test("duplicate signup email shows a toast error", async ({ page }) => {
-    const email = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-    const password = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+    const email = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+    const password = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
     await page.goto("/en/signup");
     await page.getByLabel("Name").fill("Duplicate User");

@@ -33,7 +33,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getDashboardPageTitle } from "@/constants/dashboard-nav";
+import { ADMIN_SEARCH_PAGES, getAdminPageTitle } from "@/constants/admin-nav";
+import {
+  DASHBOARD_SEARCH_PAGES,
+  getDashboardPageTitle,
+} from "@/constants/dashboard-nav";
 import { DEFAULT_LOCALE } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
@@ -51,9 +55,22 @@ function useIsClient() {
   return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
-export function DashboardHeader({ account }: { account: DashboardAccount }) {
+export function DashboardHeader({
+  account,
+  panelLabel = "Editor panel",
+  titleResolver = "editor",
+}: {
+  account: DashboardAccount;
+  panelLabel?: string;
+  titleResolver?: "editor" | "admin";
+}) {
   const pathname = usePathname();
-  const title = getDashboardPageTitle(pathname);
+  const title =
+    titleResolver === "admin"
+      ? getAdminPageTitle(pathname)
+      : getDashboardPageTitle(pathname);
+  const searchCatalog =
+    titleResolver === "admin" ? ADMIN_SEARCH_PAGES : DASHBOARD_SEARCH_PAGES;
   const [isPending, startTransition] = useTransition();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -78,15 +95,14 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
         </h1>
       </div>
 
-      <DashboardPageSearch className="justify-self-center" />
+      <DashboardPageSearch
+        className="justify-self-center"
+        catalog={searchCatalog}
+        label={`Search ${panelLabel.toLowerCase()} pages`}
+      />
 
       <div className="flex justify-end">
         <DropdownMenu>
-          {/*
-            Base UI Menu Trigger already renders a <button>.
-            Do not wrap <Button> with asChild — that nests button-in-button
-            and breaks hydration.
-          */}
           <DropdownMenuTrigger
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
@@ -106,6 +122,9 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
                   {account.email}
                 </span>
               ) : null}
+              <span className="truncate text-xs text-muted-foreground">
+                {panelLabel}
+              </span>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -153,7 +172,6 @@ export function DashboardHeader({ account }: { account: DashboardAccount }) {
       <Dialog
         open={isSigningOut}
         onOpenChange={(open) => {
-          // Keep the dialog open until sign-out redirects away.
           if (!open && isSigningOut) return;
           setIsSigningOut(open);
         }}

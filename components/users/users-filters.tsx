@@ -19,10 +19,16 @@ const ROLE_OPTION_LABELS = {
   viewer: "Viewer",
 } as const;
 
-export function UsersFilters({ query }: { query: UserListQuery }) {
+export function UsersFilters({
+  query,
+  listPath = ROUTES.users,
+}: {
+  query: UserListQuery;
+  listPath?: string;
+}) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
-      basePath: ROUTES.users,
+      basePath: listPath,
       search: query.search,
     });
 
@@ -37,7 +43,7 @@ export function UsersFilters({ query }: { query: UserListQuery }) {
       isPending={isPending}
       onSearchChange={handleSearchChange}
       hasFilters={hasFilters}
-      clearHref={ROUTES.users}
+      clearHref={listPath}
       onClear={clearSearchLocal}
     >
       <Label htmlFor="users-role" className="sr-only">

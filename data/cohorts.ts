@@ -7,7 +7,7 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -122,7 +122,7 @@ export async function getCohortsPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchCohortsPage(supabase, query),
         fetchCohortListStats(supabase),
       ]);
@@ -148,7 +148,7 @@ export const getCohortByIdForAdmin = wrapCached(
       if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const { data, error } = await supabase
         .from("cohorts")
@@ -203,7 +203,7 @@ export async function getCohortLinkOptionsForAdmin(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       const pattern = term ? escapeIlikePattern(term) : "";
@@ -268,7 +268,7 @@ export async function getCohortsForBlogPicker(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

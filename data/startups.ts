@@ -4,11 +4,11 @@ import { unstable_cache } from "next/cache";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -177,7 +177,7 @@ export async function getStartupsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: StartupListResult; stats: StartupListStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchStartupsPage(supabase, query),
@@ -207,7 +207,7 @@ export const getStartupByIdForAdmin = wrapCached(
       if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const [
         { data: startup, error: startupError },
@@ -257,7 +257,7 @@ export async function getStartupsForBlogPicker(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

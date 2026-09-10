@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserAdmin = vi.fn();
+const isCurrentUserEditor = vi.fn();
 const range = vi.fn();
 const or = vi.fn(() => ({ range }));
 const eqStatus = vi.fn();
@@ -32,8 +32,8 @@ function makeSelectChain() {
 const select = vi.fn(() => makeSelectChain());
 const from = vi.fn(() => ({ select }));
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
-  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+vi.mock("@/lib/admin/is-current-user-editor", () => ({
+  isCurrentUserEditor: (...args: unknown[]) => isCurrentUserEditor(...args),
 }));
 
 vi.mock("@/lib/admin/perf", () => ({
@@ -76,7 +76,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns forbidden for applications when not admin", async () => {
-    isCurrentUserAdmin.mockResolvedValue(false);
+    isCurrentUserEditor.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
 
     const result = await getApplicationsPageData(baseQuery);
@@ -84,7 +84,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns applications list for admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+    isCurrentUserEditor.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -107,7 +107,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns interest registrations for admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+    isCurrentUserEditor.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [{ id: "r1", full_name: "Bo", email: "bo@example.com" }],
       error: null,
@@ -121,7 +121,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns contact messages for admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+    isCurrentUserEditor.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {

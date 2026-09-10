@@ -21,9 +21,17 @@ import { cn } from "@/lib/utils";
 import type { DashboardSearchPage } from "@/constants/dashboard-nav";
 
 /**
- * Header typeahead: search admin pages by name and navigate via allowlisted hrefs.
+ * Header typeahead: search staff pages by name and navigate via allowlisted hrefs.
  */
-export function DashboardPageSearch({ className }: { className?: string }) {
+export function DashboardPageSearch({
+  className,
+  catalog,
+  label = "Search pages",
+}: {
+  className?: string;
+  catalog?: readonly DashboardSearchPage[];
+  label?: string;
+}) {
   const router = useRouter();
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -45,7 +53,7 @@ export function DashboardPageSearch({ className }: { className?: string }) {
   function updateQuery(nextRaw: string) {
     const next = sanitizeDashboardPageSearchQuery(nextRaw);
     setQuery(next);
-    const nextResults = filterDashboardSearchPages(next);
+    const nextResults = filterDashboardSearchPages(next, catalog);
     setResults(nextResults);
     setActiveIndex(0);
     setOpen(nextResults.length > 0);
@@ -95,7 +103,7 @@ export function DashboardPageSearch({ className }: { className?: string }) {
   return (
     <div ref={rootRef} className={cn("relative w-full max-w-sm", className)}>
       <label className="sr-only" htmlFor={`${listId}-input`}>
-        Search admin pages
+        {label}
       </label>
       <div className="relative">
         <SearchIcon
@@ -136,7 +144,7 @@ export function DashboardPageSearch({ className }: { className?: string }) {
         <ul
           id={listId}
           role="listbox"
-          aria-label="Admin pages"
+          aria-label="Pages"
           className="absolute top-[calc(100%+0.35rem)] z-50 max-h-72 w-full overflow-auto rounded-lg border bg-popover p-1 text-popover-foreground shadow-md"
         >
           {results.map((page, index) => {

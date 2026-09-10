@@ -25,8 +25,8 @@ vi.mock("@/lib/rate-limit", () => ({
   recordRateLimitHit: vi.fn(),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -47,7 +47,7 @@ import {
   updateContactMessage,
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
@@ -141,8 +141,8 @@ describe("contact message admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("returns unauthorized when authorizeAdmin fails", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("returns unauthorized when authorizeEditor fails", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage contact messages.",
     });
@@ -166,7 +166,7 @@ describe("contact message admin mutations", () => {
       data: { id: messageId },
       error: null,
     });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

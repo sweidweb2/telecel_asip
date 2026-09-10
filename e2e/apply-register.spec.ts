@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, waitForTurnstileReady, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, waitForTurnstileReady, submitLoginForm } from "./helpers";
 
 const REGISTER_SUCCESS = "Thank you - your interest has been registered.";
 const APPLY_SUCCESS = "Thank you - your application has been submitted.";
@@ -42,7 +42,7 @@ async function setApplicationsOpenViaSettings(
   page: Page,
   open: boolean,
 ): Promise<void> {
-  await loginAsAdmin(page, "/dashboard/settings");
+  await loginAsEditor(page, "/dashboard/settings");
   const appsSwitch = page.locator("#open-applications");
   const currentlyOpen = await appsSwitch.isChecked();
   if (currentlyOpen === open) return;

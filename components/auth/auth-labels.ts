@@ -134,7 +134,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     hasAccountPrompt: "Already have an account?",
     loginLink: "Login",
     viewerNote:
-      "New accounts are viewers. They can use intake forms, not the admin dashboard.",
+      "New accounts are viewers. They can use intake forms, not the Editor or Admin panels.",
     successToast: "Account created.",
     turnstileHint: "Complete the security check before creating your account.",
     googleLabel: "Sign up with Google",

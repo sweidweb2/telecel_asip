@@ -6,6 +6,7 @@ import {
   expectViewerRedirectedFrom,
   hasE2ECredentials,
   loginAsAdmin,
+  loginAsEditor,
 } from "./helpers";
 
 test.describe("newsletter signup e2e", () => {
@@ -19,7 +20,7 @@ test.describe("newsletter signup e2e", () => {
   });
 });
 
-test.describe("admin analytics and performance authz", () => {
+test.describe("editor analytics and admin performance authz", () => {
   test.beforeEach(() => {
     test.skip(
       !hasE2ECredentials(),
@@ -27,13 +28,17 @@ test.describe("admin analytics and performance authz", () => {
     );
   });
 
-  test("admin can open analytics and performance", async ({ page }) => {
+  test("editor can open analytics; admin can open performance", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
-    await loginAsAdmin(page, "/dashboard/analytics");
+    await loginAsEditor(page, "/dashboard/analytics");
     await expect(
       page.getByRole("heading", { name: /analytics/i }),
     ).toBeVisible();
-    await page.goto("/dashboard/performance");
+
+    await page.context().clearCookies();
+    await loginAsAdmin(page, "/admin/performance");
     await expect(
       page.getByRole("heading", { name: /performance/i }),
     ).toBeVisible();
@@ -46,7 +51,21 @@ test.describe("admin analytics and performance authz", () => {
 
   test("viewer is redirected away from performance", async ({ page }) => {
     test.setTimeout(60_000);
-    await expectViewerRedirectedFrom(page, "/dashboard/performance");
+    await expectViewerRedirectedFrom(page, "/admin/performance");
+  });
+
+  test("editor cannot open admin performance", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsEditor(page, "/dashboard");
+    await page.goto("/admin/performance");
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 });
+  });
+
+  test("admin cannot open editor CMS routes", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/admin/users");
+    await page.goto("/dashboard/blogs");
+    await expect(page).toHaveURL(/\/admin/, { timeout: 20_000 });
   });
 });
 

@@ -11,14 +11,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { requireAdmin } from "@/data/auth";
+import { requireEditor } from "@/data/auth";
 
 export const metadata: Metadata = {
   title: "New impact metric | ASIP Admin",
 };
 
 export default async function NewImpactMetricPage() {
-  await requireAdmin();
+  await requireEditor();
 
   return (
     <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">

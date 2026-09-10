@@ -30,7 +30,7 @@ const en: LegalCopy = {
       {
         title: "3. Accounts",
         paragraphs: [
-          "You can create an account with your name, email, and password. Public signup creates a viewer account: you can use signed-in intake forms, not the admin dashboard. Only administrators designated by Telecel Group can manage programme content and inbox data.",
+          "You can create an account with your name, email, and password. Public signup creates a viewer account: you can use signed-in intake forms, not the Editor or Admin panels. Only staff designated by Telecel Group can manage programme content and platform operations.",
           "You must provide accurate information, keep your credentials secure, and not share your account. You are responsible for activity under your account. There is no self-serve password reset on this site — if you cannot sign in, contact the ASIP team using the details in section 8.",
           "We may refuse, suspend, or remove access where we reasonably believe these terms have been breached, or where security or programme rules require it.",
         ],

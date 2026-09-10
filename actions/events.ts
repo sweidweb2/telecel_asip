@@ -2,7 +2,7 @@
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { getEventStartupOptions } from "@/data/events";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -88,7 +88,7 @@ export async function createEvent(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data, error } = await session.supabase.rpc("create_event_with_links", {
@@ -119,7 +119,7 @@ export async function updateEvent(
     };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { id, ...rest } = parsed.data;

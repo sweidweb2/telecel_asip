@@ -34,8 +34,8 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     listPath: ROUTES.users,
     navTitle: "Users",
     pageTitle: "Users",
-    description: "Create accounts and manage profile access across the CMS.",
-    metaTitle: "Users | ASIP Admin",
+    description: "Create accounts and manage profile access for the Editor and Admin panels.",
+    metaTitle: "Users | ASIP Editor",
   },
   registrations: {
     id: "registrations",
@@ -44,7 +44,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Registrations",
     description:
       "Review and manage Register Interest leads. Official Apply submissions live under Applications.",
-    metaTitle: "Registrations | ASIP Admin",
+    metaTitle: "Registrations | ASIP Editor",
   },
   applications: {
     id: "applications",
@@ -53,7 +53,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Applications",
     description:
       "Official Apply submissions. Separate from Register Interest leads - there is no automatic conversion.",
-    metaTitle: "Applications | ASIP Admin",
+    metaTitle: "Applications | ASIP Editor",
   },
   portfolio: {
     id: "portfolio",
@@ -62,7 +62,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Startup",
     description:
       "Manage startups shown on the public portfolio. Only active startups are visible publicly.",
-    metaTitle: "Startup | ASIP Admin",
+    metaTitle: "Startup | ASIP Editor",
     cacheTags: ["startups"],
   },
   blogs: {
@@ -71,7 +71,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Blogs",
     pageTitle: "Blogs",
     description: "Create and manage Insights articles shown on the public site.",
-    metaTitle: "Blogs | ASIP Admin",
+    metaTitle: "Blogs | ASIP Editor",
     cacheTags: ["blogs"],
   },
   cohorts: {
@@ -81,7 +81,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Cohorts",
     description:
       "Manage programme years, publish status, and linked partners and founders.",
-    metaTitle: "Cohorts | ASIP Admin",
+    metaTitle: "Cohorts | ASIP Editor",
     cacheTags: ["cohorts"],
   },
   partners: {
@@ -90,7 +90,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Partners",
     pageTitle: "Partners",
     description: "Partners and mentors shown on the public partners page.",
-    metaTitle: "Partners | ASIP Admin",
+    metaTitle: "Partners | ASIP Editor",
     cacheTags: ["partners"],
   },
   founderStories: {
@@ -100,7 +100,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Founder stories",
     description:
       "Narrative modules on public founder profiles and Impact case studies when published.",
-    metaTitle: "Founder stories | ASIP Admin",
+    metaTitle: "Founder stories | ASIP Editor",
     cacheTags: ["founder-stories"],
   },
   evidence: {
@@ -110,7 +110,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Evidence",
     description:
       "Internal evidence register for claims and impact metrics. Not listed on the public site.",
-    metaTitle: "Evidence | ASIP Admin",
+    metaTitle: "Evidence | ASIP Editor",
   },
   impactMetrics: {
     id: "impactMetrics",
@@ -119,7 +119,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Impact metrics",
     description:
       "Evidence-backed claims. Verified + homepage_module_02 feed the home impact strip; Impact page strip is not wired yet.",
-    metaTitle: "Impact metrics | ASIP Admin",
+    metaTitle: "Impact metrics | ASIP Editor",
     cacheTags: ["impact-metrics"],
   },
   events: {
@@ -129,7 +129,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Events",
     description:
       "Programme events catalogue (speakers, assets, linked startups). No public events marketing page yet.",
-    metaTitle: "Events | ASIP Admin",
+    metaTitle: "Events | ASIP Editor",
     cacheTags: ["events"],
   },
   contactUs: {
@@ -139,7 +139,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     pageTitle: "Contact us",
     description:
       "Review and manage messages submitted from the public contact form.",
-    metaTitle: "Contact us | ASIP Admin",
+    metaTitle: "Contact us | ASIP Editor",
   },
 };
 

@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { publicPath } from "@/constants/routes";
-import { getAdminShell } from "@/data/admin-shell";
+import { DASHBOARD_NAV_GROUPS } from "@/constants/dashboard-nav";
+import { publicPath, ROUTES } from "@/constants/routes";
+import { getStaffShell } from "@/data/admin-shell";
 import { getDashboardNavCounts } from "@/data/dashboard-nav-counts";
 import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -24,11 +25,15 @@ export default async function DashboardLayout({
 }) {
   const shell = await traceAsync(
     "dashboardLayout",
-    { eventType: "layout", meta: { ops: ["getAdminShell"] } },
-    () => getAdminShell(),
+    { eventType: "layout", meta: { ops: ["getStaffShell"] } },
+    () => getStaffShell(),
   );
 
-  if (!shell.isAdmin) {
+  if (shell.isAdmin) {
+    redirect(ROUTES.admin);
+  }
+
+  if (!shell.isEditor) {
     redirect(publicPath(await getRequestLocale()));
   }
 
@@ -45,14 +50,18 @@ export default async function DashboardLayout({
     initials: userInitials(shell.fullName, email),
   };
 
-  // Hint for nested spans in this request (pathname not always in headers).
   setAdminPerfRoute("/dashboard");
 
   return (
     <SidebarProvider>
-      <AppSidebar counts={navCounts} />
+      <AppSidebar
+        counts={navCounts}
+        homeHref={ROUTES.dashboard}
+        brandLabel="Editor panel"
+        navGroups={DASHBOARD_NAV_GROUPS}
+      />
       <SidebarInset>
-        <DashboardHeader account={account} />
+        <DashboardHeader account={account} panelLabel="Editor panel" />
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>

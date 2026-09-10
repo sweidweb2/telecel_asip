@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
 import {
@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { createUser, deleteUser, updateUser } from "@/actions/users";
+import {
+  createUser,
+  deleteUser,
+  hardDeleteUser,
+  updateUser,
+} from "@/actions/users";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import {
@@ -40,50 +45,93 @@ import {
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatAdminDate } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/types/profile";
 import {
+  assignableRolesForActor,
   createUserSchema,
+  defaultRoleForActor,
   updateUserSchema,
   USER_EMAIL_MAX,
-  USER_FORM_ROLE,
   USER_FULL_NAME_MAX,
   USER_PASSWORD_MAX,
   type CreateUserInput,
   type UpdateUserInput,
+  type UserRole,
 } from "@/validations/users";
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  admin: "Admin",
+  editor: "Editor",
+  viewer: "Viewer",
+};
 
 function FormFieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <FieldError>{message}</FieldError>;
 }
 
-function LockedRoleField({ id }: { id: string }) {
+function RoleSelectField({
+  id,
+  value,
+  onChange,
+  roles,
+  disabled,
+  error,
+}: {
+  id: string;
+  value: UserRole;
+  onChange: (role: UserRole) => void;
+  roles: readonly UserRole[];
+  disabled?: boolean;
+  error?: string;
+}) {
   return (
-    <Field>
+    <Field data-invalid={Boolean(error)}>
       <Label htmlFor={id}>Role</Label>
-      <Input
-        id={id}
-        value="Admin"
-        readOnly
-        disabled
-        aria-readonly="true"
-        className="bg-muted/50"
-      />
-      <p className="text-xs text-muted-foreground">
-        New and updated users are assigned the admin role.
-      </p>
+      <Select
+        value={value}
+        onValueChange={(next) => {
+          if (next) onChange(next as UserRole);
+        }}
+        disabled={disabled}
+      >
+        <SelectTrigger id={id} className="w-full" aria-invalid={Boolean(error)}>
+          <SelectValue>{ROLE_LABELS[value]}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {roles.map((role) => (
+            <SelectItem key={role} value={role}>
+              {ROLE_LABELS[role]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormFieldError message={error} />
     </Field>
   );
 }
 
-export function CreateUserDialog() {
+export function CreateUserDialog({
+  actorRole,
+}: {
+  actorRole: "admin" | "editor";
+}) {
   const formId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const roles = assignableRolesForActor(actorRole);
+  const defaultRole = defaultRoleForActor(actorRole);
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
     mode: "onChange",
@@ -91,7 +139,7 @@ export function CreateUserDialog() {
       fullName: "",
       email: "",
       password: "",
-      role: USER_FORM_ROLE,
+      role: defaultRole,
     },
   });
   const { errors, isDirty } = form.formState;
@@ -103,7 +151,7 @@ export function CreateUserDialog() {
         fullName: "",
         email: "",
         password: "",
-        role: USER_FORM_ROLE,
+        role: defaultRole,
       });
     }
   }
@@ -111,14 +159,13 @@ export function CreateUserDialog() {
   function onSubmit(values: CreateUserInput) {
     startTransition(async () => {
       try {
-        const result = await createUser({ ...values, role: USER_FORM_ROLE });
+        const result = await createUser(values);
         if (result.status === "error") {
           toast.error(result.message);
           return;
         }
         toast.success(result.message);
         setOpen(false);
-        form.reset();
         router.refresh();
       } catch {
         toast.error("The user could not be created. Please try again.");
@@ -130,17 +177,17 @@ export function CreateUserDialog() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button className="min-h-11 w-full sm:min-h-8 sm:w-auto" />
+          <Button>
+            <PlusIcon />
+            Create user
+          </Button>
         }
-      >
-        <PlusIcon />
-        Create user
-      </DialogTrigger>
+      />
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Create user</DialogTitle>
           <DialogDescription>
-            Create a confirmed login and linked profile.
+            Add an account and choose their access role.
           </DialogDescription>
         </DialogHeader>
 
@@ -149,18 +196,16 @@ export function CreateUserDialog() {
           onSubmit={form.handleSubmit(onSubmit)}
           noValidate
         >
-          <input type="hidden" {...form.register("role")} />
           <FieldGroup>
             <Field data-invalid={Boolean(form.formState.errors.fullName)}>
               <AdminFormFieldLabel
-                htmlFor="create-full-name"
+                htmlFor="create-name"
                 hint={`2–${USER_FULL_NAME_MAX} chars`}
               >
                 Full name
               </AdminFormFieldLabel>
               <Input
-                id="create-full-name"
-                autoComplete="name"
+                id="create-name"
                 disabled={isPending}
                 maxLength={USER_FULL_NAME_MAX}
                 placeholder="e.g. Ama Mensah"
@@ -179,7 +224,6 @@ export function CreateUserDialog() {
               <Input
                 id="create-email"
                 type="email"
-                autoComplete="email"
                 disabled={isPending}
                 maxLength={USER_EMAIL_MAX}
                 placeholder="name@company.com"
@@ -189,11 +233,8 @@ export function CreateUserDialog() {
               <FormFieldError message={form.formState.errors.email?.message} />
             </Field>
             <Field data-invalid={Boolean(form.formState.errors.password)}>
-              <AdminFormFieldLabel
-                htmlFor="create-password"
-                hint={`max ${USER_PASSWORD_MAX}`}
-              >
-                Temporary password
+              <AdminFormFieldLabel htmlFor="create-password" hint="optional">
+                Password
               </AdminFormFieldLabel>
               <Input
                 id="create-password"
@@ -209,7 +250,20 @@ export function CreateUserDialog() {
                 message={form.formState.errors.password?.message}
               />
             </Field>
-            <LockedRoleField id="create-role" />
+            <Controller
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <RoleSelectField
+                  id="create-role"
+                  value={field.value}
+                  onChange={field.onChange}
+                  roles={roles}
+                  disabled={isPending}
+                  error={form.formState.errors.role?.message}
+                />
+              )}
+            />
           </FieldGroup>
         </form>
 
@@ -242,11 +296,12 @@ export function CreateUserDialog() {
 
 export function UserRowActions({
   user,
+  actorRole,
   editOpen,
   onEditOpenChange,
 }: {
   user: Profile;
-  /** Optional controlled edit dialog (e.g. open from row click). */
+  actorRole: "admin" | "editor";
   editOpen?: boolean;
   onEditOpenChange?: (open: boolean) => void;
 }) {
@@ -257,15 +312,21 @@ export function UserRowActions({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isUpdating, startUpdate] = useTransition();
   const [isDeleting, startDelete] = useTransition();
+  const [isHardDeleting, startHardDelete] = useTransition();
   const isEditControlled = onEditOpenChange !== undefined;
   const editOpenState = isEditControlled
     ? Boolean(editOpen)
     : uncontrolledEditOpen;
+  const roles = assignableRolesForActor(actorRole);
+  const canEditRole =
+    actorRole === "admin" || user.role === "editor" || user.role === "viewer";
   const editDefaults: UpdateUserInput = {
     id: user.id,
     fullName: user.full_name ?? "",
     email: user.email,
-    role: USER_FORM_ROLE,
+    role: canEditRole && roles.includes(user.role as UserRole)
+      ? (user.role as UserRole)
+      : defaultRoleForActor(actorRole),
   };
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
@@ -273,6 +334,7 @@ export function UserRowActions({
     defaultValues: editDefaults,
   });
   const { errors, isDirty } = form.formState;
+  const showHardDelete = actorRole === "admin" && user.role !== "admin";
 
   function handleEditOpen(next: boolean) {
     if (isEditControlled) {
@@ -286,7 +348,7 @@ export function UserRowActions({
   function onUpdate(values: UpdateUserInput) {
     startUpdate(async () => {
       try {
-        const result = await updateUser({ ...values, role: USER_FORM_ROLE });
+        const result = await updateUser(values);
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -316,6 +378,25 @@ export function UserRowActions({
       }
     });
   }
+
+  function onHardDelete() {
+    startHardDelete(async () => {
+      try {
+        const result = await hardDeleteUser({ id: user.id });
+        if (result.status === "error") {
+          toast.error(result.message);
+          return;
+        }
+        toast.success(result.message);
+        setDeleteOpen(false);
+        router.refresh();
+      } catch {
+        toast.error("The user could not be hard-deleted. Please try again.");
+      }
+    });
+  }
+
+  const busy = isDeleting || isHardDeleting;
 
   return (
     <div className="flex items-center justify-end gap-0.5">
@@ -373,106 +454,120 @@ export function UserRowActions({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={editOpenState} onOpenChange={handleEditOpen}>
-        <DialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className={ADMIN_ICON_BUTTON_CLASS}
-              aria-label={`Edit ${user.email}`}
-            />
-          }
-        >
-          <PencilIcon />
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Edit user</DialogTitle>
-            <DialogDescription>
-              Update email and profile details for this account.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form
-            id={editFormId}
-            onSubmit={form.handleSubmit(onUpdate)}
-            noValidate
+      {canEditRole ? (
+        <Dialog open={editOpenState} onOpenChange={handleEditOpen}>
+          <DialogTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className={ADMIN_ICON_BUTTON_CLASS}
+                aria-label={`Edit ${user.email}`}
+              />
+            }
           >
-            <input type="hidden" {...form.register("id")} />
-            <input type="hidden" {...form.register("role")} />
-            <FieldGroup>
-              <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-                <AdminFormFieldLabel
-                  htmlFor={`edit-name-${user.id}`}
-                  hint={`2–${USER_FULL_NAME_MAX} chars`}
-                >
-                  Full name
-                </AdminFormFieldLabel>
-                <Input
-                  id={`edit-name-${user.id}`}
-                  disabled={isUpdating}
-                  maxLength={USER_FULL_NAME_MAX}
-                  placeholder="e.g. Ama Mensah"
-                  aria-invalid={Boolean(form.formState.errors.fullName)}
-                  {...form.register("fullName")}
-                />
-                <FormFieldError
-                  message={form.formState.errors.fullName?.message}
-                />
-              </Field>
-              <Field data-invalid={Boolean(form.formState.errors.email)}>
-                <AdminFormFieldLabel
-                  htmlFor={`edit-email-${user.id}`}
-                  hint={`max ${USER_EMAIL_MAX}`}
-                >
-                  Email
-                </AdminFormFieldLabel>
-                <Input
-                  id={`edit-email-${user.id}`}
-                  type="email"
-                  disabled={isUpdating}
-                  maxLength={USER_EMAIL_MAX}
-                  placeholder="name@company.com"
-                  aria-invalid={Boolean(form.formState.errors.email)}
-                  {...form.register("email")}
-                />
-                <FormFieldError
-                  message={form.formState.errors.email?.message}
-                />
-              </Field>
-              <LockedRoleField id={`edit-role-${user.id}`} />
-            </FieldGroup>
-          </form>
+            <PencilIcon />
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Edit user</DialogTitle>
+              <DialogDescription>
+                Update email, name, and role for this account.
+              </DialogDescription>
+            </DialogHeader>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleEditOpen(false)}
-              disabled={isUpdating}
+            <form
+              id={editFormId}
+              onSubmit={form.handleSubmit(onUpdate)}
+              noValidate
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              form={editFormId}
-              disabled={isAdminFormSubmitDisabled({
-                isPending: isUpdating,
-                isDirty,
-                errors,
-              })}
-            >
-              {isUpdating ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <PencilIcon />
-              )}
-              {isUpdating ? "Saving…" : "Save changes"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <input type="hidden" {...form.register("id")} />
+              <FieldGroup>
+                <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-name-${user.id}`}
+                    hint={`2–${USER_FULL_NAME_MAX} chars`}
+                  >
+                    Full name
+                  </AdminFormFieldLabel>
+                  <Input
+                    id={`edit-name-${user.id}`}
+                    disabled={isUpdating}
+                    maxLength={USER_FULL_NAME_MAX}
+                    placeholder="e.g. Ama Mensah"
+                    aria-invalid={Boolean(form.formState.errors.fullName)}
+                    {...form.register("fullName")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.fullName?.message}
+                  />
+                </Field>
+                <Field data-invalid={Boolean(form.formState.errors.email)}>
+                  <AdminFormFieldLabel
+                    htmlFor={`edit-email-${user.id}`}
+                    hint={`max ${USER_EMAIL_MAX}`}
+                  >
+                    Email
+                  </AdminFormFieldLabel>
+                  <Input
+                    id={`edit-email-${user.id}`}
+                    type="email"
+                    disabled={isUpdating}
+                    maxLength={USER_EMAIL_MAX}
+                    placeholder="name@company.com"
+                    aria-invalid={Boolean(form.formState.errors.email)}
+                    {...form.register("email")}
+                  />
+                  <FormFieldError
+                    message={form.formState.errors.email?.message}
+                  />
+                </Field>
+                <Controller
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <RoleSelectField
+                      id={`edit-role-${user.id}`}
+                      value={field.value}
+                      onChange={field.onChange}
+                      roles={roles}
+                      disabled={isUpdating}
+                      error={form.formState.errors.role?.message}
+                    />
+                  )}
+                />
+              </FieldGroup>
+            </form>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleEditOpen(false)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form={editFormId}
+                disabled={isAdminFormSubmitDisabled({
+                  isPending: isUpdating,
+                  isDirty,
+                  errors,
+                })}
+              >
+                {isUpdating ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <PencilIcon />
+                )}
+                {isUpdating ? "Saving…" : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogTrigger
@@ -485,6 +580,7 @@ export function UserRowActions({
                 "text-destructive hover:bg-destructive/10 hover:text-destructive",
               )}
               aria-label={`Delete ${user.email}`}
+              disabled={actorRole === "editor" && user.role === "admin"}
             />
           }
         >
@@ -495,23 +591,46 @@ export function UserRowActions({
             <AlertDialogTitle>Delete user?</AlertDialogTitle>
             <AlertDialogDescription className="break-all">
               This permanently deletes {user.email} from Auth and removes the
-              linked profile. This cannot be undone.
+              linked profile. The last admin and last editor cannot be removed
+              with a normal delete.
+              {showHardDelete
+                ? " If this account owns evidence records, use hard-delete below."
+                : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={onDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <Trash2Icon />
-              )}
-              {isDeleting ? "Deleting…" : "Delete user"}
-            </Button>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+            <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+              <Button
+                variant="destructive"
+                onClick={onDelete}
+                disabled={busy}
+              >
+                {isDeleting ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <Trash2Icon />
+                )}
+                {isDeleting ? "Deleting…" : "Delete user"}
+              </Button>
+            </div>
+            {showHardDelete ? (
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={onHardDelete}
+                disabled={busy}
+              >
+                {isHardDeleting ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <Trash2Icon />
+                )}
+                {isHardDeleting
+                  ? "Hard-deleting…"
+                  : "Delete user and connected evidence"}
+              </Button>
+            ) : null}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useCallback, useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CONTACT } from "@/constants/contact";
 import type { Locale } from "@/constants/locales";
-import { authPath, ROUTES } from "@/constants/routes";
+import { authPath, publicPath } from "@/constants/routes";
 import { useTurnstile } from "@/hooks/use-turnstile";
 import { TURNSTILE_LOGIN_ACTION } from "@/types/turnstile";
 import { loginSchemaFor, type LoginInput } from "@/validations/auth";
@@ -41,7 +41,8 @@ export function LoginForm({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("next") ?? ROUTES.dashboard;
+  const redirectTo = searchParams.get("next") ?? undefined;
+  const homePath = publicPath(locale, "");
   const [isPending, startTransition] = useTransition();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
@@ -54,7 +55,7 @@ export function LoginForm({
     getValues,
     formState: { errors },
   } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchemaFor(locale)),
+    resolver: zodResolver(loginSchemaFor(locale)) as Resolver<LoginInput>,
     defaultValues: {
       email: "",
       password: "",
@@ -93,7 +94,7 @@ export function LoginForm({
         }
 
         toast.success(result.message ?? labels.successToast);
-        router.push(result.redirectTo ?? ROUTES.dashboard);
+        router.push(result.redirectTo ?? homePath);
         router.refresh();
       } finally {
         turnstile.reset();
@@ -219,6 +220,7 @@ export function LoginForm({
       </Dialog>
       <input
         type="hidden"
+        name="turnstileToken"
         value={turnstileToken ?? ""}
         readOnly
         aria-hidden
