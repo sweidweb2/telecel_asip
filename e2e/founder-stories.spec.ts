@@ -44,8 +44,8 @@ test.describe("founder stories cms", () => {
         timeout: 20_000,
       });
 
-      await page.getByLabel("Search startups").fill(startupName);
       await page.getByRole("combobox", { name: "Startup" }).click();
+      await page.getByLabel("Search startups…").fill(startupName);
       await expect(
         page.getByRole("option", { name: startupName }),
       ).toBeVisible({ timeout: 20_000 });

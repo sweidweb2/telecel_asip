@@ -45,15 +45,24 @@ export function AdminFilterBar({
   const wasPending = useRef(false);
 
   useEffect(() => {
-    if (isPending) {
-      wasPending.current = true;
-      setStatusMessage("Updating results…");
-      return;
-    }
-    if (wasPending.current) {
-      wasPending.current = false;
-      setStatusMessage("Results updated");
-    }
+    let cancelled = false;
+    // Defer setState so the effect body itself does not update React state synchronously.
+    const id = window.setTimeout(() => {
+      if (cancelled) return;
+      if (isPending) {
+        wasPending.current = true;
+        setStatusMessage("Updating results…");
+        return;
+      }
+      if (wasPending.current) {
+        wasPending.current = false;
+        setStatusMessage("Results updated");
+      }
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
   }, [isPending]);
 
   return (

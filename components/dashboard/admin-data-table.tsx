@@ -8,7 +8,6 @@ import {
 } from "@/components/dashboard/admin-pagination";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
-  Table,
   TableBody,
   TableCell,
   TableHeader,

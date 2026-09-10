@@ -68,8 +68,10 @@ test.describe("impact metrics cms", () => {
       await page.getByLabel("Period start").fill("2024-01-01");
       await page.getByLabel("Period end").fill("2024-12-31");
 
-      await page.getByLabel("Search evidence records").fill(evidenceSource);
       await page.getByRole("combobox", { name: "Evidence record" }).click();
+      await page
+        .getByLabel("Search evidence by source…")
+        .fill(evidenceSource);
       await expect(
         page.getByRole("option", { name: new RegExp(evidenceSource) }),
       ).toBeVisible({ timeout: 20_000 });

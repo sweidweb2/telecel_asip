@@ -467,7 +467,7 @@ export function FounderStoryEditorForm({
                     <div className="grid gap-2 md:col-span-2">
                       <FieldLabel htmlFor="storyTitle">Impact story title</FieldLabel>
                       <Input id="storyTitle" disabled={isPending} maxLength={200} placeholder="A result-led editorial headline" {...register("storyTitle")} />
-                      <AdminFieldError message={errors.storyTitle.message} />
+                      <AdminFieldError message={errors.storyTitle?.message} />
                     </div>
                     <div className="grid gap-2">
                       <FieldLabel htmlFor="coverImageUrl">Impact cover image URL</FieldLabel>

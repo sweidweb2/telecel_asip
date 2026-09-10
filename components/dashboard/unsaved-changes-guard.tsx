@@ -37,8 +37,13 @@ export function UnsavedChangesGuard({ enabled }: { enabled: boolean }) {
   const allowNextRef = useRef(false);
   const guardedUrlRef = useRef("");
 
-  enabledRef.current = enabled;
-  openRef.current = open;
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
 
   const requestLeave = useCallback((nav: PendingNav) => {
     setPending(nav);
@@ -47,10 +52,17 @@ export function UnsavedChangesGuard({ enabled }: { enabled: boolean }) {
 
   useEffect(() => {
     if (!enabled) {
-      setOpen(false);
-      setPending(null);
       allowNextRef.current = false;
-      return;
+      let cancelled = false;
+      const id = window.setTimeout(() => {
+        if (cancelled) return;
+        setOpen(false);
+        setPending(null);
+      }, 0);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(id);
+      };
     }
 
     guardedUrlRef.current =

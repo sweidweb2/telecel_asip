@@ -19,7 +19,7 @@ test.describe("site settings", () => {
     );
   });
 
-  test("admin can change backup schedule without free text", async ({
+  test("admin can change backup schedule on the backup page", async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -31,22 +31,24 @@ test.describe("site settings", () => {
       .maybeSingle();
 
     try {
-      await loginAsEditor(page, "/dashboard/settings");
+      await loginAsAdmin(page, "/admin/backup");
       const schedule = page.getByRole("combobox", {
-        name: /automated backup schedule/i,
+        name: /backup schedule/i,
       });
       await expect(schedule).toBeVisible();
 
       const target =
-        before?.backup_time === "daily_12" ? "daily_18" : "daily_12";
+        before?.backup_time === "weekly_sun_03"
+          ? "weekly_mon_03"
+          : "weekly_sun_03";
       const optionLabel =
-        target === "daily_12"
-          ? /Daily · 12:00 \(Lebanon\)/i
-          : /Daily · 18:00 \(Lebanon\)/i;
+        target === "weekly_sun_03"
+          ? /Weekly · Sunday 03:00 \(Lebanon\)/i
+          : /Weekly · Monday 03:00 \(Lebanon\)/i;
 
       await schedule.click();
       await page.getByRole("option", { name: optionLabel }).click();
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await page.getByRole("button", { name: "Save settings" }).click();
       await expect(
         page
           .locator("[data-sonner-toast]")
@@ -80,7 +82,7 @@ test.describe("site settings", () => {
     test.setTimeout(60_000);
     await loginAsEditor(page, "/dashboard/settings");
     await expect(page.getByText("Newsletter signup")).toBeVisible();
-    await expect(page.getByText("Hidden — phase 1")).toBeVisible();
+    await expect(page.getByText("Phase 1 — informational only")).toBeVisible();
     await expect(page.locator("#newsletter-signup")).toHaveCount(0);
   });
 

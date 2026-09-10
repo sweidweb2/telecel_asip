@@ -25,43 +25,48 @@ export function useEditorRecord<T>({
 }) {
   const [record, setRecord] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const shouldLoad = open && Boolean(id);
 
   useEffect(() => {
-    if (!open || !id) {
-      setRecord(null);
-      setIsLoading(false);
-      return;
-    }
+    if (!shouldLoad || !id) return;
 
     let cancelled = false;
-    setIsLoading(true);
-    setRecord(null);
+    // Defer so the effect does not set state synchronously on mount/open.
+    const startId = window.setTimeout(() => {
+      if (cancelled) return;
+      setIsLoading(true);
+      setRecord(null);
 
-    void load(id)
-      .then((result) => {
-        if (cancelled) return;
-        if (result.status === "ok") {
-          setRecord(result.record);
-          return;
-        }
-        toast.error(
-          result.status === "forbidden"
-            ? "You do not have permission to view this."
-            : missingMessage,
-        );
-      })
-      .catch(() => {
-        if (cancelled) return;
-        toast.error("Could not load details. Please try again.");
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+      void load(id)
+        .then((result) => {
+          if (cancelled) return;
+          if (result.status === "ok") {
+            setRecord(result.record);
+            return;
+          }
+          toast.error(
+            result.status === "forbidden"
+              ? "You do not have permission to view this."
+              : missingMessage,
+          );
+        })
+        .catch(() => {
+          if (cancelled) return;
+          toast.error("Could not load details. Please try again.");
+        })
+        .finally(() => {
+          if (!cancelled) setIsLoading(false);
+        });
+    }, 0);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(startId);
     };
-  }, [open, id, load, missingMessage]);
+  }, [shouldLoad, id, load, missingMessage]);
 
-  return { record, isLoading };
+  return {
+    record: shouldLoad ? record : null,
+    isLoading: shouldLoad ? isLoading : false,
+  };
 }

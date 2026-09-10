@@ -139,7 +139,7 @@ describe("LoginForm", () => {
 
     const password = screen.getByLabelText("Password");
     expect(password).toHaveAttribute("type", "password");
-    expect(password).toHaveAttribute("placeholder", "••••••••");
+    expect(password).toHaveAttribute("placeholder", "Enter your password");
 
     await user.click(screen.getByRole("button", { name: "Show password" }));
     expect(password).toHaveAttribute("type", "text");

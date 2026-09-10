@@ -10,6 +10,7 @@ import {
 } from "@/constants/locales";
 import { PUBLIC_PAGE_SLUG_SET } from "@/constants/public-pages";
 import { authPath, ROUTES } from "@/constants/routes";
+import type { Database } from "@/types/database";
 
 function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
@@ -125,7 +126,7 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
 
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();

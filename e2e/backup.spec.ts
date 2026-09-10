@@ -17,14 +17,19 @@ test.describe("backup export API", () => {
     );
   });
 
-  test("editor settings shows backup schedule without run now", async ({
+  test("editor settings points backup schedule to admin backup page", async ({
     page,
   }) => {
     test.setTimeout(60_000);
     await loginAsEditor(page, "/dashboard/settings");
     await expect(
-      page.getByText(/automated backup schedule/i).first(),
+      page.getByText(
+        /automated backup schedule is managed by administrators on the backup page/i,
+      ),
     ).toBeVisible();
+    await expect(
+      page.getByRole("combobox", { name: /backup schedule/i }),
+    ).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: /run backup now/i }),
     ).toHaveCount(0);

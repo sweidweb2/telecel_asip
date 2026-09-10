@@ -12,9 +12,6 @@
 | --- | --- | --- |
 | 9 (partial) | Shared tables | Bulk select |
 | 28 | Admin | Perf “delete old events” has no confirm; user delete has no undo |
-| 41–42 | Editor | Dual Settings shells; Users in editor System nav (product confirm) |
-| 43–46 | Editor | Field error a11y; section-help touch; Hero vs Featured; portfolio crumb truncate |
-| 47–49 | Editor Low | ✅ Group loading content-only; nested error/not-found; redirect-stub loading removed |
 | — | Tables | Sort/export on CMS lists beyond Users/Blogs/inbox |
 
 ---
@@ -244,27 +241,28 @@ Chrome: `app/(unlocalized)/(dashboard)/layout.tsx` — sidebar brand **Editor pa
     Inline `AdminImageProcessingBanner` + honest “Processing image…” (no fake %). Clear selection before save skips upload; create-then-fail copy points staff to the edit page.  
     *Prompts 76, 83.*
 
-41. **Settings exist in both shells** — still open.  
-    Editors have `/dashboard/settings`; admins have `/admin/settings`. Same `SettingsPageContent`. Fine if both roles may flip Applications; easy to think they are different products.  
+41. ✅ **Settings exist in both shells** — **done.**  
+    Kept both `/dashboard/settings` and `/admin/settings` (shared `SettingsPageContent`). Added a one-line intro clarifying these are the same site-wide intake switches for editors and admins.  
     *Prompts 10, 87.*
 
-42. **Users live in the editor System nav** — still open (confirm intended).  
-    Editors can create other editors/viewers. Not a leftover admin link, but it is a powerful System item sitting next to Analytics.  
+42. ✅ **Users live in the editor System nav** — **done (kept).**  
+    Confirmed intentional: editors create editor/viewer accounts. Clarifying description on the editor Users page; Admin panel still manages admin accounts.  
     *Prompt 87.*
 
-43. **Form field errors are inconsistent** — still open.  
-    Some fields use FieldError / `aria-invalid`; many editors use a plain `<p className="text-destructive">` with no `role="alert"` / `aria-describedby`.  
+43. ✅ **Form field errors are inconsistent** — **done.**  
+    Shared `AdminFieldError` (`role="alert"`) replaces plain destructive `<p>` messages in blog, startup, cohort, and founder-story editor forms. Existing `FieldError` usages left alone.  
     *Prompts 48, 67, 68.*
 
-44. **Section help info buttons are `size-8`** — still open (tight for thumbs).  
-    File: `components/dashboard/admin-form-section-help.tsx`.  
+44. ✅ **Section help info buttons are `size-8`** — **done.**  
+    Touch target `min-h-11 min-w-11` on mobile; compact `sm:min-h-8 sm:min-w-8` from `sm:`.  
     *Prompt 14.*
 
-45. **Featured naming drifts** — still open.  
-    List badge “Hero” vs form “Featured hero” (`blogs-table.tsx` vs `blog-editor-form.tsx`). *Prompt 30.*
+45. ✅ **Featured naming drifts** — **done.**  
+    Unified on “Featured” (list badge, form badge/label, help copy).  
+    *Prompt 30.*
 
-46. **Portfolio edit breadcrumb does not truncate** — still open.  
-    Other editors use `max-w-[16rem] truncate`. Long startup names can blow the crumb row.  
+46. ✅ **Portfolio edit breadcrumb does not truncate** — **done.**  
+    `BreadcrumbPage` truncate classes + link text “Startups” to match nav.  
     *Prompt 27.*
 
 ### Low
@@ -299,7 +297,7 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | --- | --- | --- |
 | 11 | Breakpoints | ✅ User stats cards wrap on narrow widths |
 | 12 | Horizontal scroll | ✅ Single table scroll region |
-| 14 | Touch targets | ✅ Sidebar trigger + header search; section-help icon still tight |
+| 14 | Touch targets | ✅ Sidebar trigger + header search; section-help `min-h-11` on mobile |
 | 15 | Layout shift | ✅ List/generic skeletons match header titles; edit routes use `AdminEditorPageSkeleton` |
 | 17 | Sticky header | ✅ Sticky `StaffHeader` |
 | 18 | Density | ✅ Backup order Create → Schedule → History → Recovery |
@@ -312,7 +310,7 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | 26 | Heading structure | ✅ Nested mains fixed; create/edit header uses action titles |
 | 27 | Overflow | Some emails/names truncate without tooltip; portfolio crumb |
 | 28 | Dates | ✅ Backup history uses `formatAdminDateTime` |
-| 30 | Casing / labels | ✅ Staff chrome renamed; Hero vs Featured still open |
+| 30 | Casing / labels | ✅ Staff chrome renamed; Featured naming unified |
 
 ### Performance (31–44) — UI-facing only
 
@@ -350,7 +348,7 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 67–68 | Validation / errors | ✅ Backup “Settings” copy fixed; field error association still incomplete |
+| 67–68 | Validation / errors | ✅ Backup “Settings” copy fixed; `AdminFieldError` `role="alert"` on CMS editors |
 | 71 | Autosave | None; ✅ dirty-leave warning on editors |
 | 72 | Multi-step | ✅ Continue validates the current step; Save on last step |
 | 74 | Password | ✅ Strong password + show/hide; no default `"password"` |
@@ -368,13 +366,13 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | 82 | Offline | ✅ Staff offline banner |
 | 83 | Long ops | ✅ Uploads: processing banner (no fake %); some backup actions still indeterminate |
 | 85 | Contextual help | ✅ Newsletter phase-1 callout; Dummy gated in prod |
-| 86 | Status system | ✅ Backup title-case badges; Hero vs Featured still open |
+| 86 | Status system | ✅ Backup title-case badges; Featured naming unified |
 
 ### Navigation (87–94)
 
 | # | Prompt | Problem |
 | --- | --- | --- |
-| 87 | Primary nav | ✅ Performance reachable; editor home matches sidebar; Settings still in two shells |
+| 87 | Primary nav | ✅ Performance reachable; editor home matches sidebar; Settings dual-shell clarified |
 | 88 | Command palette | ✅ ⌘K page/actions search (not full record palette) |
 | 89 | Active location | ✅ Create/edit header titles (New/Edit …) |
 | 90 | Breadcrumbs | Present on editors; missing on admin Backup’s inner sections |
@@ -418,8 +416,8 @@ Only prompts that produced a real finding on editor/admin. The rest are OK or N/
 | `/dashboard` | ✅ Launcher matches sidebar; title `| ASIP Editor` |
 | CMS lists | ✅ Empty/no-results + keyboard rows; sort on Users/Blogs; bulk still open |
 | `/dashboard/*/new` and `[id]` | ✅ Dirty leave + Dummy gated + `| ASIP Editor` + header action titles + editor page skeleton |
-| `/dashboard/settings` | Dual shell vs admin Settings (still open); title ✅ `| ASIP Editor` |
-| `/dashboard/users` | ✅ Same shared-table fixes as admin Users |
+| `/dashboard/settings` | ✅ Shared with admin Settings + clarifying intro; title ✅ `| ASIP Editor` |
+| `/dashboard/users` | ✅ Same shared-table fixes as admin Users; editor-only role description |
 | `/dashboard/backup`, `/performance` | ✅ Redirects; stub `loading.tsx` removed |
 
 ---

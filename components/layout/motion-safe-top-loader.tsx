@@ -3,8 +3,6 @@
 import { useSyncExternalStore } from "react";
 import NextTopLoader from "nextjs-toploader";
 
-const emptySubscribe = () => () => {};
-
 function usePrefersReducedMotion() {
   return useSyncExternalStore(
     (onStoreChange) => {

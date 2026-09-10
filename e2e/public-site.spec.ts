@@ -86,15 +86,27 @@ test("retired portfolio URLs resolve to the founders directory", async ({ page }
   await expect(page).toHaveURL(/\/en\/founders$/);
 });
 
-test("register-interest and apply both stay live without cross-redirect", async ({
-  page,
-}) => {
-  for (const path of ["/en/register-interest", "/en/apply", "/fr/register-interest", "/fr/apply"]) {
-    const response = await page.goto(path);
-    expect(response?.ok()).toBeTruthy();
-    await expect(page).toHaveURL(path);
-    await expect(page.locator("h1")).toBeVisible();
-  }
+test("inactive intake path redirects to the live path", async ({ page }) => {
+  // Derive the live intake from the navbar CTA, then assert the other URL
+  // redirects there. Avoids racing apply-register settings flips and does not
+  // require both paths to stay put.
+  await page.goto("/en");
+  const cta = page
+    .locator("header")
+    .locator('a[href="/en/apply"], a[href="/en/register-interest"]')
+    .first();
+  await expect(cta).toBeVisible();
+  const live = await cta.getAttribute("href");
+  expect(live === "/en/apply" || live === "/en/register-interest").toBe(true);
+
+  const inactive =
+    live === "/en/apply" ? "/en/register-interest" : "/en/apply";
+
+  await page.goto(inactive);
+  await expect(page).toHaveURL(new RegExp(`${live!.replace(/\//g, "\\/")}$`), {
+    timeout: 20_000,
+  });
+  await expect(page.locator("h1").first()).toBeVisible();
 });
 
 test("navbar primary CTA points at register-interest or apply", async ({

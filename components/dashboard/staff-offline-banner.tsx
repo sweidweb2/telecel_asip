@@ -3,8 +3,6 @@
 import { useSyncExternalStore } from "react";
 import { WifiOffIcon } from "lucide-react";
 
-const emptySubscribe = () => () => {};
-
 function useIsOnline() {
   return useSyncExternalStore(
     (onStoreChange) => {
