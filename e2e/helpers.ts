@@ -109,16 +109,24 @@ export async function waitForTurnstileReady(
   page: Page,
   options: { testId: string; submitName: string | RegExp },
 ): Promise<void> {
+  // Default Playwright timeout (30s) is too tight once the challenge wait is
+  // included — bump so a missing token becomes a clean skip, not a hard fail.
+  const info = test.info();
+  if (info.timeout > 0 && info.timeout < 90_000) {
+    info.setTimeout(90_000);
+  }
+
   await expect(page.getByTestId(options.testId)).toBeVisible({
     timeout: 30_000,
   });
   const tokenInput = page.locator('input[name="turnstileToken"]');
   try {
-    await expect(tokenInput).not.toHaveValue("", { timeout: 10_000 });
+    // Headless + network can delay Cloudflare's challenge mint.
+    await expect(tokenInput).not.toHaveValue("", { timeout: 25_000 });
   } catch {
     test.skip(
       true,
-      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
+      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY, Cloudflare hostname allowlist for localhost, and DNS to *.challenges.cloudflare.com.",
     );
   }
   await expect(

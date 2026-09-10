@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
@@ -14,9 +13,11 @@ import {
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { traceAsync } from "@/lib/admin/perf";
-import { processImageBuffer } from "@/lib/media/process-image";
+import {
+  removeOwnedPublicStorageObject,
+  uploadVersionedPublicImage,
+} from "@/lib/media/upload-versioned-public-image";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
-import { createClient } from "@/lib/supabase/server";
 import {
   blogIdSchema,
   blogImageTargetSchema,
@@ -55,13 +56,6 @@ const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";
 const COVER_MAX_BYTES = 5 * 1024 * 1024;
 const AUTHOR_MAX_BYTES = 2 * 1024 * 1024;
-const MEDIA_CACHE_CONTROL = "31536000";
-const ALLOWED_MIME = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]);
 
 function refreshBlogPaths(slug?: string, id?: string) {
   revalidateTag(BLOGS_CACHE_TAG, "max");
@@ -281,12 +275,12 @@ export async function deleteBlog(
 
       // Storage only after the row is gone: a failure here leaks an orphan object
       // instead of leaving a live row pointing at a deleted image.
-      await removeStorageUrlIfOwned(
+      await removeOwnedPublicStorageObject(
         session.supabase,
         existing.thumbnail_url,
         COVER_BUCKET,
       );
-      await removeStorageUrlIfOwned(
+      await removeOwnedPublicStorageObject(
         session.supabase,
         existing.author_avatar_url,
         AUTHOR_BUCKET,
@@ -296,36 +290,6 @@ export async function deleteBlog(
       return { status: "success" };
     },
   });
-}
-
-function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
-}
-
-function storagePathFromPublicUrl(
-  url: string | null | undefined,
-  bucket: string,
-): string | null {
-  if (!url) return null;
-  const marker = `/storage/v1/object/public/${bucket}/`;
-  const index = url.indexOf(marker);
-  if (index === -1) return null;
-  return url.slice(index + marker.length);
-}
-
-async function removeStorageUrlIfOwned(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  url: string | null | undefined,
-  bucket: string,
-) {
-  const path = storagePathFromPublicUrl(url, bucket);
-  if (!path) return;
-  const { error } = await supabase.storage.from(bucket).remove([path]);
-  if (error) {
-    // Orphaned object — the DB is already consistent, so surface it for cleanup
-    // rather than failing the action.
-    console.error("Failed to remove storage object", { bucket, path, error });
-  }
 }
 
 async function uploadImage(options: {
@@ -350,14 +314,6 @@ async function uploadImage(options: {
         return { status: "error", message: MESSAGES.invalidDetails };
       }
 
-      if (
-        !ALLOWED_MIME.has(file.type) ||
-        file.size <= 0 ||
-        file.size > maxBytes
-      ) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
-
       const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
@@ -374,59 +330,34 @@ async function uploadImage(options: {
         return { status: "error", message: MESSAGES.notFound };
       }
 
-      const preset = column === "thumbnail_url" ? "blogCover" : "blogAvatar";
-      let processed;
-      try {
-        processed = await processImageBuffer(
-          Buffer.from(await file.arrayBuffer()),
-          preset,
-        );
-      } catch {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
-
-      const path = `${blogId}/${nanoid(10)}.${processed.extension}`;
-
-      const { error: uploadError } = await session.supabase.storage
-        .from(bucket)
-        .upload(path, processed.buffer, {
-          contentType: processed.contentType,
-          upsert: false,
-          cacheControl: MEDIA_CACHE_CONTROL,
-        });
-
-      if (uploadError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
       const previousUrl =
         column === "thumbnail_url"
-          ? (existing as { thumbnail_url: string | null }).thumbnail_url
-          : (existing as { author_avatar_url: string | null }).author_avatar_url;
+          ? existing.thumbnail_url
+          : existing.author_avatar_url;
 
-      const { error: updateError } =
-        column === "thumbnail_url"
-          ? await session.supabase
-              .from("blogs")
-              .update({ thumbnail_url: publicUrl })
-              .eq("id", blogId)
-          : await session.supabase
-              .from("blogs")
-              .update({ author_avatar_url: publicUrl })
-              .eq("id", blogId);
+      const uploaded = await uploadVersionedPublicImage({
+        supabase: session.supabase,
+        file,
+        bucket,
+        entityId: blogId,
+        preset: column === "thumbnail_url" ? "blogCover" : "blogAvatar",
+        previousUrl,
+        maxBytes,
+        messages: MESSAGES,
+        updateRow: async (publicUrl) =>
+          column === "thumbnail_url"
+            ? session.supabase
+                .from("blogs")
+                .update({ thumbnail_url: publicUrl })
+                .eq("id", blogId)
+            : session.supabase
+                .from("blogs")
+                .update({ author_avatar_url: publicUrl })
+                .eq("id", blogId),
+      });
 
-      if (updateError) {
-        await session.supabase.storage.from(bucket).remove([path]);
-        return { status: "error", message: MESSAGES.genericError };
-      }
+      if (uploaded.status === "error") return uploaded;
 
-      await removeStorageUrlIfOwned(session.supabase, previousUrl, bucket);
       refreshBlogPaths(existing.slug, blogId);
       return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
     },
@@ -513,7 +444,7 @@ export async function removeBlogImage(
     return { status: "error", message: MESSAGES.genericError };
   }
 
-  await removeStorageUrlIfOwned(session.supabase, url, bucket);
+  await removeOwnedPublicStorageObject(session.supabase, url, bucket);
 
   refreshBlogPaths(existing.slug, parsed.data.id);
   return {

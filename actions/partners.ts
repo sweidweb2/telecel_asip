@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { nanoid } from "nanoid";
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
@@ -13,11 +12,10 @@ import {
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { traceAsync } from "@/lib/admin/perf";
-import { processImageBuffer } from "@/lib/media/process-image";
 import {
-  publicObjectUrl,
-  storagePathFromPublicUrl,
-} from "@/lib/storage/public-url";
+  removeOwnedPublicStorageObject,
+  uploadVersionedPublicImage,
+} from "@/lib/media/upload-versioned-public-image";
 import { createClient } from "@/lib/supabase/server";
 import {
   planSortOrderDisplacement,
@@ -62,13 +60,6 @@ const MESSAGES = {
 
 const LOGO_BUCKET = "partners";
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
-const LOGO_CACHE_CONTROL = "31536000";
-const ALLOWED_MIME = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]);
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -352,9 +343,7 @@ async function removeStorageUrlIfOwned(
   supabase: SupabaseServerClient,
   url: string | null | undefined,
 ) {
-  const path = storagePathFromPublicUrl(url, LOGO_BUCKET);
-  if (!path) return;
-  await removeStoragePaths(supabase, [path]);
+  await removeOwnedPublicStorageObject(supabase, url, LOGO_BUCKET);
 }
 
 /**
@@ -402,14 +391,6 @@ export async function uploadPartnerLogo(
         return { status: "error", message: MESSAGES.invalidImage };
       }
 
-      if (
-        !ALLOWED_MIME.has(file.type) ||
-        file.size <= 0 ||
-        file.size > LOGO_MAX_BYTES
-      ) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
-
       const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
@@ -426,47 +407,24 @@ export async function uploadPartnerLogo(
         return { status: "error", message: MESSAGES.notFound };
       }
 
-      let processed;
-      try {
-        processed = await processImageBuffer(
-          Buffer.from(await file.arrayBuffer()),
-          "partnerLogo",
-        );
-      } catch {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
+      const uploaded = await uploadVersionedPublicImage({
+        supabase: session.supabase,
+        file,
+        bucket: LOGO_BUCKET,
+        entityId: partnerId,
+        preset: "partnerLogo",
+        previousUrl: existing.logo_url,
+        maxBytes: LOGO_MAX_BYTES,
+        messages: MESSAGES,
+        updateRow: async (publicUrl) =>
+          session.supabase
+            .from("partners")
+            .update({ logo_url: publicUrl })
+            .eq("id", partnerId),
+      });
 
-      const path = `${partnerId}/${nanoid(10)}.${processed.extension}`;
+      if (uploaded.status === "error") return uploaded;
 
-      const { error: uploadError } = await session.supabase.storage
-        .from(LOGO_BUCKET)
-        .upload(path, processed.buffer, {
-          contentType: processed.contentType,
-          upsert: false,
-          cacheControl: LOGO_CACHE_CONTROL,
-        });
-
-      if (uploadError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
-      const { error: updateError } = await session.supabase
-        .from("partners")
-        .update({ logo_url: publicUrl })
-        .eq("id", partnerId);
-
-      if (updateError) {
-        await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
       refreshPartnerPaths(partnerId);
       return {
         status: "success",

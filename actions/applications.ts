@@ -1,7 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { getAdminResource } from "@/constants/admin-resources";
 import { getApplicationById } from "@/data/applications";
 import { getOpenApplications } from "@/data/settings";
@@ -12,9 +10,10 @@ import {
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyTurnstileToken } from "@/lib/turnstile";
+import {
+  guardPublicFormSubmission,
+  PUBLIC_SUBMIT_GUARD_COPY,
+} from "@/lib/intake/submit-guard";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   applicationSchemaFor,
@@ -35,45 +34,33 @@ const resource = getAdminResource("applications");
 
 const ACTION_MESSAGES = {
   en: {
-    invalidDetails: "Please check the form and try again.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your application has been submitted.",
-    genericError: "Something went wrong. Please try again.",
     updateSuccess: "Application updated successfully.",
     deleteSuccess: "Application deleted successfully.",
     inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage applications.",
     signedInRequired: "Sign in to submit an application.",
     notFound: "Application not found.",
-    rateLimited: "Too many submissions. Please wait and try again later.",
     duplicate: "You already applied with this company and email.",
-    verificationFailed: "Security check failed. Please try again.",
     applicationsClosed:
       "Applications are closed. Register your interest to hear when the next chapter opens.",
   },
   fr: {
-    invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre candidature a bien été envoyée.",
-    genericError: "Une erreur s’est produite. Veuillez réessayer.",
     updateSuccess: "Candidature mise à jour avec succès.",
     deleteSuccess: "Candidature supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
     unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
     signedInRequired: "Connectez-vous pour envoyer une candidature.",
     notFound: "Candidature introuvable.",
-    rateLimited:
-      "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
     duplicate:
       "Vous avez déjà candidaté avec cette entreprise et cet e-mail.",
-    verificationFailed:
-      "La vérification de sécurité a échoué. Veuillez réessayer.",
     applicationsClosed:
       "Les candidatures sont fermées. Manifestez votre intérêt pour être informé de l’ouverture du prochain chapitre.",
   },
 } as const;
-
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_PER_IP = 5;
-const RATE_LIMIT_PER_EMAIL = 3;
 
 function isUniqueViolation(error: {
   code?: string;
@@ -85,16 +72,6 @@ function isUniqueViolation(error: {
     message.includes("applications_email_company") ||
     message.includes("applications_user_company")
   );
-}
-
-async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
 }
 
 function refreshApplicationsRoute() {
@@ -130,40 +107,19 @@ export async function submitApplication(
   }
 
   const data = parsed.data;
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: data.turnstileToken,
+  const guard = await guardPublicFormSubmission({
+    turnstileToken: data.turnstileToken,
     expectedAction: TURNSTILE_APPLY_ACTION,
-    remoteip: ip,
+    rateLimitPrefix: "application",
+    identityKind: "user",
+    identity: user.id,
+    messages: copy,
   });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
-
-  const admin = createAdminClient();
-  const ipKey = `application:ip:${ip}`;
-  const userKey = `application:user:${user.id}`;
-
-  if (
-    !(await consumeSharedRateLimit(
-      admin,
-      ipKey,
-      RATE_LIMIT_PER_IP,
-      RATE_LIMIT_WINDOW_MS,
-    )) ||
-    !(await consumeSharedRateLimit(
-      admin,
-      userKey,
-      RATE_LIMIT_PER_EMAIL,
-      RATE_LIMIT_WINDOW_MS,
-    ))
-  ) {
-    return { status: "error", message: copy.rateLimited };
-  }
+  if (guard.status === "error") return guard;
 
   const linkedin = data.linkedin?.trim() ? data.linkedin.trim() : null;
   const website = data.website?.trim() ? data.website.trim() : null;
-  const { error } = await admin.from("applications").insert({
+  const { error } = await guard.admin.from("applications").insert({
     user_id: user.id,
     full_name: data.fullName,
     founder_role: data.founderRole,
