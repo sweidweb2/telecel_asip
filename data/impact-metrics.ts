@@ -32,7 +32,7 @@ const DETAIL_COLUMNS =
   "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at, evidence_records(primary_source)" as const;
 
 const PUBLIC_COLUMNS =
-  "id, claim_label, value, unit, impact_lens, display_locations, updated_at" as const;
+  "id, claim_label, value, unit, impact_lens, display_locations, period_start, period_end, updated_at" as const;
 
 const EVIDENCE_OPTION_COLUMNS = "id, primary_source, status" as const;
 

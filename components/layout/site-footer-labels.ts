@@ -79,13 +79,10 @@ export function enFooterLabels(openApplications = false): SiteFooterLabels {
         : { slug: "register-interest", label: "Register interest" },
       { slug: "faq", label: "FAQ" },
     ]),
-    connect: [
-      ...links("en", [
+    connect: links("en", [
         { slug: "contact", label: "Contact" },
         { slug: "partners", label: "Partner with us" },
       ]),
-      { href: authPath("en", "signup"), label: "Register" },
-    ],
     socialHeading: "Follow",
     social: [],
     parent: { href: TELECEL_GROUP_URL, label: "Telecel Group" },
@@ -134,13 +131,10 @@ export function frFooterLabels(openApplications = false): SiteFooterLabels {
         : { slug: "register-interest", label: "Manifestez votre intérêt" },
       { slug: "faq", label: "FAQ" },
     ]),
-    connect: [
-      ...links("fr", [
+    connect: links("fr", [
         { slug: "contact", label: "Nous contacter" },
         { slug: "partners", label: "Devenir partenaire" },
       ]),
-      { href: authPath("fr", "signup"), label: "Inscription" },
-    ],
     socialHeading: "Suivre",
     social: [],
     parent: { href: TELECEL_GROUP_URL, label: "Groupe Telecel" },

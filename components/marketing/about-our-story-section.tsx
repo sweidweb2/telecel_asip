@@ -1,7 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
 import {
-  ArrowRight,
   Globe,
   Heart,
   Rocket,
@@ -10,10 +8,7 @@ import {
 } from "lucide-react";
 
 import { StoryStatCounter } from "@/components/marketing/story-stat-counter";
-import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
-import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath } from "@/constants/routes";
 import type {
   AboutStoryCopy,
   AboutStoryFeatureIcon,
@@ -33,28 +28,17 @@ type AboutOurStorySectionProps = {
 };
 
 function StoryFeatureItem({
-  locale,
   icon,
   title,
   description,
-  slug,
-  hash,
-  linkLabel,
   className,
 }: {
-  locale: Locale;
   icon: AboutStoryFeatureIcon;
   title: string;
   description: string;
-  slug?: PublicPageSlug;
-  hash?: string;
-  linkLabel?: string;
   className?: string;
 }) {
   const Icon = FEATURE_ICONS[icon];
-  const href = slug
-    ? `${publicPath(locale, slug)}${hash ? `#${hash}` : ""}`
-    : null;
 
   return (
     <article
@@ -72,26 +56,11 @@ function StoryFeatureItem({
       <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
         {description}
       </p>
-      {href && linkLabel ? (
-        <Link
-          href={href}
-          className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          {linkLabel}
-          <ArrowRight className="size-4" aria-hidden />
-        </Link>
-      ) : null}
     </article>
   );
 }
 
-function StoryHeroVisual({
-  locale,
-  imageCta,
-}: {
-  locale: Locale;
-  imageCta?: AboutStoryCopy["imageCta"];
-}) {
+function StoryHeroVisual({ locale }: { locale: Locale }) {
   return (
     <div className="group relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border-2 border-border bg-muted shadow-sm lg:max-w-none">
       <Image
@@ -109,19 +78,6 @@ function StoryHeroVisual({
 
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
 
-      {imageCta ? (
-        <div className="absolute inset-x-0 bottom-0 flex justify-center p-5 opacity-100 transition-opacity sm:p-6 sm:opacity-0 sm:group-hover:opacity-100">
-          <Link
-            href={publicPath(locale, imageCta.slug)}
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "min-h-11 w-full shadow-lg sm:w-auto",
-            )}
-          >
-            {imageCta.label}
-          </Link>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -178,13 +134,9 @@ export function AboutOurStorySection({
             {leftFeatures.map((feature, index) => (
               <StoryFeatureItem
                 key={feature.title}
-                locale={locale}
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
-                slug={feature.slug}
-                hash={feature.hash}
-                linkLabel={feature.linkLabel}
                 className={cn(
                   "about-story-fade-up",
                   index === 0
@@ -196,20 +148,16 @@ export function AboutOurStorySection({
           </div>
 
           <div className="order-1 about-story-fade-up about-story-fade-up-delay-3 lg:order-2">
-            <StoryHeroVisual locale={locale} imageCta={story.imageCta} />
+            <StoryHeroVisual locale={locale} />
           </div>
 
           <div className="order-3 flex flex-col gap-5 lg:gap-6">
             {rightFeatures.map((feature, index) => (
               <StoryFeatureItem
                 key={feature.title}
-                locale={locale}
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
-                slug={feature.slug}
-                hash={feature.hash}
-                linkLabel={feature.linkLabel}
                 className={cn(
                   "about-story-fade-up",
                   index === 0
@@ -228,19 +176,6 @@ export function AboutOurStorySection({
         </div>
       ) : null}
 
-      {story.bottomCta ? (
-        <div className="about-story-fade-up about-story-fade-up-delay-5 mt-12 flex flex-col items-center gap-4 text-center sm:mt-14 lg:mt-16">
-          <p className="max-w-md font-heading text-xl font-semibold tracking-tight sm:text-2xl">
-            {story.bottomCta.title}
-          </p>
-          <Link
-            href={publicPath(locale, story.bottomCta.slug)}
-            className={cn(buttonVariants(), "min-h-11 w-full sm:w-auto")}
-          >
-            {story.bottomCta.label}
-          </Link>
-        </div>
-      ) : null}
     </section>
   );
 }

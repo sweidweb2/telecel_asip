@@ -38,7 +38,7 @@ export function ImpactCaseStudyCard({
       ? founderStartupPath(locale, story.slug)
       : null;
 
-  return (
+  const card = (
     <article
       className={cn(
         "flex h-full flex-col overflow-hidden rounded-xl",
@@ -131,17 +131,16 @@ export function ImpactCaseStudyCard({
               <span />
             )}
 
-            {href ? (
-              <Link
-                href={href}
-                className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-asip-coral underline-offset-4 hover:underline"
-              >
-                {copy.readStory}
-              </Link>
-            ) : null}
+            {href ? <span className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-asip-coral underline-offset-4 group-hover:underline">{copy.readStory}</span> : null}
           </div>
         )}
       </div>
     </article>
   );
+
+  return href ? (
+    <Link href={href} className="group block h-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+      {card}
+    </Link>
+  ) : card;
 }

@@ -93,30 +93,25 @@ export function ApplyPageContent({
           </CardContent>
         </Card>
 
-        <div className="mt-10">
-          <SectionHeading
-            title={copy.sectionTitle}
-            description={copy.sectionDescription}
-          />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {copy.cards.map((card) => (
-              <article
-                key={card.title}
-                className="rounded-xl border p-5 sm:p-6"
-              >
-                <h2 className="font-heading text-xl font-semibold tracking-tight">
-                  {card.title}
-                </h2>
-                <p className="mt-3 leading-7 text-muted-foreground">
-                  {card.description}
-                </p>
-              </article>
-            ))}
+        {mode === "apply" ? (
+          <div className="mt-10">
+            <SectionHeading
+              title={copy.sectionTitle}
+              description={copy.sectionDescription}
+            />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {copy.cards.map((card) => (
+                <article key={card.title} className="rounded-xl border p-5 sm:p-6">
+                  <h2 className="font-heading text-xl font-semibold tracking-tight">{card.title}</h2>
+                  <p className="mt-3 leading-7 text-muted-foreground">{card.description}</p>
+                </article>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
       </Section>
 
-      {copy.ctaSection ? (
+      {mode === "apply" && copy.ctaSection ? (
         <PageCtaSection locale={locale} cta={copy.ctaSection} />
       ) : null}
     </main>

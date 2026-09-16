@@ -16,9 +16,9 @@ const en: HomePageCopy = {
     secondaryCta: { slug: "register-interest", label: "Register interest" },
   },
   impactYears: {
-    title: "Seven Years of Impact.",
+    title: "Impact since 2019.",
     description:
-      "ASIP started with a simple belief: African founders should have access to world-class opportunity without losing the local insight that makes their solutions matter. The strongest proof is what they have built since.",
+      "From ASIP’s 2019 launch through the current programme chapter, verified founder outcomes show what the portfolio has built, reached and strengthened.",
     metrics: [],
     notice: "",
   },
@@ -177,9 +177,9 @@ const fr: HomePageCopy = {
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
   },
   impactYears: {
-    title: "Sept ans d’impact.",
+    title: "Un impact depuis 2019.",
     description:
-      "ASIP est parti d’une conviction simple : les fondateurs africains doivent avoir accès à des opportunités de classe mondiale sans perdre l’ancrage local qui donne du poids à leurs solutions. La preuve la plus forte, c’est ce qu’ils ont construit depuis.",
+      "Du lancement d’ASIP en 2019 au chapitre actuel du programme, les résultats vérifiés des fondateurs montrent ce que le portefeuille a construit, atteint et renforcé.",
     metrics: [],
     notice: "",
   },

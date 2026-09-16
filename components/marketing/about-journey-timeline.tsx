@@ -25,33 +25,20 @@ export function AboutJourneyTimeline({ timeline }: AboutJourneyTimelineProps) {
         />
       </div>
 
-      <ol className="relative mx-auto mt-10 max-w-3xl sm:mt-12">
+      <ol className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-4 sm:mt-12 md:grid-cols-2 lg:grid-cols-4">
         {timeline.milestones.map((milestone, index) => {
           const isLast = index === lastIndex;
 
           return (
             <li
               key={milestone.year}
-              className="relative flex gap-4 pb-8 last:pb-0 sm:gap-5 sm:pb-10"
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-6",
+                isLast && "border-primary/40 bg-primary/5",
+              )}
             >
-              <div className="flex w-4 shrink-0 flex-col items-center sm:w-5">
-                <span
-                  className={cn(
-                    "mt-1.5 size-3 shrink-0 rounded-full border-2 sm:mt-2 sm:size-3.5",
-                    isLast
-                      ? "border-primary bg-primary"
-                      : "border-primary bg-background",
-                  )}
-                  aria-hidden
-                />
-                {index < lastIndex ? (
-                  <span
-                    aria-hidden
-                    className="mt-1 w-px flex-1 bg-border"
-                  />
-                ) : null}
-              </div>
-              <div className="min-w-0">
+              <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-primary/25 transition-colors group-hover:bg-primary" />
+              <div className="min-w-0 pt-1">
                 <p
                   className={cn(
                     "font-heading text-lg font-semibold tabular-nums tracking-tight sm:text-xl",
@@ -60,7 +47,7 @@ export function AboutJourneyTimeline({ timeline }: AboutJourneyTimelineProps) {
                 >
                   {milestone.year}
                 </p>
-                <p className="mt-2 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
                   {milestone.description}
                 </p>
               </div>

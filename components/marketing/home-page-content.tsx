@@ -31,6 +31,8 @@ type HomeImpactMetric = {
   claim_label: string;
   value: string;
   unit: string | null;
+  period_start?: string | null;
+  period_end?: string | null;
 };
 
 type HomePageContentProps = {
