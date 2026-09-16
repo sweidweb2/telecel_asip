@@ -47,3 +47,22 @@ export const AFRICA_BLUEPRINT_NODES = [
     "accent": false
   }
 ] as const;
+
+/** Approximate label anchors on the Natural Earth path above. */
+export const AFRICA_PORTFOLIO_COUNTRY_ANCHORS: Record<
+  string,
+  { label: string; x: number; y: number }
+> = {
+  CI: { label: "Côte d’Ivoire", x: 548, y: 267 },
+  CM: { label: "Cameroon", x: 638, y: 305 },
+  EG: { label: "Egypt", x: 757, y: 103 },
+  GH: { label: "Ghana", x: 570, y: 279 },
+  KE: { label: "Kenya", x: 790, y: 330 },
+  MA: { label: "Morocco", x: 550, y: 70 },
+  ML: { label: "Mali", x: 560, y: 202 },
+  NG: { label: "Nigeria", x: 619, y: 274 },
+  SN: { label: "Senegal", x: 493, y: 207 },
+  TZ: { label: "Tanzania", x: 779, y: 382 },
+  UG: { label: "Uganda", x: 755, y: 326 },
+  ZW: { label: "Zimbabwe", x: 735, y: 446 },
+};

@@ -7,11 +7,13 @@ import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
+import type { StartupCountryReach } from "@/data/startups";
 
 type HomeFounderSpotlightSectionProps = {
   locale: Locale;
   copy: HomePageCopy["founders"];
   className?: string;
+  countryReach: StartupCountryReach[];
 };
 
 /**
@@ -22,6 +24,7 @@ export function HomeFounderSpotlightSection({
   locale,
   copy,
   className,
+  countryReach,
 }: HomeFounderSpotlightSectionProps) {
   const ctaHref = publicPath(locale, copy.cta.slug);
   const blueprint = labAfricaBlueprintCopyFor(locale);
@@ -45,6 +48,7 @@ export function HomeFounderSpotlightSection({
           <AfricaInnovationBlueprint
             tone="light"
             titleBlock={blueprint.titleBlock}
+            countryReach={countryReach}
             className="relative h-auto w-full overflow-hidden rounded-sm shadow-[0_0_0_1px_rgba(20,51,59,0.1)]"
           />
         </div>

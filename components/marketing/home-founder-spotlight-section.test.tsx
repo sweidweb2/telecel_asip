@@ -12,7 +12,7 @@ describe("HomeFounderSpotlightSection", () => {
     const blueprint = labAfricaBlueprintCopyFor("en");
 
     render(
-      <HomeFounderSpotlightSection locale="en" copy={copy} />,
+      <HomeFounderSpotlightSection locale="en" copy={copy} countryReach={[]} />,
     );
 
     expect(
@@ -25,7 +25,7 @@ describe("HomeFounderSpotlightSection", () => {
     expect(screen.getByText("Spotlight")).toBeInTheDocument();
     expect(
       screen.getByRole("img", {
-        name: /Technical schematic of Africa/i,
+        name: /Verified ASIP public portfolio footprint/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(blueprint.titleBlock.title)).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("HomeFounderSpotlightSection", () => {
   it("localizes the CTA href for French", () => {
     const frCopy = homeCopyFor("fr").founders;
     render(
-      <HomeFounderSpotlightSection locale="fr" copy={frCopy} />,
+      <HomeFounderSpotlightSection locale="fr" copy={frCopy} countryReach={[]} />,
     );
 
     expect(

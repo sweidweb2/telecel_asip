@@ -4,29 +4,13 @@
  */
 
 import {
-  AFRICA_BLUEPRINT_NODES,
   AFRICA_MADAGASCAR_PATH,
   AFRICA_MAINLAND_PATH,
+  AFRICA_PORTFOLIO_COUNTRY_ANCHORS,
 } from "@/constants/africa-blueprint-geometry";
+import type { StartupCountryReach } from "@/data/startups";
 
 export type BlueprintTone = "dark" | "light";
-
-const NODES = AFRICA_BLUEPRINT_NODES;
-
-/** Light network edges between nodes (index pairs). */
-const EDGES: ReadonlyArray<readonly [number, number]> = [
-  [0, 1],
-  [0, 3],
-  [0, 5],
-  [1, 2],
-  [1, 5],
-  [2, 3],
-  [2, 4],
-  [2, 5],
-  [3, 4],
-  [3, 5],
-  [5, 4],
-];
 
 const PALETTE = {
   dark: {
@@ -65,22 +49,36 @@ type AfricaInnovationBlueprintProps = {
     detail: string;
   };
   className?: string;
+  countryReach: StartupCountryReach[];
 };
 
 export function AfricaInnovationBlueprint({
   tone = "dark",
   titleBlock,
   className,
+  countryReach,
 }: AfricaInnovationBlueprintProps) {
   const c = PALETTE[tone];
   const uid = `bp-${tone}`;
+  const nodes = countryReach.flatMap(({ countryCode, founderCount }) => {
+    const anchor = AFRICA_PORTFOLIO_COUNTRY_ANCHORS[countryCode];
+    return anchor ? [{ ...anchor, countryCode, founderCount }] : [];
+  });
+  const hub = nodes.reduce<(typeof nodes)[number] | undefined>(
+    (current, node) =>
+      !current || node.founderCount > current.founderCount ? node : current,
+    undefined,
+  );
+  const accessibleReach = nodes
+    .map((node) => `${node.label}: ${node.founderCount}`)
+    .join(", ");
 
   return (
     <svg
       viewBox="0 0 1100 600"
       className={className}
       role="img"
-      aria-label="Technical schematic of Africa’s innovation ecosystem"
+      aria-label={`Verified ASIP public portfolio footprint. ${accessibleReach}`}
     >
       <defs>
         <pattern
@@ -278,50 +276,41 @@ export function AfricaInnovationBlueprint({
           opacity="0.55"
           className="blueprint-network"
         >
-          {EDGES.map(([a, b]) => {
-            const from = NODES[a];
-            const to = NODES[b];
-            const mx = (from.x + to.x) / 2;
-            const my = (from.y + to.y) / 2 - 18;
-            return (
-              <path
-                key={`${from.id}-${to.id}`}
-                d={`M${from.x} ${from.y} Q${mx} ${my} ${to.x} ${to.y}`}
-                strokeDasharray="4 6"
-                markerEnd={`url(#${uid}-tick)`}
-              />
-            );
-          })}
+          {hub
+            ? nodes
+                .filter((node) => node.countryCode !== hub.countryCode)
+                .map((node) => {
+                  const mx = (hub.x + node.x) / 2;
+                  const my = (hub.y + node.y) / 2 - 12;
+                  return (
+                    <path
+                      key={`${hub.countryCode}-${node.countryCode}`}
+                      d={`M${hub.x} ${hub.y} Q${mx} ${my} ${node.x} ${node.y}`}
+                      strokeDasharray="4 6"
+                      markerEnd={`url(#${uid}-tick)`}
+                    />
+                  );
+                })
+            : null}
         </g>
 
-        <path
-          d={`M${NODES[0].x} ${NODES[0].y} Q${(NODES[0].x + NODES[3].x) / 2} ${
-            (NODES[0].y + NODES[3].y) / 2 - 40
-          } ${NODES[3].x} ${NODES[3].y}`}
-          fill="none"
-          stroke={c.accent}
-          strokeWidth="1.25"
-          opacity="0.75"
-          strokeDasharray="2 4"
-          className="blueprint-accent-path"
-        />
-
-        {NODES.map((node, index) => {
+        {nodes.map((node) => {
           const labelSide = node.x < 650 ? -1 : 1;
-          const leaderX = node.x + labelSide * 30;
-          const labelX = node.x + labelSide * 40;
+          const leaderX = node.x + labelSide * 18;
+          const labelX = node.x + labelSide * 24;
           const anchor = labelSide < 0 ? "end" : "start";
-          const nodeR = node.accent ? 12 : 10;
+          const isHub = node.countryCode === hub?.countryCode;
+          const nodeR = isHub ? 10 : 7;
 
           return (
-            <g key={node.id}>
+            <g key={node.countryCode}>
               <line
                 x1={node.x}
                 y1={node.y}
                 x2={leaderX}
-                y2={node.y - 28}
-                stroke={node.accent ? c.accent : c.line}
-                strokeWidth="1.25"
+                y2={node.y - 16}
+                stroke={isHub ? c.accent : c.line}
+                strokeWidth="1"
                 opacity="0.7"
               />
               <circle
@@ -329,38 +318,38 @@ export function AfricaInnovationBlueprint({
                 cy={node.y}
                 r={nodeR}
                 fill={c.nodeFill}
-                stroke={node.accent ? c.accent : c.outline}
-                strokeWidth={node.accent ? 2.25 : 1.75}
+                stroke={isHub ? c.accent : c.outline}
+                strokeWidth={isHub ? 2.25 : 1.5}
               />
               <circle
                 cx={node.x}
                 cy={node.y}
                 r="4"
-                fill={node.accent ? c.accent : c.outline}
+                fill={isHub ? c.accent : c.outline}
               />
-              <text
-                x={labelX}
-                y={node.y - 42}
-                textAnchor={anchor}
-                fill={node.accent ? c.accent : c.muted}
-                fontSize="14"
-                fontWeight="700"
-                letterSpacing="0.12em"
-                opacity="1"
-              >
-                {node.id}
-              </text>
               <text
                 x={labelX}
                 y={node.y - 22}
                 textAnchor={anchor}
+                fill={isHub ? c.accent : c.muted}
+                fontSize="11"
+                fontWeight="700"
+                letterSpacing="0.12em"
+                opacity="1"
+              >
+                {node.countryCode}
+              </text>
+              <text
+                x={labelX}
+                y={node.y - 8}
+                textAnchor={anchor}
                 fill={c.label}
-                fontSize="16"
+                fontSize="10"
                 fontWeight="700"
                 letterSpacing="0.06em"
                 opacity="1"
               >
-                {node.label}
+                {node.founderCount} {node.founderCount === 1 ? "FOUNDER" : "FOUNDERS"}
               </text>
               <text
                 x={node.x}
@@ -372,7 +361,7 @@ export function AfricaInnovationBlueprint({
                 letterSpacing="0.08em"
                 opacity="0.65"
               >
-                N.{String(index + 1).padStart(2, "0")}
+                VERIFIED
               </text>
             </g>
           );

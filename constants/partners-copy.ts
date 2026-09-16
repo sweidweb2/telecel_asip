@@ -19,7 +19,7 @@ const en: PartnersPageCopy = {
   types: {
     title: "Ways to work with founders.",
     description:
-      "Six engagement routes. Choose the one that matches the opportunity you can bring.",
+      "Choose the route that matches the opportunity, expertise or access you can bring.",
     columns: {
       type: "Partner type",
       value: "Value to the ecosystem",
@@ -109,7 +109,7 @@ const fr: PartnersPageCopy = {
   types: {
     title: "Des façons de travailler avec les fondateurs.",
     description:
-      "Six formats d’engagement. Choisissez celui qui correspond à l’opportunité que vous pouvez apporter.",
+      "Choisissez le format qui correspond à l’opportunité, l’expertise ou l’accès que vous pouvez apporter.",
     columns: {
       type: "Type de partenaire",
       value: "Valeur pour l’écosystème",

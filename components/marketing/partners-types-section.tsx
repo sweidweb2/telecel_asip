@@ -7,8 +7,7 @@ type PartnersTypesSectionProps = {
 };
 
 /**
- * Six partner routes — value and engagement examples in an open list,
- * not a logo wall or icon-card grid.
+ * Six concise engagement routes without the previous three-column table.
  */
 export function PartnersTypesSection({
   copy,
@@ -37,41 +36,20 @@ export function PartnersTypesSection({
           </p>
         </div>
 
-        <div className="mt-10 border-t border-border sm:mt-12">
-          <div
-            className="hidden border-b border-border py-4 lg:grid lg:grid-cols-12 lg:gap-8"
-            aria-hidden
-          >
-            <p className="col-span-3 font-heading text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-              {copy.columns.type}
-            </p>
-            <p className="col-span-4 font-heading text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-              {copy.columns.value}
-            </p>
-            <p className="col-span-5 font-heading text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-              {copy.columns.examples}
-            </p>
-          </div>
-
-          <ul>
+        <div className="mt-8 sm:mt-10">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {copy.rows.map((row) => (
               <li
                 key={row.id}
-                className="partner-route relative border-b border-border py-7 pl-5 transition-colors hover:bg-background/60 sm:pl-6 lg:grid lg:grid-cols-12 lg:items-start lg:gap-8 lg:py-6 lg:pl-4"
+                className="partner-route rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-1 hover:shadow-md sm:p-6"
               >
-                <h3 className="font-heading text-lg font-semibold tracking-tight text-foreground lg:col-span-3 lg:text-base">
+                <h3 className="font-heading text-lg font-semibold tracking-tight text-foreground">
                   {row.type}
                 </h3>
-                <p className="mt-2 text-base leading-7 text-foreground/85 lg:col-span-4 lg:mt-0">
-                  <span className="mb-1 block text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase lg:hidden">
-                    {copy.columns.value}
-                  </span>
+                <p className="mt-3 text-sm leading-6 text-foreground/85 sm:text-base sm:leading-7">
                   {row.value}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground lg:col-span-5 lg:mt-0 lg:text-base lg:leading-7">
-                  <span className="mb-1 block text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase lg:hidden">
-                    {copy.columns.examples}
-                  </span>
+                <p className="mt-3 border-t border-border pt-3 text-sm leading-6 text-muted-foreground">
                   {row.examples}
                 </p>
               </li>

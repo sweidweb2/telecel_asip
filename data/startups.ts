@@ -31,6 +31,11 @@ import {
 
 export const STARTUPS_CACHE_TAG = "startups";
 
+export type StartupCountryReach = {
+  countryCode: string;
+  founderCount: number;
+};
+
 const LIST_COLUMNS =
   "id, name, slug, logo_url, description, status, founded_at, created_at, updated_at" as const;
 
@@ -405,6 +410,34 @@ async function fetchActiveStartupFilterOptions(): Promise<StartupFilterOptions> 
 export const getActiveStartupFilterOptions = unstable_cache(
   fetchActiveStartupFilterOptions,
   ["active-startup-filter-options"],
+  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+);
+
+async function fetchActiveStartupCountryReach(): Promise<StartupCountryReach[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups_public")
+    .select("country_code")
+    .not("country_code", "is", null);
+
+  if (error) throw error;
+
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    const code = row.country_code?.trim().toUpperCase();
+    if (!code) continue;
+    counts.set(code, (counts.get(code) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([countryCode, founderCount]) => ({ countryCode, founderCount }))
+    .sort((a, b) => a.countryCode.localeCompare(b.countryCode));
+}
+
+/** Verified public portfolio reach used by the home footprint graphic. */
+export const getActiveStartupCountryReach = unstable_cache(
+  fetchActiveStartupCountryReach,
+  ["active-startup-country-reach"],
   { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
 );
 

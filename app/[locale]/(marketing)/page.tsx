@@ -4,6 +4,7 @@ import { HomePageContent } from "@/components/marketing/home-page-content";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getLatestInsights } from "@/data/insights";
 import { getOpenApplications } from "@/data/settings";
+import { getActiveStartupCountryReach } from "@/data/startups";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -36,10 +37,11 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [metrics, articles, openApplications] = await Promise.all([
+  const [metrics, articles, openApplications, countryReach] = await Promise.all([
     getHomeImpactMetrics(),
     getLatestInsights(locale, 8),
     getOpenApplications(),
+    getActiveStartupCountryReach(),
   ]);
 
   return (
@@ -48,6 +50,7 @@ export default async function Page({ params }: PageProps) {
       metrics={metrics}
       articles={articles}
       openApplications={openApplications}
+      countryReach={countryReach}
     />
   );
 }

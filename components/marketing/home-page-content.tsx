@@ -13,6 +13,7 @@ import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ArticleListItem } from "@/types/article";
+import type { StartupCountryReach } from "@/data/startups";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
@@ -40,6 +41,7 @@ type HomePageContentProps = {
   metrics: HomeImpactMetric[];
   articles: ArticleListItem[];
   openApplications: boolean;
+  countryReach: StartupCountryReach[];
 };
 
 export function HomePageContent({
@@ -47,6 +49,7 @@ export function HomePageContent({
   metrics,
   articles,
   openApplications,
+  countryReach,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
 
@@ -82,6 +85,7 @@ export function HomePageContent({
       <HomeFounderSpotlightSection
         locale={locale}
         copy={copy.founders}
+        countryReach={countryReach}
       />
 
       <HomeOutcomesSection
