@@ -12,7 +12,14 @@ describe("HomeFounderSpotlightSection", () => {
     const blueprint = labAfricaBlueprintCopyFor("en");
 
     render(
-      <HomeFounderSpotlightSection locale="en" copy={copy} countryReach={[]} />,
+      <HomeFounderSpotlightSection
+        locale="en"
+        copy={copy}
+        countryReach={[
+          { countryCode: "NG", founderCount: 18 },
+          { countryCode: "KE", founderCount: 4 },
+        ]}
+      />,
     );
 
     expect(
@@ -25,7 +32,7 @@ describe("HomeFounderSpotlightSection", () => {
     expect(screen.getByText("Spotlight")).toBeInTheDocument();
     expect(
       screen.getByRole("img", {
-        name: /Verified ASIP public portfolio footprint/i,
+        name: /Verified ASIP public portfolio footprint.*Nigeria: 18.*Kenya: 4/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(blueprint.titleBlock.title)).toBeInTheDocument();

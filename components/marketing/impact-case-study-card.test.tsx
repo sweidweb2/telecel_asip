@@ -51,7 +51,9 @@ describe("ImpactCaseStudyCard", () => {
     expect(screen.queryByText(copy.steps.outcome)).not.toBeInTheDocument();
     expect(screen.getByText("$974K revenue")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: copy.readStory }),
+      screen.getByRole("link", {
+        name: /Herconomy From introductions to institutional growth.*Read full story/i,
+      }),
     ).toHaveAttribute("href", "/en/founders/herconomy");
   });
 
@@ -76,7 +78,9 @@ describe("ImpactCaseStudyCard", () => {
     expect(screen.queryByText("$974K revenue")).not.toBeInTheDocument();
     expect(screen.queryByText(copy.steps.barrier)).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: copy.readStory }),
+      screen.getByRole("link", {
+        name: /Herconomy From introductions to institutional growth.*Read full story/i,
+      }),
     ).toBeInTheDocument();
   });
 
