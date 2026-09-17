@@ -5,14 +5,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { HOME_ORBIT_LOGOS } from "@/constants/home-orbit-logos";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
 
 type HomeNextChapterSectionProps = {
   locale: Locale;
   copy: HomePageCopy["nextChapter"];
-  openApplications: boolean;
+  intake: IntakeCta;
   className?: string;
 };
 
@@ -26,10 +26,9 @@ type HomeNextChapterSectionProps = {
 export function HomeNextChapterSection({
   locale,
   copy,
-  openApplications,
+  intake,
   className,
 }: HomeNextChapterSectionProps) {
-  const intake = intakeCtaFor(locale, openApplications);
   const secondaryHref = publicPath(locale, copy.secondaryCta.slug);
 
   return (

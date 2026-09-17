@@ -13,6 +13,7 @@ import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  StartupCountryReach,
   StartupListItem,
   StartupListResult,
   StartupPublicDetail,
@@ -31,10 +32,7 @@ import {
 
 export const STARTUPS_CACHE_TAG = "startups";
 
-export type StartupCountryReach = {
-  countryCode: string;
-  founderCount: number;
-};
+export type { StartupCountryReach };
 
 const LIST_COLUMNS =
   "id, name, slug, logo_url, description, status, founded_at, created_at, updated_at" as const;

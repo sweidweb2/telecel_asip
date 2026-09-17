@@ -11,9 +11,10 @@ import { HomeTelecelConnectionSection } from "@/components/marketing/home-telece
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ArticleListItem } from "@/types/article";
-import type { StartupCountryReach } from "@/data/startups";
+import type { StartupCountryReach } from "@/types/startup";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
@@ -52,6 +53,7 @@ export function HomePageContent({
   countryReach,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
+  const intake = intakeCtaFor(locale, openApplications);
 
   return (
     <main>
@@ -72,11 +74,7 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero
-        locale={locale}
-        copy={copy.hero}
-        openApplications={openApplications}
-      />
+      <HomeHero locale={locale} copy={copy.hero} intake={intake} />
 
       <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 
@@ -91,7 +89,7 @@ export function HomePageContent({
       <HomeOutcomesSection
         locale={locale}
         copy={copy.outcomes}
-        openApplications={openApplications}
+        intake={intake}
       />
 
       <HomeEcosystemSection locale={locale} copy={copy.ecosystem} />
@@ -101,7 +99,7 @@ export function HomePageContent({
       <HomeNextChapterSection
         locale={locale}
         copy={copy.nextChapter}
-        openApplications={openApplications}
+        intake={intake}
       />
 
       <HomeLatestInsightsSection

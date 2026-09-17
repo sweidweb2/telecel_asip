@@ -3,51 +3,6 @@ export const AFRICA_MAINLAND_PATH = "M813.2,307.1L810.5,314.4L810.8,317.8L814.6,
 
 export const AFRICA_MADAGASCAR_PATH = "M874.6,353.9L876.2,356.5L877.7,360.5L878.6,367.9L880.2,370.8L879.6,373.7L878.5,375.5L876.5,371.9L875.4,373.7L876.5,378.3L876.0,380.9L874.4,382.4L874.0,387.6L871.6,394.9L868.7,403.6L865.0,415.7L862.8,424.7L860.1,432.2L855.3,433.8L850.1,436.6L846.7,434.9L842.0,432.6L840.3,429.1L839.9,423.3L837.8,418.2L837.3,413.6L838.3,409.0L841.1,407.9L841.1,405.7L843.9,401.0L844.5,396.9L843.1,394.0L842.0,390.0L841.5,384.3L843.6,380.8L844.4,376.9L847.3,376.6L850.6,375.4L852.8,374.2L855.4,374.2L858.8,370.7L863.7,366.9L865.5,363.8L864.7,361.2L867.2,361.9L870.5,357.7L870.6,354.0L872.6,351.3Z";
 
-export const AFRICA_BLUEPRINT_NODES = [
-  {
-    "id": "01",
-    "label": "CONNECTIVITY",
-    "x": 639.9,
-    "y": 92.5,
-    "accent": true
-  },
-  {
-    "id": "02",
-    "label": "STARTUP ECOSYSTEM",
-    "x": 556.8,
-    "y": 231.7,
-    "accent": false
-  },
-  {
-    "id": "03",
-    "label": "CAPITAL",
-    "x": 687.4,
-    "y": 309,
-    "accent": false
-  },
-  {
-    "id": "04",
-    "label": "INNOVATION",
-    "x": 806.1,
-    "y": 279.3,
-    "accent": true
-  },
-  {
-    "id": "05",
-    "label": "GROWTH",
-    "x": 728.9,
-    "y": 439.2,
-    "accent": false
-  },
-  {
-    "id": "06",
-    "label": "IMPACT",
-    "x": 758.6,
-    "y": 219.6,
-    "accent": false
-  }
-] as const;
-
 /** Approximate label anchors on the Natural Earth path above. */
 export const AFRICA_PORTFOLIO_COUNTRY_ANCHORS: Record<
   string,

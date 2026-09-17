@@ -30,16 +30,12 @@ export function ProgrammePageContent({
 
   return (
     <main>
-      <ProgrammeHero
-        locale={locale}
-        copy={copy.hero}
-        openApplications={openApplications}
-      />
+      <ProgrammeHero locale={locale} copy={copy.hero} intake={intake} />
 
       <ProgrammeAudienceSection
         locale={locale}
         copy={copy.audience}
-        openApplications={openApplications}
+        intake={intake}
       />
 
       <ProgrammeJourneySection copy={copy.journey} />

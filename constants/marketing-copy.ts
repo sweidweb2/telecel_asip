@@ -7,18 +7,6 @@ import type {
 type MarketingCopy = Record<MarketingContentSlug, MarketingPageCopy>;
 
 const en: MarketingCopy = {
-  "": {
-    eyebrow: "Africa Startup Initiative Program · A Telecel Group Program",
-    title: "African founders. Real solutions. Impact that scales.",
-    description:
-      "Since 2019, ASIP has connected high-potential African technology founders to the expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialise and grow.",
-    notice: "",
-    sectionTitle: "From potential to progress.",
-    sectionDescription:
-      "ASIP brings the right capabilities and connections together around founders at the moments they matter most.",
-    cards: [],
-    cta: { slug: "founders", label: "Explore the founders" },
-  },
   about: {
     eyebrow: "About ASIP",
     title: "Backing the builders shaping Africa’s next chapter.",
@@ -334,19 +322,6 @@ const en: MarketingCopy = {
 };
 
 const fr: MarketingCopy = {
-  "": {
-    eyebrow:
-      "Programme africain d’initiative pour les startups · Un programme du Groupe Telecel",
-    title: "Fondateurs africains. Solutions concrètes. Un impact qui scale.",
-    description:
-      "Depuis 2019, ASIP connecte des fondateurs technologiques africains à fort potentiel à l’expertise, aux voies de financement, à l’accès marché et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
-    notice: "",
-    sectionTitle: "Du potentiel au progrès.",
-    sectionDescription:
-      "ASIP rassemble les capacités et les connexions dont les fondateurs ont besoin, au moment où elles comptent le plus.",
-    cards: [],
-    cta: { slug: "founders", label: "Explorer les fondateurs" },
-  },
   about: {
     eyebrow: "À propos d’ASIP",
     title: "Aux côtés des bâtisseurs qui façonnent le prochain chapitre de l’Afrique.",

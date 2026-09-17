@@ -10,7 +10,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type {
   HomeOutcomeFeatureId,
@@ -26,7 +26,7 @@ const FEATURE_ICONS: Record<HomeOutcomeFeatureId, LucideIcon> = {
 type HomeOutcomesSectionProps = {
   locale: Locale;
   copy: HomePageCopy["outcomes"];
-  openApplications: boolean;
+  intake: IntakeCta;
   className?: string;
 };
 
@@ -37,10 +37,9 @@ type HomeOutcomesSectionProps = {
 export function HomeOutcomesSection({
   locale,
   copy,
-  openApplications,
+  intake,
   className,
 }: HomeOutcomesSectionProps) {
-  const intake = intakeCtaFor(locale, openApplications);
   const impactHref = publicPath(locale, copy.cta.slug);
 
   return (

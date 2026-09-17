@@ -77,6 +77,7 @@ export type AboutCeoMessageCopy = {
 
 export type MarketingContentSlug = Exclude<
   PublicPageSlug,
+  | ""
   | "contact"
   | "insights"
   | "terms"
@@ -333,6 +334,11 @@ export type HomePageCopy = {
     description: string;
     cta: HomePageLink;
     empty: string;
+    blueprintTitleBlock: {
+      eyebrow: string;
+      title: string;
+      detail: string;
+    };
   };
   outcomes: {
     eyebrow: string;

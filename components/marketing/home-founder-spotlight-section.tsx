@@ -2,12 +2,11 @@ import Link from "next/link";
 
 import { AfricaInnovationBlueprint } from "@/components/marketing/africa-innovation-blueprint";
 import { buttonVariants } from "@/components/ui/button";
-import { labAfricaBlueprintCopyFor } from "@/constants/lab-africa-blueprint-copy";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
-import type { StartupCountryReach } from "@/data/startups";
+import type { StartupCountryReach } from "@/types/startup";
 
 type HomeFounderSpotlightSectionProps = {
   locale: Locale;
@@ -27,7 +26,6 @@ export function HomeFounderSpotlightSection({
   countryReach,
 }: HomeFounderSpotlightSectionProps) {
   const ctaHref = publicPath(locale, copy.cta.slug);
-  const blueprint = labAfricaBlueprintCopyFor(locale);
 
   return (
     <section
@@ -47,7 +45,7 @@ export function HomeFounderSpotlightSection({
           />
           <AfricaInnovationBlueprint
             tone="light"
-            titleBlock={blueprint.titleBlock}
+            titleBlock={copy.blueprintTitleBlock}
             countryReach={countryReach}
             className="relative h-auto w-full overflow-hidden rounded-sm shadow-[0_0_0_1px_rgba(20,51,59,0.1)]"
           />

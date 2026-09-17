@@ -8,7 +8,7 @@ import {
   AFRICA_MAINLAND_PATH,
   AFRICA_PORTFOLIO_COUNTRY_ANCHORS,
 } from "@/constants/africa-blueprint-geometry";
-import type { StartupCountryReach } from "@/data/startups";
+import type { StartupCountryReach } from "@/types/startup";
 
 export type BlueprintTone = "dark" | "light";
 
@@ -77,8 +77,8 @@ export function AfricaInnovationBlueprint({
     <svg
       viewBox="0 0 1100 600"
       className={className}
-      role="img"
-      aria-label={`Verified ASIP public portfolio footprint. ${accessibleReach}`}
+      role="group"
+      aria-label={`ASIP public portfolio footprint. ${accessibleReach}`}
     >
       <defs>
         <pattern
@@ -301,9 +301,35 @@ export function AfricaInnovationBlueprint({
           const anchor = labelSide < 0 ? "end" : "start";
           const isHub = node.countryCode === hub?.countryCode;
           const nodeR = isHub ? 10 : 7;
+          const founderLabel =
+            node.founderCount === 1 ? "1 founder" : `${node.founderCount} founders`;
+          const boxW = 156;
+          const boxH = 48;
+          const boxGap = 14;
+          const preferAbove = node.y >= 130;
+          const boxX = Math.min(
+            1100 - boxW - 24,
+            Math.max(24, labelSide < 0 ? node.x - boxGap - boxW : node.x + boxGap),
+          );
+          const boxY = preferAbove
+            ? node.y - nodeR - boxGap - boxH
+            : node.y + nodeR + boxGap;
 
           return (
-            <g key={node.countryCode}>
+            <g
+              key={node.countryCode}
+              className="blueprint-node group/node outline-none"
+              tabIndex={0}
+              aria-label={`${node.label}: ${founderLabel}`}
+            >
+              {/* Larger hit target for hover / focus */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r="22"
+                fill="transparent"
+                className="cursor-pointer"
+              />
               <line
                 x1={node.x}
                 y1={node.y}
@@ -320,6 +346,7 @@ export function AfricaInnovationBlueprint({
                 fill={c.nodeFill}
                 stroke={isHub ? c.accent : c.outline}
                 strokeWidth={isHub ? 2.25 : 1.5}
+                className="transition-[stroke-width] duration-150 group-hover/node:stroke-[2.75] group-focus-visible/node:stroke-[2.75]"
               />
               <circle
                 cx={node.x}
@@ -349,20 +376,55 @@ export function AfricaInnovationBlueprint({
                 letterSpacing="0.06em"
                 opacity="1"
               >
-                {node.founderCount} {node.founderCount === 1 ? "FOUNDER" : "FOUNDERS"}
+                {node.founderCount}{" "}
+                {node.founderCount === 1 ? "FOUNDER" : "FOUNDERS"}
               </text>
-              <text
-                x={node.x}
-                y={node.y + nodeR + 16}
-                textAnchor="middle"
-                fill={c.line}
-                fontSize="11"
-                fontWeight="600"
-                letterSpacing="0.08em"
-                opacity="0.65"
+
+              {/* Hover / focus detail card */}
+              <g
+                aria-hidden
+                className="pointer-events-none opacity-0 transition-opacity duration-150 group-hover/node:opacity-100 group-focus-visible/node:opacity-100"
               >
-                VERIFIED
-              </text>
+                <rect
+                  x={boxX}
+                  y={boxY}
+                  width={boxW}
+                  height={boxH}
+                  rx="2"
+                  fill={c.sheet}
+                  stroke={isHub ? c.accent : c.outline}
+                  strokeWidth="1.25"
+                />
+                <line
+                  x1={boxX + 10}
+                  y1={boxY + 24}
+                  x2={boxX + boxW - 10}
+                  y2={boxY + 24}
+                  stroke={c.muted}
+                  strokeWidth="0.7"
+                  opacity="0.45"
+                />
+                <text
+                  x={boxX + 12}
+                  y={boxY + 16}
+                  fill={isHub ? c.accent : c.label}
+                  fontSize="11"
+                  fontWeight="700"
+                  letterSpacing="0.04em"
+                >
+                  {node.label}
+                </text>
+                <text
+                  x={boxX + 12}
+                  y={boxY + 38}
+                  fill={c.muted}
+                  fontSize="10"
+                  fontWeight="600"
+                  letterSpacing="0.06em"
+                >
+                  {founderLabel.toUpperCase()}
+                </text>
+              </g>
             </g>
           );
         })}

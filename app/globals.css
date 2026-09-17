@@ -1053,7 +1053,7 @@ html {
 }
 
 @keyframes signal-draw {
-  from { stroke-dashoffset: 1; }
+  from { stroke-dashoffset: 2400; }
   to { stroke-dashoffset: 0; }
 }
 
@@ -1066,10 +1066,11 @@ html {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.1;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  /* Fixed length (no pathLength) — longer than the path so the final frame is solid edge-to-edge */
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
   vector-effect: non-scaling-stroke;
-  animation: signal-draw 2.2s 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: signal-draw 2.6s 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .home-hero-signal__line--secondary {
@@ -1286,6 +1287,10 @@ html {
     animation: none !important;
     opacity: 1;
     transform: none;
+  }
+
+  .home-hero-signal__line {
+    stroke-dashoffset: 0 !important;
   }
 
   .about-hero-shape,

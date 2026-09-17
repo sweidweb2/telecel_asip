@@ -1,6 +1,7 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
 import { authPath, publicPath } from "@/constants/routes";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 export const TELECEL_GROUP_URL = "https://www.telecelgroup.com";
 
@@ -57,6 +58,7 @@ function links(
 }
 
 export function enFooterLabels(openApplications = false): SiteFooterLabels {
+  const intake = intakeCtaFor("en", openApplications);
   return {
     brand: "ASIP",
     headline: "African founders. Connected to opportunity.",
@@ -71,18 +73,18 @@ export function enFooterLabels(openApplications = false): SiteFooterLabels {
       { slug: "founders", label: "Founders" },
       { slug: "insights", label: "Insights" },
     ]),
-    programme: links("en", [
-      { slug: "programme", label: "The programme" },
-      { slug: "impact", label: "Impact" },
-      openApplications
-        ? { slug: "apply", label: "Apply to ASIP" }
-        : { slug: "register-interest", label: "Register interest" },
-      { slug: "faq", label: "FAQ" },
-    ]),
-    connect: links("en", [
-        { slug: "contact", label: "Contact" },
-        { slug: "partners", label: "Partner with us" },
+    programme: [
+      ...links("en", [
+        { slug: "programme", label: "The programme" },
+        { slug: "impact", label: "Impact" },
       ]),
+      { href: intake.href, label: intake.label },
+      ...links("en", [{ slug: "faq", label: "FAQ" }]),
+    ],
+    connect: links("en", [
+      { slug: "contact", label: "Contact" },
+      { slug: "partners", label: "Partner with us" },
+    ]),
     socialHeading: "Follow",
     social: [],
     parent: { href: TELECEL_GROUP_URL, label: "Telecel Group" },
@@ -98,17 +100,13 @@ export function enFooterLabels(openApplications = false): SiteFooterLabels {
         label: "Cookie preferences",
       },
     ],
-    apply: openApplications
-      ? { href: publicPath("en", "apply"), label: "Apply to ASIP" }
-      : {
-          href: publicPath("en", "register-interest"),
-          label: "Register interest",
-        },
+    apply: { href: intake.href, label: intake.label },
     login: { href: authPath("en", "login"), label: "Login" },
   };
 }
 
 export function frFooterLabels(openApplications = false): SiteFooterLabels {
+  const intake = intakeCtaFor("fr", openApplications);
   return {
     brand: "ASIP",
     headline: "Des fondateurs africains. Connectés aux opportunités.",
@@ -123,18 +121,18 @@ export function frFooterLabels(openApplications = false): SiteFooterLabels {
       { slug: "founders", label: "Fondateurs" },
       { slug: "insights", label: "Perspectives" },
     ]),
-    programme: links("fr", [
-      { slug: "programme", label: "Le programme" },
-      { slug: "impact", label: "Impact" },
-      openApplications
-        ? { slug: "apply", label: "Postuler à ASIP" }
-        : { slug: "register-interest", label: "Manifestez votre intérêt" },
-      { slug: "faq", label: "FAQ" },
-    ]),
-    connect: links("fr", [
-        { slug: "contact", label: "Nous contacter" },
-        { slug: "partners", label: "Devenir partenaire" },
+    programme: [
+      ...links("fr", [
+        { slug: "programme", label: "Le programme" },
+        { slug: "impact", label: "Impact" },
       ]),
+      { href: intake.href, label: intake.label },
+      ...links("fr", [{ slug: "faq", label: "FAQ" }]),
+    ],
+    connect: links("fr", [
+      { slug: "contact", label: "Nous contacter" },
+      { slug: "partners", label: "Devenir partenaire" },
+    ]),
     socialHeading: "Suivre",
     social: [],
     parent: { href: TELECEL_GROUP_URL, label: "Groupe Telecel" },
@@ -150,12 +148,7 @@ export function frFooterLabels(openApplications = false): SiteFooterLabels {
         label: "Préférences de cookies",
       },
     ],
-    apply: openApplications
-      ? { href: publicPath("fr", "apply"), label: "Postuler à ASIP" }
-      : {
-          href: publicPath("fr", "register-interest"),
-          label: "Manifester mon intérêt",
-        },
+    apply: { href: intake.href, label: intake.label },
     login: { href: authPath("fr", "login"), label: "Connexion" },
   };
 }

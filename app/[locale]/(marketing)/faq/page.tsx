@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { FaqPageContent } from "@/components/marketing/faq-page-content";
+import { JsonLd } from "@/components/seo/json-ld";
+import { marketingCopyFor } from "@/constants/marketing-copy";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -33,5 +35,25 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  return <MarketingContentPage locale={locale} slug="faq" />;
+  const copy = marketingCopyFor(locale, "faq");
+
+  return (
+    <main>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: copy.cards.map((card) => ({
+            "@type": "Question",
+            name: card.title,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: card.description,
+            },
+          })),
+        }}
+      />
+      <FaqPageContent locale={locale} copy={copy} />
+    </main>
+  );
 }

@@ -1,6 +1,7 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
 import { publicPath } from "@/constants/routes";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 export type NavItem = {
   href: string;
@@ -32,6 +33,7 @@ const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
 ];
 
 export function enNavLabels(openApplications = false): SiteNavLabels {
+  const intake = intakeCtaFor("en", openApplications);
   return {
     brand: "",
     languageGroupLabel: "Language",
@@ -40,12 +42,7 @@ export function enNavLabels(openApplications = false): SiteNavLabels {
       href: publicPath("en", slug),
       label,
     })),
-    apply: openApplications
-      ? { href: publicPath("en", "apply"), label: "Apply" }
-      : {
-          href: publicPath("en", "register-interest"),
-          label: "Register Interest",
-        },
+    apply: { href: intake.href, label: intake.label },
   };
 }
 
@@ -61,6 +58,7 @@ const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
 ];
 
 export function frNavLabels(openApplications = false): SiteNavLabels {
+  const intake = intakeCtaFor("fr", openApplications);
   return {
     brand: "",
     languageGroupLabel: "Langue",
@@ -69,12 +67,7 @@ export function frNavLabels(openApplications = false): SiteNavLabels {
       href: publicPath("fr", slug),
       label,
     })),
-    apply: openApplications
-      ? { href: publicPath("fr", "apply"), label: "Postuler" }
-      : {
-          href: publicPath("fr", "register-interest"),
-          label: "Manifester votre intérêt",
-        },
+    apply: { href: intake.href, label: intake.label },
   };
 }
 

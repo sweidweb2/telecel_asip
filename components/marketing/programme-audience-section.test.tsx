@@ -4,16 +4,18 @@ import { describe, expect, it } from "vitest";
 import { ProgrammeAudienceSection } from "@/components/marketing/programme-audience-section";
 import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import { programmeCopyFor } from "@/constants/programme-copy";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 describe("ProgrammeAudienceSection", () => {
   it("renders audience copy, mentor image, and register CTA", () => {
     const copy = programmeCopyFor("en").audience;
+    const intake = intakeCtaFor("en", false);
 
     render(
       <ProgrammeAudienceSection
         locale="en"
         copy={copy}
-        openApplications={false}
+        intake={intake}
       />,
     );
 
@@ -27,8 +29,8 @@ describe("ProgrammeAudienceSection", () => {
       expect.stringContaining("programme-mentor"),
     );
     expect(
-      screen.getByRole("link", { name: /register interest/i }),
-    ).toHaveAttribute("href", "/en/register-interest");
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
 
     for (const item of copy.highlights) {
       expect(screen.getByText(item.label)).toBeInTheDocument();
@@ -37,14 +39,15 @@ describe("ProgrammeAudienceSection", () => {
 
   it("promotes Apply when applications are open", () => {
     const copy = programmeCopyFor("en").audience;
+    const intake = intakeCtaFor("en", true);
 
     render(
-      <ProgrammeAudienceSection locale="en" copy={copy} openApplications />,
+      <ProgrammeAudienceSection locale="en" copy={copy} intake={intake} />,
     );
 
     expect(
-      screen.getByRole("link", { name: /apply to asip/i }),
-    ).toHaveAttribute("href", "/en/apply");
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
   });
 
   it("uses the home platform ink primary surface", () => {
@@ -53,7 +56,7 @@ describe("ProgrammeAudienceSection", () => {
       <ProgrammeAudienceSection
         locale="en"
         copy={copy}
-        openApplications={false}
+        intake={intakeCtaFor("en", false)}
       />,
     );
     const section = container.querySelector("section#audience");

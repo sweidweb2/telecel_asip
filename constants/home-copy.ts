@@ -66,6 +66,11 @@ const en: HomePageCopy = {
     cta: { slug: "founders", label: "Explore all founders" },
     empty:
       "Founder stories will appear here as verified profiles are published.",
+    blueprintTitleBlock: {
+      eyebrow: "Ecosystem",
+      title: "How ASIP connects Africa",
+      detail: "Founders, partners, capital & markets",
+    },
   },
   outcomes: {
     eyebrow: "Impact",
@@ -227,6 +232,11 @@ const fr: HomePageCopy = {
     cta: { slug: "founders", label: "Explorer tous les fondateurs" },
     empty:
       "Les parcours des fondateurs apparaîtront ici à mesure que les profils vérifiés sont publiés.",
+    blueprintTitleBlock: {
+      eyebrow: "Écosystème",
+      title: "Comment ASIP relie l’Afrique",
+      detail: "Fondateurs, partenaires, capital et marchés",
+    },
   },
   outcomes: {
     eyebrow: "Impact",

@@ -20,6 +20,7 @@ export function AboutNarrativeSections({
   return (
     <div className="flex flex-col gap-14 sm:gap-16 lg:gap-20">
       <AboutOurStorySection locale={locale} story={narrative.story} />
+      <AboutBeliefSection belief={narrative.belief} />
       <AboutNarrativeSplitSection
         id="mission"
         eyebrow={narrative.mission.eyebrow}
@@ -38,7 +39,6 @@ export function AboutNarrativeSections({
         imageVariant="vision"
         imageLabel={narrative.vision.imageLabel}
       />
-      <AboutBeliefSection belief={narrative.belief} />
       <AboutJourneyTimeline timeline={narrative.timeline} />
       {narrative.ceoMessage ? (
         <AboutCeoMessageSection message={narrative.ceoMessage} />
