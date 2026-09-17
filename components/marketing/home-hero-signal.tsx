@@ -1,26 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+      media.addEventListener("change", onStoreChange);
+      return () => media.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
+}
 
 /**
  * Decorative hero signal SVG — deferred until idle so it does not contend with LCP.
  */
 export function HomeHeroSignal() {
-  const [ready, setReady] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [idleReady, setIdleReady] = useState(false);
 
   useEffect(() => {
-    if (
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setReady(true);
-      return;
-    }
+    if (prefersReducedMotion) return;
 
     let idleId: number | undefined;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    const reveal = () => setReady(true);
+    const reveal = () => setIdleReady(true);
 
     if (typeof window.requestIdleCallback === "function") {
       idleId = window.requestIdleCallback(reveal, { timeout: 1800 });
@@ -37,9 +44,9 @@ export function HomeHeroSignal() {
       }
       if (timeoutId !== undefined) clearTimeout(timeoutId);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
-  if (!ready) return null;
+  if (!prefersReducedMotion && !idleReady) return null;
 
   return (
     <svg

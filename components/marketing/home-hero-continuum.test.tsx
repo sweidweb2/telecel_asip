@@ -26,6 +26,7 @@ const lcpStill = (
     data-active="true"
     data-lcp="true"
   >
+    {/* eslint-disable-next-line @next/next/no-img-element -- RSC LCP fixture for continuum tests */}
     <img src={HOME_HERO_CONTINUUM[0]!.src} alt="" />
   </div>
 );
