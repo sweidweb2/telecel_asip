@@ -19,6 +19,10 @@ if (useDummyTurnstile) {
   process.env.TURNSTILE_SECRET = "1x0000000000000000000000000000000AA";
 }
 
+/** Prefer an explicit E2E port; default 3000. */
+const e2ePort = process.env.E2E_PORT ?? "3000";
+const e2eOrigin = `http://localhost:${e2ePort}`;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -26,21 +30,24 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [["github"], ["html"]] : "list",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: e2eOrigin,
     trace: "on-first-retry",
     launchOptions: process.env.PLAYWRIGHT_CHROME_PATH
       ? { executablePath: process.env.PLAYWRIGHT_CHROME_PATH }
       : undefined,
   },
   webServer: {
-    command: process.env.CI ? "npm run start" : "npm run dev",
-    url: "http://localhost:3000",
+    command: process.env.CI
+      ? `npm run start -- -p ${e2ePort}`
+      : `npm run dev -- -p ${e2ePort}`,
+    url: e2eOrigin,
     // Dummy keys only apply to the Playwright-spawned server — do not reuse a
     // manually started `next dev` that still has the real site key.
     reuseExistingServer: useDummyTurnstile ? false : !process.env.CI,
     timeout: 120_000,
     env: {
       ...process.env,
+      PORT: e2ePort,
       NEXT_PUBLIC_TURNSTILE_SITE_KEY:
         process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
       TURNSTILE_SECRET: process.env.TURNSTILE_SECRET ?? "",

@@ -242,7 +242,7 @@ test.describe("auth", () => {
       ).toBeVisible({ timeout: 20_000 });
 
       await page.getByRole("button", { name: "Open account menu" }).click();
-      await page.getByRole("menuitem", { name: /log out/i }).click();
+      await page.getByText("Log out", { exact: true }).click();
 
       await expect(page).toHaveURL(/\/(en|fr)\/login/, { timeout: 15_000 });
 

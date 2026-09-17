@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -22,6 +22,11 @@ test.describe("events cms", () => {
 
       await page.locator("#event-name").fill(name);
       await page.locator("#event-date").fill("2026-06-15");
+      await page
+        .getByRole("button", { name: /Fill form with dummy data/i })
+        .click();
+      await page.locator("#event-name").fill(name);
+      await page.locator("#event-date").fill("2026-06-15");
       await expect(
         page.getByRole("button", { name: "Create event" }),
       ).toBeEnabled();
@@ -35,7 +40,7 @@ test.describe("events cms", () => {
         timeout: 20_000,
       });
       await page.getByLabel("Name").fill(`${name} edited`);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page
           .locator("[data-sonner-toast]")

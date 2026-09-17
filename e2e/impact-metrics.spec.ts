@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -63,8 +63,9 @@ test.describe("impact metrics cms", () => {
       });
 
       await page.getByLabel("Claim label").fill(claim);
-      await page.getByLabel("Value").fill("42");
+      await page.locator("#impact-value").fill("42");
       await page.getByLabel("Unit").fill("%");
+      await page.getByRole("tab", { name: /Period/i }).click();
       await page.getByLabel("Period start").fill("2024-01-01");
       await page.getByLabel("Period end").fill("2024-12-31");
 
@@ -79,13 +80,31 @@ test.describe("impact metrics cms", () => {
         .getByRole("option", { name: new RegExp(evidenceSource) })
         .click();
 
+      await page
+        .getByRole("button", { name: /Fill form with dummy data/i })
+        .click();
+      await page.getByRole("tab", { name: /Claim/i }).click();
+      await page.getByLabel("Claim label").fill(claim);
+      await page.locator("#impact-value").fill("42");
+      await page.getByLabel("Unit").fill("%");
+      await page.getByRole("tab", { name: /Period/i }).click();
+      await page.getByLabel("Period start").fill("2024-01-01");
+      await page.getByLabel("Period end").fill("2024-12-31");
+      await page.getByRole("combobox", { name: "Evidence record" }).click();
+      await page
+        .getByLabel("Search evidence by source…")
+        .fill(evidenceSource);
+      await page
+        .getByRole("option", { name: new RegExp(evidenceSource) })
+        .click();
+
       await page.getByRole("button", { name: "Create metric" }).click();
       await expect(page).toHaveURL(/\/dashboard\/impact-metrics\/[0-9a-f-]+/, {
         timeout: 20_000,
       });
 
       await page.getByLabel("Claim label").fill(`${claim} edited`);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: /Impact metric updated successfully/i,

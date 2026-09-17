@@ -7,6 +7,10 @@ const SITEVERIFY_URL =
 const TOKEN_MAX_LENGTH = 2048;
 const SITEVERIFY_TIMEOUT_MS = 10_000;
 
+/** Cloudflare published always-pass testing secret (local/E2E only). */
+export const TURNSTILE_ALWAYS_PASS_SECRET =
+  "1x0000000000000000000000000000000AA";
+
 type TurnstileSiteverifyResponse = {
   success?: boolean;
   action?: string;
@@ -26,6 +30,10 @@ function expectedHostnames(): Set<string> {
 /**
  * Verifies a Turnstile token via Cloudflare siteverify.
  * Requires `TURNSTILE_SECRET` and a non-empty `TURNSTILE_HOSTNAMES` allowlist.
+ *
+ * Cloudflare's published always-pass test secret returns a fixed dummy
+ * `action` (`"test"`), so action/hostname checks are skipped for that secret
+ * only — production secrets still enforce both.
  */
 export async function verifyTurnstileToken(options: {
   token: string;
@@ -70,6 +78,10 @@ export async function verifyTurnstileToken(options: {
     result = (await response.json()) as TurnstileSiteverifyResponse;
   } catch {
     return false;
+  }
+
+  if (secret === TURNSTILE_ALWAYS_PASS_SECRET) {
+    return result.success === true;
   }
 
   return (

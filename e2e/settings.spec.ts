@@ -7,6 +7,7 @@ import {
   loginAsAdmin,
   loginAsEditor,
   submitLoginForm,
+  dismissToasts,
 } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
@@ -48,6 +49,7 @@ test.describe("site settings", () => {
 
       await schedule.click();
       await page.getByRole("option", { name: optionLabel }).click();
+      await dismissToasts(page);
       await page.getByRole("button", { name: "Save settings" }).click();
       await expect(
         page

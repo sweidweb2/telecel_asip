@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -51,6 +51,7 @@ test.describe("founder stories cms", () => {
       ).toBeVisible({ timeout: 20_000 });
       await page.getByRole("option", { name: startupName }).click();
 
+      await page.getByRole("tab", { name: /^Story$/i }).click();
       await page.getByLabel("The problem").fill("Founders lacked local distribution.");
       await page
         .getByLabel("What they built")
@@ -66,10 +67,11 @@ test.describe("founder stories cms", () => {
       await expect(page).toHaveURL(/\/dashboard\/founder-stories\/[0-9a-f-]+/, {
         timeout: 20_000,
       });
+      await page.getByRole("tab", { name: /^Story$/i }).click();
       await page
         .getByLabel("The problem")
         .fill("Founders lacked reliable distribution across regions.");
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: /Founder story updated successfully/i,

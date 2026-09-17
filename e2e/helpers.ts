@@ -144,6 +144,57 @@ export async function submitLoginForm(page: Page): Promise<void> {
 }
 
 /**
+ * Admin list rows use `AdminClickableRow` (`role="button"`), not `role="row"`.
+ */
+export function adminListRow(page: Page, ariaLabel: string | RegExp) {
+  return page.getByRole("button", { name: ariaLabel });
+}
+
+/**
+ * Multi-step admin editors keep non-active panels mounted (`shouldUnregister:
+ * false`). Dummy fill + Continue (when present) is the reliable create path.
+ */
+export async function createViaAdminDummyForm(
+  page: Page,
+  submitName: string | RegExp,
+): Promise<void> {
+  await page
+    .getByRole("button", { name: /Fill form with dummy data/i })
+    .click();
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const submit = page.getByRole("button", { name: submitName });
+    if (await submit.isVisible()) {
+      await expect(submit).toBeEnabled({ timeout: 10_000 });
+      await submit.click();
+      return;
+    }
+    const cont = page.getByRole("button", { name: "Continue", exact: true });
+    if (await cont.isVisible()) {
+      await cont.click();
+      continue;
+    }
+    break;
+  }
+
+  await page.getByRole("button", { name: submitName }).click();
+}
+
+/** Sonner success toasts sit on top of the sticky actions bar and steal clicks. */
+export async function dismissToasts(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    document
+      .querySelectorAll("[data-sonner-toast]")
+      .forEach((node) => node.remove());
+  });
+}
+
+export async function clickSaveChanges(page: Page): Promise<void> {
+  await dismissToasts(page);
+  await page.getByRole("button", { name: "Save changes" }).click();
+}
+
+/**
  * Create a temporary viewer, sign in with `next=` to a staff path, and
  * assert the app redirects them to the locale home.
  */

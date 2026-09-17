@@ -82,7 +82,11 @@ test.describe("apply and register-interest", () => {
       await expect(
         page.getByRole("heading", { name: /Sign in to register interest/i }),
       ).toBeVisible();
-      await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "Sign in" }).or(
+          page.getByRole("button", { name: "Sign in" }),
+        ),
+      ).toBeVisible();
       await expect(page.locator("#intake-fullName")).toHaveCount(0);
     } finally {
       await admin

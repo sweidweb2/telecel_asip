@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm } from "./helpers";
+import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -64,6 +64,7 @@ test.describe("partners cms", () => {
       await page.getByLabel("Organisation").fill("E2E Ecosystem");
       await page.getByLabel("Type").click();
       await page.getByRole("option", { name: "Mentors / operators" }).click();
+      await page.getByRole("tab", { name: /Profile/i }).click();
       await page
         .getByLabel("Role / contribution")
         .fill("Mentoring and market introductions.");
@@ -80,7 +81,7 @@ test.describe("partners cms", () => {
       );
 
       await page.getByLabel("Name").fill(editedName);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Partner updated successfully.",

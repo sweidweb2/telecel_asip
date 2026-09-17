@@ -104,12 +104,10 @@ test.describe("admin users CRUD", () => {
 
       await page.getByRole("button", { name: "Create user" }).click();
       const createDialog = page.getByRole("dialog");
-      await createDialog
-        .getByRole("button", { name: "Create user", exact: true })
-        .click();
+      // Submit stays disabled until required fields are valid.
       await expect(
-        createDialog.getByText("Full name must be at least 2 characters"),
-      ).toBeVisible();
+        createDialog.getByRole("button", { name: "Create user", exact: true }),
+      ).toBeDisabled();
       await createDialog.getByLabel("Full name").fill("Users E2E Viewer");
       await createDialog.getByLabel("Email").fill(email);
       await createDialog.getByLabel("Password", { exact: true }).fill(password);

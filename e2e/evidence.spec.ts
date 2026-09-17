@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm } from "./helpers";
+import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -69,8 +69,10 @@ test.describe("evidence cms", () => {
       await page.getByRole("option").first().click();
 
       await page.getByLabel("Primary source").fill(primarySource);
+      await page.getByRole("tab", { name: /Period/i }).click();
       await page.getByLabel("Period start").fill("2024-01-01");
       await page.getByLabel("Period end").fill("2024-12-31");
+      await page.getByRole("tab", { name: /Governance/i }).click();
       await page.getByLabel("Last verified").fill("2025-01-15");
       await page.getByLabel("Review date").fill("2025-01-20");
 
@@ -83,7 +85,7 @@ test.describe("evidence cms", () => {
       ).toBeVisible({ timeout: 20_000 });
 
       await page.getByLabel("Primary source").fill(editedSource);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Evidence record updated successfully.",

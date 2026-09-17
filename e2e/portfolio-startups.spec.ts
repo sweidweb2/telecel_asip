@@ -4,7 +4,7 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm } from "./helpers";
+import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -59,12 +59,24 @@ test.describe("portfolio startups cms", () => {
         timeout: 20_000,
       });
 
+      await page
+        .getByRole("button", { name: /Fill form with dummy data/i })
+        .click();
       await page.getByLabel("Name").fill(name);
       await page.getByLabel("Slug").fill(slug);
       await page
         .getByLabel("Description")
         .fill("E2E description for the portfolio startup CMS coverage.");
-      await page.getByRole("button", { name: "Create startup" }).click();
+
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const create = page.getByRole("button", { name: "Create startup" });
+        if (await create.isVisible()) {
+          await expect(create).toBeEnabled({ timeout: 10_000 });
+          await create.click();
+          break;
+        }
+        await page.getByRole("button", { name: "Continue", exact: true }).click();
+      }
 
       await expect(page).toHaveURL(/\/dashboard\/portfolio\/[0-9a-f-]+/, {
         timeout: 20_000,
@@ -85,7 +97,7 @@ test.describe("portfolio startups cms", () => {
       });
       await page.locator("#status").click();
       await page.getByRole("option", { name: "Active", exact: true }).click();
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Startup updated successfully.",
