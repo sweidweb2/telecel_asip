@@ -31,6 +31,7 @@ import {
 export type InterestRegistrationActionResult = AdminActionResult;
 
 const resource = getAdminResource("registrations");
+const REGISTER_INTEREST_CONSENT_VERSION = "2026-09-17";
 
 const ACTION_MESSAGES = {
   en: {
@@ -148,6 +149,9 @@ export async function submitInterestRegistration(
     pitch: pitch?.trim() ? pitch.trim() : null,
     consent,
     comms_opt_in: commsOptIn,
+    locale,
+    source_path: `/${locale}/register-interest`,
+    consent_version: REGISTER_INTEREST_CONSENT_VERSION,
   });
 
   if (error) {

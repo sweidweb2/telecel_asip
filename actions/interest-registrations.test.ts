@@ -181,6 +181,9 @@ describe("submitInterestRegistration", () => {
         company_name: "Analytical Engines",
         linkedin: null,
         website: null,
+        locale: "en",
+        source_path: "/en/register-interest",
+        consent_version: "2026-09-17",
       }),
     );
     expect(consumeSharedRateLimit).toHaveBeenCalled();

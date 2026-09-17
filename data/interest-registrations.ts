@@ -24,7 +24,7 @@ const REGISTRATION_LIST_COLUMNS =
   "id, full_name, email, company_name, inbox_status, created_at" as const;
 
 const REGISTRATION_DETAIL_COLUMNS =
-  "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, pitch, consent, comms_opt_in, inbox_status, created_at" as const;
+  "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, pitch, consent, comms_opt_in, locale, source_path, consent_version, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 

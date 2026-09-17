@@ -198,6 +198,9 @@ export function RegistrationViewDialog({
                 <AdminDetailRow label="Consent">
                   {record.consent ? "Yes" : "No"}
                 </AdminDetailRow>
+                <AdminDetailRow label="Communications">
+                  {record.comms_opt_in ? "Opted in" : "Not opted in"}
+                </AdminDetailRow>
                 <AdminDetailRow label="Website" className="sm:col-span-2">
                   {record.website ? (
                     <ExternalLink href={record.website} label={record.website} />
@@ -207,6 +210,15 @@ export function RegistrationViewDialog({
             </AdminDetailSection>
             <AdminDetailSection title="Note">
               <AdminDetailRow label="Pitch">{record.pitch}</AdminDetailRow>
+            </AdminDetailSection>
+            <AdminDetailSection title="Submission context">
+              <AdminDetailGrid>
+                <AdminDetailRow label="Locale">{record.locale.toUpperCase()}</AdminDetailRow>
+                <AdminDetailRow label="Source">{record.source_path}</AdminDetailRow>
+                <AdminDetailRow label="Consent version">
+                  {record.consent_version}
+                </AdminDetailRow>
+              </AdminDetailGrid>
             </AdminDetailSection>
           </div>
         ) : isLoading ? (

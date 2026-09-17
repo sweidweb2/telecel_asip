@@ -25,7 +25,7 @@ export function AboutJourneyTimeline({ timeline }: AboutJourneyTimelineProps) {
         />
       </div>
 
-      <ol className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-4 sm:mt-12 md:grid-cols-2 lg:grid-cols-4">
+      <ol className="about-timeline mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-4 sm:mt-12 md:grid-cols-2 lg:grid-cols-4">
         {timeline.milestones.map((milestone, index) => {
           const isLast = index === lastIndex;
 
@@ -33,7 +33,7 @@ export function AboutJourneyTimeline({ timeline }: AboutJourneyTimelineProps) {
             <li
               key={milestone.year}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-6",
+                "about-timeline__milestone group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-6",
                 isLast && "border-primary/40 bg-primary/5",
               )}
             >

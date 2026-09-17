@@ -106,6 +106,34 @@ export function HomeHero({ locale, copy, openApplications }: HomeHeroProps) {
 
         <span className="sr-only">{continuumLabel}</span>
       </div>
+
+      <svg
+        aria-hidden
+        className="home-hero-signal pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-28 w-full text-asip-mint/45 sm:h-36"
+        viewBox="0 0 1200 150"
+        preserveAspectRatio="none"
+      >
+        <path
+          className="home-hero-signal__line"
+          pathLength={1}
+          d="M0 126 C180 108 250 138 410 96 S720 58 870 92 S1060 112 1200 54"
+        />
+        <path
+          className="home-hero-signal__line home-hero-signal__line--secondary"
+          pathLength={1}
+          d="M90 150 C230 116 330 128 470 112 S730 128 930 70 S1100 42 1200 48"
+        />
+        {[410, 870, 1080].map((cx, index) => (
+          <circle
+            key={cx}
+            className="home-hero-signal__node"
+            style={{ animationDelay: `${index * 700}ms` }}
+            cx={cx}
+            cy={index === 0 ? 96 : index === 1 ? 92 : 64}
+            r="3.5"
+          />
+        ))}
+      </svg>
     </section>
   );
 }

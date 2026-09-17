@@ -101,7 +101,7 @@ export function HomeImpactYearsSection({
               <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                 {metrics.map((metric) => {
                   const period = metricPeriod(metric);
-                  return <li key={metric.id} className="min-w-0">
+                  return <li key={metric.id} className="min-w-0" data-reveal="fade">
                     <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
                       {metric.value}
                       {metric.unit ? (

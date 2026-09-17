@@ -704,6 +704,7 @@ export type Database = {
           company_country: string
           company_name: string
           consent: boolean
+          consent_version: string
           country: string
           created_at: string
           email: string
@@ -712,9 +713,11 @@ export type Database = {
           id: string
           inbox_status: Database["public"]["Enums"]["inbox_status"]
           linkedin: string | null
+          locale: string
           phone: string
           pitch: string | null
           sector: string
+          source_path: string
           user_id: string | null
           website: string | null
         }
@@ -723,6 +726,7 @@ export type Database = {
           company_country: string
           company_name: string
           consent: boolean
+          consent_version?: string
           country: string
           created_at?: string
           email: string
@@ -731,9 +735,11 @@ export type Database = {
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
+          locale?: string
           phone: string
           pitch?: string | null
           sector: string
+          source_path?: string
           user_id?: string | null
           website?: string | null
         }
@@ -742,6 +748,7 @@ export type Database = {
           company_country?: string
           company_name?: string
           consent?: boolean
+          consent_version?: string
           country?: string
           created_at?: string
           email?: string
@@ -750,9 +757,11 @@ export type Database = {
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
+          locale?: string
           phone?: string
           pitch?: string | null
           sector?: string
+          source_path?: string
           user_id?: string | null
           website?: string | null
         }
@@ -1115,6 +1124,10 @@ export type Database = {
         Args: { sources: string[] }
         Returns: boolean
       }
+      consume_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_ms: number }
+        Returns: boolean
+      }
       create_blog_with_featured: {
         Args: { p_blog: Json }
         Returns: {
@@ -1145,14 +1158,13 @@ export type Database = {
           slug: string
         }[]
       }
-      consume_rate_limit: {
-        Args: { p_key: string; p_limit: number; p_window_ms: number }
-        Returns: boolean
-      }
       get_active_startup_filter_options: { Args: never; Returns: Json }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_backup_schedule: {
+        Args: never
+        Returns: Database["public"]["Enums"]["backup_schedule"]
+      }
       get_admin_list_stats: { Args: { p_resource: string }; Returns: Json }
-      get_dashboard_nav_counts: { Args: never; Returns: Json }
       get_admin_shell: {
         Args: never
         Returns: {
@@ -1163,6 +1175,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"]
         }[]
       }
+      get_dashboard_nav_counts: { Args: never; Returns: Json }
       get_related_published_blogs: {
         Args: { p_limit?: number; p_slug: string }
         Returns: {
@@ -1188,10 +1201,6 @@ export type Database = {
           is_editor: boolean
           role: Database["public"]["Enums"]["user_role"]
         }[]
-      }
-      get_admin_backup_schedule: {
-        Args: never
-        Returns: Database["public"]["Enums"]["backup_schedule"]
       }
       get_user_stats: {
         Args: never
