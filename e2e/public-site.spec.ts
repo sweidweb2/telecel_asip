@@ -45,14 +45,12 @@ test("language switch preserves the current public page", async ({ page }) => {
 
 test("alumni is in the primary navigation", async ({ page }) => {
   await page.goto("/en");
-  // Scope to header + exact name so hero gallery aria-labels do not match.
-  await page
-    .locator("header")
-    .getByRole("button", { name: "Founders", exact: true })
-    .click();
-  // NavigationMenu content is portaled outside <header>.
+  // Founders is a <details>/<summary> flyout (not NavigationMenu).
+  await page.locator("header nav[aria-label='Primary'] summary").filter({
+    hasText: "Founders",
+  }).click();
   await expect(
-    page.getByRole("link", { name: "Alumni", exact: true }),
+    page.locator("header").getByRole("link", { name: "Alumni", exact: true }),
   ).toHaveAttribute("href", "/en/alumni");
 });
 
@@ -76,7 +74,9 @@ test("tablet navigation keeps the primary routes visible", async ({ page }) => {
     page.locator("header").getByRole("link", { name: "About" }),
   ).toBeVisible();
   await expect(
-    page.locator("header").getByRole("button", { name: "Founders", exact: true }),
+    page.locator("header nav[aria-label='Primary'] summary").filter({
+      hasText: "Founders",
+    }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
