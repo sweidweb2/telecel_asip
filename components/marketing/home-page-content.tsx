@@ -1,9 +1,12 @@
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
+import { HomeLatestInsightsFallback } from "@/components/marketing/home-latest-insights-fallback";
+import { HomeLatestInsightsLoader } from "@/components/marketing/home-latest-insights-loader";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
@@ -12,7 +15,6 @@ import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
-import type { ArticleListItem } from "@/types/article";
 import type { StartupCountryReach } from "@/types/startup";
 
 const HomePlatformModelSection = dynamic(() =>
@@ -24,12 +26,6 @@ const HomePlatformModelSection = dynamic(() =>
 const HomeFounderSpotlightSection = dynamic(() =>
   import("@/components/marketing/home-founder-spotlight-section").then(
     (m) => m.HomeFounderSpotlightSection,
-  ),
-);
-
-const HomeLatestInsightsSection = dynamic(() =>
-  import("@/components/marketing/home-latest-insights-section").then(
-    (m) => m.HomeLatestInsightsSection,
   ),
 );
 
@@ -45,7 +41,6 @@ type HomeImpactMetric = {
 type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
-  articles: ArticleListItem[];
   openApplications: boolean;
   countryReach: StartupCountryReach[];
 };
@@ -53,7 +48,6 @@ type HomePageContentProps = {
 export function HomePageContent({
   locale,
   metrics,
-  articles,
   openApplications,
   countryReach,
 }: HomePageContentProps) {
@@ -107,11 +101,9 @@ export function HomePageContent({
         intake={intake}
       />
 
-      <HomeLatestInsightsSection
-        locale={locale}
-        copy={copy.latest}
-        articles={articles}
-      />
+      <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
+        <HomeLatestInsightsLoader locale={locale} />
+      </Suspense>
     </main>
   );
 }

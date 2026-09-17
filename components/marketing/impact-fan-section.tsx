@@ -207,7 +207,7 @@ function FanCard({
             fill
             className="object-cover"
             sizes="(max-width: 640px) 40vw, (max-width: 1024px) 28vw, 320px"
-            quality={90}
+            quality={75}
           />
           <figcaption
             aria-label={image.badge}

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import "./about-hero.css";
+
 import { cn } from "@/lib/utils";
 import type { MarketingPageCopy } from "@/types/marketing-page";
 

@@ -20,6 +20,16 @@ vi.mock("next/image", () => ({
   ),
 }));
 
+const lcpStill = (
+  <div
+    className="home-hero-continuum-slide absolute inset-0"
+    data-active="true"
+    data-lcp="true"
+  >
+    <img src={HOME_HERO_CONTINUUM[0]!.src} alt="" />
+  </div>
+);
+
 describe("HomeHeroContinuum", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -38,18 +48,19 @@ describe("HomeHeroContinuum", () => {
     vi.unstubAllGlobals();
   });
 
-  it("mounts only the LCP still on first paint", () => {
-    render(<HomeHeroContinuum />);
+  it("keeps the RSC LCP still until the first beat", () => {
+    render(<HomeHeroContinuum lcpStill={lcpStill} />);
     const slides = document.querySelectorAll(".home-hero-continuum-slide");
     expect(slides).toHaveLength(1);
+    expect(slides[0]).toHaveAttribute("data-lcp", "true");
     expect(slides[0]?.querySelector("img")).toHaveAttribute(
       "src",
       HOME_HERO_CONTINUUM[0]!.src,
     );
   });
 
-  it("crossfades with at most two stills mounted", () => {
-    render(<HomeHeroContinuum />);
+  it("crossfades with at most two stills mounted after the first beat", () => {
+    render(<HomeHeroContinuum lcpStill={lcpStill} />);
 
     act(() => {
       vi.advanceTimersByTime(HOME_HERO_CONTINUUM_BEAT_S * 1000);
@@ -65,7 +76,7 @@ describe("HomeHeroContinuum", () => {
     ).toHaveAttribute("src", HOME_HERO_CONTINUUM[1]!.src);
   });
 
-  it("stays on the first still when reduced motion is preferred", () => {
+  it("stays on the RSC LCP still when reduced motion is preferred", () => {
     vi.stubGlobal(
       "matchMedia",
       vi.fn().mockReturnValue({
@@ -75,7 +86,7 @@ describe("HomeHeroContinuum", () => {
       }),
     );
 
-    render(<HomeHeroContinuum />);
+    render(<HomeHeroContinuum lcpStill={lcpStill} />);
 
     act(() => {
       vi.advanceTimersByTime(HOME_HERO_CONTINUUM_BEAT_S * 1000 * 3);
@@ -85,7 +96,7 @@ describe("HomeHeroContinuum", () => {
       1,
     );
     expect(
-      document.querySelector(".home-hero-continuum-slide img"),
-    ).toHaveAttribute("src", HOME_HERO_CONTINUUM[0]!.src);
+      document.querySelector(".home-hero-continuum-slide"),
+    ).toHaveAttribute("data-lcp", "true");
   });
 });

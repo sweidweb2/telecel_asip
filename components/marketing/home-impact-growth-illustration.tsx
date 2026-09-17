@@ -1,5 +1,7 @@
 import { useId } from "react";
 
+import "./impact-motion.css";
+
 import { cn } from "@/lib/utils";
 
 type HomeImpactGrowthIllustrationProps = {
@@ -11,7 +13,6 @@ const STEP_W = 150;
 const STEP_H = 88;
 const STEP_DX = 90;
 const STEP_DY = 60;
-const CYCLE = 6;
 const ORIGIN_X = 40;
 const ORIGIN_Y = 312;
 
@@ -23,9 +24,6 @@ const STEP_FILLS = [
   "#0f6e6e",
   "#14333b",
 ] as const;
-
-const CYCLE_DX = CYCLE * STEP_DX;
-const CYCLE_DY = CYCLE * STEP_DY;
 
 const CORAL_PATH =
   "M56 398 V257 H178 V197 H268 V137 H358 V77 H443 V2 H528";
@@ -155,12 +153,6 @@ export function HomeImpactGrowthIllustration({
       <g clipPath={`url(#${clipId})`} mask={`url(#${maskId})`}>
         <g className="impact-stairs-belt">
           <StairSet />
-          <g
-            className="impact-stairs-belt-copy"
-            transform={`translate(${-CYCLE_DX} ${CYCLE_DY})`}
-          >
-            <StairSet />
-          </g>
         </g>
       </g>
 

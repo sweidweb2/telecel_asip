@@ -1,0 +1,111 @@
+/* Home hero continuum + signal — imported by home-hero.tsx */
+@keyframes home-hero-drift {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-2%, -1%);
+  }
+}
+
+.home-hero-motion {
+  animation: home-hero-drift 22s ease-in-out infinite;
+}
+
+/*
+ * Founder Continuum — at most two stills mounted (active + outgoing).
+ * Client island advances the beat; LCP still paints without a fade-in.
+ */
+@keyframes home-hero-continuum-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes home-hero-continuum-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.home-hero-continuum-slide {
+  opacity: 0;
+}
+
+.home-hero-continuum-slide[data-active="true"] {
+  animation: home-hero-continuum-in 1.1s ease-in-out both;
+}
+
+.home-hero-continuum-slide[data-active="false"] {
+  animation: home-hero-continuum-out 1.1s ease-in-out both;
+}
+
+.home-hero-continuum-slide[data-lcp="true"] {
+  animation: none;
+  opacity: 1;
+}
+
+.home-hero-brand-rule {
+  transform-origin: left center;
+  animation: about-story-underline 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+@keyframes signal-draw {
+  from { stroke-dashoffset: 2400; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes signal-node-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.6); }
+}
+
+.home-hero-signal__line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  /* Fixed length (no pathLength) — longer than the path so the final frame is solid edge-to-edge */
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
+  vector-effect: non-scaling-stroke;
+  animation: signal-draw 2.6s 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.home-hero-signal__line--secondary {
+  opacity: 0.45;
+  animation-delay: 0.8s;
+}
+
+.home-hero-signal__node {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: signal-node-pulse 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-motion,
+  .home-hero-continuum-slide,
+  .home-hero-brand-rule,
+  .home-hero-signal__line,
+  .home-hero-signal__node {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .home-hero-signal__line {
+    stroke-dashoffset: 0 !important;
+  }
+  .home-hero-continuum-slide {
+    opacity: 0 !important;
+  }
+  .home-hero-continuum-slide[data-active="true"],
+  .home-hero-continuum-slide[data-lcp="true"] {
+    opacity: 1 !important;
+  }
+}

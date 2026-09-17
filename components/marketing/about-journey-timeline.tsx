@@ -1,3 +1,5 @@
+import "./about-timeline.css";
+
 import { cn } from "@/lib/utils";
 import type { AboutTimelineCopy } from "@/types/marketing-page";
 

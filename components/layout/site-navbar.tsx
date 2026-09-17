@@ -3,19 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, MenuIcon } from "lucide-react";
+import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
 import { useState } from "react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import {
   Sheet,
   SheetContent,
@@ -217,64 +209,71 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
       </div>
 
       <div className="hidden border-t border-black/8 bg-white/45 md:block">
-        <div className="mx-auto flex min-h-12 w-full max-w-7xl items-center px-8 lg:px-10">
-          <NavigationMenu className="max-w-none flex-1 justify-start" align="start">
-            <NavigationMenuList className="justify-start gap-1">
-              {labels.items
-                .filter((item) => item.href !== alumniHref)
-                .map((item) => {
-                  const active =
-                    isNavActive(pathname, item.href, locale) ||
-                    (item.href === foundersHref &&
-                      pathname.startsWith(alumniHref));
+        <nav
+          className="mx-auto flex min-h-12 w-full max-w-7xl items-center gap-1 px-8 lg:px-10"
+          aria-label="Primary"
+        >
+          {labels.items
+            .filter((item) => item.href !== alumniHref)
+            .map((item) => {
+              const active =
+                isNavActive(pathname, item.href, locale) ||
+                (item.href === foundersHref &&
+                  pathname.startsWith(alumniHref));
 
-                  if (item.href === foundersHref) {
-                    return (
-                      <NavigationMenuItem key={item.href}>
-                        <NavigationMenuTrigger className={desktopLinkClass(active)}>
-                          {item.label}
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <ul className="grid w-64 gap-1 p-2">
-                            <li>
-                              <NavigationMenuLink
-                                render={<Link href={foundersHref} />}
-                                closeOnClick
-                                className="min-h-12 rounded-sm px-4 py-3 font-semibold"
-                              >
-                                {directoryLabel}
-                              </NavigationMenuLink>
-                            </li>
-                            <li>
-                              <NavigationMenuLink
-                                render={<Link href={alumniHref} />}
-                                closeOnClick
-                                className="min-h-12 rounded-sm px-4 py-3 font-semibold"
-                              >
-                                Alumni
-                              </NavigationMenuLink>
-                            </li>
-                          </ul>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    );
-                  }
-
-                  return (
-                    <NavigationMenuItem key={item.href}>
-                      <NavigationMenuLink
-                        render={<Link href={item.href} />}
-                        active={active}
-                        className={desktopLinkClass(active)}
+              if (item.href === foundersHref) {
+                return (
+                  <div key={item.href} className="relative">
+                    <details className="group/nav">
+                      <summary
+                        className={cn(
+                          desktopLinkClass(active),
+                          "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+                        )}
                       >
-                        {item.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  );
-                })}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
+                        <span className="inline-flex items-center gap-1">
+                          {item.label}
+                          <ChevronDownIcon
+                            className="size-3.5 opacity-70 transition-transform group-open/nav:rotate-180"
+                            aria-hidden
+                          />
+                        </span>
+                      </summary>
+                      <ul className="absolute top-full left-0 z-50 mt-1 grid w-64 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
+                        <li>
+                          <Link
+                            href={foundersHref}
+                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
+                          >
+                            {directoryLabel}
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href={alumniHref}
+                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
+                          >
+                            Alumni
+                          </Link>
+                        </li>
+                      </ul>
+                    </details>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={desktopLinkClass(active)}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+        </nav>
       </div>
     </header>
   );

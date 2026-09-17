@@ -1,7 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 import {
   HOME_HERO_CONTINUUM,
@@ -10,12 +14,18 @@ import {
 import { cn } from "@/lib/utils";
 
 const CROSSFADE_MS = 1100;
+const CONTINUUM_QUALITY = 75;
+
+type HomeHeroContinuumProps = {
+  /** RSC LCP still — stays in the initial HTML; swapped out after the first beat. */
+  lcpStill: ReactNode;
+};
 
 /**
- * Mounts at most two continuum stills (active + outgoing) so the LCP viewport
- * does not decode four full-bleed images at once.
+ * Continuum cycle island. Initial paint uses the RSC `lcpStill` slot (no JS needed
+ * for LCP). After the first beat, at most two client stills crossfade.
  */
-export function HomeHeroContinuum() {
+export function HomeHeroContinuum({ lcpStill }: HomeHeroContinuumProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [outgoingIndex, setOutgoingIndex] = useState<number | null>(null);
   const [hasCycled, setHasCycled] = useState(false);
@@ -46,6 +56,10 @@ export function HomeHeroContinuum() {
     return () => window.clearTimeout(id);
   }, [outgoingIndex]);
 
+  if (!hasCycled) {
+    return <>{lcpStill}</>;
+  }
+
   const indices =
     outgoingIndex !== null && outgoingIndex !== activeIndex
       ? [outgoingIndex, activeIndex]
@@ -58,33 +72,28 @@ export function HomeHeroContinuum() {
         if (!slide) return null;
 
         const isActive = index === activeIndex;
-        const isLcp = !hasCycled && index === 0;
 
         return (
           <div
             key={slide.src}
             className={cn("home-hero-continuum-slide absolute inset-0")}
             data-active={isActive ? "true" : "false"}
-            data-lcp={isLcp ? "true" : undefined}
           >
             <Image
               src={slide.src}
               alt=""
               fill
-              priority={isLcp}
-              fetchPriority={isLcp ? "high" : "low"}
-              loading={isLcp ? "eager" : "lazy"}
+              loading="lazy"
+              fetchPriority="low"
               decoding="async"
               className="object-cover"
               style={{ objectPosition: slide.position ?? "center" }}
               sizes="100vw"
-              quality={75}
+              quality={CONTINUUM_QUALITY}
             />
           </div>
         );
       })}
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(20,51,59,.97)_0%,rgba(20,51,59,.88)_36%,rgba(20,51,59,.45)_62%,rgba(20,51,59,.18)_82%,rgba(20,51,59,.08)_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,51,59,.55)_0%,transparent_42%)]" />
     </>
   );
 }

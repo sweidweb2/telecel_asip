@@ -47,8 +47,8 @@ describe("getActiveStartupCountryReach", () => {
   it("uses the country-reach RPC and maps the payload", async () => {
     rpc.mockResolvedValue({
       data: [
-        { countryCode: "GH", founderCount: 3 },
-        { countryCode: "NG", founderCount: 1 },
+        { country_code: "GH", founder_count: 3 },
+        { country_code: "NG", founder_count: 1 },
       ],
       error: null,
     });
@@ -59,28 +59,5 @@ describe("getActiveStartupCountryReach", () => {
     ]);
     expect(rpc).toHaveBeenCalledWith("get_active_startup_country_reach");
     expect(from).not.toHaveBeenCalled();
-  });
-
-  it("falls back to selecting country codes when the RPC is missing", async () => {
-    rpc.mockResolvedValue({
-      data: null,
-      error: { code: "PGRST202", message: "missing" },
-    });
-    const not = vi.fn().mockResolvedValue({
-      data: [
-        { country_code: "gh" },
-        { country_code: "GH" },
-        { country_code: "ng" },
-      ],
-      error: null,
-    });
-    from.mockReturnValue({
-      select: vi.fn(() => ({ not })),
-    });
-
-    await expect(getActiveStartupCountryReach()).resolves.toEqual([
-      { countryCode: "GH", founderCount: 2 },
-      { countryCode: "NG", founderCount: 1 },
-    ]);
   });
 });

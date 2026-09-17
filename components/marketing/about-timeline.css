@@ -1,0 +1,32 @@
+/* About journey timeline — imported by about-journey-timeline.tsx */
+.about-timeline {
+  position: relative;
+}
+
+@media (min-width: 64rem) {
+  .about-timeline::before {
+    position: absolute;
+    top: -1.25rem;
+    left: 3%;
+    width: 94%;
+    height: 2px;
+    content: "";
+    transform-origin: left;
+    background: linear-gradient(90deg, var(--brand), var(--asip-coral));
+    animation: timeline-progress linear both;
+    animation-range: entry 15% cover 55%;
+    animation-timeline: view();
+  }
+}
+
+@keyframes timeline-progress {
+  from { transform: scaleX(0); opacity: 0.25; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-timeline::before {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}

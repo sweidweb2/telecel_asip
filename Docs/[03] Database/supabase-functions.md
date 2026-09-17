@@ -476,13 +476,13 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | | |
 | --- | --- |
 | **Role** | Grouped country founder counts for the home footprint graphic |
-| **Returns** | `jsonb` array of `{ countryCode: string, founderCount: number }` |
+| **Returns** | `table (country_code text, founder_count integer)` |
 | **Security** | `sql`, `stable`, **`security invoker`**, `search_path = public` |
 | **Grants** | `execute` to `anon`, `authenticated` |
 
-**Details:** Replaces selecting every `startups_public.country_code` and aggregating in JS (`data/startups.ts` → `getActiveStartupCountryReach`). Migration `20260917230000_get_active_startup_country_reach.sql`.
+**Details:** Replaces selecting every `startups_public.country_code` and aggregating in JS (`data/startups.ts` → `getActiveStartupCountryReach`). Introduced as `jsonb` in `20260917230000_get_active_startup_country_reach.sql`; retyped to a table in `20260917231000_get_active_startup_country_reach_table.sql`.
 
-**How it works:** `group by country_code` over non-empty codes on `public.startups_public`, then `jsonb_agg` of `{ countryCode, founderCount }` ordered by code. Invoker + the view's grants keep the public surface unchanged.
+**How it works:** `group by` normalized `country_code` over non-empty codes on `public.startups_public`, returning one row per code with `count(*)`. Invoker + the view's grants keep the public surface unchanged.
 
 ---
 

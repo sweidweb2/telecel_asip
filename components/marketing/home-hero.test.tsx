@@ -1,9 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { HomeHero } from "@/components/marketing/home-hero";
 import { homeCopyFor } from "@/constants/home-copy";
-import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 vi.mock("next/image", () => ({
@@ -19,23 +18,16 @@ vi.mock("next/image", () => ({
   ),
 }));
 
+vi.mock("@/components/marketing/home-hero-continuum", () => ({
+  HomeHeroContinuum: () => <div data-testid="home-hero-continuum" />,
+}));
+
+vi.mock("@/components/marketing/home-hero-signal", () => ({
+  HomeHeroSignal: () => null,
+}));
+
 describe("HomeHero", () => {
-  beforeEach(() => {
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn().mockReturnValue({
-        matches: false,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      }),
-    );
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it("renders brand, headline, LCP continuum still, and CTAs", () => {
+  it("renders brand, headline, and CTAs", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", false);
 
@@ -47,20 +39,13 @@ describe("HomeHero", () => {
       screen.getByRole("heading", { level: 1, name: copy.hero.title }),
     ).toBeInTheDocument();
     expect(screen.getByText("ASIP")).toBeInTheDocument();
+    expect(screen.getByTestId("home-hero-continuum")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: copy.hero.primaryCta.label }),
     ).toHaveAttribute("href", "/en/founders");
     expect(
       screen.getByRole("link", { name: intake.label }),
     ).toHaveAttribute("href", intake.href);
-
-    const slides = document.querySelectorAll(".home-hero-continuum-slide");
-    expect(slides).toHaveLength(1);
-    expect(slides[0]).toHaveAttribute("data-lcp", "true");
-    expect(slides[0]?.querySelector("img")).toHaveAttribute(
-      "src",
-      HOME_HERO_CONTINUUM[0]!.src,
-    );
   });
 
   it("swaps intake CTA when applications are open", () => {

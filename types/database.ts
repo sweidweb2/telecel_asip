@@ -1159,7 +1159,13 @@ export type Database = {
         }[]
       }
       get_active_startup_filter_options: { Args: never; Returns: Json }
-      get_active_startup_country_reach: { Args: never; Returns: Json }
+      get_active_startup_country_reach: {
+        Args: never
+        Returns: {
+          country_code: string
+          founder_count: number
+        }[]
+      }
       get_admin_analytics: { Args: never; Returns: Json }
       get_admin_backup_schedule: {
         Args: never
