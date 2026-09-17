@@ -1,12 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  e2eAdminClient,
-  e2eAdminEmail,
-  e2eSuffix,
-  hasE2ECredentials,
-  loginAsAdmin,
-} from "./helpers";
+import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -16,10 +10,10 @@ async function seedEvidence(primarySource: string): Promise<string> {
     await admin.auth.admin.listUsers({ perPage: 200 });
   if (userError) throw userError;
   const seed = users.users.find(
-    (user) => user.email?.toLowerCase() === e2eAdminEmail.toLowerCase(),
+    (user) => user.email?.toLowerCase() === e2eEditorEmail.toLowerCase(),
   );
   if (!seed?.id) {
-    throw new Error(`Seed admin ${e2eAdminEmail} not found for evidence owner.`);
+    throw new Error(`Seed editor ${e2eEditorEmail} not found for evidence owner.`);
   }
 
   const { data, error } = await admin
@@ -59,7 +53,7 @@ test.describe("impact metrics cms", () => {
     const evidenceId = await seedEvidence(evidenceSource);
 
     try {
-      await loginAsAdmin(page, "/dashboard/impact-metrics");
+      await loginAsEditor(page, "/dashboard/impact-metrics");
       await page
         .locator('a[href="/dashboard/impact-metrics/new"]')
         .first()
@@ -69,16 +63,37 @@ test.describe("impact metrics cms", () => {
       });
 
       await page.getByLabel("Claim label").fill(claim);
-      await page.getByLabel("Value").fill("42");
+      await page.locator("#impact-value").fill("42");
       await page.getByLabel("Unit").fill("%");
+      await page.getByRole("tab", { name: /Period/i }).click();
       await page.getByLabel("Period start").fill("2024-01-01");
       await page.getByLabel("Period end").fill("2024-12-31");
 
-      await page.getByLabel("Search evidence records").fill(evidenceSource);
       await page.getByRole("combobox", { name: "Evidence record" }).click();
+      await page
+        .getByLabel("Search evidence by source…")
+        .fill(evidenceSource);
       await expect(
         page.getByRole("option", { name: new RegExp(evidenceSource) }),
       ).toBeVisible({ timeout: 20_000 });
+      await page
+        .getByRole("option", { name: new RegExp(evidenceSource) })
+        .click();
+
+      await page
+        .getByRole("button", { name: /Fill form with dummy data/i })
+        .click();
+      await page.getByRole("tab", { name: /Claim/i }).click();
+      await page.getByLabel("Claim label").fill(claim);
+      await page.locator("#impact-value").fill("42");
+      await page.getByLabel("Unit").fill("%");
+      await page.getByRole("tab", { name: /Period/i }).click();
+      await page.getByLabel("Period start").fill("2024-01-01");
+      await page.getByLabel("Period end").fill("2024-12-31");
+      await page.getByRole("combobox", { name: "Evidence record" }).click();
+      await page
+        .getByLabel("Search evidence by source…")
+        .fill(evidenceSource);
       await page
         .getByRole("option", { name: new RegExp(evidenceSource) })
         .click();
@@ -89,7 +104,7 @@ test.describe("impact metrics cms", () => {
       });
 
       await page.getByLabel("Claim label").fill(`${claim} edited`);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: /Impact metric updated successfully/i,
@@ -131,7 +146,7 @@ test.describe("impact metrics cms", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fimpact-metrics");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
     } finally {
       if (created.user?.id) await admin.auth.admin.deleteUser(created.user.id);

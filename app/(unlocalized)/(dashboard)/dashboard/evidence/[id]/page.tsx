@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getEvidenceRecordByIdForAdmin } from "@/data/evidence-records";
 
@@ -24,13 +25,13 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getEvidenceRecordByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Evidence | ASIP Admin" };
+    return { title: "Evidence | ASIP Editor" };
   }
   const title =
     result.record.primary_source.length > 40
       ? `${result.record.primary_source.slice(0, 40)}…`
       : result.record.primary_source;
-  return { title: `${title} | ASIP Admin` };
+  return { title: `${title} | ASIP Editor` };
 }
 
 export default async function EditEvidencePage({
@@ -57,7 +58,7 @@ export default async function EditEvidencePage({
       : result.record.primary_source.trim() || "Edit evidence";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -80,6 +81,6 @@ export default async function EditEvidencePage({
         defaultOwnerId={result.record.owner_id}
         heading="Edit evidence record"
       />
-    </main>
+    </StaffMain>
   );
 }

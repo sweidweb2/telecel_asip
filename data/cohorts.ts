@@ -1,13 +1,13 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -85,28 +85,12 @@ export type CohortListStats = {
 async function fetchCohortListStats(
   supabase: ServerClient,
 ): Promise<CohortListStats> {
-  const [total, published, draft, open] = await Promise.all([
-    supabase.from("cohorts").select("id", { count: "exact", head: true }),
-    supabase
-      .from("cohorts")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "published"),
-    supabase
-      .from("cohorts")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "draft"),
-    supabase
-      .from("cohorts")
-      .select("id", { count: "exact", head: true })
-      .eq("programme_status", "open"),
+  return fetchAdminListStats(supabase, "cohorts", [
+    "total",
+    "published",
+    "draft",
+    "open",
   ]);
-
-  return {
-    total: countExact(total),
-    published: countExact(published),
-    draft: countExact(draft),
-    open: countExact(open),
-  };
 }
 
 export async function getCohortsPageData(
@@ -122,7 +106,7 @@ export async function getCohortsPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchCohortsPage(supabase, query),
         fetchCohortListStats(supabase),
       ]);
@@ -148,18 +132,14 @@ export const getCohortByIdForAdmin = wrapCached(
       if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
-      const { data, error } = await supabase
-        .from("cohorts")
-        .select(DETAIL_COLUMNS)
-        .eq("id", id)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (!data) return { status: "not_found" };
-
-      const [partnersResult, startupsResult] = await Promise.all([
+      const [cohortResult, partnersResult, startupsResult] = await Promise.all([
+        supabase
+          .from("cohorts")
+          .select(DETAIL_COLUMNS)
+          .eq("id", id)
+          .maybeSingle(),
         supabase
           .from("cohort_partners")
           .select("partner_id")
@@ -172,13 +152,15 @@ export const getCohortByIdForAdmin = wrapCached(
           .limit(DETAIL_LINK_LIMIT),
       ]);
 
+      if (cohortResult.error) throw cohortResult.error;
       if (partnersResult.error) throw partnersResult.error;
       if (startupsResult.error) throw startupsResult.error;
+      if (!cohortResult.data) return { status: "not_found" };
 
       return {
         status: "ok",
         cohort: {
-          ...(data as Cohort),
+          ...(cohortResult.data as Cohort),
           partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
           startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
         },
@@ -203,7 +185,7 @@ export async function getCohortLinkOptionsForAdmin(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       const pattern = term ? escapeIlikePattern(term) : "";
@@ -268,7 +250,7 @@ export async function getCohortsForBlogPicker(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

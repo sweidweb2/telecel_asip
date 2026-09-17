@@ -18,6 +18,7 @@ import {
   filterPartnerContributionRoles,
   PARTNER_CONTRIBUTION_SUGGESTION_LIMIT,
 } from "@/constants/partner-contribution-roles";
+import { useAnchoredListReposition } from "@/hooks/use-anchored-list-reposition";
 import { cn } from "@/lib/utils";
 
 function useIsClient() {
@@ -94,21 +95,7 @@ export function PartnerContributionInput({
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 
-  useEffect(() => {
-    if (!showList) return;
-
-    function onReposition() {
-      updateListBox();
-    }
-
-    window.addEventListener("resize", onReposition);
-    // Capture scroll from nested overflow containers too.
-    window.addEventListener("scroll", onReposition, true);
-    return () => {
-      window.removeEventListener("resize", onReposition);
-      window.removeEventListener("scroll", onReposition, true);
-    };
-  }, [showList, updateListBox]);
+  useAnchoredListReposition(showList, updateListBox);
 
   useEffect(() => {
     if (!open) return;

@@ -10,7 +10,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type {
   HomeOutcomeFeatureId,
@@ -26,7 +26,7 @@ const FEATURE_ICONS: Record<HomeOutcomeFeatureId, LucideIcon> = {
 type HomeOutcomesSectionProps = {
   locale: Locale;
   copy: HomePageCopy["outcomes"];
-  openApplications: boolean;
+  intake: IntakeCta;
   className?: string;
 };
 
@@ -37,10 +37,9 @@ type HomeOutcomesSectionProps = {
 export function HomeOutcomesSection({
   locale,
   copy,
-  openApplications,
+  intake,
   className,
 }: HomeOutcomesSectionProps) {
-  const intake = intakeCtaFor(locale, openApplications);
   const impactHref = publicPath(locale, copy.cta.slug);
 
   return (
@@ -49,7 +48,7 @@ export function HomeOutcomesSection({
       aria-labelledby="home-outcomes-heading"
       className={cn(
         "overflow-hidden border-b border-border bg-background",
-        "px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12",
+        "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         className,
       )}
     >
@@ -96,7 +95,7 @@ export function HomeOutcomesSection({
                 href={intake.href}
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "min-h-11 w-full rounded-full px-8 sm:w-auto",
+                  "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
                 )}
               >
                 {intake.label}

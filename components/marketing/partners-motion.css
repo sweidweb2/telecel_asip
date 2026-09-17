@@ -1,0 +1,60 @@
+/* Partners page motion — imported by partners-page-content.tsx */
+@keyframes partner-signal-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes partner-image-arrive {
+  from {
+    filter: saturate(0.55);
+    transform: scale(1.08);
+  }
+  to {
+    filter: saturate(0.92);
+    transform: scale(1);
+  }
+}
+
+.partners-hero-image {
+  animation: partner-image-arrive 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Partners hero accent word — solid white (no gradient fill) */
+.partners-title-accent {
+  color: white;
+}
+
+.partner-signal-track {
+  animation: partner-signal-scroll 24s linear infinite;
+}
+
+.partner-signal-rail:hover .partner-signal-track {
+  animation-play-state: paused;
+}
+
+.partner-route::before {
+  background: #dc395f;
+  content: "";
+  inset: 0 auto 0 0;
+  position: absolute;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: 4px;
+}
+
+.partner-route:hover::before {
+  transform: scaleY(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .partners-hero-image,
+  .partner-signal-track {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}

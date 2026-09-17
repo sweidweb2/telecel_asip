@@ -11,24 +11,11 @@ export type Blog = Tables<"blogs">;
 export type BlogListItem = Pick<
   Blog,
   | "id"
-  | "slug"
   | "title"
-  | "summary"
-  | "categories"
-  | "thumbnail_url"
-  | "author_name"
-  | "author_avatar_url"
   | "status"
   | "is_featured"
-  | "reading_time_minutes"
-  | "published_at"
-  | "created_at"
+  | "author_name"
   | "updated_at"
-  | "startup_id"
-  | "cohort_id"
-  | "sources"
-  | "meta_title"
-  | "meta_description"
 >;
 
 /** Public list/related row (no body_html). */

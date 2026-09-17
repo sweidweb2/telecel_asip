@@ -16,6 +16,7 @@ function story(
   return {
     id,
     startupId: id,
+    title: `${name} impact story`,
     name,
     slug: name.toLowerCase().replace(/\s+/g, "-"),
     founderNames: [],

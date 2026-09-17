@@ -1,13 +1,13 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -32,7 +32,7 @@ const DETAIL_COLUMNS =
   "id, claim_label, value, unit, period_start, period_end, geography, impact_lens, display_locations, evidence_id, publish_status, created_at, updated_at, evidence_records(primary_source)" as const;
 
 const PUBLIC_COLUMNS =
-  "id, claim_label, value, unit, impact_lens, display_locations, updated_at" as const;
+  "id, claim_label, value, unit, impact_lens, display_locations, period_start, period_end, updated_at" as const;
 
 const EVIDENCE_OPTION_COLUMNS = "id, primary_source, status" as const;
 
@@ -105,30 +105,12 @@ export type ImpactMetricListStats = {
 async function fetchImpactMetricListStats(
   supabase: ServerClient,
 ): Promise<ImpactMetricListStats> {
-  const [total, verified, pending, notForPublication] = await Promise.all([
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "verified"),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "pending"),
-    supabase
-      .from("impact_metrics")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "not_for_publication"),
+  return fetchAdminListStats(supabase, "impact_metrics", [
+    "total",
+    "verified",
+    "pending",
+    "notForPublication",
   ]);
-
-  return {
-    total: countExact(total),
-    verified: countExact(verified),
-    pending: countExact(pending),
-    notForPublication: countExact(notForPublication),
-  };
 }
 
 export async function getImpactMetricsPageData(
@@ -144,7 +126,7 @@ export async function getImpactMetricsPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchImpactMetricsPage(supabase, query),
         fetchImpactMetricListStats(supabase),
       ]);
@@ -179,7 +161,7 @@ export const getImpactMetricByIdForAdmin = wrapCached(
       }
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const { data, error } = await supabase
         .from("impact_metrics")
@@ -218,7 +200,7 @@ export async function listEvidenceOptionsForAdmin(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

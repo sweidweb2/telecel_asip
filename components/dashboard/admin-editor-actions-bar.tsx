@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebarLayout } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,7 +23,7 @@ export function AdminEditorActionsBar({
   children: ReactNode;
   className?: string;
 }) {
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile } = useSidebarLayout();
 
   return (
     <div

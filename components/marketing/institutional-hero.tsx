@@ -59,12 +59,14 @@ export function InstitutionalHero({
         <div
           data-hero-copy
           className={cn(
-            "flex w-full max-w-3xl flex-col justify-end",
-            size === "default" && "min-h-[14rem] sm:min-h-[16rem]",
+            "flex w-full max-w-3xl flex-col",
+            size === "default"
+              ? "min-h-[16rem] justify-center sm:min-h-[18rem]"
+              : "justify-start",
           )}
         >
           {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#9ad1bf]">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-asip-mint">
               {eyebrow}
             </p>
           ) : null}

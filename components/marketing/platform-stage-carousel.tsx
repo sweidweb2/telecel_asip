@@ -120,7 +120,8 @@ export function PlatformStageCarousel({
                     )}
                     style={{ objectPosition: slide.position }}
                     sizes="(max-width: 768px) 70vw, 36vw"
-                    priority={index === 0}
+                    loading="lazy"
+                    fetchPriority="low"
                   />
                   {!isActive ? (
                     <span

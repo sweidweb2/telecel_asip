@@ -288,7 +288,7 @@ export function StartupDetailPageContent({
                   <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
                     {labels.founderPerspective}
                   </h2>
-                  <blockquote className="mt-4 space-y-3 border-l-4 border-[#dc395f] bg-muted/40 py-4 pl-5 pr-4 sm:pl-6">
+                  <blockquote className="mt-4 space-y-3 border-l-4 border-asip-coral bg-muted/40 py-4 pl-5 pr-4 sm:pl-6">
                     <p className="text-base leading-relaxed text-foreground sm:text-lg">
                       “{story.quote.text}”
                     </p>

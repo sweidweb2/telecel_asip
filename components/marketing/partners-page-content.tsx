@@ -1,3 +1,5 @@
+import "./partners-motion.css";
+
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { partnerLabelsFor } from "@/components/marketing/partner-labels";
 import { PartnersHeroSection } from "@/components/marketing/partners-hero-section";

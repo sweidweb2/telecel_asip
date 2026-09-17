@@ -1,12 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  e2eAdminClient,
-  e2eAnonClient,
-  e2eSuffix,
-  hasE2ECredentials,
-  loginAsAdmin,
-} from "./helpers";
+import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, adminListRow } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -52,15 +46,18 @@ test.describe("applications admin", () => {
     if (insertError) throw insertError;
 
     try {
-      await loginAsAdmin(page, "/dashboard/applications");
+      await loginAsEditor(page, "/dashboard/applications");
       await page.getByLabel("Search applications").fill(email);
       await expect(page).toHaveURL(new RegExp(`search=apps\\.admin\\.${suffix}`), {
         timeout: 15_000,
       });
-      const row = page.getByRole("row").filter({ hasText: email });
-      await expect(row).toBeVisible();
+      const row = adminListRow(
+        page,
+        "View application from Apps Admin E2E",
+      );
+      await expect(row).toBeVisible({ timeout: 15_000 });
 
-      await row.getByRole("button", { name: "Edit Apps Admin E2E" }).click();
+      await page.getByRole("button", { name: "Edit Apps Admin E2E" }).click();
       const dialog = page.getByRole("dialog");
       await dialog.getByLabel("Startup").fill(`${company} edited`);
       await dialog.getByRole("button", { name: "Save changes" }).click();
@@ -71,8 +68,6 @@ test.describe("applications admin", () => {
       ).toBeVisible({ timeout: 20_000 });
 
       await page
-        .getByRole("row")
-        .filter({ hasText: email })
         .getByRole("button", { name: /Delete Apps Admin E2E/ })
         .click();
       await page
@@ -84,9 +79,9 @@ test.describe("applications admin", () => {
           .locator("[data-sonner-toast]")
           .filter({ hasText: "Application deleted successfully." }),
       ).toBeVisible({ timeout: 20_000 });
-      await expect(page.getByRole("row").filter({ hasText: email })).toHaveCount(
-        0,
-      );
+      await expect(
+        adminListRow(page, "View application from Apps Admin E2E"),
+      ).toHaveCount(0);
     } finally {
       if (inserted?.id) {
         await admin.from("applications").delete().eq("id", inserted.id);
@@ -116,7 +111,7 @@ test.describe("applications admin", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fapplications");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
 
       const anon = e2eAnonClient();

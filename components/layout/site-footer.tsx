@@ -200,15 +200,6 @@ export function SiteFooter({ labels }: SiteFooterProps) {
             >
               {labels.apply.label}
             </Link>
-            <Link
-              href={labels.login.href}
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "min-h-11 w-full justify-center sm:w-auto",
-              )}
-            >
-              {labels.login.label}
-            </Link>
           </div>
         </div>
       </div>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
-import { MarketingContentPage } from "@/components/marketing/marketing-content-page";
+import { ApplyPageContent } from "@/components/marketing/apply-page-content";
+import { marketingCopyFor } from "@/constants/marketing-copy";
 import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -29,7 +31,7 @@ export async function generateMetadata({
           path: "/apply",
           title: "Apply - ASIP",
           description: "Prepare and share your ASIP venture profile.",
-          // Index only when applications are formally open; page stays reachable either way.
+          // Index only when applications are formally open; closed redirects to Register Interest.
           noIndex: !openApplications,
         },
   );
@@ -37,5 +39,19 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  return <MarketingContentPage locale={locale} slug="apply" />;
+  const [user, openApplications] = await Promise.all([
+    getAuthUser(),
+    getOpenApplications(),
+  ]);
+  const copy = marketingCopyFor(locale, "apply");
+
+  return (
+    <ApplyPageContent
+      locale={locale}
+      copy={copy}
+      mode="apply"
+      user={user}
+      openApplications={openApplications}
+    />
+  );
 }

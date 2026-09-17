@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import NextTopLoader from "nextjs-toploader";
 
+import { MotionSafeTopLoader } from "@/components/layout/motion-safe-top-loader";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { BoneyardSetup } from "@/components/skeleton/boneyard-setup";
 import { Toaster } from "@/components/ui/sonner";
@@ -39,7 +39,7 @@ export function DocumentShell({ lang, children }: DocumentShellProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <NextTopLoader color="#179191" height={2} showSpinner={false} />
+          <MotionSafeTopLoader />
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>

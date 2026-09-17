@@ -2,6 +2,13 @@ import type { Locale } from "@/constants/locales";
 
 export type ApplyFormMode = "register" | "apply";
 
+export type ApplyAuthGateLabels = {
+  title: string;
+  description: string;
+  signInLabel: string;
+  signUpLabel: string;
+};
+
 export type ApplyLabels = {
   formTitle: string;
   formDescription: string;
@@ -44,6 +51,9 @@ export type ApplyLabels = {
   submitLabel: string;
   submittingLabel: string;
   successToast: string;
+  successTitle: string;
+  successDescription: string;
+  successCloseLabel: string;
   turnstileHint: string;
 };
 
@@ -91,6 +101,10 @@ const EN_REGISTER: ApplyLabels = {
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
   successToast: "Thank you - your interest has been registered.",
+  successTitle: "Thank you",
+  successDescription:
+    "Your interest has been registered. The ASIP team will use this for updates when the next chapter opens.",
+  successCloseLabel: "Close",
   turnstileHint: "Complete the security check before submitting.",
 };
 
@@ -139,6 +153,10 @@ const EN_APPLY: ApplyLabels = {
   submitLabel: "Submit application",
   submittingLabel: "Submitting…",
   successToast: "Thank you - your application has been submitted.",
+  successTitle: "Thank you",
+  successDescription:
+    "Your application has been submitted. The ASIP team will review it and follow up when ready.",
+  successCloseLabel: "Close",
   turnstileHint: "Complete the security check before submitting.",
 };
 
@@ -186,6 +204,10 @@ const FR_REGISTER: ApplyLabels = {
   submitLabel: "Envoyer",
   submittingLabel: "Envoi…",
   successToast: "Merci - votre intérêt a bien été enregistré.",
+  successTitle: "Merci",
+  successDescription:
+    "Votre intérêt a bien été enregistré. L’équipe ASIP s’en servira pour les mises à jour lorsque le prochain chapitre ouvrira.",
+  successCloseLabel: "Fermer",
   turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
@@ -234,6 +256,10 @@ const FR_APPLY: ApplyLabels = {
   submitLabel: "Envoyer la candidature",
   submittingLabel: "Envoi…",
   successToast: "Merci - votre candidature a bien été envoyée.",
+  successTitle: "Merci",
+  successDescription:
+    "Votre candidature a bien été envoyée. L’équipe ASIP l’examinera et vous contactera le moment venu.",
+  successCloseLabel: "Fermer",
   turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
@@ -245,4 +271,43 @@ export function applyLabelsFor(
     return mode === "apply" ? FR_APPLY : FR_REGISTER;
   }
   return mode === "apply" ? EN_APPLY : EN_REGISTER;
+}
+
+export function applyAuthGateLabelsFor(
+  locale: Locale,
+  mode: ApplyFormMode = "register",
+): ApplyAuthGateLabels {
+  if (locale === "fr") {
+    return mode === "apply"
+      ? {
+          title: "Connexion requise pour candidater",
+          description:
+            "Créez un compte viewer ou connectez-vous, puis renvoyez votre candidature ASIP.",
+          signInLabel: "Se connecter",
+          signUpLabel: "Créer un compte",
+        }
+      : {
+          title: "Connexion requise pour manifester votre intérêt",
+          description:
+            "Créez un compte viewer ou connectez-vous, puis envoyez votre profil à l’équipe ASIP.",
+          signInLabel: "Se connecter",
+          signUpLabel: "Créer un compte",
+        };
+  }
+
+  return mode === "apply"
+    ? {
+        title: "Sign in to apply",
+        description:
+          "Create a viewer account or sign in, then submit your ASIP application.",
+        signInLabel: "Sign in",
+        signUpLabel: "Create account",
+      }
+    : {
+        title: "Sign in to register interest",
+        description:
+          "Create a viewer account or sign in, then share your profile with the ASIP team.",
+        signInLabel: "Sign in",
+        signUpLabel: "Create account",
+      };
 }

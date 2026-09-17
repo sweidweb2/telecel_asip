@@ -1,13 +1,14 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import { adminOrderAscending } from "@/lib/admin/list-sort";
 import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +25,7 @@ import { blogIdSchema, type BlogListQuery } from "@/validations/blog";
 export const BLOGS_CACHE_TAG = "blogs";
 
 const LIST_COLUMNS =
-  "id, slug, title, summary, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at, startup_id, cohort_id, sources, meta_title, meta_description" as const;
+  "id, title, status, is_featured, author_name, updated_at" as const;
 
 const DETAIL_COLUMNS =
   "id, slug, title, summary, body_html, categories, thumbnail_url, author_name, author_avatar_url, status, is_featured, reading_time_minutes, published_at, created_at, updated_at, startup_id, cohort_id, sources, meta_title, meta_description" as const;
@@ -47,13 +48,25 @@ async function fetchBlogsPage(
 ): Promise<BlogListResult> {
   const { from, to } = adminListRange(query.page, query.pageSize);
 
+  const isDefaultSort =
+    query.sort === "created_at" && query.dir === "desc";
+
   let request = supabase
     .from("blogs")
-    .select(LIST_COLUMNS, { count: "estimated" })
-    .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: true })
-    .range(from, to);
+    .select(LIST_COLUMNS, { count: "estimated" });
+
+  if (isDefaultSort) {
+    request = request
+      .order("is_featured", { ascending: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true });
+  } else {
+    request = request
+      .order(query.sort, { ascending: adminOrderAscending(query.dir) })
+      .order("id", { ascending: true });
+  }
+
+  request = request.range(from, to);
 
   if (query.status !== "all") {
     request = request.eq("status", query.status);
@@ -86,28 +99,12 @@ export type BlogListStats = {
 async function fetchBlogListStats(
   supabase: ServerClient,
 ): Promise<BlogListStats> {
-  const [total, published, draft, featured] = await Promise.all([
-    supabase.from("blogs").select("id", { count: "exact", head: true }),
-    supabase
-      .from("blogs")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "published"),
-    supabase
-      .from("blogs")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "draft"),
-    supabase
-      .from("blogs")
-      .select("id", { count: "exact", head: true })
-      .eq("is_featured", true),
+  return fetchAdminListStats(supabase, "blogs", [
+    "total",
+    "published",
+    "draft",
+    "featured",
   ]);
-
-  return {
-    total: countExact(total),
-    published: countExact(published),
-    draft: countExact(draft),
-    featured: countExact(featured),
-  };
 }
 
 export async function getBlogsPageData(
@@ -116,7 +113,7 @@ export async function getBlogsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: BlogListResult; stats: BlogListStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchBlogsPage(supabase, query),
@@ -146,7 +143,7 @@ export const getBlogByIdForAdmin = wrapCached(
     if (!blogIdSchema.safeParse(id).success) return { status: "not_found" };
 
     const supabase = await createClient();
-    if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+    if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
     const { data, error } = await supabase
       .from("blogs")
@@ -222,13 +219,13 @@ async function fetchRelatedPublishedBlogs(
 
 export const getPublishedBlogs = unstable_cache(
   fetchPublishedBlogs,
-  ["published-blogs"],
+  ["published-blogs-v2"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
 export const getPublishedBlogSlugRows = unstable_cache(
   fetchPublishedBlogSlugRows,
-  ["published-blog-slug-rows"],
+  ["published-blog-slug-rows-v2"],
   { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
 );
 
@@ -237,7 +234,7 @@ export async function getPublishedBlogBySlug(
 ): Promise<BlogPublicDetail | null> {
   return unstable_cache(
     async () => fetchPublishedBlogBySlug(slug),
-    ["published-blog-by-slug", slug],
+    ["published-blog-by-slug-v2", slug],
     { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
   )();
 }
@@ -248,7 +245,7 @@ export async function getRelatedPublishedBlogs(
 ): Promise<BlogPublicListItem[]> {
   return unstable_cache(
     async () => fetchRelatedPublishedBlogs(slug, limit),
-    ["related-published-blogs", slug, String(limit)],
+    ["related-published-blogs-v2", slug, String(limit)],
     { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
   )();
 }

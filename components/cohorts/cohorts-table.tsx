@@ -6,6 +6,7 @@ import { UsersRoundIcon } from "lucide-react";
 
 import { CohortRowActions } from "@/components/cohorts/cohort-row-actions";
 import { CohortsFilters } from "@/components/cohorts/cohorts-filters";
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -15,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { cohortEditPath, ROUTES } from "@/constants/routes";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { CohortListItem } from "@/types/cohort";
 import {
   CMS_PUBLISH_STATUS_LABELS,
@@ -35,6 +37,11 @@ export function CohortsTable({
   query: CohortListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search || undefined,
+    status: query.status === "all" ? undefined : query.status,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -54,8 +61,11 @@ export function CohortsTable({
       empty={
         <AdminEmptyState
           icon={UsersRoundIcon}
-          title="No cohorts found"
-          description="Try changing the filters, or create a new cohort."
+          isFiltered={isFiltered}
+          emptyTitle="No cohorts yet"
+          emptyDescription="Create the first cohort to manage programmes on the site."
+          noResultsTitle="No cohorts found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.cohortsNew}
           createLabel="New cohort"
         />
@@ -66,19 +76,16 @@ export function CohortsTable({
         pageSize: COHORT_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search || undefined,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {cohorts.map((cohort, index) => {
         const href = cohortEditPath(cohort.id);
         return (
-          <TableRow
+          <AdminClickableRow
             key={cohort.id}
-            className="cursor-pointer"
-            onClick={() => router.push(href)}
+            ariaLabel={`Edit cohort ${cohort.public_label}`}
+            onActivate={() => router.push(href)}
           >
             <AdminRowNumberCell
               page={query.page}
@@ -116,7 +123,7 @@ export function CohortsTable({
             >
               <CohortRowActions cohort={cohort} />
             </TableCell>
-          </TableRow>
+          </AdminClickableRow>
         );
       })}
     </AdminDataTable>

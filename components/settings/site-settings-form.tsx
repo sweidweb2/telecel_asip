@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { updateSiteSettings } from "@/actions/settings";
+import { updateEditorSiteSettings } from "@/actions/settings";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
@@ -15,70 +15,45 @@ import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  backupScheduleLabel,
-  backupScheduleSelectOptions,
-  type BackupScheduleValue,
-} from "@/constants/backup-schedule";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import {
-  updateSiteSettingsSchema,
-  type UpdateSiteSettingsInput,
+  updateEditorSiteSettingsSchema,
+  type UpdateEditorSiteSettingsInput,
 } from "@/validations/settings";
 
 type SiteSettingsFormProps = {
   openApplications: boolean;
   newsletterSignupEnabled: boolean;
-  backupTime: BackupScheduleValue;
 };
 
 export function SiteSettingsForm({
   openApplications,
   newsletterSignupEnabled,
-  backupTime,
 }: SiteSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
 
-  const scheduleOptions = useMemo(
-    () => backupScheduleSelectOptions(backupTime),
-    [backupTime],
-  );
-
   const {
-    control,
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors, isDirty },
-  } = useForm<UpdateSiteSettingsInput>({
-    resolver: zodResolver(updateSiteSettingsSchema),
+  } = useForm<UpdateEditorSiteSettingsInput>({
+    resolver: zodResolver(updateEditorSiteSettingsSchema),
     mode: "onChange",
     defaultValues: {
       openApplications,
       newsletterSignupEnabled,
-      backupTime,
     },
   });
 
   const isOpen = useWatch({ control, name: "openApplications" });
-  const isNewsletterOn = useWatch({
-    control,
-    name: "newsletterSignupEnabled",
-  });
-  const selectedBackupTime = useWatch({ control, name: "backupTime" });
 
-  function onSubmit(values: UpdateSiteSettingsInput) {
+  function onSubmit(values: UpdateEditorSiteSettingsInput) {
     startTransition(async () => {
-      const result = await updateSiteSettings(values);
+      const result = await updateEditorSiteSettings(values);
 
       if (result.status === "error") {
         toast.error(result.message);
@@ -106,10 +81,10 @@ export function SiteSettingsForm({
                 <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
               </div>
               <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When on, the public navbar promotes Apply and a status banner
-                appears under the nav. When off, the navbar promotes Register
-                Interest and the banner is hidden. Both pages stay live;
-                submissions still go to separate Leads and Applications tables.
+                When on, the public navbar promotes Apply, Apply accepts
+                submissions, and Register Interest redirects to Apply. When off,
+                Register Interest is the live intake, Apply redirects there, and
+                the open banner is hidden.
               </p>
             </div>
             <div className="flex min-h-11 items-center gap-3">
@@ -127,100 +102,25 @@ export function SiteSettingsForm({
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <Label htmlFor="newsletter-signup" className="text-base">
-                  Newsletter signup
-                </Label>
-                <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
-              </div>
-              <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When off, the Insights updates form stays inactive and rejects
-                submissions. Turn on only after privacy, routing, and owner are
-                confirmed.
-              </p>
+          <div className="grid gap-3 border-t pt-6">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-base font-medium">Newsletter signup</p>
+              <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
             </div>
-            <div className="flex min-h-11 items-center gap-3">
-              <Switch
-                id="newsletter-signup"
-                checked={isNewsletterOn}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  setValue("newsletterSignupEnabled", checked, {
-                    shouldDirty: true,
-                  })
-                }
-              />
-              <span className="text-sm font-medium">
-                {isNewsletterOn ? "Enabled" : "Disabled"}
-              </span>
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Phase 1 — informational only</p>
+              <p className="mt-1 max-w-prose">
+                The Insights newsletter module is hidden for phase 1. Public
+                signup is off and there is no toggle yet. Subscribers collected
+                earlier are listed under Newsletter.
+              </p>
             </div>
           </div>
 
-          <div className="grid gap-4 border-t pt-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <Label htmlFor="backup-time" className="text-base">
-                    Automated backup schedule
-                  </Label>
-                  <AdminFormSectionHelp help={SITE_SETTINGS_HELP.backup} />
-                </div>
-                <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                  Times use Lebanon (Asia/Beirut). Choose Off or a weekly
-                  Sunday/Monday 03:00 window. The hourly job follows this
-                  cadence. Run a one-shot from the Backup page.
-                </p>
-              </div>
-              <div className="grid w-full gap-3 sm:max-w-xs">
-                <Controller
-                  control={control}
-                  name="backupTime"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      items={scheduleOptions.map((option) => ({
-                        value: option.value,
-                        label: option.label,
-                      }))}
-                      onValueChange={(value) => {
-                        if (value) {
-                          field.onChange(value as BackupScheduleValue);
-                        }
-                      }}
-                      disabled={isPending}
-                    >
-                      <SelectTrigger
-                        id="backup-time"
-                        className="min-h-11 w-full"
-                      >
-                        <SelectValue placeholder="Select schedule" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {scheduleOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.backupTime ? (
-                  <p className="text-sm text-destructive">
-                    {errors.backupTime.message}
-                  </p>
-                ) : null}
-                <p className="text-xs text-muted-foreground">
-                  Current selection:{" "}
-                  {selectedBackupTime
-                    ? backupScheduleLabel(selectedBackupTime)
-                    : "-"}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="border-t pt-6 text-sm text-muted-foreground">
+            Automated backup schedule is managed by administrators on the Backup
+            page.
+          </p>
 
           <AdminEditorActionsBar>
             <span className="hidden sm:block" />

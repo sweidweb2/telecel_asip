@@ -14,7 +14,6 @@ export const PUBLIC_PAGE_SLUGS = [
   "faq",
   "terms",
   "privacy",
-  "lab",
 ] as const;
 
 export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
@@ -22,10 +21,13 @@ export type PublicPageSlug = (typeof PUBLIC_PAGE_SLUGS)[number];
 export const PUBLIC_PAGE_SLUG_SET = new Set<string>(PUBLIC_PAGE_SLUGS);
 
 /**
- * Always in the sitemap. `/apply` is added separately when
- * `site_settings.open_applications` is true (see `app/sitemap.ts`).
- * `/lab` is a temporary section playground — keep out of the sitemap.
+ * Always in the sitemap except intake exclusivity and HOLD alumni.
+ * `/apply` is added when open; `/register-interest` is included only when closed
+ * (see `app/sitemap.ts`). Alumni stays routable + `noindex` but out of the sitemap.
  */
 export const INDEXABLE_PAGE_SLUGS = PUBLIC_PAGE_SLUGS.filter(
-  (slug) => slug !== "apply" && slug !== "lab",
+  (slug) =>
+    slug !== "apply" &&
+    slug !== "register-interest" &&
+    slug !== "alumni",
 );

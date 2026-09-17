@@ -3,9 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const isCurrentUserAdmin = vi.fn();
 const range = vi.fn();
 const orderId = vi.fn(() => ({ range }));
-const orderCreated = vi.fn(() => ({ order: orderId }));
+const orderPrimary = vi.fn(() => ({ order: orderId }));
+const eqScope = vi.fn(() => ({ order: orderPrimary }));
+const eqStatus = vi.fn(() => ({ eq: eqScope, order: orderPrimary }));
 const selectBackups = vi.fn(() => ({
-  order: orderCreated,
+  eq: eqStatus,
+  order: orderPrimary,
 }));
 const inProfiles = vi.fn();
 const selectProfiles = vi.fn(() => ({ in: inProfiles }));
@@ -31,6 +34,15 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { getBackupsPageData } from "@/data/backups";
 
+const defaultQuery = {
+  page: 1,
+  pageSize: 25 as const,
+  status: "all" as const,
+  scope: "all" as const,
+  sort: "created_at" as const,
+  dir: "desc" as const,
+};
+
 describe("getBackupsPageData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +52,7 @@ describe("getBackupsPageData", () => {
     isCurrentUserAdmin.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
 
-    const result = await getBackupsPageData({ page: 1, pageSize: 25 });
+    const result = await getBackupsPageData(defaultQuery);
     expect(result.status).toBe("forbidden");
   });
 
@@ -81,11 +93,30 @@ describe("getBackupsPageData", () => {
       error: null,
     });
 
-    const result = await getBackupsPageData({ page: 1, pageSize: 25 });
+    const result = await getBackupsPageData(defaultQuery);
     expect(result.status).toBe("ok");
     if (result.status !== "ok") return;
     expect(result.total).toBe(2);
     expect(result.backups[0]?.actor_name).toBe("Ada Admin");
     expect(result.backups[1]?.actor_name).toBeNull();
+  });
+
+  it("applies status and scope filters when set", async () => {
+    isCurrentUserAdmin.mockResolvedValue(true);
+    range.mockResolvedValue({ data: [], error: null, count: 0 });
+
+    await getBackupsPageData({
+      ...defaultQuery,
+      status: "failed",
+      scope: "storage",
+      sort: "file_size",
+      dir: "asc",
+    });
+
+    expect(eqStatus).toHaveBeenCalledWith("status", "failed");
+    expect(eqScope).toHaveBeenCalledWith("scope", "storage");
+    expect(orderPrimary).toHaveBeenCalledWith("file_size", {
+      ascending: true,
+    });
   });
 });

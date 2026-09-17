@@ -1,9 +1,21 @@
 /** Pure serializers for backup JSON dumps and shared CSV helpers (Quick CSV). */
 
+/**
+ * Spreadsheet formula triggers (Excel / LibreOffice / Google Sheets).
+ * Leading whitespace does not remove the risk.
+ */
+const CSV_FORMULA_PREFIX = /^[\t\r ]*[=+\-@]/;
+
 export function escapeCsvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const text =
+  let text =
     typeof value === "object" ? JSON.stringify(value) : String(value);
+
+  // Force text so staff opening the CSV cannot execute injected formulas.
+  if (CSV_FORMULA_PREFIX.test(text)) {
+    text = `'${text}`;
+  }
+
   if (/[",\n\r]/.test(text)) {
     return `"${text.replaceAll('"', '""')}"`;
   }

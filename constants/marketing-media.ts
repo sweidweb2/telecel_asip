@@ -12,7 +12,7 @@ export const MARKETING_MEDIA = {
   programme: { src: "/asip-media/programme-mentor.webp", alt: { en: "A mentor working directly with an ASIP founder", fr: "Un mentor travaillant directement avec un fondateur ASIP" }, position: "center 40%" },
   founders: { src: "/asip-media/founders-community.webp", alt: { en: "ASIP founders and programme community", fr: "Fondateurs ASIP et communaute du programme" }, position: "center 42%" },
   impact: {
-    src: "/asip-media/impact-community.webp",
+    src: "/asip-media/impact-community-v2.webp",
     alt: {
       en: "ASIP founders, mentors, and partners celebrating Demo Day",
       fr: "Fondateurs, mentors et partenaires ASIP célébrant le Demo Day",

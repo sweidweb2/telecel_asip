@@ -43,5 +43,7 @@ export type ImpactMetricPublicItem = Pick<
   | "unit"
   | "impact_lens"
   | "display_locations"
+  | "period_start"
+  | "period_end"
   | "updated_at"
 >;

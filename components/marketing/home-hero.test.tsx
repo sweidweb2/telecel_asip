@@ -1,44 +1,63 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { HomeHero } from "@/components/marketing/home-hero";
 import { homeCopyFor } from "@/constants/home-copy";
-import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+
+vi.mock("next/image", () => ({
+  default: ({
+    src,
+    alt,
+  }: {
+    src: string;
+    alt: string;
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element -- test double for next/image
+    <img src={src} alt={alt} />
+  ),
+}));
+
+vi.mock("@/components/marketing/home-hero-continuum", () => ({
+  HomeHeroContinuum: () => <div data-testid="home-hero-continuum" />,
+}));
+
+vi.mock("@/components/marketing/home-hero-signal", () => ({
+  HomeHeroSignal: () => null,
+}));
 
 describe("HomeHero", () => {
-  it("renders brand, headline, continuum stills, and CTAs", () => {
+  it("renders brand, headline, and CTAs", () => {
     const copy = homeCopyFor("en");
+    const intake = intakeCtaFor("en", false);
 
     render(
-      <HomeHero locale="en" copy={copy.hero} openApplications={false} />,
+      <HomeHero locale="en" copy={copy.hero} intake={intake} />,
     );
 
     expect(
       screen.getByRole("heading", { level: 1, name: copy.hero.title }),
     ).toBeInTheDocument();
     expect(screen.getByText("ASIP")).toBeInTheDocument();
+    expect(screen.getByTestId("home-hero-continuum")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: copy.hero.primaryCta.label }),
     ).toHaveAttribute("href", "/en/founders");
     expect(
-      screen.getByRole("link", { name: "Register interest" }),
-    ).toHaveAttribute("href", "/en/register-interest");
-
-    const images = document.querySelectorAll(
-      ".home-hero-continuum-slide img",
-    );
-    expect(images).toHaveLength(HOME_HERO_CONTINUUM.length);
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
   });
 
   it("swaps intake CTA when applications are open", () => {
     const copy = homeCopyFor("en");
+    const intake = intakeCtaFor("en", true);
 
     render(
-      <HomeHero locale="en" copy={copy.hero} openApplications />,
+      <HomeHero locale="en" copy={copy.hero} intake={intake} />,
     );
 
     expect(
-      screen.getByRole("link", { name: "Apply to ASIP" }),
-    ).toHaveAttribute("href", "/en/apply");
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
   });
 });

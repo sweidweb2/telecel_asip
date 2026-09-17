@@ -66,4 +66,27 @@ describe("verifyTurnstileToken", () => {
       }),
     ).resolves.toBe(false);
   });
+
+  it("accepts Cloudflare always-pass test secret without action match", async () => {
+    vi.stubEnv(
+      "TURNSTILE_SECRET",
+      "1x0000000000000000000000000000000AA",
+    );
+    vi.stubEnv("TURNSTILE_HOSTNAMES", "localhost");
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        action: "test",
+        hostname: "localhost",
+      }),
+    }) as typeof fetch;
+
+    await expect(
+      verifyTurnstileToken({
+        token: "XXXX.DUMMY.TOKEN.XXXX",
+        expectedAction: TURNSTILE_CONTACT_ACTION,
+      }),
+    ).resolves.toBe(true);
+  });
 });

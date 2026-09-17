@@ -1,18 +1,21 @@
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
-import { HomeFounderSpotlightSection } from "@/components/marketing/home-founder-spotlight-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
+import { HomeLatestInsightsFallback } from "@/components/marketing/home-latest-insights-fallback";
+import { HomeLatestInsightsLoader } from "@/components/marketing/home-latest-insights-loader";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
-import type { ArticleListItem } from "@/types/article";
+import type { StartupCountryReach } from "@/types/startup";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
@@ -20,9 +23,9 @@ const HomePlatformModelSection = dynamic(() =>
   ),
 );
 
-const HomeLatestInsightsSection = dynamic(() =>
-  import("@/components/marketing/home-latest-insights-section").then(
-    (m) => m.HomeLatestInsightsSection,
+const HomeFounderSpotlightSection = dynamic(() =>
+  import("@/components/marketing/home-founder-spotlight-section").then(
+    (m) => m.HomeFounderSpotlightSection,
   ),
 );
 
@@ -31,22 +34,25 @@ type HomeImpactMetric = {
   claim_label: string;
   value: string;
   unit: string | null;
+  period_start?: string | null;
+  period_end?: string | null;
 };
 
 type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
-  articles: ArticleListItem[];
   openApplications: boolean;
+  countryReach: StartupCountryReach[];
 };
 
 export function HomePageContent({
   locale,
   metrics,
-  articles,
   openApplications,
+  countryReach,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
+  const intake = intakeCtaFor(locale, openApplications);
 
   return (
     <main>
@@ -67,11 +73,7 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero
-        locale={locale}
-        copy={copy.hero}
-        openApplications={openApplications}
-      />
+      <HomeHero locale={locale} copy={copy.hero} intake={intake} />
 
       <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 
@@ -80,12 +82,13 @@ export function HomePageContent({
       <HomeFounderSpotlightSection
         locale={locale}
         copy={copy.founders}
+        countryReach={countryReach}
       />
 
       <HomeOutcomesSection
         locale={locale}
         copy={copy.outcomes}
-        openApplications={openApplications}
+        intake={intake}
       />
 
       <HomeEcosystemSection locale={locale} copy={copy.ecosystem} />
@@ -95,14 +98,12 @@ export function HomePageContent({
       <HomeNextChapterSection
         locale={locale}
         copy={copy.nextChapter}
-        openApplications={openApplications}
+        intake={intake}
       />
 
-      <HomeLatestInsightsSection
-        locale={locale}
-        copy={copy.latest}
-        articles={articles}
-      />
+      <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
+        <HomeLatestInsightsLoader locale={locale} />
+      </Suspense>
     </main>
   );
 }

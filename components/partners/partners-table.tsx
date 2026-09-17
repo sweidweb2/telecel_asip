@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { HandshakeIcon, ImageOffIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -21,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { PartnerListItem } from "@/types/partner";
 import { PARTNER_PAGE_SIZE, type PartnerListQuery } from "@/validations/partner";
 
@@ -59,6 +61,12 @@ export function PartnersTable({
   query: PartnerListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search,
+    type: query.type === "all" ? undefined : query.type,
+    status: query.status === "all" ? undefined : query.status,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -80,8 +88,11 @@ export function PartnersTable({
       empty={
         <AdminEmptyState
           icon={HandshakeIcon}
-          title="No partners found"
-          description="Try changing the filters, or create a new partner."
+          isFiltered={isFiltered}
+          emptyTitle="No partners yet"
+          emptyDescription="Create the first partner to show on the site."
+          noResultsTitle="No partners found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.partnersNew}
           createLabel="New partner"
         />
@@ -92,18 +103,14 @@ export function PartnersTable({
         pageSize: PARTNER_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-          type: query.type === "all" ? undefined : query.type,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {partners.map((partner, index) => (
-        <TableRow
+        <AdminClickableRow
           key={partner.id}
-          className="cursor-pointer"
-          onClick={() => router.push(partnerDetailPath(partner.id))}
+          ariaLabel={`Edit partner ${partner.name}`}
+          onActivate={() => router.push(partnerDetailPath(partner.id))}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -163,7 +170,7 @@ export function PartnersTable({
           >
             <PartnerRowActions partner={partner} />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
   );

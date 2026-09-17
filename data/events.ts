@@ -1,15 +1,13 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
-import { format } from "date-fns";
-
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -87,30 +85,12 @@ export type EventListStats = {
 async function fetchEventListStats(
   supabase: ServerClient,
 ): Promise<EventListStats> {
-  const today = format(new Date(), "yyyy-MM-dd");
-
-  const [total, published, draft, upcoming] = await Promise.all([
-    supabase.from("events").select("id", { count: "exact", head: true }),
-    supabase
-      .from("events")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "published"),
-    supabase
-      .from("events")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "draft"),
-    supabase
-      .from("events")
-      .select("id", { count: "exact", head: true })
-      .gte("event_date", today),
+  return fetchAdminListStats(supabase, "events", [
+    "total",
+    "published",
+    "draft",
+    "upcoming",
   ]);
-
-  return {
-    total: countExact(total),
-    published: countExact(published),
-    draft: countExact(draft),
-    upcoming: countExact(upcoming),
-  };
 }
 
 export async function getEventsPageData(
@@ -126,7 +106,7 @@ export async function getEventsPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchEventsPage(supabase, query),
         fetchEventListStats(supabase),
       ]);
@@ -151,7 +131,7 @@ export const getEventByIdForAdmin = wrapCached(
       if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const [eventResult, linksResult] = await Promise.all([
         supabase
@@ -214,7 +194,7 @@ export async function getEventStartupOptions(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase

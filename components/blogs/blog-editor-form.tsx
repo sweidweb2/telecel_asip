@@ -12,12 +12,12 @@ import { toast } from "sonner";
 import {
   createBlog,
   deleteBlog,
-  loadBlogLinkOptions,
   removeBlogImage,
   updateBlog,
   uploadAuthorAvatar,
   uploadBlogThumbnail,
 } from "@/actions/blogs";
+import { loadBlogLinkOptions } from "@/actions/admin-pickers";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
@@ -25,7 +25,9 @@ import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +72,7 @@ import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
@@ -126,10 +129,10 @@ export function BlogEditorForm({
   blog,
   startups: initialStartups = [],
   cohorts: initialCohorts = [],
-  heading,
 }: BlogEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
   const [sourceDraft, setSourceDraft] = useState("");
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -327,24 +330,40 @@ export function BlogEditorForm({
         if (result.id && pendingCover) {
           const formData = new FormData();
           formData.set("file", pendingCover);
-          const uploadToast = toast.loading("Uploading image…");
-          const upload = await uploadBlogThumbnail(result.id, formData);
-          if (upload.status === "error") {
-            toast.error(upload.message, { id: uploadToast });
-          } else {
-            toast.dismiss(uploadToast);
+          setIsProcessingImage(true);
+          const uploadToast = toast.loading("Processing image…");
+          try {
+            const upload = await uploadBlogThumbnail(result.id, formData);
+            if (upload.status === "error") {
+              toast.error(
+                "Blog created, but the cover image could not be processed. Add it from the edit page.",
+                { id: uploadToast },
+              );
+            } else {
+              toast.dismiss(uploadToast);
+            }
+          } finally {
+            setIsProcessingImage(false);
           }
         }
 
         if (result.id && pendingAvatar) {
           const formData = new FormData();
           formData.set("file", pendingAvatar);
-          const uploadToast = toast.loading("Uploading image…");
-          const upload = await uploadAuthorAvatar(result.id, formData);
-          if (upload.status === "error") {
-            toast.error(upload.message, { id: uploadToast });
-          } else {
-            toast.dismiss(uploadToast);
+          setIsProcessingImage(true);
+          const uploadToast = toast.loading("Processing image…");
+          try {
+            const upload = await uploadAuthorAvatar(result.id, formData);
+            if (upload.status === "error") {
+              toast.error(
+                "Blog created, but the author image could not be processed. Add it from the edit page.",
+                { id: uploadToast },
+              );
+            } else {
+              toast.dismiss(uploadToast);
+            }
+          } finally {
+            setIsProcessingImage(false);
           }
         }
 
@@ -366,13 +385,18 @@ export function BlogEditorForm({
       if (pendingCover) {
         const formData = new FormData();
         formData.set("file", pendingCover);
-        const uploadToast = toast.loading("Uploading image…");
-        const upload = await uploadBlogThumbnail(blog.id, formData);
-        if (upload.status === "error") {
-          toast.error(upload.message, { id: uploadToast });
-          return;
+        setIsProcessingImage(true);
+        const uploadToast = toast.loading("Processing image…");
+        try {
+          const upload = await uploadBlogThumbnail(blog.id, formData);
+          if (upload.status === "error") {
+            toast.error(upload.message, { id: uploadToast });
+            return;
+          }
+          toast.dismiss(uploadToast);
+        } finally {
+          setIsProcessingImage(false);
         }
-        toast.dismiss(uploadToast);
       } else if (removeCoverOnSave) {
         const remove = await removeBlogImage({
           id: blog.id,
@@ -387,13 +411,18 @@ export function BlogEditorForm({
       if (pendingAvatar) {
         const formData = new FormData();
         formData.set("file", pendingAvatar);
-        const uploadToast = toast.loading("Uploading image…");
-        const upload = await uploadAuthorAvatar(blog.id, formData);
-        if (upload.status === "error") {
-          toast.error(upload.message, { id: uploadToast });
-          return;
+        setIsProcessingImage(true);
+        const uploadToast = toast.loading("Processing image…");
+        try {
+          const upload = await uploadAuthorAvatar(blog.id, formData);
+          if (upload.status === "error") {
+            toast.error(upload.message, { id: uploadToast });
+            return;
+          }
+          toast.dismiss(uploadToast);
+        } finally {
+          setIsProcessingImage(false);
         }
-        toast.dismiss(uploadToast);
       } else if (removeAvatarOnSave) {
         const remove = await removeBlogImage({ id: blog.id, kind: "author" });
         if (remove.status === "error") {
@@ -504,6 +533,7 @@ export function BlogEditorForm({
 
   return (
     <>
+    <UnsavedChangesGuard enabled={isDirty && !isPending} />
     <form
       className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       onSubmit={(event) => {
@@ -513,13 +543,10 @@ export function BlogEditorForm({
     >
       <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            {heading}
-          </h2>
           <Badge variant={status === "published" ? "default" : "secondary"}>
             {status === "published" ? "Published" : "Draft"}
           </Badge>
-          {isFeatured ? <Badge variant="outline">Featured hero</Badge> : null}
+          {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
         </div>
         <AdminFormDevTools
           disabled={isPending}
@@ -567,7 +594,7 @@ export function BlogEditorForm({
               </FieldLabel>
               <Input
                 id="blog-title"
-                className="min-h-11 bg-white dark:bg-card"
+                className="min-h-11"
                 placeholder="e.g. Improve your design skills"
                 disabled={isPending}
                 maxLength={BLOG_TITLE_MAX}
@@ -583,7 +610,7 @@ export function BlogEditorForm({
                 })}
               />
               {errors.title ? (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
+                <AdminFieldError message={errors.title.message} />
               ) : null}
             </div>
             <div className="grid gap-2">
@@ -595,7 +622,7 @@ export function BlogEditorForm({
               </FieldLabel>
               <Input
                 id="blog-slug"
-                className="min-h-11 bg-white dark:bg-card"
+                className="min-h-11"
                 placeholder="e.g. improve-your-design-skills"
                 disabled={isPending}
                 maxLength={BLOG_SLUG_MAX}
@@ -607,7 +634,7 @@ export function BlogEditorForm({
                 })}
               />
               {errors.slug ? (
-                <p className="text-sm text-destructive">{errors.slug.message}</p>
+                <AdminFieldError message={errors.slug.message} />
               ) : null}
             </div>
             <div className="grid gap-2 sm:col-span-2 xl:col-span-1">
@@ -619,7 +646,7 @@ export function BlogEditorForm({
               </FieldLabel>
               <Input
                 id="blog-author"
-                className="min-h-11 bg-white dark:bg-card"
+                className="min-h-11"
                 placeholder="e.g. Amélie Laurent"
                 disabled={isPending}
                 maxLength={BLOG_AUTHOR_NAME_MAX}
@@ -627,9 +654,7 @@ export function BlogEditorForm({
                 {...register("authorName")}
               />
               {errors.authorName ? (
-                <p className="text-sm text-destructive">
-                  {errors.authorName.message}
-                </p>
+                <AdminFieldError message={errors.authorName.message} />
               ) : null}
             </div>
             </CardContent>
@@ -655,7 +680,7 @@ export function BlogEditorForm({
             <Textarea
               id="blog-summary"
               rows={3}
-              className="min-h-24 bg-white dark:bg-card"
+              className="min-h-24"
               placeholder="Short summary shown on cards and search results"
               disabled={isPending}
               maxLength={BLOG_SUMMARY_MAX}
@@ -663,7 +688,7 @@ export function BlogEditorForm({
               {...register("summary")}
             />
             {errors.summary ? (
-              <p className="text-sm text-destructive">{errors.summary.message}</p>
+              <AdminFieldError message={errors.summary.message} />
             ) : null}
             </CardContent>
           </Card>
@@ -691,14 +716,11 @@ export function BlogEditorForm({
                   onChange={field.onChange}
                   disabled={isPending}
                   placeholder="Write the article body…"
-                  className="bg-white dark:bg-card"
                 />
               )}
             />
             {errors.bodyHtml ? (
-              <p className="text-sm text-destructive">
-                {errors.bodyHtml.message}
-              </p>
+              <AdminFieldError message={errors.bodyHtml.message} />
             ) : null}
             </CardContent>
           </Card>
@@ -804,16 +826,14 @@ export function BlogEditorForm({
                 </FieldLabel>
                 <Input
                   id="blog-meta-title"
-                  className="min-h-11 bg-white dark:bg-card"
+                  className="min-h-11"
                   maxLength={BLOG_META_TITLE_MAX}
                   disabled={isPending}
                   placeholder="e.g. Improve your design skills"
                   {...register("metaTitle")}
                 />
                 {errors.metaTitle ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaTitle.message}
-                  </p>
+                  <AdminFieldError message={errors.metaTitle.message} />
                 ) : null}
               </div>
 
@@ -827,16 +847,13 @@ export function BlogEditorForm({
                 <Textarea
                   id="blog-meta-description"
                   rows={3}
-                  className="bg-white dark:bg-card"
                   maxLength={BLOG_META_DESCRIPTION_MAX}
                   disabled={isPending}
                   placeholder="Short description for search results"
                   {...register("metaDescription")}
                 />
                 {errors.metaDescription ? (
-                  <p className="text-sm text-destructive">
-                    {errors.metaDescription.message}
-                  </p>
+                  <AdminFieldError message={errors.metaDescription.message} />
                 ) : null}
               </div>
 
@@ -846,7 +863,7 @@ export function BlogEditorForm({
                 </FieldLabel>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     placeholder="URL or citation, then Add"
                     value={sourceDraft}
                     disabled={isPending}
@@ -887,11 +904,11 @@ export function BlogEditorForm({
                     ))}
                   </ul>
                 ) : null}
-                {errors.sources ? (
-                  <p className="text-sm text-destructive">
-                    {errors.sources.message ?? errors.sources.root?.message}
-                  </p>
-                ) : null}
+                <AdminFieldError
+                  message={
+                    errors.sources?.message ?? errors.sources?.root?.message
+                  }
+                />
               </div>
             </CardContent>
           </Card>
@@ -901,7 +918,7 @@ export function BlogEditorForm({
               <CardHeader className="border-b">
                 <CardTitle>Publishing</CardTitle>
                 <CardDescription>
-                  Visibility and hero placement
+                  Visibility and featured placement
                 </CardDescription>
                 <CardAction>
                   <AdminFormSectionHelp help={BLOG_EDITOR_HELP.publishing} />
@@ -959,13 +976,11 @@ export function BlogEditorForm({
                         : "font-normal"
                     }
                   >
-                    Featured hero (only one at a time)
+                    Featured (only one at a time)
                   </Label>
                 </div>
                 {errors.isFeatured ? (
-                  <p className="text-sm text-destructive">
-                    {errors.isFeatured.message}
-                  </p>
+                  <AdminFieldError message={errors.isFeatured.message} />
                 ) : null}
               </CardContent>
             </Card>
@@ -1112,6 +1127,7 @@ export function BlogEditorForm({
                   />
                 ) : null}
               </div>
+              <AdminImageProcessingBanner active={isProcessingImage} />
             </CardContent>
           </Card>
 
@@ -1154,7 +1170,7 @@ export function BlogEditorForm({
                 })}
               </div>
               <Input
-                className="min-h-11 bg-white dark:bg-card"
+                className="min-h-11"
                 placeholder="Add custom tag and press Enter"
                 disabled={isPending}
                 onKeyDown={(event) => {
@@ -1191,20 +1207,23 @@ export function BlogEditorForm({
                   ))}
                 </ul>
               ) : null}
-              {errors.categories ? (
-                <p className="text-sm text-destructive">
-                  {typeof errors.categories.message === "string"
+              <AdminFieldError
+                message={
+                  typeof errors.categories?.message === "string"
                     ? errors.categories.message
-                    : errors.categories.root?.message ??
-                      errors.categories[0]?.message}
-                </p>
-              ) : null}
+                    : (errors.categories?.root?.message ??
+                      errors.categories?.[0]?.message)
+                }
+              />
             </CardContent>
           </Card>
         </aside>
       </div>
 
       <AdminEditorActionsBar>
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         {mode === "edit" ? (
           <Button
             type="button"
@@ -1232,7 +1251,7 @@ export function BlogEditorForm({
           {isPending ? (
             <>
               <Loader2Icon className="animate-spin" />
-              Saving…
+              {isProcessingImage ? "Processing image…" : "Saving…"}
             </>
           ) : mode === "create" ? (
             "Create blog"
@@ -1240,6 +1259,8 @@ export function BlogEditorForm({
             "Save changes"
           )}
         </Button>
+          </div>
+        </div>
       </AdminEditorActionsBar>
     </form>
 

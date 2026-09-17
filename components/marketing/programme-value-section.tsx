@@ -70,12 +70,12 @@ export function ProgrammeValueSection({ copy }: ProgrammeValueSectionProps) {
               >
                 <article className="group flex h-full flex-col gap-3 outline-none focus-visible:outline-none">
                   <Icon
-                    className="size-5 shrink-0 text-white/65 transition-colors duration-200 group-hover:text-[#9ad1bf] group-focus-within:text-[#9ad1bf] sm:size-[1.35rem]"
+                    className="size-5 shrink-0 text-white/65 transition-colors duration-200 group-hover:text-asip-mint group-focus-within:text-asip-mint sm:size-[1.35rem]"
                     strokeWidth={1.5}
                     aria-hidden
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-heading text-base font-semibold tracking-tight text-white transition-colors duration-200 group-hover:text-[#9ad1bf] group-focus-within:text-[#9ad1bf] sm:text-lg">
+                    <h3 className="font-heading text-base font-semibold tracking-tight text-white transition-colors duration-200 group-hover:text-asip-mint group-focus-within:text-asip-mint sm:text-lg">
                       {item.title}
                     </h3>
                     <p className="mt-1.5 text-sm leading-6 text-white/70 sm:text-[0.9375rem] sm:leading-7">

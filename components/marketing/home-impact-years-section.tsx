@@ -10,7 +10,17 @@ export type HomeImpactYearsMetric = {
   claim_label: string;
   value: string;
   unit: string | null;
+  period_start?: string | null;
+  period_end?: string | null;
 };
+
+function metricPeriod(metric: HomeImpactYearsMetric) {
+  if (!metric.period_start && !metric.period_end) return null;
+  const year = (value?: string | null) => value?.slice(0, 4);
+  const start = year(metric.period_start);
+  const end = year(metric.period_end);
+  return start && end && start !== end ? `${start}–${end}` : end ?? start;
+}
 
 type HomeImpactYearsSectionProps = {
   copy: HomePageCopy["impactYears"];
@@ -89,8 +99,9 @@ export function HomeImpactYearsSection({
 
             {metrics.length > 0 ? (
               <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
-                {metrics.map((metric) => (
-                  <li key={metric.id} className="min-w-0">
+                {metrics.map((metric) => {
+                  const period = metricPeriod(metric);
+                  return <li key={metric.id} className="min-w-0" data-reveal="fade">
                     <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
                       {metric.value}
                       {metric.unit ? (
@@ -102,8 +113,9 @@ export function HomeImpactYearsSection({
                     <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
                       {metric.claim_label}
                     </p>
+                    {period ? <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{period}</p> : null}
                   </li>
-                ))}
+                })}
               </ul>
             ) : null}
 

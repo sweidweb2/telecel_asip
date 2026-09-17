@@ -1,3 +1,4 @@
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import { createClient } from "@/lib/supabase/server";
 
 export type InboxTableStats = {
@@ -14,44 +15,19 @@ export type InboxStatsTable =
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
-function countOrThrow(result: {
-  count: number | null;
-  error: { message: string } | null;
-}): number {
-  if (result.error) throw result.error;
-  return result.count ?? 0;
-}
+const INBOX_STAT_KEYS = [
+  "total",
+  "unread",
+  "reviewed",
+  "last7Days",
+] as const satisfies readonly (keyof InboxTableStats)[];
 
 /**
- * Exact head counts for one inbox table (total / unread / reviewed / last 7 days).
- * Four parallel PostgREST count queries — CMS volume stays small.
+ * Inbox pipeline cards via `get_admin_list_stats` (one round-trip).
  */
 export async function fetchInboxTableStats(
   supabase: ServerClient,
   table: InboxStatsTable,
 ): Promise<InboxTableStats> {
-  const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-
-  const [total, unread, reviewed, last7Days] = await Promise.all([
-    supabase.from(table).select("id", { count: "exact", head: true }),
-    supabase
-      .from(table)
-      .select("id", { count: "exact", head: true })
-      .eq("inbox_status", "unread"),
-    supabase
-      .from(table)
-      .select("id", { count: "exact", head: true })
-      .eq("inbox_status", "reviewed"),
-    supabase
-      .from(table)
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", since7),
-  ]);
-
-  return {
-    total: countOrThrow(total),
-    unread: countOrThrow(unread),
-    reviewed: countOrThrow(reviewed),
-    last7Days: countOrThrow(last7Days),
-  };
+  return fetchAdminListStats(supabase, table, INBOX_STAT_KEYS);
 }

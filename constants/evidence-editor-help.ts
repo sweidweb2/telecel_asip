@@ -34,17 +34,17 @@ export const EVIDENCE_EDITOR_HELP = {
   },
   governance: {
     title: "Governance",
-    intro: "Verification and permission state for using this evidence publicly.",
+    intro: "Verification and permission state for using this evidence with impact metrics.",
     fields: [
       {
         name: "Status",
         detail:
-          "Workflow state (e.g. draft, verified). Affects whether linked metrics should go public.",
+          "One of: verified, pending, outdated, disputed, not for publication. Verified evidence is what linked public metrics should rest on.",
       },
       {
         name: "Permission",
         detail:
-          "Whether the source may be cited or shown publicly. Align with legal/comms clearance.",
+          "Whether the source may be cited or shown publicly (public, internal only, partner approval required, legal review required). Align with legal/comms clearance.",
       },
       {
         name: "Last verified / review date",

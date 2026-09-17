@@ -9,11 +9,21 @@ export type LoginLabels = {
   passwordPlaceholder: string;
   showPassword: string;
   hidePassword: string;
+  forgotPasswordLink: string;
+  forgotPasswordTitle: string;
+  forgotPasswordBody: string;
+  forgotPasswordEmailLabel: string;
+  forgotPasswordClose: string;
   submitLabel: string;
   submittingLabel: string;
   noAccountPrompt: string;
   signUpLink: string;
   successToast: string;
+  turnstileHint: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type SignupLabels = {
@@ -24,13 +34,19 @@ export type SignupLabels = {
   emailLabel: string;
   emailPlaceholder: string;
   passwordLabel: string;
+  passwordPlaceholder: string;
   confirmPasswordLabel: string;
   submitLabel: string;
   submittingLabel: string;
   hasAccountPrompt: string;
   loginLink: string;
-  developerNote: string;
+  viewerNote: string;
   successToast: string;
+  turnstileHint: string;
+  googleLabel: string;
+  googleLoadingLabel: string;
+  dividerLabel: string;
+  googleError: string;
 };
 
 export type AuthActionMessages = {
@@ -45,6 +61,7 @@ export type AuthActionMessages = {
   accountCreated: string;
   confirmEmail: string;
   signedIn: string;
+  verificationFailed: string;
 };
 
 const LOGIN: Record<Locale, LoginLabels> = {
@@ -54,14 +71,25 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
-    passwordPlaceholder: "••••••••",
+    passwordPlaceholder: "Enter your password",
     showPassword: "Show password",
     hidePassword: "Hide password",
+    forgotPasswordLink: "Forgot password?",
+    forgotPasswordTitle: "Reset password",
+    forgotPasswordBody:
+      "There is no self-serve password reset. Email the ASIP team and they will help you regain access.",
+    forgotPasswordEmailLabel: "Contact email",
+    forgotPasswordClose: "Close",
     submitLabel: "Sign in",
     submittingLabel: "Signing in…",
     noAccountPrompt: "No account?",
     signUpLink: "Sign up",
     successToast: "Signed in.",
+    turnstileHint: "Complete the security check before signing in.",
+    googleLabel: "Continue with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or continue with email",
+    googleError: "Could not start Google sign-in. Please try again.",
   },
   fr: {
     title: "Connexion",
@@ -69,52 +97,77 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailLabel: "E-mail",
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
-    passwordPlaceholder: "••••••••",
+    passwordPlaceholder: "Entrez votre mot de passe",
     showPassword: "Afficher le mot de passe",
     hidePassword: "Masquer le mot de passe",
+    forgotPasswordLink: "Mot de passe oublié ?",
+    forgotPasswordTitle: "Réinitialiser le mot de passe",
+    forgotPasswordBody:
+      "Il n’y a pas de réinitialisation en libre-service. Écrivez à l’équipe ASIP pour récupérer l’accès.",
+    forgotPasswordEmailLabel: "E-mail de contact",
+    forgotPasswordClose: "Fermer",
     submitLabel: "Se connecter",
     submittingLabel: "Connexion…",
     noAccountPrompt: "Pas de compte ?",
     signUpLink: "S’inscrire",
     successToast: "Connecté.",
+    turnstileHint: "Complétez la vérification de sécurité avant de vous connecter.",
+    googleLabel: "Continuer avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou continuer avec l’e-mail",
+    googleError: "Impossible de lancer la connexion Google. Réessayez.",
   },
 };
 
 const SIGNUP: Record<Locale, SignupLabels> = {
   en: {
     title: "Sign up",
-    description: "Create a developer admin account to access the dashboard.",
+    description:
+      "Create an account to register interest or apply to ASIP.",
     nameLabel: "Name",
     namePlaceholder: "Your name",
     emailLabel: "Email",
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
+    passwordPlaceholder: "Enter your password",
     confirmPasswordLabel: "Confirm password",
     submitLabel: "Create account",
     submittingLabel: "Creating account…",
     hasAccountPrompt: "Already have an account?",
     loginLink: "Login",
-    developerNote:
-      "Developer testing only - new accounts receive the admin role.",
+    viewerNote:
+      "New accounts are viewers. They can use intake forms, not the Editor or Admin panels.",
     successToast: "Account created.",
+    turnstileHint: "Complete the security check before creating your account.",
+    googleLabel: "Sign up with Google",
+    googleLoadingLabel: "Redirecting…",
+    dividerLabel: "or sign up with email",
+    googleError: "Could not start Google sign-up. Please try again.",
   },
   fr: {
     title: "Inscription",
     description:
-      "Créez un compte admin développeur pour accéder au tableau de bord.",
+      "Créez un compte pour manifester votre intérêt ou candidater à ASIP.",
     nameLabel: "Nom",
     namePlaceholder: "Votre nom",
     emailLabel: "E-mail",
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
+    passwordPlaceholder: "Entrez votre mot de passe",
     confirmPasswordLabel: "Confirmer le mot de passe",
     submitLabel: "Créer un compte",
     submittingLabel: "Création…",
     hasAccountPrompt: "Déjà un compte ?",
     loginLink: "Connexion",
-    developerNote:
-      "Réservé aux tests développeur - les nouveaux comptes reçoivent le rôle admin.",
+    viewerNote:
+      "Les nouveaux comptes sont des viewers. Ils peuvent utiliser les formulaires d’admission, pas le tableau de bord admin.",
     successToast: "Compte créé.",
+    turnstileHint:
+      "Complétez la vérification de sécurité avant de créer votre compte.",
+    googleLabel: "S’inscrire avec Google",
+    googleLoadingLabel: "Redirection…",
+    dividerLabel: "ou s’inscrire avec l’e-mail",
+    googleError: "Impossible de lancer l’inscription Google. Réessayez.",
   },
 };
 
@@ -132,6 +185,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     accountCreated: "Account created.",
     confirmEmail: "Check your email to confirm your account, then sign in.",
     signedIn: "Signed in.",
+    verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
     invalidCredentials: "E-mail ou mot de passe invalide.",
@@ -147,6 +201,8 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     confirmEmail:
       "Vérifiez votre e-mail pour confirmer votre compte, puis connectez-vous.",
     signedIn: "Connecté.",
+    verificationFailed:
+      "La vérification de sécurité a échoué. Veuillez réessayer.",
   },
 };
 

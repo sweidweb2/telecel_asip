@@ -33,6 +33,18 @@ export function BlogArticlesTabs({
 }: BlogArticlesTabsProps) {
   const [tab, setTab] = useState<BlogTabId>("all");
 
+  const visibleTabs = useMemo(
+    () =>
+      labels.tabs.filter(
+        (item) =>
+          item.id === "all" ||
+          articles.some((article) =>
+            articleMatchesTab(articleCategories(article), item.id),
+          ),
+      ),
+    [articles, labels.tabs],
+  );
+
   const filteredArticles = useMemo(() => {
     if (tab === "all") return articles;
     return articles.filter((article) =>
@@ -54,7 +66,7 @@ export function BlogArticlesTabs({
           variant="default"
           className="mx-auto h-auto w-fit max-w-full flex-wrap justify-center gap-1 p-1 group-data-horizontal/tabs:h-auto"
         >
-          {labels.tabs.map((item) => (
+          {visibleTabs.map((item) => (
             <TabsTrigger
               key={item.id}
               value={item.id}

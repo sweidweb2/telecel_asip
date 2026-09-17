@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { ChartColumnIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -19,6 +20,7 @@ import {
   IMPACT_PUBLISH_STATUS_LABELS,
 } from "@/constants/impact-metric-labels";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { ImpactMetricListItem } from "@/types/impact-metric";
 import {
   IMPACT_METRIC_PAGE_SIZE,
@@ -48,6 +50,13 @@ export function ImpactMetricsTable({
   query: ImpactMetricListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search,
+    lens: query.lens === "all" ? undefined : query.lens,
+    publishStatus:
+      query.publishStatus === "all" ? undefined : query.publishStatus,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -68,8 +77,11 @@ export function ImpactMetricsTable({
       empty={
         <AdminEmptyState
           icon={ChartColumnIcon}
-          title="No impact metrics found"
-          description="Try changing the filters, or create a new metric."
+          isFiltered={isFiltered}
+          emptyTitle="No impact metrics yet"
+          emptyDescription="Create the first impact metric to publish on the site."
+          noResultsTitle="No impact metrics found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.impactMetricsNew}
           createLabel="New metric"
         />
@@ -80,19 +92,14 @@ export function ImpactMetricsTable({
         pageSize: IMPACT_METRIC_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-          lens: query.lens === "all" ? undefined : query.lens,
-          publishStatus:
-            query.publishStatus === "all" ? undefined : query.publishStatus,
-        },
+        filters: listFilters,
       }}
     >
       {metrics.map((metric, index) => (
-        <TableRow
+        <AdminClickableRow
           key={metric.id}
-          className="cursor-pointer"
-          onClick={() => router.push(impactMetricDetailPath(metric.id))}
+          ariaLabel={`Edit impact metric ${metric.claim_label}`}
+          onActivate={() => router.push(impactMetricDetailPath(metric.id))}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -149,7 +156,7 @@ export function ImpactMetricsTable({
           >
             <ImpactMetricRowActions metric={metric} />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
   );

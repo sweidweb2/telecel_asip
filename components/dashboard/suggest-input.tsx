@@ -22,6 +22,7 @@ function useIsClient() {
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useAnchoredListReposition } from "@/hooks/use-anchored-list-reposition";
 import { cn } from "@/lib/utils";
 
 type SuggestInputProps = {
@@ -90,20 +91,7 @@ export function SuggestInput({
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 
-  useEffect(() => {
-    if (!showList) return;
-
-    function onReposition() {
-      updateListBox();
-    }
-
-    window.addEventListener("resize", onReposition);
-    window.addEventListener("scroll", onReposition, true);
-    return () => {
-      window.removeEventListener("resize", onReposition);
-      window.removeEventListener("scroll", onReposition, true);
-    };
-  }, [showList, updateListBox]);
+  useAnchoredListReposition(showList, updateListBox);
 
   useEffect(() => {
     if (!open) return;
@@ -297,20 +285,7 @@ export function SuggestLinesInput({
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 
-  useEffect(() => {
-    if (!showList) return;
-
-    function onReposition() {
-      updateListBox();
-    }
-
-    window.addEventListener("resize", onReposition);
-    window.addEventListener("scroll", onReposition, true);
-    return () => {
-      window.removeEventListener("resize", onReposition);
-      window.removeEventListener("scroll", onReposition, true);
-    };
-  }, [showList, updateListBox]);
+  useAnchoredListReposition(showList, updateListBox);
 
   useEffect(() => {
     if (!open) return;

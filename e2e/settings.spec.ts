@@ -5,6 +5,9 @@ import {
   e2eSuffix,
   hasE2ECredentials,
   loginAsAdmin,
+  loginAsEditor,
+  submitLoginForm,
+  dismissToasts,
 } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
@@ -17,7 +20,7 @@ test.describe("site settings", () => {
     );
   });
 
-  test("admin can change backup schedule without free text", async ({
+  test("admin can change backup schedule on the backup page", async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -29,22 +32,25 @@ test.describe("site settings", () => {
       .maybeSingle();
 
     try {
-      await loginAsAdmin(page, "/dashboard/settings");
+      await loginAsAdmin(page, "/admin/backup");
       const schedule = page.getByRole("combobox", {
-        name: /automated backup schedule/i,
+        name: /backup schedule/i,
       });
       await expect(schedule).toBeVisible();
 
       const target =
-        before?.backup_time === "daily_12" ? "daily_18" : "daily_12";
+        before?.backup_time === "weekly_sun_03"
+          ? "weekly_mon_03"
+          : "weekly_sun_03";
       const optionLabel =
-        target === "daily_12"
-          ? /Daily · 12:00 \(Lebanon\)/i
-          : /Daily · 18:00 \(Lebanon\)/i;
+        target === "weekly_sun_03"
+          ? /Weekly · Sunday 03:00 \(Lebanon\)/i
+          : /Weekly · Monday 03:00 \(Lebanon\)/i;
 
       await schedule.click();
       await page.getByRole("option", { name: optionLabel }).click();
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await dismissToasts(page);
+      await page.getByRole("button", { name: "Save settings" }).click();
       await expect(
         page
           .locator("[data-sonner-toast]")
@@ -67,34 +73,19 @@ test.describe("site settings", () => {
     }
   });
 
-  test("admin can toggle newsletter signup", async ({ page }) => {
-    test.setTimeout(90_000);
-    const admin = e2eAdminClient();
-    const { data: before } = await admin
-      .from("site_settings")
-      .select("open_applications, newsletter_signup_enabled")
-      .eq("id", 1)
-      .maybeSingle();
+  test("admin can open settings in the admin shell", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsAdmin(page, "/admin/settings");
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await expect(page.getByText("Applications open")).toBeVisible();
+  });
 
-    try {
-      await loginAsAdmin(page, "/dashboard/settings");
-      const newsletter = page.locator("#newsletter-signup");
-      const wasOn = await newsletter.isChecked();
-      await newsletter.click();
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(
-        page.locator("[data-sonner-toast]").filter({ hasText: "Settings saved" }),
-      ).toBeVisible({ timeout: 20_000 });
-      await expect(newsletter).toBeChecked({ checked: !wasOn });
-    } finally {
-      await admin
-        .from("site_settings")
-        .update({
-          open_applications: Boolean(before?.open_applications),
-          newsletter_signup_enabled: Boolean(before?.newsletter_signup_enabled),
-        })
-        .eq("id", 1);
-    }
+  test("newsletter signup shows phase 1 note only", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsEditor(page, "/dashboard/settings");
+    await expect(page.getByText("Newsletter signup")).toBeVisible();
+    await expect(page.getByText("Phase 1 — informational only")).toBeVisible();
+    await expect(page.locator("#newsletter-signup")).toHaveCount(0);
   });
 
   test("viewer cannot open settings", async ({ page }) => {
@@ -116,7 +107,7 @@ test.describe("site settings", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fsettings");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
     } finally {
       if (created.user?.id) {

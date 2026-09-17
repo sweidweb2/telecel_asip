@@ -19,6 +19,7 @@ function reservedSeats(): ImpactCaseStudyPublic[] {
   return [0, 1, 2].map((index) => ({
     id: `pending-slot-${index}`,
     startupId: null,
+    title: "",
     name: "",
     slug: "",
     founderNames: [],

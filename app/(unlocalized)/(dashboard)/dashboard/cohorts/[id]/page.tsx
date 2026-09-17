@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getCohortByIdForAdmin } from "@/data/cohorts";
 
@@ -24,9 +25,9 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getCohortByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Cohort | ASIP Admin" };
+    return { title: "Cohort | ASIP Editor" };
   }
-  return { title: `${result.cohort.public_label} | ASIP Admin` };
+  return { title: `${result.cohort.public_label} | ASIP Editor` };
 }
 
 export default async function EditCohortPage({ params }: EditCohortPageProps) {
@@ -39,7 +40,7 @@ export default async function EditCohortPage({ params }: EditCohortPageProps) {
   const pageLabel = result.cohort.public_label.trim() || "Edit cohort";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -60,6 +61,6 @@ export default async function EditCohortPage({ params }: EditCohortPageProps) {
         cohort={result.cohort}
         heading="Edit cohort"
       />
-    </main>
+    </StaffMain>
   );
 }

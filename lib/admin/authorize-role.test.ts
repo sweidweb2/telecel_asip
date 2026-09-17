@@ -1,0 +1,77 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/admin/get-auth-user", () => ({
+  getAuthUser: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/is-current-user-admin", () => ({
+  isCurrentUserAdmin: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/is-current-user-editor", () => ({
+  isCurrentUserEditor: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/is-current-user-staff", () => ({
+  isCurrentUserStaff: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: vi.fn(async () => ({ mocked: true })),
+}));
+
+vi.mock("@/lib/admin/perf", () => ({
+  traceAsync: vi.fn(async (_name: string, _attrs: unknown, fn: () => Promise<unknown>) =>
+    fn(),
+  ),
+  isAdminPerfTrackingEnabled: vi.fn(() => false),
+}));
+
+import { authorizeRole } from "@/lib/admin/authorize-role";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
+import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import { isCurrentUserStaff } from "@/lib/admin/is-current-user-staff";
+import { createClient } from "@/lib/supabase/server";
+
+const messages = {
+  signedInRequired: "You must be signed in.",
+  unauthorized: "You do not have permission.",
+};
+
+describe("authorizeRole", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it.each([
+    ["admin", isCurrentUserAdmin],
+    ["editor", isCurrentUserEditor],
+    ["staff", isCurrentUserStaff],
+  ] as const)("gates %s role correctly", async (role, check) => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: "u1" } as never);
+    vi.mocked(check).mockResolvedValue(true);
+
+    const result = await authorizeRole(role, messages);
+
+    expect(result).toEqual({
+      status: "success",
+      userId: "u1",
+      supabase: { mocked: true },
+    });
+    expect(createClient).toHaveBeenCalled();
+  });
+
+  it("returns unauthorized when the role check fails", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: "u1" } as never);
+    vi.mocked(isCurrentUserEditor).mockResolvedValue(false);
+
+    const result = await authorizeRole("editor", messages);
+
+    expect(result).toEqual({
+      status: "error",
+      message: messages.unauthorized,
+    });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+});

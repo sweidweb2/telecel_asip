@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { CalendarIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -16,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { EventListItem } from "@/types/event";
 import {
   CMS_PUBLISH_STATUS_LABELS,
@@ -36,6 +38,11 @@ export function EventsTable({
   query: EventListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search,
+    status: query.status === "all" ? undefined : query.status,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -56,8 +63,11 @@ export function EventsTable({
       empty={
         <AdminEmptyState
           icon={CalendarIcon}
-          title="No events found"
-          description="Try changing the filters, or create a new event."
+          isFiltered={isFiltered}
+          emptyTitle="No events yet"
+          emptyDescription="Create the first event to publish on the site."
+          noResultsTitle="No events found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.eventsNew}
           createLabel="New event"
         />
@@ -68,17 +78,14 @@ export function EventsTable({
         pageSize: EVENT_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {events.map((event, index) => (
-        <TableRow
+        <AdminClickableRow
           key={event.id}
-          className="cursor-pointer"
-          onClick={() => router.push(eventDetailPath(event.id))}
+          ariaLabel={`Edit event ${event.name}`}
+          onActivate={() => router.push(eventDetailPath(event.id))}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -124,7 +131,7 @@ export function EventsTable({
           >
             <EventRowActions event={event} />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
   );

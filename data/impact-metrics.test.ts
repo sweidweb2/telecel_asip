@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { eq, order, limit } = vi.hoisted(() => {
+const { eq, limit } = vi.hoisted(() => {
   const limit = vi.fn();
   const order = vi.fn(() => ({ limit }));
   const eq = vi.fn(() => ({ order }));

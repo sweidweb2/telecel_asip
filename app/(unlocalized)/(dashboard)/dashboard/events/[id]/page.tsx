@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getEventByIdForAdmin } from "@/data/events";
 
@@ -24,9 +25,9 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getEventByIdForAdmin(id);
   if (result.status !== "ok") {
-    return { title: "Event | ASIP Admin" };
+    return { title: "Event | ASIP Editor" };
   }
-  return { title: `${result.event.name} | ASIP Admin` };
+  return { title: `${result.event.name} | ASIP Editor` };
 }
 
 export default async function EditEventPage({ params }: EditEventPageProps) {
@@ -39,7 +40,7 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
   const pageLabel = result.event.name.trim() || "Edit event";
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <StaffMain>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -60,6 +61,6 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         event={result.event}
         heading="Edit event"
       />
-    </main>
+    </StaffMain>
   );
 }

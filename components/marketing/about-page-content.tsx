@@ -33,7 +33,7 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
               href={ctaHref}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "min-h-11 w-full rounded-full bg-[#dc395f] px-8 text-white hover:bg-[#f04b70] sm:w-auto",
+                "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
               )}
             >
               {copy.cta.label}

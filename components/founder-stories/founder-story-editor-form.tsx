@@ -10,15 +10,16 @@ import { toast } from "sonner";
 import {
   createFounderStory,
   deleteFounderStory,
-  loadStoryStartupOptions,
   updateFounderStory,
 } from "@/actions/founder-stories";
+import { loadStoryStartupOptions } from "@/actions/admin-pickers";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { FounderAttributionTitleInput } from "@/components/founder-stories/founder-attribution-title-input";
@@ -54,7 +55,11 @@ import {
 import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import { dummyFounderStoryValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
 import type {
@@ -76,9 +81,38 @@ import {
 } from "@/validations/founder-story";
 
 const FOUNDER_STORY_EDITOR_STEPS = [
-  { id: "startup", title: "Startup", description: "Company & status" },
-  { id: "story", title: "Story", description: "Narrative modules" },
-  { id: "quote", title: "Quote", description: "Optional pull-quote" },
+  {
+    id: "startup",
+    title: "Startup",
+    description: "Company & status",
+    fields: ["startupId", "publishStatus"],
+  },
+  {
+    id: "story",
+    title: "Story",
+    description: "Narrative modules",
+    fields: [
+      "storyTitle",
+      "coverImageUrl",
+      "headlineStat",
+      "theProblem",
+      "whatTheyBuilt",
+      "theAsipConnection",
+      "whereTheyAreNow",
+    ],
+  },
+  {
+    id: "quote",
+    title: "Quote",
+    description: "Optional pull-quote",
+    fields: [
+      "founderQuoteText",
+      "quoteAttributionName",
+      "quoteAttributionTitle",
+      "quoteDate",
+      "quotePermissionStatus",
+    ],
+  },
 ];
 
 type FounderStoryEditorFormProps = {
@@ -111,6 +145,9 @@ function FieldLabel({
 function defaultsFor(story?: FounderStoryDetail): FounderStoryFormValues {
   return {
     startupId: story?.startup_id ?? "",
+    storyTitle: story?.story_title ?? "",
+    coverImageUrl: story?.cover_image_url ?? "",
+    headlineStat: story?.headline_stat ?? "",
     theProblem: story?.the_problem ?? "",
     whatTheyBuilt: story?.what_they_built ?? "",
     theAsipConnection: story?.the_asip_connection ?? "",
@@ -128,7 +165,6 @@ export function FounderStoryEditorForm({
   mode,
   story,
   startups: initialStartups = [],
-  heading,
 }: FounderStoryEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -184,6 +220,7 @@ export function FounderStoryEditorForm({
   } = useForm<CreateFounderStoryInput>({
     resolver: zodResolver(createFounderStorySchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(story),
   });
 
@@ -235,10 +272,8 @@ export function FounderStoryEditorForm({
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -271,7 +306,10 @@ export function FounderStoryEditorForm({
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, FOUNDER_STORY_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
       >
         <Stepper
@@ -307,7 +345,7 @@ export function FounderStoryEditorForm({
           </StepperNav>
 
           <StepperPanel className="w-full">
-            <StepperContent value="startup" forceMount className="space-y-6">
+            <StepperContent value="startup" className="space-y-6">
               <Card size="sm">
                 <CardHeader className="border-b">
                   <CardTitle>Startup & status</CardTitle>
@@ -361,9 +399,7 @@ export function FounderStoryEditorForm({
                         )}
                       />
                       {errors.startupId ? (
-                        <p className="text-sm text-destructive">
-                          {errors.startupId.message}
-                        </p>
+                        <AdminFieldError message={errors.startupId.message} />
                       ) : null}
                       {mode === "edit" ? (
                         <p className="text-xs text-muted-foreground">
@@ -408,9 +444,7 @@ export function FounderStoryEditorForm({
                         )}
                       />
                       {errors.publishStatus ? (
-                        <p className="text-sm text-destructive">
-                          {errors.publishStatus.message}
-                        </p>
+                        <AdminFieldError message={errors.publishStatus.message} />
                       ) : null}
                     </div>
                   </div>
@@ -418,7 +452,7 @@ export function FounderStoryEditorForm({
               </Card>
             </StepperContent>
 
-            <StepperContent value="story" forceMount className="space-y-6">
+            <StepperContent value="story" className="space-y-6">
               <Card size="sm">
                 <CardHeader className="border-b">
                   <CardTitle>Story modules</CardTitle>
@@ -429,6 +463,21 @@ export function FounderStoryEditorForm({
                   </CardAction>
                 </CardHeader>
                 <CardContent className="grid gap-5">
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-2 md:col-span-2">
+                      <FieldLabel htmlFor="storyTitle">Impact story title</FieldLabel>
+                      <Input id="storyTitle" disabled={isPending} maxLength={200} placeholder="A result-led editorial headline" {...register("storyTitle")} />
+                      <AdminFieldError message={errors.storyTitle?.message} />
+                    </div>
+                    <div className="grid gap-2">
+                      <FieldLabel htmlFor="coverImageUrl">Impact cover image URL</FieldLabel>
+                      <Input id="coverImageUrl" disabled={isPending} maxLength={2048} placeholder="https://…" {...register("coverImageUrl")} />
+                    </div>
+                    <div className="grid gap-2">
+                      <FieldLabel htmlFor="headlineStat">Headline stat</FieldLabel>
+                      <Input id="headlineStat" disabled={isPending} maxLength={80} placeholder="e.g. 1,500 households served" {...register("headlineStat")} />
+                    </div>
+                  </div>
                   <div className="grid gap-2">
                     <FieldLabel
                       htmlFor="theProblem"
@@ -438,16 +487,14 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="theProblem"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="What problem they set out to solve"
                       {...register("theProblem")}
                     />
                     {errors.theProblem ? (
-                      <p className="text-sm text-destructive">
-                        {errors.theProblem.message}
-                      </p>
+                      <AdminFieldError message={errors.theProblem.message} />
                     ) : null}
                   </div>
 
@@ -460,16 +507,14 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="whatTheyBuilt"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="Product or service they shipped"
                       {...register("whatTheyBuilt")}
                     />
                     {errors.whatTheyBuilt ? (
-                      <p className="text-sm text-destructive">
-                        {errors.whatTheyBuilt.message}
-                      </p>
+                      <AdminFieldError message={errors.whatTheyBuilt.message} />
                     ) : null}
                   </div>
 
@@ -482,16 +527,14 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="theAsipConnection"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="How ASIP connected to their progress"
                       {...register("theAsipConnection")}
                     />
                     {errors.theAsipConnection ? (
-                      <p className="text-sm text-destructive">
-                        {errors.theAsipConnection.message}
-                      </p>
+                      <AdminFieldError message={errors.theAsipConnection.message} />
                     ) : null}
                   </div>
 
@@ -504,23 +547,21 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="whereTheyAreNow"
-                      className="min-h-28 bg-white dark:bg-card"
+                      className="min-h-28"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_NARRATIVE_MAX}
                       placeholder="Current traction or next step"
                       {...register("whereTheyAreNow")}
                     />
                     {errors.whereTheyAreNow ? (
-                      <p className="text-sm text-destructive">
-                        {errors.whereTheyAreNow.message}
-                      </p>
+                      <AdminFieldError message={errors.whereTheyAreNow.message} />
                     ) : null}
                   </div>
                 </CardContent>
               </Card>
             </StepperContent>
 
-            <StepperContent value="quote" forceMount className="space-y-6">
+            <StepperContent value="quote" className="space-y-6">
               <Card size="sm">
                 <CardHeader className="border-b">
                   <CardTitle>Founder quote (optional)</CardTitle>
@@ -540,16 +581,14 @@ export function FounderStoryEditorForm({
                     </FieldLabel>
                     <Textarea
                       id="founderQuoteText"
-                      className="min-h-24 bg-white dark:bg-card"
+                      className="min-h-24"
                       disabled={isPending}
                       maxLength={FOUNDER_STORY_QUOTE_MAX}
                       placeholder="A short quote in the founder’s voice"
                       {...register("founderQuoteText")}
                     />
                     {errors.founderQuoteText ? (
-                      <p className="text-sm text-destructive">
-                        {errors.founderQuoteText.message}
-                      </p>
+                      <AdminFieldError message={errors.founderQuoteText.message} />
                     ) : null}
                     <p className="text-xs text-muted-foreground">
                       Stories can publish without a quote. A quote on a published
@@ -568,16 +607,14 @@ export function FounderStoryEditorForm({
                       <Input
                         id="quoteAttributionName"
                         disabled={isPending}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         maxLength={FOUNDER_STORY_ATTRIBUTION_NAME_MAX}
                         placeholder="e.g. Ama Mensah"
                         aria-invalid={Boolean(errors.quoteAttributionName)}
                         {...register("quoteAttributionName")}
                       />
                       {errors.quoteAttributionName ? (
-                        <p className="text-sm text-destructive">
-                          {errors.quoteAttributionName.message}
-                        </p>
+                        <AdminFieldError message={errors.quoteAttributionName.message} />
                       ) : null}
                     </div>
 
@@ -598,7 +635,7 @@ export function FounderStoryEditorForm({
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             disabled={isPending}
-                            className="min-h-11 bg-white dark:bg-card"
+                            className="min-h-11"
                             maxLength={FOUNDER_STORY_ATTRIBUTION_TITLE_MAX}
                             placeholder="e.g. Founder & CEO"
                             aria-invalid={Boolean(errors.quoteAttributionTitle)}
@@ -606,9 +643,7 @@ export function FounderStoryEditorForm({
                         )}
                       />
                       {errors.quoteAttributionTitle ? (
-                        <p className="text-sm text-destructive">
-                          {errors.quoteAttributionTitle.message}
-                        </p>
+                        <AdminFieldError message={errors.quoteAttributionTitle.message} />
                       ) : null}
                     </div>
 
@@ -618,14 +653,12 @@ export function FounderStoryEditorForm({
                         id="quoteDate"
                         type="date"
                         disabled={isPending}
-                        className="min-h-11 bg-white dark:bg-card"
+                        className="min-h-11"
                         aria-invalid={Boolean(errors.quoteDate)}
                         {...register("quoteDate")}
                       />
                       {errors.quoteDate ? (
-                        <p className="text-sm text-destructive">
-                          {errors.quoteDate.message}
-                        </p>
+                        <AdminFieldError message={errors.quoteDate.message} />
                       ) : null}
                     </div>
 
@@ -650,7 +683,7 @@ export function FounderStoryEditorForm({
                           >
                             <SelectTrigger
                               id="quotePermissionStatus"
-                              className="min-h-11 w-full bg-white dark:bg-card"
+                              className="min-h-11 w-full"
                               aria-invalid={Boolean(
                                 errors.quotePermissionStatus,
                               )}
@@ -668,9 +701,7 @@ export function FounderStoryEditorForm({
                         )}
                       />
                       {errors.quotePermissionStatus ? (
-                        <p className="text-sm text-destructive">
-                          {errors.quotePermissionStatus.message}
-                        </p>
+                        <AdminFieldError message={errors.quotePermissionStatus.message} />
                       ) : null}
                     </div>
                   </div>

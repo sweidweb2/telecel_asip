@@ -1,21 +1,23 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { nanoid } from "nanoid";
 
 import { ROUTES } from "@/constants/routes";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
+  revalidateDashboardNavCounts,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
 import { traceAsync } from "@/lib/admin/perf";
-import { processImageBuffer } from "@/lib/media/process-image";
-import { createClient } from "@/lib/supabase/server";
+import {
+  removeOwnedPublicStorageObject,
+  uploadVersionedPublicImage,
+} from "@/lib/media/upload-versioned-public-image";
 import {
   createStartupSchema,
   deleteStartupSchema,
@@ -45,18 +47,12 @@ const MESSAGES = {
 
 const LOGO_BUCKET = "startups";
 const LOGO_MAX_BYTES = 5 * 1024 * 1024;
-const LOGO_CACHE_CONTROL = "31536000";
-const ALLOWED_MIME = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]);
 
 function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
   // Insights embed related startup names — bust blog cache on rename/link changes.
   revalidateTag(BLOGS_CACHE_TAG, "max");
+  revalidateDashboardNavCounts();
   revalidatePath(ROUTES.portfolio);
   if (id) {
     revalidatePath(`${ROUTES.portfolio}/${id}`);
@@ -133,72 +129,67 @@ function toDetailsJson(
 export async function createStartup(
   input: CreateStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = createStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
-
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc(
-    "create_startup_with_details",
-    {
-      p_core: toStartupCoreJson(parsed.data),
-      p_details: toDetailsJson(parsed.data.details),
+  return runAdminMutation({
+    schema: createStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
     },
-  );
+    perfName: "createStartup",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_startup_with_details",
+        {
+          p_core: toStartupCoreJson(data),
+          p_details: toDetailsJson(data.details),
+        },
+      );
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
-
-  refreshStartupPaths(row.slug, row.id);
-  return {
-    status: "success",
-    message: MESSAGES.createSuccess,
-    id: row.id,
-  };
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (data, id) => refreshStartupPaths(data.slug, id),
+  });
 }
 
 export async function updateStartup(
   input: UpdateStartupInput,
 ): Promise<StartupActionResult> {
-  const parsed = updateStartupSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
-
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc(
-    "update_startup_with_details",
-    {
-      p_id: parsed.data.id,
-      p_core: toStartupCoreJson(parsed.data),
-      p_details: toDetailsJson(parsed.data.details),
+  return runAdminMutation({
+    schema: updateStartupSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
     },
-  );
+    perfName: "updateStartup",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_startup_with_details",
+        {
+          p_id: data.id,
+          p_core: toStartupCoreJson(data),
+          p_details: toDetailsJson(data.details),
+        },
+      );
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return { status: "error", message: rpcErrorMessage(error ?? {}) };
-  }
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return { status: "error", message: rpcErrorMessage(error ?? {}) };
+      }
 
-  refreshStartupPaths(row.slug, row.id);
-  if (row.previous_slug && row.previous_slug !== row.slug) {
-    refreshStartupPaths(row.previous_slug, row.id);
-  }
+      refreshStartupPaths(row.slug, row.id);
+      if (row.previous_slug && row.previous_slug !== row.slug) {
+        refreshStartupPaths(row.previous_slug, row.id);
+      }
 
-  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
+      return { status: "success", id: row.id };
+    },
+  });
 }
 
 export async function deleteStartup(
@@ -236,42 +227,16 @@ export async function deleteStartup(
 
       // Storage only after the row is gone: a failure here leaks an orphan object
       // instead of leaving a live row pointing at a deleted logo.
-      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
+      await removeOwnedPublicStorageObject(
+        session.supabase,
+        existing.logo_url,
+        LOGO_BUCKET,
+      );
 
       refreshStartupPaths(existing.slug, data.id);
       return { status: "success" };
     },
   });
-}
-
-function publicObjectUrl(supabaseUrl: string, bucket: string, path: string) {
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
-}
-
-function storagePathFromPublicUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const marker = `/storage/v1/object/public/${LOGO_BUCKET}/`;
-  const index = url.indexOf(marker);
-  if (index === -1) return null;
-  return url.slice(index + marker.length);
-}
-
-async function removeStorageUrlIfOwned(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  url: string | null | undefined,
-) {
-  const path = storagePathFromPublicUrl(url);
-  if (!path) return;
-  const { error } = await supabase.storage.from(LOGO_BUCKET).remove([path]);
-  if (error) {
-    // Orphaned object — the DB is already consistent, so surface it for cleanup
-    // rather than failing the action.
-    console.error("Failed to remove storage object", {
-      bucket: LOGO_BUCKET,
-      path,
-      error,
-    });
-  }
 }
 
 export async function uploadStartupLogo(
@@ -291,15 +256,7 @@ export async function uploadStartupLogo(
         return { status: "error", message: MESSAGES.invalidImage };
       }
 
-      if (
-        !ALLOWED_MIME.has(file.type) ||
-        file.size <= 0 ||
-        file.size > LOGO_MAX_BYTES
-      ) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
-
-      const session = await authorizeAdmin(MESSAGES);
+      const session = await authorizeEditor(MESSAGES);
       if (session.status === "error") return session;
 
       const { data: existing, error: existingError } = await session.supabase
@@ -315,47 +272,24 @@ export async function uploadStartupLogo(
         return { status: "error", message: MESSAGES.notFound };
       }
 
-      let processed;
-      try {
-        processed = await processImageBuffer(
-          Buffer.from(await file.arrayBuffer()),
-          "startupLogo",
-        );
-      } catch {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
+      const uploaded = await uploadVersionedPublicImage({
+        supabase: session.supabase,
+        file,
+        bucket: LOGO_BUCKET,
+        entityId: startupId,
+        preset: "startupLogo",
+        previousUrl: existing.logo_url,
+        maxBytes: LOGO_MAX_BYTES,
+        messages: MESSAGES,
+        updateRow: async (publicUrl) =>
+          session.supabase
+            .from("startups")
+            .update({ logo_url: publicUrl })
+            .eq("id", startupId),
+      });
 
-      const path = `${startupId}/${nanoid(10)}.${processed.extension}`;
+      if (uploaded.status === "error") return uploaded;
 
-      const { error: uploadError } = await session.supabase.storage
-        .from(LOGO_BUCKET)
-        .upload(path, processed.buffer, {
-          contentType: processed.contentType,
-          upsert: false,
-          cacheControl: LOGO_CACHE_CONTROL,
-        });
-
-      if (uploadError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const publicUrl = publicObjectUrl(supabaseUrl, LOGO_BUCKET, path);
-      const { error: updateError } = await session.supabase
-        .from("startups")
-        .update({ logo_url: publicUrl })
-        .eq("id", startupId);
-
-      if (updateError) {
-        await session.supabase.storage.from(LOGO_BUCKET).remove([path]);
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
       refreshStartupPaths(existing.slug, startupId);
       return {
         status: "success",
@@ -373,7 +307,7 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.invalidDetails };
   }
 
-  const session = await authorizeAdmin(MESSAGES);
+  const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
   const { data: existing, error: existingError } = await session.supabase
@@ -398,7 +332,11 @@ export async function removeStartupLogo(
     return { status: "error", message: MESSAGES.genericError };
   }
 
-  await removeStorageUrlIfOwned(session.supabase, existing.logo_url);
+  await removeOwnedPublicStorageObject(
+    session.supabase,
+    existing.logo_url,
+    LOGO_BUCKET,
+  );
 
   refreshStartupPaths(existing.slug, startupId);
   return { status: "success", message: MESSAGES.removeSuccess, id: startupId };

@@ -19,14 +19,31 @@ const ROLE_OPTION_LABELS = {
   viewer: "Viewer",
 } as const;
 
-export function UsersFilters({ query }: { query: UserListQuery }) {
+export function UsersFilters({
+  query,
+  listPath = ROUTES.users,
+  actorRole = "admin",
+}: {
+  query: UserListQuery;
+  listPath?: string;
+  actorRole?: "admin" | "editor";
+}) {
   const { search, isPending, navigate, handleSearchChange, clearSearchLocal } =
     useAdminListFilters({
-      basePath: ROUTES.users,
+      basePath: listPath,
       search: query.search,
     });
 
-  const hasFilters = query.search !== "" || query.role !== "all";
+  const canFilterAdmins = actorRole === "admin";
+  const roleValue =
+    !canFilterAdmins && query.role === "admin" ? "all" : query.role;
+  const hasFilters = query.search !== "" || roleValue !== "all";
+  const optionLabels = canFilterAdmins
+    ? ROLE_OPTION_LABELS
+    : {
+        editor: ROLE_OPTION_LABELS.editor,
+        viewer: ROLE_OPTION_LABELS.viewer,
+      };
 
   return (
     <AdminFilterBar
@@ -37,14 +54,14 @@ export function UsersFilters({ query }: { query: UserListQuery }) {
       isPending={isPending}
       onSearchChange={handleSearchChange}
       hasFilters={hasFilters}
-      clearHref={ROUTES.users}
+      clearHref={listPath}
       onClear={clearSearchLocal}
     >
       <Label htmlFor="users-role" className="sr-only">
         Role
       </Label>
       <Select
-        value={query.role}
+        value={roleValue}
         onValueChange={(value) => {
           if (value) navigate({ role: value });
         }}
@@ -54,14 +71,13 @@ export function UsersFilters({ query }: { query: UserListQuery }) {
           id="users-role"
           className="min-h-11 w-full sm:min-h-8 sm:w-36"
         >
-          <AdminFilterSelectValue
-            label="Role"
-            optionLabels={ROLE_OPTION_LABELS}
-          />
+          <AdminFilterSelectValue label="Role" optionLabels={optionLabels} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All roles</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
+          {canFilterAdmins ? (
+            <SelectItem value="admin">Admin</SelectItem>
+          ) : null}
           <SelectItem value="editor">Editor</SelectItem>
           <SelectItem value="viewer">Viewer</SelectItem>
         </SelectContent>

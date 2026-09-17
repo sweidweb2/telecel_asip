@@ -10,6 +10,7 @@ import {
 } from "@/constants/locales";
 import { PUBLIC_PAGE_SLUG_SET } from "@/constants/public-pages";
 import { authPath, ROUTES } from "@/constants/routes";
+import type { Database } from "@/types/database";
 
 function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
@@ -86,27 +87,46 @@ function isAuthPage(pathname: string): boolean {
   );
 }
 
+/** Personalized intake — session gate + form; refresh cookies, never require login. */
+function isIntakePath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return (
+    segments.length === 2 &&
+    isLocale(segments[0]) &&
+    (segments[1] === "apply" || segments[1] === "register-interest")
+  );
+}
+
 function isProtectedPath(pathname: string): boolean {
   return (
     pathname === ROUTES.dashboard ||
-    pathname.startsWith(`${ROUTES.dashboard}/`)
+    pathname.startsWith(`${ROUTES.dashboard}/`) ||
+    pathname === ROUTES.admin ||
+    pathname.startsWith(`${ROUTES.admin}/`)
   );
 }
 
 async function refreshSupabaseSession(request: NextRequest): Promise<{
   response: NextResponse;
   userId: string | null;
+  isAdmin: boolean;
+  isEditor: boolean;
 }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    return { response: NextResponse.next({ request }), userId: null };
+    return {
+      response: NextResponse.next({ request }),
+      userId: null,
+      isAdmin: false,
+      isEditor: false,
+    };
   }
 
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -127,16 +147,40 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
     data: { user },
   } = await supabase.auth.getUser();
 
-  return { response, userId: user?.id ?? null };
+  if (!user) {
+    return { response, userId: null, isAdmin: false, isEditor: false };
+  }
+
+  const { data: shell, error } = await supabase
+    .rpc("get_staff_shell")
+    .maybeSingle();
+
+  if (error || !shell) {
+    return {
+      response,
+      userId: user.id,
+      isAdmin: false,
+      isEditor: false,
+    };
+  }
+
+  return {
+    response,
+    userId: user.id,
+    isAdmin: Boolean(shell.is_admin),
+    isEditor: Boolean(shell.is_editor),
+  };
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const locale = detectLocale(request);
-  const needsSession = isProtectedPath(pathname) || isAuthPage(pathname);
+  const needsSession =
+    isProtectedPath(pathname) || isAuthPage(pathname) || isIntakePath(pathname);
 
   if (needsSession) {
-    const { response, userId } = await refreshSupabaseSession(request);
+    const { response, userId, isAdmin, isEditor } =
+      await refreshSupabaseSession(request);
 
     if (isProtectedPath(pathname) && !userId) {
       const loginUrl = request.nextUrl.clone();
@@ -147,16 +191,47 @@ export async function middleware(request: NextRequest) {
       return withNoStore(withLocaleHeaders(redirect, locale, request));
     }
 
+    if (isProtectedPath(pathname) && userId) {
+      // Role gate here avoids painting the wrong shell HTML for viewers.
+      // Layouts still call get_staff_shell (request-cached) as source of truth
+      // for chrome fields; middleware + RSC do not share React.cache (P2.8).
+      const isAdminPath =
+        pathname === ROUTES.admin || pathname.startsWith(`${ROUTES.admin}/`);
+      const isDashboardPath =
+        pathname === ROUTES.dashboard ||
+        pathname.startsWith(`${ROUTES.dashboard}/`);
+
+      if (isAdminPath && !isAdmin) {
+        const target = request.nextUrl.clone();
+        target.pathname = isEditor ? ROUTES.dashboard : `/${locale}`;
+        target.search = "";
+        const redirect = NextResponse.redirect(target);
+        copyCookies(response, redirect);
+        return withNoStore(withLocaleHeaders(redirect, locale, request));
+      }
+
+      if (isDashboardPath && !isEditor) {
+        const target = request.nextUrl.clone();
+        target.pathname = isAdmin ? ROUTES.admin : `/${locale}`;
+        target.search = "";
+        const redirect = NextResponse.redirect(target);
+        copyCookies(response, redirect);
+        return withNoStore(withLocaleHeaders(redirect, locale, request));
+      }
+    }
+
     if (isAuthPage(pathname) && userId) {
-      const dashboardUrl = request.nextUrl.clone();
-      dashboardUrl.pathname = ROUTES.dashboard;
-      dashboardUrl.search = "";
-      const redirect = NextResponse.redirect(dashboardUrl);
+      // Signed-in users (viewer or admin) cannot open login/signup.
+      // Send them to the locale home — viewers are not dashboard users.
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = `/${locale}`;
+      homeUrl.search = "";
+      const redirect = NextResponse.redirect(homeUrl);
       copyCookies(response, redirect);
       return withNoStore(redirect);
     }
 
-    // Auth page, logged out — continue with refreshed session cookies
+    // Auth / intake — continue with refreshed session cookies
     const segments = pathname.split("/").filter(Boolean);
     const first = segments[0];
     if (first && isLocale(first)) {
@@ -183,8 +258,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (first && isLocale(first)) {
-    // /apply and /register-interest both stay live; open_applications only
-    // drives nav CTA, status banner, and Apply SEO — not URL exclusivity.
+    // Mutual intake gate: open_applications also drives nav CTA, banner, and SEO.
+    // Wrong intake URL redirects in page render; Server Actions reject the inactive path.
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(LOCALE_HEADER, first);
     const next = NextResponse.next({

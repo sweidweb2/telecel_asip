@@ -1,14 +1,14 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import {
   adminListRange,
   adminListTotalPages,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -35,7 +35,7 @@ const LIST_COLUMNS =
   "id, publish_status, quote_permission_status, updated_at, startups!inner(name)" as const;
 
 const DETAIL_COLUMNS =
-  "id, startup_id, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
+  "id, startup_id, story_title, cover_image_url, headline_stat, the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status, publish_status, created_at, updated_at, startups!inner(name)" as const;
 
 const PUBLIC_COLUMNS =
   "the_problem, what_they_built, the_asip_connection, where_they_are_now, founder_quote_text, quote_attribution_name, quote_attribution_title, quote_date, quote_permission_status" as const;
@@ -123,30 +123,12 @@ export type FounderStoryListStats = {
 async function fetchFounderStoryListStats(
   supabase: ServerClient,
 ): Promise<FounderStoryListStats> {
-  const [total, published, draft, quotePending] = await Promise.all([
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true }),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "published"),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("publish_status", "draft"),
-    supabase
-      .from("founder_stories")
-      .select("id", { count: "exact", head: true })
-      .eq("quote_permission_status", "pending"),
+  return fetchAdminListStats(supabase, "founder_stories", [
+    "total",
+    "published",
+    "draft",
+    "quotePending",
   ]);
-
-  return {
-    total: countExact(total),
-    published: countExact(published),
-    draft: countExact(draft),
-    quotePending: countExact(quotePending),
-  };
 }
 
 export async function getFounderStoriesPageData(
@@ -162,7 +144,7 @@ export async function getFounderStoriesPageData(
       const supabase = await createClient();
 
       const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserAdmin(),
+        isCurrentUserEditor(),
         fetchFounderStoriesPage(supabase, query),
         fetchFounderStoryListStats(supabase),
       ]);
@@ -189,7 +171,7 @@ export const getFounderStoryByIdForAdmin = wrapCached(
       }
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const { data, error } = await supabase
         .from("founder_stories")
@@ -225,7 +207,7 @@ export async function getStartupsForStoryPicker(options?: {
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const includeId = options?.includeStartupId;
       const term = (options?.search ?? "").trim().slice(0, 100);
@@ -352,10 +334,10 @@ const IMPACT_CASE_STUDY_LIMIT = 9;
 const IMPACT_CASE_STUDY_MIN_SLOTS = 3;
 
 const CASE_STORY_COLUMNS =
-  "id, startup_id, the_problem, the_asip_connection, where_they_are_now" as const;
+  "id, startup_id, story_title, cover_image_url, headline_stat, the_problem, the_asip_connection, where_they_are_now" as const;
 
 const CASE_STARTUP_COLUMNS =
-  "id, name, slug, founder_names, sector, country_code, cover_image_url, public_outcome, image_focal_x, image_focal_y" as const;
+  "id, name, slug, founder_names, sector, country_code, image_focal_x, image_focal_y" as const;
 
 /** Bracketed CMS placeholders must not ship as live copy. */
 const UNRESOLVED_PLACEHOLDER_RE = /\[[^\]\n]{1,80}\]/;
@@ -363,6 +345,9 @@ const UNRESOLVED_PLACEHOLDER_RE = /\[[^\]\n]{1,80}\]/;
 type CaseStoryRow = {
   id: string;
   startup_id: string;
+  story_title: string | null;
+  cover_image_url: string | null;
+  headline_stat: string | null;
   the_problem: string;
   the_asip_connection: string;
   where_they_are_now: string;
@@ -375,8 +360,6 @@ type CaseStartupRow = {
   founder_names: string[] | null;
   sector: string | null;
   country_code: string | null;
-  cover_image_url: string | null;
-  public_outcome: string | null;
   image_focal_x: number | null;
   image_focal_y: number | null;
 };
@@ -411,27 +394,11 @@ function identityFields(startup: CaseStartupRow) {
   };
 }
 
-function toPendingSeat(
-  startup: CaseStartupRow,
-): ImpactCaseStudyPublic | null {
-  if (!startup.id || !startup.name || !startup.slug) return null;
-
-  return {
-    id: `pending-${startup.id}`,
-    ...identityFields(startup),
-    coverImageUrl: null,
-    barrier: null,
-    support: null,
-    outcome: null,
-    stat: null,
-    status: "pending",
-  };
-}
-
 function anonymousPendingSeat(index: number): ImpactCaseStudyPublic {
   return {
     id: `pending-slot-${index}`,
     startupId: null,
+    title: "",
     name: "",
     slug: "",
     founderNames: [],
@@ -454,36 +421,30 @@ function toCaseStudy(
 ): ImpactCaseStudyPublic | null {
   if (!startup.id || !startup.name || !startup.slug) return null;
 
+  const title = publicLine(story.story_title, 200);
   const barrier = publicLine(story.the_problem);
   const support = publicLine(story.the_asip_connection);
   const outcome = publicLine(story.where_they_are_now);
-  const isCleared = Boolean(barrier || support || outcome);
+  // Incomplete published stories stay off Impact until narrative fields clear.
+  if (!title || (!barrier && !support && !outcome)) return null;
 
   return {
-    id: isCleared ? story.id : `pending-${startup.id}`,
+    id: story.id,
     ...identityFields(startup),
-    coverImageUrl: isCleared ? startup.cover_image_url : null,
+    title,
+    coverImageUrl: story.cover_image_url,
     barrier,
     support,
     outcome,
-    stat: isCleared ? publicStat(startup.public_outcome) : null,
-    status: isCleared ? "live" : "pending",
+    stat: publicStat(story.headline_stat),
+    status: "live",
   };
 }
 
 function padPendingSeats(
   live: ImpactCaseStudyPublic[],
-  known: ImpactCaseStudyPublic[],
 ): ImpactCaseStudyPublic[] {
   const slots = [...live];
-  const taken = new Set(slots.map((item) => item.startupId).filter(Boolean));
-
-  for (const seat of known) {
-    if (slots.length >= IMPACT_CASE_STUDY_MIN_SLOTS) break;
-    if (seat.startupId && taken.has(seat.startupId)) continue;
-    slots.push(seat);
-    if (seat.startupId) taken.add(seat.startupId);
-  }
 
   let index = 0;
   while (slots.length < IMPACT_CASE_STUDY_MIN_SLOTS) {
@@ -549,20 +510,7 @@ async function fetchPublishedImpactCaseStudies(): Promise<
     return item ? [item] : [];
   });
 
-  const live = fromStories.filter((item) => item.status === "live");
-  if (live.length >= IMPACT_CASE_STUDY_MIN_SLOTS) {
-    return live.slice(0, IMPACT_CASE_STUDY_LIMIT);
-  }
-
-  const knownPending = [
-    ...fromStories.filter((item) => item.status === "pending"),
-    ...directory.flatMap((row) => {
-      const seat = toPendingSeat(row);
-      return seat ? [seat] : [];
-    }),
-  ];
-
-  return padPendingSeats(live, knownPending);
+  return padPendingSeats(fromStories);
 }
 
 /** Published founder stories for the Impact case-study module. */

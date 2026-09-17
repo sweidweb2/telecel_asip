@@ -31,6 +31,7 @@ export const DASHBOARD_NAV_GROUPS = [
         href: ROUTES.applications,
       },
       { title: ADMIN_RESOURCES.contactUs.navTitle, href: ROUTES.contactUs },
+      { title: ADMIN_RESOURCES.newsletter.navTitle, href: ROUTES.newsletter },
     ],
   },
   {
@@ -67,8 +68,6 @@ export const DASHBOARD_NAV_GROUPS = [
     items: [
       { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.users },
       { title: "Analytics", href: ROUTES.analytics },
-      { title: "Performance", href: ROUTES.performance },
-      { title: "Backup", href: ROUTES.backup },
       { title: "Settings", href: ROUTES.settings },
     ],
   },
@@ -94,8 +93,55 @@ export const DASHBOARD_SEARCH_PAGES: readonly DashboardSearchPage[] =
     })),
   );
 
-/** Extra titles for routes that exist but are not primary nav items. */
-const DASHBOARD_EXTRA_TITLES: Record<string, string> = {};
+/** Create-route shortcuts for the editor command palette. */
+export const DASHBOARD_SEARCH_ACTIONS: readonly DashboardSearchPage[] = [
+  { title: "New blog", href: ROUTES.blogsNew, group: "Actions" },
+  { title: "New startup", href: ROUTES.portfolioNew, group: "Actions" },
+  { title: "New partner", href: ROUTES.partnersNew, group: "Actions" },
+  { title: "New cohort", href: ROUTES.cohortsNew, group: "Actions" },
+  { title: "New event", href: ROUTES.eventsNew, group: "Actions" },
+  {
+    title: "New founder story",
+    href: ROUTES.founderStoriesNew,
+    group: "Actions",
+  },
+  { title: "New evidence", href: ROUTES.evidenceNew, group: "Actions" },
+  {
+    title: "New impact metric",
+    href: ROUTES.impactMetricsNew,
+    group: "Actions",
+  },
+];
+
+/** Editor page search = nav pages + create actions. */
+export const DASHBOARD_COMMAND_PAGES: readonly DashboardSearchPage[] = [
+  ...DASHBOARD_SEARCH_PAGES,
+  ...DASHBOARD_SEARCH_ACTIONS,
+];
+
+/** Exact create-route titles (header h1). */
+const DASHBOARD_CREATE_TITLES: Record<string, string> = {
+  [ROUTES.blogsNew]: "New blog",
+  [ROUTES.portfolioNew]: "New startup",
+  [ROUTES.partnersNew]: "New partner",
+  [ROUTES.cohortsNew]: "New cohort",
+  [ROUTES.eventsNew]: "New event",
+  [ROUTES.founderStoriesNew]: "New founder story",
+  [ROUTES.evidenceNew]: "New evidence record",
+  [ROUTES.impactMetricsNew]: "New impact metric",
+};
+
+/** Edit-route titles when pathname is `/{resource}/{id}` (not the list or `/new`). */
+const DASHBOARD_EDIT_TITLES: ReadonlyArray<{ base: string; title: string }> = [
+  { base: ROUTES.blogs, title: "Edit blog" },
+  { base: ROUTES.portfolio, title: "Edit startup" },
+  { base: ROUTES.partners, title: "Edit partner" },
+  { base: ROUTES.cohorts, title: "Edit cohort" },
+  { base: ROUTES.events, title: "Edit event" },
+  { base: ROUTES.founderStories, title: "Edit founder story" },
+  { base: ROUTES.evidence, title: "Edit evidence record" },
+  { base: ROUTES.impactMetrics, title: "Edit impact metric" },
+];
 
 /**
  * Whether a sidebar item should show as active for the current pathname.
@@ -110,11 +156,17 @@ export function isDashboardNavActive(pathname: string, href: string) {
 
 /**
  * Header title for the current dashboard pathname.
- * Nested routes (e.g. `/dashboard/blogs/new`) resolve to the parent nav item.
+ * List routes use nav titles; nested create/edit routes use action titles.
  */
 export function getDashboardPageTitle(pathname: string) {
-  const extra = DASHBOARD_EXTRA_TITLES[pathname];
-  if (extra) return extra;
+  const createTitle = DASHBOARD_CREATE_TITLES[pathname];
+  if (createTitle) return createTitle;
+
+  for (const { base, title } of DASHBOARD_EDIT_TITLES) {
+    if (pathname.startsWith(`${base}/`) && pathname !== `${base}/new`) {
+      return title;
+    }
+  }
 
   const match = [...DASHBOARD_NAV_ITEMS]
     .sort((a, b) => b.href.length - a.href.length)

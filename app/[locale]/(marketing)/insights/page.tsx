@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { blogLabelsFor } from "@/components/marketing/blog-labels";
 import { InsightsPageContent } from "@/components/marketing/insights-page-content";
 import { getInsightsIndex } from "@/data/insights";
-import { getNewsletterSignupEnabled } from "@/data/settings";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -37,10 +36,7 @@ export async function generateMetadata({
 
 export default async function InsightsPage({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [{ articles, featured }, newsletterEnabled] = await Promise.all([
-    getInsightsIndex(locale),
-    getNewsletterSignupEnabled(),
-  ]);
+  const { articles, featured } = await getInsightsIndex(locale);
 
   return (
     <InsightsPageContent
@@ -48,7 +44,6 @@ export default async function InsightsPage({ params }: PageProps) {
       labels={blogLabelsFor(locale)}
       articles={articles}
       featured={featured}
-      newsletterEnabled={newsletterEnabled}
     />
   );
 }

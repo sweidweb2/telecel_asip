@@ -43,6 +43,8 @@ export function bumpAdminPerfInvokeCount(cacheKey: string): number {
 export function isAdminPerfRouteExcluded(route: string | null): boolean {
   if (!route) return false;
   return (
+    route === "/admin/performance" ||
+    route.startsWith("/admin/performance/") ||
     route === "/dashboard/performance" ||
     route.startsWith("/dashboard/performance/")
   );

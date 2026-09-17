@@ -1,7 +1,14 @@
 /**
- * In-memory sliding-window rate limiter.
- * Multi-instance serverless does not share this Map — fine for launch; upgrade later if needed.
+ * Rate limiting for public form actions.
+ *
+ * Prefer the Postgres `consume_rate_limit` RPC (shared across instances via
+ * service role). Falls back to an in-process Map only when the RPC is
+ * unavailable (local tests / migration not applied).
  */
+
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/types/database";
 
 const windows = new Map<string, number[]>();
 
@@ -47,7 +54,60 @@ export function consumeRateLimit(
   return true;
 }
 
-/** Test helper — clears all buckets. */
+type AdminClient = SupabaseClient<Database>;
+
+/**
+ * Shared rate limit via `public.consume_rate_limit`.
+ * Returns true when the attempt is allowed.
+ */
+export async function consumeSharedRateLimit(
+  admin: AdminClient,
+  key: string,
+  limit: number,
+  windowMs: number,
+): Promise<boolean> {
+  const { data, error } = await admin.rpc("consume_rate_limit", {
+    p_key: key,
+    p_limit: limit,
+    p_window_ms: windowMs,
+  });
+
+  if (error) {
+    // Migration not applied or RPC error — degrade to in-memory (single instance).
+    return consumeRateLimit(key, limit, windowMs);
+  }
+
+  return Boolean(data);
+}
+
+/** Test helper — clears all in-memory buckets. */
 export function resetRateLimitBuckets(): void {
   windows.clear();
+}
+
+export const STAFF_MUTATION_WINDOW_MS = 60 * 60 * 1000;
+
+/** Shared hourly caps for sensitive staff mutations (per userId). */
+export const STAFF_RATE_LIMITS = {
+  userCreate: 20,
+  userDelete: 20,
+  userHardDelete: 10,
+  backupCreate: 10,
+} as const;
+
+/**
+ * Rate-limit a staff mutation by acting user id.
+ * Returns true when the attempt is allowed.
+ */
+export async function consumeStaffMutationRateLimit(
+  admin: AdminClient,
+  userId: string,
+  action: keyof typeof STAFF_RATE_LIMITS,
+): Promise<boolean> {
+  return consumeSharedRateLimit(
+    admin,
+    `staff:${action}:${userId}`,
+    STAFF_RATE_LIMITS[action],
+    STAFF_MUTATION_WINDOW_MS,
+  );
 }

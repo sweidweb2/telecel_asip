@@ -4,13 +4,11 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
-import { getCohortLinkOptionsForAdmin } from "@/data/cohorts";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { CohortLinkOption } from "@/types/cohort";
 import {
   createCohortSchema,
   deleteCohortSchema,
@@ -35,28 +33,6 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
   labelTaken: "A cohort with that year and public label already exists.",
 } as const;
-
-/** Lazy search for cohort partner/startup multi-selects. */
-export async function loadCohortLinkOptions(
-  search = "",
-): Promise<
-  | {
-      status: "ok";
-      partners: CohortLinkOption[];
-      startups: CohortLinkOption[];
-    }
-  | { status: "error"; message: string }
-> {
-  const result = await getCohortLinkOptionsForAdmin(search);
-  if (result.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return {
-    status: "ok",
-    partners: result.partners,
-    startups: result.startups,
-  };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,

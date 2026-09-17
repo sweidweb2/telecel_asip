@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
 import {
   expectViewerRedirectedFrom,
@@ -16,9 +16,12 @@ test.describe("viewer dashboard redirect matrix", () => {
   for (const path of [
     "/dashboard/settings",
     "/dashboard/analytics",
-    "/dashboard/performance",
     "/dashboard/cohorts",
     "/dashboard/events",
+    "/admin/performance",
+    "/admin/backup",
+    "/admin/settings",
+    "/admin/users",
   ] as const) {
     test(`viewer is redirected from ${path}`, async ({ page }) => {
       test.setTimeout(60_000);

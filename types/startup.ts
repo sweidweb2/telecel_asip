@@ -87,3 +87,9 @@ export type StartupFilterOptions = {
   countries: string[];
   sectors: string[];
 };
+
+/** Aggregated public portfolio counts by ISO country code. */
+export type StartupCountryReach = {
+  countryCode: string;
+  founderCount: number;
+};

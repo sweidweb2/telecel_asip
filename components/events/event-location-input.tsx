@@ -17,6 +17,7 @@ import {
   EVENT_LOCATION_SUGGESTION_LIMIT,
   filterEventLocations,
 } from "@/constants/event-locations";
+import { useAnchoredListReposition } from "@/hooks/use-anchored-list-reposition";
 import { cn } from "@/lib/utils";
 
 function useIsClient() {
@@ -95,20 +96,7 @@ export function EventLocationInput({
     updateListBox();
   }, [showList, value, suggestions.length, updateListBox]);
 
-  useEffect(() => {
-    if (!showList) return;
-
-    function onReposition() {
-      updateListBox();
-    }
-
-    window.addEventListener("resize", onReposition);
-    window.addEventListener("scroll", onReposition, true);
-    return () => {
-      window.removeEventListener("resize", onReposition);
-      window.removeEventListener("scroll", onReposition, true);
-    };
-  }, [showList, updateListBox]);
+  useAnchoredListReposition(showList, updateListBox);
 
   useEffect(() => {
     if (!open) return;

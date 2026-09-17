@@ -12,4 +12,4 @@ Migrations are append-only, like git commits.
 - Every migration that adds a table must enable RLS in that same file. No table may exist, even briefly, without RLS.
 - `supabase/seed.sql` is local/dev only. Never apply seeds automatically to staging or production.
 - Any PR that touches `supabase/migrations/` must review the SQL itself, not only app code. Schema changes are often higher-risk than application changes.
-- Whenever you add or change a migration, **always update** `Docs/schema.dbml` (tables, enums, indexes, FKs, RLS notes) and `Docs/supabase-functions.md` (functions, RPCs, procedures, triggers — name, role, details, how it works) so both stay in sync with applied SQL.
+- Whenever you add or change a migration, **always update** `Docs/[03] Database/schema.dbml` (tables, enums, indexes, FKs, RLS notes) and `Docs/[03] Database/supabase-functions.md` (functions, RPCs, procedures, triggers — name, role, details, how it works) so both stay in sync with applied SQL.

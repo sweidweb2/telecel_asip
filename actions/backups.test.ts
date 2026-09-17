@@ -37,6 +37,14 @@ vi.mock("@/lib/backups/r2", () => ({
   getSignedBackupUrl: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({
+  consumeStaffMutationRateLimit: vi.fn(async () => true),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: vi.fn(() => ({})),
+}));
+
 import {
   createBackup,
   getBackupDownloadUrl,
@@ -194,20 +202,14 @@ describe("runBackupNow", () => {
   });
 
   it("enqueues an immediate automated backup in the background", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({
-      data: { backup_time: "off" },
+    const rpc = vi.fn().mockResolvedValue({
+      data: "off",
       error: null,
     });
     vi.mocked(authorizeAdmin).mockResolvedValue({
       status: "success",
       userId: "admin-1",
-      supabase: {
-        from: vi.fn(() => ({
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({ maybeSingle })),
-          })),
-        })),
-      } as never,
+      supabase: { rpc } as never,
     });
     vi.mocked(enqueueBackupAttempt).mockResolvedValue({ backupId });
 
@@ -219,6 +221,7 @@ describe("runBackupNow", () => {
         "Backup started. Watch history - download when it completes.",
       id: backupId,
     });
+    expect(rpc).toHaveBeenCalledWith("get_admin_backup_schedule");
     expect(enqueueBackupAttempt).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "admin-1",

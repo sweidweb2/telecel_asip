@@ -77,6 +77,7 @@ export type AboutCeoMessageCopy = {
 
 export type MarketingContentSlug = Exclude<
   PublicPageSlug,
+  | ""
   | "contact"
   | "insights"
   | "terms"
@@ -85,7 +86,6 @@ export type MarketingContentSlug = Exclude<
   | "impact"
   | "alumni"
   | "partners"
-  | "lab"
 >;
 
 export type LegalPageSlug = "terms" | "privacy";
@@ -221,7 +221,8 @@ export type AlumniBenefitId =
   | "give-back";
 
 /**
- * Alumni public page. Built and routable; keep unpublished in nav/sitemap
+ * Alumni public page. Built and routable; keep `noindex` and out of the sitemap
+ * until the Alumni Network is formally launched.
  * until the operating model, benefits and launch are formally confirmed.
  * Phase 1: no login, member dashboard, chat or community platform.
  */
@@ -333,6 +334,11 @@ export type HomePageCopy = {
     description: string;
     cta: HomePageLink;
     empty: string;
+    blueprintTitleBlock: {
+      eyebrow: string;
+      title: string;
+      detail: string;
+    };
   };
   outcomes: {
     eyebrow: string;

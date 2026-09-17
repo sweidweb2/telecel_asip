@@ -11,6 +11,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "seed:asip-source": "node scripts/seed-asip-source-data.mjs",
+    "seed:asip-startup-images": "node scripts/build-startup-seed-images.mjs",
+    "seed:asip-cms-media": "node scripts/build-cms-seed-media.mjs",
+    "seed:asip-impact-images": "node scripts/build-impact-case-study-images.mjs",
     "bones:build": "boneyard-js build http://localhost:3000",
     "bones:watch": "boneyard-js build --watch http://localhost:3000",
     "analyze": "cross-env ANALYZE=true next build"

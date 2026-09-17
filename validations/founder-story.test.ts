@@ -11,6 +11,7 @@ const startupId = "11111111-1111-4111-8111-111111111111";
 
 const base = {
   startupId,
+  storyTitle: "Opening new markets through partnerships",
   theProblem: "Founders needed a clearer path to customers across markets.",
   whatTheyBuilt: "A marketplace that connects operators with verified demand.",
   theAsipConnection: "ASIP opened intros to mentors and distribution partners.",

@@ -161,6 +161,16 @@ export type DeleteBlogInput = z.infer<typeof deleteBlogSchema>;
 export type UpdateBlogStatusInput = z.infer<typeof updateBlogStatusSchema>;
 export type BlogImageTarget = z.infer<typeof blogImageTargetSchema>;
 
+export const BLOG_LIST_SORTS = [
+  "title",
+  "status",
+  "author_name",
+  "updated_at",
+  "created_at",
+] as const;
+
+export type BlogListSort = (typeof BLOG_LIST_SORTS)[number];
+
 const blogListQueryInputSchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),
   search: z
@@ -170,6 +180,8 @@ const blogListQueryInputSchema = z.object({
     .regex(/^[^,%_()]*$/)
     .catch(""),
   status: z.enum(["all", ...BLOG_STATUSES]).catch("all"),
+  sort: z.enum(BLOG_LIST_SORTS).catch("created_at"),
+  dir: z.enum(["asc", "desc"]).catch("desc"),
 });
 
 export type BlogListQuery = z.infer<typeof blogListQueryInputSchema> & {
@@ -181,6 +193,12 @@ export function parseBlogListQuery(input: RawSearchParams): BlogListQuery {
     input,
     schema: blogListQueryInputSchema,
     pageSize: BLOG_PAGE_SIZE,
-    defaults: { page: "1", search: "", status: "all" },
+    defaults: {
+      page: "1",
+      search: "",
+      status: "all",
+      sort: "created_at",
+      dir: "desc",
+    },
   });
 }

@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const pageSlugs = openApplications
     ? [...INDEXABLE_PAGE_SLUGS, "apply" as const]
-    : INDEXABLE_PAGE_SLUGS;
+    : [...INDEXABLE_PAGE_SLUGS, "register-interest" as const];
 
   for (const locale of LOCALES) {
     for (const slug of pageSlugs) {

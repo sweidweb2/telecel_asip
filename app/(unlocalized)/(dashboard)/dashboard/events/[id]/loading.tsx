@@ -1,11 +1,11 @@
-import { EventsPageSkeleton } from "@/components/events/events-page-skeleton";
+import { AdminEditorPageSkeleton } from "@/components/dashboard/admin-editor-page-skeleton";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
 
 export default function EditEventLoading() {
   return (
     <RouteSkeleton
       name="dashboard-events-edit"
-      fallback={<EventsPageSkeleton />}
+      fallback={<AdminEditorPageSkeleton />}
     />
   );
 }

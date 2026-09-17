@@ -6,11 +6,13 @@ import {
 } from "@/constants/public-pages";
 
 describe("public page indexes", () => {
-  it("keeps lab and apply out of the default indexable set", () => {
-    expect(PUBLIC_PAGE_SLUGS).toContain("lab");
+  it("keeps apply, register-interest, and alumni out of the default indexable set", () => {
+    expect(PUBLIC_PAGE_SLUGS).not.toContain("lab");
     expect(PUBLIC_PAGE_SLUGS).toContain("apply");
-    expect(INDEXABLE_PAGE_SLUGS).not.toContain("lab");
+    expect(PUBLIC_PAGE_SLUGS).toContain("alumni");
     expect(INDEXABLE_PAGE_SLUGS).not.toContain("apply");
+    expect(INDEXABLE_PAGE_SLUGS).not.toContain("register-interest");
+    expect(INDEXABLE_PAGE_SLUGS).not.toContain("alumni");
   });
 
   it("indexes core marketing routes", () => {

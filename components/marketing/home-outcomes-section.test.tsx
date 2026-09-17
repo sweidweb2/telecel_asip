@@ -3,16 +3,18 @@ import { describe, expect, it } from "vitest";
 
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
 import { homeCopyFor } from "@/constants/home-copy";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 describe("HomeOutcomesSection", () => {
   it("renders impact copy, features, register CTA, and the CTA image", () => {
     const copy = homeCopyFor("en").outcomes;
+    const intake = intakeCtaFor("en", false);
 
     const { container } = render(
       <HomeOutcomesSection
         locale="en"
         copy={copy}
-        openApplications={false}
+        intake={intake}
       />,
     );
 
@@ -28,8 +30,8 @@ describe("HomeOutcomesSection", () => {
     }
 
     expect(
-      screen.getByRole("link", { name: /register interest/i }),
-    ).toHaveAttribute("href", "/en/register-interest");
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
     expect(
       screen.getByRole("link", { name: copy.cta.label }),
     ).toHaveAttribute("href", "/en/impact");
@@ -45,17 +47,18 @@ describe("HomeOutcomesSection", () => {
 
   it("promotes Apply when applications are open", () => {
     const copy = homeCopyFor("en").outcomes;
+    const intake = intakeCtaFor("en", true);
 
     render(
       <HomeOutcomesSection
         locale="en"
         copy={copy}
-        openApplications={true}
+        intake={intake}
       />,
     );
 
     expect(
-      screen.getByRole("link", { name: /apply to asip/i }),
-    ).toHaveAttribute("href", "/en/apply");
+      screen.getByRole("link", { name: intake.label }),
+    ).toHaveAttribute("href", intake.href);
   });
 });

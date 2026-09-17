@@ -1,10 +1,25 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { runAdminMutation } from "@/lib/admin/run-admin-mutation";
+import { DASHBOARD_NAV_COUNTS_CACHE_TAG } from "@/constants/dashboard-nav-counts";
+import { ROUTES } from "@/constants/routes";
+import {
+  refreshAdminResource,
+  runAdminMutation,
+} from "@/lib/admin/run-admin-mutation";
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(async () => ({
+const { revalidatePath, revalidateTag } = vi.hoisted(() => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath,
+  revalidateTag,
+}));
+
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(async () => ({
     status: "success" as const,
     userId: "user-1",
     supabase: {},
@@ -67,5 +82,21 @@ describe("runAdminMutation", () => {
     });
 
     expect(result).toEqual({ status: "error", message: "not found" });
+  });
+});
+
+describe("refreshAdminResource", () => {
+  it("revalidates the editor nav-count tag on every write", () => {
+    refreshAdminResource({
+      listPath: ROUTES.blogs,
+      cacheTags: ["blogs"],
+    });
+
+    expect(revalidatePath).toHaveBeenCalledWith(ROUTES.blogs);
+    expect(revalidateTag).toHaveBeenCalledWith(
+      DASHBOARD_NAV_COUNTS_CACHE_TAG,
+      "max",
+    );
+    expect(revalidateTag).toHaveBeenCalledWith("blogs", "max");
   });
 });

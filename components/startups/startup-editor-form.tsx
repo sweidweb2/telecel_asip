@@ -21,7 +21,9 @@ import {
 } from "@/components/dashboard/admin-editor-actions-bar";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
   Stepper,
   StepperContent,
@@ -73,7 +75,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
 import { ROUTES } from "@/constants/routes";
 import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { StartupWithDetails } from "@/types/startup";
 import {
@@ -92,14 +98,53 @@ import {
 } from "@/validations/startup";
 
 /** Admin form surface — same height + fill on every Input / Select / Textarea. */
-const FIELD = "min-h-11 bg-white dark:bg-card";
-const TEXTAREA = "min-h-24 bg-white dark:bg-card";
-const SELECT_TRIGGER = "min-h-11 w-full bg-white dark:bg-card";
+const FIELD = "min-h-11";
+const TEXTAREA = "min-h-24";
+const SELECT_TRIGGER = "min-h-11 w-full";
 
 const STARTUP_EDITOR_STEPS = [
-  { id: "core", title: "Core", description: "Main info & logo" },
-  { id: "profile", title: "Profile", description: "Public portfolio fields" },
-  { id: "details", title: "Details", description: "Business & funding" },
+  {
+    id: "core",
+    title: "Core",
+    description: "Main info & logo",
+    fields: ["name", "slug", "description", "status", "foundedAt"],
+  },
+  {
+    id: "profile",
+    title: "Profile",
+    description: "Public portfolio fields",
+    fields: [
+      "details.cohort",
+      "details.countryCode",
+      "details.sector",
+      "details.founderNames",
+      "details.coverImageUrl",
+      "details.publicOutcome",
+      "details.featured",
+      "details.imageFocalX",
+      "details.imageFocalY",
+    ],
+  },
+  {
+    id: "details",
+    title: "Details",
+    description: "Business & funding",
+    fields: [
+      "details.websiteUrl",
+      "details.industry",
+      "details.category",
+      "details.location",
+      "details.foundingYear",
+      "details.size",
+      "details.team",
+      "details.problem",
+      "details.solution",
+      "details.targetMarket",
+      "details.businessModel",
+      "details.fundingGoal",
+      "details.amountRaised",
+    ],
+  },
 ];
 
 type StartupEditorFormProps = {
@@ -213,6 +258,7 @@ export function StartupEditorForm({
 }: StartupEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [pendingLogo, setPendingLogo] = useState<File | null>(null);
@@ -226,6 +272,7 @@ export function StartupEditorForm({
     resolver: zodResolver(createStartupSchema) as never,
     defaultValues: defaultsFromStartup(startup),
     mode: "onChange",
+    shouldUnregister: false,
   });
 
   const status = useWatch({ control: form.control, name: "status" });
@@ -271,15 +318,23 @@ export function StartupEditorForm({
         if (pendingLogo && result.id) {
           const formData = new FormData();
           formData.set("file", pendingLogo);
-          const uploadToast = toast.loading("Uploading image…");
-          const upload = await uploadStartupLogo(result.id, formData);
-          if (upload.status === "error") {
-            toast.error(upload.message, { id: uploadToast });
-            router.push(`${ROUTES.portfolio}/${result.id}`);
-            router.refresh();
-            return;
+          setIsProcessingImage(true);
+          const uploadToast = toast.loading("Processing image…");
+          try {
+            const upload = await uploadStartupLogo(result.id, formData);
+            if (upload.status === "error") {
+              toast.error(
+                "Startup created, but the logo could not be processed. Add it from this page.",
+                { id: uploadToast },
+              );
+              router.push(`${ROUTES.portfolio}/${result.id}`);
+              router.refresh();
+              return;
+            }
+            toast.dismiss(uploadToast);
+          } finally {
+            setIsProcessingImage(false);
           }
-          toast.dismiss(uploadToast);
         }
         toast.success(result.message);
         router.push(
@@ -306,18 +361,23 @@ export function StartupEditorForm({
       if (pendingLogo) {
         const formData = new FormData();
         formData.set("file", pendingLogo);
-        const uploadToast = toast.loading("Uploading image…");
-        const upload = await uploadStartupLogo(startup.id, formData);
-        if (upload.status === "error") {
-          toast.error(upload.message, { id: uploadToast });
-          // Fields already saved — clear dirty so only pending logo keeps Save open.
-          form.reset(form.getValues());
-          return;
+        setIsProcessingImage(true);
+        const uploadToast = toast.loading("Processing image…");
+        try {
+          const upload = await uploadStartupLogo(startup.id, formData);
+          if (upload.status === "error") {
+            toast.error(upload.message, { id: uploadToast });
+            // Fields already saved — clear dirty so only pending logo keeps Save open.
+            form.reset(form.getValues());
+            return;
+          }
+          toast.dismiss(uploadToast);
+          setPendingLogo(null);
+          if (pendingLogoPreview) URL.revokeObjectURL(pendingLogoPreview);
+          setPendingLogoPreview(null);
+        } finally {
+          setIsProcessingImage(false);
         }
-        toast.dismiss(uploadToast);
-        setPendingLogo(null);
-        if (pendingLogoPreview) URL.revokeObjectURL(pendingLogoPreview);
-        setPendingLogoPreview(null);
       }
       toast.success(result.message);
       form.reset(form.getValues());
@@ -362,13 +422,52 @@ export function StartupEditorForm({
     hasExternalChanges: Boolean(pendingLogo),
   });
   const saveLabel = mode === "create" ? "Create startup" : "Save changes";
+  const pendingLabel = isProcessingImage
+    ? "Processing image…"
+    : mode === "create"
+      ? "Creating…"
+      : "Saving…";
+
+  const stepIndex = STARTUP_EDITOR_STEPS.findIndex((s) => s.id === step);
+  const isLastStep = stepIndex === STARTUP_EDITOR_STEPS.length - 1;
+  const isFirstStep = stepIndex <= 0;
+
+  async function goToNextStep() {
+    const current = STARTUP_EDITOR_STEPS[stepIndex];
+    if (!current) return;
+    const ok = await form.trigger([...current.fields] as never, {
+      shouldFocus: true,
+    });
+    if (!ok) {
+      toast.error("Fix the highlighted fields before continuing.");
+      return;
+    }
+    const next = STARTUP_EDITOR_STEPS[stepIndex + 1];
+    if (next) setStep(next.id);
+  }
+
+  function goToPreviousStep() {
+    const prev = STARTUP_EDITOR_STEPS[stepIndex - 1];
+    if (prev) setStep(prev.id);
+  }
+
+  function onStepChange(nextId: string) {
+    const nextIndex = STARTUP_EDITOR_STEPS.findIndex((s) => s.id === nextId);
+    if (nextIndex < 0) return;
+    if (nextIndex <= stepIndex) {
+      setStep(nextId);
+      return;
+    }
+    if (nextIndex === stepIndex + 1) {
+      void goToNextStep();
+    }
+  }
 
   return (
     <div className="grid w-full gap-6">
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
       <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+        <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -388,13 +487,16 @@ export function StartupEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(submit)}
+        onSubmit={form.handleSubmit(submit, (errors) => {
+          const next = firstInvalidEditorStep(errors, STARTUP_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
       <Stepper
         steps={STARTUP_EDITOR_STEPS}
         value={step}
-        onValueChange={setStep}
+        onValueChange={onStepChange}
         orientation="horizontal"
         className="flex flex-col gap-6"
       >
@@ -403,6 +505,7 @@ export function StartupEditorForm({
             <StepperItem
               key={s.id}
               stepId={s.id}
+              disabled={index > stepIndex + 1}
               className="relative flex-1"
             >
               <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
@@ -428,7 +531,7 @@ export function StartupEditorForm({
         </StepperNav>
 
         <StepperPanel className="w-full">
-          <StepperContent value="core" forceMount className="space-y-6">
+          <StepperContent value="core" className="space-y-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
             <Card size="sm" className="min-w-0">
               <CardHeader className="border-b">
@@ -460,9 +563,7 @@ export function StartupEditorForm({
                       })}
                     />
                     {errors.name ? (
-                      <p className="text-sm text-destructive">
-                        {errors.name.message}
-                      </p>
+                      <AdminFieldError message={errors.name.message} />
                     ) : null}
                   </div>
 
@@ -484,9 +585,7 @@ export function StartupEditorForm({
                       })}
                     />
                     {errors.slug ? (
-                      <p className="text-sm text-destructive">
-                        {errors.slug.message}
-                      </p>
+                      <AdminFieldError message={errors.slug.message} />
                     ) : null}
                   </div>
                 </div>
@@ -507,9 +606,7 @@ export function StartupEditorForm({
                     {...form.register("description")}
                   />
                   {errors.description ? (
-                    <p className="text-sm text-destructive">
-                      {errors.description.message}
-                    </p>
+                    <AdminFieldError message={errors.description.message} />
                   ) : null}
                 </div>
 
@@ -543,9 +640,7 @@ export function StartupEditorForm({
                       </SelectContent>
                     </Select>
                     {errors.status ? (
-                      <p className="text-sm text-destructive">
-                        {errors.status.message}
-                      </p>
+                      <AdminFieldError message={errors.status.message} />
                     ) : null}
                   </div>
 
@@ -568,9 +663,7 @@ export function StartupEditorForm({
                       )}
                     />
                     {errors.foundedAt ? (
-                      <p className="text-sm text-destructive">
-                        {errors.foundedAt.message}
-                      </p>
+                      <AdminFieldError message={errors.foundedAt.message} />
                     ) : null}
                   </div>
                 </div>
@@ -649,16 +742,18 @@ export function StartupEditorForm({
                     {pendingLogo || logoUrl ? "Replace logo" : "Choose logo"}
                   </Button>
                 </div>
+                <AdminImageProcessingBanner active={isProcessingImage} />
                 <p className="text-xs text-muted-foreground">
-                  Optional. On create, the file uploads after the startup is
-                  saved.
+                  Optional. On create, the file uploads after the startup row is
+                  saved. Clear the selection before save to skip the upload.
+                  Percent and cancel are not available while processing.
                 </p>
               </CardContent>
             </Card>
           </div>
           </StepperContent>
 
-          <StepperContent value="profile" forceMount className="space-y-6">
+          <StepperContent value="profile" className="space-y-6">
           <Card size="sm" className="min-w-0">
             <CardHeader className="border-b">
               <CardTitle>Public profile</CardTitle>
@@ -763,7 +858,7 @@ export function StartupEditorForm({
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="flex min-h-11 items-center gap-3 rounded-lg border border-input bg-white px-3 dark:bg-card">
+                <div className="flex min-h-11 items-center gap-3 rounded-lg border border-input px-3">
                   <Controller
                     control={form.control}
                     name="details.featured"
@@ -814,7 +909,7 @@ export function StartupEditorForm({
           </Card>
           </StepperContent>
 
-          <StepperContent value="details" forceMount className="space-y-6">
+          <StepperContent value="details" className="space-y-6">
           <Card size="sm" className="min-w-0">
             <CardHeader className="border-b">
               <CardTitle>Company details</CardTitle>
@@ -843,9 +938,7 @@ export function StartupEditorForm({
                     {...form.register("details.websiteUrl")}
                   />
                   {errors.details?.websiteUrl ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.websiteUrl.message}
-                    </p>
+                    <AdminFieldError message={errors.details.websiteUrl.message} />
                   ) : null}
                 </div>
 
@@ -916,9 +1009,7 @@ export function StartupEditorForm({
                     {...form.register("details.foundingYear")}
                   />
                   {errors.details?.foundingYear ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.foundingYear.message}
-                    </p>
+                    <AdminFieldError message={errors.details.foundingYear.message} />
                   ) : null}
                 </div>
 
@@ -1046,9 +1137,7 @@ export function StartupEditorForm({
                     {...form.register("details.fundingGoal")}
                   />
                   {errors.details?.fundingGoal ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.fundingGoal.message}
-                    </p>
+                    <AdminFieldError message={errors.details.fundingGoal.message} />
                   ) : null}
                 </div>
                 <div className="grid gap-2">
@@ -1069,9 +1158,7 @@ export function StartupEditorForm({
                     {...form.register("details.amountRaised")}
                   />
                   {errors.details?.amountRaised ? (
-                    <p className="text-sm text-destructive">
-                      {errors.details.amountRaised.message}
-                    </p>
+                    <AdminFieldError message={errors.details.amountRaised.message} />
                   ) : null}
                 </div>
               </div>
@@ -1082,30 +1169,57 @@ export function StartupEditorForm({
       </Stepper>
 
       <AdminEditorActionsBar>
-        {mode === "edit" ? (
-          <Button
-            type="button"
-            variant="destructive"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Delete
-          </Button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
-        <Button
-          type="submit"
-          className="min-h-11 w-full sm:ml-auto sm:w-auto"
-          disabled={saveDisabled}
-        >
-          {isPending ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : null}
-          {saveLabel}
-        </Button>
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending || isFirstStep}
+                onClick={goToPreviousStep}
+              >
+                Back
+              </Button>
+              {isLastStep ? (
+                <Button
+                  type="submit"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={saveDisabled}
+                >
+                  {isPending ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : null}
+                  {isPending ? pendingLabel : saveLabel}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={isPending}
+                  onClick={() => void goToNextStep()}
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
       </AdminEditorActionsBar>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

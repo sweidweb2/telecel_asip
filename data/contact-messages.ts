@@ -1,9 +1,10 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { createClient } from "@/lib/supabase/server";
 import {
   fetchInboxTableStats,
@@ -11,11 +12,18 @@ import {
 } from "@/data/inbox-stats";
 import type {
   ContactMessage,
+  ContactMessageListItem,
   ContactMessageListResult,
 } from "@/types/contact-message";
-import type { ContactMessageListQuery } from "@/validations/contact-message";
+import {
+  deleteContactMessageSchema,
+  type ContactMessageListQuery,
+} from "@/validations/contact-message";
 
-const MESSAGE_COLUMNS =
+const MESSAGE_LIST_COLUMNS =
+  "id, full_name, email, phone, inbox_status, created_at" as const;
+
+const MESSAGE_DETAIL_COLUMNS =
   "id, enquiry_type, full_name, email, phone, subject, message, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -28,7 +36,7 @@ async function fetchContactMessages(
 
   let request = supabase
     .from("contact_messages")
-    .select(MESSAGE_COLUMNS, { count: "estimated" })
+    .select(MESSAGE_LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -50,7 +58,7 @@ async function fetchContactMessages(
 
   const total = count ?? 0;
   return {
-    messages: (data ?? []) as ContactMessage[],
+    messages: (data ?? []) as ContactMessageListItem[],
     total,
     totalPages: adminListTotalPages(total, query.pageSize),
   };
@@ -62,7 +70,7 @@ export async function getContactMessagesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ContactMessageListResult; stats: InboxTableStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchContactMessages(supabase, query),
@@ -72,4 +80,29 @@ export async function getContactMessagesPageData(
     },
     { name: "getContactMessagesPageData" },
   );
+}
+
+export async function getContactMessageById(
+  id: string,
+): Promise<
+  | { status: "forbidden" }
+  | { status: "not_found" }
+  | { status: "ok"; record: ContactMessage }
+> {
+  if (!deleteContactMessageSchema.safeParse({ id }).success) {
+    return { status: "not_found" };
+  }
+
+  const supabase = await createClient();
+  if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+
+  const { data, error } = await supabase
+    .from("contact_messages")
+    .select(MESSAGE_DETAIL_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return { status: "not_found" };
+  return { status: "ok", record: data as ContactMessage };
 }

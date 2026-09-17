@@ -29,7 +29,7 @@ export function AlumniNoticeSection({
       >
         <div className="rounded-2xl border border-border bg-muted/40 px-5 py-6 sm:px-8 sm:py-7">
           <span
-            className="mb-3 block h-0.5 w-10 bg-[#dc395f]"
+            className="mb-3 block h-0.5 w-10 bg-asip-coral"
             aria-hidden
           />
           <p className="max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">

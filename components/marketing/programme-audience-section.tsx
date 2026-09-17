@@ -5,7 +5,7 @@ import { Cpu, Globe, Users, type LucideIcon } from "lucide-react";
 import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
 import { MARKETING_MEDIA } from "@/constants/marketing-media";
 import type { Locale } from "@/constants/locales";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type {
   ProgrammeAudienceHighlightId,
@@ -21,7 +21,7 @@ const HIGHLIGHT_ICONS: Record<ProgrammeAudienceHighlightId, LucideIcon> = {
 type ProgrammeAudienceSectionProps = {
   locale: Locale;
   copy: ProgrammePageCopy["audience"];
-  openApplications: boolean;
+  intake: IntakeCta;
 };
 
 /**
@@ -31,9 +31,8 @@ type ProgrammeAudienceSectionProps = {
 export function ProgrammeAudienceSection({
   locale,
   copy,
-  openApplications,
+  intake,
 }: ProgrammeAudienceSectionProps) {
-  const intake = intakeCtaFor(locale, openApplications);
   const media = MARKETING_MEDIA.programme;
 
   return (
@@ -73,15 +72,15 @@ export function ProgrammeAudienceSection({
               aria-hidden
             >
               <span className="bg-white/90" />
-              <span className="bg-[#81b764]" />
-              <span className="bg-[#c14a9b]" />
-              <span className="bg-[#dc395f]" />
+              <span className="bg-brand-mid" />
+              <span className="bg-asip-magenta" />
+              <span className="bg-asip-coral" />
             </span>
             <div className="min-w-0">
               <p className="font-heading text-sm font-semibold tracking-wide text-white">
                 ASIP
               </p>
-              <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-[#9ad1bf]">
+              <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-asip-mint">
                 {copy.eyebrow}
               </p>
             </div>

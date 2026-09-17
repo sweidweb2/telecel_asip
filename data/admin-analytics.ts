@@ -1,5 +1,5 @@
 import { ROUTES } from "@/constants/routes";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
@@ -93,7 +93,7 @@ function mapContent(payload: ContentPayload | undefined): ContentSnapshotRow[] {
       secondaryLabel: "Draft",
     },
     {
-      label: "Startup",
+      label: "Startups",
       href: ROUTES.portfolio,
       primary: asNumber(payload?.startupsActive),
       primaryLabel: "Active",
@@ -154,7 +154,7 @@ export async function getAdminAnalytics(): Promise<
     "getAdminAnalytics",
     { eventType: "data_read", cacheStatus: "n_a" },
     async () => {
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const supabase = await createClient();
       const { data, error } = await supabase.rpc("get_admin_analytics");

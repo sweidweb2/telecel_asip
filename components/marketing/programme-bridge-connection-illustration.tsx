@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import "./impact-motion.css";
+
 import { cn } from "@/lib/utils";
 
 type ProgrammeBridgeConnectionIllustrationProps = {

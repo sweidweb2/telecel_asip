@@ -20,14 +20,14 @@ export async function generateMetadata({
           path: "/privacy",
           title: "Politique de confidentialité - ASIP",
           description:
-            "Politique de confidentialité provisoire du site du Programme africain d’initiative pour les startups.",
+            "Politique de confidentialité ASIP : données collectées, cookies, formulaires et droits.",
         }
       : {
           locale,
           path: "/privacy",
           title: "Privacy Policy - ASIP",
           description:
-            "Draft privacy policy for the Africa Startup Initiative Program website.",
+            "ASIP privacy policy: data we collect, cookies, forms, processors, and your rights.",
         },
   );
 }

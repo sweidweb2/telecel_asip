@@ -1,18 +1,19 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
+import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
-import { countExact } from "@/lib/admin/count-exact";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  StartupCountryReach,
   StartupListItem,
   StartupListResult,
   StartupPublicDetail,
@@ -30,6 +31,8 @@ import {
 } from "@/validations/startup";
 
 export const STARTUPS_CACHE_TAG = "startups";
+
+export type { StartupCountryReach };
 
 const LIST_COLUMNS =
   "id, name, slug, logo_url, description, status, founded_at, created_at, updated_at" as const;
@@ -147,28 +150,12 @@ export type StartupListStats = {
 async function fetchStartupListStats(
   supabase: ServerClient,
 ): Promise<StartupListStats> {
-  const [total, active, draft, inactive] = await Promise.all([
-    supabase.from("startups").select("id", { count: "exact", head: true }),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "active"),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "draft"),
-    supabase
-      .from("startups")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "inactive"),
+  return fetchAdminListStats(supabase, "startups", [
+    "total",
+    "active",
+    "draft",
+    "inactive",
   ]);
-
-  return {
-    total: countExact(total),
-    active: countExact(active),
-    draft: countExact(draft),
-    inactive: countExact(inactive),
-  };
 }
 
 export async function getStartupsPageData(
@@ -177,7 +164,7 @@ export async function getStartupsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: StartupListResult; stats: StartupListStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchStartupsPage(supabase, query),
@@ -207,7 +194,7 @@ export const getStartupByIdForAdmin = wrapCached(
       if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const [
         { data: startup, error: startupError },
@@ -257,7 +244,7 @@ export async function getStartupsForBlogPicker(
     { eventType: "option_load", cacheStatus: "n_a" },
     async () => {
       const supabase = await createClient();
-      if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
+      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
 
       const term = search.trim().slice(0, 100);
       let request = supabase
@@ -421,6 +408,27 @@ async function fetchActiveStartupFilterOptions(): Promise<StartupFilterOptions> 
 export const getActiveStartupFilterOptions = unstable_cache(
   fetchActiveStartupFilterOptions,
   ["active-startup-filter-options"],
+  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+);
+
+async function fetchActiveStartupCountryReach(): Promise<StartupCountryReach[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase.rpc(
+    "get_active_startup_country_reach",
+  );
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    countryCode: row.country_code,
+    founderCount: row.founder_count,
+  }));
+}
+
+/** Verified public portfolio reach used by the home footprint graphic. */
+export const getActiveStartupCountryReach = unstable_cache(
+  fetchActiveStartupCountryReach,
+  ["active-startup-country-reach"],
   { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
 );
 

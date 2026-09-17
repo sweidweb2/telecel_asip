@@ -10,15 +10,16 @@ import { toast } from "sonner";
 import {
   createCohort,
   deleteCohort,
-  loadCohortLinkOptions,
   updateCohort,
 } from "@/actions/cohorts";
+import { loadCohortLinkOptions } from "@/actions/admin-pickers";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,11 @@ import {
 import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import {
   applyClearFormValues,
   applyDummyFormValues,
@@ -69,8 +74,27 @@ import {
 } from "@/validations/cohort";
 
 const COHORT_EDITOR_STEPS = [
-  { id: "programme", title: "Programme", description: "Identity & dates" },
-  { id: "links", title: "Links", description: "Partners & founders" },
+  {
+    id: "programme",
+    title: "Programme",
+    description: "Identity & dates",
+    fields: [
+      "year",
+      "publicLabel",
+      "programmeDatesStart",
+      "programmeDatesEnd",
+      "programmeStatus",
+      "publishStatus",
+      "summary",
+      "mediaUrl",
+    ],
+  },
+  {
+    id: "links",
+    title: "Links",
+    description: "Partners & founders",
+    fields: ["partnerIds", "startupIds"],
+  },
 ];
 
 type CohortEditorFormProps = {
@@ -105,7 +129,6 @@ export function CohortEditorForm({
   cohort,
   partners: initialPartners = [],
   startups: initialStartups = [],
-  heading,
 }: CohortEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -131,6 +154,7 @@ export function CohortEditorForm({
   const form = useForm<CreateCohortInput>({
     resolver: zodResolver(createCohortSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: {
       year: cohort?.year ?? new Date().getFullYear(),
       publicLabel: cohort?.public_label ?? "",
@@ -270,10 +294,8 @@ export function CohortEditorForm({
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -287,7 +309,10 @@ export function CohortEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, COHORT_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -325,7 +350,6 @@ export function CohortEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="programme"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
                 title={COHORT_EDITOR_HELP.programme.title}
@@ -338,15 +362,13 @@ export function CohortEditorForm({
                   <Input
                     id="year"
                     type="number"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     placeholder="e.g. 2026"
                     {...register("year", { valueAsNumber: true })}
                   />
                   {errors.year ? (
-                    <p className="text-sm text-destructive">
-                      {errors.year.message}
-                    </p>
+                    <AdminFieldError message={errors.year.message} />
                   ) : null}
                 </div>
 
@@ -359,16 +381,14 @@ export function CohortEditorForm({
                   </FieldLabel>
                   <Input
                     id="publicLabel"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     maxLength={COHORT_PUBLIC_LABEL_MAX}
                     placeholder="e.g. Cohort 6"
                     {...register("publicLabel")}
                   />
                   {errors.publicLabel ? (
-                    <p className="text-sm text-destructive">
-                      {errors.publicLabel.message}
-                    </p>
+                    <AdminFieldError message={errors.publicLabel.message} />
                   ) : null}
                 </div>
 
@@ -379,15 +399,13 @@ export function CohortEditorForm({
                   <Input
                     id="programmeDatesStart"
                     type="date"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     aria-invalid={Boolean(errors.programmeDatesStart)}
                     {...register("programmeDatesStart")}
                   />
                   {errors.programmeDatesStart ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeDatesStart.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeDatesStart.message} />
                   ) : null}
                 </div>
 
@@ -398,15 +416,13 @@ export function CohortEditorForm({
                   <Input
                     id="programmeDatesEnd"
                     type="date"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     aria-invalid={Boolean(errors.programmeDatesEnd)}
                     {...register("programmeDatesEnd")}
                   />
                   {errors.programmeDatesEnd ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeDatesEnd.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeDatesEnd.message} />
                   ) : null}
                 </div>
 
@@ -431,7 +447,7 @@ export function CohortEditorForm({
                       >
                         <SelectTrigger
                           id="programmeStatus"
-                          className="min-h-11 w-full bg-white dark:bg-card"
+                          className="min-h-11 w-full"
                         >
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -446,9 +462,7 @@ export function CohortEditorForm({
                     )}
                   />
                   {errors.programmeStatus ? (
-                    <p className="text-sm text-destructive">
-                      {errors.programmeStatus.message}
-                    </p>
+                    <AdminFieldError message={errors.programmeStatus.message} />
                   ) : null}
                 </div>
 
@@ -471,7 +485,7 @@ export function CohortEditorForm({
                       >
                         <SelectTrigger
                           id="publishStatus"
-                          className="min-h-11 w-full bg-white dark:bg-card"
+                          className="min-h-11 w-full"
                         >
                           <SelectValue placeholder="Publish" />
                         </SelectTrigger>
@@ -486,9 +500,7 @@ export function CohortEditorForm({
                     )}
                   />
                   {errors.publishStatus ? (
-                    <p className="text-sm text-destructive">
-                      {errors.publishStatus.message}
-                    </p>
+                    <AdminFieldError message={errors.publishStatus.message} />
                   ) : null}
                 </div>
 
@@ -502,16 +514,13 @@ export function CohortEditorForm({
                   <Textarea
                     id="summary"
                     rows={5}
-                    className="bg-white dark:bg-card"
                     disabled={isPending}
                     maxLength={COHORT_SUMMARY_MAX}
                     placeholder="What this cohort focuses on"
                     {...register("summary")}
                   />
                   {errors.summary ? (
-                    <p className="text-sm text-destructive">
-                      {errors.summary.message}
-                    </p>
+                    <AdminFieldError message={errors.summary.message} />
                   ) : null}
                 </div>
 
@@ -525,15 +534,13 @@ export function CohortEditorForm({
                   <UrlInput
                     id="mediaUrl"
                     placeholder="example.com/media"
-                    className="min-h-11 bg-white dark:bg-card"
+                    className="min-h-11"
                     disabled={isPending}
                     maxLength={COHORT_MEDIA_URL_MAX}
                     {...register("mediaUrl")}
                   />
                   {errors.mediaUrl ? (
-                    <p className="text-sm text-destructive">
-                      {errors.mediaUrl.message}
-                    </p>
+                    <AdminFieldError message={errors.mediaUrl.message} />
                   ) : null}
                 </div>
               </AdminFormSection>
@@ -541,7 +548,6 @@ export function CohortEditorForm({
 
             <StepperContent
               value="links"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
                 title={COHORT_EDITOR_HELP.links.title}
@@ -626,14 +632,10 @@ export function CohortEditorForm({
                   )}
                 />
                 {errors.partnerIds ? (
-                  <p className="text-sm text-destructive sm:col-span-2">
-                    {errors.partnerIds.message}
-                  </p>
+                  <AdminFieldError message={errors.partnerIds.message} className="sm:col-span-2" />
                 ) : null}
                 {errors.startupIds ? (
-                  <p className="text-sm text-destructive sm:col-span-2">
-                    {errors.startupIds.message}
-                  </p>
+                  <AdminFieldError message={errors.startupIds.message} className="sm:col-span-2" />
                 ) : null}
               </AdminFormSection>
             </StepperContent>

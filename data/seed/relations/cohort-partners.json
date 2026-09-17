@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "relation": "cohort_partners",
+  "records": [
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "partner_key": "asip"
+    },
+    {
+      "cohort_key": "2021:ASIP Accelerator Cohort 1",
+      "partner_key": "startupbootcamp-afritech"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "partner_key": "asip"
+    },
+    {
+      "cohort_key": "2022:ASIP Accelerator Cohort 2",
+      "partner_key": "startupbootcamp-afritech"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "partner_key": "asip"
+    },
+    {
+      "cohort_key": "2023:ASIP Accelerator Cohort 3",
+      "partner_key": "startupbootcamp-afritech"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "partner_key": "asip"
+    },
+    {
+      "cohort_key": "2024:ASIP Accelerator Cohort 4",
+      "partner_key": "startupbootcamp-afritech"
+    }
+  ]
+}

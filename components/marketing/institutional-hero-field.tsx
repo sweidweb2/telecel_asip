@@ -1,3 +1,5 @@
+import "./institutional-hero-field.css";
+
 /**
  * Decorative “institutional night panel” field — geometric structure under soft
  * atmospheric light. ASIP ink/teal palette. Non-interactive; place behind content.

@@ -1,22 +1,39 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserAdmin = vi.fn();
+const isCurrentUserStaff = vi.fn();
+const getStaffShell = vi.fn();
 const range = vi.fn();
-const orderId = vi.fn(() => ({ range }));
-const orderCreated = vi.fn(() => ({ order: orderId }));
-const eqRole = vi.fn(() => ({ range, order: orderCreated, or: vi.fn() }));
-const or = vi.fn(() => ({ range }));
-const select = vi.fn(() => ({
-  order: orderCreated,
-  eq: eqRole,
-  or,
-  range,
-}));
+const eqRole = vi.fn();
+const neqRole = vi.fn();
+const or = vi.fn();
 const rpc = vi.fn();
-const from = vi.fn(() => ({ select }));
+const from = vi.fn();
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
-  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+/** Fluent PostgREST stub — every filter/order returns the same builder. */
+function mockQuery() {
+  const query = {
+    select: vi.fn(),
+    order: vi.fn(),
+    eq: eqRole,
+    neq: neqRole,
+    or,
+    range,
+  };
+  query.select.mockReturnValue(query);
+  query.order.mockReturnValue(query);
+  eqRole.mockReturnValue(query);
+  neqRole.mockReturnValue(query);
+  or.mockReturnValue(query);
+  from.mockReturnValue(query);
+  return query;
+}
+
+vi.mock("@/lib/admin/is-current-user-staff", () => ({
+  isCurrentUserStaff: (...args: unknown[]) => isCurrentUserStaff(...args),
+}));
+
+vi.mock("@/lib/admin/get-staff-shell", () => ({
+  getStaffShell: (...args: unknown[]) => getStaffShell(...args),
 }));
 
 vi.mock("@/lib/admin/perf", () => ({
@@ -32,23 +49,18 @@ import { getUsersPageData } from "@/data/users";
 describe("getUsersPageData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    orderCreated.mockImplementation(() => ({
-      order: orderId,
-      range,
-      eq: eqRole,
-      or,
-    }));
-    orderId.mockImplementation(() => ({ range, eq: eqRole, or }));
-    select.mockImplementation(() => ({
-      order: orderCreated,
-      eq: eqRole,
-      or,
-      range,
-    }));
+    mockQuery();
+    getStaffShell.mockResolvedValue({
+      role: "admin",
+      isAdmin: true,
+      isEditor: false,
+      fullName: "Ada",
+      email: "ada@example.com",
+    });
   });
 
-  it("returns forbidden for non-admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(false);
+  it("returns forbidden for non-staff", async () => {
+    isCurrentUserStaff.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
     rpc.mockResolvedValue({ data: null, error: null });
 
@@ -57,12 +69,14 @@ describe("getUsersPageData", () => {
       pageSize: 10,
       search: "",
       role: "all",
+      sort: "created_at",
+      dir: "desc",
     });
     expect(result.status).toBe("forbidden");
   });
 
-  it("returns users list and mapped stats for admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+  it("returns users list and mapped stats for staff", async () => {
+    isCurrentUserStaff.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -94,6 +108,8 @@ describe("getUsersPageData", () => {
       pageSize: 10,
       search: "",
       role: "all",
+      sort: "created_at",
+      dir: "desc",
     });
 
     expect(result.status).toBe("ok");
@@ -107,5 +123,57 @@ describe("getUsersPageData", () => {
       newThisWeek: 1,
       newThisMonth: 4,
     });
+    expect(neqRole).not.toHaveBeenCalled();
+  });
+
+  it("excludes admin profiles when the actor is an editor", async () => {
+    isCurrentUserStaff.mockResolvedValue(true);
+    getStaffShell.mockResolvedValue({
+      role: "editor",
+      isAdmin: false,
+      isEditor: true,
+      fullName: "Ed",
+      email: "ed@example.com",
+    });
+    range.mockResolvedValue({
+      data: [
+        {
+          id: "u2",
+          email: "ed@example.com",
+          full_name: "Ed",
+          role: "editor",
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-01T00:00:00.000Z",
+        },
+      ],
+      error: null,
+      count: 1,
+    });
+    rpc.mockResolvedValue({
+      data: {
+        total: 8,
+        admins: 0,
+        editors: 3,
+        viewers: 5,
+        new_this_week: 1,
+        new_this_month: 4,
+      },
+      error: null,
+    });
+
+    const result = await getUsersPageData({
+      page: 1,
+      pageSize: 10,
+      search: "",
+      role: "admin",
+      sort: "created_at",
+      dir: "desc",
+    });
+
+    expect(result.status).toBe("ok");
+    if (result.status !== "ok") return;
+    expect(neqRole).toHaveBeenCalledWith("role", "admin");
+    expect(eqRole).not.toHaveBeenCalled();
+    expect(result.stats.admins).toBe(0);
   });
 });

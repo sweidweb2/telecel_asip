@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import {
   createImpactMetric,
   deleteImpactMetric,
-  loadImpactEvidenceOptions,
   updateImpactMetric,
 } from "@/actions/impact-metrics";
+import { loadImpactEvidenceOptions } from "@/actions/admin-pickers";
 import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
@@ -64,7 +64,11 @@ import {
 } from "@/constants/impact-suggestions";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
+import {
+  firstInvalidEditorStep,
+  isAdminFormSubmitDisabled,
+} from "@/lib/admin/form-submit";
 import {
   dummyImpactMetricValues,
   todayIsoDate,
@@ -86,9 +90,24 @@ import {
 } from "@/validations/impact-metric";
 
 const IMPACT_METRIC_EDITOR_STEPS = [
-  { id: "claim", title: "Claim", description: "Label & value" },
-  { id: "period", title: "Period", description: "Dates & evidence" },
-  { id: "publishing", title: "Publishing", description: "Scope & surfaces" },
+  {
+    id: "claim",
+    title: "Claim",
+    description: "Label & value",
+    fields: ["claimLabel", "value", "unit"],
+  },
+  {
+    id: "period",
+    title: "Period",
+    description: "Dates & evidence",
+    fields: ["periodStart", "periodEnd", "evidenceId"],
+  },
+  {
+    id: "publishing",
+    title: "Publishing",
+    description: "Scope & surfaces",
+    fields: ["publishStatus", "impactLens", "geography", "displayLocations"],
+  },
 ];
 
 function defaultsFor(metric?: ImpactMetric): ImpactMetricFormValues {
@@ -119,7 +138,6 @@ export function ImpactMetricEditorForm({
   mode,
   metric,
   evidenceOptions: initialOptions = [],
-  heading,
 }: ImpactMetricEditorFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -142,6 +160,7 @@ export function ImpactMetricEditorForm({
   >({
     resolver: zodResolver(createImpactMetricSchema),
     mode: "onChange",
+    shouldUnregister: false,
     defaultValues: defaultsFor(metric),
   });
 
@@ -225,10 +244,8 @@ export function ImpactMetricEditorForm({
 
   return (
     <div className="grid w-full gap-6">
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {heading}
-        </h2>
+      <UnsavedChangesGuard enabled={isDirty && !isPending} />
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
         <AdminFormDevTools
           disabled={isPending}
           onDummy={() => {
@@ -252,7 +269,10 @@ export function ImpactMetricEditorForm({
 
       <form
         className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          const next = firstInvalidEditorStep(errors, IMPACT_METRIC_EDITOR_STEPS);
+          if (next) setStep(next);
+        })}
         noValidate
       >
         <Stepper
@@ -290,7 +310,6 @@ export function ImpactMetricEditorForm({
           <StepperPanel className="w-full max-w-3xl">
             <StepperContent
               value="claim"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -320,7 +339,7 @@ export function ImpactMetricEditorForm({
                           disabled={isPending}
                           maxLength={IMPACT_CLAIM_LABEL_MAX}
                           placeholder="e.g. Jobs created"
-                          className="min-h-11 bg-white dark:bg-card"
+                          className="min-h-11"
                           aria-invalid={!!errors.claimLabel}
                           suggestions={suggestions}
                         />
@@ -343,7 +362,7 @@ export function ImpactMetricEditorForm({
                     </AdminFormFieldLabel>
                     <Input
                       id="impact-value"
-                      className="min-h-11 bg-white dark:bg-card"
+                      className="min-h-11"
                       maxLength={IMPACT_VALUE_MAX}
                       disabled={isPending}
                       aria-invalid={!!errors.value}
@@ -365,7 +384,7 @@ export function ImpactMetricEditorForm({
                     </AdminFormFieldLabel>
                     <Input
                       id="impact-unit"
-                      className="min-h-11 bg-white dark:bg-card"
+                      className="min-h-11"
                       maxLength={IMPACT_UNIT_MAX}
                       disabled={isPending}
                       aria-invalid={!!errors.unit}
@@ -380,7 +399,6 @@ export function ImpactMetricEditorForm({
 
             <StepperContent
               value="period"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -400,7 +418,7 @@ export function ImpactMetricEditorForm({
                     <Input
                       id="impact-start"
                       type="date"
-                      className="min-h-11 bg-white dark:bg-card"
+                      className="min-h-11"
                       disabled={isPending}
                       aria-invalid={!!errors.periodStart}
                       {...register("periodStart")}
@@ -418,7 +436,7 @@ export function ImpactMetricEditorForm({
                     <Input
                       id="impact-end"
                       type="date"
-                      className="min-h-11 bg-white dark:bg-card"
+                      className="min-h-11"
                       disabled={isPending}
                       aria-invalid={!!errors.periodEnd}
                       {...register("periodEnd")}
@@ -473,7 +491,6 @@ export function ImpactMetricEditorForm({
 
             <StepperContent
               value="publishing"
-              forceMount
               className="mx-auto w-full max-w-3xl space-y-6"
             >
               <AdminFormSection
@@ -507,7 +524,7 @@ export function ImpactMetricEditorForm({
                         >
                           <SelectTrigger
                             id="impact-status"
-                            className="min-h-11 w-full bg-white dark:bg-card"
+                            className="min-h-11 w-full"
                           >
                             <SelectValue />
                           </SelectTrigger>
@@ -553,7 +570,7 @@ export function ImpactMetricEditorForm({
                         >
                           <SelectTrigger
                             id="impact-lens"
-                            className="min-h-11 w-full bg-white dark:bg-card"
+                            className="min-h-11 w-full"
                           >
                             <SelectValue placeholder="None" />
                           </SelectTrigger>
@@ -595,7 +612,7 @@ export function ImpactMetricEditorForm({
                           disabled={isPending}
                           maxLength={IMPACT_GEOGRAPHY_MAX}
                           placeholder="e.g. West Africa"
-                          className="min-h-11 bg-white dark:bg-card"
+                          className="min-h-11"
                           aria-invalid={!!errors.geography}
                           suggestions={suggestions}
                         />
@@ -636,7 +653,6 @@ export function ImpactMetricEditorForm({
                             IMPACT_DISPLAY_LOCATIONS_MAX
                           }
                           rows={3}
-                          className="bg-white dark:bg-card"
                           aria-invalid={!!errors.displayLocations}
                           placeholder={
                             "homepage_module_02\nimpact_page"

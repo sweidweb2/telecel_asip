@@ -1,9 +1,10 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
+import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { createClient } from "@/lib/supabase/server";
 import {
   fetchInboxTableStats,
@@ -11,11 +12,18 @@ import {
 } from "@/data/inbox-stats";
 import type {
   Application,
+  ApplicationListItem,
   ApplicationListResult,
 } from "@/types/application";
-import type { ApplicationListQuery } from "@/validations/application";
+import {
+  deleteApplicationSchema,
+  type ApplicationListQuery,
+} from "@/validations/application";
 
-const APPLICATION_COLUMNS =
+const APPLICATION_LIST_COLUMNS =
+  "id, full_name, email, company_name, inbox_status, created_at" as const;
+
+const APPLICATION_DETAIL_COLUMNS =
   "id, full_name, founder_role, email, phone, country, linkedin, company_name, website, company_country, sector, problem_product, traction, programme_fit, consent, comms_opt_in, inbox_status, created_at" as const;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -28,7 +36,7 @@ async function fetchApplications(
 
   let request = supabase
     .from("applications")
-    .select(APPLICATION_COLUMNS, { count: "estimated" })
+    .select(APPLICATION_LIST_COLUMNS, { count: "estimated" })
     .order("created_at", { ascending: false })
     .order("id", { ascending: true })
     .range(from, to);
@@ -46,7 +54,7 @@ async function fetchApplications(
 
   const total = count ?? 0;
   return {
-    applications: (data ?? []) as Application[],
+    applications: (data ?? []) as ApplicationListItem[],
     total,
     totalPages: adminListTotalPages(total, query.pageSize),
   };
@@ -58,7 +66,7 @@ export async function getApplicationsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ApplicationListResult; stats: InboxTableStats }
 > {
-  return gateAdminPageData(
+  return gateEditorPageData(
     async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchApplications(supabase, query),
@@ -68,4 +76,29 @@ export async function getApplicationsPageData(
     },
     { name: "getApplicationsPageData" },
   );
+}
+
+export async function getApplicationById(
+  id: string,
+): Promise<
+  | { status: "forbidden" }
+  | { status: "not_found" }
+  | { status: "ok"; record: Application }
+> {
+  if (!deleteApplicationSchema.safeParse({ id }).success) {
+    return { status: "not_found" };
+  }
+
+  const supabase = await createClient();
+  if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+
+  const { data, error } = await supabase
+    .from("applications")
+    .select(APPLICATION_DETAIL_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return { status: "not_found" };
+  return { status: "ok", record: data as Application };
 }

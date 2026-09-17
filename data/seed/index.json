@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "dataset": "ASIP source-backed CMS seed data",
+  "generated_from": "Docs/[05] Guy Data",
+  "categories": [
+    {
+      "path": "cms/startups.json",
+      "record_count": 42,
+      "classification": "project"
+    },
+    {
+      "path": "cms/cohorts.json",
+      "record_count": 4,
+      "classification": "project"
+    },
+    {
+      "path": "cms/partners.json",
+      "record_count": 14,
+      "classification": "project"
+    },
+    {
+      "path": "cms/events.json",
+      "record_count": 4,
+      "classification": "project"
+    },
+    {
+      "path": "cms/founder-stories.json",
+      "record_count": 3,
+      "classification": "project"
+    },
+    {
+      "path": "cms/blogs.json",
+      "record_count": 4,
+      "classification": "project"
+    },
+    {
+      "path": "cms/impact-metrics.json",
+      "record_count": 9,
+      "classification": "project"
+    },
+    {
+      "path": "cms/evidence-records.json",
+      "record_count": 5,
+      "classification": "project"
+    },
+    {
+      "path": "content/programme-milestones.json",
+      "record_count": 10,
+      "classification": "project"
+    },
+    {
+      "path": "relations/cohort-startups.json",
+      "record_count": 43,
+      "classification": "project"
+    },
+    {
+      "path": "relations/cohort-partners.json",
+      "record_count": 8,
+      "classification": "project"
+    },
+    {
+      "path": "relations/event-startups.json",
+      "record_count": 43,
+      "classification": "project"
+    },
+    {
+      "path": "provenance/startup-source-records.json",
+      "record_count": 43,
+      "classification": "internal"
+    },
+    {
+      "path": "provenance/cohort-source-records.json",
+      "record_count": 4,
+      "classification": "internal"
+    },
+    {
+      "path": "media/partner-logos.json",
+      "record_count": 14,
+      "classification": "project"
+    },
+    {
+      "path": "media/cohort-slides.json",
+      "record_count": 8,
+      "classification": "project"
+    },
+    {
+      "path": "media/event-media.json",
+      "record_count": 37,
+      "classification": "project"
+    },
+    {
+      "path": "media/source-reports.json",
+      "record_count": 23,
+      "classification": "project"
+    }
+  ],
+  "totals": {
+    "unique_startups": 42,
+    "cohort_memberships": 43,
+    "cohorts": 4,
+    "milestones": 10,
+    "impact_metrics": 9,
+    "evidence_records": 5,
+    "media_assets": 82,
+    "partners": 14,
+    "events": 4,
+    "founder_stories": 3,
+    "blogs": 4,
+    "cohort_partner_relations": 8,
+    "event_startup_relations": 43
+  }
+}

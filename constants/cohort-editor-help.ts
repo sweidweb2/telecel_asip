@@ -22,12 +22,12 @@ export const COHORT_EDITOR_HELP = {
       {
         name: "Programme status",
         detail:
-          "Lifecycle of the programme itself (e.g. upcoming, active, completed) - separate from publish visibility.",
+          "Lifecycle of the programme itself: closed, open, or hold - separate from publish visibility.",
       },
       {
         name: "Publish status",
         detail:
-          "Draft = admin only. Published = eligible for public cohort / impact storytelling pages.",
+          "Draft = admin only. Published = eligible for public programme past-chapters when the cohort is listed.",
       },
       {
         name: "Summary",

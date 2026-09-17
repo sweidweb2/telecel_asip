@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "media_category": "source-report",
+  "records": [
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/alumi/ASIP Accelerator Cohort 4 Report EN .pdf",
+      "sha256": "9631fefd19ac8c649d4fcd56effe01b6c110385d06964e618d1b44511c682638",
+      "size_bytes": 16634067,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Accelerator Cohort 4 Report EN .pdf",
+      "sha256": "9631fefd19ac8c649d4fcd56effe01b6c110385d06964e618d1b44511c682638",
+      "size_bytes": 16634067,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Accelerator Summary.pdf",
+      "sha256": "b4924f8fe4fe237690fb62b73d408eac149be7650f827918304818a99be54d35",
+      "size_bytes": 2147120,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2022 PRINT.pdf",
+      "sha256": "1bdc04d81315f97fe538b6e77b7a69f27500c62a4f04c7ef377ef0f973c29366",
+      "size_bytes": 16747957,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf",
+      "sha256": "1081393d92bad63acfb68da1e14b021d981faf2cbfd1636f9ad31a7d1129dce5",
+      "size_bytes": 6668619,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf",
+      "sha256": "fef897454daaf54f36250fb9f82b6d9bd8b49d32541a8e7b0496e71faf689d54",
+      "size_bytes": 9288822,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf",
+      "sha256": "863c854ab4201e0e6b535e9cd50ccb72f2071d9f179155ef5c2ae363109ef194",
+      "size_bytes": 9689808,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2021.pptx.pdf",
+      "sha256": "30791d1d8d51c324e336707cc8c395c5830e3549b4d355e8c3e70bfa464a5a00",
+      "size_bytes": 14509487,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf",
+      "sha256": "330cf9a321c6e9faa4ec42db653d44554532ed148398e69a719b2aeb774636ef",
+      "size_bytes": 2206102,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/program/ASIP Accelerator Summary.pdf",
+      "sha256": "b4924f8fe4fe237690fb62b73d408eac149be7650f827918304818a99be54d35",
+      "size_bytes": 2147120,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/SBC Cohort 3 Report (1) - idk some analysis.pdf",
+      "sha256": "f60ab824e46fd36a72f7e24c48f8c64d155a007581e0203f9963001b53033ed7",
+      "size_bytes": 24999943,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/SBC Cohort 3 Report (1).pdf",
+      "sha256": "f60ab824e46fd36a72f7e24c48f8c64d155a007581e0203f9963001b53033ed7",
+      "size_bytes": 24999943,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet 2022 PRINT.pdf",
+      "sha256": "1bdc04d81315f97fe538b6e77b7a69f27500c62a4f04c7ef377ef0f973c29366",
+      "size_bytes": 16747957,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet 2023 English_.pdf",
+      "sha256": "1081393d92bad63acfb68da1e14b021d981faf2cbfd1636f9ad31a7d1129dce5",
+      "size_bytes": 6668619,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet C4.pdf",
+      "sha256": "fef897454daaf54f36250fb9f82b6d9bd8b49d32541a8e7b0496e71faf689d54",
+      "size_bytes": 9288822,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP DD Booklet FINAL_2021.pdf",
+      "sha256": "863c854ab4201e0e6b535e9cd50ccb72f2071d9f179155ef5c2ae363109ef194",
+      "size_bytes": 9689808,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP Program Report 2021.pptx.pdf",
+      "sha256": "30791d1d8d51c324e336707cc8c395c5830e3549b4d355e8c3e70bfa464a5a00",
+      "size_bytes": 14509487,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/01 Program History & Milestones/Startups/ASIP Program Report 2022 (1).pdf",
+      "sha256": "330cf9a321c6e9faa4ec42db653d44554532ed148398e69a719b2aeb774636ef",
+      "size_bytes": 2206102,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/ASIP FSD Booklet '22 PRINT COPY.pdf",
+      "sha256": "b6ca1764c2328fbc1854f0e981bfb95713cbeaf16c55f782c5b84cce87837635",
+      "size_bytes": 13472363,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/ASIP Media Coverage.pdf",
+      "sha256": "bea2e5d3cf7a29b837dccf2d9f7d7664eb1c4f4c54de6e8da77a920a3638ab80",
+      "size_bytes": 421580,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Booklet 2023 Final Adjusted-compressed.pdf",
+      "sha256": "52220a05debaa1fa9f37e05fe12e488bf11aa8cf1091ea73b5a5a30ece1309c5",
+      "size_bytes": 11581686,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/02 Cohorts, Applications & Portfolio/FSD Booklet_C4 4.pdf",
+      "sha256": "8e3601ec1c0d73b9dfeb96fa464d06d14d519c0fdf483996645ceac619c77758",
+      "size_bytes": 10027842,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    },
+    {
+      "source_path": "Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf",
+      "sha256": "a502542418e43eb57baf224b358af062f9769bb32a7e19a09f53ff51fe49806b",
+      "size_bytes": 246608,
+      "mime_type": "application/pdf",
+      "seed_role": "source-report",
+      "storage_bucket": null,
+      "cms_field_targets": [
+        "evidence_records.source_file_url"
+      ],
+      "upload_status": "not_uploaded",
+      "public_url": null
+    }
+  ]
+}

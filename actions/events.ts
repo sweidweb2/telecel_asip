@@ -1,8 +1,6 @@
 "use server";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { getEventStartupOptions } from "@/data/events";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -10,7 +8,6 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { EventStartupOption } from "@/types/event";
 import {
   createEventSchema,
   deleteEventSchema,
@@ -34,21 +31,6 @@ const MESSAGES = {
   notFound: "Event not found.",
   genericError: "Something went wrong. Please try again.",
 } as const;
-
-/** Lazy option load for the create dialog (list page skips eager fetch). */
-export async function loadEventStartupOptions(
-  search = "",
-  includeIds: string[] = [],
-): Promise<
-  | { status: "ok"; options: EventStartupOption[] }
-  | { status: "error"; message: string }
-> {
-  const result = await getEventStartupOptions(search, includeIds);
-  if (result.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return { status: "ok", options: result.options };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,
@@ -80,66 +62,70 @@ function toEventJson(input: CreateEventInput | UpdateEventInput) {
 export async function createEvent(
   input: CreateEventInput,
 ): Promise<EventActionResult> {
-  const parsed = createEventSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: createEventSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.createSuccess,
+    },
+    perfName: "createEvent",
+    execute: async (session, data) => {
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_event_with_links",
+        {
+          p_event: toEventJson(data),
+          p_startup_ids: data.startupIds,
+        },
+      );
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
-
-  const { data, error } = await session.supabase.rpc("create_event_with_links", {
-    p_event: toEventJson(parsed.data),
-    p_startup_ids: parsed.data.startupIds,
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return {
+          status: "error",
+          message: mapPgActionError(error ?? {}, PG_MESSAGES),
+        };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshEventPaths(id),
   });
-
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return {
-      status: "error",
-      message: mapPgActionError(error ?? {}, PG_MESSAGES),
-    };
-  }
-
-  refreshEventPaths(row.id);
-  return { status: "success", message: MESSAGES.createSuccess, id: row.id };
 }
 
 export async function updateEvent(
   input: UpdateEventInput,
 ): Promise<EventActionResult> {
-  const parsed = updateEventSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? MESSAGES.invalidDetails,
-    };
-  }
+  return runAdminMutation({
+    schema: updateEventSchema,
+    input,
+    messages: {
+      ...MESSAGES,
+      success: MESSAGES.updateSuccess,
+    },
+    perfName: "updateEvent",
+    execute: async (session, data) => {
+      const { id, ...rest } = data;
 
-  const session = await authorizeAdmin(MESSAGES);
-  if (session.status === "error") return session;
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_event_with_links",
+        {
+          p_id: id,
+          p_event: toEventJson(rest),
+          p_startup_ids: rest.startupIds,
+        },
+      );
 
-  const { id, ...rest } = parsed.data;
-
-  const { data, error } = await session.supabase.rpc("update_event_with_links", {
-    p_id: id,
-    p_event: toEventJson(rest),
-    p_startup_ids: rest.startupIds,
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (error || !row?.id) {
+        return {
+          status: "error",
+          message: mapPgActionError(error ?? {}, PG_MESSAGES),
+        };
+      }
+      return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => refreshEventPaths(id),
   });
-
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row?.id) {
-    return {
-      status: "error",
-      message: mapPgActionError(error ?? {}, PG_MESSAGES),
-    };
-  }
-
-  refreshEventPaths(row.id);
-  return { status: "success", message: MESSAGES.updateSuccess, id: row.id };
 }
 
 export async function deleteEvent(

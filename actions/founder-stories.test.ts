@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { revalidatePath, authorizeAdmin } = vi.hoisted(() => ({
+const { revalidatePath, authorizeEditor } = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
-  authorizeAdmin: vi.fn(),
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -11,8 +11,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin,
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor,
 }));
 
 import {
@@ -26,6 +26,9 @@ const startupId = "77777777-7777-4777-8777-777777777777";
 
 const validCreate = {
   startupId,
+  storyTitle: "Opening new markets through partnerships",
+  coverImageUrl: "",
+  headlineStat: "20K deliveries",
   theProblem: "Distribution was fragmented.",
   whatTheyBuilt: "A marketplace for retailers.",
   theAsipConnection: "ASIP opened mentor intros.",
@@ -49,11 +52,11 @@ describe("founder-stories actions", () => {
       theProblem: "x",
     });
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeEditor).not.toHaveBeenCalled();
   });
 
   it("rejects unauthorized create", async () => {
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage founder stories.",
     });
@@ -92,7 +95,7 @@ describe("founder-stories actions", () => {
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
 
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: { from },

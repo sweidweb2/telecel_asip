@@ -72,7 +72,7 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     pitchMax: "La note doit contenir au plus 1000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
     turnstileRequired: "Veuillez compléter la vérification de sécurité",
-    invalidId: "Identifiant de candidature invalide",
+    invalidId: "Identifiant d’inscription invalide",
   },
 };
 

@@ -1,20 +1,19 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { getAdminResource } from "@/constants/admin-resources";
+import { getContactMessageById } from "@/data/contact-messages";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  TURNSTILE_CONTACT_ACTION,
-  verifyTurnstileToken,
-} from "@/lib/turnstile";
+  guardPublicFormSubmission,
+  PUBLIC_SUBMIT_GUARD_COPY,
+} from "@/lib/intake/submit-guard";
+import { TURNSTILE_CONTACT_ACTION } from "@/lib/turnstile";
 import {
   contactMessageSchemaFor,
   deleteContactMessageSchema,
@@ -24,7 +23,6 @@ import {
   type UpdateContactMessageInput,
 } from "@/validations/contact-message";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
@@ -35,20 +33,12 @@ const resource = getAdminResource("contactUs");
 /** Public marketing form copy (locale-aware). */
 const PUBLIC_MESSAGES = {
   en: {
-    invalidDetails: "Please check the form and try again.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your message has been sent.",
-    genericError: "Something went wrong. Please try again.",
-    rateLimited: "Too many submissions. Please wait and try again later.",
-    verificationFailed: "Security check failed. Please try again.",
   },
   fr: {
-    invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre message a bien été envoyé.",
-    genericError: "Une erreur s’est produite. Veuillez réessayer.",
-    rateLimited:
-      "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
-    verificationFailed:
-      "La vérification de sécurité a échoué. Veuillez réessayer.",
   },
 } as const;
 
@@ -63,20 +53,6 @@ const ADMIN_MESSAGES = {
   signedInRequired: "You must be signed in.",
   notFound: "Message not found.",
 } as const;
-
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_PER_IP = 5;
-const RATE_LIMIT_PER_EMAIL = 3;
-
-async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
-}
 
 function refreshContactUsRoute() {
   refreshAdminResource({ listPath: resource.listPath });
@@ -106,28 +82,17 @@ export async function submitContactMessage(
     turnstileToken,
   } = parsed.data;
 
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: turnstileToken,
+  const guard = await guardPublicFormSubmission({
+    turnstileToken,
     expectedAction: TURNSTILE_CONTACT_ACTION,
-    remoteip: ip,
+    rateLimitPrefix: "contact",
+    identityKind: "email",
+    identity: email,
+    messages: copy,
   });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
+  if (guard.status === "error") return guard;
 
-  const ipKey = `contact:ip:${ip}`;
-  const emailKey = `contact:email:${email}`;
-
-  if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
-  ) {
-    return { status: "error", message: copy.rateLimited };
-  }
-
-  const admin = createAdminClient();
-  const { error } = await admin.from("contact_messages").insert({
+  const { error } = await guard.admin.from("contact_messages").insert({
     enquiry_type: enquiryType,
     full_name: fullName,
     email,
@@ -139,9 +104,6 @@ export async function submitContactMessage(
   if (error) {
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshContactUsRoute();
   return { status: "success", message: copy.success };
@@ -217,29 +179,18 @@ export async function deleteContactMessage(
 export async function updateContactMessageInboxStatus(
   input: UpdateInboxStatusInput,
 ): Promise<ContactMessageActionResult> {
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "contact_messages",
     input,
     messages: {
       ...ADMIN_MESSAGES,
       success: ADMIN_MESSAGES.inboxStatusSuccess,
     },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("contact_messages")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: ADMIN_MESSAGES.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: ADMIN_MESSAGES.notFound };
-      }
-      return { status: "success" };
-    },
     refresh: () => refreshContactUsRoute(),
   });
+}
+
+/** Full contact message for the shared inbox view/edit dialog. */
+export async function loadContactMessage(id: string) {
+  return getContactMessageById(id);
 }

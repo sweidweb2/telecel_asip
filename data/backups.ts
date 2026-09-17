@@ -38,11 +38,20 @@ export async function getBackupsPageData(
     async (supabase) => {
       const { from, to } = adminListRange(query.page, query.pageSize);
 
-      const { data, error, count } = await supabase
+      let listQuery = supabase
         .from("backups")
-        .select(LIST_COLUMNS, { count: "exact" })
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
+        .select(LIST_COLUMNS, { count: "exact" });
+
+      if (query.status !== "all") {
+        listQuery = listQuery.eq("status", query.status);
+      }
+      if (query.scope !== "all") {
+        listQuery = listQuery.eq("scope", query.scope);
+      }
+
+      const { data, error, count } = await listQuery
+        .order(query.sort, { ascending: query.dir === "asc" })
+        .order("id", { ascending: query.dir === "asc" })
         .range(from, to);
 
       if (error) throw error;

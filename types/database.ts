@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       admin_perf_events: {
@@ -95,6 +70,72 @@ export type Database = {
           },
         ]
       }
+      applications: {
+        Row: {
+          comms_opt_in: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at: string
+          email: string
+          founder_role: string
+          full_name: string
+          id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
+          linkedin: string | null
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          comms_opt_in?: boolean
+          company_country: string
+          company_name: string
+          consent: boolean
+          country: string
+          created_at?: string
+          email: string
+          founder_role: string
+          full_name: string
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          linkedin?: string | null
+          phone: string
+          problem_product: string
+          programme_fit: string
+          sector: string
+          traction: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          comms_opt_in?: boolean
+          company_country?: string
+          company_name?: string
+          consent?: boolean
+          country?: string
+          created_at?: string
+          email?: string
+          founder_role?: string
+          full_name?: string
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          linkedin?: string | null
+          phone?: string
+          problem_product?: string
+          programme_fit?: string
+          sector?: string
+          traction?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       backups: {
         Row: {
           created_at: string
@@ -144,69 +185,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      applications: {
-        Row: {
-          comms_opt_in: boolean
-          company_country: string
-          company_name: string
-          consent: boolean
-          country: string
-          created_at: string
-          email: string
-          founder_role: string
-          full_name: string
-          id: string
-          inbox_status: Database["public"]["Enums"]["inbox_status"]
-          linkedin: string | null
-          phone: string
-          problem_product: string
-          programme_fit: string
-          sector: string
-          traction: string
-          website: string | null
-        }
-        Insert: {
-          comms_opt_in?: boolean
-          company_country: string
-          company_name: string
-          consent: boolean
-          country: string
-          created_at?: string
-          email: string
-          founder_role: string
-          full_name: string
-          id?: string
-          inbox_status?: Database["public"]["Enums"]["inbox_status"]
-          linkedin?: string | null
-          phone: string
-          problem_product: string
-          programme_fit: string
-          sector: string
-          traction: string
-          website?: string | null
-        }
-        Update: {
-          comms_opt_in?: boolean
-          company_country?: string
-          company_name?: string
-          consent?: boolean
-          country?: string
-          created_at?: string
-          email?: string
-          founder_role?: string
-          full_name?: string
-          id?: string
-          inbox_status?: Database["public"]["Enums"]["inbox_status"]
-          linkedin?: string | null
-          phone?: string
-          problem_product?: string
-          programme_fit?: string
-          sector?: string
-          traction?: string
-          website?: string | null
-        }
-        Relationships: []
       }
       blogs: {
         Row: {
@@ -585,8 +563,10 @@ export type Database = {
       }
       founder_stories: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           founder_quote_text: string | null
+          headline_stat: string | null
           id: string
           publish_status: Database["public"]["Enums"]["cms_publish_status"]
           quote_attribution_name: string | null
@@ -596,6 +576,7 @@ export type Database = {
             | Database["public"]["Enums"]["quote_permission_status"]
             | null
           startup_id: string
+          story_title: string | null
           the_asip_connection: string
           the_problem: string
           updated_at: string
@@ -603,8 +584,10 @@ export type Database = {
           where_they_are_now: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           founder_quote_text?: string | null
+          headline_stat?: string | null
           id?: string
           publish_status?: Database["public"]["Enums"]["cms_publish_status"]
           quote_attribution_name?: string | null
@@ -614,6 +597,7 @@ export type Database = {
             | Database["public"]["Enums"]["quote_permission_status"]
             | null
           startup_id: string
+          story_title?: string | null
           the_asip_connection: string
           the_problem: string
           updated_at?: string
@@ -621,8 +605,10 @@ export type Database = {
           where_they_are_now: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           founder_quote_text?: string | null
+          headline_stat?: string | null
           id?: string
           publish_status?: Database["public"]["Enums"]["cms_publish_status"]
           quote_attribution_name?: string | null
@@ -632,6 +618,7 @@ export type Database = {
             | Database["public"]["Enums"]["quote_permission_status"]
             | null
           startup_id?: string
+          story_title?: string | null
           the_asip_connection?: string
           the_problem?: string
           updated_at?: string
@@ -717,6 +704,7 @@ export type Database = {
           company_country: string
           company_name: string
           consent: boolean
+          consent_version: string
           country: string
           created_at: string
           email: string
@@ -725,9 +713,12 @@ export type Database = {
           id: string
           inbox_status: Database["public"]["Enums"]["inbox_status"]
           linkedin: string | null
+          locale: string
           phone: string
           pitch: string | null
           sector: string
+          source_path: string
+          user_id: string | null
           website: string | null
         }
         Insert: {
@@ -735,6 +726,7 @@ export type Database = {
           company_country: string
           company_name: string
           consent: boolean
+          consent_version?: string
           country: string
           created_at?: string
           email: string
@@ -743,9 +735,12 @@ export type Database = {
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
+          locale?: string
           phone: string
           pitch?: string | null
           sector: string
+          source_path?: string
+          user_id?: string | null
           website?: string | null
         }
         Update: {
@@ -753,6 +748,7 @@ export type Database = {
           company_country?: string
           company_name?: string
           consent?: boolean
+          consent_version?: string
           country?: string
           created_at?: string
           email?: string
@@ -761,9 +757,12 @@ export type Database = {
           id?: string
           inbox_status?: Database["public"]["Enums"]["inbox_status"]
           linkedin?: string | null
+          locale?: string
           phone?: string
           pitch?: string | null
           sector?: string
+          source_path?: string
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -860,6 +859,24 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rate_limit_buckets: {
+        Row: {
+          bucket_key: string
+          hits: number[]
+          updated_at: string
+        }
+        Insert: {
+          bucket_key: string
+          hits?: number[]
+          updated_at?: string
+        }
+        Update: {
+          bucket_key?: string
+          hits?: number[]
           updated_at?: string
         }
         Relationships: []
@@ -1052,6 +1069,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings_public: {
+        Row: {
+          id: number | null
+          newsletter_signup_enabled: boolean | null
+          open_applications: boolean | null
+        }
+        Insert: {
+          id?: number | null
+          newsletter_signup_enabled?: never
+          open_applications?: never
+        }
+        Update: {
+          id?: number | null
+          newsletter_signup_enabled?: never
+          open_applications?: never
+        }
+        Relationships: []
+      }
       startups_public: {
         Row: {
           category: string | null
@@ -1080,12 +1115,17 @@ export type Database = {
       }
     }
     Functions: {
+      admin_hard_delete_user: { Args: { p_target: string }; Returns: undefined }
       blog_categories_within_bounds: {
         Args: { categories: string[] }
         Returns: boolean
       }
       blog_sources_within_bounds: {
         Args: { sources: string[] }
+        Returns: boolean
+      }
+      consume_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_ms: number }
         Returns: boolean
       }
       create_blog_with_featured: {
@@ -1118,19 +1158,31 @@ export type Database = {
           slug: string
         }[]
       }
+      get_active_startup_filter_options: { Args: never; Returns: Json }
+      get_active_startup_country_reach: {
+        Args: never
+        Returns: {
+          country_code: string
+          founder_count: number
+        }[]
+      }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_backup_schedule: {
+        Args: never
+        Returns: Database["public"]["Enums"]["backup_schedule"]
+      }
+      get_admin_list_stats: { Args: { p_resource: string }; Returns: Json }
       get_admin_shell: {
         Args: never
         Returns: {
           email: string
           full_name: string
           is_admin: boolean
+          is_editor: boolean
+          role: Database["public"]["Enums"]["user_role"]
         }[]
       }
-      get_active_startup_filter_options: {
-        Args: never
-        Returns: Json
-      }
+      get_dashboard_nav_counts: { Args: never; Returns: Json }
       get_related_published_blogs: {
         Args: { p_limit?: number; p_slug: string }
         Returns: {
@@ -1147,6 +1199,16 @@ export type Database = {
           title: string
         }[]
       }
+      get_staff_shell: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          is_admin: boolean
+          is_editor: boolean
+          role: Database["public"]["Enums"]["user_role"]
+        }[]
+      }
       get_user_stats: {
         Args: never
         Returns: {
@@ -1159,6 +1221,8 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      is_editor: { Args: never; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
       update_blog_with_featured: {
         Args: { p_blog: Json; p_id: string }
         Returns: {
@@ -1365,9 +1429,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       backup_format: ["json", "csv", "sql", "zip"],

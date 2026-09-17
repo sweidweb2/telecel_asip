@@ -22,7 +22,7 @@ describe("ImpactHero", () => {
     ).toHaveAttribute("href", "/en/founders");
     expect(
       screen.getByRole("img", {
-        name: /founders and partners in an ecosystem gathering/i,
+        name: /founders, mentors, and partners celebrating demo day/i,
       }),
     ).toBeInTheDocument();
   });

@@ -7,6 +7,7 @@ describe("loginSchema", () => {
     const result = loginSchema.safeParse({
       email: "asweid657@gmail.com",
       password: "ali@1234",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
@@ -16,9 +17,36 @@ describe("loginSchema", () => {
     const result = loginSchema.safeParse({
       email: "not-an-email",
       password: "ali@1234",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("rejects a missing turnstile token", () => {
+    const result = loginSchema.safeParse({
+      email: "asweid657@gmail.com",
+      password: "ali@1234",
+      turnstileToken: "",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("maps undefined fields to friendly messages instead of Zod type noise", () => {
+    const result = loginSchema.safeParse({
+      email: undefined,
+      password: undefined,
+      turnstileToken: undefined,
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        expect(issue.message.toLowerCase()).not.toContain("expected string");
+        expect(issue.message.toLowerCase()).not.toContain("received undefined");
+      }
+    }
   });
 });
 
@@ -29,6 +57,7 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "ali@1234",
       confirmPassword: "ali@1234",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
@@ -40,6 +69,7 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "ali@1234",
       confirmPassword: "ali@9999",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
@@ -51,6 +81,7 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "short",
       confirmPassword: "short",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
@@ -63,6 +94,7 @@ describe("registerSchema", () => {
       email: "bad",
       password: "short",
       confirmPassword: "other",
+      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);

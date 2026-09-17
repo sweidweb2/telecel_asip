@@ -20,12 +20,19 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  isRateLimited: vi.fn(() => false),
-  recordRateLimitHit: vi.fn(),
+  consumeSharedRateLimit: vi.fn(async () => true),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/get-auth-user", () => ({
+  getAuthUser: vi.fn(),
+}));
+
+vi.mock("@/data/settings", () => ({
+  getOpenApplications: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -46,8 +53,10 @@ import {
   updateApplication,
   updateApplicationInboxStatus,
 } from "@/actions/applications";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { getOpenApplications } from "@/data/settings";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
@@ -92,7 +101,40 @@ describe("submitApplication", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
-    vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
+    vi.mocked(getOpenApplications).mockResolvedValue(true);
+    vi.mocked(getAuthUser).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+    } as Awaited<ReturnType<typeof getAuthUser>>);
+  });
+
+  it("rejects when applications are closed", async () => {
+    vi.mocked(getOpenApplications).mockResolvedValue(false);
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message:
+        "Applications are closed. Register your interest to hear when the next chapter opens.",
+    });
+    expect(getAuthUser).not.toHaveBeenCalled();
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the visitor is not signed in", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue(null);
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Sign in to submit an application.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("rejects invalid payloads before Turnstile", async () => {
@@ -120,7 +162,7 @@ describe("submitApplication", () => {
 
   it("rejects when rate limited", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
-    vi.mocked(isRateLimited).mockReturnValue(true);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitApplication(validSubmit);
 
@@ -131,20 +173,24 @@ describe("submitApplication", () => {
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("inserts and records rate-limit hits on success", async () => {
+  it("inserts with session email and user_id on success", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
-    const result = await submitApplication(validSubmit);
+    const result = await submitApplication({
+      ...validSubmit,
+      email: "spoofed@example.com",
+    });
 
     expect(result.status).toBe("success");
     expect(insertMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        user_id: "user-1",
         email: "ada@example.com",
         company_name: "Analytical Engines",
         consent: true,
       }),
     );
-    expect(recordRateLimitHit).toHaveBeenCalled();
+    expect(consumeSharedRateLimit).toHaveBeenCalled();
   });
 
   it("stores empty LinkedIn and website as null", async () => {
@@ -183,8 +229,8 @@ describe("application admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("updateApplication returns unauthorized from authorizeAdmin", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("updateApplication returns unauthorized from authorizeEditor", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage applications.",
     });
@@ -213,10 +259,10 @@ describe("application admin mutations", () => {
     });
   });
 
-  it("updateApplication succeeds when authorizeAdmin and row update work", async () => {
+  it("updateApplication succeeds when authorizeEditor and row update work", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: appId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,
@@ -247,7 +293,7 @@ describe("application admin mutations", () => {
   it("deleteApplication returns not found when no row", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: null, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,
@@ -264,7 +310,7 @@ describe("application admin mutations", () => {
   it("updateApplicationInboxStatus updates status", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: appId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

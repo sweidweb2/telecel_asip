@@ -24,6 +24,9 @@ export const FOUNDER_STORY_NARRATIVE_MAX = 4000;
 export const FOUNDER_STORY_QUOTE_MAX = 2000;
 export const FOUNDER_STORY_ATTRIBUTION_NAME_MAX = 120;
 export const FOUNDER_STORY_ATTRIBUTION_TITLE_MAX = 160;
+export const FOUNDER_STORY_TITLE_MAX = 200;
+export const FOUNDER_STORY_COVER_URL_MAX = 2048;
+export const FOUNDER_STORY_HEADLINE_STAT_MAX = 80;
 
 export const QUOTE_PERMISSION_STATUSES = [
   "granted",
@@ -82,6 +85,9 @@ const optionalPermission = z
 export const founderStoryFieldsSchema = z
   .object({
     startupId: z.uuid("Select a startup"),
+    storyTitle: narrativeField("Story title").pipe(z.string().max(FOUNDER_STORY_TITLE_MAX)),
+    coverImageUrl: optionalTrimmed(FOUNDER_STORY_COVER_URL_MAX, "Cover image URL"),
+    headlineStat: optionalTrimmed(FOUNDER_STORY_HEADLINE_STAT_MAX, "Headline stat"),
     theProblem: narrativeField("The problem"),
     whatTheyBuilt: narrativeField("What they built"),
     theAsipConnection: narrativeField("The ASIP connection"),

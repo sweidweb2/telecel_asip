@@ -21,12 +21,11 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  isRateLimited: vi.fn(() => false),
-  recordRateLimitHit: vi.fn(),
+  consumeSharedRateLimit: vi.fn(async () => true),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -47,8 +46,8 @@ import {
   updateContactMessage,
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
@@ -82,7 +81,7 @@ describe("submitContactMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
-    vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
   });
 
   it("rejects invalid payloads before Turnstile", async () => {
@@ -108,7 +107,7 @@ describe("submitContactMessage", () => {
 
   it("rejects when rate limited", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
-    vi.mocked(isRateLimited).mockReturnValue(true);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitContactMessage(validSubmit);
 
@@ -132,7 +131,7 @@ describe("submitContactMessage", () => {
       subject: "Partnership inquiry",
       message: validSubmit.message,
     });
-    expect(recordRateLimitHit).toHaveBeenCalled();
+    expect(consumeSharedRateLimit).toHaveBeenCalled();
   });
 });
 
@@ -141,8 +140,8 @@ describe("contact message admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("returns unauthorized when authorizeAdmin fails", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("returns unauthorized when authorizeEditor fails", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage contact messages.",
     });
@@ -166,7 +165,7 @@ describe("contact message admin mutations", () => {
       data: { id: messageId },
       error: null,
     });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

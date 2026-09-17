@@ -4,6 +4,7 @@ import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { TimerIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { AdminPerfEventsFilters } from "@/components/dashboard/admin-perf-events-filters";
@@ -21,6 +22,7 @@ import {
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import type { AdminPerfEventRow } from "@/data/admin-perf-events";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import { cn } from "@/lib/utils";
 import {
   ADMIN_PERF_DEFAULT_PAGE_SIZE,
@@ -46,6 +48,12 @@ export function AdminPerfEventsTable({
   const siblings = selected
     ? (siblingsByRequestId[selected.request_id] ?? [selected])
     : [];
+  const listFilters = adminPerfListFilterParams(query);
+  const isFiltered = adminListFiltersActive({
+    search: listFilters.search,
+    eventType: listFilters.eventType,
+    cacheStatus: listFilters.cacheStatus,
+  });
 
   return (
     <>
@@ -67,8 +75,11 @@ export function AdminPerfEventsTable({
         empty={
           <AdminEmptyState
             icon={TimerIcon}
-            title="No events found"
-            description="Try changing the search or filters, or use the CMS with tracking on."
+            isFiltered={isFiltered}
+            emptyTitle="No performance events yet"
+            emptyDescription="Use the CMS with tracking on to collect events."
+            noResultsTitle="No events found"
+            noResultsDescription="Try changing the filters or clearing search."
           />
         }
         pagination={{
@@ -77,16 +88,16 @@ export function AdminPerfEventsTable({
           pageSize: query.pageSize,
           total,
           totalPages,
-          filters: adminPerfListFilterParams(query),
+          filters: listFilters,
           pageSizeOptions: ADMIN_PERF_PAGE_SIZES,
           defaultPageSize: ADMIN_PERF_DEFAULT_PAGE_SIZE,
         }}
       >
         {events.map((event, index) => (
-          <TableRow
+          <AdminClickableRow
             key={event.id}
-            className="cursor-pointer"
-            onClick={() => setSelected(event)}
+            ariaLabel={`View performance event ${event.name}`}
+            onActivate={() => setSelected(event)}
           >
             <AdminRowNumberCell
               page={query.page}
@@ -109,7 +120,7 @@ export function AdminPerfEventsTable({
             <TableCell className="max-w-[10rem] truncate pr-4 text-muted-foreground">
               {event.route ?? "-"}
             </TableCell>
-          </TableRow>
+          </AdminClickableRow>
         ))}
       </AdminDataTable>
 
@@ -187,18 +198,26 @@ export function AdminPerfEventsTable({
   );
 }
 
+const CACHE_BADGE_LABELS: Record<string, string> = {
+  hit: "Hit",
+  miss: "Miss",
+  n_a: "N/A",
+  bypass: "Bypass",
+};
+
 function CacheBadge({ status }: { status: string }) {
+  const label = CACHE_BADGE_LABELS[status] ?? status;
   return (
     <span
       className={cn(
         "inline-flex rounded-md px-1.5 py-0.5 text-xs font-medium",
-        status === "hit" && "bg-emerald-100 text-emerald-800",
-        status === "miss" && "bg-orange-100 text-orange-900",
-        status === "n_a" && "bg-slate-100 text-slate-700",
-        status === "bypass" && "bg-amber-100 text-amber-900",
+        status === "hit" && "bg-brand-soft text-foreground",
+        status === "miss" && "bg-destructive/15 text-destructive",
+        status === "n_a" && "bg-muted text-muted-foreground",
+        status === "bypass" && "bg-brand-subtle text-foreground",
       )}
     >
-      {status}
+      {label}
     </span>
   );
 }

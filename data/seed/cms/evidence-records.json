@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "entity": "evidence_records",
+  "records": [
+    {
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf:page:9",
+      "primary_source": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf, page 9",
+      "source_file": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet FINAL_2021.pdf",
+      "source_page": 9,
+      "source_file_url": null,
+      "measurement_period_start": "2021-03-24",
+      "measurement_period_end": "2021-09-30",
+      "owner_email": "asweid657@gmail.com",
+      "status": "pending",
+      "last_verified_date": "2026-09-09",
+      "permission": "internal_only",
+      "review_date": "2026-09-09"
+    },
+    {
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf:page:14",
+      "primary_source": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf, page 14",
+      "source_file": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP Program Report 2022 (1).pdf",
+      "source_page": 14,
+      "source_file_url": null,
+      "measurement_period_start": "2022-01-01",
+      "measurement_period_end": "2022-07-06",
+      "owner_email": "asweid657@gmail.com",
+      "status": "pending",
+      "last_verified_date": "2026-09-09",
+      "permission": "internal_only",
+      "review_date": "2026-09-09"
+    },
+    {
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf:page:4",
+      "primary_source": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf, page 4",
+      "source_file": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet 2023 English_.pdf",
+      "source_page": 4,
+      "source_file_url": null,
+      "measurement_period_start": "2023-01-01",
+      "measurement_period_end": "2023-05-25",
+      "owner_email": "asweid657@gmail.com",
+      "status": "pending",
+      "last_verified_date": "2026-09-09",
+      "permission": "internal_only",
+      "review_date": "2026-09-09"
+    },
+    {
+      "evidence_key": "source:Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf:page:4",
+      "primary_source": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf, page 4",
+      "source_file": "Docs/[05] Guy Data/01 Program History & Milestones/ASIP DD Booklet C4.pdf",
+      "source_page": 4,
+      "source_file_url": null,
+      "measurement_period_start": "2023-10-01",
+      "measurement_period_end": "2024-02-07",
+      "owner_email": "asweid657@gmail.com",
+      "status": "pending",
+      "last_verified_date": "2026-09-09",
+      "permission": "internal_only",
+      "review_date": "2026-09-09"
+    },
+    {
+      "evidence_key": "source:Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf:page:1",
+      "primary_source": "Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf, page 1",
+      "source_file": "Docs/[05] Guy Data/03 Impact Metrics & Investor Reports/ASIP Holdings FY 2025 Report.pdf",
+      "source_page": 1,
+      "source_file_url": null,
+      "measurement_period_start": "2025-01-01",
+      "measurement_period_end": "2025-12-31",
+      "owner_email": "asweid657@gmail.com",
+      "status": "pending",
+      "last_verified_date": "2026-09-09",
+      "permission": "internal_only",
+      "review_date": "2026-09-09"
+    }
+  ]
+}

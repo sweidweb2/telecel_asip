@@ -4,13 +4,13 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
-import { e2eSuffix } from "./helpers";
+import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -52,19 +52,31 @@ test.describe("portfolio startups cms", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fportfolio%2Fnew");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/portfolio\/new/, {
         timeout: 20_000,
       });
 
+      await page
+        .getByRole("button", { name: /Fill form with dummy data/i })
+        .click();
       await page.getByLabel("Name").fill(name);
       await page.getByLabel("Slug").fill(slug);
       await page
         .getByLabel("Description")
         .fill("E2E description for the portfolio startup CMS coverage.");
-      await page.getByRole("button", { name: "Create startup" }).click();
+
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const create = page.getByRole("button", { name: "Create startup" });
+        if (await create.isVisible()) {
+          await expect(create).toBeEnabled({ timeout: 10_000 });
+          await create.click();
+          break;
+        }
+        await page.getByRole("button", { name: "Continue", exact: true }).click();
+      }
 
       await expect(page).toHaveURL(/\/dashboard\/portfolio\/[0-9a-f-]+/, {
         timeout: 20_000,
@@ -85,7 +97,7 @@ test.describe("portfolio startups cms", () => {
       });
       await page.locator("#status").click();
       await page.getByRole("option", { name: "Active", exact: true }).click();
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Startup updated successfully.",
@@ -151,9 +163,9 @@ test.describe("portfolio startups cms", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fportfolio");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/portfolio/, {
         timeout: 20_000,
       });
@@ -209,7 +221,7 @@ test.describe("portfolio startups cms", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fportfolio");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
 
       await page.goto("/dashboard/portfolio");

@@ -1,15 +1,12 @@
 "use server";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { getEvidenceOwnerOptions } from "@/data/evidence-records";
-import { getCurrentUserProfile } from "@/data/users";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { EvidenceOwnerOption } from "@/types/evidence-record";
 import {
   createEvidenceRecordSchema,
   deleteEvidenceRecordSchema,
@@ -36,33 +33,6 @@ const MESSAGES = {
     "This evidence record is linked to impact metrics. Remove or reassign those metrics first.",
   genericError: "Something went wrong. Please try again.",
 } as const;
-
-/** Lazy option load for the evidence editor (owner searchable select). */
-export async function loadEvidenceFormOptions(
-  search = "",
-  includeOwnerId?: string | null,
-): Promise<
-  | {
-      status: "ok";
-      owners: EvidenceOwnerOption[];
-      defaultOwnerId: string;
-    }
-  | { status: "error"; message: string }
-> {
-  const [ownersResult, profile] = await Promise.all([
-    getEvidenceOwnerOptions(search, includeOwnerId),
-    getCurrentUserProfile(),
-  ]);
-  if (ownersResult.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  const owners = ownersResult.owners;
-  return {
-    status: "ok",
-    owners,
-    defaultOwnerId: profile?.id ?? owners[0]?.id ?? "",
-  };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,

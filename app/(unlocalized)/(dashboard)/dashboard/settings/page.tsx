@@ -1,28 +1,22 @@
 import type { Metadata } from "next";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { SiteSettingsForm } from "@/components/settings/site-settings-form";
-import { requireAdmin } from "@/data/auth";
+import { SettingsPageContent } from "@/components/settings/settings-page-content";
+import { requireEditor } from "@/data/auth";
 import { getSiteSettingsForAdmin } from "@/data/settings";
 
 export const metadata: Metadata = {
-  title: "Settings | ASIP Admin",
+  title: "Settings | ASIP Editor",
 };
 
 export default async function SettingsPage() {
-  await requireAdmin();
+  await requireEditor();
 
   const settings = await getSiteSettingsForAdmin();
 
   return (
-    <AdminListPageShell
-      title="Settings"
-    >
-      <SiteSettingsForm
-        openApplications={settings.openApplications}
-        newsletterSignupEnabled={settings.newsletterSignupEnabled}
-        backupTime={settings.backupTime}
-      />
-    </AdminListPageShell>
+    <SettingsPageContent
+      openApplications={settings.openApplications}
+      newsletterSignupEnabled={settings.newsletterSignupEnabled}
+    />
   );
 }

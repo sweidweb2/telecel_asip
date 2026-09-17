@@ -27,7 +27,7 @@ export function AdminFormSectionHelp({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+            className="min-h-11 min-w-11 shrink-0 text-muted-foreground hover:text-foreground sm:min-h-8 sm:min-w-8"
           />
         }
       >

@@ -96,7 +96,7 @@ export function AlumniBenefitsSection({
 
       <div className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <span
-          className="mb-4 block h-0.5 w-10 bg-[#dc395f] sm:mb-5"
+          className="mb-4 block h-0.5 w-10 bg-asip-coral sm:mb-5"
           aria-hidden
         />
         <h2

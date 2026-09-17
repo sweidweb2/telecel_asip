@@ -20,12 +20,19 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
-  isRateLimited: vi.fn(() => false),
-  recordRateLimitHit: vi.fn(),
+  consumeSharedRateLimit: vi.fn(async () => true),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
+}));
+
+vi.mock("@/lib/admin/get-auth-user", () => ({
+  getAuthUser: vi.fn(),
+}));
+
+vi.mock("@/data/settings", () => ({
+  getOpenApplications: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -46,8 +53,10 @@ import {
   updateInterestRegistration,
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
+import { getOpenApplications } from "@/data/settings";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
+import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
@@ -87,13 +96,46 @@ describe("submitInterestRegistration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     insertMock.mockResolvedValue({ error: null });
-    vi.mocked(isRateLimited).mockReturnValue(false);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
+    vi.mocked(getOpenApplications).mockResolvedValue(false);
+    vi.mocked(getAuthUser).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+    } as Awaited<ReturnType<typeof getAuthUser>>);
+  });
+
+  it("rejects when applications are open", async () => {
+    vi.mocked(getOpenApplications).mockResolvedValue(true);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message:
+        "Applications are open. Submit an official application instead of registering interest.",
+    });
+    expect(getAuthUser).not.toHaveBeenCalled();
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the visitor is not signed in", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue(null);
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Sign in to register your interest.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("rejects invalid payloads before Turnstile", async () => {
     const result = await submitInterestRegistration({
       ...validSubmit,
-      email: "not-an-email",
+      fullName: "A",
     });
 
     expect(result.status).toBe("error");
@@ -113,7 +155,7 @@ describe("submitInterestRegistration", () => {
 
   it("rejects when rate limited", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
-    vi.mocked(isRateLimited).mockReturnValue(true);
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitInterestRegistration(validSubmit);
 
@@ -123,21 +165,28 @@ describe("submitInterestRegistration", () => {
     });
   });
 
-  it("inserts on success", async () => {
+  it("inserts with session email and user_id on success", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
-    const result = await submitInterestRegistration(validSubmit);
+    const result = await submitInterestRegistration({
+      ...validSubmit,
+      email: "spoofed@example.com",
+    });
 
     expect(result.status).toBe("success");
     expect(insertMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        user_id: "user-1",
         email: "ada@example.com",
         company_name: "Analytical Engines",
         linkedin: null,
         website: null,
+        locale: "en",
+        source_path: "/en/register-interest",
+        consent_version: "2026-09-17",
       }),
     );
-    expect(recordRateLimitHit).toHaveBeenCalled();
+    expect(consumeSharedRateLimit).toHaveBeenCalled();
   });
 });
 
@@ -146,8 +195,8 @@ describe("interest registration admin mutations", () => {
     vi.clearAllMocks();
   });
 
-  it("returns unauthorized when authorizeAdmin fails", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+  it("returns unauthorized when authorizeEditor fails", async () => {
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage registrations.",
     });
@@ -177,7 +226,7 @@ describe("interest registration admin mutations", () => {
   it("updates and deletes successfully", async () => {
     const supabase = mockSessionSupabase();
     supabase.maybeSingle.mockResolvedValue({ data: { id: regId }, error: null });
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: supabase as never,

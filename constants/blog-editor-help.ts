@@ -88,9 +88,9 @@ export const BLOG_EDITOR_HELP = {
           "Off = draft (admin only). On = listed on Insights and reachable by slug. First publish stamps the publish date; unpublishing keeps that date for later republish.",
       },
       {
-        name: "Featured hero",
+        name: "Featured",
         detail:
-          "Marks this post as the Insights hero. Only one published post can be featured at a time. Disabled while draft; unpublishing clears the hero flag.",
+          "Marks this post as the featured Insights post. Only one published post can be featured at a time. Disabled while draft; unpublishing clears the featured flag.",
       },
     ],
   },

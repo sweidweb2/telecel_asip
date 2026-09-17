@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { ArchiveIcon, ArchiveRestoreIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { Button } from "@/components/ui/button";
 import type { InboxStatus } from "@/constants/inbox";
+import { toastWithUndo } from "@/lib/admin/toast-with-undo";
 import type { AdminActionResult } from "@/types/admin-action";
 import type { UpdateInboxStatusInput } from "@/validations/inbox";
 
@@ -26,24 +27,51 @@ export function AdminInboxArchiveButton({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const isArchived = inboxStatus === "archived";
+  const [status, setStatus] = useState(inboxStatus);
+  const [prevInboxStatus, setPrevInboxStatus] = useState(inboxStatus);
+
+  if (inboxStatus !== prevInboxStatus) {
+    setPrevInboxStatus(inboxStatus);
+    setStatus(inboxStatus);
+  }
+
+  const isArchived = status === "archived";
   const label = isArchived ? "Unarchive" : "Archive";
 
   function toggleArchive() {
+    if (isPending) return;
+
+    const previousStatus = status;
     const nextStatus: InboxStatus = isArchived ? "reviewed" : "archived";
+    setStatus(nextStatus);
 
     startTransition(async () => {
       try {
         const result = await updateAction({ id, inboxStatus: nextStatus });
         if (result.status === "error") {
+          setStatus(previousStatus);
           toast.error(result.message);
           return;
         }
-        toast.success(
-          nextStatus === "archived" ? "Archived." : "Moved back to inbox.",
-        );
+        toastWithUndo({
+          message:
+            nextStatus === "archived" ? "Archived." : "Moved back to inbox.",
+          onUndo: async () => {
+            setStatus(previousStatus);
+            const undoResult = await updateAction({
+              id,
+              inboxStatus: previousStatus,
+            });
+            if (undoResult.status === "error") {
+              setStatus(nextStatus);
+              throw new Error(undoResult.message);
+            }
+            router.refresh();
+          },
+        });
         router.refresh();
       } catch {
+        setStatus(previousStatus);
         toast.error("Could not update inbox status. Please try again.");
       }
     });

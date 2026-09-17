@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { revalidatePath, authorizeAdmin } = vi.hoisted(() => ({
+const { revalidatePath, authorizeEditor } = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
-  authorizeAdmin: vi.fn(),
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -11,8 +11,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin,
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor,
 }));
 
 import {
@@ -47,11 +47,11 @@ describe("evidence-records actions", () => {
       primarySource: "x",
     });
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeEditor).not.toHaveBeenCalled();
   });
 
   it("rejects unauthorized create", async () => {
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage evidence records.",
     });
@@ -90,7 +90,7 @@ describe("evidence-records actions", () => {
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
 
-    authorizeAdmin.mockResolvedValue({
+    authorizeEditor.mockResolvedValue({
       status: "success",
       userId: "admin-1",
       supabase: { from },

@@ -169,7 +169,11 @@ export function HomeInsightsCarousel({
             key={article.id}
             className="w-[min(100%,20rem)] shrink-0 snap-start sm:w-[22rem] lg:w-[24rem]"
           >
-            <BlogCard article={article} locale={locale} />
+            <BlogCard
+              article={article}
+              locale={locale}
+              className="h-full rounded-2xl border border-border/70 p-3 sm:p-3.5"
+            />
           </li>
         ))}
       </ul>

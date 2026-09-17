@@ -11,8 +11,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
-  authorizeAdmin: vi.fn(),
+vi.mock("@/lib/admin/authorize-editor", () => ({
+  authorizeEditor: vi.fn(),
 }));
 
 vi.mock("@/lib/sanitize-html", () => ({
@@ -28,7 +28,7 @@ import {
   deleteBlog,
   updateBlog,
 } from "@/actions/blogs";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 
 const blogId = "22222222-2222-4222-8222-222222222222";
 
@@ -55,7 +55,7 @@ function mockAdminSession(overrides?: {
 }) {
   const rpc = overrides?.rpc ?? vi.fn();
   const from = overrides?.from ?? vi.fn();
-  vi.mocked(authorizeAdmin).mockResolvedValue({
+  vi.mocked(authorizeEditor).mockResolvedValue({
     status: "success",
     userId: "admin-1",
     supabase: {
@@ -79,11 +79,11 @@ describe("blogs actions", () => {
     });
 
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeEditor).not.toHaveBeenCalled();
   });
 
   it("rejects unauthorized create", async () => {
-    vi.mocked(authorizeAdmin).mockResolvedValue({
+    vi.mocked(authorizeEditor).mockResolvedValue({
       status: "error",
       message: "You do not have permission to manage blogs.",
     });

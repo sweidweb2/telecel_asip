@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-import { AmbientMusicControl } from "@/components/layout/ambient-music-control";
+import "./marketing.css";
+
+import { AmbientMusicControlLazy } from "@/components/layout/ambient-music-control-lazy";
 import { ApplicationStatusBanner } from "@/components/layout/application-status-banner";
 import {
   enFooterLabels,
@@ -42,7 +44,7 @@ export default async function MarketingLayout({
       />
       <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter labels={footerLabels} />
-      <AmbientMusicControl />
+      <AmbientMusicControlLazy />
     </div>
   );
 }

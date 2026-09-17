@@ -4,7 +4,6 @@ import {
   createUserSchema,
   parseUserListQuery,
   updateUserSchema,
-  USER_FORM_ROLE,
 } from "@/validations/users";
 
 describe("users validation", () => {
@@ -13,37 +12,33 @@ describe("users validation", () => {
       fullName: "Ada Lovelace",
       email: "ADA@EXAMPLE.COM",
       password: "Password1",
-      role: USER_FORM_ROLE,
+      role: "editor",
     });
 
     expect(result.email).toBe("ada@example.com");
-    expect(result.role).toBe("admin");
+    expect(result.role).toBe("editor");
     expect(result.password).toBe("Password1");
   });
 
-  it("defaults empty password to password", () => {
-    const result = createUserSchema.parse({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "",
-      role: USER_FORM_ROLE,
-    });
+  it("requires a password and rejects empty or weak values", () => {
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "",
+        role: "viewer",
+      }).success,
+    ).toBe(false);
 
-    expect(result.password).toBe("password");
-  });
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "   ",
+        role: "admin",
+      }).success,
+    ).toBe(false);
 
-  it("defaults whitespace password to password", () => {
-    const result = createUserSchema.parse({
-      fullName: "Ada Lovelace",
-      email: "ada@example.com",
-      password: "   ",
-      role: USER_FORM_ROLE,
-    });
-
-    expect(result.password).toBe("password");
-  });
-
-  it("rejects non-admin roles, invalid emails, and weak passwords", () => {
     expect(
       createUserSchema.safeParse({
         fullName: "Ada Lovelace",
@@ -56,9 +51,20 @@ describe("users validation", () => {
     expect(
       createUserSchema.safeParse({
         fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        password: "Password1",
+        role: "editor",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects invalid emails and short names", () => {
+    expect(
+      createUserSchema.safeParse({
+        fullName: "Ada Lovelace",
         email: "not-an-email",
         password: "Password1",
-        role: USER_FORM_ROLE,
+        role: "admin",
       }).success,
     ).toBe(false);
 
@@ -67,18 +73,18 @@ describe("users validation", () => {
         fullName: "A",
         email: "ada@example.com",
         password: "Password1",
-        role: USER_FORM_ROLE,
+        role: "viewer",
       }).success,
     ).toBe(false);
   });
 
-  it("requires a UUID and admin role when updating a user", () => {
+  it("requires a UUID when updating a user and accepts any role", () => {
     expect(
       updateUserSchema.safeParse({
         id: "not-a-uuid",
         fullName: "Ada Lovelace",
         email: "ada@example.com",
-        role: USER_FORM_ROLE,
+        role: "admin",
       }).success,
     ).toBe(false);
 
@@ -89,7 +95,7 @@ describe("users validation", () => {
         email: "ada@example.com",
         role: "viewer",
       }).success,
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("validates and defaults list query parameters", () => {
@@ -105,10 +111,30 @@ describe("users validation", () => {
       pageSize: 10,
       search: "ada@example.com",
       role: "admin",
+      sort: "created_at",
+      dir: "desc",
     });
 
     expect(
       parseUserListQuery({ page: "-1", pageSize: "999", role: "owner" }),
-    ).toEqual({ page: 1, pageSize: 10, search: "", role: "all" });
+    ).toEqual({
+      page: 1,
+      pageSize: 10,
+      search: "",
+      role: "all",
+      sort: "created_at",
+      dir: "desc",
+    });
+
+    expect(
+      parseUserListQuery({
+        sort: "email",
+        dir: "asc",
+      }),
+    ).toMatchObject({ sort: "email", dir: "asc" });
+
+    expect(parseUserListQuery({ sort: "nope", dir: "sideways" })).toMatchObject(
+      { sort: "created_at", dir: "desc" },
+    );
   });
 });

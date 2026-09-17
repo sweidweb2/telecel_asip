@@ -1,17 +1,20 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { getAdminResource } from "@/constants/admin-resources";
+import { getInterestRegistrationById } from "@/data/interest-registrations";
+import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyTurnstileToken } from "@/lib/turnstile";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
+import {
+  guardPublicFormSubmission,
+  PUBLIC_SUBMIT_GUARD_COPY,
+} from "@/lib/intake/submit-guard";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   deleteInterestRegistrationSchema,
@@ -22,53 +25,44 @@ import {
   type UpdateInterestRegistrationInput,
 } from "@/validations/interest-registration";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
 export type InterestRegistrationActionResult = AdminActionResult;
 
 const resource = getAdminResource("registrations");
+const REGISTER_INTEREST_CONSENT_VERSION = "2026-09-17";
 
 const ACTION_MESSAGES = {
   en: {
-    invalidDetails: "Please check the form and try again.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your interest has been registered.",
-    genericError: "Something went wrong. Please try again.",
     updateSuccess: "Registration updated successfully.",
     deleteSuccess: "Registration deleted successfully.",
     inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage registrations.",
-    signedInRequired: "You must be signed in.",
+    signedInRequired: "Sign in to register your interest.",
     notFound: "Registration not found.",
-    rateLimited:
-      "Too many submissions. Please wait and try again later.",
-    duplicate:
-      "You already registered this company with this email.",
-    verificationFailed: "Security check failed. Please try again.",
+    duplicate: "You already registered this company with this email.",
+    applicationsOpen:
+      "Applications are open. Submit an official application instead of registering interest.",
   },
   fr: {
-    invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre intérêt a bien été enregistré.",
-    genericError: "Une erreur s’est produite. Veuillez réessayer.",
-    updateSuccess: "Candidature mise à jour avec succès.",
-    deleteSuccess: "Candidature supprimée avec succès.",
+    updateSuccess: "Inscription mise à jour avec succès.",
+    deleteSuccess: "Inscription supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
-    unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
-    signedInRequired: "Vous devez être connecté.",
-    notFound: "Candidature introuvable.",
-    rateLimited:
-      "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
+    unauthorized:
+      "Vous n’avez pas la permission de gérer les inscriptions d’intérêt.",
+    signedInRequired: "Connectez-vous pour manifester votre intérêt.",
+    notFound: "Inscription introuvable.",
     duplicate:
       "Vous avez déjà enregistré cette entreprise avec cet e-mail.",
-    verificationFailed:
-      "La vérification de sécurité a échoué. Veuillez réessayer.",
+    applicationsOpen:
+      "Les candidatures sont ouvertes. Envoyez une candidature officielle plutôt que de manifester votre intérêt.",
   },
 } as const;
-
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_PER_IP = 5;
-const RATE_LIMIT_PER_EMAIL = 3;
 
 function isUniqueViolation(error: {
   code?: string;
@@ -76,17 +70,10 @@ function isUniqueViolation(error: {
 }): boolean {
   if (error.code === "23505") return true;
   const message = (error.message ?? "").toLowerCase();
-  return message.includes("interest_registrations_email_company");
-}
-
-async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
+  return (
+    message.includes("interest_registrations_email_company") ||
+    message.includes("interest_registrations_user_company")
+  );
 }
 
 function refreshRegistrationsRoute() {
@@ -98,7 +85,21 @@ export async function submitInterestRegistration(
 ): Promise<InterestRegistrationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
-  const parsed = interestRegistrationSchemaFor(locale).safeParse(input);
+
+  if (await getOpenApplications()) {
+    return { status: "error", message: copy.applicationsOpen };
+  }
+
+  const user = await getAuthUser();
+  if (!user?.email) {
+    return { status: "error", message: copy.signedInRequired };
+  }
+
+  const sessionEmail = user.email.trim().toLowerCase();
+  const parsed = interestRegistrationSchemaFor(locale).safeParse({
+    ...input,
+    email: sessionEmail,
+  });
 
   if (!parsed.success) {
     return {
@@ -110,7 +111,6 @@ export async function submitInterestRegistration(
   const {
     fullName,
     founderRole,
-    email,
     phone,
     country,
     linkedin,
@@ -124,31 +124,21 @@ export async function submitInterestRegistration(
     turnstileToken,
   } = parsed.data;
 
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: turnstileToken,
+  const guard = await guardPublicFormSubmission({
+    turnstileToken,
     expectedAction: TURNSTILE_APPLY_ACTION,
-    remoteip: ip,
+    rateLimitPrefix: "apply",
+    identityKind: "user",
+    identity: user.id,
+    messages: copy,
   });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
+  if (guard.status === "error") return guard;
 
-  const ipKey = `apply:ip:${ip}`;
-  const emailKey = `apply:email:${email}`;
-
-  if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
-  ) {
-    return { status: "error", message: copy.rateLimited };
-  }
-
-  const admin = createAdminClient();
-  const { error } = await admin.from("interest_registrations").insert({
+  const { error } = await guard.admin.from("interest_registrations").insert({
+    user_id: user.id,
     full_name: fullName,
     founder_role: founderRole,
-    email,
+    email: sessionEmail,
     phone,
     country,
     linkedin: linkedin?.trim() ? linkedin.trim() : null,
@@ -159,6 +149,9 @@ export async function submitInterestRegistration(
     pitch: pitch?.trim() ? pitch.trim() : null,
     consent,
     comms_opt_in: commsOptIn,
+    locale,
+    source_path: `/${locale}/register-interest`,
+    consent_version: REGISTER_INTEREST_CONSENT_VERSION,
   });
 
   if (error) {
@@ -167,9 +160,6 @@ export async function submitInterestRegistration(
     }
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshRegistrationsRoute();
   return { status: "success", message: copy.success };
@@ -287,8 +277,8 @@ export async function updateInterestRegistrationInboxStatus(
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
 
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "interest_registrations",
     input,
     messages: {
       unauthorized: copy.unauthorized,
@@ -298,22 +288,11 @@ export async function updateInterestRegistrationInboxStatus(
       genericError: copy.genericError,
       notFound: copy.notFound,
     },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("interest_registrations")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: copy.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: copy.notFound };
-      }
-      return { status: "success" };
-    },
     refresh: () => refreshRegistrationsRoute(),
   });
+}
+
+/** Full registration for the shared inbox view/edit dialog. */
+export async function loadInterestRegistration(id: string) {
+  return getInterestRegistrationById(id);
 }

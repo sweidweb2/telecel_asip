@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { BriefcaseIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -16,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { portfolioEditPath, ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { StartupListItem } from "@/types/startup";
 import {
   STARTUP_PAGE_SIZE,
@@ -46,6 +48,11 @@ export function StartupsTable({
   query: StartupListQuery;
 }) {
   const router = useRouter();
+  const listFilters = {
+    search: query.search || undefined,
+    status: query.status === "all" ? undefined : query.status,
+  };
+  const isFiltered = adminListFiltersActive(listFilters);
 
   return (
     <AdminDataTable
@@ -65,8 +72,11 @@ export function StartupsTable({
       empty={
         <AdminEmptyState
           icon={BriefcaseIcon}
-          title="No startups found"
-          description="Try changing the filters, or create a new startup."
+          isFiltered={isFiltered}
+          emptyTitle="No startups yet"
+          emptyDescription="Create the first portfolio startup to publish on the site."
+          noResultsTitle="No startups found"
+          noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.portfolioNew}
           createLabel="New startup"
         />
@@ -77,19 +87,16 @@ export function StartupsTable({
         pageSize: STARTUP_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search || undefined,
-          status: query.status === "all" ? undefined : query.status,
-        },
+        filters: listFilters,
       }}
     >
       {startups.map((startup, index) => {
         const href = portfolioEditPath(startup.id);
         return (
-          <TableRow
+          <AdminClickableRow
             key={startup.id}
-            className="cursor-pointer"
-            onClick={() => router.push(href)}
+            ariaLabel={`Edit startup ${startup.name}`}
+            onActivate={() => router.push(href)}
           >
             <AdminRowNumberCell
               page={query.page}
@@ -123,7 +130,7 @@ export function StartupsTable({
             >
               <StartupRowActions startup={startup} />
             </TableCell>
-          </TableRow>
+          </AdminClickableRow>
         );
       })}
     </AdminDataTable>

@@ -3,19 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, MenuIcon } from "lucide-react";
+import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
 import { useState } from "react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import {
   Sheet,
   SheetContent,
@@ -54,7 +46,7 @@ function LanguageToggle({
 }) {
   return (
     <div
-      className="flex items-center border border-black/10 bg-white"
+      className="inline-flex w-fit shrink-0 self-start items-center gap-0.5 overflow-hidden rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
       role="group"
       aria-label={groupLabel}
     >
@@ -67,7 +59,7 @@ function LanguageToggle({
             hrefLang={loc}
             onClick={onLinkClick}
             className={cn(
-              "inline-flex min-h-10 min-w-11 items-center justify-center text-xs font-semibold uppercase transition-colors hover:bg-muted",
+              "inline-flex min-h-9 min-w-10 items-center justify-center rounded-full px-3 text-xs font-semibold uppercase transition-colors hover:bg-muted",
               active
                 ? "bg-[#14333b] text-white hover:bg-[#14333b]"
                 : "text-muted-foreground",
@@ -157,12 +149,20 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             >
               <MenuIcon className="size-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-sm">
-              <SheetHeader className="border-b">
-                <SheetTitle>{labels.menuLabel}</SheetTitle>
+            <SheetContent
+              side="right"
+              className="!inset-y-2 !right-2 !h-auto w-3/4 max-w-[20rem] gap-0 overflow-hidden rounded-3xl border border-[#14333b]/12 bg-[#fbfaf6] p-0 shadow-2xl"
+            >
+              <SheetHeader className="shrink-0 border-b border-[#14333b]/10 px-6 py-5">
+                <SheetTitle className="text-lg font-semibold text-[#14333b]">
+                  {labels.menuLabel}
+                </SheetTitle>
+                <p className="pr-10 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  {mastheadLabel}
+                </p>
               </SheetHeader>
               <nav
-                className="flex flex-1 flex-col gap-1 overflow-y-auto p-5"
+                className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4 py-5"
                 aria-label="Primary"
               >
                 {labels.items.map((item) => (
@@ -172,16 +172,16 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                     onClick={() => setOpen(false)}
                     className={cn(
                       buttonVariants({ variant: "ghost" }),
-                      "h-12 justify-start text-base",
+                      "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
                       isNavActive(pathname, item.href, locale) &&
-                        "bg-muted text-primary",
+                        "bg-[#179191]/10 font-semibold text-[#179191]",
                     )}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <div className="my-3 border-t" />
-                <p className="px-3 text-xs font-semibold uppercase text-muted-foreground">
+                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
+                <p className="mb-1 shrink-0 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {labels.languageGroupLabel}
                 </p>
                 <LanguageToggle
@@ -190,13 +190,13 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                   groupLabel={labels.languageGroupLabel}
                   onLinkClick={() => setOpen(false)}
                 />
-                <div className="my-3 border-t" />
+                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
                 <Link
                   href={labels.apply.href}
                   onClick={() => setOpen(false)}
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "w-full gap-2",
+                    "w-full shrink-0 gap-2 rounded-full",
                   )}
                 >
                   {labels.apply.label}
@@ -209,64 +209,71 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
       </div>
 
       <div className="hidden border-t border-black/8 bg-white/45 md:block">
-        <div className="mx-auto flex min-h-12 w-full max-w-7xl items-center px-8 lg:px-10">
-          <NavigationMenu className="max-w-none flex-1 justify-start" align="start">
-            <NavigationMenuList className="justify-start gap-1">
-              {labels.items
-                .filter((item) => item.href !== alumniHref)
-                .map((item) => {
-                  const active =
-                    isNavActive(pathname, item.href, locale) ||
-                    (item.href === foundersHref &&
-                      pathname.startsWith(alumniHref));
+        <nav
+          className="mx-auto flex min-h-12 w-full max-w-7xl items-center gap-1 px-8 lg:px-10"
+          aria-label="Primary"
+        >
+          {labels.items
+            .filter((item) => item.href !== alumniHref)
+            .map((item) => {
+              const active =
+                isNavActive(pathname, item.href, locale) ||
+                (item.href === foundersHref &&
+                  pathname.startsWith(alumniHref));
 
-                  if (item.href === foundersHref) {
-                    return (
-                      <NavigationMenuItem key={item.href}>
-                        <NavigationMenuTrigger className={desktopLinkClass(active)}>
-                          {item.label}
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <ul className="grid w-64 gap-1 p-2">
-                            <li>
-                              <NavigationMenuLink
-                                render={<Link href={foundersHref} />}
-                                closeOnClick
-                                className="min-h-12 rounded-sm px-4 py-3 font-semibold"
-                              >
-                                {directoryLabel}
-                              </NavigationMenuLink>
-                            </li>
-                            <li>
-                              <NavigationMenuLink
-                                render={<Link href={alumniHref} />}
-                                closeOnClick
-                                className="min-h-12 rounded-sm px-4 py-3 font-semibold"
-                              >
-                                Alumni
-                              </NavigationMenuLink>
-                            </li>
-                          </ul>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    );
-                  }
-
-                  return (
-                    <NavigationMenuItem key={item.href}>
-                      <NavigationMenuLink
-                        render={<Link href={item.href} />}
-                        active={active}
-                        className={desktopLinkClass(active)}
+              if (item.href === foundersHref) {
+                return (
+                  <div key={item.href} className="relative">
+                    <details className="group/nav">
+                      <summary
+                        className={cn(
+                          desktopLinkClass(active),
+                          "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+                        )}
                       >
-                        {item.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  );
-                })}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
+                        <span className="inline-flex items-center gap-1">
+                          {item.label}
+                          <ChevronDownIcon
+                            className="size-3.5 opacity-70 transition-transform group-open/nav:rotate-180"
+                            aria-hidden
+                          />
+                        </span>
+                      </summary>
+                      <ul className="absolute top-full left-0 z-50 mt-1 grid w-64 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
+                        <li>
+                          <Link
+                            href={foundersHref}
+                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
+                          >
+                            {directoryLabel}
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href={alumniHref}
+                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
+                          >
+                            Alumni
+                          </Link>
+                        </li>
+                      </ul>
+                    </details>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={desktopLinkClass(active)}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+        </nav>
       </div>
     </header>
   );

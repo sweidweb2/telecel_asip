@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { UserRoundSearchIcon } from "lucide-react";
 
+import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import { AdminDataTable } from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
-import { UserRowActions } from "@/components/users/user-dialogs";
+import { AdminSortableHead } from "@/components/dashboard/admin-sortable-head";
+import {
+  UserDeleteDialog,
+  UserEditDialog,
+  UserRowActions,
+  UserViewDialog,
+} from "@/components/users/user-row-dialogs";
 import { UsersFilters } from "@/components/users/users-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { ROUTES } from "@/constants/routes";
 import { formatAdminDate } from "@/lib/admin-format";
+import { adminListFiltersActive } from "@/lib/admin/list-filters-active";
 import type { Profile } from "@/types/profile";
 import { USER_PAGE_SIZE, type UserListQuery } from "@/validations/users";
 
@@ -30,30 +38,108 @@ const ROLE_LABELS = {
   viewer: "Viewer",
 } as const;
 
+function usersListFilters(query: UserListQuery) {
+  const isDefaultSort =
+    query.sort === "created_at" && query.dir === "desc";
+  return {
+    search: query.search || undefined,
+    role: query.role === "all" ? undefined : query.role,
+    sort: isDefaultSort ? undefined : query.sort,
+    dir: isDefaultSort ? undefined : query.dir,
+  };
+}
+
 export function UsersTable({
   users,
   total,
   totalPages,
   query,
+  listPath = ROUTES.users,
+  actorRole,
 }: {
   users: Profile[];
   total: number;
   totalPages: number;
   query: UserListQuery;
+  listPath?: string;
+  actorRole: "admin" | "editor";
 }) {
-  const [editUserId, setEditUserId] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<
+    { type: "view" | "edit" | "delete"; user: Profile } | null
+  >(null);
+  const closeDialog = useCallback(() => setDialog(null), []);
+  const onView = useCallback((user: Profile) => {
+    setDialog({ type: "view", user });
+  }, []);
+  const onEdit = useCallback((user: Profile) => {
+    setDialog({ type: "edit", user });
+  }, []);
+  const onDelete = useCallback((user: Profile) => {
+    setDialog({ type: "delete", user });
+  }, []);
+  const listFilters = usersListFilters(query);
+  const sortFilters = {
+    search: listFilters.search,
+    role: listFilters.role,
+  };
+  const isFiltered = adminListFiltersActive({
+    search: listFilters.search,
+    role: listFilters.role,
+  });
 
   return (
+    <>
     <AdminDataTable
-      filters={<UsersFilters query={query} />}
+      filters={
+        <UsersFilters
+          query={query}
+          listPath={listPath}
+          actorRole={actorRole}
+        />
+      }
       header={
         <TableRow>
           <AdminRowNumberHead />
-          <TableHead>Full name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Created</TableHead>
-          <TableHead>Updated</TableHead>
+          <AdminSortableHead
+            label="Full name"
+            sortKey="full_name"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={listPath}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Email"
+            sortKey="email"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={listPath}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Role"
+            sortKey="role"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={listPath}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Created"
+            sortKey="created_at"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={listPath}
+            filters={sortFilters}
+          />
+          <AdminSortableHead
+            label="Updated"
+            sortKey="updated_at"
+            currentSort={query.sort}
+            currentDir={query.dir}
+            basePath={listPath}
+            filters={sortFilters}
+          />
           <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
         </TableRow>
       }
@@ -62,27 +148,27 @@ export function UsersTable({
       empty={
         <AdminEmptyState
           icon={UserRoundSearchIcon}
-          title="No users found"
-          description="Try changing the search or role filter, or create a new user from the header."
+          isFiltered={isFiltered}
+          emptyTitle="No users yet"
+          emptyDescription="Create a user from the header."
+          noResultsTitle="No users found"
+          noResultsDescription="Try changing the filters or clearing search."
         />
       }
       pagination={{
-        basePath: ROUTES.users,
+        basePath: listPath,
         page: query.page,
         pageSize: USER_PAGE_SIZE,
         total,
         totalPages,
-        filters: {
-          search: query.search,
-          role: query.role === "all" ? undefined : query.role,
-        },
+        filters: listFilters,
       }}
     >
       {users.map((user, index) => (
-        <TableRow
+        <AdminClickableRow
           key={user.id}
-          className="cursor-pointer"
-          onClick={() => setEditUserId(user.id)}
+          ariaLabel={`Edit user ${user.full_name || user.email}`}
+          onActivate={() => onEdit(user)}
         >
           <AdminRowNumberCell
             page={query.page}
@@ -112,14 +198,33 @@ export function UsersTable({
           >
             <UserRowActions
               user={user}
-              editOpen={editUserId === user.id}
-              onEditOpenChange={(open) =>
-                setEditUserId(open ? user.id : null)
-              }
+              actorRole={actorRole}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
             />
           </TableCell>
-        </TableRow>
+        </AdminClickableRow>
       ))}
     </AdminDataTable>
+
+      <UserViewDialog
+        open={dialog?.type === "view"}
+        user={dialog?.type === "view" ? dialog.user : null}
+        onOpenChange={(open) => !open && closeDialog()}
+      />
+      <UserEditDialog
+        open={dialog?.type === "edit"}
+        user={dialog?.type === "edit" ? dialog.user : null}
+        actorRole={actorRole}
+        onOpenChange={(open) => !open && closeDialog()}
+      />
+      <UserDeleteDialog
+        open={dialog?.type === "delete"}
+        user={dialog?.type === "delete" ? dialog.user : null}
+        actorRole={actorRole}
+        onOpenChange={(open) => !open && closeDialog()}
+      />
+    </>
   );
 }

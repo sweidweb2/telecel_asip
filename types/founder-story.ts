@@ -50,6 +50,7 @@ export type FounderStoryPublic = {
 export type ImpactCaseStudyPublic = {
   id: string;
   startupId: string | null;
+  title: string;
   name: string;
   slug: string;
   founderNames: string[];

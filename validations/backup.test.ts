@@ -61,27 +61,73 @@ describe("getBackupDownloadUrlSchema", () => {
 });
 
 describe("parseBackupListQuery", () => {
-  it("defaults page and pageSize", () => {
-    expect(parseBackupListQuery({})).toEqual({ page: 1, pageSize: 25 });
+  it("defaults page, pageSize, filters, and sort", () => {
+    expect(parseBackupListQuery({})).toEqual({
+      page: 1,
+      pageSize: 25,
+      status: "all",
+      scope: "all",
+      sort: "created_at",
+      dir: "desc",
+    });
   });
 
-  it("parses pageSize from search params", () => {
-    expect(parseBackupListQuery({ page: "2", pageSize: "50" })).toEqual({
+  it("parses filters and sort from search params", () => {
+    expect(
+      parseBackupListQuery({
+        page: "2",
+        pageSize: "50",
+        status: "failed",
+        scope: "storage",
+        sort: "file_size",
+        dir: "asc",
+      }),
+    ).toEqual({
       page: 2,
       pageSize: 50,
+      status: "failed",
+      scope: "storage",
+      sort: "file_size",
+      dir: "asc",
     });
   });
 });
 
 describe("backupListFilterParams", () => {
-  it("omits default pageSize", () => {
-    expect(backupListFilterParams({ page: 1, pageSize: 25 })).toEqual({
+  it("omits defaults", () => {
+    expect(
+      backupListFilterParams({
+        page: 1,
+        pageSize: 25,
+        status: "all",
+        scope: "all",
+        sort: "created_at",
+        dir: "desc",
+      }),
+    ).toEqual({
+      status: undefined,
+      scope: undefined,
+      sort: undefined,
+      dir: undefined,
       pageSize: undefined,
     });
   });
 
-  it("keeps non-default pageSize", () => {
-    expect(backupListFilterParams({ page: 1, pageSize: 50 })).toEqual({
+  it("keeps non-default filters and sort", () => {
+    expect(
+      backupListFilterParams({
+        page: 1,
+        pageSize: 50,
+        status: "completed",
+        scope: "automated",
+        sort: "status",
+        dir: "asc",
+      }),
+    ).toEqual({
+      status: "completed",
+      scope: "automated",
+      sort: "status",
+      dir: "asc",
       pageSize: "50",
     });
   });

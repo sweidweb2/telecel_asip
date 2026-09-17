@@ -5,14 +5,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { HOME_ORBIT_LOGOS } from "@/constants/home-orbit-logos";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
 
 type HomeNextChapterSectionProps = {
   locale: Locale;
   copy: HomePageCopy["nextChapter"];
-  openApplications: boolean;
+  intake: IntakeCta;
   className?: string;
 };
 
@@ -26,10 +26,9 @@ type HomeNextChapterSectionProps = {
 export function HomeNextChapterSection({
   locale,
   copy,
-  openApplications,
+  intake,
   className,
 }: HomeNextChapterSectionProps) {
-  const intake = intakeCtaFor(locale, openApplications);
   const secondaryHref = publicPath(locale, copy.secondaryCta.slug);
 
   return (
@@ -64,6 +63,7 @@ export function HomeNextChapterSection({
                 height={logo.height}
                 sizes="4.5rem"
                 className="h-5 w-auto max-w-[4.5rem] object-contain opacity-80"
+                style={{ width: "auto", height: "auto" }}
               />
             </li>
           ))}
@@ -88,7 +88,7 @@ export function HomeNextChapterSection({
               href={intake.href}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "min-h-11 w-full rounded-full px-8 sm:w-auto",
+                "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
               )}
             >
               {intake.label}
@@ -170,6 +170,7 @@ function OrbitLogos({ className }: { className?: string }) {
               height={logo.height}
               sizes="7.5rem"
               className="h-auto max-h-7 w-auto max-w-[85%] object-contain"
+              style={{ width: "auto", height: "auto" }}
             />
           </div>
         </li>

@@ -1,17 +1,20 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { getAdminResource } from "@/constants/admin-resources";
+import { getApplicationById } from "@/data/applications";
+import { getOpenApplications } from "@/data/settings";
+import { getAuthUser } from "@/lib/admin/get-auth-user";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { isRateLimited, recordRateLimitHit } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyTurnstileToken } from "@/lib/turnstile";
+import {
+  guardPublicFormSubmission,
+  PUBLIC_SUBMIT_GUARD_COPY,
+} from "@/lib/intake/submit-guard";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   applicationSchemaFor,
@@ -22,7 +25,6 @@ import {
   type UpdateApplicationInput,
 } from "@/validations/application";
 import {
-  updateInboxStatusSchema,
   type UpdateInboxStatusInput,
 } from "@/validations/inbox";
 
@@ -32,41 +34,33 @@ const resource = getAdminResource("applications");
 
 const ACTION_MESSAGES = {
   en: {
-    invalidDetails: "Please check the form and try again.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your application has been submitted.",
-    genericError: "Something went wrong. Please try again.",
     updateSuccess: "Application updated successfully.",
     deleteSuccess: "Application deleted successfully.",
     inboxStatusSuccess: "Inbox status updated.",
     unauthorized: "You do not have permission to manage applications.",
-    signedInRequired: "You must be signed in.",
+    signedInRequired: "Sign in to submit an application.",
     notFound: "Application not found.",
-    rateLimited: "Too many submissions. Please wait and try again later.",
     duplicate: "You already applied with this company and email.",
-    verificationFailed: "Security check failed. Please try again.",
+    applicationsClosed:
+      "Applications are closed. Register your interest to hear when the next chapter opens.",
   },
   fr: {
-    invalidDetails: "Veuillez vérifier le formulaire et réessayer.",
+    ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre candidature a bien été envoyée.",
-    genericError: "Une erreur s’est produite. Veuillez réessayer.",
     updateSuccess: "Candidature mise à jour avec succès.",
     deleteSuccess: "Candidature supprimée avec succès.",
     inboxStatusSuccess: "Statut de la boîte de réception mis à jour.",
     unauthorized: "Vous n’avez pas la permission de gérer les candidatures.",
-    signedInRequired: "Vous devez être connecté.",
+    signedInRequired: "Connectez-vous pour envoyer une candidature.",
     notFound: "Candidature introuvable.",
-    rateLimited:
-      "Trop de soumissions. Veuillez patienter et réessayer plus tard.",
     duplicate:
       "Vous avez déjà candidaté avec cette entreprise et cet e-mail.",
-    verificationFailed:
-      "La vérification de sécurité a échoué. Veuillez réessayer.",
+    applicationsClosed:
+      "Les candidatures sont fermées. Manifestez votre intérêt pour être informé de l’ouverture du prochain chapitre.",
   },
 } as const;
-
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_PER_IP = 5;
-const RATE_LIMIT_PER_EMAIL = 3;
 
 function isUniqueViolation(error: {
   code?: string;
@@ -74,17 +68,10 @@ function isUniqueViolation(error: {
 }): boolean {
   if (error.code === "23505") return true;
   const message = (error.message ?? "").toLowerCase();
-  return message.includes("applications_email_company");
-}
-
-async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
+  return (
+    message.includes("applications_email_company") ||
+    message.includes("applications_user_company")
+  );
 }
 
 function refreshApplicationsRoute() {
@@ -96,7 +83,21 @@ export async function submitApplication(
 ): Promise<ApplicationActionResult> {
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
-  const parsed = applicationSchemaFor(locale).safeParse(input);
+
+  if (!(await getOpenApplications())) {
+    return { status: "error", message: copy.applicationsClosed };
+  }
+
+  const user = await getAuthUser();
+  if (!user?.email) {
+    return { status: "error", message: copy.signedInRequired };
+  }
+
+  const sessionEmail = user.email.trim().toLowerCase();
+  const parsed = applicationSchemaFor(locale).safeParse({
+    ...input,
+    email: sessionEmail,
+  });
 
   if (!parsed.success) {
     return {
@@ -106,33 +107,23 @@ export async function submitApplication(
   }
 
   const data = parsed.data;
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: data.turnstileToken,
+  const guard = await guardPublicFormSubmission({
+    turnstileToken: data.turnstileToken,
     expectedAction: TURNSTILE_APPLY_ACTION,
-    remoteip: ip,
+    rateLimitPrefix: "application",
+    identityKind: "user",
+    identity: user.id,
+    messages: copy,
   });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
+  if (guard.status === "error") return guard;
 
-  const ipKey = `application:ip:${ip}`;
-  const emailKey = `application:email:${data.email}`;
-
-  if (
-    isRateLimited(ipKey, RATE_LIMIT_PER_IP, RATE_LIMIT_WINDOW_MS) ||
-    isRateLimited(emailKey, RATE_LIMIT_PER_EMAIL, RATE_LIMIT_WINDOW_MS)
-  ) {
-    return { status: "error", message: copy.rateLimited };
-  }
-
-  const admin = createAdminClient();
   const linkedin = data.linkedin?.trim() ? data.linkedin.trim() : null;
   const website = data.website?.trim() ? data.website.trim() : null;
-  const { error } = await admin.from("applications").insert({
+  const { error } = await guard.admin.from("applications").insert({
+    user_id: user.id,
     full_name: data.fullName,
     founder_role: data.founderRole,
-    email: data.email,
+    email: sessionEmail,
     phone: data.phone,
     country: data.country,
     linkedin,
@@ -153,9 +144,6 @@ export async function submitApplication(
     }
     return { status: "error", message: copy.genericError };
   }
-
-  recordRateLimitHit(ipKey, RATE_LIMIT_WINDOW_MS);
-  recordRateLimitHit(emailKey, RATE_LIMIT_WINDOW_MS);
 
   refreshApplicationsRoute();
   return { status: "success", message: copy.success };
@@ -259,8 +247,8 @@ export async function updateApplicationInboxStatus(
   const locale = await getRequestLocale();
   const copy = ACTION_MESSAGES[locale];
 
-  return runAdminMutation({
-    schema: updateInboxStatusSchema,
+  return runInboxStatusMutation({
+    table: "applications",
     input,
     messages: {
       unauthorized: copy.unauthorized,
@@ -270,22 +258,11 @@ export async function updateApplicationInboxStatus(
       genericError: copy.genericError,
       notFound: copy.notFound,
     },
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("applications")
-        .update({ inbox_status: data.inboxStatus })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", message: copy.genericError };
-      }
-      if (!row) {
-        return { status: "error", message: copy.notFound };
-      }
-      return { status: "success" };
-    },
     refresh: () => refreshApplicationsRoute(),
   });
+}
+
+/** Full application for the shared inbox view/edit dialog. */
+export async function loadApplication(id: string) {
+  return getApplicationById(id);
 }

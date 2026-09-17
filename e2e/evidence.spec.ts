@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { e2eSuffix } from "./helpers";
+import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = process.env.E2E_SEED_EMAIL ?? "asweid657@gmail.com";
-const adminPassword = process.env.E2E_SEED_PASSWORD ?? "ali@1234";
+const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -49,9 +49,9 @@ test.describe("evidence cms", () => {
 
     try {
       await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
-      await page.getByLabel("Email").fill(adminEmail);
-      await page.getByLabel("Password", { exact: true }).fill(adminPassword);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await page.getByLabel("Email").fill(editorEmail);
+      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
+      await submitLoginForm(page);
       await expect(page).toHaveURL(/\/dashboard\/evidence/, {
         timeout: 20_000,
       });
@@ -69,8 +69,10 @@ test.describe("evidence cms", () => {
       await page.getByRole("option").first().click();
 
       await page.getByLabel("Primary source").fill(primarySource);
+      await page.getByRole("tab", { name: /Period/i }).click();
       await page.getByLabel("Period start").fill("2024-01-01");
       await page.getByLabel("Period end").fill("2024-12-31");
+      await page.getByRole("tab", { name: /Governance/i }).click();
       await page.getByLabel("Last verified").fill("2025-01-15");
       await page.getByLabel("Review date").fill("2025-01-20");
 
@@ -83,7 +85,7 @@ test.describe("evidence cms", () => {
       ).toBeVisible({ timeout: 20_000 });
 
       await page.getByLabel("Primary source").fill(editedSource);
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
           hasText: "Evidence record updated successfully.",
@@ -130,7 +132,7 @@ test.describe("evidence cms", () => {
       await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
       await page.getByLabel("Email").fill(email);
       await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await submitLoginForm(page);
       await expect(page).not.toHaveURL(/\/dashboard\/evidence/, {
         timeout: 20_000,
       });

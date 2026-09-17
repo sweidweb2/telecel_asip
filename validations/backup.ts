@@ -12,6 +12,29 @@ export const BACKUP_PAGE_SIZES = [10, 25, 50] as const;
 export const BACKUP_PAGE_SIZE_VALUES = ["10", "25", "50"] as const;
 export const BACKUP_DEFAULT_PAGE_SIZE = 25;
 
+export const BACKUP_LIST_STATUSES = [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+] as const;
+
+export const BACKUP_LIST_SCOPES = [
+  "full",
+  "storage",
+  "automated",
+  "tables",
+] as const;
+
+export const BACKUP_LIST_SORTS = [
+  "created_at",
+  "status",
+  "scope",
+  "file_size",
+] as const;
+
+export type BackupListSort = (typeof BACKUP_LIST_SORTS)[number];
+
 export const createBackupSchema = z
   .object({
     scope: z.enum(BACKUP_CREATE_SCOPES),
@@ -48,6 +71,10 @@ const backupListQuerySchema = z.object({
     .transform(
       (value) => Number(value) as (typeof BACKUP_PAGE_SIZES)[number],
     ),
+  status: z.enum(["all", ...BACKUP_LIST_STATUSES]).catch("all"),
+  scope: z.enum(["all", ...BACKUP_LIST_SCOPES]).catch("all"),
+  sort: z.enum(BACKUP_LIST_SORTS).catch("created_at"),
+  dir: z.enum(["asc", "desc"]).catch("desc"),
 });
 
 export type BackupListQuery = z.infer<typeof backupListQuerySchema>;
@@ -57,6 +84,10 @@ export function parseBackupListQuery(input: RawSearchParams): BackupListQuery {
     pickSearchParams(input, {
       page: "1",
       pageSize: String(BACKUP_DEFAULT_PAGE_SIZE),
+      status: "all",
+      scope: "all",
+      sort: "created_at",
+      dir: "desc",
     }),
   );
 }
@@ -64,7 +95,14 @@ export function parseBackupListQuery(input: RawSearchParams): BackupListQuery {
 export function backupListFilterParams(
   query: BackupListQuery,
 ): Record<string, string | undefined> {
+  const isDefaultSort =
+    query.sort === "created_at" && query.dir === "desc";
+
   return {
+    status: query.status === "all" ? undefined : query.status,
+    scope: query.scope === "all" ? undefined : query.scope,
+    sort: isDefaultSort ? undefined : query.sort,
+    dir: isDefaultSort ? undefined : query.dir,
     pageSize:
       query.pageSize !== BACKUP_DEFAULT_PAGE_SIZE
         ? String(query.pageSize)

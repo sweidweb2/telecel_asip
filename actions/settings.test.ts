@@ -4,6 +4,7 @@ const {
   revalidatePath,
   revalidateTag,
   authorizeAdmin,
+  authorizeStaff,
   maybeSingle,
   update,
 } = vi.hoisted(() => {
@@ -14,6 +15,7 @@ const {
     revalidatePath: vi.fn(),
     revalidateTag: vi.fn(),
     authorizeAdmin: vi.fn(),
+    authorizeStaff: vi.fn(),
     maybeSingle,
     update,
   };
@@ -29,14 +31,35 @@ vi.mock("@/lib/admin/authorize-admin", () => ({
   authorizeAdmin,
 }));
 
-import { updateSiteSettings } from "@/actions/settings";
+vi.mock("@/lib/admin/authorize-staff", () => ({
+  authorizeStaff,
+}));
+
+import {
+  updateAdminSiteSettings,
+  updateEditorSiteSettings,
+} from "@/actions/settings";
 import { SITE_SETTINGS_CACHE_TAG } from "@/data/settings";
 
-const validInput = {
+const editorInput = {
   openApplications: true,
   newsletterSignupEnabled: true,
+};
+
+const adminInput = {
+  ...editorInput,
   backupTime: "weekly_sun_03" as const,
 };
+
+function mockStaffSession() {
+  authorizeStaff.mockResolvedValue({
+    status: "success",
+    userId: "editor-1",
+    supabase: {
+      from: vi.fn(() => ({ update })),
+    },
+  });
+}
 
 function mockAdminSession() {
   authorizeAdmin.mockResolvedValue({
@@ -48,29 +71,28 @@ function mockAdminSession() {
   });
 }
 
-describe("updateSiteSettings", () => {
+describe("updateEditorSiteSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("rejects invalid input", async () => {
-    const result = await updateSiteSettings({
+    const result = await updateEditorSiteSettings({
       openApplications: "yes" as never,
       newsletterSignupEnabled: true,
-      backupTime: "weekly_sun_03",
     });
 
     expect(result.status).toBe("error");
-    expect(authorizeAdmin).not.toHaveBeenCalled();
+    expect(authorizeStaff).not.toHaveBeenCalled();
   });
 
-  it("requires a signed-in user", async () => {
-    authorizeAdmin.mockResolvedValue({
+  it("requires a signed-in staff user", async () => {
+    authorizeStaff.mockResolvedValue({
       status: "error",
       message: "You must be signed in.",
     });
 
-    const result = await updateSiteSettings(validInput);
+    const result = await updateEditorSiteSettings(editorInput);
 
     expect(result).toEqual({
       status: "error",
@@ -78,25 +100,49 @@ describe("updateSiteSettings", () => {
     });
   });
 
-  it("rejects non-admins", async () => {
+  it("updates application and newsletter toggles", async () => {
+    mockStaffSession();
+    maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
+
+    const result = await updateEditorSiteSettings(editorInput);
+
+    expect(result).toEqual({
+      status: "success",
+      message: "Settings saved.",
+    });
+    expect(update).toHaveBeenCalledWith({
+      open_applications: true,
+      newsletter_signup_enabled: true,
+    });
+    expect(revalidateTag).toHaveBeenCalledWith(SITE_SETTINGS_CACHE_TAG, "max");
+    expect(revalidatePath).toHaveBeenCalled();
+  });
+});
+
+describe("updateAdminSiteSettings", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects non-admins with backup-specific copy", async () => {
     authorizeAdmin.mockResolvedValue({
       status: "error",
       message: "You do not have permission to change site settings.",
     });
 
-    const result = await updateSiteSettings(validInput);
+    const result = await updateAdminSiteSettings(adminInput);
 
     expect(result).toEqual({
       status: "error",
-      message: "You do not have permission to change site settings.",
+      message: "Only administrators can change the backup schedule.",
     });
   });
 
-  it("updates settings without starting a backup", async () => {
+  it("updates settings including backup_time", async () => {
     mockAdminSession();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
-    const result = await updateSiteSettings(validInput);
+    const result = await updateAdminSiteSettings(adminInput);
 
     expect(result).toEqual({
       status: "success",
@@ -107,16 +153,14 @@ describe("updateSiteSettings", () => {
       newsletter_signup_enabled: true,
       backup_time: "weekly_sun_03",
     });
-    expect(revalidateTag).toHaveBeenCalledWith(SITE_SETTINGS_CACHE_TAG, "max");
-    expect(revalidatePath).toHaveBeenCalled();
   });
 
   it("still does not start a backup when schedule value changes", async () => {
     mockAdminSession();
     maybeSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
-    const result = await updateSiteSettings({
-      ...validInput,
+    const result = await updateAdminSiteSettings({
+      ...adminInput,
       backupTime: "weekly_mon_03",
     });
 

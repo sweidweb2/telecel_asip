@@ -3,14 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { listEvidenceOptionsForAdmin } from "@/data/impact-metrics";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
-import type { EvidenceOption } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
   deleteImpactMetricSchema,
@@ -35,21 +33,6 @@ const MESSAGES = {
   evidenceNotFound: "Selected evidence record was not found.",
   genericError: "Something went wrong. Please try again.",
 } as const;
-
-/** Lazy option load for the create dialog (list page skips eager fetch). */
-export async function loadImpactEvidenceOptions(
-  search = "",
-  includeEvidenceId?: string | null,
-): Promise<
-  | { status: "ok"; options: EvidenceOption[] }
-  | { status: "error"; message: string }
-> {
-  const result = await listEvidenceOptionsForAdmin(search, includeEvidenceId);
-  if (result.status === "forbidden") {
-    return { status: "error", message: MESSAGES.unauthorized };
-  }
-  return { status: "ok", options: result.options };
-}
 
 const PG_MESSAGES = {
   unauthorized: MESSAGES.unauthorized,
