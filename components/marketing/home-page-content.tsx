@@ -2,7 +2,6 @@ import dynamic from "next/dynamic";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
-import { HomeFounderSpotlightSection } from "@/components/marketing/home-founder-spotlight-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
@@ -19,6 +18,12 @@ import type { StartupCountryReach } from "@/types/startup";
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
     (m) => m.HomePlatformModelSection,
+  ),
+);
+
+const HomeFounderSpotlightSection = dynamic(() =>
+  import("@/components/marketing/home-founder-spotlight-section").then(
+    (m) => m.HomeFounderSpotlightSection,
   ),
 );
 

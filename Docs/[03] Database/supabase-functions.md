@@ -471,6 +471,21 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 
 ---
 
+### `public.get_active_startup_country_reach()`
+
+| | |
+| --- | --- |
+| **Role** | Grouped country founder counts for the home footprint graphic |
+| **Returns** | `jsonb` array of `{ countryCode: string, founderCount: number }` |
+| **Security** | `sql`, `stable`, **`security invoker`**, `search_path = public` |
+| **Grants** | `execute` to `anon`, `authenticated` |
+
+**Details:** Replaces selecting every `startups_public.country_code` and aggregating in JS (`data/startups.ts` → `getActiveStartupCountryReach`). Migration `20260917230000_get_active_startup_country_reach.sql`.
+
+**How it works:** `group by country_code` over non-empty codes on `public.startups_public`, then `jsonb_agg` of `{ countryCode, founderCount }` ordered by code. Invoker + the view's grants keep the public surface unchanged.
+
+---
+
 ### `public.blog_categories_within_bounds(categories text[])`
 
 | | |

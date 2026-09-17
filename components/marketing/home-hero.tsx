@@ -1,11 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 
+import { HomeHeroContinuum } from "@/components/marketing/home-hero-continuum";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  HOME_HERO_CONTINUUM,
-  homeHeroContinuumAlt,
-} from "@/constants/home-hero-media";
+import { homeHeroContinuumAlt } from "@/constants/home-hero-media";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
@@ -21,7 +18,7 @@ type HomeHeroProps = {
 /**
  * Home Module 01 — Founder Continuum.
  * Full-bleed stills soft-crossfade behind a stable brand + headline + CTA lockup.
- * CSS-only loop (RSC); reduced-motion freezes on the first still.
+ * Continuum media is a small client island (≤2 stills); reduced-motion freezes on the first.
  */
 export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
   const primaryHref = publicPath(locale, copy.primaryCta.slug);
@@ -32,29 +29,8 @@ export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
       aria-label={continuumLabel}
       className="relative isolate flex min-h-[70svh] items-end overflow-hidden bg-[#14333b] text-white sm:min-h-[80svh] md:min-h-[calc(100svh-5.5rem)]"
     >
-      {/* Media plane — continuum loop */}
       <div className="absolute inset-0" aria-hidden>
-        {HOME_HERO_CONTINUUM.map((slide, index) => (
-          <div
-            key={slide.src}
-            className={cn("home-hero-continuum-slide absolute inset-0")}
-          >
-            <Image
-              src={slide.src}
-              alt=""
-              fill
-              priority={index === 0}
-              fetchPriority={index === 0 ? "high" : "auto"}
-              loading={index === 0 ? "eager" : "lazy"}
-              className="object-cover"
-              style={{ objectPosition: slide.position ?? "center" }}
-              sizes="100vw"
-              quality={90}
-            />
-          </div>
-        ))}
-        <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(20,51,59,.97)_0%,rgba(20,51,59,.88)_36%,rgba(20,51,59,.45)_62%,rgba(20,51,59,.18)_82%,rgba(20,51,59,.08)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,51,59,.55)_0%,transparent_42%)]" />
+        <HomeHeroContinuum />
       </div>
 
       <div
@@ -74,7 +50,7 @@ export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
           </p>
         </div>
 
-        <h1 className="mt-4 max-w-4xl font-heading text-3xl font-semibold leading-[1.08] text-balance sm:mt-6 sm:text-5xl lg:text-6xl">
+        <h1 className="mt-4 max-w-4xl font-heading text-3xl font-semibold leading-[1.08] text-balance sm:text-5xl lg:text-6xl">
           {copy.title}
         </h1>
 

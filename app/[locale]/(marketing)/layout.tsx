@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import "./marketing.css";
+
 import { AmbientMusicControl } from "@/components/layout/ambient-music-control";
 import { ApplicationStatusBanner } from "@/components/layout/application-status-banner";
 import {

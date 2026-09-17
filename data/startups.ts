@@ -413,15 +413,46 @@ export const getActiveStartupFilterOptions = unstable_cache(
 
 async function fetchActiveStartupCountryReach(): Promise<StartupCountryReach[]> {
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  const { data, error } = await supabase.rpc(
+    "get_active_startup_country_reach",
+  );
+
+  if (!error) {
+    if (!Array.isArray(data)) return [];
+
+    return data.flatMap((row) => {
+      if (!row || typeof row !== "object" || Array.isArray(row)) return [];
+      const record = row as {
+        countryCode?: unknown;
+        founderCount?: unknown;
+      };
+      if (
+        typeof record.countryCode !== "string" ||
+        typeof record.founderCount !== "number"
+      ) {
+        return [];
+      }
+      return [
+        {
+          countryCode: record.countryCode,
+          founderCount: record.founderCount,
+        },
+      ];
+    });
+  }
+
+  // Fallback until migration `get_active_startup_country_reach` is applied.
+  if (error.code !== "PGRST202") throw error;
+
+  const { data: rows, error: selectError } = await supabase
     .from("startups_public")
     .select("country_code")
     .not("country_code", "is", null);
 
-  if (error) throw error;
+  if (selectError) throw selectError;
 
   const counts = new Map<string, number>();
-  for (const row of data ?? []) {
+  for (const row of rows ?? []) {
     const code = row.country_code?.trim().toUpperCase();
     if (!code) continue;
     counts.set(code, (counts.get(code) ?? 0) + 1);
