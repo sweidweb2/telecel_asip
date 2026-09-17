@@ -1,11 +1,6 @@
 /* Impact stairs / arrows / kite — imported by home-impact + programme bridge */
 /* Impact Years — static stair belt (no infinite translate paint). */
 
-/*
-  Arrow reborn: stroke climbs bottom→tip, holds, fades, resets.
-  Twin starts at 50% so a new arrow replaces the last — infinite.
-  Coral / yellow use separate base delays.
-*/
 @keyframes impact-arrow-stroke-reborn {
   0% {
     stroke-dashoffset: 1;
@@ -100,20 +95,6 @@
   animation: bridge-sketch-float 6.5s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  [data-hero-copy] > *,
-  [data-reveal="section"],
-  [data-reveal="media"],
-  [data-reveal="fade"],
-  .partners-hero-image,
-  .partner-signal-track,
-  .home-hero-motion,
-  .home-hero-continuum-slide,
-  .home-hero-brand-rule,
-  .animate-scroll-horizontal,
-  .animate-scroll-horizontal-reverse,
-  .animate-fade-in-up,
-  .about-story-fade-up,
 @media (prefers-reduced-motion: reduce) {
   .impact-stairs-belt,
   .impact-kite-float,

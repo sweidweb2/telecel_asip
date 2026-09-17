@@ -156,6 +156,25 @@
   animation: about-story-float 6.4s ease-in-out 0.4s infinite;
 }
 
+.editorial-rule {
+  border-top: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+}
+
+.metric-numeral {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Home Module 07→08 seam — mirrored puzzle halves.
+ * Same radial strength/size; one anchored at bottom, one at top.
+ * Same linear end/start colour (brand-subtle) so the join is continuous.
+ */
+.home-module-seam-from {
+  background-image:
+    radial-gradient(
+      120% 80% at 50% 100%,
+      color-mix(in oklab, var(--brand) 14%, transparent),
+      transparent 55%
     ),
     linear-gradient(180deg, var(--background) 0%, var(--brand-subtle) 100%);
 }
@@ -170,24 +189,6 @@
     linear-gradient(180deg, var(--brand-subtle) 0%, var(--background) 70%);
 }
 
-/* —— Institutional hero field (terms / privacy / FAQ / lab / alumni / auth) ——
- * Quiet academic night panel in ASIP ink/teal — hatch, dots, outline
- * motifs, soft orbs, silk ribbons. Compositions reposition layers.
- */
-.institutional-hero-field__wash {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse 70% 55% at 12% 8%,
-      rgb(154 209 191 / 0.16),
-      transparent 58%
-    ),
-    linear-gradient(180deg, #1a3f48 0%, #14333b 48%, #0f282e 100%);
-}
-
-.institutional-hero-field[data-composition="ledger"] .institutional-hero-field__wash {
-  background:
 @media (prefers-reduced-motion: reduce) {
   [data-hero-copy] > *,
   [data-reveal="section"],
