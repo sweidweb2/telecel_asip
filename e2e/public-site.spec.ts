@@ -54,6 +54,15 @@ test("alumni is in the primary navigation", async ({ page }) => {
   ).toHaveAttribute("href", "/en/alumni");
 });
 
+test("founders directory closes when clicking outside", async ({ page }) => {
+  await page.goto("/en");
+  const directory = page.locator("header nav[aria-label='Primary'] details");
+  await directory.locator("summary").click();
+  await expect(directory).toHaveAttribute("open", "");
+  await page.locator("main").click({ position: { x: 10, y: 10 } });
+  await expect(directory).not.toHaveAttribute("open", "");
+});
+
 test("mobile navigation remains usable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/en");

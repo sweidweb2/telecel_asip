@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
 import { buttonVariants } from "@/components/ui/button";
@@ -77,6 +77,19 @@ function LanguageToggle({
 export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const directoryRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      const directory = directoryRef.current;
+      if (directory?.open && !directory.contains(event.target as Node)) {
+        directory.open = false;
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, []);
   const homeHref = publicPath(locale, "");
   const foundersHref = publicPath(locale, "founders");
   const alumniHref = publicPath(locale, "alumni");
@@ -224,7 +237,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
               if (item.href === foundersHref) {
                 return (
                   <div key={item.href} className="relative">
-                    <details className="group/nav">
+                    <details ref={directoryRef} className="group/nav">
                       <summary
                         className={cn(
                           desktopLinkClass(active),
