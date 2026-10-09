@@ -1172,6 +1172,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["backup_schedule"]
       }
       get_admin_list_stats: { Args: { p_resource: string }; Returns: Json }
+      get_admin_perf_analytics: {
+        Args: { p_since: string }
+        Returns: Json
+      }
       get_admin_shell: {
         Args: never
         Returns: {

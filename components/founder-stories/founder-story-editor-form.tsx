@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { Controller, useWatch } from "react-hook-form";
 import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -13,12 +11,10 @@ import {
   updateFounderStory,
 } from "@/actions/founder-stories";
 import { loadStoryStartupOptions } from "@/actions/admin-pickers";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { EntitySelect } from "@/components/dashboard/entity-select";
@@ -41,27 +37,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
-import { ROUTES } from "@/constants/routes";
+import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { dummyFounderStoryValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
-import { cn } from "@/lib/utils";
 import type {
   FounderStoryDetail,
   StartupStoryOption,
@@ -167,9 +148,21 @@ export function FounderStoryEditorForm({
   startups: initialStartups = [],
 }: FounderStoryEditorFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [step, setStep] = useState(FOUNDER_STORY_EDITOR_STEPS[0].id);
+  const editor = useCmsEditorForm<FounderStoryFormValues, CreateFounderStoryInput>({
+    mode,
+    schema: createFounderStorySchema,
+    defaultValues: defaultsFor(story),
+    recordId: story?.id,
+    listPath: ROUTES.founderStories,
+    detailPath: founderStoryEditPath,
+    create: createFounderStory,
+    update: updateFounderStory,
+    remove: deleteFounderStory,
+    saveError: "The founder story could not be saved. Please try again.",
+    steps: FOUNDER_STORY_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
+  const { register, control, getValues, reset } = form;
   const [startups, setStartups] = useState(initialStartups);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [optionsEnabled, setOptionsEnabled] = useState(false);
@@ -210,141 +203,96 @@ export function FounderStoryEditorForm({
     };
   }, [mode, optionsEnabled, debouncedSearch]);
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    getValues,
-    reset,
-    formState: { errors, isDirty },
-  } = useForm<CreateFounderStoryInput>({
-    resolver: zodResolver(createFounderStorySchema),
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: defaultsFor(story),
-  });
-
   const quoteText = useWatch({ control, name: "founderQuoteText" }) ?? "";
   const hasQuote = quoteText.trim().length > 0;
 
-  function onSubmit(values: CreateFounderStoryInput) {
-    startTransition(async () => {
-      if (mode === "create") {
-        const result = await createFounderStory(values);
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-        toast.success(result.message);
-        if (result.id) {
-          router.push(`${ROUTES.founderStories}/${result.id}`);
-          router.refresh();
-        }
-        return;
-      }
-
-      if (!story) return;
-      const result = await updateFounderStory({ ...values, id: story.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      reset(values);
-      router.refresh();
-    });
-  }
-
-  function onDelete() {
-    if (!story) return;
-    startTransition(async () => {
-      const result = await deleteFounderStory({ id: story.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      setIsDeleteOpen(false);
-      toast.success(result.message);
-      router.push(ROUTES.founderStories);
-      router.refresh();
-    });
-  }
-
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            const current = getValues();
-            reset(
-              {
-                ...current,
-                ...dummyFounderStoryValues({
-                  ...current,
-                  startupId: current.startupId || startups[0]?.id || "",
-                }),
-              },
-              { keepDefaultValues: true },
-            );
-          }}
-          onClear={() => {
-            reset(
-              {
-                ...defaultsFor(),
-                // Keep locked startup on edit so the form stays valid.
-                startupId:
-                  mode === "edit"
-                    ? getValues("startupId")
-                    : "",
-              },
-              { keepDefaultValues: true },
-            );
-          }}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={editor.handleFormSubmit}
+      steps={FOUNDER_STORY_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      formClassName=""
+      stepperClassName="flex flex-col gap-6"
+      navClassName=""
+      panelClassName="w-full"
+      onDummy={() => {
+        const current = getValues();
+        reset(
+          {
+            ...current,
+            ...dummyFounderStoryValues({
+              ...current,
+              startupId: current.startupId || startups[0]?.id || "",
+            }),
+          },
+          { keepDefaultValues: true },
+        );
+      }}
+      onClear={() => {
+        reset(
+          {
+            ...defaultsFor(),
+            // Keep locked startup on edit so the form stays valid.
+            startupId: mode === "edit" ? getValues("startupId") : "",
+          },
+          { keepDefaultValues: true },
+        );
+      }}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          disabled={
+            editor.submitDisabled() ||
+            (mode === "create" && startups.length === 0)
+          }
+          createLabel="Create story"
+          deleteLabel="Delete story"
+          onDelete={() => editor.setDeleteOpen(true)}
+          leading={
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 w-full sm:w-auto"
+              disabled={isPending}
+              onClick={() => router.push(ROUTES.founderStories)}
+            >
+              Cancel
+            </Button>
+          }
+          trailing={
+            mode === "edit" ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => router.push(ROUTES.founderStories)}
+              >
+                Cancel
+              </Button>
+            ) : undefined
+          }
         />
-      </div>
-
-      <form
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, FOUNDER_STORY_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      >
-        <Stepper
-          steps={FOUNDER_STORY_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex flex-col gap-6"
-        >
-          <StepperNav>
-            {FOUNDER_STORY_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < FOUNDER_STORY_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete founder story?",
+        description: (
+          <>
+            This permanently deletes the story
+            {story?.startup_name ? ` for ${story.startup_name}` : ""}. This
+            cannot be undone.
+          </>
+        ),
+        confirmLabel: "Delete story",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent value="startup" className="space-y-6">
               <Card size="sm">
                 <CardHeader className="border-b bg-brand-soft">
@@ -708,78 +656,6 @@ export function FounderStoryEditorForm({
                 </CardContent>
               </Card>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setIsDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete story
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => router.push(ROUTES.founderStories)}
-            >
-              Cancel
-            </Button>
-          )}
-          <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:justify-end">
-            {mode === "edit" ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full sm:w-auto"
-                disabled={isPending}
-                onClick={() => router.push(ROUTES.founderStories)}
-              >
-                Cancel
-              </Button>
-            ) : null}
-            <Button
-              type="submit"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={
-                isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
-                (mode === "create" && startups.length === 0)
-              }
-            >
-              {isPending ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              ) : null}
-              {mode === "create" ? "Create story" : "Save changes"}
-            </Button>
-          </div>
-        </AdminEditorActionsBar>
-      </form>
-
-
-      <AdminDeleteDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        showTrigger={false}
-        title="Delete founder story?"
-        description={
-          <>
-            This permanently deletes the story
-            {story?.startup_name ? ` for ${story.startup_name}` : ""}. This
-            cannot be undone.
-          </>
-        }
-        confirmLabel="Delete story"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </div>
+    </CmsEditorFrame>
   );
 }

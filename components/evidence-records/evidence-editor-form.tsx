@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState, useTransition } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, Trash2Icon } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { Controller, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -14,19 +11,16 @@ import {
 } from "@/actions/evidence-records";
 import { loadEvidenceFormOptions } from "@/actions/admin-pickers";
 import {
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
+import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
-import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntitySelect } from "@/components/dashboard/entity-select";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { UrlInput } from "@/components/ui/url-input";
@@ -38,17 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import {
   EVIDENCE_PERMISSION_LABELS,
   EVIDENCE_PERMISSIONS,
@@ -58,16 +42,11 @@ import {
 import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import {
   dummyEvidenceValues,
   todayIsoDate,
 } from "@/lib/admin/dummy-form-values";
-import { cn } from "@/lib/utils";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -140,10 +119,20 @@ export function EvidenceEditorForm({
   defaultOwnerId: initialDefaultOwnerId = "",
 }: EvidenceEditorFormProps) {
   const formId = useId();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState(EVIDENCE_EDITOR_STEPS[0].id);
+  const editor = useCmsEditorForm<EvidenceFormValues, CreateEvidenceRecordInput>({
+    mode,
+    schema: createEvidenceRecordSchema,
+    defaultValues: defaultsFor(record, initialDefaultOwnerId),
+    recordId: record?.id,
+    listPath: ROUTES.evidence,
+    detailPath: evidenceDetailPath,
+    create: createEvidenceRecord,
+    update: updateEvidenceRecord,
+    remove: deleteEvidenceRecord,
+    saveError: "The evidence record could not be saved. Please try again.",
+    steps: EVIDENCE_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
   const [owners, setOwners] = useState<EvidenceOwnerOption[]>(initialOwners);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [optionsEnabled, setOptionsEnabled] = useState(
@@ -154,15 +143,7 @@ export function EvidenceEditorForm({
   );
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(optionsEnabled);
-
-  const form = useForm<EvidenceFormValues, unknown, CreateEvidenceRecordInput>({
-    resolver: zodResolver(createEvidenceRecordSchema),
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: defaultsFor(record, initialDefaultOwnerId),
-  });
   const ownerId = useWatch({ control: form.control, name: "ownerId" });
-  const { errors, isDirty } = form.formState;
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -218,114 +199,63 @@ export function EvidenceEditorForm({
     hasAppliedDefaultOwner,
   ]);
 
-  function onSubmit(values: CreateEvidenceRecordInput) {
-    startTransition(async () => {
-      const result =
-        mode === "create"
-          ? await createEvidenceRecord(values)
-          : await updateEvidenceRecord({ ...values, id: record!.id });
-
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-
-      toast.success(result.message);
-      if (mode === "create" && result.id) {
-        router.push(evidenceDetailPath(result.id));
-        return;
-      }
-      form.reset(form.getValues());
-      router.refresh();
-    });
-  }
-
-  function onDelete() {
-    if (!record) return;
-    startTransition(async () => {
-      const result = await deleteEvidenceRecord({ id: record.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.evidence);
-    });
-  }
-
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            const current = form.getValues();
-            form.reset(
-              {
-                ...current,
-                ...dummyEvidenceValues({
-                  ...current,
-                  ownerId:
-                    current.ownerId ||
-                    owners[0]?.id ||
-                    initialDefaultOwnerId ||
-                    "",
-                }),
-              },
-              { keepDefaultValues: true },
-            );
-          }}
-          onClear={() => {
-            form.reset(defaultsFor(undefined, initialDefaultOwnerId), {
-              keepDefaultValues: true,
-            });
-          }}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={editor.handleFormSubmit}
+      steps={EVIDENCE_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      navClassName="mx-auto w-full max-w-lg"
+      panelClassName="w-full max-w-3xl"
+      onDummy={() => {
+        const current = form.getValues();
+        form.reset(
+          {
+            ...current,
+            ...dummyEvidenceValues({
+              ...current,
+              ownerId:
+                current.ownerId ||
+                owners[0]?.id ||
+                initialDefaultOwnerId ||
+                "",
+            }),
+          },
+          { keepDefaultValues: true },
+        );
+      }}
+      onClear={() => {
+        form.reset(defaultsFor(undefined, initialDefaultOwnerId), {
+          keepDefaultValues: true,
+        });
+      }}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          // Keep Save enabled once an owner is chosen — option reloads must
+          // not block edit saves (Playwright otherwise waits until test timeout).
+          disabled={
+            editor.submitDisabled() ||
+            !ownerId ||
+            (optionsLoading && owners.length === 0)
+          }
+          createLabel="Create evidence"
+          onDelete={() => editor.setDeleteOpen(true)}
         />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, EVIDENCE_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-        <Stepper
-          steps={EVIDENCE_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex w-full flex-col items-center gap-6"
-        >
-          <StepperNav className="mx-auto w-full max-w-lg">
-            {EVIDENCE_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < EVIDENCE_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full max-w-3xl">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete evidence record?",
+        description:
+          "This permanently deletes this evidence entry. Impact metrics that reference it will need a new source before they can stay verified. This cannot be undone.",
+        confirmLabel: "Delete evidence",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent
               value="source"
               className="mx-auto w-full max-w-3xl space-y-6"
@@ -626,53 +556,6 @@ export function EvidenceEditorForm({
                 </div>
               </AdminFormSection>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            // Keep Save enabled once an owner is chosen — option reloads must
-            // not block edit saves (Playwright otherwise waits until test timeout).
-            disabled={
-              isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
-              !ownerId ||
-              (optionsLoading && owners.length === 0)
-            }
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create evidence" : "Save changes"}
-          </Button>
-        </AdminEditorActionsBar>
-      </form>
-
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        showTrigger={false}
-        title="Delete evidence record?"
-        description="This permanently deletes this evidence entry. Impact metrics that reference it will need a new source before they can stay verified. This cannot be undone."
-        confirmLabel="Delete evidence"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </div>
+    </CmsEditorFrame>
   );
 }

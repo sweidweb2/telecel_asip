@@ -147,8 +147,8 @@ export function UserViewDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
-          <DialogTitle className="truncate">
+        <DialogHeader>
+          <DialogTitle className="truncate pr-8">
             {user?.full_name || "Unnamed user"}
           </DialogTitle>
           <DialogDescription>User profile details</DialogDescription>

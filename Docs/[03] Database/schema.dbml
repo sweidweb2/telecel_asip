@@ -950,7 +950,8 @@ Table admin_perf_events {
 
   Note: '''
     Temporary CMS perf debug table. RLS enabled. Admin-only SELECT/INSERT/DELETE via is_admin().
-    No anon grants. Teardown: drop table + remove lib/admin/perf instrumentation.
+    No anon grants. Performance page aggregates via get_admin_perf_analytics (20261009233000).
+    Teardown: drop table + remove lib/admin/perf instrumentation.
   '''
 }
 

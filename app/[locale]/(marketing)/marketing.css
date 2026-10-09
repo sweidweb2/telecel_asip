@@ -136,6 +136,49 @@
   animation: about-story-float 6s ease-in-out 1s infinite;
 }
 
+.illustrated-wordmark {
+  background-image: url("/brand/asip-wordmark-fill.svg?v=2");
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.012em #7eb8b2;
+}
+
+.illustrated-wordmark::selection {
+  background-color: color-mix(in srgb, var(--asip-coral) 35%, white);
+  color: var(--asip-ink);
+  -webkit-text-fill-color: var(--asip-ink);
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .illustrated-wordmark {
+    color: var(--brand);
+    -webkit-text-fill-color: var(--brand);
+    background-image: none;
+  }
+}
+
+.illustrated-cta-float {
+  animation: illustrated-cta-float 6.5s ease-in-out infinite;
+}
+
+.illustrated-cta-float-delayed {
+  animation: illustrated-cta-float 7.6s ease-in-out 0.8s infinite;
+}
+
+@keyframes illustrated-cta-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 .next-chapter-float {
   animation: about-story-float 5.5s ease-in-out infinite;
 }
@@ -201,6 +244,8 @@
   .about-story-underline,
   .about-story-float,
   .about-story-float-delayed,
+  .illustrated-cta-float,
+  .illustrated-cta-float-delayed,
   .next-chapter-float,
   .next-chapter-float-delayed,
   .honeycomb-float,

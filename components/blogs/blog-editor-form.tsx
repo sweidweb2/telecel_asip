@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useWatch } from "react-hook-form";
 import { Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,12 +18,8 @@ import {
 } from "@/actions/blogs";
 import { loadBlogLinkOptions } from "@/actions/admin-pickers";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
-import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
@@ -72,8 +67,7 @@ import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
 import {
@@ -131,7 +125,6 @@ export function BlogEditorForm({
   cohorts: initialCohorts = [],
 }: BlogEditorFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
   const [sourceDraft, setSourceDraft] = useState("");
@@ -148,7 +141,6 @@ export function BlogEditorForm({
   const [removeCoverOnSave, setRemoveCoverOnSave] = useState(false);
   const [removeAvatarOnSave, setRemoveAvatarOnSave] = useState(false);
   const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const isCreateSuccessOpen = Boolean(createdBlogId);
   const [startups, setStartups] = useState(initialStartups);
   const [cohorts, setCohorts] = useState(initialCohorts);
@@ -183,18 +175,9 @@ export function BlogEditorForm({
     metaDescription: null,
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    getValues,
-    reset,
-    clearErrors,
-    formState: { errors, isDirty },
-  } = useForm<CreateBlogInput>({
-    resolver: zodResolver(createBlogSchema),
-    mode: "onChange",
+  const editor = useCmsEditorForm<CreateBlogInput>({
+    mode,
+    schema: createBlogSchema,
     defaultValues: {
       title: blog?.title ?? "",
       slug: blog?.slug ?? "",
@@ -210,7 +193,16 @@ export function BlogEditorForm({
       metaTitle: blog?.meta_title ?? null,
       metaDescription: blog?.meta_description ?? null,
     },
+    recordId: blog?.id,
+    listPath: ROUTES.blogs,
+    detailPath: (id) => `${ROUTES.blogs}/${id}`,
+    create: createBlog,
+    update: updateBlog,
+    remove: deleteBlog,
+    saveError: "The blog could not be saved. Please try again.",
   });
+  const { form, isPending, errors } = editor;
+  const { register, control, setValue, getValues, reset, clearErrors } = form;
 
   const title = useWatch({ control, name: "title" });
   const categories = useWatch({ control, name: "categories" }) ?? [];
@@ -319,7 +311,7 @@ export function BlogEditorForm({
   }
 
   function onSubmit(values: CreateBlogInput) {
-    startTransition(async () => {
+    editor.run(async () => {
       if (mode === "create") {
         const result = await createBlog(values);
         if (result.status === "error") {
@@ -444,21 +436,6 @@ export function BlogEditorForm({
     });
   }
 
-  function onDelete() {
-    if (!blog) return;
-    startTransition(async () => {
-      const result = await deleteBlog({ id: blog.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      setIsDeleteOpen(false);
-      toast.success(result.message);
-      router.push(ROUTES.blogs);
-      router.refresh();
-    });
-  }
-
   function onPickCover(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
     if (!file) return;
@@ -533,47 +510,93 @@ export function BlogEditorForm({
 
   return (
     <>
-    <UnsavedChangesGuard enabled={isDirty && !isPending} />
-    <form
-      className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      onSubmit={(event) => {
-        void handleSubmit(onSubmit)(event);
-      }}
-      noValidate
-    >
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={status === "published" ? "default" : "secondary"}>
-            {status === "published" ? "Published" : "Draft"}
-          </Badge>
-          {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={form.handleSubmit(onSubmit)}
+      formClassName=""
+      toolbar={
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={status === "published" ? "default" : "secondary"}>
+              {status === "published" ? "Published" : "Draft"}
+            </Badge>
+            {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+          </div>
+          <AdminFormDevTools
+            disabled={isPending}
+            onDummy={() => {
+              reset(
+                { ...getValues(), ...dummyBlogValues() },
+                { keepDefaultValues: true },
+              );
+              setSlugTouched(true);
+            }}
+            onClear={() => {
+              reset(emptyCreateValues, { keepDefaultValues: true });
+              setSlugTouched(false);
+              setPendingCover(null);
+              setPendingAvatar(null);
+              setPendingCoverPreview((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+              });
+              setPendingAvatarPreview((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+              });
+            }}
+          />
         </div>
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            reset(
-              { ...getValues(), ...dummyBlogValues() },
-              { keepDefaultValues: true },
-            );
-            setSlugTouched(true);
-          }}
-          onClear={() => {
-            reset(emptyCreateValues, { keepDefaultValues: true });
-            setSlugTouched(false);
-            setPendingCover(null);
-            setPendingAvatar(null);
-            setPendingCoverPreview((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
-              return null;
-            });
-            setPendingAvatarPreview((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
-              return null;
-            });
-          }}
-        />
-      </div>
-
+      }
+      actions={
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => editor.setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <Button
+              type="submit"
+              className="min-h-11 w-full sm:ml-auto sm:w-auto"
+              disabled={editor.submitDisabled(hasPendingMediaChanges)}
+            >
+              {isPending ? (
+                <>
+                  <Loader2Icon className="animate-spin" />
+                  {isProcessingImage ? "Processing image…" : "Saving…"}
+                </>
+              ) : mode === "create" ? (
+                "Create blog"
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+          </div>
+        </div>
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this blog?",
+        description: blog?.title
+          ? `This permanently deletes “${blog.title}”. This cannot be undone.`
+          : "This permanently deletes the blog post. This cannot be undone.",
+        confirmLabel: "Delete",
+        onConfirm: editor.onDelete,
+      }}
+    >
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
         {/* Left: content fields */}
         <div className="grid min-w-0 gap-4">
@@ -1220,49 +1243,7 @@ export function BlogEditorForm({
         </aside>
       </div>
 
-      <AdminEditorActionsBar>
-        <div className="flex w-full flex-col gap-3">
-          <AdminImageProcessingBanner active={isProcessingImage} />
-          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        {mode === "edit" ? (
-          <Button
-            type="button"
-            variant="destructive"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-            onClick={() => setIsDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Delete
-          </Button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
-        <Button
-          type="submit"
-          className="min-h-11 w-full sm:w-auto sm:ml-auto"
-          disabled={isAdminFormSubmitDisabled({
-            isPending,
-            isDirty,
-            errors,
-            hasExternalChanges: hasPendingMediaChanges,
-          })}
-        >
-          {isPending ? (
-            <>
-              <Loader2Icon className="animate-spin" />
-              {isProcessingImage ? "Processing image…" : "Saving…"}
-            </>
-          ) : mode === "create" ? (
-            "Create blog"
-          ) : (
-            "Save changes"
-          )}
-        </Button>
-          </div>
-        </div>
-      </AdminEditorActionsBar>
-    </form>
+    </CmsEditorFrame>
 
     <Dialog
       open={isCreateSuccessOpen}
@@ -1307,21 +1288,6 @@ export function BlogEditorForm({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-    <AdminDeleteDialog
-      open={isDeleteOpen}
-      onOpenChange={setIsDeleteOpen}
-      showTrigger={false}
-      title="Delete this blog?"
-      description={
-        blog?.title
-          ? `This permanently deletes “${blog.title}”. This cannot be undone.`
-          : "This permanently deletes the blog post. This cannot be undone."
-      }
-      confirmLabel="Delete"
-      isPending={isPending}
-      onConfirm={onDelete}
-    />
     </>
   );
 }

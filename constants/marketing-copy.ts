@@ -35,9 +35,8 @@ const en: MarketingCopy = {
     },
     cta: { slug: "founders", label: "Explore the founders" },
     ctaSection: {
-      title: "Meet the founders building Africa’s next chapter.",
-      description:
-        "Explore ventures across ASIP cohorts - real companies, markets and progress.",
+      title: "Meet the founders.",
+      description: "Companies, markets, and progress.",
       slug: "founders",
       label: "Explore the founders",
     },
@@ -350,9 +349,8 @@ const fr: MarketingCopy = {
     },
     cta: { slug: "founders", label: "Découvrir les fondateurs" },
     ctaSection: {
-      title: "Rencontrez les fondateurs qui construisent le prochain chapitre de l’Afrique.",
-      description:
-        "Explorez des entreprises issues des cohortes ASIP - des sociétés, des marchés et des progrès concrets.",
+      title: "Rencontrez les fondateurs.",
+      description: "Entreprises, marchés et progrès.",
       slug: "founders",
       label: "Découvrir les fondateurs",
     },

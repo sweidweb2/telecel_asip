@@ -156,6 +156,21 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ---
 
+### `public.get_admin_perf_analytics(p_since timestamptz)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (Admin Performance page charts) |
+| **Returns** | `jsonb`: `total`, `hitRatio`, `byEventType`, `slowest` (top 12 names with count, avg, p95, hit/miss avgs), `overTime` (UTC hour buckets) |
+| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, admin-only |
+| **Granted to** | `authenticated` (raises `42501` unless `is_admin()`) |
+
+**Details:** Replaces the Node fold of the latest 1,000 `admin_perf_events` rows. The list under the charts stays a paged select with `count: "estimated"`.
+
+**How it works:** Raises `42501` unless `is_admin()`. One scan of rows with `created_at >= p_since` (the app passes the last 24 hours). Hit ratio counts only `hit` and `miss`. Name “miss” averages include `miss` and `n_a`, matching the previous charts. p95 is `percentile_cont(0.95)`. Invoker, so RLS applies. Added `20261009233000`.
+
+---
+
 ### `public.admin_hard_delete_user(p_target uuid)`
 
 | | |
@@ -259,7 +274,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ### `public.admin_perf_events`
 
-No RPCs, functions, or triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the `/dashboard/performance` reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
+No triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. Chart reads use `get_admin_perf_analytics`. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the Performance page reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
 
 ### `public.interest_registrations`
 

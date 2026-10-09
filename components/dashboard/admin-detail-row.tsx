@@ -41,12 +41,14 @@ export function AdminDetailSection({
   title,
   children,
 }: {
-  title: string;
+  title?: string;
   children: ReactNode;
 }) {
   return (
     <section className="grid min-w-0 gap-3 rounded-lg bg-brand-soft px-3 py-3 sm:px-4">
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      {title ? (
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      ) : null}
       {children}
     </section>
   );

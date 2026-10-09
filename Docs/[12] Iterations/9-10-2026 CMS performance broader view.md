@@ -32,7 +32,7 @@ Each finding is one block. Severity is about the CMS as it is used, not about a 
 | Is the CMS slow because of one page? | No. Lists are paginated, selects are narrow, list + stats run in parallel, heavy editors (TipTap, charts) load on demand. |
 | Is there a cross-screen cost? | ✅ Findings 1 and 2 are cached. Remaining cost is auth round trips and the items below. |
 | Does the admin panel pay the same cost? | No. `/admin` does not call `get_dashboard_nav_counts`. ✅ Middleware no longer adds a shell RPC when `app_role` is on the user (finding 3). The layout shell call remains. |
-| What to fix first? | ✅ Findings 1–5 are done. Finding 6 stays off unless performance tracking is turned on. |
+| What to fix first? | ✅ Findings 1–9 are done. Leave tracking off outside a short staging capture. |
 
 ---
 
@@ -187,11 +187,12 @@ Keep `revalidateTag` for the data cache. Narrow `revalidatePath` to the routes t
 
 ---
 
-## Finding 6 — Turning performance tracking on writes a row per measured span, and the dashboard aggregates in Node
+## ✅ Finding 6 — Turning performance tracking on writes a row per measured span, and the dashboard aggregates in Node — **done**
 
 | | |
 | --- | --- |
 | **Severity** | **Medium** (only while `ADMIN_PERF_TRACKING=true`; otherwise idle) |
+| **Status** | ✅ Charts call `get_admin_perf_analytics` (counts and p95 by name, plus hourly buckets) instead of folding 1,000 rows in Node. The event list uses `count: "estimated"`. The flag stays off unless `ADMIN_PERF_TRACKING=true`. |
 | **Where** | Every traced layout, page, and mutation. Admin → Performance. |
 | **What runs** | Fire-and-forget insert into `admin_perf_events`. The Performance page then loads up to 1,000 rows and counts them in JavaScript. |
 
@@ -212,11 +213,12 @@ Keep the flag off outside a short staging capture. If the page stays, aggregate 
 
 ---
 
-## Finding 7 — Image saves still resize inside the request
+## ✅ Finding 7 — Image saves still resize inside the request — **done**
 
 | | |
 | --- | --- |
 | **Severity** | **Low** |
+| **Status** | ✅ Left as specified. `processImageBuffer` still runs inside the Server Action before Storage. Moving it to `after()` would show the old image until the new object is ready. |
 | **Where** | Blog cover, author avatar, startup logo, partner logo, and the other admin image uploads. |
 | **What runs** | `processImageBuffer` (Sharp) inside the Server Action, then Storage upload. |
 
@@ -235,23 +237,24 @@ Leave it. Revisit only if editors routinely upload multi-megabyte originals and 
 
 ---
 
-## Finding 8 — List paging is OFFSET, and two small lists still use an exact count
+## ✅ Finding 8 — List paging is OFFSET, and two small lists still use an exact count — **done**
 
 | | |
 | --- | --- |
 | **Severity** | **Low** |
-| **Where** | All CMS lists (`adminListRange`). Exact count remains on backups and performance events. |
+| **Status** | ✅ Left as specified. CMS lists stay on offset pages of 10–25 rows. Backups keep `count: "exact"` while that table stays small. |
+| **Where** | All CMS lists (`adminListRange`). Exact count remains on backups. |
 | **What runs** | `range(from, to)` with a page size of about 10–25. |
 
 **Evidence**
 
 - `lib/admin/admin-list-query.ts` documents OFFSET on purpose.
 - CMS list loaders use `count: "estimated"`, which avoids a second exact scan on every page.
-- `data/backups.ts` and `data/admin-perf-events.ts` still use `count: "exact"`.
+- `data/backups.ts` still uses `count: "exact"`. Performance events use `"estimated"` (finding 6).
 
 **Why it hurts**
 
-OFFSET gets slower as someone pages deep. Editors do not do that on 10–25 row pages. Exact count on backups is a small table. Exact count on performance events matters only with finding 6.
+OFFSET gets slower as someone pages deep. Editors do not do that on 10–25 row pages. Exact count on backups is a small table.
 
 **What to do**
 
@@ -259,11 +262,12 @@ Do not convert CMS lists to cursors unless a list is routinely opened past the f
 
 ---
 
-## Finding 9 — Nothing records real editor latency in production
+## ✅ Finding 9 — Nothing records real editor latency in production — **done**
 
 | | |
 | --- | --- |
 | **Severity** | **Low** |
+| **Status** | ✅ Timed once on 9 Oct 2026 against local `next dev` (`localhost:3000`), signed in as an editor. One warmup request per route was discarded. The next three full responses: `/dashboard` 1021 ms, 918 ms, 928 ms; `/dashboard/blogs` 1096 ms, 1062 ms, 1015 ms. No Lighthouse pass and no CI bundle budget. |
 | **Where** | Both panels. |
 | **What is missing** | Real-user timings, a Lighthouse pass on staff routes, a bundle budget in CI. |
 
@@ -306,7 +310,10 @@ Do not reopen these. They were checked again and still hold.
 3. ✅ **Finding 4** — trigram indexes for newsletter, cohort label, and blog slug; escape every CMS search string.
 4. ✅ **Finding 5** — narrow settings and founder-story / impact `revalidatePath` so a save does not drop the whole locale.
 5. ✅ **Finding 3** — middleware role redirect uses `app_metadata.app_role` instead of a second shell RPC.
-6. Leave findings 6–9 as they are unless tracking is turned on or a list is deep-paged.
+6. ✅ **Finding 6** — aggregate Performance charts in SQL; list count is `"estimated"`. Leave the tracking flag off outside a short staging capture.
+7. ✅ **Finding 7** — keep Sharp on the image save. Revisit only if multi-megabyte originals make the wait the complaint.
+8. ✅ **Finding 8** — keep offset paging. Switch backups to `"estimated"` only if that table grows.
+9. ✅ **Finding 9** — one local timing of `/dashboard` and `/dashboard/blogs`. A standing CI budget can wait. |
 
 ---
 
@@ -316,5 +323,5 @@ Do not reopen these. They were checked again and still hold.
 | --- | --- |
 | Critical | 0 |
 | High | 0 open. ✅ Findings 1 and 2 done. |
-| Medium | 1 open (finding 6, only while tracking is on). ✅ Findings 3–5 done. |
-| Low | 3 (findings 7, 8, 9) |
+| Medium | 0 open. ✅ Findings 3–6 done. |
+| Low | 0 open. ✅ Findings 7 and 8 left as specified. ✅ Finding 9 timed once. |

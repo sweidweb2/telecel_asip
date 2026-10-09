@@ -15,6 +15,7 @@ import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -78,7 +79,9 @@ export function SiteSettingsForm({
       <Card>
         <CardHeader className="border-b bg-brand-soft">
           <CardTitle>Applications open</CardTitle>
-          <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
+          <CardAction>
+            <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -108,7 +111,9 @@ export function SiteSettingsForm({
       <Card>
         <CardHeader className="border-b bg-brand-soft">
           <CardTitle>Newsletter signup</CardTitle>
-          <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
+          <CardAction>
+            <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
@@ -129,23 +134,21 @@ export function SiteSettingsForm({
         page.
       </p>
 
-          <AdminEditorActionsBar>
-            <span className="hidden sm:block" />
-            <Button
-              type="submit"
-              disabled={isAdminFormSubmitDisabled({
-                isPending,
-                isDirty,
-                errors,
-              })}
-              className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            >
-              {isPending ? <Loader2Icon className="animate-spin" /> : null}
-              {isPending ? "Saving…" : "Save changes"}
-            </Button>
-          </AdminEditorActionsBar>
-        </form>
-      </CardContent>
-    </Card>
+      <AdminEditorActionsBar>
+        <span className="hidden sm:block" />
+        <Button
+          type="submit"
+          disabled={isAdminFormSubmitDisabled({
+            isPending,
+            isDirty,
+            errors,
+          })}
+          className="min-h-11 w-full sm:ml-auto sm:w-auto"
+        >
+          {isPending ? <Loader2Icon className="animate-spin" /> : null}
+          {isPending ? "Saving…" : "Save changes"}
+        </Button>
+      </AdminEditorActionsBar>
+    </form>
   );
 }

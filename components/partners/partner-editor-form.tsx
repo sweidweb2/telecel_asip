@@ -1,15 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useId, useRef, useState, useTransition } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useId, useRef, useState } from "react";
+import { Controller, useWatch } from "react-hook-form";
 import { useRouter } from "nextjs-toploader/app";
 import {
   ImageIcon,
   Loader2Icon,
   TriangleAlertIcon,
-  Trash2Icon,
   UploadIcon,
   XIcon,
 } from "lucide-react";
@@ -23,13 +21,11 @@ import {
   uploadPartnerLogo,
 } from "@/actions/partners";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
-import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
@@ -68,12 +64,7 @@ import { UrlInput } from "@/components/ui/url-input";
 import { PARTNER_EDITOR_HELP } from "@/constants/partner-editor-help";
 import { PARTNER_TYPE_LABELS } from "@/constants/partner-types";
 import { partnerDetailPath, ROUTES } from "@/constants/routes";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
-import { cn } from "@/lib/utils";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import type { PartnerListItem, PartnerSortOrderOccupant } from "@/types/partner";
 import {
   createPartnerSchema,
@@ -87,17 +78,7 @@ import {
   type CreatePartnerInput,
   type PartnerFormValues,
 } from "@/validations/partner";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 
 const LOGO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
@@ -152,21 +133,26 @@ export function PartnerEditorForm({
   const formId = useId();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isPending, startTransition] = useTransition();
+  const editor = useCmsEditorForm<PartnerFormValues, CreatePartnerInput>({
+    mode,
+    schema: createPartnerSchema,
+    defaultValues: defaultsFor(partner),
+    recordId: partner?.id,
+    listPath: ROUTES.partners,
+    detailPath: partnerDetailPath,
+    create: createPartner,
+    update: updatePartner,
+    remove: deletePartner,
+    saveError: "The partner could not be saved. Please try again.",
+    deleteError: "The partner could not be deleted. Please try again.",
+    steps: PARTNER_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
   const [isProcessingImage, setIsProcessingImage] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [storedLogoUrl, setStoredLogoUrl] = useState(partner?.logo_url ?? null);
-  const [step, setStep] = useState(PARTNER_EDITOR_STEPS[0].id);
-
-  const form = useForm<PartnerFormValues, unknown, CreatePartnerInput>({
-    resolver: zodResolver(createPartnerSchema),
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: defaultsFor(partner),
-  });
 
   const logoPermission = useWatch({
     control: form.control,
@@ -200,7 +186,7 @@ export function PartnerEditorForm({
   function handleRemoveStoredLogo() {
     if (mode !== "edit" || !partner || !storedLogoUrl) return;
 
-    startTransition(async () => {
+    editor.run(async () => {
       const result = await removePartnerLogo(partner.id);
       if (result.status === "error") {
         toast.error(result.message);
@@ -234,72 +220,42 @@ export function PartnerEditorForm({
   }
 
   function onSubmit(values: CreatePartnerInput) {
-    startTransition(async () => {
-      try {
-        const result =
-          mode === "create"
-            ? await createPartner(values)
-            : await updatePartner({ ...values, id: partner!.id });
+    editor.run(async () => {
+      const result =
+        mode === "create"
+          ? await createPartner(values)
+          : await updatePartner({ ...values, id: partner!.id });
 
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-
-        const logoUploaded = result.id
-          ? await uploadPendingLogo(result.id)
-          : true;
-
-        if (logoUploaded) {
-          toast.success(result.message);
-        } else {
-          toast.error(
-            mode === "create"
-              ? "Partner created, but the logo could not be uploaded. Add it from this page."
-              : "Partner saved, but the logo could not be uploaded. Try again.",
-          );
-        }
-
-        if (mode === "create" && result.id) {
-          router.push(partnerDetailPath(result.id));
-        } else if (mode === "edit") {
-          // Mark current field values as the new baseline so Save disables again.
-          form.reset(form.getValues());
-        }
-        router.refresh();
-      } catch {
-        toast.error("The partner could not be saved. Please try again.");
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
       }
-    });
-  }
 
-  function onDelete() {
-    if (!partner) return;
-    startTransition(async () => {
-      try {
-        const result = await deletePartner({ id: partner.id });
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
+      const logoUploaded = result.id
+        ? await uploadPendingLogo(result.id)
+        : true;
+
+      if (logoUploaded) {
         toast.success(result.message);
-        router.push(ROUTES.partners);
-        router.refresh();
-      } catch {
-        toast.error("The partner could not be deleted. Please try again.");
+      } else {
+        toast.error(
+          mode === "create"
+            ? "Partner created, but the logo could not be uploaded. Add it from this page."
+            : "Partner saved, but the logo could not be uploaded. Try again.",
+        );
       }
+
+      if (mode === "create" && result.id) {
+        router.push(partnerDetailPath(result.id));
+      } else if (mode === "edit") {
+        // Mark current field values as the new baseline so Save disables again.
+        form.reset(form.getValues());
+      }
+      router.refresh();
     });
   }
 
   const displayLogo = previewUrl ?? storedLogoUrl;
-  const { errors, isDirty } = form.formState;
-  const saveDisabled = isAdminFormSubmitDisabled({
-    isPending,
-    isDirty,
-    errors,
-    hasExternalChanges: Boolean(pendingFile),
-  });
-  const saveLabel = mode === "create" ? "Create partner" : "Save changes";
   const pendingLabel = isProcessingImage
     ? "Processing image…"
     : mode === "create"
@@ -316,58 +272,41 @@ export function PartnerEditorForm({
   }
 
   return (
-    <>
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          onDummy={fillDummy}
-          onClear={clearForm}
-          disabled={isPending}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={form.handleSubmit(onSubmit, editor.onInvalid)}
+      steps={PARTNER_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      formId={formId}
+      formClassName=""
+      stepperClassName="flex flex-col gap-6"
+      navClassName=""
+      panelClassName="w-full"
+      onDummy={fillDummy}
+      onClear={clearForm}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          disabled={editor.submitDisabled(Boolean(pendingFile))}
+          createLabel="Create partner"
+          pendingLabel={pendingLabel}
+          onDelete={() => editor.setDeleteOpen(true)}
         />
-      </div>
-
-      <form
-        id={formId}
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, PARTNER_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-        className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      >
-        <Stepper
-          steps={PARTNER_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex flex-col gap-6"
-        >
-          <StepperNav>
-            {PARTNER_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < PARTNER_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete partner?",
+        description: partner
+          ? `This permanently deletes ${partner.name} and removes the stored logo from Storage. This cannot be undone.`
+          : "This permanently deletes the partner. This cannot be undone.",
+        confirmLabel: "Delete partner",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent value="main" className="space-y-6">
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start lg:gap-8">
                 <AdminFormSection
@@ -754,51 +693,6 @@ export function PartnerEditorForm({
                 />
               </AdminFormSection>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={saveDisabled}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {isPending ? pendingLabel : saveLabel}
-          </Button>
-        </AdminEditorActionsBar>
-      </form>
-
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        showTrigger={false}
-        title="Delete partner?"
-        description={
-          partner
-            ? `This permanently deletes ${partner.name} and removes the stored logo from Storage. This cannot be undone.`
-            : "This permanently deletes the partner. This cannot be undone."
-        }
-        confirmLabel="Delete partner"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </>
+    </CmsEditorFrame>
   );
 }

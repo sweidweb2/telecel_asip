@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useWatch } from "react-hook-form";
 import { Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,26 +14,12 @@ import {
   updateStartup,
   uploadStartupLogo,
 } from "@/actions/startups";
-import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import {
   applyClearFormValues,
   applyDummyFormValues,
@@ -42,15 +27,6 @@ import {
   todayIsoDate,
 } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -73,13 +49,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
-import { ROUTES } from "@/constants/routes";
+import { portfolioEditPath, ROUTES } from "@/constants/routes";
 import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { StartupWithDetails } from "@/types/startup";
 import {
@@ -257,7 +229,20 @@ export function StartupEditorForm({
   heading,
 }: StartupEditorFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const editor = useCmsEditorForm<StartupFormValues>({
+    mode,
+    schema: createStartupSchema,
+    defaultValues: defaultsFromStartup(startup),
+    recordId: startup?.id,
+    listPath: ROUTES.portfolio,
+    detailPath: portfolioEditPath,
+    create: createStartup,
+    update: updateStartup,
+    remove: deleteStartup,
+    saveError: "The startup could not be saved. Please try again.",
+    steps: STARTUP_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -265,15 +250,6 @@ export function StartupEditorForm({
   const [pendingLogoPreview, setPendingLogoPreview] = useState<string | null>(
     null,
   );
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState<string>(STARTUP_EDITOR_STEPS[0].id);
-
-  const form = useForm<StartupFormValues>({
-    resolver: zodResolver(createStartupSchema) as never,
-    defaultValues: defaultsFromStartup(startup),
-    mode: "onChange",
-    shouldUnregister: false,
-  });
 
   const status = useWatch({ control: form.control, name: "status" });
   const logoUrl = startup?.logo_url ?? null;
@@ -301,7 +277,7 @@ export function StartupEditorForm({
   }
 
   function submit(values: StartupFormValues) {
-    startTransition(async () => {
+    editor.run(async () => {
       if (mode === "create") {
         const result = await createStartup({
           name: values.name,
@@ -385,24 +361,9 @@ export function StartupEditorForm({
     });
   }
 
-  function onDelete() {
-    if (!startup) return;
-    startTransition(async () => {
-      const result = await deleteStartup({ id: startup.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.portfolio);
-      router.refresh();
-    });
-  }
-
   function onRemoveLogo() {
     if (!startup) return;
-    startTransition(async () => {
+    editor.run(async () => {
       const result = await removeStartupLogo(startup.id);
       if (result.status === "error") {
         toast.error(result.message);
@@ -414,13 +375,7 @@ export function StartupEditorForm({
     });
   }
 
-  const { errors, isDirty } = form.formState;
-  const saveDisabled = isAdminFormSubmitDisabled({
-    isPending,
-    isDirty,
-    errors,
-    hasExternalChanges: Boolean(pendingLogo),
-  });
+  const saveDisabled = editor.submitDisabled(Boolean(pendingLogo));
   const saveLabel = mode === "create" ? "Create startup" : "Save changes";
   const pendingLabel = isProcessingImage
     ? "Processing image…"
@@ -464,73 +419,91 @@ export function StartupEditorForm({
   }
 
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            applyDummyFormValues(
-              form,
-              dummyStartupValues(form.getValues()),
-            );
-            setSlugTouched(true);
-          }}
-          onClear={() => {
-            applyClearFormValues(form, defaultsFromStartup());
-            setSlugTouched(false);
-            onLogoPicked(null);
-          }}
-        />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(submit, (errors) => {
-          const next = firstInvalidEditorStep(errors, STARTUP_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-      <Stepper
-        steps={STARTUP_EDITOR_STEPS}
-        value={step}
-        onValueChange={onStepChange}
-        orientation="horizontal"
-        className="flex flex-col gap-6"
-      >
-        <StepperNav>
-          {STARTUP_EDITOR_STEPS.map((s, index) => (
-            <StepperItem
-              key={s.id}
-              stepId={s.id}
-              disabled={index > stepIndex + 1}
-              className="relative flex-1"
-            >
-              <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                <StepperIndicator>{index + 1}</StepperIndicator>
-                <div className="min-w-0 text-center">
-                  <StepperTitle>{s.title}</StepperTitle>
-                  <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                    {s.description}
-                  </p>
-                </div>
-              </StepperTrigger>
-              {index < STARTUP_EDITOR_STEPS.length - 1 ? (
-                <StepperSeparator
-                  className={cn(
-                    "absolute inset-x-0 top-4",
-                    "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                    "m-0 h-0.5 flex-none",
-                  )}
-                />
-              ) : null}
-            </StepperItem>
-          ))}
-        </StepperNav>
-
-        <StepperPanel className="w-full">
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={form.handleSubmit(submit, editor.onInvalid)}
+      steps={STARTUP_EDITOR_STEPS}
+      step={step}
+      onStepChange={onStepChange}
+      isStepDisabled={(index) => index > stepIndex + 1}
+      heading={heading}
+      formClassName="mx-auto max-w-6xl"
+      stepperClassName="flex flex-col gap-6"
+      navClassName=""
+      panelClassName="w-full"
+      onDummy={() => {
+        applyDummyFormValues(form, dummyStartupValues(form.getValues()));
+        setSlugTouched(true);
+      }}
+      onClear={() => {
+        applyClearFormValues(form, defaultsFromStartup());
+        setSlugTouched(false);
+        onLogoPicked(null);
+      }}
+      actions={
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => editor.setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending || isFirstStep}
+                onClick={goToPreviousStep}
+              >
+                Back
+              </Button>
+              {isLastStep ? (
+                <Button
+                  type="submit"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={saveDisabled}
+                >
+                  {isPending ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : null}
+                  {isPending ? pendingLabel : saveLabel}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={isPending}
+                  onClick={() => void goToNextStep()}
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this startup?",
+        description:
+          "This permanently removes the startup, its details, and logo. This cannot be undone.",
+        confirmLabel: "Delete",
+        onConfirm: editor.onDelete,
+      }}
+    >
           <StepperContent value="core" className="space-y-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
             <Card size="sm" className="min-w-0">
@@ -1165,90 +1138,6 @@ export function StartupEditorForm({
             </CardContent>
           </Card>
           </StepperContent>
-        </StepperPanel>
-      </Stepper>
-
-      <AdminEditorActionsBar>
-        <div className="flex w-full flex-col gap-3">
-          <AdminImageProcessingBanner active={isProcessingImage} />
-          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-            {mode === "edit" ? (
-              <Button
-                type="button"
-                variant="destructive"
-                className="min-h-11 w-full sm:w-auto"
-                disabled={isPending}
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2Icon className="size-4" />
-                Delete
-              </Button>
-            ) : (
-              <span className="hidden sm:block" />
-            )}
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full sm:w-auto"
-                disabled={isPending || isFirstStep}
-                onClick={goToPreviousStep}
-              >
-                Back
-              </Button>
-              {isLastStep ? (
-                <Button
-                  type="submit"
-                  className="min-h-11 w-full sm:w-auto"
-                  disabled={saveDisabled}
-                >
-                  {isPending ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : null}
-                  {isPending ? pendingLabel : saveLabel}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  className="min-h-11 w-full sm:w-auto"
-                  disabled={isPending}
-                  onClick={() => void goToNextStep()}
-                >
-                  Continue
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </AdminEditorActionsBar>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this startup?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently removes the startup, its details, and logo. This
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11"
-              disabled={isPending}
-              onClick={onDelete}
-            >
-              {isPending ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              ) : null}
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </form>
-    </div>
+    </CmsEditorFrame>
   );
 }
