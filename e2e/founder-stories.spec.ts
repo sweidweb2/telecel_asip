@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("founder stories cms", () => {
   test.beforeEach(() => {
     test.skip(

@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { PencilIcon } from "lucide-react";
-
 import { deleteEvidenceRecord } from "@/actions/evidence-records";
-import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
-import { Button } from "@/components/ui/button";
+import { AdminRowEditLink } from "@/components/dashboard/admin-row-edit-link";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import type { EvidenceListItem } from "@/types/evidence-record";
 
@@ -26,16 +22,10 @@ export function EvidenceRowActions({
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={ADMIN_ICON_BUTTON_CLASS}
-        aria-label={`Edit ${title}`}
-        nativeButton={false}
-        render={<Link href={evidenceDetailPath(record.id)} />}
-      >
-        <PencilIcon />
-      </Button>
+      <AdminRowEditLink
+        href={evidenceDetailPath(record.id)}
+        label={`Edit ${title}`}
+      />
 
       <AdminRowDelete
         deleteAction={() => deleteEvidenceRecord({ id: record.id })}

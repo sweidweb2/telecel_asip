@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon, Trash2Icon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -13,16 +10,13 @@ import {
   updateCohort,
 } from "@/actions/cohorts";
 import { loadCohortLinkOptions } from "@/actions/admin-pickers";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UrlInput } from "@/components/ui/url-input";
@@ -34,32 +28,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import { COHORT_EDITOR_HELP } from "@/constants/cohort-editor-help";
-import { ROUTES } from "@/constants/routes";
+import { cohortEditPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import {
   applyClearFormValues,
   applyDummyFormValues,
   dummyCohortValues,
   todayIsoDate,
 } from "@/lib/admin/dummy-form-values";
-import { cn } from "@/lib/utils";
 import type { CohortAdminDetail, CohortLinkOption } from "@/types/cohort";
 import {
   CMS_PUBLISH_STATUSES,
@@ -130,10 +109,33 @@ export function CohortEditorForm({
   partners: initialPartners = [],
   startups: initialStartups = [],
 }: CohortEditorFormProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState(COHORT_EDITOR_STEPS[0].id);
+  const editor = useCmsEditorForm<CreateCohortInput>({
+    mode,
+    schema: createCohortSchema,
+    defaultValues: {
+      year: cohort?.year ?? new Date().getFullYear(),
+      publicLabel: cohort?.public_label ?? "",
+      programmeDatesStart: cohort?.programme_dates_start ?? todayIsoDate(),
+      programmeDatesEnd: cohort?.programme_dates_end ?? todayIsoDate(),
+      programmeStatus: cohort?.programme_status ?? "closed",
+      summary: cohort?.summary ?? "",
+      mediaUrl: cohort?.media_url ?? "",
+      publishStatus: cohort?.publish_status ?? "draft",
+      partnerIds: cohort?.partnerIds ?? [],
+      startupIds: cohort?.startupIds ?? [],
+    },
+    recordId: cohort?.id,
+    listPath: ROUTES.cohorts,
+    detailPath: cohortEditPath,
+    create: createCohort,
+    update: updateCohort,
+    remove: deleteCohort,
+    saveError: "The cohort could not be saved. Please try again.",
+    steps: COHORT_EDITOR_STEPS,
+  });
+  const { isPending, errors, step, setStep } = editor;
+  const { register, control } = editor.form;
+  const form = editor.form;
   const [partners, setPartners] = useState(initialPartners);
   const [startups, setStartups] = useState(initialStartups);
   const [partnersEnabled, setPartnersEnabled] = useState(false);
@@ -150,24 +152,6 @@ export function CohortEditorForm({
     setSearch: setStartupSearch,
     debouncedSearch: startupDebouncedSearch,
   } = useDebouncedOptionSearch(startupsEnabled);
-
-  const form = useForm<CreateCohortInput>({
-    resolver: zodResolver(createCohortSchema),
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: {
-      year: cohort?.year ?? new Date().getFullYear(),
-      publicLabel: cohort?.public_label ?? "",
-      programmeDatesStart: cohort?.programme_dates_start ?? todayIsoDate(),
-      programmeDatesEnd: cohort?.programme_dates_end ?? todayIsoDate(),
-      programmeStatus: cohort?.programme_status ?? "closed",
-      summary: cohort?.summary ?? "",
-      mediaUrl: cohort?.media_url ?? "",
-      publishStatus: cohort?.publish_status ?? "draft",
-      partnerIds: cohort?.partnerIds ?? [],
-      startupIds: cohort?.startupIds ?? [],
-    },
-  });
 
   function emptyCohortValues(): CreateCohortInput {
     return {
@@ -248,110 +232,45 @@ export function CohortEditorForm({
     };
   }, [startupsEnabled, startupDebouncedSearch]);
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = form;
-
-  function onSubmit(values: CreateCohortInput) {
-    startTransition(async () => {
-      const result =
-        mode === "create"
-          ? await createCohort(values)
-          : await updateCohort({ ...values, id: cohort!.id });
-
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-
-      toast.success(result.message);
-      if (mode === "create" && result.id) {
-        router.push(`${ROUTES.cohorts}/${result.id}`);
-        return;
-      }
-      reset(values);
-      router.refresh();
-    });
-  }
-
-  function onDelete() {
-    if (!cohort) return;
-    startTransition(async () => {
-      const result = await deleteCohort({ id: cohort.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.cohorts);
-    });
-  }
-
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            applyDummyFormValues(form, dummyCohortValues(form.getValues()));
-          }}
-          onClear={() => {
-            applyClearFormValues(form, emptyCohortValues());
-          }}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={editor.handleFormSubmit}
+      steps={COHORT_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      panelClassName="w-full max-w-3xl"
+      onDummy={() => {
+        applyDummyFormValues(form, dummyCohortValues(form.getValues()));
+      }}
+      onClear={() => {
+        applyClearFormValues(form, emptyCohortValues());
+      }}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          disabled={editor.submitDisabled()}
+          createLabel="Create cohort"
+          onDelete={() => editor.setDeleteOpen(true)}
         />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, COHORT_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-        <Stepper
-          steps={COHORT_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex w-full flex-col items-center gap-6"
-        >
-          <StepperNav className="mx-auto w-full max-w-md">
-            {COHORT_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < COHORT_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full max-w-3xl">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this cohort?",
+        description:
+          "This removes the cohort and its partner/startup links. This cannot be undone.",
+        confirmLabel: "Delete cohort",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent
               value="programme"
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
+                headerClassName="bg-brand-soft"
                 title={COHORT_EDITOR_HELP.programme.title}
                 description={COHORT_EDITOR_HELP.programme.intro}
                 help={COHORT_EDITOR_HELP.programme}
@@ -550,6 +469,7 @@ export function CohortEditorForm({
               value="links"
               className="mx-auto w-full max-w-3xl space-y-6"
             >              <AdminFormSection
+                headerClassName="bg-brand-soft"
                 title={COHORT_EDITOR_HELP.links.title}
                 description={COHORT_EDITOR_HELP.links.intro}
                 help={COHORT_EDITOR_HELP.links}
@@ -639,47 +559,6 @@ export function CohortEditorForm({
                 ) : null}
               </AdminFormSection>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create cohort" : "Save changes"}
-          </Button>
-        </AdminEditorActionsBar>
-      </form>
-
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        showTrigger={false}
-        title="Delete this cohort?"
-        description="This removes the cohort and its partner/startup links. This cannot be undone."
-        confirmLabel="Delete cohort"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </div>
+    </CmsEditorFrame>
   );
 }

@@ -55,7 +55,10 @@ const ADMIN_MESSAGES = {
 } as const;
 
 function refreshContactUsRoute() {
-  refreshAdminResource({ listPath: resource.listPath });
+  refreshAdminResource({
+    listPath: resource.listPath,
+    cacheTags: resource.cacheTags,
+  });
 }
 
 export async function submitContactMessage(

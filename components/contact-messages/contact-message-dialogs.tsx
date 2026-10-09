@@ -16,6 +16,7 @@ import {
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
   AdminDetailSection,
 } from "@/components/dashboard/admin-detail-row";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
@@ -226,7 +227,7 @@ function ContactMessageEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
         <DialogTitle>Edit message</DialogTitle>
         <DialogDescription>
           Update the submitted contact details.
@@ -418,7 +419,7 @@ export function ContactMessageEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
               <DialogTitle>Edit message</DialogTitle>
               <DialogDescription>
                 Update the submitted contact details.

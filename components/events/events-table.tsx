@@ -5,7 +5,10 @@ import { useRouter } from "nextjs-toploader/app";
 import { CalendarIcon } from "lucide-react";
 
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
@@ -48,7 +51,7 @@ export function EventsTable({
     <AdminDataTable
       filters={<EventsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Name</TableHead>
           <TableHead>Date</TableHead>

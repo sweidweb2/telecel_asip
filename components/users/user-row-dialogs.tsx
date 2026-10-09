@@ -8,6 +8,7 @@ import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteUser, hardDeleteUser, updateUser } from "@/actions/users";
+import { ADMIN_INBOX_EDIT_HEADER_CLASS } from "@/components/dashboard/admin-detail-row";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import {
@@ -146,14 +147,14 @@ export function UserViewDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="truncate pr-8">
+        <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
+          <DialogTitle className="truncate">
             {user?.full_name || "Unnamed user"}
           </DialogTitle>
           <DialogDescription>User profile details</DialogDescription>
         </DialogHeader>
         {user ? (
-          <dl className="grid gap-3 text-sm">
+          <dl className="grid gap-3 rounded-lg bg-brand-soft px-3 py-3 text-sm sm:px-4">
             <div className="grid gap-1">
               <dt className="text-muted-foreground">Email</dt>
               <dd className="break-all font-medium">{user.email}</dd>
@@ -241,7 +242,7 @@ function UserEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
         <DialogTitle>Edit user</DialogTitle>
         <DialogDescription>
           {canEditEmail
@@ -360,7 +361,7 @@ export function UserEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
               <DialogTitle>Edit user</DialogTitle>
               <DialogDescription>
                 Update name and role for this account.

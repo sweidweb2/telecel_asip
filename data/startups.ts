@@ -8,8 +8,7 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -193,38 +192,43 @@ export const getStartupByIdForAdmin = wrapCached(
     > => {
       if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const [
+            { data: startup, error: startupError },
+            { data: details, error: detailsError },
+          ] = await Promise.all([
+            supabase
+              .from("startups")
+              .select(DETAIL_COLUMNS)
+              .eq("id", id)
+              .maybeSingle(),
+            supabase
+              .from("startup_details")
+              .select(DETAILS_COLUMNS)
+              .eq("startup_id", id)
+              .maybeSingle(),
+          ]);
 
-      const [
-        { data: startup, error: startupError },
-        { data: details, error: detailsError },
-      ] = await Promise.all([
-        supabase
-          .from("startups")
-          .select(DETAIL_COLUMNS)
-          .eq("id", id)
-          .maybeSingle(),
-        supabase
-          .from("startup_details")
-          .select(DETAILS_COLUMNS)
-          .eq("startup_id", id)
-          .maybeSingle(),
-      ]);
+          if (startupError) throw startupError;
+          if (detailsError) throw detailsError;
+          if (!startup) return { startup: null };
 
-      if (startupError) throw startupError;
-      if (detailsError) throw detailsError;
-      if (!startup) return { status: "not_found" };
+          return {
+            startup: {
+              ...(startup as StartupListItem & {
+                status: StartupWithDetails["status"];
+              }),
+              details: details ?? null,
+            } as StartupWithDetails,
+          };
+        },
+        { name: "getStartupByIdForAdmin" },
+      );
 
-      return {
-        status: "ok",
-        startup: {
-          ...(startup as StartupListItem & {
-            status: StartupWithDetails["status"];
-          }),
-          details: details ?? null,
-        } as StartupWithDetails,
-      };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.startup) return { status: "not_found" };
+      return { status: "ok", startup: gated.startup };
     },
   ),
 );
@@ -239,13 +243,8 @@ export async function getStartupsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; startups: { id: string; name: string }[] }
 > {
-  return traceAsync(
-    "getStartupsForBlogPicker",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("startups")
@@ -281,8 +280,9 @@ export async function getStartupsForBlogPicker(
         }
       }
 
-      return { status: "ok", startups };
+      return { startups };
     },
+    { name: "getStartupsForBlogPicker", eventType: "option_load" },
   );
 }
 

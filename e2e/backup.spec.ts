@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsAdmin, loginAsEditor, submitLoginForm } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 test("backup cron rejects missing secret", async ({ request }) => {
   const response = await request.post("/api/cron/backup");
   expect(response.status()).toBe(401);

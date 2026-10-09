@@ -32,7 +32,12 @@ import type { StartupListStats } from "@/data/startups";
 
 function cardsFrom<T extends Record<string, number>>(
   stats: T,
-  config: { key: keyof T & string; label: string; icon: LucideIcon }[],
+  config: {
+    key: keyof T & string;
+    label: string;
+    icon: LucideIcon;
+    accent?: boolean;
+  }[],
 ) {
   return (
     <AdminStatsCards
@@ -41,6 +46,7 @@ function cardsFrom<T extends Record<string, number>>(
         label: item.label,
         value: stats[item.key],
         icon: item.icon,
+        accent: item.accent,
       }))}
     />
   );
@@ -50,7 +56,7 @@ export function BlogStatsCards({ stats }: { stats: BlogListStats }) {
   return cardsFrom(stats, [
     { key: "total", label: "Total", icon: NewspaperIcon },
     { key: "published", label: "Published", icon: BadgeCheckIcon },
-    { key: "draft", label: "Draft", icon: FilePenIcon },
+    { key: "draft", label: "Draft", icon: FilePenIcon, accent: true },
     { key: "featured", label: "Featured", icon: StarIcon },
   ]);
 }
@@ -68,7 +74,7 @@ export function EventStatsCards({ stats }: { stats: EventListStats }) {
   return cardsFrom(stats, [
     { key: "total", label: "Total", icon: InboxIcon },
     { key: "published", label: "Published", icon: BadgeCheckIcon },
-    { key: "draft", label: "Draft", icon: FilePenIcon },
+    { key: "draft", label: "Draft", icon: FilePenIcon, accent: true },
     { key: "upcoming", label: "Upcoming", icon: CalendarClockIcon },
   ]);
 }
@@ -78,7 +84,7 @@ export function CohortStatsCards({ stats }: { stats: CohortListStats }) {
     { key: "total", label: "Total", icon: LayersIcon },
     { key: "published", label: "Published", icon: BadgeCheckIcon },
     { key: "draft", label: "Draft", icon: FilePenIcon },
-    { key: "open", label: "Programme open", icon: LinkIcon },
+    { key: "open", label: "Programme open", icon: LinkIcon, accent: true },
   ]);
 }
 
@@ -86,7 +92,7 @@ export function StartupStatsCards({ stats }: { stats: StartupListStats }) {
   return cardsFrom(stats, [
     { key: "total", label: "Total", icon: InboxIcon },
     { key: "active", label: "Active", icon: SparklesIcon },
-    { key: "draft", label: "Draft", icon: FilePenIcon },
+    { key: "draft", label: "Draft", icon: FilePenIcon, accent: true },
     { key: "inactive", label: "Inactive", icon: PauseCircleIcon },
   ]);
 }
@@ -96,7 +102,7 @@ export function EvidenceStatsCards({ stats }: { stats: EvidenceListStats }) {
     { key: "total", label: "Total", icon: ShieldAlertIcon },
     { key: "verified", label: "Verified", icon: BadgeCheckIcon },
     { key: "pending", label: "Pending", icon: ClockIcon },
-    { key: "attention", label: "Needs attention", icon: CircleDashedIcon },
+    { key: "attention", label: "Needs attention", icon: CircleDashedIcon, accent: true },
   ]);
 }
 
@@ -108,7 +114,7 @@ export function ImpactMetricStatsCards({
   return cardsFrom(stats, [
     { key: "total", label: "Total", icon: InboxIcon },
     { key: "verified", label: "Verified", icon: BadgeCheckIcon },
-    { key: "pending", label: "Pending", icon: ClockIcon },
+    { key: "pending", label: "Pending", icon: ClockIcon, accent: true },
     { key: "notForPublication", label: "Not for publication", icon: ArchiveIcon },
   ]);
 }
@@ -122,6 +128,6 @@ export function FounderStoryStatsCards({
     { key: "total", label: "Total", icon: BookOpenIcon },
     { key: "published", label: "Published", icon: BadgeCheckIcon },
     { key: "draft", label: "Draft", icon: FilePenIcon },
-    { key: "quotePending", label: "Quote pending", icon: QuoteIcon },
+    { key: "quotePending", label: "Quote pending", icon: QuoteIcon, accent: true },
   ]);
 }

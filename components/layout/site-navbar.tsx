@@ -29,7 +29,6 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-  startupYears?: string[];
 };
 
 function isNavActive(pathname: string, href: string, locale: Locale) {
@@ -86,11 +85,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const homeHref = publicPath(locale, "");
   const foundersHref = publicPath(locale, "founders");
   const alumniHref = publicPath(locale, "alumni");
-  const directoryLabel = locale === "fr" ? "Annuaire" : "Directory";
-  const mastheadLabel =
-    locale === "fr"
-      ? "Un programme du Groupe Telecel"
-      : "A Telecel Group programme";
+  const alumniItem = labels.items.find((item) => item.href === alumniHref);
 
   const desktopLinkClass = (active: boolean) =>
     cn(
@@ -125,7 +120,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
         <div className="hidden items-center gap-4 md:flex">
           <p className="hidden border-l border-black/12 pl-4 text-xs font-semibold uppercase text-muted-foreground lg:block">
-            {mastheadLabel}
+            {labels.masthead}
           </p>
           <LanguageToggle
             locale={locale}
@@ -164,7 +159,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                   {labels.menuLabel}
                 </SheetTitle>
                 <p className="pr-10 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                  {mastheadLabel}
+                  {labels.masthead}
                 </p>
               </SheetHeader>
               <nav
@@ -255,15 +250,17 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                         nativeButton={false}
                         render={<Link href={foundersHref} />}
                       >
-                        {directoryLabel}
+                        {labels.foundersDirectory}
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
-                        nativeButton={false}
-                        render={<Link href={alumniHref} />}
-                      >
-                        Alumni
-                      </DropdownMenuItem>
+                      {alumniItem ? (
+                        <DropdownMenuItem
+                          className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
+                          nativeButton={false}
+                          render={<Link href={alumniItem.href} />}
+                        >
+                          {alumniItem.label}
+                        </DropdownMenuItem>
+                      ) : null}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );

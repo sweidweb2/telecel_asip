@@ -267,7 +267,7 @@ function RegistrationEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="rounded-lg bg-brand-soft px-3 py-3 pr-10">
         <DialogTitle>Edit registration</DialogTitle>
         <DialogDescription>
           Update the submitted interest details.
@@ -564,7 +564,7 @@ export function RegistrationEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className="rounded-lg bg-brand-soft px-3 py-3 pr-10">
               <DialogTitle>Edit registration</DialogTitle>
               <DialogDescription>
                 Update the submitted interest details.

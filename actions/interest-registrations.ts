@@ -77,7 +77,10 @@ function isUniqueViolation(error: {
 }
 
 function refreshRegistrationsRoute() {
-  refreshAdminResource({ listPath: resource.listPath });
+  refreshAdminResource({
+    listPath: resource.listPath,
+    cacheTags: resource.cacheTags,
+  });
 }
 
 export async function submitInterestRegistration(

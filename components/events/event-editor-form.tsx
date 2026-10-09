@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { Controller, useForm, type Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, Trash2Icon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -13,12 +10,10 @@ import {
   updateEvent,
 } from "@/actions/events";
 import { loadEventStartupOptions } from "@/actions/admin-pickers";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
 import {
   ADMIN_FORM_PAIR_FIELD,
   ADMIN_FORM_PAIR_ROW,
@@ -27,7 +22,6 @@ import {
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
 import { EventLocationInput } from "@/components/events/event-location-input";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,27 +32,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { dummyEventValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
-import { cn } from "@/lib/utils";
 import type { EventDetail, EventStartupOption } from "@/types/event";
 import {
   CMS_PUBLISH_STATUSES,
@@ -119,25 +98,26 @@ export function EventEditorForm({
   event,
   startupOptions: initialOptions = [],
 }: EventEditorFormProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState(EVENT_EDITOR_STEPS[0].id);
+  const editor = useCmsEditorForm<EventFormValues, CreateEventInput>({
+    mode,
+    schema: createEventSchema,
+    defaultValues: defaultsFor(event),
+    recordId: event?.id,
+    listPath: ROUTES.events,
+    detailPath: eventDetailPath,
+    create: createEvent,
+    update: updateEvent,
+    remove: deleteEvent,
+    saveError: "The event could not be saved. Please try again.",
+    steps: EVENT_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
   const [startupOptions, setStartupOptions] =
     useState<EventStartupOption[]>(initialOptions);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(optionsEnabled);
-
-  const form = useForm<EventFormValues, unknown, CreateEventInput>({
-    resolver: zodResolver(
-      createEventSchema,
-    ) as Resolver<EventFormValues, unknown, CreateEventInput>,
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: defaultsFor(event),
-  });
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -174,108 +154,43 @@ export function EventEditorForm({
     };
   }, [optionsEnabled, debouncedSearch, event?.startup_ids]);
 
-  function onSubmit(values: CreateEventInput) {
-    startTransition(async () => {
-      try {
-        const result =
-          mode === "create"
-            ? await createEvent(values)
-            : await updateEvent({ ...values, id: event!.id });
-
-        if (result.status === "error") {
-          toast.error(result.message);
-          return;
-        }
-
-        toast.success(result.message);
-        if (mode === "create" && result.id) {
-          router.push(eventDetailPath(result.id));
-          router.refresh();
-          return;
-        }
-        form.reset(form.getValues());
-        router.refresh();
-      } catch {
-        toast.error("The event could not be saved. Please try again.");
-      }
-    });
-  }
-
-  function onDelete() {
-    if (!event) return;
-    startTransition(async () => {
-      const result = await deleteEvent({ id: event.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.events);
-    });
-  }
-
-  const { errors, isDirty } = form.formState;
-
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            form.reset(
-              { ...form.getValues(), ...dummyEventValues(form.getValues()) },
-              { keepDefaultValues: true },
-            );
-          }}
-          onClear={() => {
-            form.reset(defaultsFor(), { keepDefaultValues: true });
-          }}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={editor.handleFormSubmit}
+      steps={EVENT_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      panelClassName="w-full max-w-3xl"
+      onDummy={() => {
+        form.reset(
+          { ...form.getValues(), ...dummyEventValues(form.getValues()) },
+          { keepDefaultValues: true },
+        );
+      }}
+      onClear={() => {
+        form.reset(defaultsFor(), { keepDefaultValues: true });
+      }}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          disabled={editor.submitDisabled()}
+          createLabel="Create event"
+          onDelete={() => editor.setDeleteOpen(true)}
         />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, EVENT_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-        <Stepper
-          steps={EVENT_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex w-full flex-col items-center gap-6"
-        >
-          <StepperNav className="mx-auto w-full max-w-md">
-            {EVENT_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < EVENT_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full max-w-3xl">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this event?",
+        description:
+          "This permanently deletes the event and removes its startup links. This cannot be undone.",
+        confirmLabel: "Delete event",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent
               value="event"
               className="mx-auto w-full max-w-3xl space-y-6"
@@ -606,47 +521,6 @@ export function EventEditorForm({
                 </Field>
               </AdminFormSection>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={isAdminFormSubmitDisabled({ isPending, isDirty, errors })}
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create event" : "Save changes"}
-          </Button>
-        </AdminEditorActionsBar>
-      </form>
-
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        showTrigger={false}
-        title="Delete this event?"
-        description="This permanently deletes the event and removes its startup links. This cannot be undone."
-        confirmLabel="Delete event"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </div>
+    </CmsEditorFrame>
   );
 }

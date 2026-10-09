@@ -1,5 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 
+const tokenRpc = vi.fn();
+const cacheCalls: { key: unknown; tags: unknown }[] = [];
+
+vi.mock("next/cache", () => ({
+  unstable_cache:
+    (fn: () => unknown, key: unknown, options: { tags?: unknown }) =>
+    () => {
+      cacheCalls.push({ key, tags: options.tags });
+      return fn();
+    },
+}));
+
+vi.mock("@supabase/supabase-js", () => ({
+  createClient: () => ({ rpc: tokenRpc }),
+}));
+
 import {
   fetchAdminListStats,
   mapAdminListStats,
@@ -78,5 +94,38 @@ describe("fetchAdminListStats", () => {
       historical: 0,
       logoGranted: 0,
     });
+  });
+
+  it("caches a signed-in read on the resource tag", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
+    cacheCalls.length = 0;
+    tokenRpc.mockResolvedValue({
+      data: { total: 9, published: 4, draft: 5, featured: 1 },
+      error: null,
+    });
+    const callerRpc = vi.fn();
+
+    const stats = await fetchAdminListStats(
+      {
+        rpc: callerRpc,
+        auth: {
+          getSession: async () => ({
+            data: { session: { access_token: "editor-token" } },
+          }),
+        },
+      } as never,
+      "blogs",
+      ["total", "published", "draft", "featured"],
+    );
+
+    expect(callerRpc).not.toHaveBeenCalled();
+    expect(tokenRpc).toHaveBeenCalledWith("get_admin_list_stats", {
+      p_resource: "blogs",
+    });
+    expect(cacheCalls).toEqual([
+      { key: ["admin-list-stats", "blogs"], tags: ["blogs"] },
+    ]);
+    expect(stats.total).toBe(9);
   });
 });

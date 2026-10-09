@@ -238,7 +238,7 @@ function ApplicationEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="rounded-lg bg-brand-soft px-3 py-3 pr-10">
         <DialogTitle>Edit application</DialogTitle>
         <DialogDescription>
           Update the submitted application details.
@@ -582,7 +582,7 @@ export function ApplicationEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className="rounded-lg bg-brand-soft px-3 py-3 pr-10">
               <DialogTitle>Edit application</DialogTitle>
               <DialogDescription>
                 Update the submitted application details.

@@ -3,6 +3,7 @@ import {
   adminListTotalPages,
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import type {
   NewsletterSubscriber,
@@ -29,8 +30,9 @@ async function fetchNewsletterSubscribers(
     .range(from, to);
 
   if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
     request = request.or(
-      `email.ilike.%${query.search}%,source_page.ilike.%${query.search}%`,
+      `email.ilike."%${pattern}%",source_page.ilike."%${pattern}%"`,
     );
   }
 

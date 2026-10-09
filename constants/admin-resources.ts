@@ -46,6 +46,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     description:
       "Review and manage Register Interest leads. Official Apply submissions live under Applications.",
     metaTitle: "Registrations | ASIP Editor",
+    cacheTags: ["interest-registrations"],
   },
   applications: {
     id: "applications",
@@ -55,6 +56,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     description:
       "Official Apply submissions. Separate from Register Interest leads - there is no automatic conversion.",
     metaTitle: "Applications | ASIP Editor",
+    cacheTags: ["applications"],
   },
   portfolio: {
     id: "portfolio",
@@ -112,6 +114,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     description:
       "Internal evidence register for claims and impact metrics. Not listed on the public site.",
     metaTitle: "Evidence | ASIP Editor",
+    cacheTags: ["evidence-records"],
   },
   impactMetrics: {
     id: "impactMetrics",
@@ -141,6 +144,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     description:
       "Review and manage messages submitted from the public contact form.",
     metaTitle: "Contact us | ASIP Editor",
+    cacheTags: ["contact-messages"],
   },
   newsletter: {
     id: "newsletter",

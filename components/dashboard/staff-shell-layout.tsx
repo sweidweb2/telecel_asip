@@ -36,7 +36,7 @@ export function StaffShellLayout({
   countsPromise,
 }: StaffShellLayoutProps) {
   return (
-    <SidebarProvider>
+    <SidebarProvider data-staff-shell="">
       <SkipToContent />
       <StaffKeyboardShortcuts />
       <AppSidebar

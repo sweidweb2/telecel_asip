@@ -5,10 +5,10 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -108,24 +108,15 @@ export async function getPartnersPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: PartnerListResult; stats: PartnerListStats }
 > {
-  return traceAsync(
-    "getPartnersPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      // RLS already restricts the rows, so the list can run alongside the role
-      // check instead of waiting a full round trip for it.
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchPartnersPage(supabase, query),
         fetchPartnerListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
+      return { list, stats };
     },
+    { name: "getPartnersPageData" },
   );
 }
 
@@ -143,23 +134,25 @@ export const getPartnerByIdForAdmin = wrapCached(
   { eventType: "data_read" },
   cache(
     async (id: string): Promise<PartnerDetailResult> => {
-      // An id that is not a uuid would make Postgres raise 22P02, surfacing a
-      // crash where the route should simply render its not-found page.
       if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const { data, error } = await supabase
+            .from("partners")
+            .select(LIST_COLUMNS)
+            .eq("id", id)
+            .maybeSingle();
 
-      const { data, error } = await supabase
-        .from("partners")
-        .select(LIST_COLUMNS)
-        .eq("id", id)
-        .maybeSingle();
+          if (error) throw error;
+          return { partner: (data as Partner | null) ?? null };
+        },
+        { name: "getPartnerByIdForAdmin" },
+      );
 
-      if (error) throw error;
-      if (!data) return { status: "not_found" };
-
-      return { status: "ok", partner: data as Partner };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.partner) return { status: "not_found" };
+      return { status: "ok", partner: gated.partner };
     },
   ),
 );
@@ -226,13 +219,8 @@ export async function getPartnerSortOrderOccupants(): Promise<
   | { status: "forbidden" }
   | { status: "ok"; partners: PartnerSortOrderOccupant[] }
 > {
-  return traceAsync(
-    "getPartnerSortOrderOccupants",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       // Cap at the display-order range — map + displacement only need 1…MAX.
       const { data, error } = await supabase
         .from("partners")
@@ -244,9 +232,9 @@ export async function getPartnerSortOrderOccupants(): Promise<
       if (error) throw error;
 
       return {
-        status: "ok",
         partners: (data ?? []) as PartnerSortOrderOccupant[],
       };
     },
+    { name: "getPartnerSortOrderOccupants" },
   );
 }

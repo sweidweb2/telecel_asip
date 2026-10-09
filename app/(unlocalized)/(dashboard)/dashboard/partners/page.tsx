@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
 import { PartnerStatsCards } from "@/components/dashboard/cms-list-stats";
 import { PartnersTable } from "@/components/partners/partners-table";
-import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
 import { getPartnersPageData } from "@/data/partners";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parsePartnerListQuery } from "@/validations/partner";
 
 const resource = getAdminResource("partners");
@@ -26,46 +18,30 @@ type PartnersPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function PartnersPage({
-  searchParams,
-}: PartnersPageProps) {
-  const query = parsePartnerListQuery(await searchParams);
-  const { list, stats } = await loadAdminListPage({
-    query,
-    fetchPage: getPartnersPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        type: q.type !== "all" ? q.type : undefined,
-        status: q.status !== "all" ? q.status : undefined,
-      }),
-  });
-
+export default function PartnersPage({ searchParams }: PartnersPageProps) {
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
-      actions={
-        <>
-          <AdminPublicReflectionDialog resourceId="partners" />
-          <Button
-            className="min-h-11 w-full sm:w-auto"
-            nativeButton={false}
-            render={<Link href={ROUTES.partnersNew} />}
-          >
-            <PlusIcon className="size-4" />
-            New partner
-          </Button>
-        </>
-      }
+    <CmsListPage
+      resourceId="partners"
+      searchParams={searchParams}
+      parseQuery={parsePartnerListQuery}
+      fetchPage={getPartnersPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+        type: query.type !== "all" ? query.type : undefined,
+        status: query.status !== "all" ? query.status : undefined,
+      })}
+      newItem={{ href: ROUTES.partnersNew, label: "New partner" }}
+      showPublicReflection
+      stats={(result) => <PartnerStatsCards stats={result.stats} />}
     >
-      <PartnerStatsCards stats={stats} />
-      <PartnersTable
-        partners={list.partners}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <PartnersTable
+          partners={result.list.partners}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

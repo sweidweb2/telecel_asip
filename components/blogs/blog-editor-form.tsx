@@ -578,7 +578,7 @@ export function BlogEditorForm({
         {/* Left: content fields */}
         <div className="grid min-w-0 gap-4">
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Basics</CardTitle>
               <CardDescription>
                 Title, URL slug, and author byline
@@ -661,7 +661,7 @@ export function BlogEditorForm({
           </Card>
 
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Summary</CardTitle>
               <CardDescription>
                 Teaser for cards and default SEO description
@@ -694,7 +694,7 @@ export function BlogEditorForm({
           </Card>
 
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Body</CardTitle>
               <CardDescription>
                 Full article content on the Insights detail page
@@ -726,7 +726,7 @@ export function BlogEditorForm({
           </Card>
 
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Related & SEO</CardTitle>
               <CardDescription>
                 Optional founder/cohort links, sources, and search metadata
@@ -915,7 +915,7 @@ export function BlogEditorForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
+              <CardHeader className="border-b bg-brand-soft">
                 <CardTitle>Publishing</CardTitle>
                 <CardDescription>
                   Visibility and featured placement
@@ -986,7 +986,7 @@ export function BlogEditorForm({
             </Card>
 
             <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
+              <CardHeader className="border-b bg-brand-soft">
                 <CardTitle>Author avatar</CardTitle>
                 <CardDescription>
                   JPEG/PNG/WebP/GIF · max 2MB
@@ -1067,7 +1067,7 @@ export function BlogEditorForm({
         {/* Right: cover + categories */}
         <aside className="grid gap-4 lg:sticky lg:top-4">
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Cover image</CardTitle>
               <CardDescription>
                 JPEG/PNG/WebP/GIF · max 5MB
@@ -1132,7 +1132,7 @@ export function BlogEditorForm({
           </Card>
 
           <Card size="sm">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Categories</CardTitle>
               <CardDescription>
                 First category must be an Insights stream · extra free tags

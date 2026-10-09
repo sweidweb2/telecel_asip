@@ -347,7 +347,7 @@ export function FounderStoryEditorForm({
           <StepperPanel className="w-full">
             <StepperContent value="startup" className="space-y-6">
               <Card size="sm">
-                <CardHeader className="border-b">
+                <CardHeader className="border-b bg-brand-soft">
                   <CardTitle>Startup & status</CardTitle>
                   <CardAction>
                     <AdminFormSectionHelp
@@ -454,7 +454,7 @@ export function FounderStoryEditorForm({
 
             <StepperContent value="story" className="space-y-6">
               <Card size="sm">
-                <CardHeader className="border-b">
+                <CardHeader className="border-b bg-brand-soft">
                   <CardTitle>Story modules</CardTitle>
                   <CardAction>
                     <AdminFormSectionHelp
@@ -563,7 +563,7 @@ export function FounderStoryEditorForm({
 
             <StepperContent value="quote" className="space-y-6">
               <Card size="sm">
-                <CardHeader className="border-b">
+                <CardHeader className="border-b bg-brand-soft">
                   <CardTitle>Founder quote (optional)</CardTitle>
                   <CardAction>
                     <AdminFormSectionHelp

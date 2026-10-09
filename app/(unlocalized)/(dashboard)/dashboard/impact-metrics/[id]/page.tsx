@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 
+import { CmsEditorPage } from "@/components/dashboard/cms-editor-page";
 import { ImpactMetricEditorForm } from "@/components/impact-metrics/impact-metric-editor-form";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getImpactMetricByIdForAdmin } from "@/data/impact-metrics";
 
@@ -34,35 +24,23 @@ export default async function EditImpactMetricPage({
   params,
 }: EditImpactMetricPageProps) {
   const { id } = await params;
-  const result = await getImpactMetricByIdForAdmin(id);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-  if (result.status === "not_found") notFound();
-
-  const pageLabel = result.metric.claim_label.trim() || "Edit metric";
 
   return (
-    <StaffMain>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href={ROUTES.impactMetrics} />}>
-              Impact metrics
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {pageLabel}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <ImpactMetricEditorForm
-        mode="edit"
-        metric={result.metric}
-        heading="Edit impact metric"
-      />
-    </StaffMain>
+    <CmsEditorPage
+      listPath={ROUTES.impactMetrics}
+      listLabel="Impact metrics"
+      load={() => getImpactMetricByIdForAdmin(id)}
+      pageLabel={(record) =>
+        record.metric.claim_label.trim() || "Edit metric"
+      }
+    >
+      {(record) => (
+        <ImpactMetricEditorForm
+          mode="edit"
+          metric={record.metric}
+          heading="Edit impact metric"
+        />
+      )}
+    </CmsEditorPage>
   );
 }

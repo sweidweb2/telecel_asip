@@ -31,8 +31,6 @@ function adminClient(): SupabaseClient {
   });
 }
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("portfolio startups cms", () => {
   test.beforeEach(() => {
     test.skip(

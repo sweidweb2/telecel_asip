@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
 import { InboxCsvDownloadLink } from "@/components/dashboard/inbox-csv-download-link";
 import { NewsletterSubscribersTable } from "@/components/newsletter/newsletter-subscribers-table";
 import { getAdminResource } from "@/constants/admin-resources";
 import { getNewsletterSubscribersPageData } from "@/data/newsletter-subscribers";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parseNewsletterListQuery } from "@/validations/newsletter";
 
 const resource = getAdminResource("newsletter");
@@ -25,33 +21,28 @@ type NewsletterPageProps = {
  * Staff list + CSV for newsletter opt-ins.
  * Public signup stays phase-1 hidden; transactional email (Resend/etc.) is not wired.
  */
-export default async function NewsletterPage({
-  searchParams,
-}: NewsletterPageProps) {
-  const query = parseNewsletterListQuery(await searchParams);
-  const { list } = await loadAdminListPage({
-    query,
-    fetchPage: getNewsletterSubscribersPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-      }),
-  });
-
+export default function NewsletterPage({ searchParams }: NewsletterPageProps) {
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
+    <CmsListPage
+      resourceId="newsletter"
+      searchParams={searchParams}
+      parseQuery={parseNewsletterListQuery}
+      fetchPage={getNewsletterSubscribersPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+      })}
       actions={
         <InboxCsvDownloadLink href="/api/admin/export/newsletter_subscribers" />
       }
     >
-      <NewsletterSubscribersTable
-        subscribers={list.subscribers}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <NewsletterSubscribersTable
+          subscribers={result.list.subscribers}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { PencilIcon } from "lucide-react";
-
 import { deleteStartup } from "@/actions/startups";
-import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
-import { Button } from "@/components/ui/button";
+import { AdminRowEditLink } from "@/components/dashboard/admin-row-edit-link";
 import { portfolioEditPath, ROUTES } from "@/constants/routes";
 import type { StartupListItem } from "@/types/startup";
 
@@ -21,16 +17,10 @@ export function StartupRowActions({
 }: StartupRowActionsProps) {
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={ADMIN_ICON_BUTTON_CLASS}
-        aria-label={`Edit ${startup.name}`}
-        nativeButton={false}
-        render={<Link href={portfolioEditPath(startup.id)} />}
-      >
-        <PencilIcon />
-      </Button>
+      <AdminRowEditLink
+        href={portfolioEditPath(startup.id)}
+        label={`Edit ${startup.name}`}
+      />
 
       <AdminRowDelete
         deleteAction={() => deleteStartup({ id: startup.id })}

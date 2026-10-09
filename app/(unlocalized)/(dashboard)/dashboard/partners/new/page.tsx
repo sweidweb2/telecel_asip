@@ -1,20 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { StaffMain } from "@/components/dashboard/skip-to-content";
+  CmsEditorPage,
+  type CmsEditorLoadResult,
+} from "@/components/dashboard/cms-editor-page";
+import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import { ROUTES } from "@/constants/routes";
 import { requireEditor } from "@/data/auth";
 import { getPartnerSortOrderOccupants } from "@/data/partners";
+import type { PartnerSortOrderOccupant } from "@/types/partner";
 
 export const metadata: Metadata = {
   title: "New partner | ASIP Editor",
@@ -22,29 +16,30 @@ export const metadata: Metadata = {
 
 export default async function NewPartnerPage() {
   await requireEditor();
-  const orderResult = await getPartnerSortOrderOccupants();
-  if (orderResult.status === "forbidden") redirect(ROUTES.dashboard);
 
   return (
-    <StaffMain>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href={ROUTES.partners} />}>
-              Partners
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>New partner</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <PartnerEditorForm
-        mode="create"
-        heading="New partner"
-        orderSlots={orderResult.partners}
-      />
-    </StaffMain>
+    <CmsEditorPage
+      listPath={ROUTES.partners}
+      listLabel="Partners"
+      pageLabel="New partner"
+      load={async (): Promise<
+        CmsEditorLoadResult<{
+          status: "ok";
+          orderSlots: PartnerSortOrderOccupant[];
+        }>
+      > => {
+        const orderResult = await getPartnerSortOrderOccupants();
+        if (orderResult.status === "forbidden") return { status: "forbidden" };
+        return { status: "ok", orderSlots: orderResult.partners };
+      }}
+    >
+      {(record) => (
+        <PartnerEditorForm
+          mode="create"
+          heading="New partner"
+          orderSlots={record.orderSlots}
+        />
+      )}
+    </CmsEditorPage>
   );
 }

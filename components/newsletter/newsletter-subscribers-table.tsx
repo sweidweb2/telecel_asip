@@ -2,7 +2,10 @@
 
 import { MailsIcon } from "lucide-react";
 
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
@@ -39,7 +42,7 @@ export function NewsletterSubscribersTable({
     <AdminDataTable
       filters={<NewsletterSubscribersFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Email</TableHead>
           <TableHead>Source</TableHead>

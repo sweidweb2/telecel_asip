@@ -23,8 +23,14 @@ export function InboxStatusBadge({
 }) {
   return (
     <Badge
-      variant={VARIANT[status]}
-      className={cn("whitespace-nowrap", className)}
+      variant={status === "unread" ? "outline" : VARIANT[status]}
+      data-inbox-status={status}
+      className={cn(
+        "whitespace-nowrap",
+        status === "unread" &&
+          "border-transparent bg-[var(--portal-accent)] text-white",
+        className,
+      )}
     >
       {INBOX_STATUS_LABELS[status]}
     </Badge>

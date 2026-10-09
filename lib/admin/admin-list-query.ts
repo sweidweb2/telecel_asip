@@ -2,6 +2,7 @@ import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { isCurrentUserStaff } from "@/lib/admin/is-current-user-staff";
 import { traceAsync } from "@/lib/admin/perf";
+import type { AdminPerfEventType } from "@/lib/admin/perf/types";
 import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -42,11 +43,11 @@ export async function gatePageDataByRole<
 >(
   role: StaffPageRole,
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
+  options?: { name?: string; eventType?: AdminPerfEventType },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
   return traceAsync(
     options?.name ?? DEFAULT_GATE_NAMES[role],
-    { eventType: "data_read", cacheStatus: "n_a" },
+    { eventType: options?.eventType ?? "data_read", cacheStatus: "n_a" },
     async () => {
       if (!(await ROLE_CHECKS[role]())) return { status: "forbidden" };
       const supabase = await createClient();
@@ -63,7 +64,7 @@ export async function gateEditorPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
+  options?: { name?: string; eventType?: AdminPerfEventType },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
   return gatePageDataByRole("editor", load, options);
 }
@@ -75,7 +76,7 @@ export async function gateStaffPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
+  options?: { name?: string; eventType?: AdminPerfEventType },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
   return gatePageDataByRole("staff", load, options);
 }
@@ -87,7 +88,7 @@ export async function gateAdminPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
+  options?: { name?: string; eventType?: AdminPerfEventType },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
   return gatePageDataByRole("admin", load, options);
 }

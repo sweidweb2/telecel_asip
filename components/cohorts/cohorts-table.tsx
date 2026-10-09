@@ -7,7 +7,10 @@ import { UsersRoundIcon } from "lucide-react";
 import { CohortRowActions } from "@/components/cohorts/cohort-row-actions";
 import { CohortsFilters } from "@/components/cohorts/cohorts-filters";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
@@ -47,7 +50,7 @@ export function CohortsTable({
     <AdminDataTable
       filters={<CohortsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Year</TableHead>
           <TableHead>Label</TableHead>

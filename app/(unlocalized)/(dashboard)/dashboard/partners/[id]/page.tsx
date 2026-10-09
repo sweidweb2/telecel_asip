@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 
-import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { StaffMain } from "@/components/dashboard/skip-to-content";
+  CmsEditorPage,
+  type CmsEditorLoadResult,
+} from "@/components/dashboard/cms-editor-page";
+import { PartnerEditorForm } from "@/components/partners/partner-editor-form";
 import { ROUTES } from "@/constants/routes";
+import type { Partner, PartnerSortOrderOccupant } from "@/types/partner";
 import {
   getPartnerByIdForAdmin,
   getPartnerSortOrderOccupants,
@@ -37,40 +31,46 @@ export default async function EditPartnerPage({
   params,
 }: EditPartnerPageProps) {
   const { id } = await params;
-  const [result, orderResult] = await Promise.all([
-    getPartnerByIdForAdmin(id),
-    getPartnerSortOrderOccupants(),
-  ]);
-
-  if (result.status === "forbidden" || orderResult.status === "forbidden") {
-    redirect(ROUTES.dashboard);
-  }
-  if (result.status === "not_found") notFound();
 
   return (
-    <StaffMain>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href={ROUTES.partners} />}>
-              Partners
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {result.partner.name}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <CmsEditorPage
+      listPath={ROUTES.partners}
+      listLabel="Partners"
+      pageLabel={(record) => record.partner.name}
+      load={async (): Promise<
+        CmsEditorLoadResult<{
+          status: "ok";
+          partner: Partner;
+          orderSlots: PartnerSortOrderOccupant[];
+        }>
+      > => {
+        const [result, orderResult] = await Promise.all([
+          getPartnerByIdForAdmin(id),
+          getPartnerSortOrderOccupants(),
+        ]);
 
-      <PartnerEditorForm
-        mode="edit"
-        partner={result.partner}
-        heading="Edit partner"
-        orderSlots={orderResult.partners}
-      />
-    </StaffMain>
+        if (
+          result.status === "forbidden" ||
+          orderResult.status === "forbidden"
+        ) {
+          return { status: "forbidden" };
+        }
+        if (result.status === "not_found") return { status: "not_found" };
+        return {
+          status: "ok",
+          partner: result.partner,
+          orderSlots: orderResult.partners,
+        };
+      }}
+    >
+      {(record) => (
+        <PartnerEditorForm
+          mode="edit"
+          partner={record.partner}
+          heading="Edit partner"
+          orderSlots={record.orderSlots}
+        />
+      )}
+    </CmsEditorPage>
   );
 }

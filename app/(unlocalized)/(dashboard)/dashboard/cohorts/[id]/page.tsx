@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 
 import { CohortEditorForm } from "@/components/cohorts/cohort-editor-form";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { StaffMain } from "@/components/dashboard/skip-to-content";
+import { CmsEditorPage } from "@/components/dashboard/cms-editor-page";
 import { ROUTES } from "@/constants/routes";
 import { getCohortByIdForAdmin } from "@/data/cohorts";
 
@@ -32,35 +22,21 @@ export async function generateMetadata({
 
 export default async function EditCohortPage({ params }: EditCohortPageProps) {
   const { id } = await params;
-  const result = await getCohortByIdForAdmin(id);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-  if (result.status === "not_found") notFound();
-
-  const pageLabel = result.cohort.public_label.trim() || "Edit cohort";
 
   return (
-    <StaffMain>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href={ROUTES.cohorts} />}>
-              Cohorts
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {pageLabel}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <CohortEditorForm
-        mode="edit"
-        cohort={result.cohort}
-        heading="Edit cohort"
-      />
-    </StaffMain>
+    <CmsEditorPage
+      listPath={ROUTES.cohorts}
+      listLabel="Cohorts"
+      load={() => getCohortByIdForAdmin(id)}
+      pageLabel={(record) => record.cohort.public_label.trim() || "Edit cohort"}
+    >
+      {(record) => (
+        <CohortEditorForm
+          mode="edit"
+          cohort={record.cohort}
+          heading="Edit cohort"
+        />
+      )}
+    </CmsEditorPage>
   );
 }

@@ -6,6 +6,7 @@ import type {
 } from "@/data/admin-analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 
 function PipelineCard({
   title,
@@ -18,7 +19,7 @@ function PipelineCard({
 }) {
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="border-b bg-brand-soft">
         <CardTitle className="text-base">
           <Link href={href} className="hover:underline">
             {title}
@@ -27,7 +28,7 @@ function PipelineCard({
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
         <Stat label="Total" value={stats.total} />
-        <Stat label="Unread" value={stats.unread} />
+        <Stat label="Unread" value={stats.unread} accent />
         <Stat label="Reviewed" value={stats.reviewed} />
         <Stat label="Archived" value={stats.archived} />
         <Stat label="Last 7 days" value={stats.last7Days} />
@@ -37,11 +38,26 @@ function PipelineCard({
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({
+  label,
+  value,
+  accent = false,
+}: {
+  label: string;
+  value: number;
+  accent?: boolean;
+}) {
+  const highlight = accent && value > 0;
+
   return (
     <div className="min-w-0">
       <p className="truncate text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold tabular-nums tracking-tight">
+      <p
+        className={cn(
+          "text-lg font-semibold tabular-nums tracking-tight",
+          highlight && "text-[var(--portal-accent)]",
+        )}
+      >
         {value}
       </p>
     </div>
@@ -84,7 +100,7 @@ export function AdminAnalyticsDashboard({
         </h2>
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full min-w-[28rem] text-left text-sm">
-            <thead className="border-b bg-muted/40 text-muted-foreground">
+            <thead className="border-b bg-brand-soft">
               <tr>
                 <th className="px-4 py-3 font-medium">Section</th>
                 <th className="px-4 py-3 font-medium">Primary</th>

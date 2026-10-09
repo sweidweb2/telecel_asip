@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 async function seedEvidence(primarySource: string): Promise<string> {
   const admin = e2eAdminClient();
   const { data: users, error: userError } =

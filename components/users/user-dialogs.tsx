@@ -8,6 +8,7 @@ import { EyeIcon, EyeOffIcon, Loader2Icon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { createUser } from "@/actions/users";
+import { ADMIN_INBOX_EDIT_HEADER_CLASS } from "@/components/dashboard/admin-detail-row";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -158,7 +159,7 @@ export function CreateUserDialog({
         }
       />
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
+        <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
           <DialogTitle>Create user</DialogTitle>
           <DialogDescription>
             Add an account and choose their access role.

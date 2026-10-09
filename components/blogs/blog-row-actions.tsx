@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { PencilIcon } from "lucide-react";
-
 import { deleteBlog } from "@/actions/blogs";
-import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
-import { Button } from "@/components/ui/button";
+import { AdminRowEditLink } from "@/components/dashboard/admin-row-edit-link";
 import { ROUTES } from "@/constants/routes";
 import type { BlogListItem } from "@/types/blog";
 
@@ -23,16 +19,7 @@ export function BlogRowActions({
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={ADMIN_ICON_BUTTON_CLASS}
-        aria-label={`Edit ${blog.title}`}
-        nativeButton={false}
-        render={<Link href={href} />}
-      >
-        <PencilIcon />
-      </Button>
+      <AdminRowEditLink href={href} label={`Edit ${blog.title}`} />
 
       <AdminRowDelete
         deleteAction={() => deleteBlog({ id: blog.id })}

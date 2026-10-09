@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { ApplicationsTable } from "@/components/applications/applications-table";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
 import { InboxCsvDownloadLink } from "@/components/dashboard/inbox-csv-download-link";
 import { InboxStatsCards } from "@/components/dashboard/inbox-stats-cards";
-import { ApplicationsTable } from "@/components/applications/applications-table";
 import { getAdminResource } from "@/constants/admin-resources";
 import { getApplicationsPageData } from "@/data/applications";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parseApplicationListQuery } from "@/validations/application";
 
 const resource = getAdminResource("applications");
@@ -22,35 +18,31 @@ type ApplicationsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function ApplicationsPage({
+export default function ApplicationsPage({
   searchParams,
 }: ApplicationsPageProps) {
-  const query = parseApplicationListQuery(await searchParams);
-  const { list, stats } = await loadAdminListPage({
-    query,
-    fetchPage: getApplicationsPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        inboxStatus: q.inboxStatus !== "inbox" ? q.inboxStatus : undefined,
-      }),
-  });
-
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
-      actions={
-        <InboxCsvDownloadLink href="/api/admin/export/applications" />
-      }
+    <CmsListPage
+      resourceId="applications"
+      searchParams={searchParams}
+      parseQuery={parseApplicationListQuery}
+      fetchPage={getApplicationsPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+        inboxStatus:
+          query.inboxStatus !== "inbox" ? query.inboxStatus : undefined,
+      })}
+      actions={<InboxCsvDownloadLink href="/api/admin/export/applications" />}
+      stats={(result) => <InboxStatsCards stats={result.stats} />}
     >
-      <InboxStatsCards stats={stats} />
-      <ApplicationsTable
-        applications={list.applications}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <ApplicationsTable
+          applications={result.list.applications}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

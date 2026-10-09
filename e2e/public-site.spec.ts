@@ -1,4 +1,16 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+function foundersMenuButton(page: Page) {
+  return page
+    .locator("header nav[aria-label='Primary']")
+    .getByRole("button", { name: "Founders", exact: true });
+}
+
+/** Opens the desktop Founders menu. Alumni is a menuitem, portaled outside the header. */
+async function openFoundersMenu(page: Page) {
+  await foundersMenuButton(page).click();
+  return page.getByRole("menuitem", { name: "Alumni", exact: true });
+}
 
 const publicSlugs = [
   "",
@@ -45,23 +57,13 @@ test("language switch preserves the current public page", async ({ page }) => {
 
 test("alumni is in the primary navigation", async ({ page }) => {
   await page.goto("/en");
-  const founders = page
-    .locator("header nav[aria-label='Primary']")
-    .getByRole("button", { name: "Founders", exact: true });
-  await founders.click();
-  // Menu content is portaled outside <header>.
-  await expect(
-    page.getByRole("link", { name: "Alumni", exact: true }),
-  ).toHaveAttribute("href", "/en/alumni");
+  const alumni = await openFoundersMenu(page);
+  await expect(alumni).toHaveAttribute("href", "/en/alumni");
 });
 
 test("founders directory closes when clicking outside", async ({ page }) => {
   await page.goto("/en");
-  const founders = page
-    .locator("header nav[aria-label='Primary']")
-    .getByRole("button", { name: "Founders", exact: true });
-  await founders.click();
-  const alumni = page.getByRole("link", { name: "Alumni", exact: true });
+  const alumni = await openFoundersMenu(page);
   await expect(alumni).toBeVisible();
   await page.locator("main").click({ position: { x: 10, y: 10 } });
   await expect(alumni).toBeHidden();
@@ -86,11 +88,7 @@ test("tablet navigation keeps the primary routes visible", async ({ page }) => {
   await expect(
     page.locator("header").getByRole("link", { name: "About" }),
   ).toBeVisible();
-  await expect(
-    page
-      .locator("header nav[aria-label='Primary']")
-      .getByRole("button", { name: "Founders", exact: true }),
-  ).toBeVisible();
+  await expect(foundersMenuButton(page)).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
 

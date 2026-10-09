@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { PencilIcon } from "lucide-react";
-
 import { deleteCohort } from "@/actions/cohorts";
-import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
-import { Button } from "@/components/ui/button";
+import { AdminRowEditLink } from "@/components/dashboard/admin-row-edit-link";
 import { cohortEditPath, ROUTES } from "@/constants/routes";
 import type { CohortListItem } from "@/types/cohort";
 
@@ -21,16 +17,10 @@ export function CohortRowActions({
 }: CohortRowActionsProps) {
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={ADMIN_ICON_BUTTON_CLASS}
-        aria-label={`Edit ${cohort.public_label}`}
-        nativeButton={false}
-        render={<Link href={cohortEditPath(cohort.id)} />}
-      >
-        <PencilIcon />
-      </Button>
+      <AdminRowEditLink
+        href={cohortEditPath(cohort.id)}
+        label={`Edit ${cohort.public_label}`}
+      />
 
       <AdminRowDelete
         deleteAction={() => deleteCohort({ id: cohort.id })}

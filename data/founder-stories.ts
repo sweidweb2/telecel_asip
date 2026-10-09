@@ -6,10 +6,10 @@ import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -137,22 +137,15 @@ export async function getFounderStoriesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: FounderStoryListResult; stats: FounderStoryListStats }
 > {
-  return traceAsync(
-    "getFounderStoriesPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchFounderStoriesPage(supabase, query),
         fetchFounderStoryListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
+      return { list, stats };
     },
+    { name: "getFounderStoriesPageData" },
   );
 }
 
@@ -170,22 +163,27 @@ export const getFounderStoryByIdForAdmin = wrapCached(
         return { status: "not_found" };
       }
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const { data, error } = await supabase
+            .from("founder_stories")
+            .select(DETAIL_COLUMNS)
+            .eq("id", id)
+            .maybeSingle();
 
-      const { data, error } = await supabase
-        .from("founder_stories")
-        .select(DETAIL_COLUMNS)
-        .eq("id", id)
-        .maybeSingle();
+          if (error) throw error;
+          if (!data) return { story: null };
 
-      if (error) throw error;
-      if (!data) return { status: "not_found" };
+          return {
+            story: toDetail(data as unknown as StoryRowWithStartup),
+          };
+        },
+        { name: "getFounderStoryByIdForAdmin" },
+      );
 
-      return {
-        status: "ok",
-        story: toDetail(data as unknown as StoryRowWithStartup),
-      };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.story) return { status: "not_found" };
+      return { status: "ok", story: gated.story };
     },
   ),
 );
@@ -202,13 +200,8 @@ export async function getStartupsForStoryPicker(options?: {
   | { status: "forbidden" }
   | { status: "ok"; startups: StartupStoryOption[] }
 > {
-  return traceAsync(
-    "getStartupsForStoryPicker",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const includeId = options?.includeStartupId;
       const term = (options?.search ?? "").trim().slice(0, 100);
 
@@ -246,7 +239,7 @@ export async function getStartupsForStoryPicker(options?: {
 
       const candidateIds = candidates.map((row) => row.id);
       if (candidateIds.length === 0) {
-        return { status: "ok", startups: [] };
+        return { startups: [] };
       }
 
       const takenResult = await supabase
@@ -266,8 +259,9 @@ export async function getStartupsForStoryPicker(options?: {
         return !taken.has(row.id);
       });
 
-      return { status: "ok", startups };
+      return { startups };
     },
+    { name: "getStartupsForStoryPicker", eventType: "option_load" },
   );
 }
 

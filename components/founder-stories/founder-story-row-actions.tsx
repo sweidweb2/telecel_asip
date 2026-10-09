@@ -1,12 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { PencilIcon } from "lucide-react";
-
 import { deleteFounderStory } from "@/actions/founder-stories";
-import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { AdminRowDelete } from "@/components/dashboard/admin-row-delete";
-import { Button } from "@/components/ui/button";
+import { AdminRowEditLink } from "@/components/dashboard/admin-row-edit-link";
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import type { FounderStoryListItem } from "@/types/founder-story";
 
@@ -21,16 +17,10 @@ export function FounderStoryRowActions({
 }: FounderStoryRowActionsProps) {
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={ADMIN_ICON_BUTTON_CLASS}
-        aria-label={`Edit ${story.startup_name}`}
-        nativeButton={false}
-        render={<Link href={founderStoryEditPath(story.id)} />}
-      >
-        <PencilIcon />
-      </Button>
+      <AdminRowEditLink
+        href={founderStoryEditPath(story.id)}
+        label={`Edit ${story.startup_name}`}
+      />
 
       <AdminRowDelete
         deleteAction={() => deleteFounderStory({ id: story.id })}

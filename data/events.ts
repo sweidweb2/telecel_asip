@@ -4,10 +4,10 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
+import { wrapCached } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
@@ -88,22 +88,15 @@ export async function getEventsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: EventListResult; stats: EventListStats }
 > {
-  return traceAsync(
-    "getEventsPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchEventsPage(supabase, query),
         fetchEventListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
+      return { list, stats };
     },
+    { name: "getEventsPageData" },
   );
 }
 
@@ -119,51 +112,56 @@ export const getEventByIdForAdmin = wrapCached(
     async (id: string): Promise<EventDetailResult> => {
       if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const [eventResult, linksResult] = await Promise.all([
+            supabase
+              .from("events")
+              .select(DETAIL_COLUMNS)
+              .eq("id", id)
+              .maybeSingle(),
+            supabase
+              .from("event_startups")
+              .select("startup_id, startups(id, name)")
+              .eq("event_id", id)
+              .limit(DETAIL_LINK_LIMIT),
+          ]);
 
-      const [eventResult, linksResult] = await Promise.all([
-        supabase
-          .from("events")
-          .select(DETAIL_COLUMNS)
-          .eq("id", id)
-          .maybeSingle(),
-        supabase
-          .from("event_startups")
-          .select("startup_id, startups(id, name)")
-          .eq("event_id", id)
-          .limit(DETAIL_LINK_LIMIT),
-      ]);
+          if (eventResult.error) throw eventResult.error;
+          if (linksResult.error) throw linksResult.error;
+          if (!eventResult.data) return { event: null };
 
-      if (eventResult.error) throw eventResult.error;
-      if (linksResult.error) throw linksResult.error;
-      if (!eventResult.data) return { status: "not_found" };
+          const linked_startups: EventStartupOption[] = [];
+          const startup_ids: string[] = [];
+          for (const row of linksResult.data ?? []) {
+            startup_ids.push(row.startup_id);
+            const startup = row.startups as
+              | EventStartupOption
+              | EventStartupOption[]
+              | null;
+            const named = Array.isArray(startup) ? startup[0] : startup;
+            if (named?.id && named.name) {
+              linked_startups.push({ id: named.id, name: named.name });
+            }
+          }
 
-      const linked_startups: EventStartupOption[] = [];
-      const startup_ids: string[] = [];
-      for (const row of linksResult.data ?? []) {
-        startup_ids.push(row.startup_id);
-        const startup = row.startups as
-          | EventStartupOption
-          | EventStartupOption[]
-          | null;
-        const named = Array.isArray(startup) ? startup[0] : startup;
-        if (named?.id && named.name) {
-          linked_startups.push({ id: named.id, name: named.name });
-        }
-      }
-
-      return {
-        status: "ok",
-        event: {
-          ...(eventResult.data as Omit<
-            EventDetail,
-            "startup_ids" | "linked_startups"
-          >),
-          startup_ids,
-          linked_startups,
+          return {
+            event: {
+              ...(eventResult.data as Omit<
+                EventDetail,
+                "startup_ids" | "linked_startups"
+              >),
+              startup_ids,
+              linked_startups,
+            },
+          };
         },
-      };
+        { name: "getEventByIdForAdmin" },
+      );
+
+      if (gated.status === "forbidden") return gated;
+      if (!gated.event) return { status: "not_found" };
+      return { status: "ok", event: gated.event };
     },
   ),
 );
@@ -178,13 +176,8 @@ export async function getEventStartupOptions(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EventStartupOption[] }
 > {
-  return traceAsync(
-    "getEventStartupOptions",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("startups")
@@ -217,10 +210,8 @@ export async function getEventStartupOptions(
         ];
       }
 
-      return {
-        status: "ok",
-        options,
-      };
+      return { options };
     },
+    { name: "getEventStartupOptions", eventType: "option_load" },
   );
 }

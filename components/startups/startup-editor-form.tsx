@@ -534,7 +534,7 @@ export function StartupEditorForm({
           <StepperContent value="core" className="space-y-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
             <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
+              <CardHeader className="border-b bg-brand-soft">
                 <CardTitle>Core</CardTitle>
                 <CardDescription>
                   Name, slug, description, status, and founding date
@@ -671,7 +671,7 @@ export function StartupEditorForm({
             </Card>
 
             <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
+              <CardHeader className="border-b bg-brand-soft">
                 <CardTitle>Logo</CardTitle>
                 <CardDescription>
                   JPEG / PNG / WebP / GIF · max 5 MB
@@ -755,7 +755,7 @@ export function StartupEditorForm({
 
           <StepperContent value="profile" className="space-y-6">
           <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Public profile</CardTitle>
               <CardDescription>
                 Cohort, country, sector, founders, cover, and featured placement
@@ -911,7 +911,7 @@ export function StartupEditorForm({
 
           <StepperContent value="details" className="space-y-6">
           <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b">
+            <CardHeader className="border-b bg-brand-soft">
               <CardTitle>Company details</CardTitle>
               <CardDescription>
                 Website, narrative, and funding fields

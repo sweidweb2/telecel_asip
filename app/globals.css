@@ -67,11 +67,12 @@
 }
 
 /*
- * ASIP editorial palette — public 30–60–10 roles:
+ * ASIP editorial palette — 60–30–10 roles:
  * ~60% canvas: --background (#fbfaf6) + white cards
  * ~30% secondary: --asip-ink panels/text, --brand teal, soft greens
  * ~10% accent: --asip-coral CTAs / key marks (magenta + brand-mid as stripe accents only)
  * Accents identify actions and hierarchy; they do not tint whole pages.
+ * Staff portals remap these roles on [data-staff-shell] below.
  */
 :root {
   --brand: #179191;
@@ -83,6 +84,8 @@
   --asip-magenta: #c14a9b;
   --asip-coral: #dc395f;
   --asip-coral-hover: color-mix(in srgb, #dc395f 82%, #ffffff);
+  /* White label text on this fill clears 4.5:1. Brand coral #dc395f is 4.38:1. */
+  --portal-accent: #c43155;
   --asip-mint: #9ad1bf;
 
   --background: #fbfaf6;
@@ -164,6 +167,90 @@
   --sidebar-ring: oklch(0.754 0.066 164.5);
 }
 
+/*
+ * Editor and admin portals. Marketing tokens stay on :root.
+ * 60% — cream work area (--background on the inset; unchanged).
+ * 30% — soft-green sidebar, ink text, teal scroll marks.
+ * 10% — coral on the current nav item and primary actions only.
+ * Active fill is a hair darker than --asip-coral so white label text clears 4.5:1.
+ */
+[data-staff-shell] {
+  --sidebar: var(--brand-soft);
+  --sidebar-foreground: var(--asip-ink);
+  --sidebar-primary: var(--portal-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: color-mix(in srgb, var(--asip-ink) 8%, var(--brand-soft));
+  --sidebar-accent-foreground: var(--asip-ink);
+  --sidebar-border: color-mix(in srgb, var(--asip-ink) 16%, var(--brand-soft));
+  --sidebar-ring: var(--portal-accent);
+}
+
+.dark [data-staff-shell] {
+  --sidebar: oklch(0.24 0.026 177.3);
+  --sidebar-foreground: oklch(0.947 0.019 131.6);
+  --sidebar-primary: var(--portal-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: oklch(0.3 0.028 175);
+  --sidebar-accent-foreground: oklch(0.947 0.019 131.6);
+  --sidebar-border: oklch(0.835 0.052 151.3 / 18%);
+  --sidebar-ring: var(--portal-accent);
+}
+
+[data-staff-shell] [data-sidebar="menu-button"][data-active],
+[data-staff-shell] [data-sidebar="menu-button"][data-active]:hover,
+[data-staff-shell] [data-sidebar="menu-button"][data-active]:active {
+  background-color: var(--portal-accent);
+  color: #ffffff;
+}
+
+[data-staff-shell] [data-sidebar="menu-button"][data-active] svg {
+  color: #ffffff;
+}
+
+/* Primary actions only. Status badges keep teal via --primary. */
+[data-staff-shell] :is(a, button).bg-primary {
+  background-color: var(--portal-accent);
+  color: #ffffff;
+}
+
+[data-staff-shell] :is(a, button).bg-primary:hover {
+  background-color: color-mix(in srgb, var(--portal-accent) 86%, #ffffff);
+}
+
+/* Dialogs portal to document.body, outside the shell. */
+[data-slot="dialog-content"] :is(a, button).bg-primary {
+  background-color: var(--portal-accent);
+  color: #ffffff;
+}
+
+[data-slot="dialog-content"] :is(a, button).bg-primary:hover {
+  background-color: color-mix(in srgb, var(--portal-accent) 86%, #ffffff);
+}
+
+/* Keep the column header on the secondary green. The row utility also sets a hover wash. */
+[data-staff-shell] thead [data-slot="table-row"].bg-brand-soft:hover {
+  background-color: var(--brand-soft);
+}
+
+/* Card headers use `[.border-b]:bg-muted/30`, which otherwise paints over this. */
+[data-staff-shell] [data-slot="card-header"].bg-brand-soft {
+  background-color: var(--brand-soft);
+}
+
+/* Coral stays on actions. Scroll marks stay in the teal secondary. */
+[data-staff-shell],
+[data-staff-shell] * {
+  scrollbar-color: var(--brand) var(--muted);
+}
+
+[data-staff-shell] *::-webkit-scrollbar-thumb {
+  background-color: var(--brand);
+}
+
+[data-staff-shell] *::-webkit-scrollbar-thumb:hover {
+  background-color: var(--brand-mid);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -223,6 +310,21 @@ html {
 
 *::-webkit-scrollbar-corner {
   background: var(--muted);
+}
+
+/*
+ * Portal sidebar keeps scrolling when nav groups overflow, without a bar.
+ * Unlayered so this beats the global scrollbar rules above.
+ */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 @keyframes fade-in-up {
