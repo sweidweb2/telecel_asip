@@ -12,13 +12,9 @@ export const updateAdminSiteSettingsSchema = updateEditorSiteSettingsSchema.exte
   backupTime: z.enum(BACKUP_SCHEDULE_VALUES),
 });
 
-/** @deprecated Prefer updateEditorSiteSettingsSchema / updateAdminSiteSettingsSchema. */
-export const updateSiteSettingsSchema = updateAdminSiteSettingsSchema;
-
 export type UpdateEditorSiteSettingsInput = z.infer<
   typeof updateEditorSiteSettingsSchema
 >;
 export type UpdateAdminSiteSettingsInput = z.infer<
   typeof updateAdminSiteSettingsSchema
 >;
-export type UpdateSiteSettingsInput = UpdateAdminSiteSettingsInput;

@@ -268,12 +268,3 @@ export async function getHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> 
     metric.display_locations?.includes("homepage_module_02"),
   );
 }
-
-/** Impact page — metrics tagged `impact_page`, else all verified. */
-export async function getImpactPageMetrics(): Promise<ImpactMetricPublicItem[]> {
-  const metrics = await getVerifiedImpactMetrics();
-  const tagged = metrics.filter((metric) =>
-    metric.display_locations?.includes("impact_page"),
-  );
-  return tagged.length > 0 ? tagged : metrics;
-}

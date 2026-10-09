@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
 
 import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
@@ -9,18 +8,14 @@ import {
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { wrapCached, traceAsync } from "@/lib/admin/perf";
-import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
   EventListItem,
   EventListResult,
-  EventPublicListItem,
   EventStartupOption,
 } from "@/types/event";
 import { eventIdSchema, type EventListQuery } from "@/validations/event";
-
-export const EVENTS_CACHE_TAG = "events";
 
 const LIST_COLUMNS =
   "id, name, event_date, location, format, publish_status, created_at, updated_at" as const;
@@ -28,16 +23,10 @@ const LIST_COLUMNS =
 const DETAIL_COLUMNS =
   "id, name, event_date, location, format, speakers, assets, outcomes, publish_status, created_at, updated_at" as const;
 
-const PUBLIC_LIST_COLUMNS =
-  "id, name, event_date, location, format, speakers, outcomes, updated_at" as const;
-
 const STARTUP_OPTIONS_LIMIT = 100;
 
 /** Cap junction id loads on detail so a bad dataset cannot unbounded-read. */
 const DETAIL_LINK_LIMIT = 200;
-
-/** Cap public published list so anon reads stay bounded. */
-const PUBLIC_LIMIT = 200;
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -235,23 +224,3 @@ export async function getEventStartupOptions(
     },
   );
 }
-
-async function fetchPublishedEvents(): Promise<EventPublicListItem[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("events")
-    .select(PUBLIC_LIST_COLUMNS)
-    .eq("publish_status", "published")
-    .order("event_date", { ascending: false })
-    .limit(PUBLIC_LIMIT);
-
-  if (error) throw error;
-  return (data ?? []) as EventPublicListItem[];
-}
-
-/** Cached published events for when a marketing surface is wired. */
-export const getPublishedEvents = unstable_cache(
-  fetchPublishedEvents,
-  ["published-events"],
-  { tags: [EVENTS_CACHE_TAG], revalidate: 300 },
-);

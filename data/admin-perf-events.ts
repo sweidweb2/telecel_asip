@@ -189,26 +189,6 @@ export async function getAdminPerfEventsPageData(
   };
 }
 
-export async function getAdminPerfEventsByRequestId(
-  requestId: string,
-): Promise<
-  | { status: "forbidden" }
-  | { status: "ok"; events: AdminPerfEventRow[] }
-> {
-  if (!(await isCurrentUserAdmin())) return { status: "forbidden" };
-
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("admin_perf_events")
-    .select(LIST_COLUMNS)
-    .eq("request_id", requestId)
-    .order("created_at", { ascending: true })
-    .limit(200);
-
-  if (error) throw error;
-  return { status: "ok", events: (data ?? []) as AdminPerfEventRow[] };
-}
-
 /** Batch waterfall load for detail dialogs (single query). */
 export async function getAdminPerfEventsByRequestIds(
   requestIds: string[],

@@ -9,7 +9,6 @@ import {
 import { COHORTS_CACHE_TAG } from "@/data/cohorts";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import type { Locale } from "@/constants/locales";
-import { insightPath } from "@/constants/routes";
 import { createPublicClient } from "@/lib/supabase/public";
 import { toArticle, toArticleList, type BlogRelatedLinks } from "@/types/blog";
 import type { Article, ArticleListItem } from "@/types/article";
@@ -147,8 +146,4 @@ export async function getRelatedInsights(
 ): Promise<ArticleListItem[]> {
   const related = await getRelatedPublishedBlogs(slug, limit);
   return related.map((blog) => toArticleList(blog, locale));
-}
-
-export function insightHref(locale: Locale, slug: string): string {
-  return insightPath(locale, slug);
 }

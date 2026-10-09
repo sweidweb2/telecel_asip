@@ -432,35 +432,6 @@ export const getActiveStartupCountryReach = unstable_cache(
   { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
 );
 
-async function fetchActiveStartupFoundedYears(): Promise<string[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups_public")
-    .select("founded_at")
-    .not("founded_at", "is", null);
-
-  if (error) throw error;
-
-  const years = new Set<string>();
-  for (const row of data ?? []) {
-    const foundedAt =
-      row && typeof row === "object" && "founded_at" in row
-        ? (row.founded_at as string | null)
-        : null;
-    if (!foundedAt) continue;
-    const match = /^(\d{4})/.exec(foundedAt);
-    if (match?.[1]) years.add(match[1]);
-  }
-
-  return [...years].sort((a, b) => Number(b) - Number(a));
-}
-
-export const getActiveStartupFoundedYears = unstable_cache(
-  fetchActiveStartupFoundedYears,
-  ["active-startup-founded-years"],
-  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-);
-
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {
@@ -529,33 +500,6 @@ export async function getRelatedActiveStartups(
   return unstable_cache(
     () => fetchRelatedActiveStartups(slug, limit),
     ["related-active-startups", slug, String(limit)],
-    { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-  )();
-}
-
-async function fetchSpotlightStartups(
-  limit: number,
-): Promise<StartupPublicListItem[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups_public")
-    .select(PUBLIC_LIST_COLUMNS)
-    .order("featured", { ascending: false })
-    .order("updated_at", { ascending: false })
-    .order("id", { ascending: true })
-    .limit(limit);
-
-  if (error) throw error;
-  return mapPublicListItems(data ?? []);
-}
-
-/** Newest active ventures for the home spotlight and outcome modules. */
-export async function getSpotlightStartups(
-  limit = 5,
-): Promise<StartupPublicListItem[]> {
-  return unstable_cache(
-    () => fetchSpotlightStartups(limit),
-    ["spotlight-startups", String(limit)],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
 }

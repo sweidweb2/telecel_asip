@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import {
   MapPin,
   Rocket,
@@ -8,7 +7,6 @@ import {
 } from "lucide-react";
 
 import type { AboutStoryStatIcon } from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
 
 const STAT_ICONS: Record<AboutStoryStatIcon, LucideIcon> = {
   rocket: Rocket,
@@ -53,19 +51,5 @@ export function StoryStatCounter({ stats }: { stats: StoryStat[] }) {
         <StoryStatItem key={stat.label} stat={stat} />
       ))}
     </div>
-  );
-}
-
-export function StoryStatsNotice({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <p className={cn("text-center text-xs text-muted-foreground", className)}>
-      {children}
-    </p>
   );
 }

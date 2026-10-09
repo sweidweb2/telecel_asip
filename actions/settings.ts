@@ -113,13 +113,3 @@ export async function updateAdminSiteSettings(
   revalidateSettingsCaches();
   return { status: "success", message: MESSAGES.updateSuccess };
 }
-
-/** @deprecated Use updateEditorSiteSettings — kept for older imports/tests. */
-export async function updateSiteSettings(
-  input: UpdateAdminSiteSettingsInput,
-): Promise<SiteSettingsActionResult> {
-  if ("backupTime" in input && input.backupTime !== undefined) {
-    return updateAdminSiteSettings(input);
-  }
-  return updateEditorSiteSettings(input);
-}
