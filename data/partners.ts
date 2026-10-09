@@ -8,7 +8,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -115,8 +114,7 @@ export async function getPartnersPageData(
         fetchPartnerListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getPartnersPageData" },
+    }
   );
 }
 
@@ -129,10 +127,7 @@ type PartnerDetailResult =
  * Deduped per request: `generateMetadata` and the page body both need the same
  * partner, and without `cache()` that is two role checks plus two selects.
  */
-export const getPartnerByIdForAdmin = wrapCached(
-  "getPartnerByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getPartnerByIdForAdmin = cache(
     async (id: string): Promise<PartnerDetailResult> => {
       if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
 
@@ -146,16 +141,14 @@ export const getPartnerByIdForAdmin = wrapCached(
 
           if (error) throw error;
           return { partner: (data as Partner | null) ?? null };
-        },
-        { name: "getPartnerByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.partner) return { status: "not_found" };
       return { status: "ok", partner: gated.partner };
     },
-  ),
-);
+  );
 
 type PublicRow = Pick<
   Tables<"partners_public">,
@@ -234,7 +227,6 @@ export async function getPartnerSortOrderOccupants(): Promise<
       return {
         partners: (data ?? []) as PartnerSortOrderOccupant[],
       };
-    },
-    { name: "getPartnerSortOrderOccupants" },
+    }
   );
 }

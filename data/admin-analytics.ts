@@ -216,8 +216,7 @@ export async function getAdminAnalytics(): Promise<
         if (error instanceof AnalyticsForbiddenError) return { analytics: null };
         throw error;
       }
-    },
-    { name: "getAdminAnalytics" },
+    }
   );
 
   if (gated.status === "forbidden") return gated;

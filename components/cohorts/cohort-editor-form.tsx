@@ -15,10 +15,10 @@ import {
   CmsEditorSaveActions,
 } from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntityMultiSelect } from "@/components/dashboard/entity-multi-select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { UrlInput } from "@/components/ui/url-input";
 import {
   Select,
@@ -83,25 +83,6 @@ type CohortEditorFormProps = {
   startups?: CohortLinkOption[];
   heading: string;
 };
-
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="text-xs text-muted-foreground">{hint}</span>
-      ) : null}
-    </div>
-  );
-}
 
 export function CohortEditorForm({
   mode,
@@ -274,10 +255,10 @@ export function CohortEditorForm({
                 title={COHORT_EDITOR_HELP.programme.title}
                 description={COHORT_EDITOR_HELP.programme.intro}
                 help={COHORT_EDITOR_HELP.programme}
-                contentClassName="grid gap-5 sm:grid-cols-2"
+                contentClassName="grid gap-4 sm:grid-cols-2"
               >
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="year">Year</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="year">Year</AdminFormFieldLabel>
                   <Input
                     id="year"
                     type="number"
@@ -292,12 +273,12 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="publicLabel"
                     hint={`${COHORT_PUBLIC_LABEL_MAX} max`}
                   >
                     Public label
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="publicLabel"
                     className="min-h-11"
@@ -312,9 +293,9 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="programmeDatesStart">
+                  <AdminFormFieldLabel htmlFor="programmeDatesStart">
                     Programme start
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="programmeDatesStart"
                     type="date"
@@ -329,9 +310,9 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="programmeDatesEnd">
+                  <AdminFormFieldLabel htmlFor="programmeDatesEnd">
                     Programme end
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="programmeDatesEnd"
                     type="date"
@@ -346,9 +327,9 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="programmeStatus">
+                  <AdminFormFieldLabel htmlFor="programmeStatus">
                     Programme status
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Controller
                     control={control}
                     name="programmeStatus"
@@ -386,7 +367,7 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="publishStatus">Publish status</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="publishStatus">Publish status</AdminFormFieldLabel>
                   <Controller
                     control={control}
                     name="publishStatus"
@@ -424,12 +405,12 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2 sm:col-span-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="summary"
                     hint={`${COHORT_SUMMARY_MAX} max`}
                   >
                     Summary
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="summary"
                     rows={5}
@@ -444,12 +425,12 @@ export function CohortEditorForm({
                 </div>
 
                 <div className="grid gap-2 sm:col-span-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="mediaUrl"
                     hint={`Optional · http(s) · max ${COHORT_MEDIA_URL_MAX}`}
                   >
                     Media URL
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <UrlInput
                     id="mediaUrl"
                     placeholder="example.com/media"
@@ -480,7 +461,7 @@ export function CohortEditorForm({
                   name="partnerIds"
                   render={({ field }) => (
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="cohort-partners">Partners</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="cohort-partners">Partners</AdminFormFieldLabel>
                       <EntityMultiSelect
                         id="cohort-partners"
                         value={field.value}
@@ -517,9 +498,9 @@ export function CohortEditorForm({
                   name="startupIds"
                   render={({ field }) => (
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="cohort-startups">
+                      <AdminFormFieldLabel htmlFor="cohort-startups">
                         Founders / startups
-                      </FieldLabel>
+                      </AdminFormFieldLabel>
                       <EntityMultiSelect
                         id="cohort-startups"
                         value={field.value}

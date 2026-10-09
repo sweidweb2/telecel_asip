@@ -6,7 +6,6 @@ import type { FieldValues, UseFormProps } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
-import type { z } from "zod";
 
 import {
   firstInvalidEditorStep,
@@ -48,7 +47,7 @@ export function useCmsEditorForm<
   steps,
 }: {
   mode: CmsEditorMode;
-  schema: z.ZodType<TTransformed, TFieldValues>;
+  schema: Parameters<typeof zodResolver>[0];
   defaultValues: UseFormProps<TFieldValues>["defaultValues"];
   recordId?: string;
   listPath: string;

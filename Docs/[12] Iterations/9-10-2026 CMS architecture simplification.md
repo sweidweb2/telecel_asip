@@ -151,37 +151,27 @@ Blogs, events, cohorts, startups, users, and public intake keep an explicit `exe
 
 ---
 
-## A5 · Medium · Editor forms repeat the stepper chrome
+## ✅ A5 · Medium · Editor forms repeat the stepper chrome
 
 | | |
 | --- | --- |
 | **Severity** | Medium |
 | **Simplify?** | Yes, for the chrome. Leave the fields. |
+| **Status** | ✅ Done |
 
-**Today**
+**Was**
 
-Shared pieces already exist: `AdminEditorActionsBar`, `UnsavedChangesGuard`, `AdminFormSection`, `AdminDeleteDialog`, `EntityMultiSelect`, `firstInvalidEditorStep`.
+Shared pieces already existed: `AdminEditorActionsBar`, `UnsavedChangesGuard`, `AdminFormSection`, `AdminDeleteDialog`, `EntityMultiSelect`, `firstInvalidEditorStep`.
 
-Each form still rebuilds steps, submit, pending state, toasts, redirect, delete, and dev-only dummy fill.
+Each form still rebuilt steps, submit, pending state, toasts, redirect, delete, and dev-only dummy fill. The first stretch of the event and cohort forms was the same stepper setup. Most of the blog and startup length is real fields (body HTML, sources, startup detail blocks).
 
-| Form | Lines |
-| --- | --- |
-| `blog-editor-form.tsx` | ~1,270 |
-| `startup-editor-form.tsx` | ~1,210 |
-| `partner-editor-form.tsx` | ~760 |
-| `founder-story-editor-form.tsx` | ~750 |
-| `impact-metric-editor-form.tsx` | ~690 |
-| `cohort-editor-form.tsx` | ~650 |
-| `evidence-editor-form.tsx` | ~650 |
-| `event-editor-form.tsx` | ~620 |
+**Now**
 
-Most of the blog and startup length is real fields (body HTML, sources, startup detail blocks). The first ~80 lines of event and cohort forms are the same imports and the same stepper setup.
+`useCmsEditorForm` owns the Zod form, the pending state, the current step, and create / update / delete: toast, open the new record, or return to the list. `CmsEditorFrame` owns the unsaved-changes guard, the dev-tools row, the stepper nav, the action bar, and the delete dialog.
 
-**Simpler shape**
+Evidence, founder stories, impact metrics, cohorts, and events use that submit path. Partner, startup, and blog keep their own save body for logo and cover uploads, and they run it through the same pending helper. Startup still blocks skipping ahead. Blog stays a single page, with the “what next” dialog after create.
 
-`CmsEditorFrame` plus a small hook: mode, schema, create action, update action, delete action, list path, steps. The form file only renders fields per step.
-
-Generating inputs from Zod would fight the blog body, the startup blocks, and the partner permission toggles. Those stay handwritten.
+Each form still writes its own fields. Inputs are not generated from Zod.
 
 ---
 
@@ -211,28 +201,27 @@ Staff list and dialog code does not need the Turnstile copy, and the public form
 
 ---
 
-## A7 · Medium · Perf tracing wraps the inside of the CMS, not only the edge
+## ✅ A7 · Medium · Perf tracing wraps the inside of the CMS, not only the edge
 
 | | |
 | --- | --- |
 | **Severity** | Medium |
 | **Simplify?** | Yes |
+| **Status** | ✅ Done |
 
-**Today**
+**Was**
 
-`traceAsync` is on the admin layout, the editor layout, `loadAdminListPage`, `runAdminMutation`, `gatePageDataByRole`, and again on individual loaders (`getEventsPageData`, detail reads, and similar). With tracking on, each span inserts a row through `persistAdminPerfEvent` (fire-and-forget, never awaited).
+`traceAsync` sat on the admin layout, the editor layout, `loadAdminListPage`, `runAdminMutation`, `gatePageDataByRole`, `authorizeRole`, and again on cached detail reads. With tracking on, each span inserted a row through `persistAdminPerfEvent`. One list navigation recorded the layout, the page load, and the data function for the same wait.
 
-One list navigation can record the layout, the page load, and the data function for the same wait. The names are useful. The nesting makes every data function carry an observability argument (`name`, `eventType`, `cacheStatus`) that is not part of loading events or blogs.
+**Now**
 
-**Simpler shape**
+Three boundaries record a span:
 
-Trace three boundaries only:
+1. Layout — `getStaffShell` in the editor and admin layouts
+2. Page load — `loadAdminListPage`, `CmsEditorPage`, and the dashboard and analytics pages
+3. Mutation — `runAdminMutation`
 
-1. Layout (`getStaffShell`)
-2. Page load (`loadAdminListPage` or the detail page)
-3. Mutation (`runAdminMutation`)
-
-Inner fetches stay plain async functions. The performance screen still shows which page and which action was slow. It stops showing the same work three times.
+Image uploads stay one span, because they are their own Server Action. Role checks, list queries, detail reads, and option pickers are plain async functions. The performance screen still shows which page and which action was slow, once each. Perf-event reads stay untraced.
 
 ---
 
@@ -307,7 +296,8 @@ Do it in this order. Each step stands on its own.
 2. ✅ **A2** — `CmsEditorPage` owns the breadcrumb and the gate. Routes keep their loader, form, and document title.
 3. ✅ **A4** — `writeAdminRow` for founder stories, evidence, impact metrics, and partner flag updates.
 4. ✅ **A3** — `CmsListPage` owns parse, clamp, and the list shell. Routes keep filters, stats, and the table.
-5. **A5** — editor frame the next time a form is opened for a real change. Blog and startup fields move last, if at all.
-6. **A6** and **A7** — separate passes. They do not unblock the others.
+5. ✅ **A5** — `CmsEditorFrame` owns the stepper, save, and delete chrome. Each form still renders its own fields.
+6. **A6** — public submit and staff inbox edits in separate modules.
+7. ✅ **A7** — perf spans on the layout, the page load, and the mutation. Inner reads stay plain.
 
 A8 and A9 can ride along with any edit in those files. They are not their own project.

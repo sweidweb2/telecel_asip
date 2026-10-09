@@ -28,6 +28,7 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { getAdminAnalytics } from "@/data/admin-analytics";
 import { requireEditor } from "@/data/auth";
+import { traceAsync } from "@/lib/admin/perf";
 
 export const metadata: Metadata = {
   title: "Dashboard | ASIP Editor",
@@ -74,7 +75,11 @@ const LAUNCHER_GROUPS: readonly DashboardNavGroup[] =
 
 export default async function DashboardPage() {
   await requireEditor();
-  const analyticsResult = await getAdminAnalytics();
+  const analyticsResult = await traceAsync(
+    "dashboardPage",
+    { eventType: "page", route: ROUTES.dashboard },
+    () => getAdminAnalytics(),
+  );
   const analytics =
     analyticsResult.status === "ok" ? analyticsResult.analytics : null;
 

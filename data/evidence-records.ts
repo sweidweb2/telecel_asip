@@ -7,7 +7,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceDetail,
@@ -128,8 +127,7 @@ export async function getEvidenceRecordsPageData(
         fetchEvidenceListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getEvidenceRecordsPageData" },
+    }
   );
 }
 
@@ -138,10 +136,7 @@ type EvidenceDetailResult =
   | { status: "not_found" }
   | { status: "ok"; record: EvidenceDetail };
 
-export const getEvidenceRecordByIdForAdmin = wrapCached(
-  "getEvidenceRecordByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getEvidenceRecordByIdForAdmin = cache(
     async (id: string): Promise<EvidenceDetailResult> => {
       if (!evidenceRecordIdSchema.safeParse(id).success) {
         return { status: "not_found" };
@@ -168,16 +163,14 @@ export const getEvidenceRecordByIdForAdmin = wrapCached(
               ),
             },
           };
-        },
-        { name: "getEvidenceRecordByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.record) return { status: "not_found" };
       return { status: "ok", record: gated.record };
     },
-  ),
-);
+  );
 
 /**
  * Profiles available as evidence owners in the admin form.
@@ -223,7 +216,6 @@ export async function getEvidenceOwnerOptions(
       }
 
       return { owners };
-    },
-    { name: "getEvidenceOwnerOptions", eventType: "option_load" },
+    }
   );
 }

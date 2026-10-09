@@ -9,7 +9,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -144,8 +143,7 @@ export async function getFounderStoriesPageData(
         fetchFounderStoryListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getFounderStoriesPageData" },
+    }
   );
 }
 
@@ -154,10 +152,7 @@ type FounderStoryDetailResult =
   | { status: "not_found" }
   | { status: "ok"; story: FounderStoryDetail };
 
-export const getFounderStoryByIdForAdmin = wrapCached(
-  "getFounderStoryByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getFounderStoryByIdForAdmin = cache(
     async (id: string): Promise<FounderStoryDetailResult> => {
       if (!founderStoryIdSchema.safeParse(id).success) {
         return { status: "not_found" };
@@ -177,16 +172,14 @@ export const getFounderStoryByIdForAdmin = wrapCached(
           return {
             story: toDetail(data as unknown as StoryRowWithStartup),
           };
-        },
-        { name: "getFounderStoryByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.story) return { status: "not_found" };
       return { status: "ok", story: gated.story };
     },
-  ),
-);
+  );
 
 /**
  * Startups available for a new story picker. Excludes startups that already
@@ -260,8 +253,7 @@ export async function getStartupsForStoryPicker(options?: {
       });
 
       return { startups };
-    },
-    { name: "getStartupsForStoryPicker", eventType: "option_load" },
+    }
   );
 }
 

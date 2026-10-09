@@ -7,7 +7,6 @@ import {
   type DashboardNavCounts,
 } from "@/constants/dashboard-nav-counts";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached } from "@/lib/admin/perf";
 import { createAccessTokenClient } from "@/lib/supabase/editor-access-client";
 import { createClient } from "@/lib/supabase/server";
 
@@ -69,10 +68,7 @@ function readCachedDashboardNavCounts(
  * Request-memoized, then cached across requests on `dashboard-nav-counts`.
  * Failed/unauthorized reads return `{}` so chrome still renders.
  */
-export const getDashboardNavCounts = wrapCached(
-  "getDashboardNavCounts",
-  { eventType: "layout" },
-  cache(async (): Promise<DashboardNavCounts> => {
+export const getDashboardNavCounts = cache(async (): Promise<DashboardNavCounts> => {
     if (!(await isCurrentUserEditor())) return {};
 
     const supabase = await createClient();
@@ -88,5 +84,4 @@ export const getDashboardNavCounts = wrapCached(
       if (error instanceof NavCountSoftError) return {};
       throw error;
     }
-  }),
-);
+  });

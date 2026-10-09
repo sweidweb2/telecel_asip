@@ -78,8 +78,7 @@ export async function getInterestRegistrationsPageData(
         fetchInboxTableStats(supabase, "interest_registrations"),
       ]);
       return { list, stats };
-    },
-    { name: "getInterestRegistrationsPageData" },
+    }
   );
 }
 
@@ -104,8 +103,7 @@ export async function getInterestRegistrationById(
 
       if (error) throw error;
       return { record: (data as InterestRegistration | null) ?? null };
-    },
-    { name: "getInterestRegistrationById" },
+    }
   );
 
   if (gated.status === "forbidden") return gated;

@@ -5,7 +5,10 @@ import { format, parseISO } from "date-fns";
 import { TimerIcon } from "lucide-react";
 
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { AdminPerfEventsFilters } from "@/components/dashboard/admin-perf-events-filters";
 import {
@@ -60,7 +63,7 @@ export function AdminPerfEventsTable({
       <AdminDataTable
         filters={<AdminPerfEventsFilters query={query} />}
         header={
-          <TableRow>
+          <TableRow className={CMS_HEAD_ROW_CLASS}>
             <AdminRowNumberHead />
             <TableHead>Time</TableHead>
             <TableHead>Name</TableHead>

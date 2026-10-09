@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 type PerfRequestStore = {
   requestId: string;
   route: string | null;
-  /** Per-op invoke counts used by wrapCached for hit/miss detection. */
+  /** Per-op invoke counts. Inner loaders no longer record hit/miss spans. */
   invokeCounts: Map<string, number>;
 };
 

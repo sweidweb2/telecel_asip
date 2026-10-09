@@ -13,6 +13,7 @@ import {
   updateApplicationInboxStatus,
 } from "@/actions/applications";
 import {
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,

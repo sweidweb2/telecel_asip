@@ -17,11 +17,6 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: (...args: unknown[]) => createClient(...args),
 }));
 
-vi.mock("@/lib/admin/perf", () => ({
-  traceAsync: async <T>(_name: string, _attrs: unknown, fn: () => Promise<T>) =>
-    fn(),
-}));
-
 describe("adminListRange", () => {
   it("returns inclusive bounds for page 1", () => {
     expect(adminListRange(1, 20)).toEqual({ from: 0, to: 19 });

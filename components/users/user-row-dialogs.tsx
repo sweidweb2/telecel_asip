@@ -8,7 +8,13 @@ import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteUser, hardDeleteUser, updateUser } from "@/actions/users";
-import { ADMIN_INBOX_EDIT_HEADER_CLASS } from "@/components/dashboard/admin-detail-row";
+import {
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailGrid,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import {
@@ -146,44 +152,31 @@ export function UserViewDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="truncate pr-8">
+      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+        <DialogHeader className="min-w-0 gap-3">
+          <DialogTitle className="min-w-0 pr-8 wrap-break-word [overflow-wrap:anywhere]">
             {user?.full_name || "Unnamed user"}
           </DialogTitle>
           <DialogDescription>User profile details</DialogDescription>
         </DialogHeader>
         {user ? (
-          <dl className="grid gap-3 rounded-lg bg-brand-soft px-3 py-3 text-sm sm:px-4">
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Email</dt>
-              <dd className="break-all font-medium">{user.email}</dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">Role</dt>
-              <dd>
-                <Badge variant="outline">{user.role}</Badge>
-              </dd>
-            </div>
-            <div className="grid gap-1">
-              <dt className="text-muted-foreground">User ID</dt>
-              <dd className="break-all font-mono text-xs">{user.id}</dd>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Created</dt>
-                <dd className="font-medium">
-                  {formatAdminDate(user.created_at)}
-                </dd>
-              </div>
-              <div className="grid gap-1">
-                <dt className="text-muted-foreground">Updated</dt>
-                <dd className="font-medium">
-                  {formatAdminDate(user.updated_at)}
-                </dd>
-              </div>
-            </div>
-          </dl>
+          <AdminDetailSection>
+            <AdminDetailRow label="Email">{user.email}</AdminDetailRow>
+            <AdminDetailRow label="Role">
+              <Badge variant="outline">{user.role}</Badge>
+            </AdminDetailRow>
+            <AdminDetailRow label="User ID">
+              <span className="font-mono text-xs">{user.id}</span>
+            </AdminDetailRow>
+            <AdminDetailGrid>
+              <AdminDetailRow label="Created">
+                {formatAdminDate(user.created_at)}
+              </AdminDetailRow>
+              <AdminDetailRow label="Updated">
+                {formatAdminDate(user.updated_at)}
+              </AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
         ) : null}
         <DialogFooter showCloseButton />
       </DialogContent>

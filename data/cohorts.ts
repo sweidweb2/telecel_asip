@@ -8,7 +8,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -107,15 +106,11 @@ export async function getCohortsPageData(
         fetchCohortListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getCohortsPageData" },
+    }
   );
 }
 
-export const getCohortByIdForAdmin = wrapCached(
-  "getCohortByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getCohortByIdForAdmin = cache(
     async (
       id: string,
     ): Promise<
@@ -162,16 +157,14 @@ export const getCohortByIdForAdmin = wrapCached(
               ),
             },
           };
-        },
-        { name: "getCohortByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.cohort) return { status: "not_found" };
       return { status: "ok", cohort: gated.cohort };
     },
-  ),
-);
+  );
 
 /** Narrow id/name lists for the cohort editor multi-selects. */
 export async function getCohortLinkOptionsForAdmin(
@@ -217,8 +210,7 @@ export async function getCohortLinkOptionsForAdmin(
         partners: (partnersResult.data ?? []) as CohortLinkOption[],
         startups: (startupsResult.data ?? []) as CohortLinkOption[],
       };
-    },
-    { name: "getCohortLinkOptionsForAdmin", eventType: "option_load" },
+    }
   );
 }
 
@@ -283,8 +275,7 @@ export async function getCohortsForBlogPicker(
       }
 
       return { cohorts };
-    },
-    { name: "getCohortsForBlogPicker", eventType: "option_load" },
+    }
   );
 }
 

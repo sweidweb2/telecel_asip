@@ -147,7 +147,6 @@ export async function getUsersPageData(query: UserListQuery): Promise<
         fetchUserStats(supabase, visibility),
       ]);
       return { list, stats };
-    },
-    { name: "getUsersPageData" },
+    }
   );
 }

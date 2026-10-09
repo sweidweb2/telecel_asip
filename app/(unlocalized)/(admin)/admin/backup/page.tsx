@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { BackupCreateForm } from "@/components/dashboard/backup-create-form";
 import { BackupHistoryTable } from "@/components/dashboard/backup-history-table";
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
 import { AdminBackupSettingsForm } from "@/components/settings/admin-backup-settings-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
@@ -58,9 +59,7 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
         <BackupCreateForm />
 
         <section className="grid gap-3">
-          <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            Schedule
-          </h2>
+          <AdminSectionHeading>Schedule</AdminSectionHeading>
           <AdminBackupSettingsForm
             openApplications={settings.openApplications}
             newsletterSignupEnabled={settings.newsletterSignupEnabled}
@@ -76,10 +75,8 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
         />
 
         <section className="grid gap-3 opacity-90">
-          <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            Recovery
-          </h2>
-          <Card className="border-dashed bg-muted/20">
+          <AdminSectionHeading>Recovery</AdminSectionHeading>
+          <Card className="border-dashed">
             <CardContent className="grid gap-4 pt-6 text-sm text-muted-foreground">
               <p>
                 In-app and scheduled R2 backups are operational copies for export -

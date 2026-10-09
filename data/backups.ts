@@ -88,7 +88,6 @@ export async function getBackupsPageData(
         total,
         totalPages: adminListTotalPages(total, query.pageSize),
       };
-    },
-    { name: "getBackupsPageData" },
+    }
   );
 }

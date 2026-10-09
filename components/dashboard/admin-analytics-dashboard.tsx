@@ -27,7 +27,7 @@ function PipelineCard({
   stats: InboxPipelineStats;
 }) {
   return (
-    <Card>
+    <Card size="sm">
       <CardHeader className="border-b bg-brand-soft">
         <CardTitle>
           <Link href={href} className="hover:underline">

@@ -11,15 +11,8 @@ import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
@@ -76,58 +69,48 @@ export function SiteSettingsForm({
       onSubmit={handleSubmit(onSubmit)}
       className={`flex flex-col gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
     >
-      <Card>
-        <CardHeader className="border-b bg-brand-soft">
-          <CardTitle>Applications open</CardTitle>
-          <CardAction>
-            <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <p className="max-w-prose text-sm text-muted-foreground">
-              When on, the public navbar promotes Apply, Apply accepts
-              submissions, and Register Interest redirects to Apply. When off,
-              Register Interest is the live intake, Apply redirects there, and
-              the open banner is hidden.
-            </p>
-            <div className="flex min-h-11 items-center gap-3">
-              <Switch
-                id="open-applications"
-                checked={isOpen}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  setValue("openApplications", checked, { shouldDirty: true })
-                }
-              />
-              <Label htmlFor="open-applications" className="text-sm font-medium">
-                {isOpen ? "Open" : "Closed"}
-              </Label>
-            </div>
+      <AdminFormSection
+        title="Applications open"
+        help={SITE_SETTINGS_HELP.applications}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <p className="max-w-prose text-sm text-muted-foreground">
+            When on, the public navbar promotes Apply, Apply accepts
+            submissions, and Register Interest redirects to Apply. When off,
+            Register Interest is the live intake, Apply redirects there, and
+            the open banner is hidden.
+          </p>
+          <div className="flex min-h-11 items-center gap-3">
+            <Switch
+              id="open-applications"
+              checked={isOpen}
+              disabled={isPending}
+              onCheckedChange={(checked) =>
+                setValue("openApplications", checked, { shouldDirty: true })
+              }
+            />
+            <Label htmlFor="open-applications" className="text-sm font-medium">
+              {isOpen ? "Open" : "Closed"}
+            </Label>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AdminFormSection>
 
-      <Card>
-        <CardHeader className="border-b bg-brand-soft">
-          <CardTitle>Newsletter signup</CardTitle>
-          <CardAction>
-            <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">
-              Phase 1 — informational only
-            </p>
-            <p className="mt-1 max-w-prose">
-              The Insights newsletter module is hidden for phase 1. Public
-              signup is off and there is no toggle yet. Subscribers collected
-              earlier are listed under Newsletter.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <AdminFormSection
+        title="Newsletter signup"
+        help={SITE_SETTINGS_HELP.newsletter}
+      >
+        <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">
+            Phase 1 — informational only
+          </p>
+          <p className="mt-1 max-w-prose">
+            The Insights newsletter module is hidden for phase 1. Public
+            signup is off and there is no toggle yet. Subscribers collected
+            earlier are listed under Newsletter.
+          </p>
+        </div>
+      </AdminFormSection>
 
       <p className="text-sm text-muted-foreground">
         Automated backup schedule is managed by administrators on the Backup

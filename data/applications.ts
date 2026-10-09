@@ -74,8 +74,7 @@ export async function getApplicationsPageData(
         fetchInboxTableStats(supabase, "applications"),
       ]);
       return { list, stats };
-    },
-    { name: "getApplicationsPageData" },
+    }
   );
 }
 
@@ -100,8 +99,7 @@ export async function getApplicationById(
 
       if (error) throw error;
       return { record: (data as Application | null) ?? null };
-    },
-    { name: "getApplicationById" },
+    }
   );
 
   if (gated.status === "forbidden") return gated;

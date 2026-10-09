@@ -57,7 +57,6 @@ export async function getNewsletterSubscribersPageData(
     async (supabase) => {
       const list = await fetchNewsletterSubscribers(supabase, query);
       return { list };
-    },
-    { name: "getNewsletterSubscribersPageData" },
+    }
   );
 }

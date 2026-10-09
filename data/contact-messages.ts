@@ -78,8 +78,7 @@ export async function getContactMessagesPageData(
         fetchInboxTableStats(supabase, "contact_messages"),
       ]);
       return { list, stats };
-    },
-    { name: "getContactMessagesPageData" },
+    }
   );
 }
 
@@ -104,8 +103,7 @@ export async function getContactMessageById(
 
       if (error) throw error;
       return { record: (data as ContactMessage | null) ?? null };
-    },
-    { name: "getContactMessageById" },
+    }
   );
 
   if (gated.status === "forbidden") return gated;

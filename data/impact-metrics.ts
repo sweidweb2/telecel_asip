@@ -8,7 +8,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -126,8 +125,7 @@ export async function getImpactMetricsPageData(
         fetchImpactMetricListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getImpactMetricsPageData" },
+    }
   );
 }
 
@@ -144,10 +142,7 @@ type ImpactMetricDetailResult =
  * Deduped per request: `generateMetadata` and the page body both need the same
  * metric.
  */
-export const getImpactMetricByIdForAdmin = wrapCached(
-  "getImpactMetricByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getImpactMetricByIdForAdmin = cache(
     async (id: string): Promise<ImpactMetricDetailResult> => {
       if (!impactMetricIdSchema.safeParse(id).success) {
         return { status: "not_found" };
@@ -173,8 +168,7 @@ export const getImpactMetricByIdForAdmin = wrapCached(
             metric: metric as ImpactMetric,
             evidencePrimarySource: evidenceJoin?.primary_source ?? null,
           };
-        },
-        { name: "getImpactMetricByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
@@ -185,8 +179,7 @@ export const getImpactMetricByIdForAdmin = wrapCached(
         evidencePrimarySource: gated.evidencePrimarySource,
       };
     },
-  ),
-);
+  );
 
 /**
  * Evidence options for the metric form Select. Admin-gated; does not own
@@ -232,8 +225,7 @@ export async function listEvidenceOptionsForAdmin(
       }
 
       return { options };
-    },
-    { name: "listEvidenceOptionsForAdmin", eventType: "option_load" },
+    }
   );
 }
 

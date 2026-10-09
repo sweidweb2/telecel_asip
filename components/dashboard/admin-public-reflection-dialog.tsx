@@ -2,6 +2,11 @@
 
 import { CircleAlertIcon, MapPinnedIcon } from "lucide-react";
 
+import {
+  ADMIN_INBOX_VIEW_DIALOG_CLASS,
+  AdminDetailRow,
+  AdminDetailSection,
+} from "@/components/dashboard/admin-detail-row";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,57 +58,37 @@ export function AdminPublicReflectionDialog({
         Public pages
         {hasUnreflected ? (
           <CircleAlertIcon
-            className="size-4 text-amber-600 dark:text-amber-400"
+            className="size-4 text-[var(--portal-accent)]"
             aria-hidden
           />
         ) : null}
       </DialogTrigger>
-      <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-xl">
-        <DialogHeader>
+      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
+        <DialogHeader className="min-w-0 gap-3">
           <DialogTitle>{guide.title}</DialogTitle>
           <DialogDescription>{guide.intro}</DialogDescription>
         </DialogHeader>
 
-        <ul className="grid gap-4">
+        <ul className="grid gap-3">
           {guide.surfaces.map((surface) => (
-            <li
-              key={`${surface.page}-${surface.path}`}
-              className="rounded-lg border bg-muted/20 p-3"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground">
-                    {surface.page}
-                  </p>
+            <li key={`${surface.page}-${surface.path}`}>
+              <AdminDetailSection title={surface.page}>
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className="text-xs text-muted-foreground">{surface.path}</p>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-md px-2 py-0.5 text-xs font-medium",
+                      surface.reflected
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-transparent bg-[var(--portal-accent)] text-white",
+                    )}
+                  >
+                    {surface.reflected ? "Reflected" : "Not reflected"}
+                  </span>
                 </div>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-md px-2 py-0.5 text-xs font-medium",
-                    surface.reflected
-                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                      : "bg-amber-500/15 text-amber-800 dark:text-amber-400",
-                  )}
-                >
-                  {surface.reflected ? "Reflected" : "Not reflected"}
-                </span>
-              </div>
-              <dl className="mt-3 grid gap-2">
-                <div className="grid gap-0.5">
-                  <dt className="text-xs font-medium text-foreground">
-                    What shows
-                  </dt>
-                  <dd className="text-sm text-muted-foreground">
-                    {surface.shows}
-                  </dd>
-                </div>
-                <div className="grid gap-0.5">
-                  <dt className="text-xs font-medium text-foreground">Rule</dt>
-                  <dd className="text-sm text-muted-foreground">
-                    {surface.rule}
-                  </dd>
-                </div>
-              </dl>
+                <AdminDetailRow label="What shows">{surface.shows}</AdminDetailRow>
+                <AdminDetailRow label="Rule">{surface.rule}</AdminDetailRow>
+              </AdminDetailSection>
             </li>
           ))}
         </ul>

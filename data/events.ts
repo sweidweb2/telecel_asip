@@ -7,7 +7,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
@@ -95,8 +94,7 @@ export async function getEventsPageData(
         fetchEventListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getEventsPageData" },
+    }
   );
 }
 
@@ -105,10 +103,7 @@ type EventDetailResult =
   | { status: "not_found" }
   | { status: "ok"; event: EventDetail };
 
-export const getEventByIdForAdmin = wrapCached(
-  "getEventByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getEventByIdForAdmin = cache(
     async (id: string): Promise<EventDetailResult> => {
       if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
 
@@ -155,16 +150,14 @@ export const getEventByIdForAdmin = wrapCached(
               linked_startups,
             },
           };
-        },
-        { name: "getEventByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.event) return { status: "not_found" };
       return { status: "ok", event: gated.event };
     },
-  ),
-);
+  );
 
 /**
  * Admin picker options for linking startups to an event. Not cached across
@@ -211,7 +204,6 @@ export async function getEventStartupOptions(
       }
 
       return { options };
-    },
-    { name: "getEventStartupOptions", eventType: "option_load" },
+    }
   );
 }

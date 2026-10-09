@@ -17,11 +17,6 @@ vi.mock("next/cache", () => ({
       fn(),
 }));
 
-vi.mock("@/lib/admin/perf", () => ({
-  wrapCached: (_name: string, _opts: unknown, fn: (...args: never[]) => unknown) =>
-    fn,
-}));
-
 vi.mock("@/lib/admin/is-current-user-editor", () => ({
   isCurrentUserEditor: () => isCurrentUserEditor(),
 }));

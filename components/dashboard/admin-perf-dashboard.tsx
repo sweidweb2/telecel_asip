@@ -1,8 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { GaugeIcon, LayersIcon, TimerIcon } from "lucide-react";
 
 import { AdminPerfEventsTable } from "@/components/dashboard/admin-perf-events-table";
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
+import { AdminStatsCards } from "@/components/dashboard/admin-stats-cards";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   AdminPerfAnalytics,
@@ -19,7 +22,7 @@ const AdminPerfCharts = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="grid min-h-72 gap-3 rounded-xl border bg-muted/40 lg:grid-cols-2"
+        className="grid min-h-72 gap-3 rounded-xl border bg-brand-soft lg:grid-cols-2"
         aria-hidden
       />
     ),
@@ -47,9 +50,9 @@ export function AdminPerfDashboard({
 }: Props) {
   if (!trackingEnabled) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Tracking is off</CardTitle>
+      <Card size="sm">
+        <CardHeader className="border-b bg-brand-soft">
+          <CardTitle>Tracking is off</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           Set <code className="rounded bg-muted px-1">ADMIN_PERF_TRACKING=true</code>{" "}
@@ -62,24 +65,33 @@ export function AdminPerfDashboard({
 
   return (
     <div className="grid gap-8">
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Events (window)" value={String(analytics.total)} />
-        <StatCard
-          label="Cache hit ratio"
-          value={`${Math.round(analytics.hitRatio * 100)}%`}
-        />
-        <StatCard
-          label="Event types"
-          value={String(analytics.byEventType.length)}
-        />
-      </section>
+      <AdminStatsCards
+        items={[
+          {
+            key: "events",
+            label: "Events (window)",
+            value: analytics.total,
+            icon: TimerIcon,
+          },
+          {
+            key: "hit",
+            label: "Cache hit ratio",
+            value: `${Math.round(analytics.hitRatio * 100)}%`,
+            icon: GaugeIcon,
+          },
+          {
+            key: "types",
+            label: "Event types",
+            value: analytics.byEventType.length,
+            icon: LayersIcon,
+          },
+        ]}
+      />
 
       <AdminPerfCharts analytics={analytics} />
 
       <section className="grid min-w-0 gap-3">
-        <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Recent events
-        </h2>
+        <AdminSectionHeading>Recent events</AdminSectionHeading>
         <AdminPerfEventsTable
           events={events}
           total={total}
@@ -92,19 +104,3 @@ export function AdminPerfDashboard({
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-1">
-        <CardTitle className="text-xs font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-semibold tabular-nums tracking-tight">
-          {value}
-        </p>
-      </CardContent>
-    </Card>
-  );
-}

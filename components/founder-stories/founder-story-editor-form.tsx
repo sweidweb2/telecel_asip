@@ -16,19 +16,12 @@ import {
   CmsEditorSaveActions,
 } from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { FounderAttributionTitleInput } from "@/components/founder-stories/founder-attribution-title-input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -103,25 +96,6 @@ type FounderStoryEditorFormProps = {
   startups?: StartupStoryOption[];
   heading: string;
 };
-
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="text-xs text-muted-foreground">{hint}</span>
-      ) : null}
-    </div>
-  );
-}
 
 function defaultsFor(story?: FounderStoryDetail): FounderStoryFormValues {
   return {
@@ -294,19 +268,14 @@ export function FounderStoryEditorForm({
       }}
     >
             <StepperContent value="startup" className="space-y-6">
-              <Card size="sm">
-                <CardHeader className="border-b bg-brand-soft">
-                  <CardTitle>Startup & status</CardTitle>
-                  <CardAction>
-                    <AdminFormSectionHelp
-                      help={FOUNDER_STORY_EDITOR_HELP.startupStatus}
-                    />
-                  </CardAction>
-                </CardHeader>
-                <CardContent className="grid gap-5">
-                  <div className="grid gap-5 md:grid-cols-2 md:items-start">
+              <AdminFormSection
+                title="Startup & status"
+                help={FOUNDER_STORY_EDITOR_HELP.startupStatus}
+                contentClassName="grid gap-4"
+              >
+                  <div className="grid gap-4 md:grid-cols-2 md:items-start">
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="startupId">Startup</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="startupId">Startup</AdminFormFieldLabel>
                       <Controller
                         control={control}
                         name="startupId"
@@ -357,9 +326,9 @@ export function FounderStoryEditorForm({
                     </div>
 
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="publishStatus">
+                      <AdminFormFieldLabel htmlFor="publishStatus">
                         Publish status
-                      </FieldLabel>
+                      </AdminFormFieldLabel>
                       <Controller
                         control={control}
                         name="publishStatus"
@@ -396,43 +365,37 @@ export function FounderStoryEditorForm({
                       ) : null}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+              </AdminFormSection>
             </StepperContent>
 
             <StepperContent value="story" className="space-y-6">
-              <Card size="sm">
-                <CardHeader className="border-b bg-brand-soft">
-                  <CardTitle>Story modules</CardTitle>
-                  <CardAction>
-                    <AdminFormSectionHelp
-                      help={FOUNDER_STORY_EDITOR_HELP.storyModules}
-                    />
-                  </CardAction>
-                </CardHeader>
-                <CardContent className="grid gap-5">
-                  <div className="grid gap-5 md:grid-cols-2">
+              <AdminFormSection
+                title="Story modules"
+                help={FOUNDER_STORY_EDITOR_HELP.storyModules}
+                contentClassName="grid gap-4"
+              >
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div className="grid gap-2 md:col-span-2">
-                      <FieldLabel htmlFor="storyTitle">Impact story title</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="storyTitle">Impact story title</AdminFormFieldLabel>
                       <Input id="storyTitle" disabled={isPending} maxLength={200} placeholder="A result-led editorial headline" {...register("storyTitle")} />
                       <AdminFieldError message={errors.storyTitle?.message} />
                     </div>
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="coverImageUrl">Impact cover image URL</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="coverImageUrl">Impact cover image URL</AdminFormFieldLabel>
                       <Input id="coverImageUrl" disabled={isPending} maxLength={2048} placeholder="https://…" {...register("coverImageUrl")} />
                     </div>
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="headlineStat">Headline stat</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="headlineStat">Headline stat</AdminFormFieldLabel>
                       <Input id="headlineStat" disabled={isPending} maxLength={80} placeholder="e.g. 1,500 households served" {...register("headlineStat")} />
                     </div>
                   </div>
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="theProblem"
                       hint={`max ${FOUNDER_STORY_NARRATIVE_MAX}`}
                     >
                       The problem
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Textarea
                       id="theProblem"
                       className="min-h-28"
@@ -447,12 +410,12 @@ export function FounderStoryEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="whatTheyBuilt"
                       hint={`max ${FOUNDER_STORY_NARRATIVE_MAX}`}
                     >
                       What they built
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Textarea
                       id="whatTheyBuilt"
                       className="min-h-28"
@@ -467,12 +430,12 @@ export function FounderStoryEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="theAsipConnection"
                       hint={`max ${FOUNDER_STORY_NARRATIVE_MAX}`}
                     >
                       The ASIP connection
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Textarea
                       id="theAsipConnection"
                       className="min-h-28"
@@ -487,12 +450,12 @@ export function FounderStoryEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="whereTheyAreNow"
                       hint={`max ${FOUNDER_STORY_NARRATIVE_MAX}`}
                     >
                       Where they are now
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Textarea
                       id="whereTheyAreNow"
                       className="min-h-28"
@@ -505,28 +468,22 @@ export function FounderStoryEditorForm({
                       <AdminFieldError message={errors.whereTheyAreNow.message} />
                     ) : null}
                   </div>
-                </CardContent>
-              </Card>
+              </AdminFormSection>
             </StepperContent>
 
             <StepperContent value="quote" className="space-y-6">
-              <Card size="sm">
-                <CardHeader className="border-b bg-brand-soft">
-                  <CardTitle>Founder quote (optional)</CardTitle>
-                  <CardAction>
-                    <AdminFormSectionHelp
-                      help={FOUNDER_STORY_EDITOR_HELP.founderQuote}
-                    />
-                  </CardAction>
-                </CardHeader>
-                <CardContent className="grid gap-5">
+              <AdminFormSection
+                title="Founder quote (optional)"
+                help={FOUNDER_STORY_EDITOR_HELP.founderQuote}
+                contentClassName="grid gap-4"
+              >
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="founderQuoteText"
                       hint={`max ${FOUNDER_STORY_QUOTE_MAX}`}
                     >
                       Quote text
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Textarea
                       id="founderQuoteText"
                       className="min-h-24"
@@ -544,14 +501,14 @@ export function FounderStoryEditorForm({
                     </p>
                   </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
-                      <FieldLabel
+                      <AdminFormFieldLabel
                         htmlFor="quoteAttributionName"
                         hint={`max ${FOUNDER_STORY_ATTRIBUTION_NAME_MAX}`}
                       >
                         Attribution name{hasQuote ? " *" : ""}
-                      </FieldLabel>
+                      </AdminFormFieldLabel>
                       <Input
                         id="quoteAttributionName"
                         disabled={isPending}
@@ -567,12 +524,12 @@ export function FounderStoryEditorForm({
                     </div>
 
                     <div className="grid gap-2">
-                      <FieldLabel
+                      <AdminFormFieldLabel
                         htmlFor="quoteAttributionTitle"
                         hint={`max ${FOUNDER_STORY_ATTRIBUTION_TITLE_MAX}`}
                       >
                         Attribution title
-                      </FieldLabel>
+                      </AdminFormFieldLabel>
                       <Controller
                         control={control}
                         name="quoteAttributionTitle"
@@ -596,7 +553,7 @@ export function FounderStoryEditorForm({
                     </div>
 
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="quoteDate">Quote date</FieldLabel>
+                      <AdminFormFieldLabel htmlFor="quoteDate">Quote date</AdminFormFieldLabel>
                       <Input
                         id="quoteDate"
                         type="date"
@@ -611,9 +568,9 @@ export function FounderStoryEditorForm({
                     </div>
 
                     <div className="grid gap-2">
-                      <FieldLabel htmlFor="quotePermissionStatus">
+                      <AdminFormFieldLabel htmlFor="quotePermissionStatus">
                         Quote permission{hasQuote ? " *" : ""}
-                      </FieldLabel>
+                      </AdminFormFieldLabel>
                       <Controller
                         control={control}
                         name="quotePermissionStatus"
@@ -653,8 +610,7 @@ export function FounderStoryEditorForm({
                       ) : null}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+              </AdminFormSection>
             </StepperContent>
     </CmsEditorFrame>
   );

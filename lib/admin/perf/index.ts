@@ -6,10 +6,7 @@ export {
   isAdminPerfRouteExcluded,
 } from "@/lib/admin/perf/request-context";
 export { traceAsync } from "@/lib/admin/perf/trace";
-export {
-  wrapCached,
-  cacheStatusFromInvokeCount,
-} from "@/lib/admin/perf/wrap-cached";
+export { cacheStatusFromInvokeCount } from "@/lib/admin/perf/cache-status";
 export type {
   AdminPerfCacheStatus,
   AdminPerfEventAttrs,

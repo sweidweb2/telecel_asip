@@ -9,7 +9,6 @@ import {
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { adminOrderAscending } from "@/lib/admin/list-sort";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -121,8 +120,7 @@ export async function getBlogsPageData(
         fetchBlogListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getBlogsPageData" },
+    }
   );
 }
 
@@ -130,10 +128,7 @@ export async function getBlogsPageData(
  * Deduped per request: `generateMetadata` and the page body both need the same
  * blog.
  */
-export const getBlogByIdForAdmin = wrapCached(
-  "getBlogByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getBlogByIdForAdmin = cache(
   async (
     id: string,
   ): Promise<
@@ -153,16 +148,14 @@ export const getBlogByIdForAdmin = wrapCached(
 
         if (error) throw error;
         return { blog: (data as Blog | null) ?? null };
-      },
-      { name: "getBlogByIdForAdmin" },
+      }
     );
 
     if (gated.status === "forbidden") return gated;
     if (!gated.blog) return { status: "not_found" };
     return { status: "ok", blog: gated.blog };
   },
-  ),
-);
+  );
 
 async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();

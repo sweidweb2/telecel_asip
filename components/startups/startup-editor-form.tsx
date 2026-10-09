@@ -17,7 +17,8 @@ import {
 import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { StepperContent } from "@/components/ui/stepper";
 import {
@@ -28,14 +29,6 @@ import {
 } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
@@ -124,27 +117,6 @@ type StartupEditorFormProps = {
   startup?: StartupWithDetails;
   heading: string;
 };
-
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="max-w-full text-right text-xs text-muted-foreground text-pretty">
-          {hint}
-        </span>
-      ) : null}
-    </div>
-  );
-}
 
 function emptyDetails(): UpdateStartupInput["details"] {
   return {
@@ -505,26 +477,22 @@ export function StartupEditorForm({
       }}
     >
           <StepperContent value="core" className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b bg-brand-soft">
-                <CardTitle>Core</CardTitle>
-                <CardDescription>
-                  Name, slug, description, status, and founding date
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.core} />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="grid gap-4">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-8">
+            <AdminFormSection
+              className="min-w-0"
+              title="Core"
+              description="Name, slug, description, status, and founding date"
+              help={STARTUP_EDITOR_HELP.core}
+              contentClassName="grid gap-4"
+            >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="name"
                       hint={`Required · 2–${STARTUP_NAME_MAX} chars`}
                     >
                       Name
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Input
                       id="name"
                       className={FIELD}
@@ -541,12 +509,12 @@ export function StartupEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="slug"
                       hint={`Required · 2–${STARTUP_SLUG_MAX} · a-z 0-9 hyphens`}
                     >
                       Slug
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Input
                       id="slug"
                       className={FIELD}
@@ -564,12 +532,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="description"
                     hint={`Required · 2–${STARTUP_DESCRIPTION_MAX} chars`}
                   >
                     Description
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="description"
                     className={TEXTAREA}
@@ -585,12 +553,12 @@ export function StartupEditorForm({
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="status"
                       hint="draft · active · inactive"
                     >
                       Status
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Select
                       value={status}
                       onValueChange={(value) => {
@@ -618,9 +586,9 @@ export function StartupEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="foundedAt" hint="Optional · YYYY-MM-DD">
+                    <AdminFormFieldLabel htmlFor="foundedAt" hint="Optional · YYYY-MM-DD">
                       Founded at
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Controller
                       control={form.control}
                       name="foundedAt"
@@ -640,20 +608,15 @@ export function StartupEditorForm({
                     ) : null}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </AdminFormSection>
 
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b bg-brand-soft">
-                <CardTitle>Logo</CardTitle>
-                <CardDescription>
-                  JPEG / PNG / WebP / GIF · max 5 MB
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.logo} />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="grid gap-4">
+            <AdminFormSection
+              className="min-w-0"
+              title="Logo"
+              description="JPEG / PNG / WebP / GIF · max 5 MB"
+              help={STARTUP_EDITOR_HELP.logo}
+              contentClassName="grid gap-4"
+            >
                 <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border bg-muted">
                   {previewSrc ? (
                     pendingLogoPreview ? (
@@ -721,28 +684,23 @@ export function StartupEditorForm({
                   saved. Clear the selection before save to skip the upload.
                   Percent and cancel are not available while processing.
                 </p>
-              </CardContent>
-            </Card>
+            </AdminFormSection>
           </div>
           </StepperContent>
 
           <StepperContent value="profile" className="space-y-6">
-          <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b bg-brand-soft">
-              <CardTitle>Public profile</CardTitle>
-              <CardDescription>
-                Cohort, country, sector, founders, cover, and featured placement
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.publicProfile} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 pt-4 pb-6">
+          <AdminFormSection
+            className="min-w-0"
+            title="Public profile"
+            description="Cohort, country, sector, founders, cover, and featured placement"
+            help={STARTUP_EDITOR_HELP.publicProfile}
+            contentClassName="grid gap-4"
+          >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="cohort" hint="Optional · max 40">
+                  <AdminFormFieldLabel htmlFor="cohort" hint="Optional · max 40">
                     Cohort
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="cohort"
                     placeholder="Cohort 4"
@@ -753,7 +711,7 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="countryCode">Country code</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="countryCode">Country code</AdminFormFieldLabel>
                   <Input
                     id="countryCode"
                     placeholder="GH"
@@ -764,12 +722,12 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="sector"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Sector
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="sector"
                     placeholder="Health technology"
@@ -782,12 +740,12 @@ export function StartupEditorForm({
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="founderNames"
                     hint="Comma-separated · max 500"
                   >
                     Founder names
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="founderNames"
                     placeholder="First Founder, Second Founder"
@@ -798,12 +756,12 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="coverImageUrl"
                     hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
                   >
                     Cover image URL
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <UrlInput
                     id="coverImageUrl"
                     placeholder="example.com/cover.jpg"
@@ -815,12 +773,12 @@ export function StartupEditorForm({
                 </div>
               </div>
               <div className="grid gap-2">
-                <FieldLabel
+                <AdminFormFieldLabel
                   htmlFor="publicOutcome"
                   hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                 >
                   Approved public outcome
-                </FieldLabel>
+                </AdminFormFieldLabel>
                 <Textarea
                   id="publicOutcome"
                   className={TEXTAREA}
@@ -852,7 +810,7 @@ export function StartupEditorForm({
                   </Label>
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="imageFocalX">Image focus X (%)</AdminFormFieldLabel>
                   <Input
                     id="imageFocalX"
                     type="number"
@@ -865,7 +823,7 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="imageFocalY">Image focus Y (%)</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="imageFocalY">Image focus Y (%)</AdminFormFieldLabel>
                   <Input
                     id="imageFocalY"
                     type="number"
@@ -878,30 +836,25 @@ export function StartupEditorForm({
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
           </StepperContent>
 
           <StepperContent value="details" className="space-y-6">
-          <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b bg-brand-soft">
-              <CardTitle>Company details</CardTitle>
-              <CardDescription>
-                Website, narrative, and funding fields
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.detailsExtra} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 pt-4 pb-6">
+          <AdminFormSection
+            className="min-w-0"
+            title="Company details"
+            description="Website, narrative, and funding fields"
+            help={STARTUP_EDITOR_HELP.detailsExtra}
+            contentClassName="grid gap-4"
+          >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="websiteUrl"
                     hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
                   >
                     Website URL
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <UrlInput
                     id="websiteUrl"
                     placeholder="example.com"
@@ -916,12 +869,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="industry"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Industry
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="industry"
                     className={FIELD}
@@ -933,12 +886,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="category"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Category
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="category"
                     className={FIELD}
@@ -950,12 +903,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="location"
                     hint={`Optional · max ${STARTUP_LOCATION_MAX}`}
                   >
                     Location
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="location"
                     className={FIELD}
@@ -967,12 +920,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="foundingYear"
                     hint="Optional · 1900–2100"
                   >
                     Founding year
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="foundingYear"
                     type="number"
@@ -987,12 +940,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="size"
                     hint={`Optional · max ${STARTUP_SIZE_MAX}`}
                   >
                     Company size
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="size"
                     placeholder="e.g. 1-10"
@@ -1004,12 +957,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="team"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Team
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="team"
                     className={FIELD}
@@ -1023,12 +976,12 @@ export function StartupEditorForm({
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="problem"
                     hint={`Optional · max ${STARTUP_LONG_TEXT_MAX}`}
                   >
                     Problem
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="problem"
                     className={TEXTAREA}
@@ -1040,12 +993,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="solution"
                     hint={`Optional · max ${STARTUP_LONG_TEXT_MAX}`}
                   >
                     Solution
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="solution"
                     className={TEXTAREA}
@@ -1057,12 +1010,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="targetMarket"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Target market
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="targetMarket"
                     className={TEXTAREA}
@@ -1074,12 +1027,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="businessModel"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Business model
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="businessModel"
                     className={TEXTAREA}
@@ -1093,12 +1046,12 @@ export function StartupEditorForm({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="fundingGoal"
                     hint="Optional · number ≥ 0"
                   >
                     Funding goal
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="fundingGoal"
                     type="number"
@@ -1114,12 +1067,12 @@ export function StartupEditorForm({
                   ) : null}
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="amountRaised"
                     hint="Optional · ≥ 0 · ≤ funding goal"
                   >
                     Amount raised
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="amountRaised"
                     type="number"
@@ -1135,8 +1088,7 @@ export function StartupEditorForm({
                   ) : null}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
           </StepperContent>
     </CmsEditorFrame>
   );

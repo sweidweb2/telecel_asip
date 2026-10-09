@@ -8,7 +8,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -170,8 +169,7 @@ export async function getStartupsPageData(
         fetchStartupListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getStartupsPageData" },
+    }
   );
 }
 
@@ -179,10 +177,7 @@ export async function getStartupsPageData(
  * Deduped per request: `generateMetadata` and the page body both need the same
  * startup.
  */
-export const getStartupByIdForAdmin = wrapCached(
-  "getStartupByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getStartupByIdForAdmin = cache(
     async (
       id: string,
     ): Promise<
@@ -222,16 +217,14 @@ export const getStartupByIdForAdmin = wrapCached(
               details: details ?? null,
             } as StartupWithDetails,
           };
-        },
-        { name: "getStartupByIdForAdmin" },
+        }
       );
 
       if (gated.status === "forbidden") return gated;
       if (!gated.startup) return { status: "not_found" };
       return { status: "ok", startup: gated.startup };
     },
-  ),
-);
+  );
 
 const BLOG_PICKER_LIMIT = 100;
 
@@ -281,8 +274,7 @@ export async function getStartupsForBlogPicker(
       }
 
       return { startups };
-    },
-    { name: "getStartupsForBlogPicker", eventType: "option_load" },
+    }
   );
 }
 

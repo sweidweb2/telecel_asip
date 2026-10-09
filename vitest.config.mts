@@ -20,6 +20,7 @@ export default defineConfig({
           exclude: [
             ...sharedExclude,
             "hooks/use-editor-record.test.ts",
+            "hooks/use-cms-editor-form.test.ts",
             "lib/admin/staff-shortcuts.test.ts",
           ],
         },
@@ -33,6 +34,7 @@ export default defineConfig({
           include: [
             "**/*.test.tsx",
             "hooks/use-editor-record.test.ts",
+            "hooks/use-cms-editor-form.test.ts",
             "lib/admin/staff-shortcuts.test.ts",
           ],
           exclude: sharedExclude,
