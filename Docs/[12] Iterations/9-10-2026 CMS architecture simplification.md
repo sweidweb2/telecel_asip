@@ -225,39 +225,39 @@ Image uploads stay one span, because they are their own Server Action. Role chec
 
 ---
 
-## A8 · Low · Row actions are a short copy of edit + delete
+## ✅ A8 · Low · Row actions are a short copy of edit + delete
 
 | | |
 | --- | --- |
 | **Severity** | Low |
 | **Simplify?** | Yes, when those files are next touched |
+| **Status** | ✅ Done |
 
-**Today**
+**Was**
 
-`event-row-actions.tsx` and `cohort-row-actions.tsx` are the same component: ghost edit button, `AdminRowDelete`, label, href, delete action. The same file exists for blogs, partners, startups, founder stories, impact metrics, and evidence.
+`event-row-actions.tsx` and `cohort-row-actions.tsx` were the same component: ghost edit button, `AdminRowDelete`, label, href, delete action. The same file existed for blogs, partners, startups, founder stories, impact metrics, and evidence.
 
-**Simpler shape**
+**Now**
 
-One `AdminEditDeleteActions` with the edit href, the accessible name, the delete action, and the confirm copy. `AdminRowDelete` already holds the dialog.
+Catalogue tables use `AdminEditDeleteActions` with the edit href, the accessible name, the delete action, and the confirm copy. `AdminRowDelete` still holds the dialog. Inbox, registrations, and users keep their own row menus.
 
 ---
 
-## A9 · Low · List skeletons are wrappers around one skeleton
+## ✅ A9 · Low · List skeletons are wrappers around one skeleton
 
 | | |
 | --- | --- |
 | **Severity** | Low |
 | **Simplify?** | Optional |
+| **Status** | ✅ Done |
 
-**Today**
+**Was**
 
-`BlogsPageSkeleton` and `EventsPageSkeleton` return `AdminListPageSkeleton` with a title width, a filter count, and a column count. Same for the other list resources.
+`BlogsPageSkeleton` and `EventsPageSkeleton` returned `AdminListPageSkeleton` with a title width, a filter count, and a column count. Same for cohorts, portfolio, founder stories, impact metrics, and evidence. Title width was already ignored.
 
-**Simpler shape**
+**Now**
 
-Call `AdminListPageSkeleton` from each `loading.tsx` with those three props. A factory function would save less than it hides.
-
-Leave this until a list layout actually changes.
+Those `loading.tsx` files call `AdminListPageSkeleton` with the filter count and the column count. Partners, inbox, newsletter, and users keep their own skeletons, because those layouts are not the shared list shell.
 
 ---
 
@@ -300,4 +300,5 @@ Do it in this order. Each step stands on its own.
 6. **A6** — public submit and staff inbox edits in separate modules.
 7. ✅ **A7** — perf spans on the layout, the page load, and the mutation. Inner reads stay plain.
 
-A8 and A9 can ride along with any edit in those files. They are not their own project.
+8. ✅ **A8** — catalogue rows use `AdminEditDeleteActions`. Inbox, registrations, and users keep their own menus.
+9. ✅ **A9** — catalogue list `loading.tsx` files call `AdminListPageSkeleton` directly.

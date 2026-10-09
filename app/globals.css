@@ -169,28 +169,37 @@
 
 /*
  * Editor and admin portals. Marketing tokens stay on :root.
- * 60% — cream work area (--background on the inset; unchanged).
- * 30% — soft-green sidebar, ink text, teal scroll marks.
+ * Three planes, one green family — the warm cream reads dirty beside sage.
+ * 60% — cool work area (--background). White header and cards sit on it.
+ * 30% — sidebar is the deeper rail; table and section bands use a lighter --brand-soft.
  * 10% — coral on the current nav item and primary actions only.
  * Active fill is a hair darker than --asip-coral so white label text clears 4.5:1.
  */
 [data-staff-shell] {
-  --sidebar: var(--brand-soft);
+  --background: #f2f5f3;
+  --brand-soft: #e6f0ea;
+  --border: #d5dfd9;
+  --muted: #e7eeea;
+  --sidebar: #d5e4db;
   --sidebar-foreground: var(--asip-ink);
   --sidebar-primary: var(--portal-accent);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: color-mix(in srgb, var(--asip-ink) 8%, var(--brand-soft));
+  --sidebar-accent: color-mix(in srgb, var(--asip-ink) 7%, var(--sidebar));
   --sidebar-accent-foreground: var(--asip-ink);
-  --sidebar-border: color-mix(in srgb, var(--asip-ink) 16%, var(--brand-soft));
+  --sidebar-border: color-mix(in srgb, var(--asip-ink) 12%, var(--sidebar));
   --sidebar-ring: var(--portal-accent);
 }
 
 .dark [data-staff-shell] {
-  --sidebar: oklch(0.24 0.026 177.3);
+  --background: oklch(0.185 0.018 177.3);
+  --brand-soft: oklch(0.3 0.026 168);
+  --border: oklch(0.835 0.052 151.3 / 16%);
+  --muted: oklch(0.295 0.026 172);
+  --sidebar: oklch(0.22 0.024 175);
   --sidebar-foreground: oklch(0.947 0.019 131.6);
   --sidebar-primary: var(--portal-accent);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.3 0.028 175);
+  --sidebar-accent: oklch(0.28 0.026 172);
   --sidebar-accent-foreground: oklch(0.947 0.019 131.6);
   --sidebar-border: oklch(0.835 0.052 151.3 / 18%);
   --sidebar-ring: var(--portal-accent);

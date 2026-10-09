@@ -5,17 +5,18 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { HandshakeIcon, ImageOffIcon } from "lucide-react";
 
+import { deletePartner } from "@/actions/partners";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
 import {
   AdminDataTable,
   CMS_HEAD_ROW_CLASS,
 } from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
-import { PartnerRowActions } from "@/components/partners/partner-row-actions";
 import {
   PartnerActiveToggle,
   PartnerLogoPermissionToggle,
@@ -171,7 +172,21 @@ export function PartnersTable({
             className="pr-4 whitespace-nowrap"
             onClick={(event) => event.stopPropagation()}
           >
-            <PartnerRowActions partner={partner} />
+            <AdminEditDeleteActions
+              editHref={partnerDetailPath(partner.id)}
+              editLabel={`Edit ${partner.name}`}
+              deleteAction={() => deletePartner({ id: partner.id })}
+              fallbackError="The partner could not be deleted. Please try again."
+              title="Delete partner?"
+              description={
+                <>
+                  This permanently deletes {partner.name} and removes the
+                  stored logo from Storage. This cannot be undone.
+                </>
+              }
+              confirmLabel="Delete partner"
+              triggerLabel={`Delete ${partner.name}`}
+            />
           </TableCell>
         </AdminClickableRow>
       ))}

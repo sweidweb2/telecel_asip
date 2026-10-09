@@ -84,7 +84,7 @@ export function StaffHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-backdrop-filter:bg-background/80 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
+    <header className="sticky top-0 z-30 grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_minmax(7rem,18rem)_minmax(0,1fr)] items-center gap-2 border-b border-border bg-card px-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,22rem)_minmax(0,1fr)] sm:px-4">
       <div className="flex min-w-0 items-center gap-2">
         <SidebarTrigger className="-ml-1 min-h-11 min-w-11 shrink-0 sm:min-h-8 sm:min-w-8" />
         <div className="hidden h-5 items-center sm:flex" aria-hidden>
