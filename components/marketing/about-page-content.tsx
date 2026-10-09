@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { AboutHero } from "@/components/marketing/about-hero";
 import { AboutNarrativeSections } from "@/components/marketing/about-narrative-sections";
-import { IllustratedWordmarkCta } from "@/components/marketing/illustrated-wordmark-cta";
+import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
@@ -49,15 +49,7 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
       ) : null}
 
       {copy.ctaSection ? (
-        <IllustratedWordmarkCta
-          className="border-t border-border"
-          title={copy.ctaSection.title}
-          description={copy.ctaSection.description}
-          primary={{
-            href: `${publicPath(locale, copy.ctaSection.slug)}${copy.ctaSection.hash ? `#${copy.ctaSection.hash}` : ""}`,
-            label: copy.ctaSection.label,
-          }}
-        />
+        <PageCtaSection locale={locale} cta={copy.ctaSection} />
       ) : null}
     </main>
   );

@@ -154,8 +154,9 @@ const en: HomePageCopy = {
     inputPlaceholder: "Ask about Telecel Group",
   },
   nextChapter: {
-    title: "The next chapter.",
-    description: "With the builders.",
+    title: "The next chapter starts with the builders.",
+    description:
+      "ASIP is preparing its 2026 chapter with renewed focus on practical founder growth, stronger ecosystem connections and technology-led solutions built for real African markets.",
     primaryCta: { slug: "register-interest", label: "Register interest" },
     secondaryCta: { slug: "contact", label: "Discuss a partnership" },
   },
@@ -319,8 +320,9 @@ const fr: HomePageCopy = {
     inputPlaceholder: "En savoir plus sur le Groupe Telecel",
   },
   nextChapter: {
-    title: "Le prochain chapitre.",
-    description: "Avec ceux qui construisent.",
+    title: "Le prochain chapitre commence avec ceux qui construisent.",
+    description:
+      "ASIP prépare son chapitre 2026, avec un accent renouvelé sur la croissance concrète des fondateurs, des connexions écosystème plus fortes et des solutions technologiques conçues pour les marchés africains réels.",
     primaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
     secondaryCta: { slug: "contact", label: "Discuter d’un partenariat" },
   },
