@@ -128,7 +128,7 @@ const en: MarketingCopy = {
           {
             year: "2021",
             description:
-              "ASIP expands its Pan-African founder pipeline and structured acceleration support.",
+              "The first ASIP accelerator cohort runs virtually, with 11 companies selected from 2,220 applications and a Demo Day in Dakar.",
           },
           {
             year: "2022",
