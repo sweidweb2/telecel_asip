@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const rpc = vi.fn();
 const getSession = vi.fn();
 const isCurrentUserEditor = vi.fn();
-const createSupabaseClient = vi.fn((..._args: unknown[]) => ({ rpc }));
+const createSupabaseClient = vi.fn((...args: unknown[]) => {
+  void args;
+  return { rpc };
+});
 
 vi.mock("react", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react")>();

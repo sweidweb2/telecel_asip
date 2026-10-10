@@ -64,7 +64,8 @@ export async function CmsEditorPage<T extends OkResult>(
     );
     if (result.status === "forbidden") redirect(ROUTES.dashboard);
     if (result.status === "not_found") notFound();
-    const { status: _status, ...rest } = result;
+    const rest: Partial<typeof result> = { ...result };
+    delete rest.status;
     record = rest as EditorRecord<T>;
   } else {
     await requireEditor();
