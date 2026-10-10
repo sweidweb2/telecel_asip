@@ -18,13 +18,13 @@ describe("AboutPageContent", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Knowledge").length).toBeGreaterThan(0);
-    expect(screen.getByText("Barcelona · 2019")).toBeInTheDocument();
+    expect(screen.getByText("Launched · 2019")).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "Explore the founders" }).length,
     ).toBeGreaterThan(0);
     expect(
       screen.getByRole("heading", {
-        name: "Launched in Barcelona. Built for Africa.",
+        name: "Backing founders. Built for Africa.",
       }),
     ).toBeInTheDocument();
     expect(

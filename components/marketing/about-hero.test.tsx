@@ -27,12 +27,12 @@ describe("AboutHero", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("About ASIP")).toBeInTheDocument();
     expect(
-      screen.getByText(/launched by Telecel Group in Barcelona in 2019/i),
+      screen.getByText(/launched by Telecel Group in 2019/i),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Explore the founders" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Knowledge")).toBeInTheDocument();
-    expect(screen.getByText("Barcelona · 2019")).toBeInTheDocument();
+    expect(screen.getByText("Launched · 2019")).toBeInTheDocument();
   });
 });

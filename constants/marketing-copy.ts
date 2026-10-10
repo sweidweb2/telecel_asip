@@ -11,12 +11,12 @@ const en: MarketingCopy = {
     eyebrow: "About ASIP",
     title: "Backing the builders shaping Africa’s next chapter.",
     description:
-      "ASIP was launched by Telecel Group in Barcelona in 2019 to bring African technology founders closer to the knowledge, capital pathways, markets and relationships that can accelerate their growth.",
+      "ASIP was launched by Telecel Group in 2019 to bring African technology founders closer to the knowledge, capital pathways, markets and relationships that can accelerate their growth.",
     notice:
       "The leadership message stays unpublished until Telecel Group supplies approved text and media.",
     sectionTitle: "Origin, purpose and the journey ahead",
     sectionDescription:
-      "From Barcelona in 2019 to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
+      "From the 2019 launch to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
     cards: [],
     heroChips: {
       focusKind: "Focus",
@@ -27,7 +27,7 @@ const en: MarketingCopy = {
         { kind: "focus", label: "Markets", hideSm: true },
         { kind: "focus", label: "Relationships", hideSm: true },
         { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "Barcelona · 2019", hideMd: true },
+        { kind: "chapter", label: "Launched · 2019", hideMd: true },
         { kind: "chapter", label: "Africa", hideSm: true },
         { kind: "chapter", label: "Founders", hideMd: true },
         { kind: "chapter", label: "Next chapter · 2026", hideSm: true },
@@ -43,10 +43,10 @@ const en: MarketingCopy = {
     },
     aboutNarrative: {
       story: {
-        title: "Launched in Barcelona. Built for Africa.",
+        title: "Backing founders. Built for Africa.",
         eyebrow: "Our story",
         paragraphs: [
-          "ASIP began at Mobile World Congress in Barcelona with a simple idea: Africa has no shortage of ambitious founders. What is often uneven is access to the networks, expertise and opportunities that help strong companies move faster.",
+          "ASIP began with a simple idea: Africa has no shortage of ambitious founders. What is often uneven is access to the networks, expertise and opportunities that help strong companies move faster.",
           "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The programme has evolved, but the principle remains the same: back local insight, bring the right energies together and give good businesses a stronger path to scale.",
         ],
         features: [
@@ -116,14 +116,14 @@ const en: MarketingCopy = {
       },
       timeline: {
         eyebrow: "Journey",
-        title: "From Barcelona to the next chapter",
+        title: "From launch to the next chapter",
         // 2021–2024 wording should be cross-checked against Startupbootcamp
         // cohort master records before publication.
         milestones: [
           {
             year: "2019",
             description:
-              "ASIP launches in Barcelona at Mobile World Congress, introducing African founders to a global technology and investment audience.",
+              "Telecel Group launches ASIP to connect African technology founders with knowledge, capital pathways, markets and relationships.",
           },
           {
             year: "2021",
@@ -326,12 +326,12 @@ const fr: MarketingCopy = {
     eyebrow: "À propos d’ASIP",
     title: "Aux côtés des bâtisseurs qui façonnent le prochain chapitre de l’Afrique.",
     description:
-      "ASIP a été lancé par le Groupe Telecel à Barcelone en 2019 pour rapprocher les fondateurs technologiques africains des connaissances, des voies de capital, des marchés et des relations qui peuvent accélérer leur croissance.",
+      "ASIP a été lancé par le Groupe Telecel en 2019 pour rapprocher les fondateurs technologiques africains des connaissances, des voies de capital, des marchés et des relations qui peuvent accélérer leur croissance.",
     notice:
       "Le message de direction reste non publié tant que le Groupe Telecel n’a pas fourni le texte et les visuels approuvés.",
     sectionTitle: "Origine, mission et parcours",
     sectionDescription:
-      "De Barcelone en 2019 au prochain chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, aux voies de capital, aux marchés et aux relations.",
+      "Du lancement en 2019 au prochain chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, aux voies de capital, aux marchés et aux relations.",
     cards: [],
     heroChips: {
       focusKind: "Axe",
@@ -342,7 +342,7 @@ const fr: MarketingCopy = {
         { kind: "focus", label: "Marchés", hideSm: true },
         { kind: "focus", label: "Relations", hideSm: true },
         { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "Barcelone · 2019", hideMd: true },
+        { kind: "chapter", label: "Lancement · 2019", hideMd: true },
         { kind: "chapter", label: "Afrique", hideSm: true },
         { kind: "chapter", label: "Fondateurs", hideMd: true },
         { kind: "chapter", label: "Prochain chapitre · 2026", hideSm: true },
@@ -358,10 +358,10 @@ const fr: MarketingCopy = {
     },
     aboutNarrative: {
       story: {
-        title: "Lancé à Barcelone. Bâti pour l’Afrique.",
+        title: "Aux côtés des fondateurs. Bâti pour l’Afrique.",
         eyebrow: "Notre histoire",
         paragraphs: [
-          "ASIP a commencé au Mobile World Congress de Barcelone avec une idée simple : l’Afrique ne manque pas de fondateurs ambitieux. Ce qui est souvent inégal, c’est l’accès aux réseaux, à l’expertise et aux opportunités qui aident les entreprises solides à avancer plus vite.",
+          "ASIP a commencé avec une idée simple : l’Afrique ne manque pas de fondateurs ambitieux. Ce qui est souvent inégal, c’est l’accès aux réseaux, à l’expertise et aux opportunités qui aident les entreprises solides à avancer plus vite.",
           "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, rassembler les bonnes énergies et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
         ],
         features: [
@@ -431,17 +431,17 @@ const fr: MarketingCopy = {
       },
       timeline: {
         eyebrow: "Parcours",
-        title: "De Barcelone au prochain chapitre",
+        title: "Du lancement au prochain chapitre",
         milestones: [
           {
             year: "2019",
             description:
-              "ASIP est lancé à Barcelone au Mobile World Congress, présentant des fondateurs africains à une audience mondiale de la technologie et de l’investissement.",
+              "Le Groupe Telecel lance ASIP pour connecter les fondateurs technologiques africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
           },
           {
             year: "2021",
             description:
-              "ASIP élargit son vivier de fondateurs panafricain et son accélération structurée.",
+              "La première cohorte de l’accélérateur ASIP se déroule en ligne, avec 11 entreprises sélectionnées parmi 2 220 candidatures et un Demo Day à Dakar.",
           },
           {
             year: "2022",
