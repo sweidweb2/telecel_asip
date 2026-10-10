@@ -26,7 +26,6 @@ export const ADMIN_PERF_PAGE_SIZES = [10, 25, 50, 100] as const;
 export const ADMIN_PERF_PAGE_SIZE_VALUES = ["10", "25", "50", "100"] as const;
 export const ADMIN_PERF_DEFAULT_PAGE_SIZE = 25;
 export const ADMIN_PERF_SINCE_HOURS = 24;
-export const ADMIN_PERF_ANALYTICS_LIMIT = 1000;
 
 const adminPerfListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(10_000).catch(1),

@@ -4,14 +4,18 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { BriefcaseIcon } from "lucide-react";
 
+import { deleteStartup } from "@/actions/startups";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
-import { StartupRowActions } from "@/components/startups/startup-row-actions";
 import { StartupsFilters } from "@/components/startups/startups-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -58,7 +62,7 @@ export function StartupsTable({
     <AdminDataTable
       filters={<StartupsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
@@ -128,7 +132,21 @@ export function StartupsTable({
               className="pr-4 text-right"
               onClick={(event) => event.stopPropagation()}
             >
-              <StartupRowActions startup={startup} />
+              <AdminEditDeleteActions
+                editHref={portfolioEditPath(startup.id)}
+                editLabel={`Edit ${startup.name}`}
+                deleteAction={() => deleteStartup({ id: startup.id })}
+                fallbackError="The startup could not be deleted. Please try again."
+                title="Delete startup?"
+                description={
+                  <>
+                    This permanently deletes {startup.name} and its logo. This
+                    cannot be undone.
+                  </>
+                }
+                confirmLabel="Delete startup"
+                triggerLabel={`Delete ${startup.name}`}
+              />
             </TableCell>
           </AdminClickableRow>
         );

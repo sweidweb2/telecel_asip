@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useWatch } from "react-hook-form";
 import { Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,26 +14,13 @@ import {
   updateStartup,
   uploadStartupLogo,
 } from "@/actions/startups";
-import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
+import { StepperContent } from "@/components/ui/stepper";
 import {
   applyClearFormValues,
   applyDummyFormValues,
@@ -42,24 +28,7 @@ import {
   todayIsoDate,
 } from "@/lib/admin/dummy-form-values";
 import { cn } from "@/lib/utils";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
@@ -73,13 +42,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
-import { ROUTES } from "@/constants/routes";
+import { portfolioEditPath, ROUTES } from "@/constants/routes";
 import { STARTUP_EDITOR_HELP } from "@/constants/startup-editor-help";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { StartupWithDetails } from "@/types/startup";
 import {
@@ -152,27 +117,6 @@ type StartupEditorFormProps = {
   startup?: StartupWithDetails;
   heading: string;
 };
-
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="max-w-full text-right text-xs text-muted-foreground text-pretty">
-          {hint}
-        </span>
-      ) : null}
-    </div>
-  );
-}
 
 function emptyDetails(): UpdateStartupInput["details"] {
   return {
@@ -257,7 +201,20 @@ export function StartupEditorForm({
   heading,
 }: StartupEditorFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const editor = useCmsEditorForm<StartupFormValues>({
+    mode,
+    schema: createStartupSchema,
+    defaultValues: defaultsFromStartup(startup),
+    recordId: startup?.id,
+    listPath: ROUTES.portfolio,
+    detailPath: portfolioEditPath,
+    create: createStartup,
+    update: updateStartup,
+    remove: deleteStartup,
+    saveError: "The startup could not be saved. Please try again.",
+    steps: STARTUP_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -265,15 +222,6 @@ export function StartupEditorForm({
   const [pendingLogoPreview, setPendingLogoPreview] = useState<string | null>(
     null,
   );
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState<string>(STARTUP_EDITOR_STEPS[0].id);
-
-  const form = useForm<StartupFormValues>({
-    resolver: zodResolver(createStartupSchema) as never,
-    defaultValues: defaultsFromStartup(startup),
-    mode: "onChange",
-    shouldUnregister: false,
-  });
 
   const status = useWatch({ control: form.control, name: "status" });
   const logoUrl = startup?.logo_url ?? null;
@@ -301,7 +249,7 @@ export function StartupEditorForm({
   }
 
   function submit(values: StartupFormValues) {
-    startTransition(async () => {
+    editor.run(async () => {
       if (mode === "create") {
         const result = await createStartup({
           name: values.name,
@@ -385,24 +333,9 @@ export function StartupEditorForm({
     });
   }
 
-  function onDelete() {
-    if (!startup) return;
-    startTransition(async () => {
-      const result = await deleteStartup({ id: startup.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.portfolio);
-      router.refresh();
-    });
-  }
-
   function onRemoveLogo() {
     if (!startup) return;
-    startTransition(async () => {
+    editor.run(async () => {
       const result = await removeStartupLogo(startup.id);
       if (result.status === "error") {
         toast.error(result.message);
@@ -414,13 +347,7 @@ export function StartupEditorForm({
     });
   }
 
-  const { errors, isDirty } = form.formState;
-  const saveDisabled = isAdminFormSubmitDisabled({
-    isPending,
-    isDirty,
-    errors,
-    hasExternalChanges: Boolean(pendingLogo),
-  });
+  const saveDisabled = editor.submitDisabled(Boolean(pendingLogo));
   const saveLabel = mode === "create" ? "Create startup" : "Save changes";
   const pendingLabel = isProcessingImage
     ? "Processing image…"
@@ -464,94 +391,108 @@ export function StartupEditorForm({
   }
 
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl tracking-tight">{heading}</h2>
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            applyDummyFormValues(
-              form,
-              dummyStartupValues(form.getValues()),
-            );
-            setSlugTouched(true);
-          }}
-          onClear={() => {
-            applyClearFormValues(form, defaultsFromStartup());
-            setSlugTouched(false);
-            onLogoPicked(null);
-          }}
-        />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-6xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={form.handleSubmit(submit, (errors) => {
-          const next = firstInvalidEditorStep(errors, STARTUP_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-      <Stepper
-        steps={STARTUP_EDITOR_STEPS}
-        value={step}
-        onValueChange={onStepChange}
-        orientation="horizontal"
-        className="flex flex-col gap-6"
-      >
-        <StepperNav>
-          {STARTUP_EDITOR_STEPS.map((s, index) => (
-            <StepperItem
-              key={s.id}
-              stepId={s.id}
-              disabled={index > stepIndex + 1}
-              className="relative flex-1"
-            >
-              <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                <StepperIndicator>{index + 1}</StepperIndicator>
-                <div className="min-w-0 text-center">
-                  <StepperTitle>{s.title}</StepperTitle>
-                  <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                    {s.description}
-                  </p>
-                </div>
-              </StepperTrigger>
-              {index < STARTUP_EDITOR_STEPS.length - 1 ? (
-                <StepperSeparator
-                  className={cn(
-                    "absolute inset-x-0 top-4",
-                    "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                    "m-0 h-0.5 flex-none",
-                  )}
-                />
-              ) : null}
-            </StepperItem>
-          ))}
-        </StepperNav>
-
-        <StepperPanel className="w-full">
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={form.handleSubmit(submit, editor.onInvalid)}
+      steps={STARTUP_EDITOR_STEPS}
+      step={step}
+      onStepChange={onStepChange}
+      isStepDisabled={(index) => index > stepIndex + 1}
+      heading={heading}
+      formClassName="mx-auto max-w-6xl"
+      stepperClassName="flex flex-col gap-6"
+      navClassName=""
+      panelClassName="w-full"
+      onDummy={() => {
+        applyDummyFormValues(form, dummyStartupValues(form.getValues()));
+        setSlugTouched(true);
+      }}
+      onClear={() => {
+        applyClearFormValues(form, defaultsFromStartup());
+        setSlugTouched(false);
+        onLogoPicked(null);
+      }}
+      actions={
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => editor.setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending || isFirstStep}
+                onClick={goToPreviousStep}
+              >
+                Back
+              </Button>
+              {isLastStep ? (
+                <Button
+                  type="submit"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={saveDisabled}
+                >
+                  {isPending ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : null}
+                  {isPending ? pendingLabel : saveLabel}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={isPending}
+                  onClick={() => void goToNextStep()}
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this startup?",
+        description:
+          "This permanently removes the startup, its details, and logo. This cannot be undone.",
+        confirmLabel: "Delete",
+        onConfirm: editor.onDelete,
+      }}
+    >
           <StepperContent value="core" className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
-                <CardTitle>Core</CardTitle>
-                <CardDescription>
-                  Name, slug, description, status, and founding date
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.core} />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="grid gap-4">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start lg:gap-8">
+            <AdminFormSection
+              className="min-w-0"
+              title="Core"
+              description="Name, slug, description, status, and founding date"
+              help={STARTUP_EDITOR_HELP.core}
+              contentClassName="grid gap-4"
+            >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="name"
                       hint={`Required · 2–${STARTUP_NAME_MAX} chars`}
                     >
                       Name
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Input
                       id="name"
                       className={FIELD}
@@ -568,12 +509,12 @@ export function StartupEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="slug"
                       hint={`Required · 2–${STARTUP_SLUG_MAX} · a-z 0-9 hyphens`}
                     >
                       Slug
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Input
                       id="slug"
                       className={FIELD}
@@ -591,12 +532,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="description"
                     hint={`Required · 2–${STARTUP_DESCRIPTION_MAX} chars`}
                   >
                     Description
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="description"
                     className={TEXTAREA}
@@ -612,12 +553,12 @@ export function StartupEditorForm({
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel
+                    <AdminFormFieldLabel
                       htmlFor="status"
                       hint="draft · active · inactive"
                     >
                       Status
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Select
                       value={status}
                       onValueChange={(value) => {
@@ -645,9 +586,9 @@ export function StartupEditorForm({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="foundedAt" hint="Optional · YYYY-MM-DD">
+                    <AdminFormFieldLabel htmlFor="foundedAt" hint="Optional · YYYY-MM-DD">
                       Founded at
-                    </FieldLabel>
+                    </AdminFormFieldLabel>
                     <Controller
                       control={form.control}
                       name="foundedAt"
@@ -667,20 +608,15 @@ export function StartupEditorForm({
                     ) : null}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </AdminFormSection>
 
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
-                <CardTitle>Logo</CardTitle>
-                <CardDescription>
-                  JPEG / PNG / WebP / GIF · max 5 MB
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.logo} />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="grid gap-4">
+            <AdminFormSection
+              className="min-w-0"
+              title="Logo"
+              description="JPEG / PNG / WebP / GIF · max 5 MB"
+              help={STARTUP_EDITOR_HELP.logo}
+              contentClassName="grid gap-4"
+            >
                 <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border bg-muted">
                   {previewSrc ? (
                     pendingLogoPreview ? (
@@ -748,28 +684,23 @@ export function StartupEditorForm({
                   saved. Clear the selection before save to skip the upload.
                   Percent and cancel are not available while processing.
                 </p>
-              </CardContent>
-            </Card>
+            </AdminFormSection>
           </div>
           </StepperContent>
 
           <StepperContent value="profile" className="space-y-6">
-          <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b">
-              <CardTitle>Public profile</CardTitle>
-              <CardDescription>
-                Cohort, country, sector, founders, cover, and featured placement
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.publicProfile} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 pt-4 pb-6">
+          <AdminFormSection
+            className="min-w-0"
+            title="Public profile"
+            description="Cohort, country, sector, founders, cover, and featured placement"
+            help={STARTUP_EDITOR_HELP.publicProfile}
+            contentClassName="grid gap-4"
+          >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="cohort" hint="Optional · max 40">
+                  <AdminFormFieldLabel htmlFor="cohort" hint="Optional · max 40">
                     Cohort
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="cohort"
                     placeholder="Cohort 4"
@@ -780,7 +711,7 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="countryCode">Country code</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="countryCode">Country code</AdminFormFieldLabel>
                   <Input
                     id="countryCode"
                     placeholder="GH"
@@ -791,12 +722,12 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="sector"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Sector
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="sector"
                     placeholder="Health technology"
@@ -809,12 +740,12 @@ export function StartupEditorForm({
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="founderNames"
                     hint="Comma-separated · max 500"
                   >
                     Founder names
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="founderNames"
                     placeholder="First Founder, Second Founder"
@@ -825,12 +756,12 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="coverImageUrl"
                     hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
                   >
                     Cover image URL
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <UrlInput
                     id="coverImageUrl"
                     placeholder="example.com/cover.jpg"
@@ -842,12 +773,12 @@ export function StartupEditorForm({
                 </div>
               </div>
               <div className="grid gap-2">
-                <FieldLabel
+                <AdminFormFieldLabel
                   htmlFor="publicOutcome"
                   hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                 >
                   Approved public outcome
-                </FieldLabel>
+                </AdminFormFieldLabel>
                 <Textarea
                   id="publicOutcome"
                   className={TEXTAREA}
@@ -879,7 +810,7 @@ export function StartupEditorForm({
                   </Label>
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="imageFocalX">Image focus X (%)</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="imageFocalX">Image focus X (%)</AdminFormFieldLabel>
                   <Input
                     id="imageFocalX"
                     type="number"
@@ -892,7 +823,7 @@ export function StartupEditorForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="imageFocalY">Image focus Y (%)</FieldLabel>
+                  <AdminFormFieldLabel htmlFor="imageFocalY">Image focus Y (%)</AdminFormFieldLabel>
                   <Input
                     id="imageFocalY"
                     type="number"
@@ -905,30 +836,25 @@ export function StartupEditorForm({
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
           </StepperContent>
 
           <StepperContent value="details" className="space-y-6">
-          <Card size="sm" className="min-w-0">
-            <CardHeader className="border-b">
-              <CardTitle>Company details</CardTitle>
-              <CardDescription>
-                Website, narrative, and funding fields
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={STARTUP_EDITOR_HELP.detailsExtra} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 pt-4 pb-6">
+          <AdminFormSection
+            className="min-w-0"
+            title="Company details"
+            description="Website, narrative, and funding fields"
+            help={STARTUP_EDITOR_HELP.detailsExtra}
+            contentClassName="grid gap-4"
+          >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="grid gap-2 sm:col-span-2 lg:col-span-1">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="websiteUrl"
                     hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
                   >
                     Website URL
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <UrlInput
                     id="websiteUrl"
                     placeholder="example.com"
@@ -943,12 +869,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="industry"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Industry
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="industry"
                     className={FIELD}
@@ -960,12 +886,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="category"
                     hint={`Optional · max ${STARTUP_TEXT_SHORT_MAX}`}
                   >
                     Category
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="category"
                     className={FIELD}
@@ -977,12 +903,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="location"
                     hint={`Optional · max ${STARTUP_LOCATION_MAX}`}
                   >
                     Location
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="location"
                     className={FIELD}
@@ -994,12 +920,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="foundingYear"
                     hint="Optional · 1900–2100"
                   >
                     Founding year
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="foundingYear"
                     type="number"
@@ -1014,12 +940,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="size"
                     hint={`Optional · max ${STARTUP_SIZE_MAX}`}
                   >
                     Company size
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="size"
                     placeholder="e.g. 1-10"
@@ -1031,12 +957,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="team"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Team
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="team"
                     className={FIELD}
@@ -1050,12 +976,12 @@ export function StartupEditorForm({
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="problem"
                     hint={`Optional · max ${STARTUP_LONG_TEXT_MAX}`}
                   >
                     Problem
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="problem"
                     className={TEXTAREA}
@@ -1067,12 +993,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="solution"
                     hint={`Optional · max ${STARTUP_LONG_TEXT_MAX}`}
                   >
                     Solution
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="solution"
                     className={TEXTAREA}
@@ -1084,12 +1010,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="targetMarket"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Target market
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="targetMarket"
                     className={TEXTAREA}
@@ -1101,12 +1027,12 @@ export function StartupEditorForm({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="businessModel"
                     hint={`Optional · max ${STARTUP_TEAM_MAX}`}
                   >
                     Business model
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Textarea
                     id="businessModel"
                     className={TEXTAREA}
@@ -1120,12 +1046,12 @@ export function StartupEditorForm({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="fundingGoal"
                     hint="Optional · number ≥ 0"
                   >
                     Funding goal
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="fundingGoal"
                     type="number"
@@ -1141,12 +1067,12 @@ export function StartupEditorForm({
                   ) : null}
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel
+                  <AdminFormFieldLabel
                     htmlFor="amountRaised"
                     hint="Optional · ≥ 0 · ≤ funding goal"
                   >
                     Amount raised
-                  </FieldLabel>
+                  </AdminFormFieldLabel>
                   <Input
                     id="amountRaised"
                     type="number"
@@ -1162,93 +1088,8 @@ export function StartupEditorForm({
                   ) : null}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
           </StepperContent>
-        </StepperPanel>
-      </Stepper>
-
-      <AdminEditorActionsBar>
-        <div className="flex w-full flex-col gap-3">
-          <AdminImageProcessingBanner active={isProcessingImage} />
-          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-            {mode === "edit" ? (
-              <Button
-                type="button"
-                variant="destructive"
-                className="min-h-11 w-full sm:w-auto"
-                disabled={isPending}
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2Icon className="size-4" />
-                Delete
-              </Button>
-            ) : (
-              <span className="hidden sm:block" />
-            )}
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11 w-full sm:w-auto"
-                disabled={isPending || isFirstStep}
-                onClick={goToPreviousStep}
-              >
-                Back
-              </Button>
-              {isLastStep ? (
-                <Button
-                  type="submit"
-                  className="min-h-11 w-full sm:w-auto"
-                  disabled={saveDisabled}
-                >
-                  {isPending ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : null}
-                  {isPending ? pendingLabel : saveLabel}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  className="min-h-11 w-full sm:w-auto"
-                  disabled={isPending}
-                  onClick={() => void goToNextStep()}
-                >
-                  Continue
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </AdminEditorActionsBar>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this startup?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently removes the startup, its details, and logo. This
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11"
-              disabled={isPending}
-              onClick={onDelete}
-            >
-              {isPending ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              ) : null}
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </form>
-    </div>
+    </CmsEditorFrame>
   );
 }

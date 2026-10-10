@@ -18,7 +18,7 @@ type AdminRowDeleteProps = {
 
 /**
  * Delete trigger + dialog wired to `useAdminDeleteAction`.
- * Compose next to entity-specific edit controls in row-action components.
+ * Used by `AdminEditDeleteActions` for catalogue rows.
  */
 export function AdminRowDelete({
   deleteAction,

@@ -7,6 +7,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import {
   createEvidenceRecordSchema,
   deleteEvidenceRecordSchema,
@@ -77,18 +78,12 @@ export async function createEvidenceRecord(
       success: MESSAGES.createSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("evidence_records")
-        .insert(toEvidenceRow(data))
-        .select("id")
-        .single();
-
-      if (error || !row?.id) {
-        return { status: "error", pgError: error ?? {} };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "insert",
+        table: "evidence_records",
+        values: toEvidenceRow(data),
+      }),
     refresh: (_data, id) => refreshEvidencePaths(id),
   });
 }
@@ -104,22 +99,14 @@ export async function updateEvidenceRecord(
       success: MESSAGES.updateSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("evidence_records")
-        .update(toEvidenceRow(data))
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", pgError: error };
-      }
-      if (!row?.id) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "update",
+        table: "evidence_records",
+        id: data.id,
+        values: toEvidenceRow(data),
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (_data, id) => refreshEvidencePaths(id),
   });
 }
@@ -135,34 +122,14 @@ export async function deleteEvidenceRecord(
       success: MESSAGES.deleteSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: existing, error: existingError } = await session.supabase
-        .from("evidence_records")
-        .select("id")
-        .eq("id", data.id)
-        .maybeSingle();
-
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-
-      const { error: deleteError } = await session.supabase
-        .from("evidence_records")
-        .delete()
-        .eq("id", data.id);
-
-      if (deleteError) {
-        return {
-          status: "error",
-          pgError: deleteError,
-          pgContext: "delete",
-        };
-      }
-      return { status: "success" };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "delete",
+        table: "evidence_records",
+        id: data.id,
+        notFound: MESSAGES.notFound,
+        pgContext: "delete",
+      }),
     refresh: () => refreshEvidencePaths(),
   });
 }

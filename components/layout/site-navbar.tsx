@@ -4,10 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -23,7 +29,6 @@ import { cn } from "@/lib/utils";
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
-  startupYears?: string[];
 };
 
 function isNavActive(pathname: string, href: string, locale: Locale) {
@@ -77,27 +82,10 @@ function LanguageToggle({
 export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const directoryRef = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      const directory = directoryRef.current;
-      if (directory?.open && !directory.contains(event.target as Node)) {
-        directory.open = false;
-      }
-    };
-
-    document.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
-  }, []);
   const homeHref = publicPath(locale, "");
   const foundersHref = publicPath(locale, "founders");
   const alumniHref = publicPath(locale, "alumni");
-  const directoryLabel = locale === "fr" ? "Annuaire" : "Directory";
-  const mastheadLabel =
-    locale === "fr"
-      ? "Un programme du Groupe Telecel"
-      : "A Telecel Group programme";
+  const alumniItem = labels.items.find((item) => item.href === alumniHref);
 
   const desktopLinkClass = (active: boolean) =>
     cn(
@@ -132,7 +120,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
         <div className="hidden items-center gap-4 md:flex">
           <p className="hidden border-l border-black/12 pl-4 text-xs font-semibold uppercase text-muted-foreground lg:block">
-            {mastheadLabel}
+            {labels.masthead}
           </p>
           <LanguageToggle
             locale={locale}
@@ -171,7 +159,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                   {labels.menuLabel}
                 </SheetTitle>
                 <p className="pr-10 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                  {mastheadLabel}
+                  {labels.masthead}
                 </p>
               </SheetHeader>
               <nav
@@ -236,42 +224,45 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
               if (item.href === foundersHref) {
                 return (
-                  <div key={item.href} className="relative">
-                    <details ref={directoryRef} className="group/nav">
-                      <summary
-                        className={cn(
-                          desktopLinkClass(active),
-                          "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
-                        )}
+                  <DropdownMenu key={item.href} modal={false}>
+                    <DropdownMenuTrigger
+                      className={cn(
+                        desktopLinkClass(active),
+                        "cursor-pointer border-0 [&_svg]:transition-transform [&_svg]:duration-200 data-popup-open:[&_svg]:rotate-180",
+                      )}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {item.label}
+                        <ChevronDownIcon
+                          className="size-3.5 opacity-70"
+                          aria-hidden
+                        />
+                      </span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="start"
+                      sideOffset={4}
+                      className="w-64 min-w-64 origin-top gap-1 rounded-md border p-2 shadow-md ring-0 duration-200 ease-out data-closed:slide-out-to-top-2 data-open:slide-in-from-top-2"
+                    >
+                      <DropdownMenuItem
+                        className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
+                        nativeButton={false}
+                        render={<Link href={foundersHref} />}
                       >
-                        <span className="inline-flex items-center gap-1">
-                          {item.label}
-                          <ChevronDownIcon
-                            className="size-3.5 opacity-70 transition-transform group-open/nav:rotate-180"
-                            aria-hidden
-                          />
-                        </span>
-                      </summary>
-                      <ul className="absolute top-full left-0 z-50 mt-1 grid w-64 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
-                        <li>
-                          <Link
-                            href={foundersHref}
-                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
-                          >
-                            {directoryLabel}
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            href={alumniHref}
-                            className="flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold hover:bg-accent"
-                          >
-                            Alumni
-                          </Link>
-                        </li>
-                      </ul>
-                    </details>
-                  </div>
+                        {labels.foundersDirectory}
+                      </DropdownMenuItem>
+                      {alumniItem ? (
+                        <DropdownMenuItem
+                          className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
+                          nativeButton={false}
+                          render={<Link href={alumniItem.href} />}
+                        >
+                          {alumniItem.label}
+                        </DropdownMenuItem>
+                      ) : null}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 );
               }
 

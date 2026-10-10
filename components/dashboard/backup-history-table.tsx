@@ -6,7 +6,11 @@ import { toast } from "sonner";
 
 import { getBackupDownloadUrl } from "@/actions/backups";
 import { BackupHistoryFilters } from "@/components/dashboard/backup-history-filters";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import { AdminSortableHead } from "@/components/dashboard/admin-sortable-head";
 import { Button } from "@/components/ui/button";
@@ -116,9 +120,7 @@ export function BackupHistoryTable({
   return (
     <section className="grid gap-3">
       <div className="grid gap-1">
-        <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Backup history
-        </h2>
+        <AdminSectionHeading>Backup history</AdminSectionHeading>
         <p className="text-sm text-muted-foreground">
           Past exports stored in private R2. Re-download uses a short-lived signed
           URL.
@@ -128,7 +130,7 @@ export function BackupHistoryTable({
       <AdminDataTable
         filters={<BackupHistoryFilters query={query} />}
         header={
-          <TableRow>
+          <TableRow className={CMS_HEAD_ROW_CLASS}>
             <AdminSortableHead
               label="Date"
               sortKey="created_at"

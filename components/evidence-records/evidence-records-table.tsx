@@ -4,15 +4,19 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { ShieldCheckIcon } from "lucide-react";
 
+import { deleteEvidenceRecord } from "@/actions/evidence-records";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
 import { EvidenceRecordsFilters } from "@/components/evidence-records/evidence-records-filters";
-import { EvidenceRowActions } from "@/components/evidence-records/evidence-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import {
@@ -27,6 +31,12 @@ import {
   EVIDENCE_PAGE_SIZE,
   type EvidenceListQuery,
 } from "@/validations/evidence-record";
+
+function evidenceActionLabel(record: EvidenceListItem): string {
+  return record.primary_source.length > 48
+    ? `${record.primary_source.slice(0, 48)}…`
+    : record.primary_source;
+}
 
 function ownerDisplay(record: EvidenceListItem): string {
   if (record.owner?.full_name?.trim()) return record.owner.full_name;
@@ -57,7 +67,7 @@ export function EvidenceRecordsTable({
     <AdminDataTable
       filters={<EvidenceRecordsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Primary source</TableHead>
           <TableHead>Status</TableHead>
@@ -143,7 +153,16 @@ export function EvidenceRecordsTable({
             className="pr-4 whitespace-nowrap"
             onClick={(event) => event.stopPropagation()}
           >
-            <EvidenceRowActions record={record} />
+            <AdminEditDeleteActions
+              editHref={evidenceDetailPath(record.id)}
+              editLabel={`Edit ${evidenceActionLabel(record)}`}
+              deleteAction={() => deleteEvidenceRecord({ id: record.id })}
+              fallbackError="The evidence record could not be deleted. Please try again."
+              title="Delete evidence record?"
+              description="This permanently deletes this evidence entry. Impact metrics that reference it will need a new source before they can stay verified. This cannot be undone."
+              confirmLabel="Delete evidence"
+              triggerLabel={`Delete ${evidenceActionLabel(record)}`}
+            />
           </TableCell>
         </AdminClickableRow>
       ))}

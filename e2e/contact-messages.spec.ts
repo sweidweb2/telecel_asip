@@ -89,8 +89,6 @@ async function waitForTurnstileReady(page: import("@playwright/test").Page) {
   }
 }
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("contact messages", () => {
   test.beforeEach(() => {
     test.skip(

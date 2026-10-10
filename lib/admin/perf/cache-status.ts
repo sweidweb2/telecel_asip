@@ -1,6 +1,6 @@
 import type { AdminPerfCacheStatus } from "@/lib/admin/perf/types";
 
-/** Pure helper — same hit/miss rule as wrapCached (safe for Vitest). */
+/** Map a 1-based invoke count to a cache hit or miss. */
 export function cacheStatusFromInvokeCount(
   invokeCount: number,
 ): AdminPerfCacheStatus {

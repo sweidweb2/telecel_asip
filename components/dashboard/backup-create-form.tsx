@@ -14,6 +14,7 @@ import {
   BackupProgressDialog,
   type BackupProgressPhase,
 } from "@/components/dashboard/backup-progress-dialog";
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
 import { Button } from "@/components/ui/button";
 import { BACKUP_TABLE_ALLOWLIST } from "@/constants/backup-tables";
 import { cn } from "@/lib/utils";
@@ -164,9 +165,7 @@ export function BackupCreateForm() {
   return (
     <section className="grid gap-4">
       <div className="grid gap-1">
-        <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Create backup
-        </h2>
+        <AdminSectionHeading>Create backup</AdminSectionHeading>
         <p className="text-sm text-muted-foreground">
           Export on demand to private R2. Jobs run in the background - watch
           Backup history for status and download. Scheduled runs are configured

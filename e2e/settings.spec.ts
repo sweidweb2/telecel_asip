@@ -10,8 +10,6 @@ import {
   dismissToasts,
 } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("site settings", () => {
   test.beforeEach(() => {
     test.skip(

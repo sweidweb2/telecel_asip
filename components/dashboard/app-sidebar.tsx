@@ -169,7 +169,7 @@ export function AppSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
-            <p className="truncate px-2 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            <p className="truncate px-2 pb-1 text-xs font-medium tracking-wide text-sidebar-foreground/70 uppercase">
               {brandLabel}
             </p>
           </SidebarMenuItem>

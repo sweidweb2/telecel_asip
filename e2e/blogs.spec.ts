@@ -31,8 +31,6 @@ function adminClient(): SupabaseClient {
   });
 }
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("blogs cms", () => {
   test.beforeEach(() => {
     test.skip(!hasCredentials(), "Blog E2E requires real Supabase credentials.");

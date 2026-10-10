@@ -4,7 +4,7 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
 import {
   fetchInboxTableStats,
@@ -44,8 +44,9 @@ async function fetchInterestRegistrations(
   request = applyInboxStatusFilter(request, query.inboxStatus);
 
   if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
     request = request.or(
-      `full_name.ilike.%${query.search}%,email.ilike.%${query.search}%,company_name.ilike.%${query.search}%`,
+      `full_name.ilike."%${pattern}%",email.ilike."%${pattern}%",company_name.ilike."%${pattern}%"`,
     );
   }
 
@@ -77,8 +78,7 @@ export async function getInterestRegistrationsPageData(
         fetchInboxTableStats(supabase, "interest_registrations"),
       ]);
       return { list, stats };
-    },
-    { name: "getInterestRegistrationsPageData" },
+    }
   );
 }
 
@@ -93,16 +93,20 @@ export async function getInterestRegistrationById(
     return { status: "not_found" };
   }
 
-  const supabase = await createClient();
-  if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+  const gated = await gateEditorPageData(
+    async (supabase) => {
+      const { data, error } = await supabase
+        .from("interest_registrations")
+        .select(REGISTRATION_DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle();
 
-  const { data, error } = await supabase
-    .from("interest_registrations")
-    .select(REGISTRATION_DETAIL_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
+      if (error) throw error;
+      return { record: (data as InterestRegistration | null) ?? null };
+    }
+  );
 
-  if (error) throw error;
-  if (!data) return { status: "not_found" };
-  return { status: "ok", record: data as InterestRegistration };
+  if (gated.status === "forbidden") return gated;
+  if (!gated.record) return { status: "not_found" };
+  return { status: "ok", record: gated.record };
 }

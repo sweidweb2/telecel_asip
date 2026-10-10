@@ -27,9 +27,9 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
   return (
     <>
       <section className="grid gap-3 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Slowest names (hit vs miss)</CardTitle>
+        <Card size="sm">
+          <CardHeader className="border-b bg-brand-soft">
+            <CardTitle>Slowest names (hit vs miss)</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -67,9 +67,9 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Events over time</CardTitle>
+        <Card size="sm">
+          <CardHeader className="border-b bg-brand-soft">
+            <CardTitle>Events over time</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -113,9 +113,9 @@ export function AdminPerfCharts({ analytics }: AdminPerfChartsProps) {
         </Card>
       </section>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Count by event type</CardTitle>
+      <Card size="sm">
+        <CardHeader className="border-b bg-brand-soft">
+          <CardTitle>Count by event type</CardTitle>
         </CardHeader>
         <CardContent className="h-64">
           <ResponsiveContainer width="100%" height="100%">

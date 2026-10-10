@@ -9,73 +9,102 @@ export type NavItem = {
 };
 
 export type SiteNavLabels = {
-  brand: string;
   items: NavItem[];
   languageGroupLabel: string;
   menuLabel: string;
+  /** Short line beside the language toggle and inside the mobile sheet. */
+  masthead: string;
+  /** Founders dropdown label for the directory. The trigger still uses the Founders item label. */
+  foundersDirectory: string;
   apply: NavItem;
 };
 
 /**
- * Primary navigation. The CTA follows the `open_applications` site setting:
- * Apply while a cohort is open, Register Interest otherwise. Contact, FAQ,
- * and legal pages live in the footer.
+ * Header order is one list. Each locale only supplies labels.
+ * Footer groups stay in `site-footer-labels.ts`.
+ * The CTA follows `open_applications`: Apply while a cohort is open,
+ * Register Interest otherwise. Contact, FAQ, and legal pages live in the footer.
  */
-const EN_NAV: { slug: PublicPageSlug; label: string }[] = [
-  { slug: "", label: "Home" },
-  { slug: "about", label: "About" },
-  { slug: "programme", label: "Programme" },
-  { slug: "founders", label: "Founders" },
-  { slug: "alumni", label: "Alumni" },
-  { slug: "impact", label: "Impact" },
-  { slug: "partners", label: "Partners" },
-  { slug: "insights", label: "Insights" },
-];
+const HEADER_NAV_SLUGS = [
+  "",
+  "about",
+  "programme",
+  "founders",
+  "alumni",
+  "impact",
+  "partners",
+  "insights",
+] as const satisfies readonly PublicPageSlug[];
 
-export function enNavLabels(openApplications = false): SiteNavLabels {
-  const intake = intakeCtaFor("en", openApplications);
-  return {
-    brand: "",
+type HeaderNavSlug = (typeof HEADER_NAV_SLUGS)[number];
+
+const HEADER_NAV_LABELS: Record<Locale, Record<HeaderNavSlug, string>> = {
+  en: {
+    "": "Home",
+    about: "About",
+    programme: "Programme",
+    founders: "Founders",
+    alumni: "Alumni",
+    impact: "Impact",
+    partners: "Partners",
+    insights: "Insights",
+  },
+  fr: {
+    "": "Accueil",
+    about: "À propos",
+    programme: "Programme",
+    founders: "Fondateurs",
+    alumni: "Alumni",
+    impact: "Impact",
+    partners: "Partenaires",
+    insights: "Perspectives",
+  },
+};
+
+const NAV_CHROME: Record<
+  Locale,
+  Pick<
+    SiteNavLabels,
+    "languageGroupLabel" | "menuLabel" | "masthead" | "foundersDirectory"
+  >
+> = {
+  en: {
     languageGroupLabel: "Language",
     menuLabel: "Menu",
-    items: EN_NAV.map(({ slug, label }) => ({
-      href: publicPath("en", slug),
-      label,
+    masthead: "A Telecel Group programme",
+    foundersDirectory: "Directory",
+  },
+  fr: {
+    languageGroupLabel: "Langue",
+    menuLabel: "Menu",
+    masthead: "Un programme du Groupe Telecel",
+    foundersDirectory: "Annuaire",
+  },
+};
+
+function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
+  const intake = intakeCtaFor(locale, openApplications);
+  return {
+    ...NAV_CHROME[locale],
+    items: HEADER_NAV_SLUGS.map((slug) => ({
+      href: publicPath(locale, slug),
+      label: HEADER_NAV_LABELS[locale][slug],
     })),
     apply: { href: intake.href, label: intake.label },
   };
 }
 
-const FR_NAV: { slug: PublicPageSlug; label: string }[] = [
-  { slug: "", label: "Accueil" },
-  { slug: "about", label: "À propos" },
-  { slug: "programme", label: "Programme" },
-  { slug: "founders", label: "Fondateurs" },
-  { slug: "alumni", label: "Alumni" },
-  { slug: "impact", label: "Impact" },
-  { slug: "partners", label: "Partenaires" },
-  { slug: "insights", label: "Perspectives" },
-];
+export function enNavLabels(openApplications = false): SiteNavLabels {
+  return navLabels("en", openApplications);
+}
 
 export function frNavLabels(openApplications = false): SiteNavLabels {
-  const intake = intakeCtaFor("fr", openApplications);
-  return {
-    brand: "",
-    languageGroupLabel: "Langue",
-    menuLabel: "Menu",
-    items: FR_NAV.map(({ slug, label }) => ({
-      href: publicPath("fr", slug),
-      label,
-    })),
-    apply: { href: intake.href, label: intake.label },
-  };
+  return navLabels("fr", openApplications);
 }
 
 export function navLabelsFor(
   locale: Locale,
   openApplications = false,
 ): SiteNavLabels {
-  return locale === "fr"
-    ? frNavLabels(openApplications)
-    : enNavLabels(openApplications);
+  return navLabels(locale, openApplications);
 }

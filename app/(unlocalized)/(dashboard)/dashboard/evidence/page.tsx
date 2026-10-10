@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
 import { EvidenceStatsCards } from "@/components/dashboard/cms-list-stats";
 import { EvidenceRecordsTable } from "@/components/evidence-records/evidence-records-table";
-import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
 import { getEvidenceRecordsPageData } from "@/data/evidence-records";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parseEvidenceListQuery } from "@/validations/evidence-record";
 
 const resource = getAdminResource("evidence");
@@ -26,44 +18,30 @@ type EvidencePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function EvidencePage({ searchParams }: EvidencePageProps) {
-  const query = parseEvidenceListQuery(await searchParams);
-  const { list, stats } = await loadAdminListPage({
-    query,
-    fetchPage: getEvidenceRecordsPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        status: q.status !== "all" ? q.status : undefined,
-        permission: q.permission !== "all" ? q.permission : undefined,
-      }),
-  });
-
+export default function EvidencePage({ searchParams }: EvidencePageProps) {
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
-      actions={
-        <>
-          <AdminPublicReflectionDialog resourceId="evidence" />
-          <Button
-            className="min-h-11 w-full sm:w-auto"
-            nativeButton={false}
-            render={<Link href={ROUTES.evidenceNew} />}
-          >
-            <PlusIcon className="size-4" />
-            New evidence
-          </Button>
-        </>
-      }
+    <CmsListPage
+      resourceId="evidence"
+      searchParams={searchParams}
+      parseQuery={parseEvidenceListQuery}
+      fetchPage={getEvidenceRecordsPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+        status: query.status !== "all" ? query.status : undefined,
+        permission: query.permission !== "all" ? query.permission : undefined,
+      })}
+      newItem={{ href: ROUTES.evidenceNew, label: "New evidence" }}
+      showPublicReflection
+      stats={(result) => <EvidenceStatsCards stats={result.stats} />}
     >
-      <EvidenceStatsCards stats={stats} />
-      <EvidenceRecordsTable
-        records={list.records}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <EvidenceRecordsTable
+          records={result.list.records}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

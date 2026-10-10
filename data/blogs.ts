@@ -7,9 +7,8 @@ import {
   adminListTotalPages,
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { adminOrderAscending } from "@/lib/admin/list-sort";
-import { wrapCached } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -73,8 +72,9 @@ async function fetchBlogsPage(
   }
 
   if (query.search) {
+    const pattern = escapeIlikePattern(query.search);
     request = request.or(
-      `title.ilike.%${query.search}%,slug.ilike.%${query.search}%,author_name.ilike.%${query.search}%`,
+      `title.ilike."%${pattern}%",slug.ilike."%${pattern}%",author_name.ilike."%${pattern}%"`,
     );
   }
 
@@ -120,8 +120,7 @@ export async function getBlogsPageData(
         fetchBlogListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getBlogsPageData" },
+    }
   );
 }
 
@@ -129,10 +128,7 @@ export async function getBlogsPageData(
  * Deduped per request: `generateMetadata` and the page body both need the same
  * blog.
  */
-export const getBlogByIdForAdmin = wrapCached(
-  "getBlogByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getBlogByIdForAdmin = cache(
   async (
     id: string,
   ): Promise<
@@ -142,21 +138,24 @@ export const getBlogByIdForAdmin = wrapCached(
   > => {
     if (!blogIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const supabase = await createClient();
-    if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+    const gated = await gateEditorPageData(
+      async (supabase) => {
+        const { data, error } = await supabase
+          .from("blogs")
+          .select(DETAIL_COLUMNS)
+          .eq("id", id)
+          .maybeSingle();
 
-    const { data, error } = await supabase
-      .from("blogs")
-      .select(DETAIL_COLUMNS)
-      .eq("id", id)
-      .maybeSingle();
+        if (error) throw error;
+        return { blog: (data as Blog | null) ?? null };
+      }
+    );
 
-    if (error) throw error;
-    if (!data) return { status: "not_found" };
-    return { status: "ok", blog: data as Blog };
+    if (gated.status === "forbidden") return gated;
+    if (!gated.blog) return { status: "not_found" };
+    return { status: "ok", blog: gated.blog };
   },
-  ),
-);
+  );
 
 async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();

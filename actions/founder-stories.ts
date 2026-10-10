@@ -9,6 +9,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import {
   createFounderStorySchema,
   deleteFounderStorySchema,
@@ -48,9 +49,11 @@ function refreshFounderStoryPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
-  // Detail HTML paths vary by startup slug; bust list + tag covers data cache.
-  revalidatePath("/en/founders", "layout");
-  revalidatePath("/fr/founders", "layout");
+  // Profile HTML varies by slug. Invalidate the page file, not the founders layout.
+  revalidatePath("/en/founders");
+  revalidatePath("/fr/founders");
+  revalidatePath("/en/founders/[slug]", "page");
+  revalidatePath("/fr/founders/[slug]", "page");
   revalidatePath("/en/impact");
   revalidatePath("/fr/impact");
 }
@@ -103,18 +106,12 @@ export async function createFounderStory(
       success: MESSAGES.createSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("founder_stories")
-        .insert(toFounderStoryRow(data))
-        .select("id")
-        .single();
-
-      if (error || !row?.id) {
-        return { status: "error", pgError: error ?? {} };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "insert",
+        table: "founder_stories",
+        values: toFounderStoryRow(data),
+      }),
     refresh: (_data, id) => refreshFounderStoryPaths(id),
   });
 }
@@ -130,22 +127,14 @@ export async function updateFounderStory(
       success: MESSAGES.updateSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("founder_stories")
-        .update(toFounderStoryRow(data))
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", pgError: error };
-      }
-      if (!row?.id) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "update",
+        table: "founder_stories",
+        id: data.id,
+        values: toFounderStoryRow(data),
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (_data, id) => refreshFounderStoryPaths(id),
   });
 }
@@ -161,30 +150,13 @@ export async function deleteFounderStory(
       success: MESSAGES.deleteSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: existing, error: existingError } = await session.supabase
-        .from("founder_stories")
-        .select("id")
-        .eq("id", data.id)
-        .maybeSingle();
-
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-
-      const { error: deleteError } = await session.supabase
-        .from("founder_stories")
-        .delete()
-        .eq("id", data.id);
-
-      if (deleteError) {
-        return { status: "error", pgError: deleteError };
-      }
-      return { status: "success" };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "delete",
+        table: "founder_stories",
+        id: data.id,
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (data) => refreshFounderStoryPaths(data.id),
   });
 }

@@ -25,6 +25,7 @@ export function AdminFormSection({
   headerAction,
   className,
   contentClassName,
+  headerClassName,
 }: {
   title: string;
   description?: string;
@@ -34,10 +35,11 @@ export function AdminFormSection({
   headerAction?: ReactNode;
   className?: string;
   contentClassName?: string;
+  headerClassName?: string;
 }) {
   return (
     <Card size="sm" className={cn("min-w-0", className)}>
-      <CardHeader className="border-b">
+      <CardHeader className={cn("border-b bg-brand-soft", headerClassName)}>
         <CardTitle>{title}</CardTitle>
         {description ? (
           <CardDescription>{description}</CardDescription>

@@ -1,7 +1,9 @@
+import { unstable_cache } from "next/cache";
+
+import { DASHBOARD_NAV_COUNTS_CACHE_TAG } from "@/constants/dashboard-nav-counts";
 import { ROUTES } from "@/constants/routes";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { traceAsync } from "@/lib/admin/perf";
-import { createClient } from "@/lib/supabase/server";
+import { gateEditorPageData } from "@/lib/admin/admin-list-query";
+import { createAccessTokenClient } from "@/lib/supabase/editor-access-client";
 import type { Json } from "@/types/database";
 
 export type InboxPipelineStats = {
@@ -143,38 +145,81 @@ function mapContent(payload: ContentPayload | undefined): ContentSnapshotRow[] {
   ];
 }
 
+const ANALYTICS_REVALIDATE_SECONDS = 60;
+
+/** Non-editor token. Thrown so a forbidden snapshot is not stored for the TTL. */
+class AnalyticsForbiddenError extends Error {
+  constructor() {
+    super("get_admin_analytics is not allowed");
+    this.name = "AnalyticsForbiddenError";
+  }
+}
+
+function mapAnalyticsPayload(data: unknown): AdminAnalytics {
+  const payload = (data ?? {}) as AnalyticsPayload & Json;
+  return {
+    applications: mapInbox(payload.applications),
+    registrations: mapInbox(payload.registrations),
+    contactMessages: mapInbox(payload.contactMessages),
+    content: mapContent(payload.content),
+  };
+}
+
+/**
+ * Cookie-free read. The access token stays in the closure so every editor
+ * shares one entry, busted by the same tag as the nav badges.
+ */
+async function fetchAdminAnalytics(accessToken: string): Promise<AdminAnalytics> {
+  const supabase = createAccessTokenClient(accessToken);
+  const { data, error } = await supabase.rpc("get_admin_analytics");
+
+  if (error) {
+    if (error.code === "42501") throw new AnalyticsForbiddenError();
+    throw new Error(error.message);
+  }
+
+  return mapAnalyticsPayload(data);
+}
+
+function readCachedAdminAnalytics(
+  accessToken: string,
+): Promise<AdminAnalytics> {
+  return unstable_cache(
+    () => fetchAdminAnalytics(accessToken),
+    ["admin-analytics"],
+    {
+      tags: [DASHBOARD_NAV_COUNTS_CACHE_TAG],
+      revalidate: ANALYTICS_REVALIDATE_SECONDS,
+    },
+  )();
+}
+
 /**
  * CMS Analytics snapshot via `get_admin_analytics` (one DB round-trip).
  * Labels/hrefs stay in TS; RPC returns counts only.
+ * Cached on the nav-count tag so home does not rescan those tables on every visit.
  */
 export async function getAdminAnalytics(): Promise<
   { status: "forbidden" } | { status: "ok"; analytics: AdminAnalytics }
 > {
-  return traceAsync(
-    "getAdminAnalytics",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+  const gated = await gateEditorPageData(
+    async (supabase) => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) return { analytics: null };
 
-      const supabase = await createClient();
-      const { data, error } = await supabase.rpc("get_admin_analytics");
-
-      if (error) {
-        if (error.code === "42501") return { status: "forbidden" };
+      try {
+        return { analytics: await readCachedAdminAnalytics(accessToken) };
+      } catch (error) {
+        if (error instanceof AnalyticsForbiddenError) return { analytics: null };
         throw error;
       }
-
-      const payload = (data ?? {}) as AnalyticsPayload & Json;
-
-      return {
-        status: "ok",
-        analytics: {
-          applications: mapInbox(payload.applications),
-          registrations: mapInbox(payload.registrations),
-          contactMessages: mapInbox(payload.contactMessages),
-          content: mapContent(payload.content),
-        },
-      };
-    },
+    }
   );
+
+  if (gated.status === "forbidden") return gated;
+  if (!gated.analytics) return { status: "forbidden" };
+  return { status: "ok", analytics: gated.analytics };
 }

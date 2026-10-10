@@ -4,14 +4,18 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { CalendarIcon } from "lucide-react";
 
+import { deleteEvent } from "@/actions/events";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
-import { EventRowActions } from "@/components/events/event-row-actions";
 import { EventsFilters } from "@/components/events/events-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -48,7 +52,7 @@ export function EventsTable({
     <AdminDataTable
       filters={<EventsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Name</TableHead>
           <TableHead>Date</TableHead>
@@ -129,7 +133,21 @@ export function EventsTable({
             className="pr-4 whitespace-nowrap"
             onClick={(clickEvent) => clickEvent.stopPropagation()}
           >
-            <EventRowActions event={event} />
+            <AdminEditDeleteActions
+              editHref={eventDetailPath(event.id)}
+              editLabel={`Edit ${event.name}`}
+              deleteAction={() => deleteEvent({ id: event.id })}
+              fallbackError="The event could not be deleted. Please try again."
+              title="Delete event?"
+              description={
+                <>
+                  This permanently deletes {event.name} and removes its startup
+                  links. This cannot be undone.
+                </>
+              }
+              confirmLabel="Delete event"
+              triggerLabel={`Delete ${event.name}`}
+            />
           </TableCell>
         </AdminClickableRow>
       ))}

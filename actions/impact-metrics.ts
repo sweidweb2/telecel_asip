@@ -9,6 +9,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import {
   createImpactMetricSchema,
   deleteImpactMetricSchema,
@@ -47,10 +48,9 @@ function refreshImpactMetricPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
+  // Home strip only. The impact page does not render these metrics.
   revalidatePath("/en");
   revalidatePath("/fr");
-  revalidatePath("/en/impact");
-  revalidatePath("/fr/impact");
 }
 
 function toImpactMetricRow(
@@ -84,18 +84,12 @@ export async function createImpactMetric(
       success: MESSAGES.createSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("impact_metrics")
-        .insert(toImpactMetricRow(data))
-        .select("id")
-        .single();
-
-      if (error || !row?.id) {
-        return { status: "error", pgError: error ?? {} };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "insert",
+        table: "impact_metrics",
+        values: toImpactMetricRow(data),
+      }),
     refresh: (_data, id) => refreshImpactMetricPaths(id),
   });
 }
@@ -111,22 +105,14 @@ export async function updateImpactMetric(
       success: MESSAGES.updateSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("impact_metrics")
-        .update(toImpactMetricRow(data))
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", pgError: error };
-      }
-      if (!row?.id) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "update",
+        table: "impact_metrics",
+        id: data.id,
+        values: toImpactMetricRow(data),
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (_data, id) => refreshImpactMetricPaths(id),
   });
 }
@@ -142,30 +128,13 @@ export async function deleteImpactMetric(
       success: MESSAGES.deleteSuccess,
     },
     pgMessages: PG_MESSAGES,
-    execute: async (session, data) => {
-      const { data: existing, error: existingError } = await session.supabase
-        .from("impact_metrics")
-        .select("id")
-        .eq("id", data.id)
-        .maybeSingle();
-
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-
-      const { error: deleteError } = await session.supabase
-        .from("impact_metrics")
-        .delete()
-        .eq("id", data.id);
-
-      if (deleteError) {
-        return { status: "error", pgError: deleteError };
-      }
-      return { status: "success" };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "delete",
+        table: "impact_metrics",
+        id: data.id,
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (data) => refreshImpactMetricPaths(data.id),
   });
 }

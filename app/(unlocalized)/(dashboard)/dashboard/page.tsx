@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   BarChart3Icon,
   BookOpenIcon,
@@ -19,7 +18,9 @@ import {
 } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { buttonVariants } from "@/components/ui/button";
+import { AdminPortalLinkList } from "@/components/dashboard/admin-portal-link";
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
+import { AdminStatsCards } from "@/components/dashboard/admin-stats-cards";
 import {
   DASHBOARD_NAV_GROUPS,
   type DashboardNavGroup,
@@ -27,7 +28,7 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { getAdminAnalytics } from "@/data/admin-analytics";
 import { requireEditor } from "@/data/auth";
-import { cn } from "@/lib/utils";
+import { traceAsync } from "@/lib/admin/perf";
 
 export const metadata: Metadata = {
   title: "Dashboard | ASIP Editor",
@@ -74,7 +75,11 @@ const LAUNCHER_GROUPS: readonly DashboardNavGroup[] =
 
 export default async function DashboardPage() {
   await requireEditor();
-  const analyticsResult = await getAdminAnalytics();
+  const analyticsResult = await traceAsync(
+    "dashboardPage",
+    { eventType: "page", route: ROUTES.dashboard },
+    () => getAdminAnalytics(),
+  );
   const analytics =
     analyticsResult.status === "ok" ? analyticsResult.analytics : null;
 
@@ -105,37 +110,22 @@ export default async function DashboardPage() {
       <div className="grid gap-8">
         <section className="grid gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-              What’s waiting
-            </h2>
+            <AdminSectionHeading>What’s waiting</AdminSectionHeading>
             <p className="mt-1 text-sm text-muted-foreground">
               Unread items in the intake pipeline.
             </p>
           </div>
           {analytics ? (
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {waiting.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "h-auto min-h-11 w-full flex-col items-start justify-start gap-1 px-4 py-4 whitespace-normal",
-                    )}
-                  >
-                    <span className="text-sm font-medium text-foreground">
-                      {item.title}
-                    </span>
-                    <span className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
-                      {item.unread}
-                    </span>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      unread
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <AdminStatsCards
+              items={waiting.map((item) => ({
+                key: item.href,
+                label: item.title,
+                value: item.unread,
+                icon: NAV_ICONS[item.href] ?? BriefcaseIcon,
+                href: item.href,
+                accent: true,
+              }))}
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               Could not load inbox counts. Open Registrations, Applications, or
@@ -152,39 +142,15 @@ export default async function DashboardPage() {
 
         {LAUNCHER_GROUPS.map((group) => (
           <section key={group.label} className="grid gap-3">
-            <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-              {group.label}
-            </h2>
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {group.items.map((item) => {
-                const Icon = NAV_ICONS[item.href] ?? BriefcaseIcon;
-                const description =
-                  RESOURCE_BLURB[item.href] ?? "Open this section.";
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        buttonVariants({ variant: "outline" }),
-                        "h-auto min-h-11 w-full items-start justify-start gap-3 px-4 py-4 whitespace-normal",
-                      )}
-                    >
-                      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <Icon className="size-4" />
-                      </span>
-                      <span className="min-w-0 text-left">
-                        <span className="block font-medium text-foreground">
-                          {item.title}
-                        </span>
-                        <span className="mt-0.5 block text-sm font-normal text-muted-foreground text-pretty">
-                          {description}
-                        </span>
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <AdminSectionHeading>{group.label}</AdminSectionHeading>
+            <AdminPortalLinkList
+              items={group.items.map((item) => ({
+                href: item.href,
+                title: item.title,
+                description: RESOURCE_BLURB[item.href] ?? "Open this section.",
+                icon: NAV_ICONS[item.href] ?? BriefcaseIcon,
+              }))}
+            />
           </section>
         ))}
       </div>

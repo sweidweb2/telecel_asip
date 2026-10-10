@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 
+import { LOCALES } from "@/constants/locales";
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_CACHE_TAG, SITE_SETTINGS_ID } from "@/data/settings";
 import { authorizeAdmin } from "@/lib/admin/authorize-admin";
@@ -26,20 +27,24 @@ const MESSAGES = {
   backupUnauthorized: "Only administrators can change the backup schedule.",
 } as const;
 
+/** Pages whose own render reads site settings. Not the locale layout. */
+const SETTINGS_PUBLIC_PATHS = [
+  "",
+  "/programme",
+  "/apply",
+  "/register-interest",
+  "/login",
+  "/signup",
+] as const;
+
 function revalidateSettingsCaches() {
   revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
-  revalidatePath("/en", "layout");
-  revalidatePath("/fr", "layout");
-  revalidatePath("/en");
-  revalidatePath("/fr");
-  revalidatePath("/en/programme");
-  revalidatePath("/fr/programme");
-  revalidatePath("/en/insights");
-  revalidatePath("/fr/insights");
-  revalidatePath("/en/apply");
-  revalidatePath("/fr/apply");
-  revalidatePath("/en/register-interest");
-  revalidatePath("/fr/register-interest");
+  for (const locale of LOCALES) {
+    for (const path of SETTINGS_PUBLIC_PATHS) {
+      revalidatePath(`/${locale}${path}`);
+    }
+  }
+  revalidatePath("/sitemap.xml");
   revalidatePath(ROUTES.settings);
   revalidatePath(ROUTES.adminSettings);
   revalidatePath(ROUTES.adminBackup);
@@ -112,14 +117,4 @@ export async function updateAdminSiteSettings(
 
   revalidateSettingsCaches();
   return { status: "success", message: MESSAGES.updateSuccess };
-}
-
-/** @deprecated Use updateEditorSiteSettings — kept for older imports/tests. */
-export async function updateSiteSettings(
-  input: UpdateAdminSiteSettingsInput,
-): Promise<SiteSettingsActionResult> {
-  if ("backupTime" in input && input.backupTime !== undefined) {
-    return updateAdminSiteSettings(input);
-  }
-  return updateEditorSiteSettings(input);
 }

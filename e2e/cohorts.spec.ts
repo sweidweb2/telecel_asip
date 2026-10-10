@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("cohorts cms", () => {
   test.beforeEach(() => {
     test.skip(!hasE2ECredentials(), "Cohorts E2E requires real Supabase credentials.");

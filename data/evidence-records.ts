@@ -4,10 +4,9 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EvidenceDetail,
@@ -121,22 +120,14 @@ export async function getEvidenceRecordsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: EvidenceListResult; stats: EvidenceListStats }
 > {
-  return traceAsync(
-    "getEvidenceRecordsPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchEvidencePage(supabase, query),
         fetchEvidenceListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
-    },
+      return { list, stats };
+    }
   );
 }
 
@@ -145,41 +136,41 @@ type EvidenceDetailResult =
   | { status: "not_found" }
   | { status: "ok"; record: EvidenceDetail };
 
-export const getEvidenceRecordByIdForAdmin = wrapCached(
-  "getEvidenceRecordByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getEvidenceRecordByIdForAdmin = cache(
     async (id: string): Promise<EvidenceDetailResult> => {
       if (!evidenceRecordIdSchema.safeParse(id).success) {
         return { status: "not_found" };
       }
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const { data, error } = await supabase
+            .from("evidence_records")
+            .select(DETAIL_COLUMNS)
+            .eq("id", id)
+            .maybeSingle();
 
-      const { data, error } = await supabase
-        .from("evidence_records")
-        .select(DETAIL_COLUMNS)
-        .eq("id", id)
-        .maybeSingle();
+          if (error) throw error;
+          if (!data) return { record: null };
 
-      if (error) throw error;
-      if (!data) return { status: "not_found" };
+          return {
+            record: {
+              ...(data as EvidenceRecord & {
+                owner: EvidenceOwnerOption | EvidenceOwnerOption[] | null;
+              }),
+              owner: normalizeDetailOwner(
+                data.owner as EvidenceOwnerOption | EvidenceOwnerOption[] | null,
+              ),
+            },
+          };
+        }
+      );
 
-      return {
-        status: "ok",
-        record: {
-          ...(data as EvidenceRecord & {
-            owner: EvidenceOwnerOption | EvidenceOwnerOption[] | null;
-          }),
-          owner: normalizeDetailOwner(
-            data.owner as EvidenceOwnerOption | EvidenceOwnerOption[] | null,
-          ),
-        },
-      };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.record) return { status: "not_found" };
+      return { status: "ok", record: gated.record };
     },
-  ),
-);
+  );
 
 /**
  * Profiles available as evidence owners in the admin form.
@@ -191,13 +182,8 @@ export async function getEvidenceOwnerOptions(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; owners: EvidenceOwnerOption[] }
 > {
-  return traceAsync(
-    "getEvidenceOwnerOptions",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("profiles")
@@ -229,7 +215,7 @@ export async function getEvidenceOwnerOptions(
         }
       }
 
-      return { status: "ok", owners };
-    },
+      return { owners };
+    }
   );
 }

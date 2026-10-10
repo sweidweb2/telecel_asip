@@ -11,6 +11,7 @@ import {
   runAdminMutation,
   type AdminActionResult,
 } from "@/lib/admin/run-admin-mutation";
+import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
@@ -224,22 +225,14 @@ export async function updatePartnerActive(
     },
     pgMessages: PG_MESSAGES,
     perfName: "updatePartnerActive",
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("partners")
-        .update({ is_active: data.isActive })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", pgError: error };
-      }
-      if (!row?.id) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "update",
+        table: "partners",
+        id: data.id,
+        values: { is_active: data.isActive },
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (_data, id) => refreshPartnerPaths(id),
   });
 }
@@ -258,22 +251,14 @@ export async function updatePartnerLogoPermission(
     },
     pgMessages: PG_MESSAGES,
     perfName: "updatePartnerLogoPermission",
-    execute: async (session, data) => {
-      const { data: row, error } = await session.supabase
-        .from("partners")
-        .update({ logo_permission: data.logoPermission })
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
-      if (error) {
-        return { status: "error", pgError: error };
-      }
-      if (!row?.id) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-      return { status: "success", id: row.id };
-    },
+    execute: (session, data) =>
+      writeAdminRow(session.supabase, {
+        op: "update",
+        table: "partners",
+        id: data.id,
+        values: { logo_permission: data.logoPermission },
+        notFound: MESSAGES.notFound,
+      }),
     refresh: (_data, id) => refreshPartnerPaths(id),
   });
 }

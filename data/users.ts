@@ -43,24 +43,6 @@ export const getCurrentUserProfile = cache(
   },
 );
 
-export async function getUsers(query: UserListQuery): Promise<UserListResult> {
-  const supabase = await createClient();
-  const shell = await getStaffShell();
-  const hideAdmins = shell.isEditor && !shell.isAdmin;
-  return fetchUsers(supabase, query, { hideAdmins });
-}
-
-/**
- * Per-request memoization only.
- * Stats are one RPC (`get_user_stats`) — not four head-count round trips.
- */
-export const getUserStats = cache(async (): Promise<UserStats> => {
-  const supabase = await createClient();
-  const shell = await getStaffShell();
-  const hideAdmins = shell.isEditor && !shell.isAdmin;
-  return fetchUserStats(supabase, { hideAdmins });
-});
-
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
 type UsersVisibility = {
@@ -165,7 +147,6 @@ export async function getUsersPageData(query: UserListQuery): Promise<
         fetchUserStats(supabase, visibility),
       ]);
       return { list, stats };
-    },
-    { name: "getUsersPageData" },
+    }
   );
 }

@@ -13,6 +13,7 @@ import {
   updateApplicationInboxStatus,
 } from "@/actions/applications";
 import {
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
@@ -238,7 +239,7 @@ function ApplicationEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
         <DialogTitle>Edit application</DialogTitle>
         <DialogDescription>
           Update the submitted application details.
@@ -582,7 +583,7 @@ export function ApplicationEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
               <DialogTitle>Edit application</DialogTitle>
               <DialogDescription>
                 Update the submitted application details.

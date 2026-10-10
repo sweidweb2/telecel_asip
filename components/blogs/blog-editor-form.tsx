@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useWatch } from "react-hook-form";
 import { Loader2Icon, Trash2Icon, UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,27 +18,16 @@ import {
 } from "@/actions/blogs";
 import { loadBlogLinkOptions } from "@/actions/admin-pickers";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
-import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { dummyBlogValues } from "@/lib/admin/dummy-form-values";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const BlogRichTextEditor = dynamic(
   () =>
@@ -72,8 +60,7 @@ import { RECOMMENDED_BLOG_CATEGORIES } from "@/constants/blog-categories";
 import { BLOG_EDITOR_HELP } from "@/constants/blog-editor-help";
 import { ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import { slugifyTitle } from "@/lib/blog-utils";
 import type { Blog } from "@/types/blog";
 import {
@@ -105,25 +92,6 @@ type BlogEditorFormProps = {
 
 const STREAM_SET = new Set<string>(RECOMMENDED_BLOG_CATEGORIES);
 
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor?: string;
-  children: React.ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="text-xs text-muted-foreground">{hint}</span>
-      ) : null}
-    </div>
-  );
-}
-
 export function BlogEditorForm({
   mode,
   blog,
@@ -131,7 +99,6 @@ export function BlogEditorForm({
   cohorts: initialCohorts = [],
 }: BlogEditorFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
   const [sourceDraft, setSourceDraft] = useState("");
@@ -148,7 +115,6 @@ export function BlogEditorForm({
   const [removeCoverOnSave, setRemoveCoverOnSave] = useState(false);
   const [removeAvatarOnSave, setRemoveAvatarOnSave] = useState(false);
   const [createdBlogId, setCreatedBlogId] = useState<string | null>(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const isCreateSuccessOpen = Boolean(createdBlogId);
   const [startups, setStartups] = useState(initialStartups);
   const [cohorts, setCohorts] = useState(initialCohorts);
@@ -183,18 +149,9 @@ export function BlogEditorForm({
     metaDescription: null,
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    getValues,
-    reset,
-    clearErrors,
-    formState: { errors, isDirty },
-  } = useForm<CreateBlogInput>({
-    resolver: zodResolver(createBlogSchema),
-    mode: "onChange",
+  const editor = useCmsEditorForm<CreateBlogInput>({
+    mode,
+    schema: createBlogSchema,
     defaultValues: {
       title: blog?.title ?? "",
       slug: blog?.slug ?? "",
@@ -210,7 +167,16 @@ export function BlogEditorForm({
       metaTitle: blog?.meta_title ?? null,
       metaDescription: blog?.meta_description ?? null,
     },
+    recordId: blog?.id,
+    listPath: ROUTES.blogs,
+    detailPath: (id) => `${ROUTES.blogs}/${id}`,
+    create: createBlog,
+    update: updateBlog,
+    remove: deleteBlog,
+    saveError: "The blog could not be saved. Please try again.",
   });
+  const { form, isPending, errors } = editor;
+  const { register, control, setValue, getValues, reset, clearErrors } = form;
 
   const title = useWatch({ control, name: "title" });
   const categories = useWatch({ control, name: "categories" }) ?? [];
@@ -319,7 +285,7 @@ export function BlogEditorForm({
   }
 
   function onSubmit(values: CreateBlogInput) {
-    startTransition(async () => {
+    editor.run(async () => {
       if (mode === "create") {
         const result = await createBlog(values);
         if (result.status === "error") {
@@ -444,21 +410,6 @@ export function BlogEditorForm({
     });
   }
 
-  function onDelete() {
-    if (!blog) return;
-    startTransition(async () => {
-      const result = await deleteBlog({ id: blog.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      setIsDeleteOpen(false);
-      toast.success(result.message);
-      router.push(ROUTES.blogs);
-      router.refresh();
-    });
-  }
-
   function onPickCover(fileList: FileList | null) {
     const file = fileList?.[0] ?? null;
     if (!file) return;
@@ -533,65 +484,106 @@ export function BlogEditorForm({
 
   return (
     <>
-    <UnsavedChangesGuard enabled={isDirty && !isPending} />
-    <form
-      className={`grid gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-      onSubmit={(event) => {
-        void handleSubmit(onSubmit)(event);
-      }}
-      noValidate
-    >
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={status === "published" ? "default" : "secondary"}>
-            {status === "published" ? "Published" : "Draft"}
-          </Badge>
-          {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={(event) => form.handleSubmit(onSubmit)(event)}
+      formClassName=""
+      toolbar={
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={status === "published" ? "default" : "secondary"}>
+              {status === "published" ? "Published" : "Draft"}
+            </Badge>
+            {isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+          </div>
+          <AdminFormDevTools
+            disabled={isPending}
+            onDummy={() => {
+              reset(
+                { ...getValues(), ...dummyBlogValues() },
+                { keepDefaultValues: true },
+              );
+              setSlugTouched(true);
+            }}
+            onClear={() => {
+              reset(emptyCreateValues, { keepDefaultValues: true });
+              setSlugTouched(false);
+              setPendingCover(null);
+              setPendingAvatar(null);
+              setPendingCoverPreview((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+              });
+              setPendingAvatarPreview((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+              });
+            }}
+          />
         </div>
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            reset(
-              { ...getValues(), ...dummyBlogValues() },
-              { keepDefaultValues: true },
-            );
-            setSlugTouched(true);
-          }}
-          onClear={() => {
-            reset(emptyCreateValues, { keepDefaultValues: true });
-            setSlugTouched(false);
-            setPendingCover(null);
-            setPendingAvatar(null);
-            setPendingCoverPreview((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
-              return null;
-            });
-            setPendingAvatarPreview((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
-              return null;
-            });
-          }}
-        />
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
+      }
+      actions={
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            {mode === "edit" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="min-h-11 w-full sm:w-auto"
+                disabled={isPending}
+                onClick={() => editor.setDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" />
+                Delete
+              </Button>
+            ) : (
+              <span className="hidden sm:block" />
+            )}
+            <Button
+              type="submit"
+              className="min-h-11 w-full sm:ml-auto sm:w-auto"
+              disabled={editor.submitDisabled(hasPendingMediaChanges)}
+            >
+              {isPending ? (
+                <>
+                  <Loader2Icon className="animate-spin" />
+                  {isProcessingImage ? "Processing image…" : "Saving…"}
+                </>
+              ) : mode === "create" ? (
+                "Create blog"
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+          </div>
+        </div>
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete this blog?",
+        description: blog?.title
+          ? `This permanently deletes “${blog.title}”. This cannot be undone.`
+          : "This permanently deletes the blog post. This cannot be undone.",
+        confirmLabel: "Delete",
+        onConfirm: editor.onDelete,
+      }}
+    >
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start lg:gap-8">
         {/* Left: content fields */}
-        <div className="grid min-w-0 gap-4">
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Basics</CardTitle>
-              <CardDescription>
-                Title, URL slug, and author byline
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.basics} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-6">
+          <AdminFormSection
+            title="Basics"
+            description="Title, URL slug, and author byline"
+            help={BLOG_EDITOR_HELP.basics}
+            contentClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          >
             <div className="grid gap-2">
-              <FieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
+              <AdminFormFieldLabel htmlFor="blog-title" hint={`2–${BLOG_TITLE_MAX} chars`}>
                 Title
-              </FieldLabel>
+              </AdminFormFieldLabel>
               <Input
                 id="blog-title"
                 className="min-h-11"
@@ -614,12 +606,12 @@ export function BlogEditorForm({
               ) : null}
             </div>
             <div className="grid gap-2">
-              <FieldLabel
+              <AdminFormFieldLabel
                 htmlFor="blog-slug"
                 hint={`2–${BLOG_SLUG_MAX} · a-z 0-9 -`}
               >
                 Slug
-              </FieldLabel>
+              </AdminFormFieldLabel>
               <Input
                 id="blog-slug"
                 className="min-h-11"
@@ -638,12 +630,12 @@ export function BlogEditorForm({
               ) : null}
             </div>
             <div className="grid gap-2 sm:col-span-2 xl:col-span-1">
-              <FieldLabel
+              <AdminFormFieldLabel
                 htmlFor="blog-author"
                 hint={`2–${BLOG_AUTHOR_NAME_MAX} chars`}
               >
                 Author
-              </FieldLabel>
+              </AdminFormFieldLabel>
               <Input
                 id="blog-author"
                 className="min-h-11"
@@ -657,26 +649,20 @@ export function BlogEditorForm({
                 <AdminFieldError message={errors.authorName.message} />
               ) : null}
             </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
 
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Summary</CardTitle>
-              <CardDescription>
-                Teaser for cards and default SEO description
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.summary} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-2">
-            <FieldLabel
+          <AdminFormSection
+            title="Summary"
+            description="Teaser for cards and default SEO description"
+            help={BLOG_EDITOR_HELP.summary}
+            contentClassName="grid gap-2"
+          >
+            <AdminFormFieldLabel
               htmlFor="blog-summary"
               hint={`2–${BLOG_SUMMARY_MAX} chars`}
             >
               Summary
-            </FieldLabel>
+            </AdminFormFieldLabel>
             <Textarea
               id="blog-summary"
               rows={3}
@@ -690,23 +676,17 @@ export function BlogEditorForm({
             {errors.summary ? (
               <AdminFieldError message={errors.summary.message} />
             ) : null}
-            </CardContent>
-          </Card>
+          </AdminFormSection>
 
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Body</CardTitle>
-              <CardDescription>
-                Full article content on the Insights detail page
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.body} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-2">
-            <FieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
+          <AdminFormSection
+            title="Body"
+            description="Full article content on the Insights detail page"
+            help={BLOG_EDITOR_HELP.body}
+            contentClassName="grid gap-2"
+          >
+            <AdminFormFieldLabel hint={`max ${BLOG_BODY_MAX.toLocaleString()} chars`}>
               Body
-            </FieldLabel>
+            </AdminFormFieldLabel>
             <Controller
               name="bodyHtml"
               control={control}
@@ -722,22 +702,16 @@ export function BlogEditorForm({
             {errors.bodyHtml ? (
               <AdminFieldError message={errors.bodyHtml.message} />
             ) : null}
-            </CardContent>
-          </Card>
+          </AdminFormSection>
 
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Related & SEO</CardTitle>
-              <CardDescription>
-                Optional founder/cohort links, sources, and search metadata
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.relatedSeo} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2">
+          <AdminFormSection
+            title="Related & SEO"
+            description="Optional founder/cohort links, sources, and search metadata"
+            help={BLOG_EDITOR_HELP.relatedSeo}
+            contentClassName="grid gap-4 sm:grid-cols-2"
+          >
               <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-startup">Related founder</FieldLabel>
+                <AdminFormFieldLabel htmlFor="blog-startup">Related founder</AdminFormFieldLabel>
                 <Controller
                   control={control}
                   name="startupId"
@@ -779,7 +753,7 @@ export function BlogEditorForm({
               </div>
 
               <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-cohort">Related cohort</FieldLabel>
+                <AdminFormFieldLabel htmlFor="blog-cohort">Related cohort</AdminFormFieldLabel>
                 <Controller
                   control={control}
                   name="cohortId"
@@ -821,9 +795,9 @@ export function BlogEditorForm({
               </div>
 
               <div className="grid gap-2">
-                <FieldLabel htmlFor="blog-meta-title" hint={`max ${BLOG_META_TITLE_MAX}`}>
+                <AdminFormFieldLabel htmlFor="blog-meta-title" hint={`max ${BLOG_META_TITLE_MAX}`}>
                   Meta title
-                </FieldLabel>
+                </AdminFormFieldLabel>
                 <Input
                   id="blog-meta-title"
                   className="min-h-11"
@@ -838,12 +812,12 @@ export function BlogEditorForm({
               </div>
 
               <div className="grid gap-2 sm:col-span-2">
-                <FieldLabel
+                <AdminFormFieldLabel
                   htmlFor="blog-meta-description"
                   hint={`max ${BLOG_META_DESCRIPTION_MAX}`}
                 >
                   Meta description
-                </FieldLabel>
+                </AdminFormFieldLabel>
                 <Textarea
                   id="blog-meta-description"
                   rows={3}
@@ -858,9 +832,9 @@ export function BlogEditorForm({
               </div>
 
               <div className="grid gap-2 sm:col-span-2">
-                <FieldLabel hint={`up to ${BLOG_SOURCES_MAX} · max ${BLOG_SOURCE_MAX} chars`}>
+                <AdminFormFieldLabel hint={`up to ${BLOG_SOURCES_MAX} · max ${BLOG_SOURCE_MAX} chars`}>
                   Sources
-                </FieldLabel>
+                </AdminFormFieldLabel>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
                     className="min-h-11"
@@ -910,21 +884,15 @@ export function BlogEditorForm({
                   }
                 />
               </div>
-            </CardContent>
-          </Card>
+          </AdminFormSection>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
-                <CardTitle>Publishing</CardTitle>
-                <CardDescription>
-                  Visibility and featured placement
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={BLOG_EDITOR_HELP.publishing} />
-                </CardAction>
-              </CardHeader>
-              <CardContent className="grid gap-3">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <AdminFormSection
+              title="Publishing"
+              description="Visibility and featured placement"
+              help={BLOG_EDITOR_HELP.publishing}
+              contentClassName="grid gap-4"
+            >
                 <div className="flex items-center gap-3">
                   <Controller
                     name="status"
@@ -982,20 +950,13 @@ export function BlogEditorForm({
                 {errors.isFeatured ? (
                   <AdminFieldError message={errors.isFeatured.message} />
                 ) : null}
-              </CardContent>
-            </Card>
+            </AdminFormSection>
 
-            <Card size="sm" className="min-w-0">
-              <CardHeader className="border-b">
-                <CardTitle>Author avatar</CardTitle>
-                <CardDescription>
-                  JPEG/PNG/WebP/GIF · max 2MB
-                </CardDescription>
-                <CardAction>
-                  <AdminFormSectionHelp help={BLOG_EDITOR_HELP.authorAvatar} />
-                </CardAction>
-              </CardHeader>
-              <CardContent>
+            <AdminFormSection
+              title="Author avatar"
+              description="JPEG/PNG/WebP/GIF · max 2MB"
+              help={BLOG_EDITOR_HELP.authorAvatar}
+            >
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -1059,21 +1020,18 @@ export function BlogEditorForm({
                     {hasAvatar ? "Replace" : "Choose file"}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+            </AdminFormSection>
           </div>
         </div>
 
         {/* Right: cover + categories */}
-        <aside className="grid gap-4 lg:sticky lg:top-4">
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Cover image</CardTitle>
-              <CardDescription>
-                JPEG/PNG/WebP/GIF · max 5MB
-              </CardDescription>
-              <CardAction className="flex flex-wrap items-center justify-end gap-2">
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.cover} />
+        <aside className="grid gap-6 lg:sticky lg:top-4">
+          <AdminFormSection
+            title="Cover image"
+            description="JPEG/PNG/WebP/GIF · max 5MB"
+            help={BLOG_EDITOR_HELP.cover}
+            headerAction={
+              <>
                 <input
                   ref={coverInputRef}
                   type="file"
@@ -1092,9 +1050,9 @@ export function BlogEditorForm({
                   <UploadIcon className="size-4" />
                   Upload
                 </Button>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
+              </>
+            }
+          >
               <div className="relative aspect-[1.5] w-full overflow-hidden rounded-lg bg-muted">
                 {coverPreview ? (
                   pendingCoverPreview ? (
@@ -1128,22 +1086,14 @@ export function BlogEditorForm({
                 ) : null}
               </div>
               <AdminImageProcessingBanner active={isProcessingImage} />
-            </CardContent>
-          </Card>
+          </AdminFormSection>
 
-          <Card size="sm">
-            <CardHeader className="border-b">
-              <CardTitle>Categories</CardTitle>
-              <CardDescription>
-                First category must be an Insights stream · extra free tags
-                allowed · up to {BLOG_CATEGORIES_MAX} · each max{" "}
-                {BLOG_CATEGORY_MAX} chars
-              </CardDescription>
-              <CardAction>
-                <AdminFormSectionHelp help={BLOG_EDITOR_HELP.categories} />
-              </CardAction>
-            </CardHeader>
-            <CardContent className="grid gap-3">
+          <AdminFormSection
+            title="Categories"
+            description={`First category must be an Insights stream · extra free tags allowed · up to ${BLOG_CATEGORIES_MAX} · each max ${BLOG_CATEGORY_MAX} chars`}
+            help={BLOG_EDITOR_HELP.categories}
+            contentClassName="grid gap-4"
+          >
               {!primaryStream && categories.length > 0 ? (
                 <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
                   This post’s first category is not an ASIP stream (often from
@@ -1215,54 +1165,11 @@ export function BlogEditorForm({
                       errors.categories?.[0]?.message)
                 }
               />
-            </CardContent>
-          </Card>
+          </AdminFormSection>
         </aside>
       </div>
 
-      <AdminEditorActionsBar>
-        <div className="flex w-full flex-col gap-3">
-          <AdminImageProcessingBanner active={isProcessingImage} />
-          <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        {mode === "edit" ? (
-          <Button
-            type="button"
-            variant="destructive"
-            className="min-h-11 w-full sm:w-auto"
-            disabled={isPending}
-            onClick={() => setIsDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Delete
-          </Button>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
-        <Button
-          type="submit"
-          className="min-h-11 w-full sm:w-auto sm:ml-auto"
-          disabled={isAdminFormSubmitDisabled({
-            isPending,
-            isDirty,
-            errors,
-            hasExternalChanges: hasPendingMediaChanges,
-          })}
-        >
-          {isPending ? (
-            <>
-              <Loader2Icon className="animate-spin" />
-              {isProcessingImage ? "Processing image…" : "Saving…"}
-            </>
-          ) : mode === "create" ? (
-            "Create blog"
-          ) : (
-            "Save changes"
-          )}
-        </Button>
-          </div>
-        </div>
-      </AdminEditorActionsBar>
-    </form>
+    </CmsEditorFrame>
 
     <Dialog
       open={isCreateSuccessOpen}
@@ -1307,21 +1214,6 @@ export function BlogEditorForm({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-    <AdminDeleteDialog
-      open={isDeleteOpen}
-      onOpenChange={setIsDeleteOpen}
-      showTrigger={false}
-      title="Delete this blog?"
-      description={
-        blog?.title
-          ? `This permanently deletes “${blog.title}”. This cannot be undone.`
-          : "This permanently deletes the blog post. This cannot be undone."
-      }
-      confirmLabel="Delete"
-      isPending={isPending}
-      onConfirm={onDelete}
-    />
     </>
   );
 }

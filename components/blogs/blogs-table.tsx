@@ -4,11 +4,15 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { NewspaperIcon } from "lucide-react";
 
-import { BlogRowActions } from "@/components/blogs/blog-row-actions";
+import { deleteBlog } from "@/actions/blogs";
 import { BlogStatusToggle } from "@/components/blogs/blog-status-toggle";
 import { BlogsFilters } from "@/components/blogs/blogs-filters";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
@@ -60,7 +64,7 @@ export function BlogsTable({
     <AdminDataTable
       filters={<BlogsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <AdminSortableHead
             label="Title"
@@ -162,7 +166,21 @@ export function BlogsTable({
               className="pr-4 text-right"
               onClick={(event) => event.stopPropagation()}
             >
-              <BlogRowActions blog={blog} />
+              <AdminEditDeleteActions
+                editHref={`${ROUTES.blogs}/${blog.id}`}
+                editLabel={`Edit ${blog.title}`}
+                deleteAction={() => deleteBlog({ id: blog.id })}
+                fallbackError="The blog could not be deleted. Please try again."
+                title="Delete blog?"
+                description={
+                  <>
+                    This permanently deletes “{blog.title}” and its images.
+                    This cannot be undone.
+                  </>
+                }
+                confirmLabel="Delete blog"
+                triggerLabel={`Delete ${blog.title}`}
+              />
             </TableCell>
           </AdminClickableRow>
         );

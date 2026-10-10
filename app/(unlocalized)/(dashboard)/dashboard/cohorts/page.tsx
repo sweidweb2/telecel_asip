@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
-import { CohortStatsCards } from "@/components/dashboard/cms-list-stats";
 import { CohortsTable } from "@/components/cohorts/cohorts-table";
-import { Button } from "@/components/ui/button";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
+import { CohortStatsCards } from "@/components/dashboard/cms-list-stats";
 import { getAdminResource } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
 import { getCohortsPageData } from "@/data/cohorts";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parseCohortListQuery } from "@/validations/cohort";
 
 const resource = getAdminResource("cohorts");
@@ -26,43 +18,29 @@ type CohortsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function CohortsPage({ searchParams }: CohortsPageProps) {
-  const query = parseCohortListQuery(await searchParams);
-  const { list, stats } = await loadAdminListPage({
-    query,
-    fetchPage: getCohortsPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        status: q.status !== "all" ? q.status : undefined,
-      }),
-  });
-
+export default function CohortsPage({ searchParams }: CohortsPageProps) {
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
-      actions={
-        <>
-          <AdminPublicReflectionDialog resourceId="cohorts" />
-          <Button
-            className="min-h-11 w-full sm:w-auto"
-            nativeButton={false}
-            render={<Link href={ROUTES.cohortsNew} />}
-          >
-            <PlusIcon className="size-4" />
-            New cohort
-          </Button>
-        </>
-      }
+    <CmsListPage
+      resourceId="cohorts"
+      searchParams={searchParams}
+      parseQuery={parseCohortListQuery}
+      fetchPage={getCohortsPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+        status: query.status !== "all" ? query.status : undefined,
+      })}
+      newItem={{ href: ROUTES.cohortsNew, label: "New cohort" }}
+      showPublicReflection
+      stats={(result) => <CohortStatsCards stats={result.stats} />}
     >
-      <CohortStatsCards stats={stats} />
-      <CohortsTable
-        cohorts={list.cohorts}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <CohortsTable
+          cohorts={result.list.cohorts}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

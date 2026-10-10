@@ -41,14 +41,14 @@ export function AdminDetailSection({
   title,
   children,
 }: {
-  title: string;
+  title?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="grid min-w-0 gap-3">
-      <h3 className="border-b border-border pb-2 text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-        {title}
-      </h3>
+    <section className="grid min-w-0 gap-3 rounded-lg bg-brand-soft px-3 py-3 sm:px-4">
+      {title ? (
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      ) : null}
       {children}
     </section>
   );
@@ -66,3 +66,7 @@ export function AdminDetailGrid({ children }: { children: ReactNode }) {
 /** Shared shell classes for inbox eye-view dialogs. */
 export const ADMIN_INBOX_VIEW_DIALOG_CLASS =
   "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-2xl";
+
+/** Soft-green title band for inbox edit dialogs. */
+export const ADMIN_INBOX_EDIT_HEADER_CLASS =
+  "rounded-lg bg-brand-soft px-3 py-3 pr-10";

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { updateSiteSettingsSchema } from "@/validations/settings";
+import { updateAdminSiteSettingsSchema } from "@/validations/settings";
 
-describe("updateSiteSettingsSchema", () => {
+describe("updateAdminSiteSettingsSchema", () => {
   it("accepts boolean flags and backup schedule", () => {
-    const result = updateSiteSettingsSchema.safeParse({
+    const result = updateAdminSiteSettingsSchema.safeParse({
       openApplications: true,
       newsletterSignupEnabled: false,
       backupTime: "daily_03",
@@ -13,7 +13,7 @@ describe("updateSiteSettingsSchema", () => {
   });
 
   it("rejects non-booleans", () => {
-    const result = updateSiteSettingsSchema.safeParse({
+    const result = updateAdminSiteSettingsSchema.safeParse({
       openApplications: "true",
       newsletterSignupEnabled: 1,
       backupTime: "daily_03",
@@ -23,14 +23,14 @@ describe("updateSiteSettingsSchema", () => {
 
   it("rejects unknown backup_time values including now", () => {
     expect(
-      updateSiteSettingsSchema.safeParse({
+      updateAdminSiteSettingsSchema.safeParse({
         openApplications: true,
         newsletterSignupEnabled: false,
         backupTime: "now",
       }).success,
     ).toBe(false);
     expect(
-      updateSiteSettingsSchema.safeParse({
+      updateAdminSiteSettingsSchema.safeParse({
         openApplications: true,
         newsletterSignupEnabled: false,
         backupTime: "daily_99",
@@ -40,7 +40,7 @@ describe("updateSiteSettingsSchema", () => {
 
   it("requires backupTime", () => {
     expect(
-      updateSiteSettingsSchema.safeParse({
+      updateAdminSiteSettingsSchema.safeParse({
         openApplications: true,
         newsletterSignupEnabled: false,
       }).success,

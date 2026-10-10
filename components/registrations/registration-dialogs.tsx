@@ -13,6 +13,7 @@ import {
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
 import {
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
@@ -267,7 +268,7 @@ function RegistrationEditForm({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
         <DialogTitle>Edit registration</DialogTitle>
         <DialogDescription>
           Update the submitted interest details.
@@ -564,7 +565,7 @@ export function RegistrationEditDialog({
           />
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
               <DialogTitle>Edit registration</DialogTitle>
               <DialogDescription>
                 Update the submitted interest details.

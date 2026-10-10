@@ -2,6 +2,7 @@
 
 import { Loader2Icon, Trash2Icon } from "lucide-react";
 
+import { AdminActionTooltip } from "@/components/dashboard/admin-action-tooltip";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import {
   AlertDialog,
@@ -46,21 +47,23 @@ export function AdminDeleteDialog({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {showTrigger ? (
-        <AlertDialogTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                ADMIN_ICON_BUTTON_CLASS,
-                "text-destructive hover:bg-destructive/10 hover:text-destructive",
-              )}
-              aria-label={triggerLabel ?? confirmLabel}
-            />
-          }
-        >
-          <Trash2Icon />
-        </AlertDialogTrigger>
+        <AdminActionTooltip label="Delete">
+          <AlertDialogTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  ADMIN_ICON_BUTTON_CLASS,
+                  "text-destructive hover:bg-destructive/10 hover:text-destructive",
+                )}
+                aria-label={triggerLabel ?? confirmLabel}
+              />
+            }
+          >
+            <Trash2Icon />
+          </AlertDialogTrigger>
+        </AdminActionTooltip>
       ) : null}
       <AlertDialogContent>
         <AlertDialogHeader className="text-left">

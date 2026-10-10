@@ -17,6 +17,13 @@ import { cn } from "@/lib/utils";
 
 type AdminDataTablePagination = AdminPaginationProps;
 
+/**
+ * Column-header tint. Do not add `hover:bg-*` here: it conflicts with
+ * `TableRow`'s `hover:bg-muted/50` inside `twMerge`, and the two bundles
+ * disagree, which hydrates a different `className`.
+ */
+export const CMS_HEAD_ROW_CLASS = "bg-brand-soft";
+
 type AdminDataTableProps = {
   filters?: ReactNode;
   /** Column header row(s) inside `TableHeader`. */
@@ -30,8 +37,9 @@ type AdminDataTableProps = {
 };
 
 /**
- * Shared CMS list table chrome: filters, scrollable table, empty state, pagination.
- * One scroll region (max-height) so thead can stick; no nested overflow wrappers.
+ * Shared CMS list table chrome: filters, table, empty state, pagination.
+ * Row count is capped by pagination, so the table is as tall as its rows.
+ * The page scrolls. Wide tables can still scroll sideways on small screens.
  */
 export function AdminDataTable({
   filters,
@@ -47,7 +55,7 @@ export function AdminDataTable({
       {filters}
 
       <CardContent className="p-0">
-        <div className="max-h-[min(70vh,calc(100dvh-14rem))] overflow-auto">
+        <div className="w-full overflow-x-auto">
           <table
             data-slot="table"
             className={cn(
@@ -57,9 +65,7 @@ export function AdminDataTable({
               "[&_tbody>tr:hover]:border-l-brand",
             )}
           >
-            <TableHeader className="sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_0_var(--border)] [&_th]:bg-card">
-              {header}
-            </TableHeader>
+            <TableHeader>{header}</TableHeader>
             <TableBody>
               {isEmpty ? (
                 <TableRow>

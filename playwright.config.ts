@@ -1,3 +1,5 @@
+import os from "node:os";
+
 import { loadEnvConfig } from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
 
@@ -26,6 +28,7 @@ const e2eOrigin = `http://localhost:${e2ePort}`;
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
+  workers: process.env.CI ? undefined : os.availableParallelism(),
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [["github"], ["html"]] : "list",

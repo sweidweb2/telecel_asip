@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, adminListRow } from "./helpers";
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("registrations admin", () => {
   test.beforeEach(() => {
     test.skip(

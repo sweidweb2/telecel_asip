@@ -285,6 +285,8 @@ Table newsletter_subscribers {
   indexes {
     (created_at) [name: 'newsletter_subscribers_created_at_idx', note: 'created_at DESC']
     email [unique, name: 'newsletter_subscribers_email_uidx', note: 'UNIQUE lower(email)']
+    email [type: gin, name: 'newsletter_subscribers_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261009230700)']
+    source_page [type: gin, name: 'newsletter_subscribers_source_page_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261009230700)']
   }
 
   Note: '''
@@ -336,6 +338,7 @@ Table blogs {
     (created_at) [name: 'blogs_created_at_idx', note: 'created_at DESC']
     categories [type: gin, name: 'blogs_categories_gin_idx']
     title [type: gin, name: 'blogs_title_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20260910250000)']
+    slug [type: gin, name: 'blogs_slug_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261009230700)']
     author_name [type: gin, name: 'blogs_author_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20260910250000)']
     (startup_id) [name: 'blogs_startup_id_idx', note: 'WHERE startup_id IS NOT NULL']
     (cohort_id) [name: 'blogs_cohort_id_idx', note: 'WHERE cohort_id IS NOT NULL']
@@ -855,6 +858,7 @@ Table cohorts {
 
   indexes {
     (year, public_label) [unique, name: 'cohorts_year_public_label_uidx']
+    public_label [type: gin, name: 'cohorts_public_label_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261009230700)']
     (publish_status, year) [name: 'cohorts_publish_status_year_idx', note: 'year DESC']
     (created_at) [name: 'cohorts_created_at_idx', note: 'created_at DESC']
   }
@@ -946,7 +950,8 @@ Table admin_perf_events {
 
   Note: '''
     Temporary CMS perf debug table. RLS enabled. Admin-only SELECT/INSERT/DELETE via is_admin().
-    No anon grants. Teardown: drop table + remove lib/admin/perf instrumentation.
+    No anon grants. Performance page aggregates via get_admin_perf_analytics (20261009233000).
+    Teardown: drop table + remove lib/admin/perf instrumentation.
   '''
 }
 

@@ -11,9 +11,8 @@ import {
   ADMIN_EDITOR_ACTIONS_SAFE_AREA,
   AdminEditorActionsBar,
 } from "@/components/dashboard/admin-editor-actions-bar";
-import { AdminFormSectionHelp } from "@/components/dashboard/admin-form-section-help";
+import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SITE_SETTINGS_HELP } from "@/constants/site-settings-help";
@@ -66,79 +65,73 @@ export function SiteSettingsForm({
   }
 
   return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className={`flex flex-col gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <Label htmlFor="open-applications" className="text-base">
-                  Applications open
-                </Label>
-                <AdminFormSectionHelp help={SITE_SETTINGS_HELP.applications} />
-              </div>
-              <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-                When on, the public navbar promotes Apply, Apply accepts
-                submissions, and Register Interest redirects to Apply. When off,
-                Register Interest is the live intake, Apply redirects there, and
-                the open banner is hidden.
-              </p>
-            </div>
-            <div className="flex min-h-11 items-center gap-3">
-              <Switch
-                id="open-applications"
-                checked={isOpen}
-                disabled={isPending}
-                onCheckedChange={(checked) =>
-                  setValue("openApplications", checked, { shouldDirty: true })
-                }
-              />
-              <span className="text-sm font-medium">
-                {isOpen ? "Open" : "Closed"}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid gap-3 border-t pt-6">
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-base font-medium">Newsletter signup</p>
-              <AdminFormSectionHelp help={SITE_SETTINGS_HELP.newsletter} />
-            </div>
-            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Phase 1 — informational only</p>
-              <p className="mt-1 max-w-prose">
-                The Insights newsletter module is hidden for phase 1. Public
-                signup is off and there is no toggle yet. Subscribers collected
-                earlier are listed under Newsletter.
-              </p>
-            </div>
-          </div>
-
-          <p className="border-t pt-6 text-sm text-muted-foreground">
-            Automated backup schedule is managed by administrators on the Backup
-            page.
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={`flex flex-col gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
+    >
+      <AdminFormSection
+        title="Applications open"
+        help={SITE_SETTINGS_HELP.applications}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <p className="max-w-prose text-sm text-muted-foreground">
+            When on, the public navbar promotes Apply, Apply accepts
+            submissions, and Register Interest redirects to Apply. When off,
+            Register Interest is the live intake, Apply redirects there, and
+            the open banner is hidden.
           </p>
+          <div className="flex min-h-11 items-center gap-3">
+            <Switch
+              id="open-applications"
+              checked={isOpen}
+              disabled={isPending}
+              onCheckedChange={(checked) =>
+                setValue("openApplications", checked, { shouldDirty: true })
+              }
+            />
+            <Label htmlFor="open-applications" className="text-sm font-medium">
+              {isOpen ? "Open" : "Closed"}
+            </Label>
+          </div>
+        </div>
+      </AdminFormSection>
 
-          <AdminEditorActionsBar>
-            <span className="hidden sm:block" />
-            <Button
-              type="submit"
-              disabled={isAdminFormSubmitDisabled({
-                isPending,
-                isDirty,
-                errors,
-              })}
-              className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            >
-              {isPending ? <Loader2Icon className="animate-spin" /> : null}
-              {isPending ? "Saving…" : "Save changes"}
-            </Button>
-          </AdminEditorActionsBar>
-        </form>
-      </CardContent>
-    </Card>
+      <AdminFormSection
+        title="Newsletter signup"
+        help={SITE_SETTINGS_HELP.newsletter}
+      >
+        <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">
+            Phase 1 — informational only
+          </p>
+          <p className="mt-1 max-w-prose">
+            The Insights newsletter module is hidden for phase 1. Public
+            signup is off and there is no toggle yet. Subscribers collected
+            earlier are listed under Newsletter.
+          </p>
+        </div>
+      </AdminFormSection>
+
+      <p className="text-sm text-muted-foreground">
+        Automated backup schedule is managed by administrators on the Backup
+        page.
+      </p>
+
+      <AdminEditorActionsBar>
+        <span className="hidden sm:block" />
+        <Button
+          type="submit"
+          disabled={isAdminFormSubmitDisabled({
+            isPending,
+            isDirty,
+            errors,
+          })}
+          className="min-h-11 w-full sm:ml-auto sm:w-auto"
+        >
+          {isPending ? <Loader2Icon className="animate-spin" /> : null}
+          {isPending ? "Saving…" : "Save changes"}
+        </Button>
+      </AdminEditorActionsBar>
+    </form>
   );
 }

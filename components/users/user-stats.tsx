@@ -1,40 +1,12 @@
 import {
-  UsersIcon,
-  ShieldCheckIcon,
   CalendarDaysIcon,
   CalendarRangeIcon,
+  ShieldCheckIcon,
+  UsersIcon,
 } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { AdminStatsCards } from "@/components/dashboard/admin-stats-cards";
 import type { UserStats } from "@/types/profile";
-
-const STATS = [
-  {
-    key: "total",
-    label: "Total users",
-    icon: UsersIcon,
-    adminOnly: false,
-  },
-  {
-    key: "admins",
-    label: "Admins",
-    icon: ShieldCheckIcon,
-    adminOnly: true,
-  },
-  {
-    key: "newThisWeek",
-    label: "New this week",
-    icon: CalendarDaysIcon,
-    adminOnly: false,
-  },
-  {
-    key: "newThisMonth",
-    label: "New this month",
-    icon: CalendarRangeIcon,
-    adminOnly: false,
-  },
-] as const;
 
 export function UserStatsCards({
   stats,
@@ -43,42 +15,36 @@ export function UserStatsCards({
   stats: UserStats;
   actorRole?: "admin" | "editor";
 }) {
-  const visibleStats =
-    actorRole === "admin"
-      ? STATS
-      : STATS.filter((stat) => !stat.adminOnly);
+  const items = [
+    {
+      key: "total",
+      label: "Total users",
+      value: stats.total,
+      icon: UsersIcon,
+    },
+    ...(actorRole === "admin"
+      ? [
+          {
+            key: "admins",
+            label: "Admins",
+            value: stats.admins,
+            icon: ShieldCheckIcon,
+          },
+        ]
+      : []),
+    {
+      key: "newThisWeek",
+      label: "New this week",
+      value: stats.newThisWeek,
+      icon: CalendarDaysIcon,
+    },
+    {
+      key: "newThisMonth",
+      label: "New this month",
+      value: stats.newThisMonth,
+      icon: CalendarRangeIcon,
+    },
+  ];
 
-  return (
-    <div
-      className={cn(
-        "grid w-full gap-2 sm:gap-3",
-        visibleStats.length === 4
-          ? "grid-cols-2 lg:grid-cols-4"
-          : "grid-cols-1 sm:grid-cols-3",
-      )}
-    >
-      {visibleStats.map((stat) => {
-        const Icon = stat.icon;
-        return (
-          <Card
-            key={stat.key}
-            size="sm"
-            className="min-w-0 py-0"
-          >
-            <CardContent className="flex flex-row items-center gap-2 py-3 sm:gap-2.5 sm:py-4">
-              <Icon className="size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground sm:truncate">
-                  {stat.label}
-                </p>
-                <p className="text-lg font-semibold tracking-tight tabular-nums sm:text-xl">
-                  {stats[stat.key]}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
+  return <AdminStatsCards items={items} />;
 }

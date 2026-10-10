@@ -4,15 +4,19 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { BookOpenIcon } from "lucide-react";
 
+import { deleteFounderStory } from "@/actions/founder-stories";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
 import { FounderStoriesFilters } from "@/components/founder-stories/founder-stories-filters";
-import { FounderStoryRowActions } from "@/components/founder-stories/founder-story-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
@@ -48,7 +52,7 @@ export function FounderStoriesTable({
     <AdminDataTable
       filters={<FounderStoriesFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Startup</TableHead>
           <TableHead>Status</TableHead>
@@ -122,7 +126,21 @@ export function FounderStoriesTable({
             className="pr-4 text-right"
             onClick={(event) => event.stopPropagation()}
           >
-            <FounderStoryRowActions story={story} />
+            <AdminEditDeleteActions
+              editHref={founderStoryEditPath(story.id)}
+              editLabel={`Edit ${story.startup_name}`}
+              deleteAction={() => deleteFounderStory({ id: story.id })}
+              fallbackError="The story could not be deleted. Please try again."
+              title="Delete founder story?"
+              description={
+                <>
+                  This permanently deletes the story for {story.startup_name}.
+                  This cannot be undone.
+                </>
+              }
+              confirmLabel="Delete story"
+              triggerLabel={`Delete ${story.startup_name}`}
+            />
           </TableCell>
         </AdminClickableRow>
       ))}

@@ -10,6 +10,7 @@ import {
 } from "@/constants/locales";
 import { PUBLIC_PAGE_SLUG_SET } from "@/constants/public-pages";
 import { authPath, ROUTES } from "@/constants/routes";
+import { staffRoleFromAppMetadata } from "@/lib/admin/staff-role-from-app-metadata";
 import type { Database } from "@/types/database";
 
 function detectLocale(request: NextRequest): Locale {
@@ -106,7 +107,10 @@ function isProtectedPath(pathname: string): boolean {
   );
 }
 
-async function refreshSupabaseSession(request: NextRequest): Promise<{
+async function refreshSupabaseSession(
+  request: NextRequest,
+  options?: { includeRole?: boolean },
+): Promise<{
   response: NextResponse;
   userId: string | null;
   isAdmin: boolean;
@@ -151,6 +155,25 @@ async function refreshSupabaseSession(request: NextRequest): Promise<{
     return { response, userId: null, isAdmin: false, isEditor: false };
   }
 
+  // Login and intake only need a refreshed session. Staff redirects need a role.
+  if (!options?.includeRole) {
+    return { response, userId: user.id, isAdmin: false, isEditor: false };
+  }
+
+  // Auth Admin writes app_metadata.app_role. getUser() already loaded it, so
+  // staff redirects skip get_staff_shell. Layouts still call that RPC for
+  // name, email, and the real role check. Missing claim falls back to the RPC
+  // for accounts created before the flag existed.
+  const appRole = staffRoleFromAppMetadata(user.app_metadata);
+  if (appRole) {
+    return {
+      response,
+      userId: user.id,
+      isAdmin: appRole === "admin",
+      isEditor: appRole === "editor",
+    };
+  }
+
   const { data: shell, error } = await supabase
     .rpc("get_staff_shell")
     .maybeSingle();
@@ -180,7 +203,9 @@ export async function middleware(request: NextRequest) {
 
   if (needsSession) {
     const { response, userId, isAdmin, isEditor } =
-      await refreshSupabaseSession(request);
+      await refreshSupabaseSession(request, {
+        includeRole: isProtectedPath(pathname),
+      });
 
     if (isProtectedPath(pathname) && !userId) {
       const loginUrl = request.nextUrl.clone();
@@ -193,8 +218,9 @@ export async function middleware(request: NextRequest) {
 
     if (isProtectedPath(pathname) && userId) {
       // Role gate here avoids painting the wrong shell HTML for viewers.
-      // Layouts still call get_staff_shell (request-cached) as source of truth
-      // for chrome fields; middleware + RSC do not share React.cache (P2.8).
+      // Role comes from app_metadata.app_role on the getUser() result.
+      // Layouts still call get_staff_shell for chrome fields and as the
+      // source of truth; middleware and RSC do not share React.cache.
       const isAdminPath =
         pathname === ROUTES.admin || pathname.startsWith(`${ROUTES.admin}/`);
       const isDashboardPath =

@@ -52,7 +52,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         path: "/{locale} (home)",
         reflected: false,
         shows: "Not wired - home uses static copy today.",
-        rule: "getSpotlightStartups exists but is unused on home.",
+        rule: "Home uses static copy. Portfolio rows do not feed this section.",
       },
     ],
     notes: [
@@ -156,8 +156,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
   events: {
     resourceId: "events",
     title: "Where events appear",
-    intro:
-      "Published event reads exist in data/, but no public marketing page consumes them yet.",
+    intro: "Events stay in the CMS. No public marketing page lists them.",
     surfaces: [
       {
         page: "Public events listing / detail",
@@ -165,7 +164,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         reflected: false,
         shows:
           "Would include name, date, location, format, speakers, outcomes when a route is wired.",
-        rule: "getPublishedEvents filters publish_status = published - unused by marketing today.",
+        rule: "Publishing an event does not change the public site.",
       },
     ],
     notes: [
@@ -214,8 +213,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         page: "Impact page metrics strip",
         path: "/{locale}/impact",
         reflected: false,
-        shows:
-          "Helper for impact_page (or all verified) exists but the page does not load metrics yet.",
+        shows: "The Impact page does not load CMS metrics yet.",
         rule: "Tag impact_page when that surface is wired.",
       },
     ],

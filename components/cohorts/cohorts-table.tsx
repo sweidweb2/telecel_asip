@@ -4,11 +4,15 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { UsersRoundIcon } from "lucide-react";
 
-import { CohortRowActions } from "@/components/cohorts/cohort-row-actions";
-import { CohortsFilters } from "@/components/cohorts/cohorts-filters";
+import { deleteCohort } from "@/actions/cohorts";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
+import { CohortsFilters } from "@/components/cohorts/cohorts-filters";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
@@ -47,7 +51,7 @@ export function CohortsTable({
     <AdminDataTable
       filters={<CohortsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Year</TableHead>
           <TableHead>Label</TableHead>
@@ -121,7 +125,21 @@ export function CohortsTable({
               className="pr-4 text-right"
               onClick={(event) => event.stopPropagation()}
             >
-              <CohortRowActions cohort={cohort} />
+              <AdminEditDeleteActions
+                editHref={cohortEditPath(cohort.id)}
+                editLabel={`Edit ${cohort.public_label}`}
+                deleteAction={() => deleteCohort({ id: cohort.id })}
+                fallbackError="The cohort could not be deleted. Please try again."
+                title="Delete cohort?"
+                description={
+                  <>
+                    This permanently deletes {cohort.public_label} and its
+                    partner / founder links. This cannot be undone.
+                  </>
+                }
+                confirmLabel="Delete cohort"
+                triggerLabel={`Delete ${cohort.public_label}`}
+              />
             </TableCell>
           </AdminClickableRow>
         );

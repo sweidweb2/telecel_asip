@@ -4,14 +4,18 @@ import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { ChartColumnIcon } from "lucide-react";
 
+import { deleteImpactMetric } from "@/actions/impact-metrics";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
+import { AdminEditDeleteActions } from "@/components/dashboard/admin-edit-delete-actions";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
   AdminRowNumberCell,
   AdminRowNumberHead,
 } from "@/components/dashboard/admin-row-number";
-import { ImpactMetricRowActions } from "@/components/impact-metrics/impact-metric-row-actions";
 import { ImpactMetricsFilters } from "@/components/impact-metrics/impact-metrics-filters";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
@@ -62,7 +66,7 @@ export function ImpactMetricsTable({
     <AdminDataTable
       filters={<ImpactMetricsFilters query={query} />}
       header={
-        <TableRow>
+        <TableRow className={CMS_HEAD_ROW_CLASS}>
           <AdminRowNumberHead />
           <TableHead>Claim</TableHead>
           <TableHead>Value</TableHead>
@@ -154,7 +158,21 @@ export function ImpactMetricsTable({
             className="pr-4 whitespace-nowrap"
             onClick={(event) => event.stopPropagation()}
           >
-            <ImpactMetricRowActions metric={metric} />
+            <AdminEditDeleteActions
+              editHref={impactMetricDetailPath(metric.id)}
+              editLabel={`Edit ${metric.claim_label}`}
+              deleteAction={() => deleteImpactMetric({ id: metric.id })}
+              fallbackError="The impact metric could not be deleted. Please try again."
+              title="Delete impact metric?"
+              description={
+                <>
+                  This permanently deletes “{metric.claim_label}”. This cannot
+                  be undone.
+                </>
+              }
+              confirmLabel="Delete metric"
+              triggerLabel={`Delete ${metric.claim_label}`}
+            />
           </TableCell>
         </AdminClickableRow>
       ))}

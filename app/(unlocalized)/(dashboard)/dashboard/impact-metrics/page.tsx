@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
 
-import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
+import { CmsListPage } from "@/components/dashboard/cms-list-page";
 import { ImpactMetricStatsCards } from "@/components/dashboard/cms-list-stats";
 import { ImpactMetricsTable } from "@/components/impact-metrics/impact-metrics-table";
-import { Button } from "@/components/ui/button";
 import { getAdminResource } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
 import { getImpactMetricsPageData } from "@/data/impact-metrics";
-import {
-  adminListClampParams,
-  loadAdminListPage,
-} from "@/lib/admin/load-admin-list-page";
 import { parseImpactMetricListQuery } from "@/validations/impact-metric";
 
 const resource = getAdminResource("impactMetrics");
@@ -26,47 +18,33 @@ type ImpactMetricsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function ImpactMetricsPage({
+export default function ImpactMetricsPage({
   searchParams,
 }: ImpactMetricsPageProps) {
-  const query = parseImpactMetricListQuery(await searchParams);
-  const { list, stats } = await loadAdminListPage({
-    query,
-    fetchPage: getImpactMetricsPageData,
-    listPath: resource.listPath,
-    buildClampParams: (q, totalPages) =>
-      adminListClampParams(totalPages, {
-        search: q.search || undefined,
-        lens: q.lens !== "all" ? q.lens : undefined,
-        publishStatus:
-          q.publishStatus !== "all" ? q.publishStatus : undefined,
-      }),
-  });
-
   return (
-    <AdminListPageShell
-      title={resource.pageTitle}
-      actions={
-        <>
-          <AdminPublicReflectionDialog resourceId="impactMetrics" />
-          <Button
-            className="min-h-11 w-full sm:w-auto"
-            nativeButton={false}
-            render={<Link href={ROUTES.impactMetricsNew} />}
-          >
-            <PlusIcon className="size-4" />
-            New metric
-          </Button>
-        </>
-      }
+    <CmsListPage
+      resourceId="impactMetrics"
+      searchParams={searchParams}
+      parseQuery={parseImpactMetricListQuery}
+      fetchPage={getImpactMetricsPageData}
+      activeFilters={(query) => ({
+        search: query.search || undefined,
+        lens: query.lens !== "all" ? query.lens : undefined,
+        publishStatus:
+          query.publishStatus !== "all" ? query.publishStatus : undefined,
+      })}
+      newItem={{ href: ROUTES.impactMetricsNew, label: "New metric" }}
+      showPublicReflection
+      stats={(result) => <ImpactMetricStatsCards stats={result.stats} />}
     >
-      <ImpactMetricStatsCards stats={stats} />
-      <ImpactMetricsTable
-        metrics={list.metrics}
-        total={list.total}
-        totalPages={list.totalPages}
-        query={query}
-      />
-    </AdminListPageShell>
+      {({ query, result }) => (
+        <ImpactMetricsTable
+          metrics={result.list.metrics}
+          total={result.list.total}
+          totalPages={result.list.totalPages}
+          query={query}
+        />
+      )}
+    </CmsListPage>
   );
 }

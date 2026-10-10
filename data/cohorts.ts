@@ -5,10 +5,9 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -61,7 +60,8 @@ async function fetchCohortsPage(
   }
 
   if (query.search) {
-    request = request.ilike("public_label", `%${query.search}%`);
+    const pattern = escapeIlikePattern(query.search);
+    request = request.ilike("public_label", `%${pattern}%`);
   }
 
   const { data, count, error } = await request;
@@ -99,29 +99,18 @@ export async function getCohortsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: CohortListResult; stats: CohortListStats }
 > {
-  return traceAsync(
-    "getCohortsPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchCohortsPage(supabase, query),
         fetchCohortListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
-    },
+      return { list, stats };
+    }
   );
 }
 
-export const getCohortByIdForAdmin = wrapCached(
-  "getCohortByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getCohortByIdForAdmin = cache(
     async (
       id: string,
     ): Promise<
@@ -131,43 +120,51 @@ export const getCohortByIdForAdmin = wrapCached(
     > => {
       if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const [cohortResult, partnersResult, startupsResult] =
+            await Promise.all([
+              supabase
+                .from("cohorts")
+                .select(DETAIL_COLUMNS)
+                .eq("id", id)
+                .maybeSingle(),
+              supabase
+                .from("cohort_partners")
+                .select("partner_id")
+                .eq("cohort_id", id)
+                .limit(DETAIL_LINK_LIMIT),
+              supabase
+                .from("cohort_startups")
+                .select("startup_id")
+                .eq("cohort_id", id)
+                .limit(DETAIL_LINK_LIMIT),
+            ]);
 
-      const [cohortResult, partnersResult, startupsResult] = await Promise.all([
-        supabase
-          .from("cohorts")
-          .select(DETAIL_COLUMNS)
-          .eq("id", id)
-          .maybeSingle(),
-        supabase
-          .from("cohort_partners")
-          .select("partner_id")
-          .eq("cohort_id", id)
-          .limit(DETAIL_LINK_LIMIT),
-        supabase
-          .from("cohort_startups")
-          .select("startup_id")
-          .eq("cohort_id", id)
-          .limit(DETAIL_LINK_LIMIT),
-      ]);
+          if (cohortResult.error) throw cohortResult.error;
+          if (partnersResult.error) throw partnersResult.error;
+          if (startupsResult.error) throw startupsResult.error;
+          if (!cohortResult.data) return { cohort: null };
 
-      if (cohortResult.error) throw cohortResult.error;
-      if (partnersResult.error) throw partnersResult.error;
-      if (startupsResult.error) throw startupsResult.error;
-      if (!cohortResult.data) return { status: "not_found" };
+          return {
+            cohort: {
+              ...(cohortResult.data as Cohort),
+              partnerIds: (partnersResult.data ?? []).map(
+                (row) => row.partner_id,
+              ),
+              startupIds: (startupsResult.data ?? []).map(
+                (row) => row.startup_id,
+              ),
+            },
+          };
+        }
+      );
 
-      return {
-        status: "ok",
-        cohort: {
-          ...(cohortResult.data as Cohort),
-          partnerIds: (partnersResult.data ?? []).map((row) => row.partner_id),
-          startupIds: (startupsResult.data ?? []).map((row) => row.startup_id),
-        },
-      };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.cohort) return { status: "not_found" };
+      return { status: "ok", cohort: gated.cohort };
     },
-  ),
-);
+  );
 
 /** Narrow id/name lists for the cohort editor multi-selects. */
 export async function getCohortLinkOptionsForAdmin(
@@ -180,13 +177,8 @@ export async function getCohortLinkOptionsForAdmin(
       startups: CohortLinkOption[];
     }
 > {
-  return traceAsync(
-    "getCohortLinkOptionsForAdmin",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       const pattern = term ? escapeIlikePattern(term) : "";
 
@@ -215,11 +207,10 @@ export async function getCohortLinkOptionsForAdmin(
       if (startupsResult.error) throw startupsResult.error;
 
       return {
-        status: "ok",
         partners: (partnersResult.data ?? []) as CohortLinkOption[],
         startups: (startupsResult.data ?? []) as CohortLinkOption[],
       };
-    },
+    }
   );
 }
 
@@ -245,13 +236,8 @@ export async function getCohortsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; cohorts: { id: string; label: string }[] }
 > {
-  return traceAsync(
-    "getCohortsForBlogPicker",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("cohorts")
@@ -288,8 +274,8 @@ export async function getCohortsForBlogPicker(
         }
       }
 
-      return { status: "ok", cohorts };
-    },
+      return { cohorts };
+    }
   );
 }
 

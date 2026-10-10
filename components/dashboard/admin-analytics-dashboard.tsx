@@ -1,11 +1,21 @@
 import Link from "next/link";
 
+import { AdminSectionHeading } from "@/components/dashboard/admin-section-heading";
+import { CMS_HEAD_ROW_CLASS } from "@/components/dashboard/admin-data-table";
+import { AdminStatFigure } from "@/components/dashboard/admin-stats-cards";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ROUTES } from "@/constants/routes";
 import type {
   AdminAnalytics,
   InboxPipelineStats,
 } from "@/data/admin-analytics";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ROUTES } from "@/constants/routes";
 
 function PipelineCard({
   title,
@@ -17,34 +27,23 @@ function PipelineCard({
   stats: InboxPipelineStats;
 }) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">
+    <Card size="sm">
+      <CardHeader className="border-b bg-brand-soft">
+        <CardTitle>
           <Link href={href} className="hover:underline">
             {title}
           </Link>
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-        <Stat label="Total" value={stats.total} />
-        <Stat label="Unread" value={stats.unread} />
-        <Stat label="Reviewed" value={stats.reviewed} />
-        <Stat label="Archived" value={stats.archived} />
-        <Stat label="Last 7 days" value={stats.last7Days} />
-        <Stat label="Last 30 days" value={stats.last30Days} />
+      <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <AdminStatFigure label="Total" value={stats.total} />
+        <AdminStatFigure label="Unread" value={stats.unread} accent />
+        <AdminStatFigure label="Reviewed" value={stats.reviewed} />
+        <AdminStatFigure label="Archived" value={stats.archived} />
+        <AdminStatFigure label="Last 7 days" value={stats.last7Days} />
+        <AdminStatFigure label="Last 30 days" value={stats.last30Days} />
       </CardContent>
     </Card>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="min-w-0">
-      <p className="truncate text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold tabular-nums tracking-tight">
-        {value}
-      </p>
-    </div>
   );
 }
 
@@ -56,9 +55,7 @@ export function AdminAnalyticsDashboard({
   return (
     <div className="grid gap-8">
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Pipeline
-        </h2>
+        <AdminSectionHeading>Pipeline</AdminSectionHeading>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <PipelineCard
             title="Applications"
@@ -79,43 +76,45 @@ export function AdminAnalyticsDashboard({
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Content
-        </h2>
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[28rem] text-left text-sm">
-            <thead className="border-b bg-muted/40 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-medium">Section</th>
-                <th className="px-4 py-3 font-medium">Primary</th>
-                <th className="px-4 py-3 font-medium">Secondary</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.content.map((row) => (
-                <tr key={row.href} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-medium">
-                    <Link href={row.href} className="hover:underline">
-                      {row.label}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {row.primary}{" "}
-                    <span className="text-muted-foreground">
-                      {row.primaryLabel}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {row.secondary}{" "}
-                    <span className="text-muted-foreground">
-                      {row.secondaryLabel}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminSectionHeading>Content</AdminSectionHeading>
+        <Card className="min-w-0 gap-0 overflow-hidden py-0">
+          <CardContent className="p-0">
+            <div className="w-full overflow-x-auto">
+              <table className="w-full min-w-[28rem] caption-bottom text-sm">
+                <TableHeader>
+                  <TableRow className={CMS_HEAD_ROW_CLASS}>
+                    <TableHead>Section</TableHead>
+                    <TableHead>Primary</TableHead>
+                    <TableHead>Secondary</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {analytics.content.map((row) => (
+                    <TableRow key={row.href}>
+                      <TableCell className="font-medium whitespace-normal">
+                        <Link href={row.href} className="hover:underline">
+                          {row.label}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="tabular-nums whitespace-normal">
+                        {row.primary}{" "}
+                        <span className="text-muted-foreground">
+                          {row.primaryLabel}
+                        </span>
+                      </TableCell>
+                      <TableCell className="tabular-nums whitespace-normal">
+                        {row.secondary}{" "}
+                        <span className="text-muted-foreground">
+                          {row.secondaryLabel}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 
+import { CmsEditorPage } from "@/components/dashboard/cms-editor-page";
 import { EvidenceEditorForm } from "@/components/evidence-records/evidence-editor-form";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { StaffMain } from "@/components/dashboard/skip-to-content";
 import { ROUTES } from "@/constants/routes";
 import { getEvidenceRecordByIdForAdmin } from "@/data/evidence-records";
 
@@ -38,49 +28,37 @@ export default async function EditEvidencePage({
   params,
 }: EditEvidencePageProps) {
   const { id } = await params;
-  const result = await getEvidenceRecordByIdForAdmin(id);
-
-  if (result.status === "forbidden") redirect(ROUTES.dashboard);
-  if (result.status === "not_found") notFound();
-
-  const seedOwners = result.record.owner
-    ? [
-        {
-          id: result.record.owner.id,
-          email: result.record.owner.email,
-          full_name: result.record.owner.full_name,
-        },
-      ]
-    : [];
-  const pageLabel =
-    result.record.primary_source.length > 48
-      ? `${result.record.primary_source.slice(0, 48)}…`
-      : result.record.primary_source.trim() || "Edit evidence";
 
   return (
-    <StaffMain>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href={ROUTES.evidence} />}>
-              Evidence
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="max-w-[16rem] truncate sm:max-w-md">
-              {pageLabel}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <EvidenceEditorForm
-        mode="edit"
-        record={result.record}
-        owners={seedOwners}
-        defaultOwnerId={result.record.owner_id}
-        heading="Edit evidence record"
-      />
-    </StaffMain>
+    <CmsEditorPage
+      listPath={ROUTES.evidence}
+      listLabel="Evidence"
+      load={() => getEvidenceRecordByIdForAdmin(id)}
+      pageLabel={(record) =>
+        record.record.primary_source.length > 48
+          ? `${record.record.primary_source.slice(0, 48)}…`
+          : record.record.primary_source.trim() || "Edit evidence"
+      }
+    >
+      {(record) => (
+        <EvidenceEditorForm
+          mode="edit"
+          record={record.record}
+          owners={
+            record.record.owner
+              ? [
+                  {
+                    id: record.record.owner.id,
+                    email: record.record.owner.email,
+                    full_name: record.record.owner.full_name,
+                  },
+                ]
+              : []
+          }
+          defaultOwnerId={record.record.owner_id}
+          heading="Edit evidence record"
+        />
+      )}
+    </CmsEditorPage>
   );
 }

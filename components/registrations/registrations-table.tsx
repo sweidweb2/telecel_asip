@@ -5,7 +5,10 @@ import { ClipboardListIcon } from "lucide-react";
 
 import { deleteInterestRegistration } from "@/actions/interest-registrations";
 import { AdminClickableRow } from "@/components/dashboard/admin-clickable-row";
-import { AdminDataTable } from "@/components/dashboard/admin-data-table";
+import {
+  AdminDataTable,
+  CMS_HEAD_ROW_CLASS,
+} from "@/components/dashboard/admin-data-table";
 import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
 import { AdminEmptyState } from "@/components/dashboard/admin-empty-state";
 import {
@@ -76,7 +79,7 @@ export function RegistrationsTable({
       <AdminDataTable
         filters={<RegistrationsFilters query={query} />}
         header={
-          <TableRow>
+          <TableRow className={CMS_HEAD_ROW_CLASS}>
             <AdminRowNumberHead />
             <TableHead>Name</TableHead>
             <TableHead>Status</TableHead>

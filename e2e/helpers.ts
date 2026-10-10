@@ -92,16 +92,6 @@ export async function loginAsAdmin(
 }
 
 /**
- * @deprecated Prefer `loginAsEditor` for CMS. Kept as an alias during migration.
- */
-export async function loginAsStaffDashboard(
-  page: Page,
-  nextPath = "/dashboard",
-): Promise<void> {
-  await loginAsEditor(page, nextPath);
-}
-
-/**
  * Wait until Turnstile issues a token into the form's hidden field.
  * Skips the test when the widget cannot mint a token on localhost.
  */
@@ -148,36 +138,6 @@ export async function submitLoginForm(page: Page): Promise<void> {
  */
 export function adminListRow(page: Page, ariaLabel: string | RegExp) {
   return page.getByRole("button", { name: ariaLabel });
-}
-
-/**
- * Multi-step admin editors keep non-active panels mounted (`shouldUnregister:
- * false`). Dummy fill + Continue (when present) is the reliable create path.
- */
-export async function createViaAdminDummyForm(
-  page: Page,
-  submitName: string | RegExp,
-): Promise<void> {
-  await page
-    .getByRole("button", { name: /Fill form with dummy data/i })
-    .click();
-
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const submit = page.getByRole("button", { name: submitName });
-    if (await submit.isVisible()) {
-      await expect(submit).toBeEnabled({ timeout: 10_000 });
-      await submit.click();
-      return;
-    }
-    const cont = page.getByRole("button", { name: "Continue", exact: true });
-    if (await cont.isVisible()) {
-      await cont.click();
-      continue;
-    }
-    break;
-  }
-
-  await page.getByRole("button", { name: submitName }).click();
 }
 
 /** Sonner success toasts sit on top of the sticky actions bar and steal clicks. */

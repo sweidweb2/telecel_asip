@@ -8,8 +8,6 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -171,8 +169,7 @@ export async function getStartupsPageData(
         fetchStartupListStats(supabase),
       ]);
       return { list, stats };
-    },
-    { name: "getStartupsPageData" },
+    }
   );
 }
 
@@ -180,10 +177,7 @@ export async function getStartupsPageData(
  * Deduped per request: `generateMetadata` and the page body both need the same
  * startup.
  */
-export const getStartupByIdForAdmin = wrapCached(
-  "getStartupByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getStartupByIdForAdmin = cache(
     async (
       id: string,
     ): Promise<
@@ -193,41 +187,44 @@ export const getStartupByIdForAdmin = wrapCached(
     > => {
       if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const [
+            { data: startup, error: startupError },
+            { data: details, error: detailsError },
+          ] = await Promise.all([
+            supabase
+              .from("startups")
+              .select(DETAIL_COLUMNS)
+              .eq("id", id)
+              .maybeSingle(),
+            supabase
+              .from("startup_details")
+              .select(DETAILS_COLUMNS)
+              .eq("startup_id", id)
+              .maybeSingle(),
+          ]);
 
-      const [
-        { data: startup, error: startupError },
-        { data: details, error: detailsError },
-      ] = await Promise.all([
-        supabase
-          .from("startups")
-          .select(DETAIL_COLUMNS)
-          .eq("id", id)
-          .maybeSingle(),
-        supabase
-          .from("startup_details")
-          .select(DETAILS_COLUMNS)
-          .eq("startup_id", id)
-          .maybeSingle(),
-      ]);
+          if (startupError) throw startupError;
+          if (detailsError) throw detailsError;
+          if (!startup) return { startup: null };
 
-      if (startupError) throw startupError;
-      if (detailsError) throw detailsError;
-      if (!startup) return { status: "not_found" };
+          return {
+            startup: {
+              ...(startup as StartupListItem & {
+                status: StartupWithDetails["status"];
+              }),
+              details: details ?? null,
+            } as StartupWithDetails,
+          };
+        }
+      );
 
-      return {
-        status: "ok",
-        startup: {
-          ...(startup as StartupListItem & {
-            status: StartupWithDetails["status"];
-          }),
-          details: details ?? null,
-        } as StartupWithDetails,
-      };
+      if (gated.status === "forbidden") return gated;
+      if (!gated.startup) return { status: "not_found" };
+      return { status: "ok", startup: gated.startup };
     },
-  ),
-);
+  );
 
 const BLOG_PICKER_LIMIT = 100;
 
@@ -239,13 +236,8 @@ export async function getStartupsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; startups: { id: string; name: string }[] }
 > {
-  return traceAsync(
-    "getStartupsForBlogPicker",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("startups")
@@ -281,8 +273,8 @@ export async function getStartupsForBlogPicker(
         }
       }
 
-      return { status: "ok", startups };
-    },
+      return { startups };
+    }
   );
 }
 
@@ -432,35 +424,6 @@ export const getActiveStartupCountryReach = unstable_cache(
   { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
 );
 
-async function fetchActiveStartupFoundedYears(): Promise<string[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups_public")
-    .select("founded_at")
-    .not("founded_at", "is", null);
-
-  if (error) throw error;
-
-  const years = new Set<string>();
-  for (const row of data ?? []) {
-    const foundedAt =
-      row && typeof row === "object" && "founded_at" in row
-        ? (row.founded_at as string | null)
-        : null;
-    if (!foundedAt) continue;
-    const match = /^(\d{4})/.exec(foundedAt);
-    if (match?.[1]) years.add(match[1]);
-  }
-
-  return [...years].sort((a, b) => Number(b) - Number(a));
-}
-
-export const getActiveStartupFoundedYears = unstable_cache(
-  fetchActiveStartupFoundedYears,
-  ["active-startup-founded-years"],
-  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-);
-
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {
@@ -533,6 +496,20 @@ export async function getRelatedActiveStartups(
   )();
 }
 
+async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups_public")
+    .select(PUBLIC_SLUG_COLUMNS)
+    .order("updated_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).flatMap((row) => {
+    if (!row.slug) return [];
+    return [{ slug: row.slug, updated_at: row.updated_at ?? new Date(0).toISOString() }];
+  });
+}
+
 async function fetchSpotlightStartups(
   limit: number,
 ): Promise<StartupPublicListItem[]> {
@@ -558,20 +535,6 @@ export async function getSpotlightStartups(
     ["spotlight-startups", String(limit)],
     { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
   )();
-}
-
-async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups_public")
-    .select(PUBLIC_SLUG_COLUMNS)
-    .order("updated_at", { ascending: false });
-
-  if (error) throw error;
-  return (data ?? []).flatMap((row) => {
-    if (!row.slug) return [];
-    return [{ slug: row.slug, updated_at: row.updated_at ?? new Date(0).toISOString() }];
-  });
 }
 
 export const getActiveStartupSlugRows = unstable_cache(

@@ -1,7 +1,6 @@
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
 import { isCurrentUserStaff } from "@/lib/admin/is-current-user-staff";
-import { traceAsync } from "@/lib/admin/perf";
 import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -27,33 +26,21 @@ const ROLE_CHECKS = {
   staff: isCurrentUserStaff,
 } as const;
 
-const DEFAULT_GATE_NAMES: Record<StaffPageRole, string> = {
-  admin: "gateAdminPageData",
-  editor: "gateEditorPageData",
-  staff: "gateStaffPageData",
-};
-
 /**
  * Role-gated page data loader. Prefer the named `gate*PageData` wrappers at
  * call sites; use this when the role is dynamic.
+ * Not traced: the page (`loadAdminListPage` / `CmsEditorPage`) records the wait.
  */
 export async function gatePageDataByRole<
   TPayload extends Record<string, unknown>,
 >(
   role: StaffPageRole,
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
-  return traceAsync(
-    options?.name ?? DEFAULT_GATE_NAMES[role],
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      if (!(await ROLE_CHECKS[role]())) return { status: "forbidden" };
-      const supabase = await createClient();
-      const payload = await load(supabase);
-      return { status: "ok", ...payload };
-    },
-  );
+  if (!(await ROLE_CHECKS[role]())) return { status: "forbidden" };
+  const supabase = await createClient();
+  const payload = await load(supabase);
+  return { status: "ok", ...payload };
 }
 
 /**
@@ -63,9 +50,8 @@ export async function gateEditorPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
-  return gatePageDataByRole("editor", load, options);
+  return gatePageDataByRole("editor", load);
 }
 
 /**
@@ -75,9 +61,8 @@ export async function gateStaffPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
-  return gatePageDataByRole("staff", load, options);
+  return gatePageDataByRole("staff", load);
 }
 
 /**
@@ -87,7 +72,6 @@ export async function gateAdminPageData<
   TPayload extends Record<string, unknown>,
 >(
   load: (supabase: ServerClient) => Promise<TPayload>,
-  options?: { name?: string },
 ): Promise<{ status: "forbidden" } | ({ status: "ok" } & TPayload)> {
-  return gatePageDataByRole("admin", load, options);
+  return gatePageDataByRole("admin", load);
 }

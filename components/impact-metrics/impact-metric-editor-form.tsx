@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "nextjs-toploader/app";
-import { Loader2Icon, Trash2Icon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -18,19 +15,17 @@ import {
   ADMIN_FORM_PAIR_ROW,
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
-import { AdminDeleteDialog } from "@/components/dashboard/admin-delete-dialog";
-import { AdminFormDevTools } from "@/components/dashboard/admin-dummy-fill-button";
 import {
-  ADMIN_EDITOR_ACTIONS_SAFE_AREA,
-  AdminEditorActionsBar,
-} from "@/components/dashboard/admin-editor-actions-bar";
+  CmsEditorFrame,
+  CmsEditorSaveActions,
+} from "@/components/dashboard/cms-editor-frame";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { EntitySelect } from "@/components/dashboard/entity-select";
+import { StepperContent } from "@/components/ui/stepper";
 import {
   SuggestInput,
   SuggestLinesInput,
 } from "@/components/dashboard/suggest-input";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,17 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Stepper,
-  StepperContent,
-  StepperIndicator,
-  StepperItem,
-  StepperNav,
-  StepperPanel,
-  StepperSeparator,
-  StepperTitle,
-  StepperTrigger,
-} from "@/components/ui/stepper";
 import {
   IMPACT_LENS_LABELS,
   IMPACT_PUBLISH_STATUS_LABELS,
@@ -64,16 +48,11 @@ import {
 } from "@/constants/impact-suggestions";
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
-import { UnsavedChangesGuard } from "@/components/dashboard/unsaved-changes-guard";
-import {
-  firstInvalidEditorStep,
-  isAdminFormSubmitDisabled,
-} from "@/lib/admin/form-submit";
+import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import {
   dummyImpactMetricValues,
   todayIsoDate,
 } from "@/lib/admin/dummy-form-values";
-import { cn } from "@/lib/utils";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
@@ -139,10 +118,21 @@ export function ImpactMetricEditorForm({
   metric,
   evidenceOptions: initialOptions = [],
 }: ImpactMetricEditorFormProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [step, setStep] = useState(IMPACT_METRIC_EDITOR_STEPS[0].id);
+  const editor = useCmsEditorForm<ImpactMetricFormValues, CreateImpactMetricInput>({
+    mode,
+    schema: createImpactMetricSchema,
+    defaultValues: defaultsFor(metric),
+    recordId: metric?.id,
+    listPath: ROUTES.impactMetrics,
+    detailPath: impactMetricDetailPath,
+    create: createImpactMetric,
+    update: updateImpactMetric,
+    remove: deleteImpactMetric,
+    saveError: "The impact metric could not be saved. Please try again.",
+    steps: IMPACT_METRIC_EDITOR_STEPS,
+  });
+  const { form, isPending, errors, step, setStep } = editor;
+  const { register, control } = form;
   const [evidenceOptions, setEvidenceOptions] = useState<EvidenceOption[]>(
     initialOptions,
   );
@@ -152,17 +142,6 @@ export function ImpactMetricEditorForm({
   );
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(optionsEnabled);
-
-  const form = useForm<
-    ImpactMetricFormValues,
-    unknown,
-    CreateImpactMetricInput
-  >({
-    resolver: zodResolver(createImpactMetricSchema),
-    mode: "onChange",
-    shouldUnregister: false,
-    defaultValues: defaultsFor(metric),
-  });
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -199,115 +178,54 @@ export function ImpactMetricEditorForm({
     };
   }, [optionsEnabled, debouncedSearch, metric?.evidence_id]);
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isDirty },
-  } = form;
-
-  function onSubmit(values: CreateImpactMetricInput) {
-    startTransition(async () => {
-      const result =
-        mode === "create"
-          ? await createImpactMetric(values)
-          : await updateImpactMetric({ ...values, id: metric!.id });
-
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-
-      toast.success(result.message);
-      if (mode === "create" && result.id) {
-        router.push(impactMetricDetailPath(result.id));
-        return;
-      }
-      form.reset(form.getValues());
-      router.refresh();
-    });
-  }
-
-  function onDelete() {
-    if (!metric) return;
-    startTransition(async () => {
-      const result = await deleteImpactMetric({ id: metric.id });
-      if (result.status === "error") {
-        toast.error(result.message);
-        return;
-      }
-      toast.success(result.message);
-      setDeleteOpen(false);
-      router.push(ROUTES.impactMetrics);
-    });
-  }
-
   return (
-    <div className="grid w-full gap-6">
-      <UnsavedChangesGuard enabled={isDirty && !isPending} />
-      <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-3">
-        <AdminFormDevTools
-          disabled={isPending}
-          onDummy={() => {
-            const current = form.getValues();
-            form.reset(
-              {
-                ...current,
-                ...dummyImpactMetricValues({
-                  ...current,
-                  evidenceId: current.evidenceId || evidenceOptions[0]?.id || "",
-                }),
-              },
-              { keepDefaultValues: true },
-            );
-          }}
-          onClear={() => {
-            form.reset(defaultsFor(), { keepDefaultValues: true });
-          }}
+    <CmsEditorFrame
+      isPending={isPending}
+      isDirty={editor.isDirty}
+      onSubmit={editor.handleFormSubmit}
+      steps={IMPACT_METRIC_EDITOR_STEPS}
+      step={step}
+      onStepChange={setStep}
+      navClassName="mx-auto w-full max-w-lg"
+      panelClassName="w-full max-w-3xl"
+      onDummy={() => {
+        const current = form.getValues();
+        form.reset(
+          {
+            ...current,
+            ...dummyImpactMetricValues({
+              ...current,
+              evidenceId: current.evidenceId || evidenceOptions[0]?.id || "",
+            }),
+          },
+          { keepDefaultValues: true },
+        );
+      }}
+      onClear={() => {
+        form.reset(defaultsFor(), { keepDefaultValues: true });
+      }}
+      actions={
+        <CmsEditorSaveActions
+          mode={mode}
+          isPending={isPending}
+          disabled={
+            editor.submitDisabled() ||
+            optionsLoading ||
+            evidenceOptions.length === 0
+          }
+          createLabel="Create metric"
+          onDelete={() => editor.setDeleteOpen(true)}
         />
-      </div>
-
-      <form
-        className={`mx-auto grid w-full max-w-3xl gap-6 ${ADMIN_EDITOR_ACTIONS_SAFE_AREA}`}
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          const next = firstInvalidEditorStep(errors, IMPACT_METRIC_EDITOR_STEPS);
-          if (next) setStep(next);
-        })}
-        noValidate
-      >
-        <Stepper
-          steps={IMPACT_METRIC_EDITOR_STEPS}
-          value={step}
-          onValueChange={setStep}
-          orientation="horizontal"
-          className="flex w-full flex-col items-center gap-6"
-        >
-          <StepperNav className="mx-auto w-full max-w-lg">
-            {IMPACT_METRIC_EDITOR_STEPS.map((s, index) => (
-              <StepperItem key={s.id} stepId={s.id} className="relative flex-1">
-                <StepperTrigger className="flex w-full flex-col items-center gap-2.5">
-                  <StepperIndicator>{index + 1}</StepperIndicator>
-                  <div className="min-w-0 text-center">
-                    <StepperTitle>{s.title}</StepperTitle>
-                    <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-                      {s.description}
-                    </p>
-                  </div>
-                </StepperTrigger>
-                {index < IMPACT_METRIC_EDITOR_STEPS.length - 1 ? (
-                  <StepperSeparator
-                    className={cn(
-                      "absolute inset-x-0 top-4",
-                      "right-[calc(-50%+18px)] left-[calc(50%+18px)]",
-                      "m-0 h-0.5 flex-none",
-                    )}
-                  />
-                ) : null}
-              </StepperItem>
-            ))}
-          </StepperNav>
-
-          <StepperPanel className="w-full max-w-3xl">
+      }
+      deleteDialog={{
+        open: editor.deleteOpen,
+        onOpenChange: editor.setDeleteOpen,
+        title: "Delete impact metric?",
+        description: "This permanently deletes this metric. This cannot be undone.",
+        confirmLabel: "Delete metric",
+        onConfirm: editor.onDelete,
+      }}
+    >
             <StepperContent
               value="claim"
               className="mx-auto w-full max-w-3xl space-y-6"
@@ -667,51 +585,6 @@ export function ImpactMetricEditorForm({
                 </Field>
               </AdminFormSection>
             </StepperContent>
-          </StepperPanel>
-        </Stepper>
-
-        <AdminEditorActionsBar>
-          {mode === "edit" ? (
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => setDeleteOpen(true)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </Button>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-          <Button
-            type="submit"
-            className="min-h-11 w-full sm:ml-auto sm:w-auto"
-            disabled={
-              isAdminFormSubmitDisabled({ isPending, isDirty, errors }) ||
-              optionsLoading ||
-              evidenceOptions.length === 0
-            }
-          >
-            {isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
-            ) : null}
-            {mode === "create" ? "Create metric" : "Save changes"}
-          </Button>
-        </AdminEditorActionsBar>
-      </form>
-
-      <AdminDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        showTrigger={false}
-        title="Delete impact metric?"
-        description="This permanently deletes this metric. This cannot be undone."
-        confirmLabel="Delete metric"
-        isPending={isPending}
-        onConfirm={onDelete}
-      />
-    </div>
+    </CmsEditorFrame>
   );
 }

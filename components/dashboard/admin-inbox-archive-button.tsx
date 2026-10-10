@@ -5,6 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { ArchiveIcon, ArchiveRestoreIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminActionTooltip } from "@/components/dashboard/admin-action-tooltip";
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { Button } from "@/components/ui/button";
 import type { InboxStatus } from "@/constants/inbox";
@@ -78,16 +79,18 @@ export function AdminInboxArchiveButton({
   }
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className={ADMIN_ICON_BUTTON_CLASS}
-      aria-label={label}
-      disabled={isPending}
-      onClick={toggleArchive}
-    >
-      {isArchived ? <ArchiveRestoreIcon /> : <ArchiveIcon />}
-    </Button>
+    <AdminActionTooltip label={label}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className={ADMIN_ICON_BUTTON_CLASS}
+        aria-label={label}
+        disabled={isPending}
+        onClick={toggleArchive}
+      >
+        {isArchived ? <ArchiveRestoreIcon /> : <ArchiveIcon />}
+      </Button>
+    </AdminActionTooltip>
   );
 }

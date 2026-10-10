@@ -151,6 +151,9 @@ export async function createBlog(
 export async function updateBlog(
   input: UpdateBlogInput,
 ): Promise<BlogActionResult> {
+  let publishedSlug: string | undefined;
+  let previousSlug: string | null | undefined;
+
   return runAdminMutation({
     schema: updateBlogSchema,
     input,
@@ -172,12 +175,15 @@ export async function updateBlog(
         return { status: "error", message: rpcErrorMessage(error ?? {}) };
       }
 
-      refreshBlogPaths(row.slug, row.id);
-      if (row.previous_slug && row.previous_slug !== row.slug) {
-        refreshBlogPaths(row.previous_slug, row.id);
-      }
-
+      publishedSlug = row.slug;
+      previousSlug = row.previous_slug;
       return { status: "success", id: row.id };
+    },
+    refresh: (_data, id) => {
+      refreshBlogPaths(publishedSlug, id);
+      if (previousSlug && previousSlug !== publishedSlug) {
+        refreshBlogPaths(previousSlug, id);
+      }
     },
   });
 }
@@ -185,6 +191,7 @@ export async function updateBlog(
 export async function updateBlogStatus(
   input: UpdateBlogStatusInput,
 ): Promise<BlogActionResult> {
+  let slug: string | undefined;
   const successMessage =
     input.status === "published"
       ? MESSAGES.publishSuccess
@@ -232,15 +239,19 @@ export async function updateBlogStatus(
         return { status: "error", message: MESSAGES.notFound };
       }
 
-      refreshBlogPaths(row.slug, row.id);
+      slug = row.slug;
       return { status: "success", id: row.id };
     },
+    refresh: (_data, id) => refreshBlogPaths(slug, id),
   });
 }
 
 export async function deleteBlog(
   input: DeleteBlogInput,
 ): Promise<BlogActionResult> {
+  let slug: string | undefined;
+  let deletedId: string | undefined;
+
   return runAdminMutation({
     schema: deleteBlogSchema,
     input,
@@ -281,9 +292,11 @@ export async function deleteBlog(
         AUTHOR_BUCKET,
       );
 
-      refreshBlogPaths(existing.slug, existing.id);
+      slug = existing.slug;
+      deletedId = existing.id;
       return { status: "success" };
     },
+    refresh: () => refreshBlogPaths(slug, deletedId),
   });
 }
 

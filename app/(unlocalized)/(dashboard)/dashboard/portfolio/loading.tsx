@@ -1,11 +1,13 @@
+import { AdminListPageSkeleton } from "@/components/dashboard/admin-list-page-skeleton";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
-import { StartupsPageSkeleton } from "@/components/startups/startups-page-skeleton";
 
 export default function PortfolioLoading() {
   return (
     <RouteSkeleton
       name="dashboard-portfolio"
-      fallback={<StartupsPageSkeleton />}
+      fallback={
+        <AdminListPageSkeleton filterControlCount={1} columnCount={5} />
+      }
     />
   );
 }

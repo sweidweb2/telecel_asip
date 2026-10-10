@@ -5,10 +5,9 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
+  gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { wrapCached, traceAsync } from "@/lib/admin/perf";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -119,22 +118,14 @@ export async function getImpactMetricsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ImpactMetricListResult; stats: ImpactMetricListStats }
 > {
-  return traceAsync(
-    "getImpactMetricsPageData",
-    { eventType: "data_read", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-
-      const [isAdmin, list, stats] = await Promise.all([
-        isCurrentUserEditor(),
+  return gateEditorPageData(
+    async (supabase) => {
+      const [list, stats] = await Promise.all([
         fetchImpactMetricsPage(supabase, query),
         fetchImpactMetricListStats(supabase),
       ]);
-
-      if (!isAdmin) return { status: "forbidden" };
-
-      return { status: "ok", list, stats };
-    },
+      return { list, stats };
+    }
   );
 }
 
@@ -151,39 +142,44 @@ type ImpactMetricDetailResult =
  * Deduped per request: `generateMetadata` and the page body both need the same
  * metric.
  */
-export const getImpactMetricByIdForAdmin = wrapCached(
-  "getImpactMetricByIdForAdmin",
-  { eventType: "data_read" },
-  cache(
+export const getImpactMetricByIdForAdmin = cache(
     async (id: string): Promise<ImpactMetricDetailResult> => {
       if (!impactMetricIdSchema.safeParse(id).success) {
         return { status: "not_found" };
       }
 
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
+      const gated = await gateEditorPageData(
+        async (supabase) => {
+          const { data, error } = await supabase
+            .from("impact_metrics")
+            .select(DETAIL_COLUMNS)
+            .eq("id", id)
+            .maybeSingle();
 
-      const { data, error } = await supabase
-        .from("impact_metrics")
-        .select(DETAIL_COLUMNS)
-        .eq("id", id)
-        .maybeSingle();
+          if (error) throw error;
+          if (!data) return { metric: null, evidencePrimarySource: null };
 
-      if (error) throw error;
-      if (!data) return { status: "not_found" };
+          const { evidence_records: evidenceJoin, ...metric } =
+            data as ImpactMetric & {
+              evidence_records: { primary_source: string } | null;
+            };
 
-      const { evidence_records: _evidenceJoin, ...metric } = data as ImpactMetric & {
-        evidence_records: { primary_source: string } | null;
-      };
+          return {
+            metric: metric as ImpactMetric,
+            evidencePrimarySource: evidenceJoin?.primary_source ?? null,
+          };
+        }
+      );
 
+      if (gated.status === "forbidden") return gated;
+      if (!gated.metric) return { status: "not_found" };
       return {
         status: "ok",
-        metric: metric as ImpactMetric,
-        evidencePrimarySource: _evidenceJoin?.primary_source ?? null,
+        metric: gated.metric,
+        evidencePrimarySource: gated.evidencePrimarySource,
       };
     },
-  ),
-);
+  );
 
 /**
  * Evidence options for the metric form Select. Admin-gated; does not own
@@ -195,13 +191,8 @@ export async function listEvidenceOptionsForAdmin(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EvidenceOption[] }
 > {
-  return traceAsync(
-    "listEvidenceOptionsForAdmin",
-    { eventType: "option_load", cacheStatus: "n_a" },
-    async () => {
-      const supabase = await createClient();
-      if (!(await isCurrentUserEditor())) return { status: "forbidden" };
-
+  return gateEditorPageData(
+    async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("evidence_records")
@@ -233,11 +224,8 @@ export async function listEvidenceOptionsForAdmin(
         }
       }
 
-      return {
-        status: "ok",
-        options,
-      };
-    },
+      return { options };
+    }
   );
 }
 
@@ -269,7 +257,6 @@ export async function getHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> 
   );
 }
 
-/** Impact page — metrics tagged `impact_page`, else all verified. */
 export async function getImpactPageMetrics(): Promise<ImpactMetricPublicItem[]> {
   const metrics = await getVerifiedImpactMetrics();
   const tagged = metrics.filter((metric) =>

@@ -28,8 +28,6 @@ function adminClient(): SupabaseClient {
   });
 }
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("partners cms", () => {
   test.beforeEach(() => {
     test.skip(
