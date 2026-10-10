@@ -17,7 +17,8 @@
     "seed:asip-impact-images": "node scripts/build-impact-case-study-images.mjs",
     "bones:build": "boneyard-js build http://localhost:3000",
     "bones:watch": "boneyard-js build --watch http://localhost:3000",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "media:asip-marketing": "node scripts/build-marketing-media.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1127.0",

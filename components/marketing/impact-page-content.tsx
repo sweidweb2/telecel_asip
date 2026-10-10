@@ -4,14 +4,17 @@ import { ImpactFanSection } from "@/components/marketing/impact-fan-section";
 import { ImpactHero } from "@/components/marketing/impact-hero";
 import { ImpactLensesSection } from "@/components/marketing/impact-lenses-section";
 import { ImpactProgressSection } from "@/components/marketing/impact-progress-section";
+import { ImpactProofNumbersSection } from "@/components/marketing/impact-proof-numbers-section";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import type { Locale } from "@/constants/locales";
 import { impactCopyFor } from "@/constants/impact-copy";
 import type { ImpactCaseStudyPublic } from "@/types/founder-story";
+import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 
 type ImpactPageContentProps = {
   locale: Locale;
   caseStudies?: ImpactCaseStudyPublic[];
+  metrics?: ImpactMetricPublicItem[];
 };
 
 /**
@@ -22,6 +25,7 @@ type ImpactPageContentProps = {
 export function ImpactPageContent({
   locale,
   caseStudies = [],
+  metrics = [],
 }: ImpactPageContentProps) {
   const copy = impactCopyFor(locale);
 
@@ -30,6 +34,8 @@ export function ImpactPageContent({
       <ImpactHero locale={locale} copy={copy.hero} />
 
       <ImpactProgressSection copy={copy.progress} />
+
+      <ImpactProofNumbersSection copy={copy.proof} metrics={metrics} />
 
       <ImpactLensesSection lenses={copy.lenses} />
 

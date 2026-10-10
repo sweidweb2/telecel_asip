@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { TrendingUp } from "lucide-react";
 
 import type { Locale } from "@/constants/locales";
 import { founderStartupPath } from "@/constants/routes";
@@ -22,7 +23,7 @@ type ImpactCaseStudyCardProps = {
 /**
  * Compact Impact case-study card.
  * Pending seats keep the same shell — grey reserved fill, no fake copy.
- * Barrier / connection / outcome narrative lives on the founder story page.
+ * Barrier / ASIP support / outcome narrative lives on the founder story page.
  */
 export function ImpactCaseStudyCard({
   locale,
@@ -44,10 +45,10 @@ export function ImpactCaseStudyCard({
         "flex h-full flex-col overflow-hidden rounded-xl",
         isPending
           ? "border border-dashed border-muted-foreground/35 bg-muted/50"
-          : "border border-border bg-white",
+          : "border border-border bg-white transition-[transform,box-shadow] duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-20px_rgb(20_51_59/0.45)]",
       )}
     >
-      <div className="relative aspect-[16/7] w-full shrink-0 bg-muted">
+      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
         {isPending ? (
           <div className="size-full bg-muted" aria-hidden />
         ) : story?.coverImageUrl ? (
@@ -55,7 +56,7 @@ export function ImpactCaseStudyCard({
             src={story.coverImageUrl}
             alt=""
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             style={{
               objectPosition: `${story.imageFocalX}% ${story.imageFocalY}%`,
             }}
@@ -124,7 +125,8 @@ export function ImpactCaseStudyCard({
         ) : (
           <div className="mt-auto flex items-center justify-between gap-3 pt-3">
             {story?.stat ? (
-              <span className="inline-flex min-h-8 max-w-[55%] items-center rounded-md bg-muted px-2.5 py-1.5 text-[0.7rem] font-semibold leading-snug tracking-tight text-foreground">
+              <span className="inline-flex min-h-8 max-w-[60%] items-center gap-1.5 rounded-md bg-brand-subtle px-2.5 py-1.5 text-xs font-semibold leading-snug tracking-tight text-foreground">
+                <TrendingUp aria-hidden className="size-3.5 shrink-0 text-brand" />
                 {story.stat}
               </span>
             ) : (

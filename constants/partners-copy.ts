@@ -4,17 +4,17 @@ import type { PartnersPageCopy } from "@/types/marketing-page";
 const en: PartnersPageCopy = {
   hero: {
     eyebrow: "Partners & mentors",
-    titleLead: "The right connection can change a company’s",
+    titleLead: "The right opportunity can change a company’s",
     titleAccent: "trajectory.",
     description:
-      "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organisations to connect founders with practical expertise, capital, customers and markets.",
+      "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organisations to give founders practical expertise, capital, customers and markets.",
     cta: { slug: "contact", label: "Discuss a partnership" },
     proof: ["Investors", "Corporates", "Technology partners", "Mentors"],
   },
   proposition: {
     title: "Bring an opportunity to the ecosystem.",
     description:
-      "Tell us the market, sector or challenge you want to address. ASIP can help identify relevant founders, shape the right engagement route and connect the people needed to move from conversation to practical opportunity.",
+      "Tell us the market, sector or challenge you want to address. ASIP can help identify relevant founders, shape the right engagement route and bring together the people needed to turn conversation into practical opportunity.",
   },
   types: {
     title: "Ways to work with founders.",
@@ -30,7 +30,7 @@ const en: PartnersPageCopy = {
         id: "corporate",
         type: "Corporate innovation",
         value:
-          "Connect real business needs with a qualified founder pipeline.",
+          "Match real business needs with a qualified founder pipeline.",
         examples:
           "Challenge statements, pilots, proof-of-concepts, commercial partnerships.",
       },
@@ -68,14 +68,17 @@ const en: PartnersPageCopy = {
       {
         id: "media",
         type: "Media / ecosystem",
-        value: "Amplify credible founder stories and connect communities.",
+        value: "Amplify credible founder stories and bring communities together.",
         examples:
           "Editorial, events, founder showcases, ecosystem research.",
       },
     ],
   },
   logos: {
-    title: "Partners in the network",
+    title: "What partners bring to founders.",
+    description:
+      "Capital, technology, markets and expertise — grouped by what each partner actually puts into founders’ hands.",
+    bringsLabel: "What founders get:",
   },
   ctaSection: {
     title: "Have an opportunity for founders?",
@@ -92,7 +95,7 @@ const fr: PartnersPageCopy = {
     titleLead: "La bonne connexion peut changer la",
     titleAccent: "trajectoire d’une entreprise.",
     description:
-      "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour relier les fondateurs à une expertise concrète, du capital, des clients et des marchés.",
+      "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour offrir aux fondateurs une expertise concrète, du capital, des clients et des marchés.",
     cta: { slug: "contact", label: "Discuter d’un partenariat" },
     proof: [
       "Investisseurs",
@@ -120,7 +123,7 @@ const fr: PartnersPageCopy = {
         id: "corporate",
         type: "Innovation corporate",
         value:
-          "Relier des besoins business réels à un pipeline de fondateurs qualifiés.",
+          "Faire correspondre des besoins business réels à un pipeline de fondateurs qualifiés.",
         examples:
           "Briefs de challenge, pilotes, preuves de concept, partenariats commerciaux.",
       },
@@ -160,14 +163,17 @@ const fr: PartnersPageCopy = {
         id: "media",
         type: "Médias / écosystème",
         value:
-          "Amplifier des histoires de fondateurs crédibles et relier les communautés.",
+          "Amplifier des histoires de fondateurs crédibles et rassembler les communautés.",
         examples:
           "Éditorial, événements, mises en avant de fondateurs, recherche écosystème.",
       },
     ],
   },
   logos: {
-    title: "Les partenaires du réseau",
+    title: "Ce que les partenaires apportent aux fondateurs.",
+    description:
+      "Capital, technologie, marchés et expertise — regroupés selon ce que chaque partenaire met concrètement entre les mains des fondateurs.",
+    bringsLabel: "Pour les fondateurs :",
   },
   ctaSection: {
     title: "Une opportunité pour les fondateurs ?",

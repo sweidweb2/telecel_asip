@@ -15,9 +15,9 @@ import type { AlumniPageCopy } from "@/types/marketing-page";
 const en: AlumniPageCopy = {
   hero: {
     eyebrow: "Alumni experience",
-    title: "The cohort ends. The connection continues.",
+    title: "The cohort ends. The momentum continues.",
     description:
-      "ASIP is building a stronger alumni experience designed to keep founders connected beyond the formal programme, creating more opportunities to share knowledge, collaborate and stay close to the wider ecosystem.",
+      "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal programme, creating more opportunities to share knowledge, collaborate and stay close to the wider ecosystem.",
     primaryCta: { slug: "founders", label: "Explore the community" },
   },
   purpose: {
@@ -32,7 +32,7 @@ const en: AlumniPageCopy = {
         id: "community",
         title: "Founder community",
         description:
-          "Stay connected to founders from across ASIP cohorts and markets.",
+          "Stay close to founders from across ASIP cohorts and markets.",
       },
       {
         id: "learning",
@@ -62,7 +62,7 @@ const en: AlumniPageCopy = {
   },
   notice: "",
   ctaSection: {
-    title: "The cohort ends. The connection continues.",
+    title: "The cohort ends. The momentum continues.",
     description:
       "Explore founders across ASIP cohorts while the alumni network takes shape.",
     slug: "founders",

@@ -6,7 +6,7 @@ import { homeCopyFor } from "@/constants/home-copy";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 describe("HomeOutcomesSection", () => {
-  it("renders impact copy, features, register CTA, and the CTA image", () => {
+  it("renders impact copy, features, register CTA, and real founder photography", () => {
     const copy = homeCopyFor("en").outcomes;
     const intake = intakeCtaFor("en", false);
 
@@ -40,7 +40,7 @@ describe("HomeOutcomesSection", () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute(
       "src",
-      expect.stringContaining("window.webp"),
+      expect.stringContaining("outcome-award.webp"),
     );
     expect(img).toHaveAttribute("alt", copy.imageAlt);
   });

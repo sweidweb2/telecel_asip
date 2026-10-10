@@ -16,7 +16,7 @@ const en: MarketingCopy = {
       "The leadership message stays unpublished until Telecel Group supplies approved text and media.",
     sectionTitle: "Origin, purpose and the journey ahead",
     sectionDescription:
-      "From Barcelona in 2019 to the 2026 next chapter - how ASIP connects African founders to knowledge, capital pathways, markets and relationships.",
+      "From Barcelona in 2019 to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
     cards: [],
     heroChips: {
       focusKind: "Focus",
@@ -47,7 +47,7 @@ const en: MarketingCopy = {
         eyebrow: "Our story",
         paragraphs: [
           "ASIP began at Mobile World Congress in Barcelona with a simple idea: Africa has no shortage of ambitious founders. What is often uneven is access to the networks, expertise and opportunities that help strong companies move faster.",
-          "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The programme has evolved, but the principle remains the same: back local insight, connect the right energies and give good businesses a stronger path to scale.",
+          "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The programme has evolved, but the principle remains the same: back local insight, bring the right energies together and give good businesses a stronger path to scale.",
         ],
         features: [
           {
@@ -78,7 +78,7 @@ const en: MarketingCopy = {
             icon: "heart",
             title: "Relationships",
             description:
-              "Connect the right energies so good businesses have a stronger path to scale.",
+              "Bring the right people together so good businesses have a stronger path to scale.",
             slug: "partners",
             linkLabel: "Learn more",
           },
@@ -92,10 +92,10 @@ const en: MarketingCopy = {
       },
       mission: {
         eyebrow: "Mission",
-        title: "Connect African innovation to opportunity.",
+        title: "Turn African innovation into opportunity.",
         imageLabel: "ASIP founders and ecosystem leaders gathering in Dakar",
         paragraphs: [
-          "Our mission is to identify and accelerate African technology ventures solving meaningful problems, connecting founders to practical expertise, capital pathways, market access and commercial relationships.",
+          "Our mission is to identify and accelerate African technology ventures solving meaningful problems, opening access to practical expertise, capital pathways, market access and commercial relationships.",
         ],
       },
       vision: {
@@ -109,7 +109,7 @@ const en: MarketingCopy = {
       belief: {
         eyebrow: "Belief",
         title:
-          "African founders do not need to be explained. They need to be seen, backed and connected.",
+          "African founders do not need to be explained. They need to be seen, backed and given room to scale.",
         paragraphs: [
           "The strongest companies often begin with first-hand understanding of a problem. ASIP exists to help founders turn that insight into products, businesses and impact that can travel beyond one market.",
         ],
@@ -153,7 +153,7 @@ const en: MarketingCopy = {
           {
             year: "2026",
             description:
-              "The next chapter is taking shape, with renewed ambition around technology, market access and founder-to-ecosystem connection.",
+              "The next chapter is taking shape, with renewed ambition around applied AI, market access and measurable founder advantage.",
           },
         ],
       },
@@ -162,11 +162,11 @@ const en: MarketingCopy = {
         imageLabel: "Leadership portrait - to be supplied by Telecel Group",
       },
       telecel: {
-        eyebrow: "Telecel connection",
+        eyebrow: "Telecel Group",
         title: "A Telecel Group Program, built on Connecting Energies.",
         imageLabel: "ASIP programme leaders and founders in Dakar",
         paragraphs: [
-          "Telecel’s African legacy and digital ecosystem give ASIP a distinctive perspective: innovation matters most when it connects to people, businesses and markets. ASIP applies that same belief to founders, bringing different capabilities and relationships together around growth.",
+          "Telecel’s African legacy and digital ecosystem give ASIP a distinctive perspective: innovation matters most when it reaches people, businesses and markets. ASIP applies that same belief to founders, bringing different capabilities and relationships together around growth.",
         ],
       },
     },
@@ -267,7 +267,7 @@ const en: MarketingCopy = {
     sectionDescription:
       "These answers describe the current programme structure and will evolve with each published cohort.",
     cards: [
-      { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, connect to markets and build toward sustainable scale." },
+      { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, reach new markets and build toward sustainable scale." },
       { title: "Who can apply?", description: "Eligibility is published for each cohort. ASIP generally targets technology-led ventures with an African market focus, a committed founding team and credible potential to scale." },
       { title: "Are applications open?", description: "When applications are open, the navbar promotes Apply and only that form accepts submissions. When closed, Register Interest is the live intake and Apply redirects there. Only one path is available at a time." },
       { title: "Does ASIP invest in every startup?", description: "Funding and investment terms vary by cohort and partner structure. Any cash, equity or in-kind support is disclosed in the official cohort terms." },
@@ -286,7 +286,7 @@ const en: MarketingCopy = {
         id: "programme",
         label: "Programme",
         items: [
-          { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, connect to markets and build toward sustainable scale." },
+          { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, reach new markets and build toward sustainable scale." },
           { title: "Is the programme virtual or in person?", description: "The format varies by cohort and may combine virtual sessions, in-person activities, market visits, events and demo opportunities." },
           { title: "Which sectors does ASIP support?", description: "ASIP has supported ventures across financial technology, health, agriculture, education, insurance, clean technology, commerce, logistics and other technology-enabled sectors." },
           { title: "What does Telecel contribute?", description: "ASIP draws on Telecel’s African legacy, digital expertise, partnerships and business ecosystem. Specific market, pilot or commercial access depends on strategic fit and local approvals." },
@@ -331,7 +331,7 @@ const fr: MarketingCopy = {
       "Le message de direction reste non publié tant que le Groupe Telecel n’a pas fourni le texte et les visuels approuvés.",
     sectionTitle: "Origine, mission et parcours",
     sectionDescription:
-      "De Barcelone en 2019 au prochain chapitre 2026 - comment ASIP relie les fondateurs africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
+      "De Barcelone en 2019 au prochain chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, aux voies de capital, aux marchés et aux relations.",
     cards: [],
     heroChips: {
       focusKind: "Axe",
@@ -362,7 +362,7 @@ const fr: MarketingCopy = {
         eyebrow: "Notre histoire",
         paragraphs: [
           "ASIP a commencé au Mobile World Congress de Barcelone avec une idée simple : l’Afrique ne manque pas de fondateurs ambitieux. Ce qui est souvent inégal, c’est l’accès aux réseaux, à l’expertise et aux opportunités qui aident les entreprises solides à avancer plus vite.",
-          "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, connecter les bonnes énergies et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
+          "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, rassembler les bonnes énergies et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
         ],
         features: [
           {
@@ -393,7 +393,7 @@ const fr: MarketingCopy = {
             icon: "heart",
             title: "Relations",
             description:
-              "Connecter les bonnes énergies pour que les bonnes entreprises aient un chemin plus solide vers l’échelle.",
+              "Rassembler les bonnes personnes pour que les bonnes entreprises aient un chemin plus solide vers l’échelle.",
             slug: "partners",
             linkLabel: "En savoir plus",
           },
@@ -407,7 +407,7 @@ const fr: MarketingCopy = {
       },
       mission: {
         eyebrow: "Mission",
-        title: "Relier l’innovation africaine à l’opportunité.",
+        title: "Transformer l’innovation africaine en opportunité.",
         imageLabel: "Fondateurs ASIP et acteurs de l’écosystème réunis à Dakar",
         paragraphs: [
           "Notre mission est d’identifier et d’accélérer les entreprises technologiques africaines qui résolvent des problèmes concrets, en connectant les fondateurs à une expertise pratique, des voies de capital, l’accès aux marchés et des relations commerciales.",
@@ -479,7 +479,7 @@ const fr: MarketingCopy = {
         title: "Un programme du Groupe Telecel, bâti sur Connecting Energies.",
         imageLabel: "Équipe du programme ASIP et fondateurs à Dakar",
         paragraphs: [
-          "L’héritage africain de Telecel et son écosystème numérique donnent à ASIP une perspective distincte : l’innovation compte surtout lorsqu’elle se connecte aux personnes, aux entreprises et aux marchés. ASIP applique cette même conviction aux fondateurs, en rassemblant des capacités et des relations différentes autour de la croissance.",
+          "L’héritage africain de Telecel et son écosystème numérique donnent à ASIP une perspective distincte : l’innovation compte surtout lorsqu’elle atteint les personnes, aux entreprises et aux marchés. ASIP applique cette même conviction aux fondateurs, en rassemblant des capacités et des relations différentes autour de la croissance.",
         ],
       },
     },
@@ -575,7 +575,7 @@ const fr: MarketingCopy = {
     sectionDescription:
       "Ces réponses décrivent la structure actuelle et évolueront avec chaque cohorte publiée.",
     cards: [
-      { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, se connecter aux marchés et construire une croissance durable." },
+      { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, atteindre de nouveaux marchés et construire une croissance durable." },
       { title: "Qui peut candidater ?", description: "Les critères d’éligibilité sont publiés pour chaque cohorte. ASIP cible généralement des entreprises technologiques orientées vers les marchés africains, avec une équipe fondatrice engagée et un potentiel crédible de passage à l’échelle." },
       { title: "Les candidatures sont-elles ouvertes ?", description: "Lorsque les candidatures sont ouvertes, la barre de navigation promeut Postuler et seul ce formulaire accepte les envois. Lorsqu’elles sont fermées, Manifester votre intérêt est le parcours actif et Postuler y redirige. Un seul parcours est disponible à la fois." },
       { title: "ASIP investit-il dans chaque startup ?", description: "Le financement et les conditions d’investissement varient selon la cohorte et la structure des partenariats. Tout apport en numéraire, en capital ou en nature est précisé dans les conditions officielles de la cohorte." },
@@ -594,7 +594,7 @@ const fr: MarketingCopy = {
         id: "programme",
         label: "Programme",
         items: [
-          { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, se connecter aux marchés et construire une croissance durable." },
+          { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, atteindre de nouveaux marchés et construire une croissance durable." },
           { title: "Le programme est-il virtuel ou en présentiel ?", description: "Le format varie selon la cohorte et peut combiner sessions virtuelles, activités en présentiel, visites de marché, événements et opportunités de démonstration." },
           { title: "Quels secteurs ASIP accompagne-t-il ?", description: "ASIP a accompagné des entreprises dans la technologie financière, la santé, l’agriculture, l’éducation, l’assurance, les technologies propres, le commerce, la logistique et d’autres secteurs portés par la technologie." },
           { title: "Qu’apporte Telecel ?", description: "ASIP s’appuie sur l’héritage africain de Telecel, son expertise numérique, ses partenariats et son écosystème d’affaires. L’accès concret aux marchés, aux pilotes ou aux opportunités commerciales dépend de l’adéquation stratégique et des validations locales." },

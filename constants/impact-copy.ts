@@ -22,6 +22,13 @@ const en: ImpactPageCopy = {
     description:
       "Since ASIP launched in 2019, the portfolio has grown across sectors and markets. That journey is told through verified founder outcomes, not broad claims. Every published number leads to a source, a company or a story.",
   },
+  proof: {
+    eyebrow: "Proof",
+    title: "The numbers, with their paper trail.",
+    verifiedLabel: "Verified",
+    pending:
+      "Portfolio figures are being verified against source records. They will appear here once each has a source, period, owner and permission.",
+  },
   lenses: {
     eyebrow: "Impact lenses",
     title: "Impact Lens",
@@ -80,7 +87,7 @@ const en: ImpactPageCopy = {
     eyebrow: "Case studies",
     title: "From a local problem to a scalable solution.",
     templateLabel: "Story template",
-    body: "[Startup] entered ASIP facing [specific barrier]. Through [specific ASIP support], the team strengthened [product, market, investment or operating capability]. Since then, it has [validated outcome]. The result shows what can happen when a strong founder gets the right connection at the right time.",
+    body: "[Startup] entered ASIP facing [specific barrier]. Through [specific ASIP support], the team strengthened [product, market, investment or operating capability]. Since then, it has [validated outcome]. The result shows what can happen when a strong founder gets the right opportunity at the right time.",
     note: "Published case studies replace every placeholder with verified, founder-specific facts. Generic success copy is not published as a real story.",
     empty:
       "Founder stories appear here once each one is verified - not as generic success copy.",
@@ -91,7 +98,7 @@ const en: ImpactPageCopy = {
     nextLabel: "Next case studies",
     steps: {
       barrier: "Barrier",
-      support: "Connection",
+      support: "ASIP support",
       outcome: "Since then",
     },
   },
@@ -130,6 +137,13 @@ const fr: ImpactPageCopy = {
     title: "Des progrès que l’on peut retracer jusqu’aux fondateurs.",
     description:
       "Depuis le lancement d’ASIP en 2019, le portefeuille s’est développé à travers les secteurs et les marchés. Ce parcours se raconte par des résultats de fondateurs vérifiés, pas par des affirmations générales. Chaque chiffre publié renvoie à une source, une entreprise ou une histoire.",
+  },
+  proof: {
+    eyebrow: "Preuves",
+    title: "Les chiffres, avec leur dossier.",
+    verifiedLabel: "Vérifié",
+    pending:
+      "Les chiffres du portefeuille sont en cours de vérification. Ils apparaîtront ici dès que chacun aura une source, une période, un responsable et une autorisation.",
   },
   lenses: {
     eyebrow: "Axes d’impact",
@@ -193,7 +207,7 @@ const fr: ImpactPageCopy = {
     eyebrow: "Études de cas",
     title: "D’un problème local à une solution capable de grandir.",
     templateLabel: "Canevas de récit",
-    body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne connexion au bon moment.",
+    body: "[Startup] a rejoint ASIP face à [obstacle précis]. Grâce à [accompagnement ASIP précis], l’équipe a renforcé [produit, marché, préparation à l’investissement ou capacité opérationnelle]. Depuis, elle a [résultat vérifié]. Ce parcours montre ce qui peut se produire lorsqu’un fondateur solide obtient la bonne opportunité au bon moment.",
     note: "Les études de cas publiées remplacent chaque crochet par des faits vérifiés, propres au fondateur. Un texte générique de réussite n’est pas publié comme s’il s’agissait d’une vraie histoire.",
     empty:
       "Les histoires de fondateurs apparaissent ici une fois vérifiées - pas comme un texte générique de réussite.",
@@ -204,7 +218,7 @@ const fr: ImpactPageCopy = {
     nextLabel: "Études de cas suivantes",
     steps: {
       barrier: "Obstacle",
-      support: "Connexion",
+      support: "Soutien ASIP",
       outcome: "Depuis",
     },
   },

@@ -56,6 +56,34 @@
   transform-origin: left center;
   animation: about-story-underline 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
+
+/* ASIP spectrum rule — four segments draw in left → right (delays set inline). */
+.home-hero-spectrum-seg {
+  transform-origin: left center;
+  animation: about-story-underline 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Headline beats — each phrase rises in on its own delay (set inline). */
+@keyframes home-hero-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-hero-line {
+  animation: home-hero-line-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Last beat carries the ASIP colour — flat mint, no animated gradient. */
+.home-hero-line--accent {
+  color: var(--asip-mint);
+}
+
 @keyframes signal-draw {
   from { stroke-dashoffset: 2400; }
   to { stroke-dashoffset: 0; }
@@ -92,6 +120,8 @@
   .home-hero-motion,
   .home-hero-continuum-slide,
   .home-hero-brand-rule,
+  .home-hero-spectrum-seg,
+  .home-hero-line,
   .home-hero-signal__line,
   .home-hero-signal__node {
     animation: none !important;

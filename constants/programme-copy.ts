@@ -66,7 +66,7 @@ const en: ProgrammePageCopy = {
         id: "grow",
         title: "Grow",
         description:
-          "Strong founders remain connected to the wider ASIP ecosystem, with follow-on visibility and portfolio support where relevant.",
+          "Strong founders stay close to the wider ASIP ecosystem, with follow-on visibility and portfolio support where relevant.",
       },
     ],
   },
@@ -119,6 +119,7 @@ const en: ProgrammePageCopy = {
   },
   eligibility: {
     title: "General eligibility",
+    imageAlt: "ASIP founders working on laptops during a programme session",
     items: [
       "African-founded, Africa-focused or solving a material challenge in African markets.",
       "Technology-led product or platform with credible potential to scale.",
@@ -250,6 +251,7 @@ const fr: ProgrammePageCopy = {
   },
   eligibility: {
     title: "Éligibilité générale",
+    imageAlt: "Des fondateurs ASIP au travail lors d’une session du programme",
     items: [
       "Fondée en Afrique, tournée vers l’Afrique, ou qui résout un enjeu substantiel sur les marchés africains.",
       "Produit ou plateforme technologique avec un potentiel crédible de scale.",

@@ -1,7 +1,9 @@
 import Image from "next/image";
 
 import { HomeImpactGrowthIllustration } from "@/components/marketing/home-impact-growth-illustration";
+import { AnimatedMetricValue } from "@/components/marketing/animated-metric-value";
 import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
+import { metricPeriod } from "@/lib/marketing/metric-period";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
 
@@ -13,14 +15,6 @@ export type HomeImpactYearsMetric = {
   period_start?: string | null;
   period_end?: string | null;
 };
-
-function metricPeriod(metric: HomeImpactYearsMetric) {
-  if (!metric.period_start && !metric.period_end) return null;
-  const year = (value?: string | null) => value?.slice(0, 4);
-  const start = year(metric.period_start);
-  const end = year(metric.period_end);
-  return start && end && start !== end ? `${start}–${end}` : end ?? start;
-}
 
 type HomeImpactYearsSectionProps = {
   copy: HomePageCopy["impactYears"];
@@ -103,7 +97,7 @@ export function HomeImpactYearsSection({
                   const period = metricPeriod(metric);
                   return <li key={metric.id} className="min-w-0" data-reveal="fade">
                     <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
-                      {metric.value}
+                      <AnimatedMetricValue value={metric.value} />
                       {metric.unit ? (
                         <span className="ml-1 text-xl font-semibold text-muted-foreground sm:text-2xl">
                           {metric.unit}

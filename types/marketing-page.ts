@@ -291,6 +291,7 @@ export type ProgrammePageCopy = {
   eligibility: {
     title: string;
     items: string[];
+    imageAlt: string;
     /**
      * Kept for future cohort-criteria swap; not rendered on the public page.
      * Internal cohort-rule notes must never ship as live copy.
@@ -309,10 +310,16 @@ export type HomePageCopy = {
   hero: {
     brand: string;
     eyebrow: string;
+    /** Endorsement line — Telecel as programme owner, visually separate from ASIP. */
+    endorsement: string;
     title: string;
+    /** `title` split into reveal beats; the last beat gets the ASIP spectrum accent. */
+    titleLines: string[];
     description: string;
     primaryCta: HomePageLink;
     secondaryCta: HomePageLink;
+    /** Small next-cohort pointer that jumps to the 2026 section. */
+    nextCohort: { label: string; href: string };
   };
   impactYears: {
     title: string;
@@ -334,11 +341,6 @@ export type HomePageCopy = {
     description: string;
     cta: HomePageLink;
     empty: string;
-    blueprintTitleBlock: {
-      eyebrow: string;
-      title: string;
-      detail: string;
-    };
   };
   outcomes: {
     eyebrow: string;
@@ -352,6 +354,7 @@ export type HomePageCopy = {
     /** Secondary link to the Impact page. Primary intake CTA is wired via `intakeCtaFor`. */
     cta: HomePageLink;
     imageAlt: string;
+    insetAlt: string;
   };
   ecosystem: {
     title: string;
@@ -373,8 +376,21 @@ export type HomePageCopy = {
     inputPlaceholder: string;
   };
   nextChapter: {
+    eyebrow: string;
     title: string;
     description: string;
+    /**
+     * 2026 cohort theme. `status: "working"` renders a "working title" tag
+     * until Telecel locks the final wording — swap `name` + flip to "final".
+     */
+    theme: {
+      name: string;
+      status: "working" | "final";
+      statusLabel: string;
+      summary: string;
+    };
+    /** Practical framing of the AI direction — business problem → applied AI → measurable advantage. */
+    pillars: { id: string; label: string; title: string; description: string }[];
     primaryCta: HomePageLink;
     secondaryCta: HomePageLink;
   };
@@ -433,6 +449,9 @@ export type PartnersPageCopy = {
   };
   logos: {
     title: string;
+    description: string;
+    /** Lead-in before each partner group’s concrete offer, e.g. “What founders get:”. */
+    bringsLabel: string;
   };
   ctaSection: {
     title: string;
@@ -465,6 +484,14 @@ export type ImpactPageCopy = {
     eyebrow: string;
     title: string;
     description: string;
+  };
+  /** Large proof numbers — rendered only from `verified` impact metrics. */
+  proof: {
+    eyebrow: string;
+    title: string;
+    verifiedLabel: string;
+    /** Shown when no metric has cleared the evidence gate yet. */
+    pending: string;
   };
   lenses: {
     eyebrow: string;

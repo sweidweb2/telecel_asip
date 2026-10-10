@@ -15,7 +15,10 @@ import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
-import type { StartupCountryReach } from "@/types/startup";
+import type {
+  StartupCountryReach,
+  StartupPublicListItem,
+} from "@/types/startup";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
@@ -43,6 +46,7 @@ type HomePageContentProps = {
   metrics: HomeImpactMetric[];
   openApplications: boolean;
   countryReach: StartupCountryReach[];
+  spotlight: StartupPublicListItem[];
 };
 
 export function HomePageContent({
@@ -50,6 +54,7 @@ export function HomePageContent({
   metrics,
   openApplications,
   countryReach,
+  spotlight,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
   const intake = intakeCtaFor(locale, openApplications);
@@ -64,7 +69,7 @@ export function HomePageContent({
           alternateName: "ASIP",
           url: localeUrl(locale),
           description:
-            "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners.",
+            "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners.",
           parentOrganization: {
             "@type": "Organization",
             name: "Telecel Group",
@@ -83,6 +88,7 @@ export function HomePageContent({
         locale={locale}
         copy={copy.founders}
         countryReach={countryReach}
+        startups={spotlight}
       />
 
       <HomeOutcomesSection

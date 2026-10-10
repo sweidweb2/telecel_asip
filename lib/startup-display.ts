@@ -15,6 +15,42 @@ export function startupInitials(name: string): string {
   return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
+/**
+ * ASIP spectrum accent per cohort, keyed by its (first) year so every
+ * cohort keeps the same colour across cards, chips and filters.
+ * Classes are literal so Tailwind can see them.
+ */
+const COHORT_ACCENTS = [
+  { bar: "bg-brand", chip: "bg-brand text-white" },
+  { bar: "bg-asip-magenta", chip: "bg-asip-magenta text-white" },
+  { bar: "bg-asip-coral", chip: "bg-asip-coral text-white" },
+  { bar: "bg-asip-mint", chip: "bg-asip-mint text-asip-ink" },
+  { bar: "bg-asip-ink", chip: "bg-asip-ink text-white" },
+] as const;
+
+export type CohortAccent = (typeof COHORT_ACCENTS)[number];
+
+export function cohortAccent(cohort: string | null): CohortAccent {
+  const year = cohort ? /\d{4}/.exec(cohort)?.[0] : undefined;
+  const key = year
+    ? Number(year)
+    : [...(cohort ?? "")].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  return COHORT_ACCENTS[key % COHORT_ACCENTS.length]!;
+}
+
+/** Localised country name from an ISO alpha-2 code; falls back to the code. */
+export function countryDisplayName(
+  code: string | null,
+  locale: "en" | "fr",
+): string | null {
+  if (!code) return null;
+  try {
+    return new Intl.DisplayNames([locale], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 /** Extract YYYY from a Postgres `date` (YYYY-MM-DD) or ISO string. */
 export function foundedYearFromDate(value: string | null): string | null {
   if (!value) return null;

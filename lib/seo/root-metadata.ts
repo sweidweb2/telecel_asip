@@ -10,7 +10,7 @@ export const rootMetadata: Metadata = {
     template: "%s",
   },
   description:
-    "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
+    "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners to build and scale strong businesses.",
   applicationName: "ASIP",
   icons: {
     icon: [
@@ -24,7 +24,7 @@ export const rootMetadata: Metadata = {
     siteName: "ASIP",
     title: "ASIP | African Founders, Technology & Impact",
     description:
-      "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
+      "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners to build and scale strong businesses.",
     images: [
       {
         url: "/opengraph-image.png",
@@ -38,7 +38,7 @@ export const rootMetadata: Metadata = {
     card: "summary_large_image",
     title: "ASIP | African Founders, Technology & Impact",
     description:
-      "ASIP by Telecel Group connects African technology founders to expertise, capital pathways, markets and partners to build and scale strong businesses.",
+      "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners to build and scale strong businesses.",
     images: ["/opengraph-image.png"],
   },
 };

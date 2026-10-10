@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 import type { ProgrammePageCopy } from "@/types/marketing-page";
 
@@ -41,7 +43,7 @@ function PageEdge({ side }: { side: "left" | "right" }) {
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none absolute inset-y-3 w-[7px]",
+        "pointer-events-none absolute inset-y-3 hidden w-[7px] lg:block",
         side === "left" ? "left-0" : "right-0",
         side === "left"
           ? "bg-[linear-gradient(90deg,#cbbba8_0%,#f2ebe0_55%,#fffdf6_100%)]"
@@ -68,7 +70,7 @@ function PathCard({
   return (
     <article
       className={cn(
-        "relative rounded-sm border border-[#14333b]/10 bg-[#fffef9] p-4 shadow-[2px_3px_0_rgb(20_51_59/0.08)] sm:p-5",
+        "relative rounded-sm border border-[#14333b]/10 bg-[#fffef9] p-4 shadow-[2px_3px_0_rgb(20_51_59/0.08)] transition-transform duration-300 sm:p-5 lg:hover:-translate-y-0.5",
         CARD_TILTS[index % CARD_TILTS.length],
       )}
     >
@@ -89,10 +91,7 @@ function PathCard({
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[0.65rem] font-semibold tracking-[0.14em] text-[#179191] uppercase">
-            {padStep(index)}
-          </p>
-          <h3 className="mt-1 font-heading text-base font-semibold tracking-tight text-[#14333b] sm:text-lg">
+          <h3 className="font-heading text-base font-semibold tracking-tight text-[#14333b] sm:text-lg">
             {step.title}
           </h3>
           <p className="mt-1.5 text-sm leading-6 text-[#14333b]/72">
@@ -111,7 +110,7 @@ function BookPage({
   stepOffset,
 }: {
   side: "left" | "right";
-  title?: string;
+  title?: ReactNode;
   steps: JourneyStep[];
   stepOffset: number;
 }) {
@@ -120,52 +119,44 @@ function BookPage({
   return (
     <div
       className={cn(
-        "relative min-h-[34rem] px-8 py-10 xl:min-h-[38rem] xl:px-10 xl:py-12",
+        "relative lg:min-h-[34rem] lg:px-8 lg:py-10 xl:min-h-[38rem] xl:px-10 xl:py-12",
         isLeft
-          ? "shadow-[inset_-18px_0_28px_-20px_rgb(20_51_59/0.18)]"
-          : "shadow-[inset_18px_0_28px_-20px_rgb(20_51_59/0.18)]",
+          ? "lg:shadow-[inset_-18px_0_28px_-20px_rgb(20_51_59/0.18)]"
+          : "mt-5 lg:mt-0 lg:shadow-[inset_18px_0_28px_-20px_rgb(20_51_59/0.18)]",
       )}
     >
-      <LinedPaper />
+      <LinedPaper className="hidden lg:block" />
       <PageEdge side={side} />
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-8 w-px bg-[#f5b7b1]/70",
+          "pointer-events-none absolute inset-y-8 hidden w-px bg-[#f5b7b1]/70 lg:block",
           isLeft ? "left-9 xl:left-11" : "right-9 xl:right-11",
         )}
       />
       <span
         aria-hidden
         className={cn(
-          "absolute top-5 h-3.5 rounded-[1px]",
+          "absolute top-5 hidden h-3.5 rounded-[1px] lg:block",
           isLeft
             ? "left-16 w-16 -rotate-6 bg-[#9ad1bf]/55"
             : "left-1/2 w-20 -translate-x-1/2 rotate-1 bg-[#14333b]/35",
         )}
       />
 
-      <div className={cn("relative z-10", isLeft ? "pl-4" : "pr-4")}>
-        {title ? (
-          <p
-            aria-hidden
-            className="max-w-md font-heading text-3xl font-semibold tracking-tight text-balance text-[#14333b] xl:text-4xl"
-          >
-            {title}
-          </p>
-        ) : (
-          <div className="h-10 xl:h-12" aria-hidden />
-        )}
+      <div className={cn("relative z-10", isLeft ? "lg:pl-4" : "lg:pr-4")}>
+        {title ?? <div className="hidden h-10 lg:block xl:h-12" aria-hidden />}
 
-        <div className={cn("space-y-5", title ? "mt-8" : "mt-2")}>
+        <ol
+          start={stepOffset + 1}
+          className={cn("space-y-5", title ? "mt-8" : "lg:mt-2")}
+        >
           {steps.map((step, index) => (
-            <PathCard
-              key={step.id}
-              step={step}
-              index={stepOffset + index}
-            />
+            <li key={step.id}>
+              <PathCard step={step} index={stepOffset + index} />
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </div>
   );
@@ -174,6 +165,8 @@ function BookPage({
 /**
  * Programme founder journey — open scrapbook spread on lg+, stacked on mobile.
  * Three steps per page (01–03 left, 04–06 right). ASIP parchment / ink / teal.
+ * Each step renders once: the spread chrome is CSS-only (lg:*), so the
+ * sequence is not duplicated in the DOM for crawlers or assistive tech.
  */
 export function ProgrammeJourneySection({
   copy,
@@ -188,70 +181,43 @@ export function ProgrammeJourneySection({
       className="border-b border-border bg-background"
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <h2
-          id="programme-journey-heading"
-          className="font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:sr-only"
-        >
-          {copy.title}
-        </h2>
+        <div className="lg:rounded-lg lg:bg-[#f2f5ef] lg:p-1 lg:shadow-[0_18px_40px_-18px_rgb(20_51_59/0.35)] lg:ring-1 lg:ring-[#14333b]/10">
+          <div className="relative lg:grid lg:grid-cols-2 lg:overflow-hidden lg:rounded-[6px] lg:bg-[#fffef7]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-1/2 z-30 hidden w-20 -translate-x-1/2 lg:block"
+              style={{
+                background: `linear-gradient(
+                  90deg,
+                  transparent 0%,
+                  rgb(20 51 59 / 0.04) 28%,
+                  rgb(20 51 59 / 0.12) 48%,
+                  rgb(255 255 255 / 0.55) 50%,
+                  rgb(20 51 59 / 0.12) 52%,
+                  rgb(20 51 59 / 0.04) 72%,
+                  transparent 100%
+                )`,
+              }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-6 left-1/2 z-30 hidden w-px -translate-x-1/2 bg-[#14333b]/10 lg:block"
+            />
 
-        <div className="mt-8 lg:hidden">
-          <ol className="space-y-5">
-            {copy.steps.map((step, index) => (
-              <li key={step.id}>
-                <article className="rounded-sm border border-border bg-[#fffef9] p-4 shadow-sm sm:p-5">
-                  <p className="text-[0.65rem] font-semibold tracking-[0.14em] text-primary uppercase">
-                    {padStep(index)}
-                  </p>
-                  <h3 className="mt-1 font-heading text-base font-semibold tracking-tight sm:text-lg">
-                    {step.title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-                    {step.description}
-                  </p>
-                </article>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <div className="hidden lg:block">
-          <div
-            className={cn(
-              "rounded-lg bg-[#f2f5ef] p-1 shadow-[0_18px_40px_-18px_rgb(20_51_59/0.35)]",
-              "ring-1 ring-[#14333b]/10",
-            )}
-          >
-            <div className="relative grid grid-cols-2 overflow-hidden rounded-[6px] bg-[#fffef7]">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-1/2 z-30 w-20 -translate-x-1/2"
-                style={{
-                  background: `linear-gradient(
-                    90deg,
-                    transparent 0%,
-                    rgb(20 51 59 / 0.04) 28%,
-                    rgb(20 51 59 / 0.12) 48%,
-                    rgb(255 255 255 / 0.55) 50%,
-                    rgb(20 51 59 / 0.12) 52%,
-                    rgb(20 51 59 / 0.04) 72%,
-                    transparent 100%
-                  )`,
-                }}
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-y-6 left-1/2 z-30 w-px -translate-x-1/2 bg-[#14333b]/10"
-              />
-
-              <BookPage
-                side="left"
-                title={copy.title}
-                steps={leftSteps}
-                stepOffset={0}
-              />
-              <BookPage side="right" steps={rightSteps} stepOffset={3} />
-            </div>
+            <BookPage
+              side="left"
+              title={
+                <h2
+                  id="programme-journey-heading"
+                  className="max-w-md font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:text-[#14333b] xl:text-4xl"
+                >
+                  {copy.title}
+                </h2>
+              }
+              steps={leftSteps}
+              stepOffset={0}
+            />
+            <BookPage side="right" steps={rightSteps} stepOffset={3} />
           </div>
         </div>
       </div>

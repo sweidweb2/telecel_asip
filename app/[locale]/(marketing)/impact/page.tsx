@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { ImpactPageContent } from "@/components/marketing/impact-page-content";
 import { getPublishedImpactCaseStudies } from "@/data/founder-stories";
+import { getImpactPageMetrics } from "@/data/impact-metrics";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -34,7 +35,16 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const caseStudies = await getPublishedImpactCaseStudies();
+  const [caseStudies, metrics] = await Promise.all([
+    getPublishedImpactCaseStudies(),
+    getImpactPageMetrics(),
+  ]);
 
-  return <ImpactPageContent locale={locale} caseStudies={caseStudies} />;
+  return (
+    <ImpactPageContent
+      locale={locale}
+      caseStudies={caseStudies}
+      metrics={metrics}
+    />
+  );
 }

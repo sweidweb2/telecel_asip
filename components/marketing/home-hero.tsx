@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowDown, ArrowRight } from "lucide-react";
 
 import "./home-hero.css";
 
@@ -19,6 +20,14 @@ import type { HomePageCopy } from "@/types/marketing-page";
 /** LCP still — 75 is perceptually close at full-bleed and cuts decoder work. */
 const HERO_LCP_QUALITY = 75;
 
+/** ASIP multicolour spectrum — order matches the approved palette sweep. */
+const SPECTRUM = [
+  "bg-brand",
+  "bg-asip-mint",
+  "bg-asip-magenta",
+  "bg-asip-coral",
+] as const;
+
 type HomeHeroProps = {
   locale: Locale;
   copy: HomePageCopy["hero"];
@@ -29,11 +38,16 @@ type HomeHeroProps = {
  * Home Module 01 — Founder Continuum.
  * Full-bleed stills soft-crossfade behind a stable brand + headline + CTA lockup.
  * First still is RSC/LCP in the initial HTML; the client island only cycles later.
+ *
+ * Hierarchy: ASIP (brand) → Telecel (endorser) → founder headline → next step.
+ * Energy comes from the ASIP spectrum rule and the mint last headline beat;
+ * motion is a one-time CSS reveal and drops out under reduced motion.
  */
 export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
-  const primaryHref = publicPath(locale, copy.primaryCta.slug);
+  const foundersHref = publicPath(locale, copy.primaryCta.slug);
   const continuumLabel = homeHeroContinuumAlt(locale, 0);
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
+  const lastLine = copy.titleLines.length - 1;
 
   return (
     <section
@@ -70,48 +84,93 @@ export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
 
       <div
         data-hero-copy
-        className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-6 pb-4 sm:px-6 sm:pt-14 sm:pb-32 lg:px-8 lg:pt-16 lg:pb-36 max-md:-translate-y-14"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-8 pb-16 sm:px-6 sm:pt-14 sm:pb-32 lg:px-8 lg:pt-16 lg:pb-36"
       >
         <div>
-          <p className="font-heading text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {copy.brand}
-          </p>
+          <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+            <p className="font-heading text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              {copy.brand}
+            </p>
+            <p className="mb-1.5 border-l border-white/30 pl-4 text-xs font-medium tracking-[0.08em] text-white/75 sm:mb-2.5 sm:text-sm">
+              {copy.endorsement}
+            </p>
+          </div>
           <span
             aria-hidden
-            className="home-hero-brand-rule mt-2.5 block h-0.5 w-14 bg-asip-coral sm:mt-4 sm:w-16"
-          />
+            className="mt-2.5 flex h-1 w-28 gap-1 sm:mt-4 sm:w-36"
+          >
+            {SPECTRUM.map((color, index) => (
+              <span
+                key={color}
+                className={cn("home-hero-spectrum-seg h-full flex-1 rounded-full", color)}
+                style={{ animationDelay: `${350 + index * 110}ms` }}
+              />
+            ))}
+          </span>
           <p className="mt-3 max-w-xl text-xs font-semibold tracking-[0.16em] text-asip-mint uppercase sm:mt-4 sm:text-sm">
             {copy.eyebrow}
           </p>
         </div>
 
-        <h1 className="mt-4 max-w-4xl font-heading text-3xl font-semibold leading-[1.08] text-balance sm:text-5xl lg:text-6xl">
-          {copy.title}
+        <h1
+          aria-label={copy.title}
+          className="mt-4 max-w-4xl font-heading text-3xl font-semibold leading-[1.08] text-balance sm:text-5xl lg:text-6xl"
+        >
+          {copy.titleLines.map((line, index) => (
+            <span
+              key={line}
+              aria-hidden
+              className={cn(
+                "home-hero-line inline-block pr-[0.25em]",
+                index === lastLine && "home-hero-line--accent",
+              )}
+              style={{ animationDelay: `${180 + index * 140}ms` }}
+            >
+              {line}
+            </span>
+          ))}
         </h1>
 
         <p className="mt-4 max-w-xl border-l-2 border-asip-coral pl-4 text-base leading-7 text-white/80 sm:mt-6 sm:pl-5 sm:text-lg sm:leading-8">
           {copy.description}
         </p>
 
-        <div className="mt-6 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-          <Link
-            href={primaryHref}
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
-            )}
+        <div>
+          <div className="mt-6 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Link
+              href={intake.href}
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "group min-h-12 w-full rounded-full bg-asip-coral px-8 text-base text-white hover:bg-asip-coral-hover sm:w-auto",
+              )}
+            >
+              {intake.label}
+              <ArrowRight
+                aria-hidden
+                className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+              />
+            </Link>
+            <Link
+              href={foundersHref}
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "min-h-12 w-full rounded-full border-white/55 bg-white/5 px-8 text-base text-white hover:bg-white hover:text-asip-ink sm:w-auto",
+              )}
+            >
+              {copy.primaryCta.label}
+            </Link>
+          </div>
+          <a
+            href={copy.nextCohort.href}
+            className="group mt-4 inline-flex items-center gap-2 text-sm font-medium text-white/80 underline-offset-4 hover:text-white hover:underline sm:mt-5"
           >
-            {copy.primaryCta.label}
-          </Link>
-          <Link
-            href={intake.href}
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "min-h-11 w-full rounded-full border-white/55 bg-white/5 px-8 text-white hover:bg-white hover:text-asip-ink sm:w-auto",
-            )}
-          >
-            {intake.label}
-          </Link>
+            <span aria-hidden className="size-2 rounded-full bg-asip-mint" />
+            {copy.nextCohort.label}
+            <ArrowDown
+              aria-hidden
+              className="size-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
+            />
+          </a>
         </div>
       </div>
 

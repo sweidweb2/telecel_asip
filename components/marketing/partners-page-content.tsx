@@ -3,7 +3,7 @@ import "./partners-motion.css";
 import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { partnerLabelsFor } from "@/components/marketing/partner-labels";
 import { PartnersHeroSection } from "@/components/marketing/partners-hero-section";
-import { PartnersNetwork } from "@/components/marketing/partners-network";
+import { PartnersByContribution } from "@/components/marketing/partners-by-contribution";
 import { PartnersPropositionSection } from "@/components/marketing/partners-proposition-section";
 import { PartnersTypesSection } from "@/components/marketing/partners-types-section";
 import type { Locale } from "@/constants/locales";
@@ -18,7 +18,8 @@ type PartnersPageContentProps = {
 };
 
 /**
- * Partners marketing page — hero, proposition, type routes, live network logos, CTA.
+ * Partners marketing page — hero, proposition, type routes, partners grouped by
+ * what they bring to founders (logos as supporting proof), CTA.
  */
 export function PartnersPageContent({
   locale,
@@ -39,23 +40,27 @@ export function PartnersPageContent({
         aria-labelledby="partners-network-heading"
         className={cn(
           "border-b border-border bg-background",
-          "px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-8",
+          "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         )}
       >
-        <div className="mx-auto w-full max-w-7xl">
-          <h2
-            id="partners-network-heading"
-            className="mx-auto max-w-2xl text-center font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
-          >
-            {copy.logos.title}
-          </h2>
-          <div className="mt-4 sm:mt-5">
-            <PartnersNetwork
-              locale={locale}
-              partners={active}
-              typeRows={copy.types.rows}
-            />
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2
+              id="partners-network-heading"
+              className="font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+            >
+              {copy.logos.title}
+            </h2>
+            <p className="mt-3 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              {copy.logos.description}
+            </p>
           </div>
+          <PartnersByContribution
+            className="mt-8 sm:mt-10"
+            partners={active}
+            typeRows={copy.types.rows}
+            bringsLabel={copy.logos.bringsLabel}
+          />
         </div>
       </section>
 
@@ -80,13 +85,12 @@ export function PartnersPageContent({
                 {labels.historicalDescription}
               </p>
             </div>
-            <div className="mt-4 sm:mt-5">
-              <PartnersNetwork
-                locale={locale}
-                partners={historical}
-                typeRows={copy.types.rows}
-              />
-            </div>
+            <PartnersByContribution
+              className="mt-8 sm:mt-10"
+              partners={historical}
+              typeRows={copy.types.rows}
+              bringsLabel={copy.logos.bringsLabel}
+            />
           </div>
         </section>
       ) : null}

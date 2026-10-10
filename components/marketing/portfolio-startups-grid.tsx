@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Locale } from "@/constants/locales";
+import { cohortAccent } from "@/lib/startup-display";
+import { cn } from "@/lib/utils";
 import type { StartupFilterOptions, StartupPublicListItem } from "@/types/startup";
 import type { ActiveStartupFilters } from "@/validations/startup";
 
@@ -28,6 +30,8 @@ const LABELS = {
     emptyAll: "Founder profiles are being prepared for publication.",
     result: "{count} company",
     results: "{count} companies",
+    cohortChips: "Filter by cohort",
+    allCohorts: "All cohorts",
   },
   fr: {
     search: "Rechercher une entreprise ou une solution",
@@ -38,6 +42,8 @@ const LABELS = {
     emptyAll: "Les profils des fondateurs sont en cours de preparation.",
     result: "{count} entreprise",
     results: "{count} entreprises",
+    cohortChips: "Filtrer par cohorte",
+    allCohorts: "Toutes les cohortes",
   },
 } as const;
 
@@ -141,7 +147,58 @@ export function PortfolioStartupsGrid({
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid min-w-0 gap-8">
+      {options.cohorts.length > 1 ? (
+        <nav aria-label={labels.cohortChips} className="min-w-0">
+          <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
+            <li className="shrink-0">
+              <button
+                type="button"
+                aria-pressed={!filters.cohort}
+                onClick={() => updateParams({ cohort: null })}
+                className={cn(
+                  "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors",
+                  !filters.cohort
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-background hover:border-foreground/40",
+                )}
+              >
+                {labels.allCohorts}
+              </button>
+            </li>
+            {options.cohorts.map((cohort) => {
+              const accent = cohortAccent(cohort);
+              const active = filters.cohort === cohort;
+              return (
+                <li key={cohort} className="shrink-0">
+                  <button
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      updateParams({ cohort: active ? null : cohort })
+                    }
+                    className={cn(
+                      "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors",
+                      active
+                        ? cn("border-transparent", accent.chip)
+                        : "border-border bg-background hover:border-foreground/40",
+                    )}
+                  >
+                    {!active ? (
+                      <span
+                        aria-hidden
+                        className={cn("size-2 rounded-full", accent.bar)}
+                      />
+                    ) : null}
+                    {cohort}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-3 border-y py-3 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />

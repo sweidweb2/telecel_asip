@@ -6,7 +6,9 @@ import { StartupCard } from "@/components/marketing/startup-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { formatFoundedDate, startupInitials } from "@/lib/startup-display";
+import { StartupBrandedCover } from "@/components/marketing/startup-branded-cover";
+import { startupCoverFor } from "@/constants/startup-cover-review";
+import { formatFoundedDate } from "@/lib/startup-display";
 import type { FounderStoryPublic } from "@/types/founder-story";
 import type {
   StartupPublicDetail,
@@ -177,9 +179,9 @@ export function StartupDetailPageContent({
 
         <div className="mx-auto mt-6 w-full max-w-7xl px-5 sm:mt-8 sm:px-8 lg:px-10">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#14333b] md:aspect-[2/1]">
-            {startup.cover_image_url ? (
+            {startupCoverFor(startup) ? (
               <Image
-                src={startup.cover_image_url}
+                src={startupCoverFor(startup)!}
                 alt=""
                 fill
                 priority
@@ -190,14 +192,10 @@ export function StartupDetailPageContent({
                 sizes="(max-width: 1152px) 100vw, 1152px"
               />
             ) : (
-              <div
-                aria-hidden
-                className="flex size-full items-center justify-center bg-[#14333b]"
-              >
-                <span className="font-heading text-4xl font-semibold text-white/65 sm:text-5xl lg:text-6xl">
-                  {startupInitials(startup.name)}
-                </span>
-              </div>
+              <StartupBrandedCover
+                startup={startup}
+                showMark={!startup.logo_url}
+              />
             )}
             {startup.logo_url ? (
               <div className="absolute bottom-5 left-5 size-20 overflow-hidden rounded-lg border bg-white shadow-lg sm:bottom-8 sm:left-8 sm:size-24">

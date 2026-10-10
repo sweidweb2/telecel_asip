@@ -29,7 +29,7 @@ describe("AboutPageContent", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "Connect African innovation to opportunity.",
+        name: "Turn African innovation into opportunity.",
       }),
     ).toBeInTheDocument();
     expect(

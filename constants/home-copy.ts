@@ -8,12 +8,15 @@ import type { HomePageCopy } from "@/types/marketing-page";
 const en: HomePageCopy = {
   hero: {
     brand: "ASIP",
-    eyebrow: "Africa Startup Initiative Program · A Telecel Group Program",
+    eyebrow: "Africa Startup Initiative Program",
+    endorsement: "A Telecel Group Program",
     title: "African founders. Real solutions. Impact that scales.",
+    titleLines: ["African founders.", "Real solutions.", "Impact that scales."],
     description:
-      "Since 2019, ASIP has connected African technology founders to expertise, capital pathways, markets and relationships that help ambitious businesses build and grow.",
+      "Since 2019, ASIP has backed African technology founders with expertise, capital pathways, market access and relationships that help ambitious businesses build and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
+    nextCohort: { label: "2026 cohort · See what’s next", href: "#next-chapter" },
   },
   impactYears: {
     title: "Impact since 2019.",
@@ -25,7 +28,7 @@ const en: HomePageCopy = {
   platform: {
     title: "From potential to progress.",
     description:
-      "ASIP brings the right capabilities and connections together around founders at the moments they matter most.",
+      "ASIP brings the right capabilities and people together around founders at the moments they matter most.",
     steps: [
       {
         id: "discover",
@@ -55,7 +58,7 @@ const en: HomePageCopy = {
         id: "scale",
         title: "Scale",
         description:
-          "Support growth across markets and keep strong founders connected to the ecosystem.",
+          "Support growth across markets and keep strong founders close to the ecosystem.",
       },
     ],
   },
@@ -66,11 +69,6 @@ const en: HomePageCopy = {
     cta: { slug: "founders", label: "Explore all founders" },
     empty:
       "Founder stories will appear here as verified profiles are published.",
-    blueprintTitleBlock: {
-      eyebrow: "Ecosystem",
-      title: "How ASIP connects Africa",
-      detail: "Founders, partners, capital & markets",
-    },
   },
   outcomes: {
     eyebrow: "Impact",
@@ -99,12 +97,13 @@ const en: HomePageCopy = {
     ],
     cta: { slug: "impact", label: "See the impact" },
     imageAlt:
-      "ASIP founders building ventures - register interest for the next chapter",
+      "Rural Farmers Hub founder receiving an ASIP programme award",
+    insetAlt: "An ASIP founder celebrating with her team",
   },
   ecosystem: {
-    title: "The right connection can change a company’s trajectory.",
+    title: "The right opportunity can change a company’s trajectory.",
     description:
-      "ASIP works across a network of mentors, investors, corporates, technology partners, development institutions and ecosystem organisations to connect founders with practical opportunities for growth.",
+      "ASIP works across a network of mentors, investors, corporates, technology partners, development institutions and ecosystem organisations to open practical opportunities for founder growth.",
     cta: { slug: "partners", label: "Partner with ASIP" },
     roles: [
       {
@@ -141,22 +140,53 @@ const en: HomePageCopy = {
         id: "ecosystem",
         title: "Ecosystem organisations",
         description:
-          "Community, events and knowledge that keep founders connected after a cohort ends.",
+          "Community, events and knowledge that keep founders moving forward after a cohort ends.",
       },
     ],
   },
   telecel: {
     title: "Powered by Connecting Energies.",
     description:
-      "ASIP is a Telecel Group Program. It draws on Telecel’s African legacy, digital expertise and relationships to help connect strong founders with opportunities that can accelerate real-world adoption.",
+      "ASIP is a Telecel Group Program. It draws on Telecel’s African legacy, digital expertise and relationships to back strong founders with opportunities that can accelerate real-world adoption.",
     ctaLabel: "About Telecel Group",
     prompt: "Who stands behind ASIP?",
     inputPlaceholder: "Ask about Telecel Group",
   },
   nextChapter: {
-    title: "The next chapter starts with the builders.",
+    eyebrow: "2026 cohort",
+    title: "AI that earns its place in the business.",
     description:
-      "ASIP is preparing its 2026 chapter with renewed focus on practical founder growth, stronger ecosystem connections and technology-led solutions built for real African markets.",
+      "The 2026 chapter backs startups applying AI to problems existing businesses already have — and proving the advantage in revenue, cost, speed or reach.",
+    theme: {
+      name: "AI Advantage in Action",
+      status: "working",
+      statusLabel: "Working theme",
+      summary:
+        "Not AI for its own sake. Practical tools that make real African businesses measurably better.",
+    },
+    pillars: [
+      {
+        id: "problem",
+        label: "01",
+        title: "A real business problem",
+        description:
+          "Start with an operator’s pain point in a live market — not a model looking for a use case.",
+      },
+      {
+        id: "applied",
+        label: "02",
+        title: "AI applied, not showcased",
+        description:
+          "Embed AI where it changes how work gets done: decisions, operations, service and access.",
+      },
+      {
+        id: "advantage",
+        label: "03",
+        title: "Advantage you can measure",
+        description:
+          "Show the difference in numbers a customer, partner or investor would recognise.",
+      },
+    ],
     primaryCta: { slug: "register-interest", label: "Register interest" },
     secondaryCta: { slug: "contact", label: "Discuss a partnership" },
   },
@@ -173,11 +203,17 @@ const en: HomePageCopy = {
 const fr: HomePageCopy = {
   hero: {
     brand: "ASIP",
-    eyebrow:
-      "Programme africain d’initiative pour les startups · Un programme du Groupe Telecel",
+    eyebrow: "Programme africain d’initiative pour les startups",
+    endorsement: "Un programme du Groupe Telecel",
     title: "Fondateurs africains. Solutions concrètes. Un impact qui grandit.",
+    titleLines: [
+      "Fondateurs africains.",
+      "Solutions concrètes.",
+      "Un impact qui grandit.",
+    ],
+    nextCohort: { label: "Cohorte 2026 · Découvrir la suite", href: "#next-chapter" },
     description:
-      "Depuis 2019, ASIP connecte des fondateurs technologiques africains à l’expertise, aux voies de financement, aux marchés et aux relations qui aident les entreprises ambitieuses à construire et grandir.",
+      "Depuis 2019, ASIP soutient des fondateurs technologiques africains avec l’expertise, les voies de financement, l’accès aux marchés et les relations qui aident les entreprises ambitieuses à construire et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
   },
@@ -191,7 +227,7 @@ const fr: HomePageCopy = {
   platform: {
     title: "Du potentiel au progrès.",
     description:
-      "ASIP rassemble les capacités et les connexions dont les fondateurs ont besoin, au moment où elles comptent le plus.",
+      "ASIP rassemble les capacités et les personnes dont les fondateurs ont besoin, au moment où elles comptent le plus.",
     steps: [
       {
         id: "discover",
@@ -221,7 +257,7 @@ const fr: HomePageCopy = {
         id: "scale",
         title: "Changer d’échelle",
         description:
-          "Accélérer la croissance d’un marché à l’autre et garder les fondateurs solides connectés à l’écosystème.",
+          "Accélérer la croissance d’un marché à l’autre et garder les fondateurs solides proches de l’écosystème.",
       },
     ],
   },
@@ -232,11 +268,6 @@ const fr: HomePageCopy = {
     cta: { slug: "founders", label: "Explorer tous les fondateurs" },
     empty:
       "Les parcours des fondateurs apparaîtront ici à mesure que les profils vérifiés sont publiés.",
-    blueprintTitleBlock: {
-      eyebrow: "Écosystème",
-      title: "Comment ASIP relie l’Afrique",
-      detail: "Fondateurs, partenaires, capital et marchés",
-    },
   },
   outcomes: {
     eyebrow: "Impact",
@@ -265,12 +296,13 @@ const fr: HomePageCopy = {
     ],
     cta: { slug: "impact", label: "Voir l’impact" },
     imageAlt:
-      "Des fondateurs ASIP qui construisent - manifestez votre intérêt pour le prochain chapitre",
+      "Le fondateur de Rural Farmers Hub reçoit une distinction du programme ASIP",
+    insetAlt: "Une fondatrice ASIP célèbre avec son équipe",
   },
   ecosystem: {
-    title: "La bonne connexion peut changer la trajectoire d’une entreprise.",
+    title: "La bonne opportunité peut changer la trajectoire d’une entreprise.",
     description:
-      "ASIP travaille avec un réseau de mentors, d’investisseurs, d’entreprises, de partenaires technologiques, d’institutions de développement et d’organisations de l’écosystème pour relier les fondateurs à des opportunités concrètes de croissance.",
+      "ASIP travaille avec un réseau de mentors, d’investisseurs, d’entreprises, de partenaires technologiques, d’institutions de développement et d’organisations de l’écosystème pour ouvrir aux fondateurs des opportunités concrètes de croissance.",
     cta: { slug: "partners", label: "Devenir partenaire d’ASIP" },
     roles: [
       {
@@ -307,22 +339,53 @@ const fr: HomePageCopy = {
         id: "ecosystem",
         title: "Organisations de l’écosystème",
         description:
-          "Communauté, événements et connaissances qui gardent les fondateurs connectés après une cohorte.",
+          "Communauté, événements et connaissances qui font avancer les fondateurs après une cohorte.",
       },
     ],
   },
   telecel: {
     title: "Porté par Connecting Energies.",
     description:
-      "ASIP est un programme du Groupe Telecel. Il s’appuie sur l’héritage africain de Telecel, son expertise digitale et ses relations pour connecter des fondateurs solides à des opportunités qui peuvent accélérer l’adoption réelle.",
+      "ASIP est un programme du Groupe Telecel. Il s’appuie sur l’héritage africain de Telecel, son expertise digitale et ses relations pour soutenir des fondateurs solides avec des opportunités qui peuvent accélérer l’adoption réelle.",
     ctaLabel: "À propos du Groupe Telecel",
     prompt: "Qui se tient derrière ASIP ?",
     inputPlaceholder: "En savoir plus sur le Groupe Telecel",
   },
   nextChapter: {
-    title: "Le prochain chapitre commence avec ceux qui construisent.",
+    eyebrow: "Cohorte 2026",
+    title: "Une IA qui mérite sa place dans l’entreprise.",
     description:
-      "ASIP prépare son chapitre 2026, avec un accent renouvelé sur la croissance concrète des fondateurs, des connexions écosystème plus fortes et des solutions technologiques conçues pour les marchés africains réels.",
+      "Le chapitre 2026 soutient des startups qui appliquent l’IA aux problèmes que les entreprises existantes rencontrent déjà — et qui prouvent l’avantage en revenus, coûts, rapidité ou portée.",
+    theme: {
+      name: "AI Advantage in Action",
+      status: "working",
+      statusLabel: "Thème provisoire",
+      summary:
+        "Pas l’IA pour elle-même. Des outils concrets qui rendent les entreprises africaines mesurablement meilleures.",
+    },
+    pillars: [
+      {
+        id: "problem",
+        label: "01",
+        title: "Un vrai problème business",
+        description:
+          "Partir d’un point de friction réel sur un marché vivant — pas d’un modèle en quête d’usage.",
+      },
+      {
+        id: "applied",
+        label: "02",
+        title: "L’IA appliquée, pas exhibée",
+        description:
+          "Intégrer l’IA là où elle change le travail : décisions, opérations, service et accès.",
+      },
+      {
+        id: "advantage",
+        label: "03",
+        title: "Un avantage mesurable",
+        description:
+          "Montrer la différence en chiffres qu’un client, un partenaire ou un investisseur reconnaîtrait.",
+      },
+    ],
     primaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
     secondaryCta: { slug: "contact", label: "Discuter d’un partenariat" },
   },

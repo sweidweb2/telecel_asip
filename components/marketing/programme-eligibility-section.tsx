@@ -1,6 +1,6 @@
+import Image from "next/image";
 import { Check } from "lucide-react";
 
-import { ProgrammeBridgeConnectionIllustration } from "@/components/marketing/programme-bridge-connection-illustration";
 import type { ProgrammePageCopy } from "@/types/marketing-page";
 
 type ProgrammeEligibilitySectionProps = {
@@ -8,8 +8,8 @@ type ProgrammeEligibilitySectionProps = {
 };
 
 /**
- * Programme “General eligibility” — checklist with a right-side
- * Bridge of Connection / Mentorship illustration (global & corporate reach).
+ * Programme “General eligibility” — checklist with a right-side photo of
+ * ASIP founders in a working session (real programme photography).
  * Cohort-swap notice stays out of the public render (internal implementation only).
  */
 export function ProgrammeEligibilitySection({
@@ -48,10 +48,16 @@ export function ProgrammeEligibilitySection({
           </div>
 
           <div
-            aria-hidden
-            className="pointer-events-none mx-auto w-full max-w-md min-w-0 sm:max-w-lg lg:mx-0 lg:max-w-none"
+            data-reveal="media"
+            className="relative mx-auto aspect-[3/2] w-full max-w-md min-w-0 overflow-hidden rounded-2xl shadow-lg ring-1 ring-border/60 sm:max-w-lg lg:mx-0 lg:max-w-none"
           >
-            <ProgrammeBridgeConnectionIllustration />
+            <Image
+              src="/asip-media/founders-working.webp"
+              alt={copy.imageAlt}
+              fill
+              sizes="(max-width: 1024px) 32rem, 40rem"
+              className="object-cover"
+            />
           </div>
         </div>
       </div>

@@ -20,14 +20,14 @@ export async function generateMetadata({
           path: "/partners",
           title: "Devenir partenaire d’ASIP | Rencontrer les fondateurs africains",
           description:
-            "Travaillez avec ASIP pour relier les fondateurs africains à l’expertise, à la technologie, au capital, à l’accès marché et à des opportunités concrètes.",
+            "Travaillez avec ASIP pour soutenir les fondateurs africains avec l’expertise, la technologie, le capital, l’accès marché et des opportunités concrètes.",
         }
       : {
           locale,
           path: "/partners",
-          title: "Partner with ASIP | Connect with African Founders",
+          title: "Partner with ASIP | Back African Founders",
           description:
-            "Work with ASIP to connect African founders with expertise, technology, capital, market access and practical opportunities.",
+            "Work with ASIP to back African founders with expertise, technology, capital, market access and practical opportunities.",
         },
   );
 }

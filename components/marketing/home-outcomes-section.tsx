@@ -112,20 +112,39 @@ export function HomeOutcomesSection({
             </div>
           </div>
 
-          <div className="relative min-w-0 justify-self-center lg:justify-self-start">
-            <Image
-              src="/my-images/window.webp"
-              alt={copy.imageAlt}
-              width={1200}
-              height={800}
-              sizes="(max-width: 1024px) 100vw, 48rem"
-              className={cn(
-                "mx-auto h-auto w-full max-w-none rounded-xl object-cover shadow-lg ring-1 ring-border/60",
-                /* Oversized from lg so the right edge clips outside the section */
-                "lg:mx-0 lg:w-[42rem] xl:w-[48rem]",
-              )}
-              priority={false}
-            />
+          <div className="relative mx-auto w-full max-w-2xl min-w-0 pb-10 sm:pb-14 lg:mx-0 lg:max-w-none lg:pb-16">
+            <div
+              data-reveal="media"
+              className="relative aspect-[3/2] overflow-hidden rounded-2xl shadow-lg ring-1 ring-border/60"
+            >
+              <Image
+                src="/asip-media/outcome-award.webp"
+                alt={copy.imageAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 40rem"
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute right-3 bottom-0 w-[32%] max-w-[15rem] sm:w-[38%] overflow-hidden rounded-xl border-4 border-background shadow-xl sm:right-6 lg:-right-4">
+              <div className="relative aspect-square">
+                <Image
+                  src="/asip-media/outcome-celebrate.webp"
+                  alt={copy.insetAlt}
+                  fill
+                  sizes="15rem"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <span
+              aria-hidden
+              className="absolute bottom-6 left-0 flex h-1.5 w-24 gap-1 sm:w-32"
+            >
+              <span className="flex-1 rounded-full bg-brand" />
+              <span className="flex-1 rounded-full bg-asip-mint" />
+              <span className="flex-1 rounded-full bg-asip-magenta" />
+              <span className="flex-1 rounded-full bg-asip-coral" />
+            </span>
           </div>
         </div>
       </div>

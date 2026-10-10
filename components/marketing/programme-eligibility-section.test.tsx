@@ -32,15 +32,14 @@ describe("ProgrammeEligibilitySection", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders the bridge connection illustration beside the checklist", () => {
+  it("renders real programme photography beside the checklist", () => {
     const copy = programmeCopyFor("en").eligibility;
-    const { container } = render(<ProgrammeEligibilitySection copy={copy} />);
-    const img = container.querySelector("img");
+    render(<ProgrammeEligibilitySection copy={copy} />);
+    const img = screen.getByRole("img", { name: copy.imageAlt });
 
-    expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute(
       "src",
-      expect.stringContaining("eligibility-bridge-connection.webp"),
+      expect.stringContaining("founders-working.webp"),
     );
   });
 });

@@ -31,12 +31,12 @@ export const HOME_HERO_CONTINUUM: MarketingMedia[] = [
     position: "center 40%",
   },
   {
-    src: "/asip-media/partners-stage.webp",
+    src: "/asip-media/founder-pitch.webp",
     alt: {
-      en: "ASIP partners and founders on stage at an ecosystem event",
-      fr: "Partenaires et fondateurs ASIP sur scène lors d’un événement",
+      en: "ASIP founder pitching on the Accelerating Innovators stage",
+      fr: "Fondateur ASIP présentant son projet sur la scène Accelerating Innovators",
     },
-    position: "center 36%",
+    position: "center 30%",
   },
 ];
 
