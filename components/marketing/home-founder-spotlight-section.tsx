@@ -1,12 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowUpRight, ImageIcon, MapPin } from "lucide-react";
 
-import { StartupBrandedCover } from "@/components/marketing/startup-branded-cover";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { founderStartupPath, publicPath } from "@/constants/routes";
-import { startupCoverFor } from "@/constants/startup-cover-review";
 import { cohortAccent, countryDisplayName } from "@/lib/startup-display";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
@@ -21,14 +19,20 @@ const LABELS = {
 } as const;
 
 /**
- * Mobile: equal portrait cards in a swipe row. sm+: mosaic with one tall
- * feature tile and three supporting tiles.
+ * Photos that do not appear on other public pages.
+ * Remaining mosaic tiles stay a light image placeholder.
  */
+const SPOTLIGHT_TILE_IMAGES = [
+  "/asip-media/about-ecosystem.webp",
+  "/asip-media/impact-community.webp",
+] as const;
+
+/** Mobile: short cards in a swipe row. sm+: one tall tile, two short tiles, then a thin full-width tile. */
 const TILE_SHAPES = [
   "sm:row-span-2 sm:aspect-auto",
-  "sm:aspect-[16/10]",
-  "sm:aspect-[16/10]",
-  "sm:col-span-2 sm:aspect-[21/8]",
+  "sm:aspect-[5/2]",
+  "sm:aspect-[5/2]",
+  "sm:col-span-2 sm:aspect-[5/1]",
 ] as const;
 
 type HomeFounderSpotlightSectionProps = {
@@ -41,8 +45,9 @@ type HomeFounderSpotlightSectionProps = {
 
 /**
  * Home Module 04 — Spotlight.
- * Real portfolio companies (cover, cohort, country, sector) in a photo mosaic,
- * plus the live list of markets — no map or network schematic.
+ * Portfolio companies in a short mosaic. Tiles use a light image placeholder,
+ * with unused programme photos on the first two.
+ * The live market list sits with the copy.
  */
 export function HomeFounderSpotlightSection({
   locale,
@@ -53,11 +58,7 @@ export function HomeFounderSpotlightSection({
 }: HomeFounderSpotlightSectionProps) {
   const labels = LABELS[locale];
   const ctaHref = publicPath(locale, copy.cta.slug);
-  // Lead with companies that have real photography; branded covers fill gaps.
-  const tiles = [
-    ...startups.filter((startup) => startupCoverFor(startup)),
-    ...startups.filter((startup) => !startupCoverFor(startup)),
-  ].slice(0, 4);
+  const tiles = startups.slice(0, 4);
   const markets = countryReach
     .map((row) => countryDisplayName(row.countryCode, locale))
     .filter((name): name is string => Boolean(name))
@@ -70,7 +71,7 @@ export function HomeFounderSpotlightSection({
       className={cn(
         "relative overflow-hidden border-y border-border bg-background",
         "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
-        "[content-visibility:auto] [contain-intrinsic-size:auto_36rem]",
+        "[content-visibility:auto] [contain-intrinsic-size:auto_28rem]",
         className,
       )}
     >
@@ -124,13 +125,13 @@ export function HomeFounderSpotlightSection({
             {tiles.map((startup, index) => {
               const accent = cohortAccent(startup.cohort);
               const country = countryDisplayName(startup.country_code, locale);
-              const cover = startupCoverFor(startup);
+              const photo = SPOTLIGHT_TILE_IMAGES[index];
               return (
                 <li
                   key={startup.id}
                   data-reveal="fade"
                   className={cn(
-                    "relative aspect-[4/5] w-[78%] min-h-0 shrink-0 snap-start overflow-hidden rounded-xl sm:w-auto",
+                    "relative aspect-[2/1] w-[72%] min-h-0 shrink-0 snap-start overflow-hidden rounded-xl sm:w-auto",
                     TILE_SHAPES[index % TILE_SHAPES.length],
                   )}
                 >
@@ -139,30 +140,27 @@ export function HomeFounderSpotlightSection({
                     aria-label={`${startup.name} — ${labels.view}`}
                     className="group absolute inset-0 block outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                   >
-                    {cover ? (
-                      <Image
-                        src={cover}
-                        alt=""
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                        style={{
-                          objectPosition: `${startup.image_focal_x}% ${startup.image_focal_y}%`,
-                        }}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                      />
-                    ) : (
-                      <StartupBrandedCover startup={startup} />
-                    )}
                     <span
                       aria-hidden
-                      className="absolute inset-0 bg-[linear-gradient(to_top,rgb(20_51_59/0.92)_0%,rgb(20_51_59/0.35)_45%,transparent_70%)]"
-                    />
+                      className="absolute inset-0 flex items-center justify-center bg-[#f3f4ef]"
+                    >
+                      <ImageIcon className="size-8 text-[#8aa0a4]" strokeWidth={1.5} />
+                    </span>
+                    {photo ? (
+                      <Image
+                        src={photo}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 78vw, (max-width: 1024px) 40vw, 28vw"
+                      />
+                    ) : null}
                     <span
                       aria-hidden
                       className={cn("absolute inset-x-0 top-0 h-1", accent.bar)}
                     />
-                    <span className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
-                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.7rem] font-semibold tracking-[0.12em] text-white/75 uppercase">
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white/95 via-white/70 to-transparent p-3 text-foreground sm:p-4">
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.7rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
                         {startup.sector ? <span>{startup.sector}</span> : null}
                         {country ? (
                           <span className="inline-flex items-center gap-1 normal-case tracking-normal">
