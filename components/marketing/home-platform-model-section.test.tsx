@@ -72,7 +72,7 @@ describe("HomePlatformModelSection", () => {
     await user.click(screen.getByRole("button", { name: "Carousel Connect" }));
 
     expect(
-      screen.getByRole("button", { name: /03\s*Connect/i }),
+      screen.getByRole("button", { name: /03\s*Open access/i }),
     ).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("platform-stage-carousel")).toHaveAttribute(
       "data-active-step",
@@ -99,11 +99,11 @@ describe("HomePlatformModelSection", () => {
     const user = userEvent.setup();
     render(<HomePlatformModelSection copy={copy} />);
 
-    await user.click(screen.getByRole("button", { name: /03\s*Connect/i }));
+    await user.click(screen.getByRole("button", { name: /03\s*Open access/i }));
 
     const discover = screen.getByRole("button", { name: /01\s*Discover/i });
     const build = screen.getByRole("button", { name: /02\s*Build/i });
-    const connect = screen.getByRole("button", { name: /03\s*Connect/i });
+    const connect = screen.getByRole("button", { name: /03\s*Open access/i });
     const commercialise = screen.getByRole("button", {
       name: /04\s*Commercialise/i,
     });

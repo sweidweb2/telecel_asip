@@ -21,14 +21,14 @@ export async function generateMetadata({
           title:
             "À propos d’ASIP | De l’innovation africaine aux opportunités mondiales",
           description:
-            "Découvrez l’origine d’ASIP en 2019, sa mission et son parcours pour soutenir les fondateurs technologiques africains avec l’expertise, aux marchés et aux opportunités.",
+            "Découvrez la mission d’ASIP et son parcours, de la première cohorte d’accélération au prochain chapitre, aux côtés des fondateurs technologiques africains.",
         }
       : {
           locale,
           path: "/about",
           title: "About ASIP | From African Innovation to Global Opportunity",
           description:
-            "Discover ASIP’s 2019 origin, mission and journey helping African technology founders connect to expertise, markets and opportunity.",
+            "Discover ASIP’s mission and journey, from the first accelerator cohort to the next chapter, backing African technology founders with expertise, markets and relationships.",
         },
   );
 }

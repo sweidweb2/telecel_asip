@@ -9,7 +9,8 @@
 create extension if not exists pgcrypto with schema extensions;
 
 -- Partners / mentors. Local logos live under /public/partners and are referenced
--- by logo_url. logo_permission must be true for partners_public to expose them.
+-- by logo_url. logo_permission stays false until written usage permission is on file.
+-- partners_public only exposes a logo when that flag is true.
 -- Amina Diallo has no logo file — name-tile fallback for admin/public testing.
 insert into public.partners (
   name,
@@ -29,7 +30,7 @@ values
     'corporate',
     'Corporate innovation briefs and pilots with ASIP founders.',
     true,
-    true,
+    false,
     '/partners/a2.png',
     null,
     10
@@ -40,7 +41,7 @@ values
     'media',
     'Programme brand presence across ecosystem events and founder showcases.',
     true,
-    true,
+    false,
     '/partners/asip.png',
     null,
     20
@@ -51,7 +52,7 @@ values
     'technology',
     'Cloud credits, architecture reviews and technical workshops.',
     true,
-    true,
+    false,
     '/partners/aws.png',
     'https://aws.amazon.com',
     30
@@ -62,7 +63,7 @@ values
     'technology',
     'Cloud and infrastructure expertise for early-stage technical teams.',
     true,
-    true,
+    false,
     '/partners/cloudworx.png',
     null,
     40
@@ -73,7 +74,7 @@ values
     'development',
     'Development-sector collaboration and market access pathways.',
     true,
-    true,
+    false,
     '/partners/der.png',
     null,
     50
@@ -84,7 +85,7 @@ values
     'technology',
     'Digital hub programmes and founder community connections.',
     true,
-    true,
+    false,
     '/partners/dhub.png',
     null,
     60
@@ -95,7 +96,7 @@ values
     'technology',
     'Remote operations tooling for distributed founding teams.',
     true,
-    true,
+    false,
     '/partners/firstbase.png',
     'https://www.firstbase.io',
     70
@@ -106,7 +107,7 @@ values
     'investors',
     'Investment-readiness dialogue and portfolio introductions.',
     true,
-    true,
+    false,
     '/partners/fmo-ventures.png',
     'https://www.fmo.nl',
     80
@@ -117,7 +118,7 @@ values
     'technology',
     'Customer engagement software credits and product workshops.',
     true,
-    true,
+    false,
     '/partners/freshworks.png',
     'https://www.freshworks.com',
     90
@@ -128,7 +129,7 @@ values
     'technology',
     'Cloud credits, architecture guidance and technical enablement.',
     true,
-    true,
+    false,
     '/partners/google-cloud.png',
     'https://cloud.google.com',
     100
@@ -139,7 +140,7 @@ values
     'technology',
     'CRM and go-to-market tooling for founder commercial teams.',
     true,
-    true,
+    false,
     '/partners/hubspot.png',
     'https://www.hubspot.com',
     110
@@ -150,7 +151,7 @@ values
     'technology',
     'Collaborative workspace access for workshops and cohort delivery.',
     true,
-    true,
+    false,
     '/partners/miro.png',
     'https://miro.com',
     120
@@ -161,7 +162,7 @@ values
     'development',
     'Sector programmes and cohort delivery across African markets.',
     true,
-    true,
+    false,
     '/partners/sbc-afritech.png',
     null,
     130
@@ -172,7 +173,7 @@ values
     'media',
     'Ecosystem research and founder showcases.',
     false,
-    true,
+    false,
     '/partners/vc4a.png',
     'https://vc4a.com',
     140

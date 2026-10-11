@@ -554,7 +554,7 @@ No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK
 
 **How it works:** Keeps `updated_at` current. No write RPCs — `partners` is a single flat table, so `actions/partners.ts` uses plain INSERT/UPDATE/DELETE. Every row is readable by anon/authenticated; editors CRUD via `is_editor()`. Logos live in Storage bucket `partners`.
 
-`logo_permission` is a column-level gate that RLS cannot express, so `data/partners.ts` nulls `logo_url` before returning public rows.
+`logo_permission` is a column-level gate that RLS cannot express, so `data/partners.ts` nulls `logo_url` before returning public rows. Seeded marks stay `false` until written usage permission is recorded in the CMS.
 
 ---
 

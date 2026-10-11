@@ -535,7 +535,7 @@ Table partners {
   type partner_type [not null]
   contribution text [note: 'Role / contribution; CHECK length <= 2000']
   is_active boolean [not null, default: true, note: 'false = historical partner']
-  logo_permission boolean [not null, default: false, note: 'Publication permission for the logo']
+  logo_permission boolean [not null, default: false, note: 'Publication permission for the logo. Seeded marks stay false until written permission is recorded.']
   logo_url text [note: 'Storage bucket partners']
   link text [note: 'CHECK http(s) URL, length <= 500']
   sort_order integer [not null, default: 1, note: 'CHECK 1–170']

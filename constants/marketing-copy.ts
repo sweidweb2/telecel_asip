@@ -11,12 +11,12 @@ const en: MarketingCopy = {
     eyebrow: "About ASIP",
     title: "Backing the builders shaping Africa’s next chapter.",
     description:
-      "ASIP was launched by Telecel Group in 2019 to bring African technology founders closer to the knowledge, capital pathways, markets and relationships that can accelerate their growth.",
+      "ASIP is a Telecel Group Program backing African technology founders with knowledge, capital pathways, markets and relationships that can accelerate their growth.",
     notice:
       "The leadership message stays unpublished until Telecel Group supplies approved text and media.",
     sectionTitle: "Origin, purpose and the journey ahead",
     sectionDescription:
-      "From the 2019 launch to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
+      "From the first accelerator cohort to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
     cards: [],
     heroChips: {
       focusKind: "Focus",
@@ -27,7 +27,7 @@ const en: MarketingCopy = {
         { kind: "focus", label: "Markets", hideSm: true },
         { kind: "focus", label: "Relationships", hideSm: true },
         { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "Launched · 2019", hideMd: true },
+        { kind: "chapter", label: "First cohort · 2021", hideMd: true },
         { kind: "chapter", label: "Africa", hideSm: true },
         { kind: "chapter", label: "Founders", hideMd: true },
         { kind: "chapter", label: "Next chapter · 2026", hideSm: true },
@@ -47,7 +47,7 @@ const en: MarketingCopy = {
         eyebrow: "Our story",
         paragraphs: [
           "ASIP began with a simple idea: Africa has no shortage of ambitious founders. What is often uneven is access to the networks, expertise and opportunities that help strong companies move faster.",
-          "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The programme has evolved, but the principle remains the same: back local insight, bring the right energies together and give good businesses a stronger path to scale.",
+          "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The programme has evolved, but the principle remains the same: back local insight, bring the right people and capabilities together, and give good businesses a stronger path to scale.",
         ],
         features: [
           {
@@ -116,44 +116,37 @@ const en: MarketingCopy = {
       },
       timeline: {
         eyebrow: "Journey",
-        title: "From launch to the next chapter",
-        // 2021–2024 wording should be cross-checked against Startupbootcamp
-        // cohort master records before publication.
+        title: "From the first cohort to the next chapter",
         milestones: [
-          {
-            year: "2019",
-            description:
-              "Telecel Group launches ASIP to connect African technology founders with knowledge, capital pathways, markets and relationships.",
-          },
           {
             year: "2021",
             description:
-              "The first ASIP accelerator cohort runs virtually, with 11 companies selected from 2,220 applications and a Demo Day in Dakar.",
+              "The first ASIP accelerator cohort runs virtually from 5 July to 30 September, with Demo Day in Dakar.",
           },
           {
             year: "2022",
             description:
-              "A new cohort broadens sector reach and deepens founder development.",
+              "The second cohort runs from 11 April to 6 July, with in-person programme work in Dakar.",
           },
           {
             year: "2023",
             description:
-              "The programme strengthens founder readiness and pathways to partners, markets and investment.",
+              "The third cohort runs from 20 February to 25 May, with Demo Day at the Museum of Black Civilisations.",
           },
           {
             year: "2024",
             description:
-              "Founders progress through acceleration, portfolio development and market-readiness support.",
+              "The fourth cohort runs from 13 November 2023 to 7 February 2024.",
           },
           {
             year: "2025",
             description:
-              "Portfolio Support Year: focus on follow-on founder relationships, portfolio support and preparation for ASIP’s next phase.",
+              "Portfolio support year: follow-on work with founders already in the programme, and preparation for the next chapter.",
           },
           {
             year: "2026",
             description:
-              "The next chapter is taking shape, with renewed ambition around applied AI, market access and measurable founder advantage.",
+              "The next chapter is taking shape around a working theme, AI Advantage in Action: startups applying AI to existing business problems and proving an advantage a customer can measure.",
           },
         ],
       },
@@ -326,12 +319,12 @@ const fr: MarketingCopy = {
     eyebrow: "À propos d’ASIP",
     title: "Aux côtés des bâtisseurs qui façonnent le prochain chapitre de l’Afrique.",
     description:
-      "ASIP a été lancé par le Groupe Telecel en 2019 pour rapprocher les fondateurs technologiques africains des connaissances, des voies de capital, des marchés et des relations qui peuvent accélérer leur croissance.",
+      "ASIP est un programme du Groupe Telecel qui soutient des fondateurs technologiques africains avec les connaissances, les voies de capital, les marchés et les relations qui peuvent accélérer leur croissance.",
     notice:
       "Le message de direction reste non publié tant que le Groupe Telecel n’a pas fourni le texte et les visuels approuvés.",
     sectionTitle: "Origine, mission et parcours",
     sectionDescription:
-      "Du lancement en 2019 au prochain chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, aux voies de capital, aux marchés et aux relations.",
+      "De la première cohorte d’accélération au chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, les voies de capital, les marchés et les relations.",
     cards: [],
     heroChips: {
       focusKind: "Axe",
@@ -342,7 +335,7 @@ const fr: MarketingCopy = {
         { kind: "focus", label: "Marchés", hideSm: true },
         { kind: "focus", label: "Relations", hideSm: true },
         { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "Lancement · 2019", hideMd: true },
+        { kind: "chapter", label: "Première cohorte · 2021", hideMd: true },
         { kind: "chapter", label: "Afrique", hideSm: true },
         { kind: "chapter", label: "Fondateurs", hideMd: true },
         { kind: "chapter", label: "Prochain chapitre · 2026", hideSm: true },
@@ -362,7 +355,7 @@ const fr: MarketingCopy = {
         eyebrow: "Notre histoire",
         paragraphs: [
           "ASIP a commencé avec une idée simple : l’Afrique ne manque pas de fondateurs ambitieux. Ce qui est souvent inégal, c’est l’accès aux réseaux, à l’expertise et aux opportunités qui aident les entreprises solides à avancer plus vite.",
-          "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, rassembler les bonnes énergies et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
+          "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, rassembler les bonnes personnes et les bonnes capacités, et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
         ],
         features: [
           {
@@ -410,7 +403,7 @@ const fr: MarketingCopy = {
         title: "Transformer l’innovation africaine en opportunité.",
         imageLabel: "Fondateurs ASIP et acteurs de l’écosystème réunis à Dakar",
         paragraphs: [
-          "Notre mission est d’identifier et d’accélérer les entreprises technologiques africaines qui résolvent des problèmes concrets, en connectant les fondateurs à une expertise pratique, des voies de capital, l’accès aux marchés et des relations commerciales.",
+          "Notre mission est d’identifier et d’accélérer les entreprises technologiques africaines qui résolvent des problèmes concrets, avec une expertise pratique, des voies de capital, l’accès aux marchés et des relations commerciales.",
         ],
       },
       vision: {
@@ -424,49 +417,44 @@ const fr: MarketingCopy = {
       belief: {
         eyebrow: "Conviction",
         title:
-          "Les fondateurs africains n’ont pas besoin d’être expliqués. Ils ont besoin d’être vus, appuyés et connectés.",
+          "Les fondateurs africains n’ont pas besoin d’être expliqués. Ils ont besoin d’être vus, appuyés et de pouvoir grandir.",
         paragraphs: [
           "Les entreprises les plus solides commencent souvent par une compréhension de première main d’un problème. ASIP existe pour aider les fondateurs à transformer cet insight en produits, entreprises et impact qui peuvent voyager au-delà d’un seul marché.",
         ],
       },
       timeline: {
         eyebrow: "Parcours",
-        title: "Du lancement au prochain chapitre",
+        title: "De la première cohorte au prochain chapitre",
         milestones: [
-          {
-            year: "2019",
-            description:
-              "Le Groupe Telecel lance ASIP pour connecter les fondateurs technologiques africains aux connaissances, aux voies de capital, aux marchés et aux relations.",
-          },
           {
             year: "2021",
             description:
-              "La première cohorte de l’accélérateur ASIP se déroule en ligne, avec 11 entreprises sélectionnées parmi 2 220 candidatures et un Demo Day à Dakar.",
+              "La première cohorte de l’accélérateur ASIP se déroule en ligne du 5 juillet au 30 septembre, avec un Demo Day à Dakar.",
           },
           {
             year: "2022",
             description:
-              "Une nouvelle cohorte élargit la portée sectorielle et approfondit le développement des fondateurs.",
+              "La deuxième cohorte se déroule du 11 avril au 6 juillet, avec un travail de programme en présentiel à Dakar.",
           },
           {
             year: "2023",
             description:
-              "Le programme renforce la préparation des fondateurs et les voies vers les partenaires, les marchés et l’investissement.",
+              "La troisième cohorte se déroule du 20 février au 25 mai, avec un Demo Day au Musée des civilisations noires.",
           },
           {
             year: "2024",
             description:
-              "Les fondateurs progressent à travers l’accélération, le développement de portefeuille et la préparation au marché.",
+              "La quatrième cohorte se déroule du 13 novembre 2023 au 7 février 2024.",
           },
           {
             year: "2025",
             description:
-              "Année d’accompagnement du portefeuille : relations continues avec les fondateurs, suivi du portefeuille et préparation de la prochaine phase d’ASIP.",
+              "Année d’accompagnement du portefeuille : travail de suivi avec les fondateurs déjà dans le programme, et préparation du prochain chapitre.",
           },
           {
             year: "2026",
             description:
-              "Le prochain chapitre prend forme, avec une ambition renouvelée autour de la technologie, de l’accès aux marchés et de la connexion des fondateurs à l’écosystème.",
+              "Le prochain chapitre prend forme autour d’un thème provisoire, AI Advantage in Action : des startups qui appliquent l’IA à des problèmes d’entreprises existantes et qui prouvent un avantage mesurable pour un client.",
           },
         ],
       },

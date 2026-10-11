@@ -18,7 +18,7 @@ describe("AboutPageContent", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Knowledge").length).toBeGreaterThan(0);
-    expect(screen.getByText("Launched · 2019")).toBeInTheDocument();
+    expect(screen.getByText("First cohort · 2021")).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "Explore the founders" }).length,
     ).toBeGreaterThan(0);
@@ -40,7 +40,7 @@ describe("AboutPageContent", () => {
     expect(
       screen.getByText(/African founders do not need to be explained/i),
     ).toBeInTheDocument();
-    expect(screen.getByText("2019")).toBeInTheDocument();
+    expect(screen.getByText("2021")).toBeInTheDocument();
     expect(screen.getByText("2026")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {

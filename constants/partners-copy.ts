@@ -92,7 +92,7 @@ const en: PartnersPageCopy = {
 const fr: PartnersPageCopy = {
   hero: {
     eyebrow: "Partenaires et mentors",
-    titleLead: "La bonne connexion peut changer la",
+    titleLead: "La bonne opportunité peut changer la",
     titleAccent: "trajectoire d’une entreprise.",
     description:
       "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour offrir aux fondateurs une expertise concrète, du capital, des clients et des marchés.",

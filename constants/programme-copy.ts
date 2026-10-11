@@ -52,7 +52,7 @@ const en: ProgrammePageCopy = {
       },
       {
         id: "connect",
-        title: "Connect",
+        title: "Open access",
         description:
           "ASIP opens structured access to partners, investors, corporate buyers, technical expertise and market intelligence.",
       },
@@ -101,7 +101,7 @@ const en: ProgrammePageCopy = {
         id: "commercial",
         title: "Commercial pathways",
         description:
-          "Connections to potential corporate and public-sector use cases where strategic fit exists.",
+          "Routes to potential corporate and public-sector use cases where strategic fit exists.",
       },
       {
         id: "visibility",
@@ -184,7 +184,7 @@ const fr: ProgrammePageCopy = {
       },
       {
         id: "connect",
-        title: "Connecter",
+        title: "Ouvrir l’accès",
         description:
           "ASIP ouvre un accès structuré aux partenaires, investisseurs, acheteurs corporate, à l’expertise technique et à l’intelligence de marché.",
       },
@@ -198,7 +198,7 @@ const fr: ProgrammePageCopy = {
         id: "grow",
         title: "Grandir",
         description:
-          "Les fondateurs solides restent connectés à l’écosystème ASIP, avec une visibilité de suivi et un accompagnement du portefeuille lorsque cela est pertinent.",
+          "Les fondateurs solides restent proches de l’écosystème ASIP, avec une visibilité de suivi et un accompagnement du portefeuille lorsque cela est pertinent.",
       },
     ],
   },
@@ -233,7 +233,7 @@ const fr: ProgrammePageCopy = {
         id: "commercial",
         title: "Voies commerciales",
         description:
-          "Des connexions vers des cas d’usage corporate et du secteur public lorsque l’adéquation stratégique existe.",
+          "Des voies vers des cas d’usage corporate et du secteur public lorsque l’adéquation stratégique existe.",
       },
       {
         id: "visibility",

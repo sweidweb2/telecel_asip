@@ -19,7 +19,7 @@ export async function generateMetadata({
           path: "/alumni",
           title: "Alumni - ASIP",
           description:
-            "ASIP construit une expérience alumni plus solide, conçue pour garder les fondateurs connectés au-delà du programme formel.",
+            "ASIP construit une expérience alumni plus solide, conçue pour garder les fondateurs engagés au-delà du programme formel.",
           noIndex: true,
         }
       : {

@@ -13,11 +13,11 @@ describe("impactCopyFor", () => {
     expect(en.lenses.rows).toHaveLength(6);
     expect(en.hero.cta.slug).toBe("founders");
     expect(en.hero.title).toBe("The story is what happened next.");
-    expect(en.progress.eyebrow).toBe("Seven years of impact");
+    expect(en.progress.eyebrow).toBe("Verified outcomes");
     expect(en.progress.description.includes("verified founder outcomes")).toBe(
       true,
     );
-    expect(fr.progress.eyebrow).toBe("Sept ans d’impact");
+    expect(fr.progress.eyebrow).toBe("Résultats vérifiés");
     expect(en.caseStudy.readStory).toBe("Read full story");
     expect(en.caseStudy.comingSoon).toBe("Founder story coming soon");
     expect(fr.caseStudy.comingSoon.length).toBeGreaterThan(0);

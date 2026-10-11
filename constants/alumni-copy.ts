@@ -23,7 +23,7 @@ const en: AlumniPageCopy = {
   purpose: {
     title: "Built for what comes after.",
     description:
-      "Founders face different challenges as companies grow. The Alumni Network is intended to create a practical space for peer connection, founder-to-founder learning, relevant introductions and continued visibility across the ASIP community.",
+      "Founders face different challenges as companies grow. The Alumni Network is intended to create a practical space for founders to learn from each other, make relevant introductions and stay visible across the ASIP community.",
   },
   benefits: {
     title: "What continues after the cohort.",
@@ -73,15 +73,15 @@ const en: AlumniPageCopy = {
 const fr: AlumniPageCopy = {
   hero: {
     eyebrow: "Expérience alumni",
-    title: "La cohorte s’achève. Le lien continue.",
+    title: "La cohorte s’achève. L’élan continue.",
     description:
-      "ASIP construit une expérience alumni plus solide, conçue pour garder les fondateurs connectés au-delà du programme formel, et ouvrir davantage d’occasions de partager des connaissances, de collaborer et de rester proches de l’écosystème.",
+      "ASIP construit une expérience alumni plus solide, conçue pour garder les fondateurs engagés au-delà du programme formel, et ouvrir davantage d’occasions de partager des connaissances, de collaborer et de rester proches de l’écosystème.",
     primaryCta: { slug: "founders", label: "Explorer la communauté" },
   },
   purpose: {
     title: "Conçu pour ce qui vient après.",
     description:
-      "Les fondateurs rencontrent d’autres défis à mesure que les entreprises grandissent. Le réseau alumni vise à créer un espace concret pour le lien entre pairs, l’apprentissage de fondateur à fondateur, des introductions pertinentes et une visibilité continue au sein de la communauté ASIP.",
+      "Les fondateurs rencontrent d’autres défis à mesure que les entreprises grandissent. Le réseau alumni vise à créer un espace concret pour apprendre les uns des autres, faire des introductions pertinentes et rester visibles au sein de la communauté ASIP.",
   },
   benefits: {
     title: "Ce qui continue après la cohorte.",
@@ -90,7 +90,7 @@ const fr: AlumniPageCopy = {
         id: "community",
         title: "Communauté de fondateurs",
         description:
-          "Restez connectés aux fondateurs des cohortes et marchés ASIP.",
+          "Restez proches des fondateurs des cohortes et marchés ASIP.",
       },
       {
         id: "learning",
@@ -120,7 +120,7 @@ const fr: AlumniPageCopy = {
   },
   notice: "",
   ctaSection: {
-    title: "La cohorte s’achève. Le lien continue.",
+    title: "La cohorte s’achève. L’élan continue.",
     description:
       "Explorez les fondateurs des cohortes ASIP pendant que le réseau alumni prend forme.",
     slug: "founders",

@@ -17,10 +17,10 @@ const en: ImpactPageCopy = {
     cta: { slug: "founders", label: "Explore founder stories" },
   },
   progress: {
-    eyebrow: "Seven years of impact",
+    eyebrow: "Verified outcomes",
     title: "Progress you can trace back to founders.",
     description:
-      "Since ASIP launched in 2019, the portfolio has grown across sectors and markets. That journey is told through verified founder outcomes, not broad claims. Every published number leads to a source, a company or a story.",
+      "The portfolio has grown across sectors and markets. That journey is told through verified founder outcomes, not broad claims. Every published number leads to a source, a company or a story.",
   },
   proof: {
     eyebrow: "Proof",
@@ -133,10 +133,10 @@ const fr: ImpactPageCopy = {
     cta: { slug: "founders", label: "Découvrir les histoires de fondateurs" },
   },
   progress: {
-    eyebrow: "Sept ans d’impact",
+    eyebrow: "Résultats vérifiés",
     title: "Des progrès que l’on peut retracer jusqu’aux fondateurs.",
     description:
-      "Depuis le lancement d’ASIP en 2019, le portefeuille s’est développé à travers les secteurs et les marchés. Ce parcours se raconte par des résultats de fondateurs vérifiés, pas par des affirmations générales. Chaque chiffre publié renvoie à une source, une entreprise ou une histoire.",
+      "Le portefeuille s’est développé à travers les secteurs et les marchés. Ce parcours se raconte par des résultats de fondateurs vérifiés, pas par des affirmations générales. Chaque chiffre publié renvoie à une source, une entreprise ou une histoire.",
   },
   proof: {
     eyebrow: "Preuves",

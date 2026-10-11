@@ -13,15 +13,15 @@ const en: HomePageCopy = {
     title: "African founders. Real solutions. Impact that scales.",
     titleLines: ["African founders.", "Real solutions.", "Impact that scales."],
     description:
-      "Since 2019, ASIP has backed African technology founders with expertise, capital pathways, market access and relationships that help ambitious businesses build and grow.",
+      "ASIP backs African technology founders with expertise, capital pathways, market access and relationships that help ambitious businesses build and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
     nextCohort: { label: "2026 cohort · See what’s next", href: "#next-chapter" },
   },
   impactYears: {
-    title: "Impact since 2019.",
+    title: "Impact, with a paper trail.",
     description:
-      "From ASIP’s 2019 launch through the current programme chapter, verified founder outcomes show what the portfolio has built, reached and strengthened.",
+      "Verified founder outcomes show what the portfolio has built, reached and strengthened. A figure appears here only after it has a source, a period, an owner and permission.",
     metrics: [],
     notice: "",
   },
@@ -44,7 +44,7 @@ const en: HomePageCopy = {
       },
       {
         id: "connect",
-        title: "Connect",
+        title: "Open access",
         description:
           "Open doors to mentors, investors, partners, technical expertise and market intelligence.",
       },
@@ -213,14 +213,14 @@ const fr: HomePageCopy = {
     ],
     nextCohort: { label: "Cohorte 2026 · Découvrir la suite", href: "#next-chapter" },
     description:
-      "Depuis 2019, ASIP soutient des fondateurs technologiques africains avec l’expertise, les voies de financement, l’accès aux marchés et les relations qui aident les entreprises ambitieuses à construire et grandir.",
+      "ASIP soutient des fondateurs technologiques africains avec l’expertise, les voies de financement, l’accès aux marchés et les relations qui aident les entreprises ambitieuses à construire et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
   },
   impactYears: {
-    title: "Un impact depuis 2019.",
+    title: "Un impact, avec un dossier.",
     description:
-      "Du lancement d’ASIP en 2019 au chapitre actuel du programme, les résultats vérifiés des fondateurs montrent ce que le portefeuille a construit, atteint et renforcé.",
+      "Les résultats vérifiés des fondateurs montrent ce que le portefeuille a construit, atteint et renforcé. Un chiffre n’apparaît ici qu’avec une source, une période, un responsable et une autorisation.",
     metrics: [],
     notice: "",
   },
@@ -243,7 +243,7 @@ const fr: HomePageCopy = {
       },
       {
         id: "connect",
-        title: "Connecter",
+        title: "Ouvrir l’accès",
         description:
           "Ouvrir des portes vers mentors, investisseurs, partenaires, expertise technique et intelligence de marché.",
       },

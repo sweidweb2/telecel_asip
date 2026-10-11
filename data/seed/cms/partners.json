@@ -9,7 +9,7 @@
       "type": "corporate",
       "contribution": "Digital accelerator platform used for programme delivery.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/a2.png",
       "link": null,
       "sort_order": 10
@@ -21,7 +21,7 @@
       "type": "media",
       "contribution": "Programme brand and founding initiative.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/asip.png",
       "link": null,
       "sort_order": 20
@@ -33,7 +33,7 @@
       "type": "technology",
       "contribution": "Cloud technology support and startup benefits.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/aws.png",
       "link": "https://aws.amazon.com",
       "sort_order": 30
@@ -45,7 +45,7 @@
       "type": "technology",
       "contribution": "Cloud and infrastructure support.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/cloudworx.png",
       "link": null,
       "sort_order": 40
@@ -57,7 +57,7 @@
       "type": "development",
       "contribution": "Financial and technical support for youth and women entrepreneurs in Senegal.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/der.png",
       "link": "https://der.sn/",
       "sort_order": 50
@@ -69,7 +69,7 @@
       "type": "development",
       "contribution": "Incubation, acceleration, coworking, and ecosystem programming in Senegal.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/dhub.png",
       "link": "https://der.sn/",
       "sort_order": 60
@@ -81,7 +81,7 @@
       "type": "technology",
       "contribution": "Startup operations tooling and benefits.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/firstbase.png",
       "link": "https://www.firstbase.io",
       "sort_order": 70
@@ -93,7 +93,7 @@
       "type": "investors",
       "contribution": "Development-finance and investment support.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/fmo-ventures.png",
       "link": "https://www.fmo.nl",
       "sort_order": 80
@@ -105,7 +105,7 @@
       "type": "technology",
       "contribution": "Customer engagement software and startup benefits.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/freshworks.png",
       "link": "https://www.freshworks.com",
       "sort_order": 90
@@ -117,7 +117,7 @@
       "type": "technology",
       "contribution": "Cloud technology support and startup benefits.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/google-cloud.png",
       "link": "https://cloud.google.com",
       "sort_order": 100
@@ -129,7 +129,7 @@
       "type": "technology",
       "contribution": "CRM and go-to-market software support.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/hubspot.png",
       "link": "https://www.hubspot.com",
       "sort_order": 110
@@ -141,7 +141,7 @@
       "type": "technology",
       "contribution": "Collaborative workspace support for cohort delivery.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/miro.png",
       "link": "https://miro.com",
       "sort_order": 120
@@ -153,7 +153,7 @@
       "type": "development",
       "contribution": "Accelerator delivery, mentors, corporate partners, and investor access.",
       "is_active": true,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/sbc-afritech.png",
       "link": "https://sbcafritech.com/",
       "sort_order": 130
@@ -165,7 +165,7 @@
       "type": "media",
       "contribution": "African startup ecosystem research and founder visibility.",
       "is_active": false,
-      "logo_permission": true,
+      "logo_permission": false,
       "logo_url": "/partners/vc4a.png",
       "link": "https://vc4a.com",
       "sort_order": 140

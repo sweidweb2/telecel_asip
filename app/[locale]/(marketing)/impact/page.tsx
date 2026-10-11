@@ -19,14 +19,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/impact",
-          title: "Impact ASIP | Sept ans de progrès des fondateurs",
+          title: "Impact ASIP | Le progrès des fondateurs, avec un dossier",
           description:
             "Découvrez les résultats d’ASIP, appuyés par des preuves : fondateurs, marchés, emplois, partenariats et impact porté par la technologie.",
         }
       : {
           locale,
           path: "/impact",
-          title: "ASIP Impact | Seven Years of Founder Progress",
+          title: "ASIP Impact | Founder progress, with a paper trail",
           description:
             "See evidence-led ASIP outcomes across founders, markets, jobs, partnerships and technology-led impact.",
         },

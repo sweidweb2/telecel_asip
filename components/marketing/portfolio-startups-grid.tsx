@@ -226,9 +226,11 @@ export function PortfolioStartupsGrid({
         </p>
       ) : (
         <>
-          <p className="text-sm font-semibold text-muted-foreground">
-            {resultLabel}
-          </p>
+          {filtered ? (
+            <p className="text-sm font-semibold text-muted-foreground">
+              {resultLabel}
+            </p>
+          ) : null}
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {startups.map((startup) => (
               <li key={startup.id} className="min-w-0">

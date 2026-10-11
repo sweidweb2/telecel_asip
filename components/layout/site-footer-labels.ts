@@ -22,7 +22,7 @@ export type SiteFooterLabels = {
   brand: string;
   /** Footer proposition headline. */
   headline: string;
-  /** What ASIP is and what it connects founders to — no vague "support" claims. */
+  /** What ASIP is and what founders get from it — no vague "support" claims. */
   statement: string;
   exploreHeading: string;
   programmeHeading: string;
@@ -66,7 +66,7 @@ export function enFooterLabels(openApplications = false): SiteFooterLabels {
       "ASIP is a Telecel Group Program backing ambitious African technology founders with expertise, capital pathways, market access and relationships that help businesses grow.",
     exploreHeading: "Explore",
     programmeHeading: "Programme",
-    connectHeading: "Connect",
+    connectHeading: "Contact",
     explore: links("en", [
       { slug: "", label: "Home" },
       { slug: "about", label: "About" },
@@ -109,7 +109,7 @@ export function frFooterLabels(openApplications = false): SiteFooterLabels {
   const intake = intakeCtaFor("fr", openApplications);
   return {
     brand: "ASIP",
-    headline: "Des fondateurs africains. Connectés aux opportunités.",
+    headline: "Fondateurs africains. Faits pour grandir.",
     statement:
       "ASIP est un programme du Groupe Telecel qui soutient des fondateurs africains ambitieux de la tech avec l’expertise, les voies de financement, l’accès aux marchés et les relations qui aident les entreprises à croître.",
     exploreHeading: "Explorer",

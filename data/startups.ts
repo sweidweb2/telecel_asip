@@ -8,6 +8,7 @@ import {
   gateEditorPageData,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
+import { publicStartupDescription } from "@/lib/marketing/public-startup-description";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -83,7 +84,7 @@ function toPublicListItem(row: {
     name: row.name,
     slug: row.slug,
     logo_url: row.logo_url,
-    description: row.description,
+    description: publicStartupDescription(row.description),
     founded_at: row.founded_at,
     cohort: row.cohort,
     country_code: row.country_code,

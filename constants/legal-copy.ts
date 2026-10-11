@@ -23,7 +23,7 @@ const en: LegalCopy = {
       {
         title: "2. About ASIP",
         paragraphs: [
-          "ASIP is a Telecel Group programme that helps African technology founders test ideas, connect with customers and partners, and grow early-stage ventures. Content on this site describes the programme for visitors; it is not a binding offer of funding, admission, partnership, or any other commitment unless Telecel Group confirms that in writing.",
+          "ASIP is a Telecel Group programme that helps African technology founders test ideas, work with customers and partners, and grow early-stage ventures. Content on this site describes the programme for visitors; it is not a binding offer of funding, admission, partnership, or any other commitment unless Telecel Group confirms that in writing.",
           "Programme capacity, eligibility, and chapter timing can change. Status banners and CTAs (Apply vs Register Interest) reflect the current settings on this site; they do not guarantee that a cohort is open or that your submission will be selected.",
         ],
       },
