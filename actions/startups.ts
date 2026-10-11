@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
@@ -42,11 +43,11 @@ const MESSAGES = {
   notFound: "Startup not found.",
   genericError: "Something went wrong. Please try again.",
   slugTaken: "That slug is already in use.",
-  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 5 MB.",
+  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 10 MB.",
 } as const;
 
 const LOGO_BUCKET = "startups";
-const LOGO_MAX_BYTES = 5 * 1024 * 1024;
+const LOGO_MAX_BYTES = UPLOAD_MAX_BYTES;
 
 function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");

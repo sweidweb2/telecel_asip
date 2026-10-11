@@ -358,8 +358,8 @@ Table blogs {
     - Admins can insert/update/delete — is_editor()
 
     Storage buckets (public read, editor write via is_editor()):
-    - blogs — cover/thumbnail images
-    - auther — author avatars
+    - blogs — cover/thumbnail images (10 MB)
+    - auther — author avatars (10 MB)
 
     Trigger: blogs_set_updated_at BEFORE UPDATE
 
@@ -413,7 +413,7 @@ Table startups {
     - "Anyone can read active startups" dropped in 20260903090000
 
     Storage bucket (public read, editor write via is_editor()):
-    - startups — logo images
+    - startups — logo images (10 MB)
 
     Trigger: startups_set_updated_at BEFORE UPDATE
     Writes go through create_startup_with_details / update_startup_with_details
@@ -567,7 +567,7 @@ Table partners {
     the view. The public page renders an initials tile when logo_url is null.
 
     Storage bucket (public read, editor write via is_editor()):
-    - partners — logo images (2 MB limit). Objects live under `{partner_id}/`
+    - partners — logo images (10 MB limit). Objects live under `{partner_id}/`
       and the whole prefix is deleted with the row.
 
     Trigger: partners_set_updated_at BEFORE UPDATE

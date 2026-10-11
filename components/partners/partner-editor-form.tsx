@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
+
 import {
   createPartner,
   deletePartner,
@@ -81,7 +83,7 @@ import {
 import { StepperContent } from "@/components/ui/stepper";
 
 const LOGO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
-const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+const LOGO_MAX_BYTES = UPLOAD_MAX_BYTES;
 
 const PARTNER_EDITOR_STEPS = [
   {
@@ -177,7 +179,7 @@ export function PartnerEditorForm({
     event.target.value = "";
     if (!file) return;
     if (file.size > LOGO_MAX_BYTES) {
-      toast.error("Logo must be under 2 MB.");
+      toast.error("Logo must be under 10 MB.");
       return;
     }
     replacePendingLogo(file);
@@ -214,6 +216,12 @@ export function PartnerEditorForm({
       toast.dismiss(uploadToast);
       replacePendingLogo(null);
       return true;
+    } catch {
+      toast.error(
+        "The logo could not be uploaded. Check that it is under 10 MB and try again.",
+        { id: uploadToast },
+      );
+      return false;
     } finally {
       setIsProcessingImage(false);
     }
@@ -464,7 +472,7 @@ export function PartnerEditorForm({
                     <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                       <Label>Logo</Label>
                       <span className="text-[0.6875rem] leading-4 text-muted-foreground">
-                        Optional · JPEG/PNG/WebP/GIF · max 2 MB
+                        Optional · JPEG/PNG/WebP/GIF · max 10 MB
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -530,7 +538,7 @@ export function PartnerEditorForm({
                           {displayLogo ? "Replace" : "Upload"}
                         </Button>
                         <p className="text-xs text-muted-foreground">
-                          JPEG, PNG, WebP, or GIF under 2 MB. Resized and
+                          JPEG, PNG, WebP, or GIF under 10 MB. Resized and
                           converted to WebP on save. Clear the selection before
                           save to skip the upload.
                         </p>

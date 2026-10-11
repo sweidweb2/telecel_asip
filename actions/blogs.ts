@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
@@ -49,13 +50,13 @@ const MESSAGES = {
   genericError: "Something went wrong. Please try again.",
   slugTaken: "That slug is already in use.",
   featuredTaken: "Another post is already featured. Unfeature it first, or save again.",
-  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under the size limit.",
+  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 10 MB.",
 } as const;
 
 const COVER_BUCKET = "blogs";
 const AUTHOR_BUCKET = "auther";
-const COVER_MAX_BYTES = 5 * 1024 * 1024;
-const AUTHOR_MAX_BYTES = 2 * 1024 * 1024;
+const COVER_MAX_BYTES = UPLOAD_MAX_BYTES;
+const AUTHOR_MAX_BYTES = UPLOAD_MAX_BYTES;
 
 function refreshBlogPaths(slug?: string, id?: string) {
   revalidateTag(BLOGS_CACHE_TAG, "max");

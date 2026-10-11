@@ -4,6 +4,7 @@ import {
 } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 import { nanoid } from "nanoid";
+import { TURNSTILE_WIDGET_ENABLED } from "../lib/turnstile-widget";
 import { submitLoginForm } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -75,10 +76,14 @@ async function fillContactForm(
  * Widget domains must include localhost for local E2E.
  */
 async function waitForTurnstileReady(page: import("@playwright/test").Page) {
+  const submit = page.getByRole("button", { name: "Send message" });
+  if (!TURNSTILE_WIDGET_ENABLED) {
+    await expect(submit).toBeEnabled({ timeout: 15_000 });
+    return;
+  }
   await expect(page.getByTestId("contact-turnstile")).toBeVisible({
     timeout: 30_000,
   });
-  const submit = page.getByRole("button", { name: "Send message" });
   try {
     await expect(submit).toBeEnabled({ timeout: 60_000 });
   } catch {

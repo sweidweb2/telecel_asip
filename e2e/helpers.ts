@@ -1,3 +1,4 @@
+import { TURNSTILE_WIDGET_ENABLED } from "../lib/turnstile-widget";
 import { customAlphabet } from "nanoid";
 import {
   createClient,
@@ -101,6 +102,13 @@ export async function waitForTurnstileReady(
 ): Promise<void> {
   // Default Playwright timeout (30s) is too tight once the challenge wait is
   // included — bump so a missing token becomes a clean skip, not a hard fail.
+  if (!TURNSTILE_WIDGET_ENABLED) {
+    await expect(
+      page.getByRole("button", { name: options.submitName }),
+    ).toBeEnabled({ timeout: 15_000 });
+    return;
+  }
+
   const info = test.info();
   if (info.timeout > 0 && info.timeout < 90_000) {
     info.setTimeout(90_000);

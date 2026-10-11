@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
+import {
+  TURNSTILE_BYPASS_TOKEN,
+  TURNSTILE_WIDGET_ENABLED,
+} from "@/lib/turnstile-widget";
 import type { TurnstileWidgetId } from "@/types/turnstile";
 
 export const TURNSTILE_SITE_KEY =
@@ -41,8 +45,15 @@ export function useTurnstile({
     onTokenChangeRef.current = onTokenChange;
   }, [onTokenChange]);
 
+  useEffect(() => {
+    if (!TURNSTILE_WIDGET_ENABLED) {
+      onTokenChangeRef.current(TURNSTILE_BYPASS_TOKEN);
+    }
+  }, []);
+
   const render = useCallback(() => {
     if (
+      !TURNSTILE_WIDGET_ENABLED ||
       !TURNSTILE_SITE_KEY ||
       !container.current ||
       !window.turnstile ||
@@ -71,6 +82,10 @@ export function useTurnstile({
   );
 
   const reset = useCallback(() => {
+    if (!TURNSTILE_WIDGET_ENABLED) {
+      onTokenChangeRef.current(TURNSTILE_BYPASS_TOKEN);
+      return;
+    }
     if (widgetId.current !== null && window.turnstile) {
       window.turnstile.reset(widgetId.current);
     }

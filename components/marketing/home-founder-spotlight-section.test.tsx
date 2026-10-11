@@ -52,6 +52,60 @@ describe("HomeFounderSpotlightSection", () => {
     ).toHaveAttribute("href", expect.stringContaining("chekkit-technologies"));
     expect(screen.getByText("Kenya")).toBeInTheDocument();
     expect(screen.getAllByText("Nigeria").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Supply chain")).not.toBeInTheDocument();
+  });
+
+  it("gives every mosaic tile a photo and only the company name", () => {
+    const companies = ["Chekkit", "Messenger", "Kite", "AgroCenta"].map(
+      (name, index) => ({
+        ...startup,
+        id: `s${index}`,
+        name,
+        slug: name.toLowerCase(),
+        sector: "Should not appear",
+      }),
+    );
+
+    const { container } = render(
+      <HomeFounderSpotlightSection
+        locale="en"
+        copy={copy}
+        countryReach={[]}
+        startups={companies}
+      />,
+    );
+
+    const photos = container.querySelectorAll("img");
+    expect(photos).toHaveLength(4);
+    expect(
+      Array.from(photos).every((photo) => photo.getAttribute("src")),
+    ).toBe(true);
+    expect(screen.queryByText("Should not appear")).not.toBeInTheDocument();
+    for (const company of companies) {
+      expect(screen.getByText(company.name)).toBeInTheDocument();
+    }
+  });
+
+  it("leaves Munakyalo Agrofresh out of the mosaic", () => {
+    render(
+      <HomeFounderSpotlightSection
+        locale="en"
+        copy={copy}
+        countryReach={[]}
+        startups={[
+          startup,
+          {
+            ...startup,
+            id: "s2",
+            name: "Munakyalo Agrofresh",
+            slug: "munakyalo-agrofresh",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Chekkit Technologies")).toBeInTheDocument();
+    expect(screen.queryByText("Munakyalo Agrofresh")).not.toBeInTheDocument();
   });
 
   it("shows the empty note when no companies are published", () => {

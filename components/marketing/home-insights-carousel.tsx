@@ -160,7 +160,7 @@ export function HomeInsightsCarousel({
         onPointerCancel={endDrag}
         onClickCapture={onClickCapture}
         className={cn(
-          "flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-6 [&::-webkit-scrollbar]:hidden",
+          "no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 sm:gap-6",
           "cursor-grab touch-pan-y active:cursor-grabbing select-none",
         )}
       >

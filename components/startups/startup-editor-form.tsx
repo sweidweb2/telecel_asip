@@ -280,6 +280,14 @@ export function StartupEditorForm({
               return;
             }
             toast.dismiss(uploadToast);
+          } catch {
+            toast.error(
+              "Startup created, but the logo could not be uploaded. Check that it is under 10 MB and add it from this page.",
+              { id: uploadToast },
+            );
+            router.push(`${ROUTES.portfolio}/${result.id}`);
+            router.refresh();
+            return;
           } finally {
             setIsProcessingImage(false);
           }
@@ -323,6 +331,13 @@ export function StartupEditorForm({
           setPendingLogo(null);
           if (pendingLogoPreview) URL.revokeObjectURL(pendingLogoPreview);
           setPendingLogoPreview(null);
+        } catch {
+          toast.error(
+            "The logo could not be uploaded. Check that it is under 10 MB and try again.",
+            { id: uploadToast },
+          );
+          form.reset(form.getValues());
+          return;
         } finally {
           setIsProcessingImage(false);
         }
@@ -613,7 +628,7 @@ export function StartupEditorForm({
             <AdminFormSection
               className="min-w-0"
               title="Logo"
-              description="JPEG / PNG / WebP / GIF · max 5 MB"
+              description="JPEG / PNG / WebP / GIF · max 10 MB"
               help={STARTUP_EDITOR_HELP.logo}
               contentClassName="grid gap-4"
             >

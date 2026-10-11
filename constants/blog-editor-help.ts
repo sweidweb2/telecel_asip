@@ -101,7 +101,7 @@ export const BLOG_EDITOR_HELP = {
       {
         name: "Avatar image",
         detail:
-          "JPEG, PNG, WebP, or GIF up to 2MB. If missing, the byline still shows the author name without a photo. Not used for SEO.",
+          "JPEG, PNG, WebP, or GIF up to 10 MB. If missing, the byline still shows the author name without a photo. Not used for SEO.",
       },
     ],
   },
@@ -113,7 +113,7 @@ export const BLOG_EDITOR_HELP = {
       {
         name: "Cover image",
         detail:
-          "JPEG, PNG, WebP, or GIF up to 5MB. Shown on Insights cards, Home latest, and the detail hero area. Strongly recommended before publishing.",
+          "JPEG, PNG, WebP, or GIF up to 10 MB. Shown on Insights cards, Home latest, and the detail hero area. Strongly recommended before publishing.",
       },
     ],
   },

@@ -18,21 +18,23 @@ const LABELS = {
   fr: { markets: "Marchés du portefeuille", view: "Voir le profil" },
 } as const;
 
-/**
- * Photos that do not appear on other public pages.
- * Remaining mosaic tiles stay a light image placeholder.
- */
+/** Kept off the home mosaic. Still listed in the founders directory. */
+const SPOTLIGHT_EXCLUDED_SLUGS = new Set(["munakyalo-agrofresh"]);
+
+/** Programme photos for the mosaic tiles. Not reused on the home page. */
 const SPOTLIGHT_TILE_IMAGES = [
   "/asip-media/about-ecosystem.webp",
   "/asip-media/impact-community.webp",
+  "/asip-media/alumni-community.webp",
+  "/asip-media/founders-working.webp",
 ] as const;
 
-/** Mobile: short cards in a swipe row. sm+: one tall tile, two short tiles, then a thin full-width tile. */
+/** Mobile: swipe cards. sm+: one tall tile beside two stacked tiles. */
 const TILE_SHAPES = [
   "sm:row-span-2 sm:aspect-auto",
-  "sm:aspect-[5/2]",
-  "sm:aspect-[5/2]",
-  "sm:col-span-2 sm:aspect-[5/1]",
+  "sm:aspect-[4/3]",
+  "sm:aspect-[4/3]",
+  "sm:col-span-2 sm:aspect-[5/2]",
 ] as const;
 
 type HomeFounderSpotlightSectionProps = {
@@ -45,9 +47,8 @@ type HomeFounderSpotlightSectionProps = {
 
 /**
  * Home Module 04 — Spotlight.
- * Portfolio companies in a short mosaic. Tiles use a light image placeholder,
- * with unused programme photos on the first two.
- * The live market list sits with the copy.
+ * Portfolio companies in a short mosaic. Each tile is a programme photo
+ * with the company name only. The live market list sits with the copy.
  */
 export function HomeFounderSpotlightSection({
   locale,
@@ -58,7 +59,9 @@ export function HomeFounderSpotlightSection({
 }: HomeFounderSpotlightSectionProps) {
   const labels = LABELS[locale];
   const ctaHref = publicPath(locale, copy.cta.slug);
-  const tiles = startups.slice(0, 4);
+  const tiles = startups
+    .slice(0, 4)
+    .filter((startup) => !SPOTLIGHT_EXCLUDED_SLUGS.has(startup.slug));
   const markets = countryReach
     .map((row) => countryDisplayName(row.countryCode, locale))
     .filter((name): name is string => Boolean(name))
@@ -71,7 +74,7 @@ export function HomeFounderSpotlightSection({
       className={cn(
         "relative overflow-hidden border-y border-border bg-background",
         "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
-        "[content-visibility:auto] [contain-intrinsic-size:auto_28rem]",
+        "[content-visibility:auto] [contain-intrinsic-size:auto_40rem]",
         className,
       )}
     >
@@ -124,14 +127,13 @@ export function HomeFounderSpotlightSection({
           <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:col-span-7">
             {tiles.map((startup, index) => {
               const accent = cohortAccent(startup.cohort);
-              const country = countryDisplayName(startup.country_code, locale);
               const photo = SPOTLIGHT_TILE_IMAGES[index];
               return (
                 <li
                   key={startup.id}
                   data-reveal="fade"
                   className={cn(
-                    "relative aspect-[2/1] w-[72%] min-h-0 shrink-0 snap-start overflow-hidden rounded-xl sm:w-auto",
+                    "relative aspect-[3/2] w-[72%] min-h-0 shrink-0 snap-start overflow-hidden rounded-xl sm:w-auto",
                     TILE_SHAPES[index % TILE_SHAPES.length],
                   )}
                 >
@@ -159,17 +161,8 @@ export function HomeFounderSpotlightSection({
                       aria-hidden
                       className={cn("absolute inset-x-0 top-0 h-1", accent.bar)}
                     />
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white/95 via-white/70 to-transparent p-3 text-foreground sm:p-4">
-                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.7rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-                        {startup.sector ? <span>{startup.sector}</span> : null}
-                        {country ? (
-                          <span className="inline-flex items-center gap-1 normal-case tracking-normal">
-                            <MapPin aria-hidden className="size-3" />
-                            {country}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="mt-1 flex items-center gap-1.5 font-heading text-lg font-semibold sm:text-xl">
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white/95 via-white/75 to-transparent px-3 pt-8 pb-3 text-foreground sm:px-4 sm:pb-4">
+                      <span className="flex items-center gap-1.5 font-heading text-lg font-semibold sm:text-xl">
                         {startup.name}
                         <ArrowUpRight
                           aria-hidden

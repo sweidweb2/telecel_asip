@@ -73,6 +73,12 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      /** Raw request body. Matches the 10 MB upload ceiling in `constants/upload.ts`. */
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
     qualities: [75, 90],
     remotePatterns: [

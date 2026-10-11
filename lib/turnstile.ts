@@ -1,3 +1,7 @@
+import {
+  TURNSTILE_BYPASS_TOKEN,
+  TURNSTILE_WIDGET_ENABLED,
+} from "@/lib/turnstile-widget";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
 
 export { TURNSTILE_CONTACT_ACTION };
@@ -41,6 +45,10 @@ export async function verifyTurnstileToken(options: {
   remoteip?: string;
 }): Promise<boolean> {
   const { token, expectedAction, remoteip } = options;
+  if (!TURNSTILE_WIDGET_ENABLED && token === TURNSTILE_BYPASS_TOKEN) {
+    return true;
+  }
+
   const hostnames = expectedHostnames();
   const secret = process.env.TURNSTILE_SECRET;
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
@@ -56,11 +57,11 @@ const MESSAGES = {
   removeSuccess: "Logo removed successfully.",
   notFound: "Partner not found.",
   genericError: "Something went wrong. Please try again.",
-  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 2 MB.",
+  invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 10 MB.",
 } as const;
 
 const LOGO_BUCKET = "partners";
-const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+const LOGO_MAX_BYTES = UPLOAD_MAX_BYTES;
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 

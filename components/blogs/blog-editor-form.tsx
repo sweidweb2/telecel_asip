@@ -308,6 +308,11 @@ export function BlogEditorForm({
             } else {
               toast.dismiss(uploadToast);
             }
+          } catch {
+            toast.error(
+              "Blog created, but the cover image could not be uploaded. Check that it is under 10 MB and add it from the edit page.",
+              { id: uploadToast },
+            );
           } finally {
             setIsProcessingImage(false);
           }
@@ -328,6 +333,11 @@ export function BlogEditorForm({
             } else {
               toast.dismiss(uploadToast);
             }
+          } catch {
+            toast.error(
+              "Blog created, but the author image could not be uploaded. Check that it is under 10 MB and add it from the edit page.",
+              { id: uploadToast },
+            );
           } finally {
             setIsProcessingImage(false);
           }
@@ -360,6 +370,12 @@ export function BlogEditorForm({
             return;
           }
           toast.dismiss(uploadToast);
+        } catch {
+          toast.error(
+            "The cover image could not be uploaded. Check that it is under 10 MB and try again.",
+            { id: uploadToast },
+          );
+          return;
         } finally {
           setIsProcessingImage(false);
         }
@@ -386,6 +402,12 @@ export function BlogEditorForm({
             return;
           }
           toast.dismiss(uploadToast);
+        } catch {
+          toast.error(
+            "The author image could not be uploaded. Check that it is under 10 MB and try again.",
+            { id: uploadToast },
+          );
+          return;
         } finally {
           setIsProcessingImage(false);
         }
@@ -954,7 +976,7 @@ export function BlogEditorForm({
 
             <AdminFormSection
               title="Author avatar"
-              description="JPEG/PNG/WebP/GIF · max 2MB"
+              description="JPEG/PNG/WebP/GIF · max 10 MB"
               help={BLOG_EDITOR_HELP.authorAvatar}
             >
                 <input
@@ -1028,7 +1050,7 @@ export function BlogEditorForm({
         <aside className="grid gap-6 lg:sticky lg:top-4">
           <AdminFormSection
             title="Cover image"
-            description="JPEG/PNG/WebP/GIF · max 5MB"
+            description="JPEG/PNG/WebP/GIF · max 10 MB"
             help={BLOG_EDITOR_HELP.cover}
             headerAction={
               <>
