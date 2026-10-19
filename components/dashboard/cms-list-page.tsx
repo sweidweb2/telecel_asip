@@ -3,16 +3,11 @@ import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
-import { AdminPublicReflectionDialog } from "@/components/dashboard/admin-public-reflection-dialog";
 import { Button } from "@/components/ui/button";
 import {
   getAdminResource,
   type AdminResourceId,
 } from "@/constants/admin-resources";
-import {
-  ADMIN_PUBLIC_REFLECTIONS,
-  type AdminPublicReflectionId,
-} from "@/constants/admin-public-reflections";
 import {
   adminListClampParams,
   loadAdminListPage,
@@ -24,12 +19,6 @@ type ListOk<TList extends { totalPages: number }> = {
   status: "ok";
   list: TList;
 };
-
-function isPublicReflectionId(
-  id: AdminResourceId,
-): id is AdminPublicReflectionId {
-  return id in ADMIN_PUBLIC_REFLECTIONS;
-}
 
 /**
  * Shared CMS list route: parse the query, clamp an over-page URL, then render
@@ -46,7 +35,6 @@ export async function CmsListPage<
   fetchPage,
   activeFilters,
   newItem,
-  showPublicReflection = false,
   actions,
   stats,
   children,
@@ -59,7 +47,6 @@ export async function CmsListPage<
   fetchPage: (query: TQuery) => Promise<{ status: "forbidden" } | TResult>;
   activeFilters: (query: TQuery) => Record<string, string | undefined>;
   newItem?: { href: string; label: string };
-  showPublicReflection?: boolean;
   actions?: ReactNode;
   stats?: (result: TResult) => ReactNode;
   children: (args: { query: TQuery; result: TResult }) => ReactNode;
@@ -74,11 +61,7 @@ export async function CmsListPage<
       adminListClampParams(totalPages, activeFilters(current)),
   });
 
-  const reflection =
-    showPublicReflection && isPublicReflectionId(resourceId) ? (
-      <AdminPublicReflectionDialog resourceId={resourceId} />
-    ) : null;
-  const hasActions = Boolean(reflection || newItem || actions);
+  const hasActions = Boolean(newItem || actions);
 
   return (
     <AdminListPageShell
@@ -86,7 +69,6 @@ export async function CmsListPage<
       actions={
         hasActions ? (
           <>
-            {reflection}
             {newItem ? (
               <Button
                 className="min-h-11 w-full sm:w-auto"

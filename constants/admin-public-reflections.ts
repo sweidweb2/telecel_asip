@@ -22,7 +22,7 @@ export type AdminPublicReflectionGuide = {
 };
 
 /**
- * Where CMS list entities appear on public pages — for the manage-page guide dialog.
+ * Where CMS list entities appear on public pages — for the admin Catalog page.
  * Keep in sync with marketing `data/` reads and live page wiring.
  */
 export const ADMIN_PUBLIC_REFLECTIONS = {
@@ -226,6 +226,29 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
 >;
 
 export type AdminPublicReflectionId = keyof typeof ADMIN_PUBLIC_REFLECTIONS;
+
+const ADMIN_PUBLIC_REFLECTION_ID_LIST = Object.keys(
+  ADMIN_PUBLIC_REFLECTIONS,
+) as AdminPublicReflectionId[];
+
+export function listAdminPublicReflectionIds(): readonly AdminPublicReflectionId[] {
+  return ADMIN_PUBLIC_REFLECTION_ID_LIST;
+}
+
+export function isAdminPublicReflectionId(
+  value: string,
+): value is AdminPublicReflectionId {
+  return Object.prototype.hasOwnProperty.call(ADMIN_PUBLIC_REFLECTIONS, value);
+}
+
+/** Catalog `resource` query. Unknown values fall back to the first guide. */
+export function parseAdminCatalogResource(
+  value: string | string[] | undefined,
+): AdminPublicReflectionId {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw && isAdminPublicReflectionId(raw)) return raw;
+  return ADMIN_PUBLIC_REFLECTION_ID_LIST[0];
+}
 
 export function getAdminPublicReflection(
   id: AdminPublicReflectionId,

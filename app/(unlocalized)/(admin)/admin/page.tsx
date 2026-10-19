@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   DatabaseBackupIcon,
+  MapPinnedIcon,
   SettingsIcon,
   TimerIcon,
   UsersIcon,
@@ -45,6 +46,12 @@ export default async function AdminIndexPage() {
             description: "Create, schedule, and download exports",
             href: ROUTES.adminBackup,
             icon: DatabaseBackupIcon,
+          },
+          {
+            title: "Catalog",
+            description: "Where CMS records show on public pages",
+            href: ROUTES.adminCatalog,
+            icon: MapPinnedIcon,
           },
         ]}
       />

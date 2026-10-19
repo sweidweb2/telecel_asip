@@ -31,7 +31,6 @@ export default function PartnersPage({ searchParams }: PartnersPageProps) {
         status: query.status !== "all" ? query.status : undefined,
       })}
       newItem={{ href: ROUTES.partnersNew, label: "New partner" }}
-      showPublicReflection
       stats={(result) => <PartnerStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

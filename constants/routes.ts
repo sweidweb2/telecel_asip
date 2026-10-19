@@ -40,6 +40,7 @@ export const ROUTES = {
   adminSettings: "/admin/settings",
   adminPerformance: "/admin/performance",
   adminBackup: "/admin/backup",
+  adminCatalog: "/admin/catalog",
 } as const;
 
 export type AuthPage = "login" | "signup";

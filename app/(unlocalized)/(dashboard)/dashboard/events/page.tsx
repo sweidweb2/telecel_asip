@@ -30,7 +30,6 @@ export default function EventsPage({ searchParams }: EventsPageProps) {
         status: query.status !== "all" ? query.status : undefined,
       })}
       newItem={{ href: ROUTES.eventsNew, label: "New event" }}
-      showPublicReflection
       stats={(result) => <EventStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

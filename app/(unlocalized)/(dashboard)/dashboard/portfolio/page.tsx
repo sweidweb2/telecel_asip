@@ -32,7 +32,6 @@ export default function PortfolioAdminPage({
         status: query.status !== "all" ? query.status : undefined,
       })}
       newItem={{ href: ROUTES.portfolioNew, label: "New startup" }}
-      showPublicReflection
       stats={(result) => <StartupStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

@@ -13,17 +13,6 @@ export const SITE_SETTINGS_HELP = {
       },
     ],
   },
-  newsletter: {
-    title: "Newsletter signup",
-    intro: "Informational for phase 1 — not a live control.",
-    fields: [
-      {
-        name: "Newsletter signup",
-        detail:
-          "Phase 1 status only. The Insights newsletter module stays hidden, public signup is off, and there is no toggle. A control returns in a later phase after privacy, routing, and ownership are confirmed.",
-      },
-    ],
-  },
   backup: {
     title: "Automated backup schedule",
     intro: "Cadence for full database backups to private R2 (Lebanon time).",

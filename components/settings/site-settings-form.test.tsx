@@ -55,7 +55,7 @@ describe("SiteSettingsForm", () => {
     expect(toastSuccess).toHaveBeenCalledWith("Settings saved.");
   });
 
-  it("shows newsletter as a phase 1 note, not a toggle", () => {
+  it("does not show a newsletter signup section", () => {
     render(
       <SiteSettingsForm
         openApplications={false}
@@ -63,7 +63,8 @@ describe("SiteSettingsForm", () => {
       />,
     );
 
-    expect(screen.getByText(/phase 1 — informational only/i)).toBeTruthy();
+    expect(screen.queryByText("Newsletter signup")).toBeNull();
+    expect(screen.queryByText(/phase 1 — informational only/i)).toBeNull();
     expect(screen.getAllByRole("switch")).toHaveLength(1);
     expect(screen.queryByRole("switch", { name: /newsletter/i })).toBeNull();
     expect(

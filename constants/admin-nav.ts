@@ -7,7 +7,7 @@ import type {
 } from "@/constants/dashboard-nav";
 
 /**
- * Admin panel sidebar — Overview, Users, Settings, Performance, Backup (no CMS).
+ * Admin panel sidebar — Overview, Users, Settings, Performance, Backup, Catalog.
  */
 export const ADMIN_NAV_GROUPS = [
   {
@@ -18,6 +18,7 @@ export const ADMIN_NAV_GROUPS = [
       { title: "Settings", href: ROUTES.adminSettings },
       { title: "Performance", href: ROUTES.adminPerformance },
       { title: "Backup", href: ROUTES.adminBackup },
+      { title: "Catalog", href: ROUTES.adminCatalog },
     ],
   },
 ] as const satisfies readonly DashboardNavGroup[];

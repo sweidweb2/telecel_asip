@@ -32,7 +32,6 @@ export default function FounderStoriesPage({
         status: query.status !== "all" ? query.status : undefined,
       })}
       newItem={{ href: ROUTES.founderStoriesNew, label: "New story" }}
-      showPublicReflection
       stats={(result) => <FounderStoryStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

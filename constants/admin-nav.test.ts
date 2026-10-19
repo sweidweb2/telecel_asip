@@ -34,5 +34,6 @@ describe("getAdminPageTitle", () => {
     expect(getAdminPageTitle(ROUTES.adminSettings)).toBe("Settings");
     expect(getAdminPageTitle(ROUTES.adminPerformance)).toBe("Performance");
     expect(getAdminPageTitle(ROUTES.adminBackup)).toBe("Backup");
+    expect(getAdminPageTitle(ROUTES.adminCatalog)).toBe("Catalog");
   });
 });

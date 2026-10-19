@@ -30,7 +30,6 @@ export default function CohortsPage({ searchParams }: CohortsPageProps) {
         status: query.status !== "all" ? query.status : undefined,
       })}
       newItem={{ href: ROUTES.cohortsNew, label: "New cohort" }}
-      showPublicReflection
       stats={(result) => <CohortStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

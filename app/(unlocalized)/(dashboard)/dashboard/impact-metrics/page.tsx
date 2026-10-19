@@ -34,7 +34,6 @@ export default function ImpactMetricsPage({
           query.publishStatus !== "all" ? query.publishStatus : undefined,
       })}
       newItem={{ href: ROUTES.impactMetricsNew, label: "New metric" }}
-      showPublicReflection
       stats={(result) => <ImpactMetricStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

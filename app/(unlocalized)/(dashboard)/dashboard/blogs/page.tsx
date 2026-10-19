@@ -36,7 +36,6 @@ export default function BlogsPage({ searchParams }: BlogsPageProps) {
         };
       }}
       newItem={{ href: ROUTES.blogsNew, label: "New blog" }}
-      showPublicReflection
       stats={(result) => <BlogStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (

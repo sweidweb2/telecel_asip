@@ -10,13 +10,13 @@ import {
   BriefcaseIcon,
   CalendarIcon,
   ChartColumnIcon,
-  CircleAlertIcon,
   ClipboardListIcon,
   DatabaseBackupIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
   MailsIcon,
+  MapPinnedIcon,
   NewspaperIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -42,10 +42,6 @@ import {
   useSidebarLayout,
   useSidebarMobile,
 } from "@/components/ui/sidebar";
-import {
-  hasUnreflectedAdminPublicSurfaces,
-  type AdminPublicReflectionId,
-} from "@/constants/admin-public-reflections";
 import {
   DASHBOARD_NAV_GROUPS,
   isDashboardNavActive,
@@ -78,22 +74,9 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.analytics]: BarChart3Icon,
   [ROUTES.adminPerformance]: TimerIcon,
   [ROUTES.adminBackup]: DatabaseBackupIcon,
+  [ROUTES.adminCatalog]: MapPinnedIcon,
   [ROUTES.settings]: SettingsIcon,
   [ROUTES.adminSettings]: SettingsIcon,
-};
-
-/** Nav href → public-reflection guide (only CMS resources with a guide). */
-const NAV_PUBLIC_REFLECTION_IDS: Partial<
-  Record<string, AdminPublicReflectionId>
-> = {
-  [ROUTES.portfolio]: "portfolio",
-  [ROUTES.partners]: "partners",
-  [ROUTES.blogs]: "blogs",
-  [ROUTES.founderStories]: "founderStories",
-  [ROUTES.cohorts]: "cohorts",
-  [ROUTES.events]: "events",
-  [ROUTES.evidence]: "evidence",
-  [ROUTES.impactMetrics]: "impactMetrics",
 };
 
 function formatNavCount(count: number) {
@@ -183,16 +166,11 @@ export function AppSidebar({
               <SidebarMenu>
                 {group.items.map((item) => {
                   const Icon = NAV_ICONS[item.href];
-                  const reflectionId = NAV_PUBLIC_REFLECTION_IDS[item.href];
-                  const hasUnreflected = reflectionId
-                    ? hasUnreflectedAdminPublicSurfaces(reflectionId)
-                    : false;
                   const expectsCount =
                     Boolean(countsPromise) && isDashboardNavCountHref(item.href);
                   const resolvedCount = counts[item.href];
                   const hasResolvedCount = typeof resolvedCount === "number";
-                  const showBadge =
-                    hasResolvedCount || hasUnreflected || expectsCount;
+                  const showBadge = hasResolvedCount || expectsCount;
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -202,44 +180,22 @@ export function AppSidebar({
                         }
                         isActive={isNavActive(pathname, item.href, homeHref)}
                         tooltip={item.title}
-                        className={
-                          showBadge
-                            ? (hasResolvedCount || expectsCount) &&
-                              hasUnreflected
-                              ? "pr-14"
-                              : "pr-8"
-                            : undefined
-                        }
+                        className={showBadge ? "pr-8" : undefined}
                       >
                         {Icon ? <Icon /> : null}
                         <span>{item.title}</span>
                       </SidebarMenuButton>
                       {showBadge ? (
                         countsPromise && expectsCount ? (
-                          <Suspense
-                            fallback={
-                              hasUnreflected ? (
-                                <NavItemBadge
-                                  count={undefined}
-                                  hasUnreflected
-                                />
-                              ) : null
-                            }
-                          >
+                          <Suspense fallback={null}>
                             <NavItemBadgeFromPromise
                               href={item.href}
                               countsPromise={countsPromise}
-                              hasUnreflected={hasUnreflected}
                             />
                           </Suspense>
-                        ) : (
-                          <NavItemBadge
-                            count={
-                              hasResolvedCount ? resolvedCount : undefined
-                            }
-                            hasUnreflected={hasUnreflected}
-                          />
-                        )
+                        ) : hasResolvedCount ? (
+                          <NavItemBadge count={resolvedCount} />
+                        ) : null
                       ) : null}
                     </SidebarMenuItem>
                   );
@@ -257,63 +213,29 @@ export function AppSidebar({
 function NavItemBadgeFromPromise({
   href,
   countsPromise,
-  hasUnreflected,
 }: {
   href: string;
   countsPromise: Promise<DashboardNavCounts>;
-  hasUnreflected: boolean;
 }) {
   const counts = use(countsPromise);
   const count = counts[href];
-  const hasCount = typeof count === "number";
-  if (!hasCount && !hasUnreflected) return null;
-  return (
-    <NavItemBadge
-      count={hasCount ? count : undefined}
-      hasUnreflected={hasUnreflected}
-    />
-  );
+  if (typeof count !== "number") return null;
+  return <NavItemBadge count={count} />;
 }
 
-function NavItemBadge({
-  count,
-  hasUnreflected,
-}: {
-  count: number | undefined;
-  hasUnreflected: boolean;
-}) {
-  const hasCount = typeof count === "number";
-  if (!hasCount && !hasUnreflected) return null;
-
+function NavItemBadge({ count }: { count: number }) {
   return (
     <SidebarMenuBadge
       className="gap-1 bg-transparent p-0"
-      aria-label={
-        [
-          hasCount ? `${count} records` : null,
-          hasUnreflected ? "some public surfaces are not reflected" : null,
-        ]
-          .filter(Boolean)
-          .join("; ")
-      }
+      aria-label={`${count} records`}
     >
-      {hasUnreflected ? (
-        <span
-          className="flex size-5 items-center justify-center rounded-full bg-destructive/15 text-destructive"
-          aria-hidden
-        >
-          <CircleAlertIcon className="size-3" />
-        </span>
-      ) : null}
-      {hasCount ? (
-        <span
-          className={cn(
-            "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-xs leading-none",
-          )}
-        >
-          {formatNavCount(count)}
-        </span>
-      ) : null}
+      <span
+        className={cn(
+          "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-xs leading-none",
+        )}
+      >
+        {formatNavCount(count)}
+      </span>
     </SidebarMenuBadge>
   );
 }

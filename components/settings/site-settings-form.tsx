@@ -96,22 +96,6 @@ export function SiteSettingsForm({
         </div>
       </AdminFormSection>
 
-      <AdminFormSection
-        title="Newsletter signup"
-        help={SITE_SETTINGS_HELP.newsletter}
-      >
-        <div className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">
-            Phase 1 — informational only
-          </p>
-          <p className="mt-1 max-w-prose">
-            The Insights newsletter module is hidden for phase 1. Public
-            signup is off and there is no toggle yet. Subscribers collected
-            earlier are listed under Newsletter.
-          </p>
-        </div>
-      </AdminFormSection>
-
       <p className="text-sm text-muted-foreground">
         Automated backup schedule is managed by administrators on the Backup
         page.

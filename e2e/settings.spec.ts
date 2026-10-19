@@ -78,12 +78,13 @@ test.describe("site settings", () => {
     await expect(page.getByText("Applications open")).toBeVisible();
   });
 
-  test("newsletter signup shows phase 1 note only", async ({ page }) => {
+  test("editor settings omit the newsletter signup section", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     await loginAsEditor(page, "/dashboard/settings");
-    await expect(page.getByText("Newsletter signup")).toBeVisible();
-    await expect(page.getByText("Phase 1 — informational only")).toBeVisible();
-    await expect(page.locator("#newsletter-signup")).toHaveCount(0);
+    await expect(page.getByText("Applications open")).toBeVisible();
+    await expect(page.getByText("Newsletter signup")).toHaveCount(0);
   });
 
   test("viewer cannot open settings", async ({ page }) => {

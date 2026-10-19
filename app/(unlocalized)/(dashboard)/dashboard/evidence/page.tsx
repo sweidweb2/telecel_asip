@@ -31,7 +31,6 @@ export default function EvidencePage({ searchParams }: EvidencePageProps) {
         permission: query.permission !== "all" ? query.permission : undefined,
       })}
       newItem={{ href: ROUTES.evidenceNew, label: "New evidence" }}
-      showPublicReflection
       stats={(result) => <EvidenceStatsCards stats={result.stats} />}
     >
       {({ query, result }) => (
