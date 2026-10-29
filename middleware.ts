@@ -11,6 +11,7 @@ import {
 import { PUBLIC_PAGE_SLUG_SET } from "@/constants/public-pages";
 import { authPath, ROUTES } from "@/constants/routes";
 import { staffRoleFromAppMetadata } from "@/lib/admin/staff-role-from-app-metadata";
+import { resolvePostAuthRedirect } from "@/lib/auth/role-landing";
 import type { Database } from "@/types/database";
 
 function detectLocale(request: NextRequest): Locale {
@@ -204,7 +205,9 @@ export async function middleware(request: NextRequest) {
   if (needsSession) {
     const { response, userId, isAdmin, isEditor } =
       await refreshSupabaseSession(request, {
-        includeRole: isProtectedPath(pathname),
+        // Auth pages need role so signed-in users land on their portal,
+        // not marketing home.
+        includeRole: isProtectedPath(pathname) || isAuthPage(pathname),
       });
 
     if (isProtectedPath(pathname) && !userId) {
@@ -247,14 +250,14 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isAuthPage(pathname) && userId) {
-      // Signed-in users (viewer or admin) cannot open login/signup.
-      // Send them to the locale home — viewers are not dashboard users.
-      const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = `/${locale}`;
-      homeUrl.search = "";
-      const redirect = NextResponse.redirect(homeUrl);
+      // Already signed in — same landing as a successful login.
+      const role = isAdmin ? "admin" : isEditor ? "editor" : "viewer";
+      const next = request.nextUrl.searchParams.get("next");
+      const destination = resolvePostAuthRedirect({ next, role, locale });
+      const target = new URL(destination, request.url);
+      const redirect = NextResponse.redirect(target);
       copyCookies(response, redirect);
-      return withNoStore(redirect);
+      return withNoStore(withLocaleHeaders(redirect, locale, request));
     }
 
     // Auth / intake — continue with refreshed session cookies
