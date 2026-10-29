@@ -89,7 +89,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
   const desktopLinkClass = (active: boolean) =>
     cn(
-      "relative flex min-h-12 items-center rounded-none bg-transparent px-4 text-sm font-semibold text-[#14333b] transition-colors hover:bg-transparent hover:text-[#179191] focus:bg-transparent",
+      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-[#14333b] transition-colors hover:bg-transparent hover:text-[#179191] focus:bg-transparent xl:px-3",
       active && "text-[#179191] shadow-[inset_0_-3px_0_#179191]",
     );
 
@@ -102,10 +102,10 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
         <span className="bg-[#dc395f]" />
       </div>
 
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center justify-between gap-5 px-5 sm:px-8 md:h-[4.75rem] lg:px-10">
+      <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 md:h-[4.75rem] lg:gap-5 lg:px-8 xl:px-10">
         <Link
           href={homeHref}
-          className="flex min-w-0 items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="flex shrink-0 items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <Image
             src="/ASIP_LOGO.png"
@@ -114,12 +114,81 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             height={289}
             priority
             sizes="190px"
-            className="h-11 w-auto md:h-12"
+            className="h-10 w-auto sm:h-11 md:h-12"
           />
         </Link>
 
-        <div className="hidden items-center gap-4 md:flex">
-          <p className="hidden border-l border-black/12 pl-4 text-xs font-semibold uppercase text-muted-foreground lg:block">
+        <nav
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1"
+          aria-label="Primary"
+        >
+          {labels.items
+            .filter((item) => item.href !== alumniHref)
+            .map((item) => {
+              const active =
+                isNavActive(pathname, item.href, locale) ||
+                (item.href === foundersHref &&
+                  pathname.startsWith(alumniHref));
+
+              if (item.href === foundersHref) {
+                return (
+                  <DropdownMenu key={item.href} modal={false}>
+                    <DropdownMenuTrigger
+                      className={cn(
+                        desktopLinkClass(active),
+                        "cursor-pointer border-0 [&_svg]:transition-transform [&_svg]:duration-200 data-popup-open:[&_svg]:rotate-180",
+                      )}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {item.label}
+                        <ChevronDownIcon
+                          className="size-3.5 opacity-70"
+                          aria-hidden
+                        />
+                      </span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="start"
+                      sideOffset={4}
+                      className="w-64 min-w-64 origin-top gap-1 rounded-md border p-2 shadow-md ring-0 duration-200 ease-out data-closed:slide-out-to-top-2 data-open:slide-in-from-top-2"
+                    >
+                      <DropdownMenuItem
+                        className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
+                        nativeButton={false}
+                        render={<Link href={foundersHref} />}
+                      >
+                        {labels.foundersDirectory}
+                      </DropdownMenuItem>
+                      {alumniItem ? (
+                        <DropdownMenuItem
+                          className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
+                          nativeButton={false}
+                          render={<Link href={alumniItem.href} />}
+                        >
+                          {alumniItem.label}
+                        </DropdownMenuItem>
+                      ) : null}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={desktopLinkClass(active)}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+        </nav>
+
+        <div className="hidden shrink-0 items-center gap-3 lg:flex xl:gap-4">
+          <p className="hidden border-l border-black/12 pl-4 text-xs font-semibold uppercase text-muted-foreground xl:block">
             {labels.masthead}
           </p>
           <LanguageToggle
@@ -139,7 +208,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           </Link>
         </div>
 
-        <div className="flex justify-end md:hidden">
+        <div className="flex min-w-0 flex-1 justify-end lg:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               className={cn(
@@ -207,77 +276,6 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
-
-      <div className="hidden border-t border-black/8 bg-white/45 md:block">
-        <nav
-          className="mx-auto flex min-h-12 w-full max-w-7xl items-center gap-1 px-8 lg:px-10"
-          aria-label="Primary"
-        >
-          {labels.items
-            .filter((item) => item.href !== alumniHref)
-            .map((item) => {
-              const active =
-                isNavActive(pathname, item.href, locale) ||
-                (item.href === foundersHref &&
-                  pathname.startsWith(alumniHref));
-
-              if (item.href === foundersHref) {
-                return (
-                  <DropdownMenu key={item.href} modal={false}>
-                    <DropdownMenuTrigger
-                      className={cn(
-                        desktopLinkClass(active),
-                        "cursor-pointer border-0 [&_svg]:transition-transform [&_svg]:duration-200 data-popup-open:[&_svg]:rotate-180",
-                      )}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        {item.label}
-                        <ChevronDownIcon
-                          className="size-3.5 opacity-70"
-                          aria-hidden
-                        />
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      sideOffset={4}
-                      className="w-64 min-w-64 origin-top gap-1 rounded-md border p-2 shadow-md ring-0 duration-200 ease-out data-closed:slide-out-to-top-2 data-open:slide-in-from-top-2"
-                    >
-                      <DropdownMenuItem
-                        className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
-                        nativeButton={false}
-                        render={<Link href={foundersHref} />}
-                      >
-                        {labels.foundersDirectory}
-                      </DropdownMenuItem>
-                      {alumniItem ? (
-                        <DropdownMenuItem
-                          className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
-                          nativeButton={false}
-                          render={<Link href={alumniItem.href} />}
-                        >
-                          {alumniItem.label}
-                        </DropdownMenuItem>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={desktopLinkClass(active)}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-        </nav>
       </div>
     </header>
   );

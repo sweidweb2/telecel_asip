@@ -82,8 +82,20 @@ test("mobile navigation remains usable", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("tablet navigation keeps the primary routes visible", async ({ page }) => {
+test("tablet navigation uses the sheet menu", async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 900 });
+  await page.goto("/en");
+  await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
+  await expect(foundersMenuButton(page)).toBeHidden();
+  await page.getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("link", { name: "About" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
+});
+
+test("desktop navigation keeps the primary routes in the main bar", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/en");
   await expect(
     page.locator("header").getByRole("link", { name: "About" }),
