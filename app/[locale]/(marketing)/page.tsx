@@ -3,10 +3,6 @@ import type { Metadata } from "next";
 import { HomePageContent } from "@/components/marketing/home-page-content";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getOpenApplications } from "@/data/settings";
-import {
-  getActiveStartupCountryReach,
-  getSpotlightStartups,
-} from "@/data/startups";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
@@ -39,21 +35,16 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [metrics, openApplications, countryReach, spotlight] =
-    await Promise.all([
-      getHomeImpactMetrics(),
-      getOpenApplications(),
-      getActiveStartupCountryReach(),
-      getSpotlightStartups(12),
-    ]);
+  const [metrics, openApplications] = await Promise.all([
+    getHomeImpactMetrics(),
+    getOpenApplications(),
+  ]);
 
   return (
     <HomePageContent
       locale={locale}
       metrics={metrics}
       openApplications={openApplications}
-      countryReach={countryReach}
-      spotlight={spotlight}
     />
   );
 }

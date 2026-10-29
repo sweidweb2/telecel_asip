@@ -7,36 +7,36 @@ import type { MarketingMedia } from "@/constants/marketing-media";
  */
 export const HOME_HERO_CONTINUUM: MarketingMedia[] = [
   {
-    src: "/asip-media/home-founder.webp",
+    src: "/images/ASIP-108.jpg",
     alt: {
-      en: "ASIP founder in conversation at a programme event",
-      fr: "Fondateur ASIP en conversation lors d’un événement du programme",
+      en: "ASIP founder focused in conversation at a programme table",
+      fr: "Fondateur ASIP concentré en conversation à une table du programme",
     },
-    position: "center 38%",
+    position: "center 28%",
   },
   {
-    src: "/asip-media/founders-community.webp",
+    src: "/images/ASIP-107.jpg",
     alt: {
-      en: "ASIP founders and programme community together",
-      fr: "Fondateurs ASIP et communauté du programme",
+      en: "ASIP founders listening during a programme pitch session",
+      fr: "Fondateurs ASIP à l’écoute lors d’une session de pitch du programme",
     },
-    position: "center 42%",
+    position: "center 36%",
   },
   {
-    src: "/asip-media/programme-workshop.webp",
+    src: "/images/ASIP-110.jpg",
     alt: {
-      en: "ASIP founders collaborating in a programme workshop",
-      fr: "Fondateurs ASIP collaborant lors d’un atelier du programme",
+      en: "ASIP founders collaborating at a programme working table",
+      fr: "Fondateurs ASIP collaborant autour d’une table de travail du programme",
     },
     position: "center 40%",
   },
   {
-    src: "/asip-media/founder-pitch.webp",
+    src: "/images/ASIP-102.jpg",
     alt: {
-      en: "ASIP founder pitching on the Accelerating Innovators stage",
-      fr: "Fondateur ASIP présentant son projet sur la scène Accelerating Innovators",
+      en: "ASIP mentor and founders in conversation at a programme event",
+      fr: "Mentor et fondateurs ASIP en conversation lors d’un événement du programme",
     },
-    position: "center 30%",
+    position: "center 38%",
   },
 ];
 

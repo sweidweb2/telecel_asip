@@ -308,9 +308,11 @@ export type ProgrammePageCopy = {
 
 export type HomePageCopy = {
   hero: {
+    /** Kept for copy parity; brand lives in site chrome, not the hero lockup. */
     brand: string;
+    /** Kept for SEO/metadata consumers; not rendered in the hero lockup. */
     eyebrow: string;
-    /** Endorsement line — Telecel as programme owner, visually separate from ASIP. */
+    /** Kept for copy parity; Telecel endorsement is not rendered in the hero. */
     endorsement: string;
     title: string;
     /** `title` split into reveal beats; the last beat gets the ASIP spectrum accent. */
@@ -318,8 +320,18 @@ export type HomePageCopy = {
     description: string;
     primaryCta: HomePageLink;
     secondaryCta: HomePageLink;
-    /** Small next-cohort pointer that jumps to the 2026 section. */
+    /** Kept for copy parity; next-chapter CTA lives in that section, not the hero. */
     nextCohort: { label: string; href: string };
+  };
+  /** Home Module 02 — Cohort film (click-to-play; no autoplay download). */
+  cohortFilm: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    /** Accessible label for the play control before the video mounts. */
+    playLabel: string;
+    /** Short visible CTA on the play control. */
+    watchLabel: string;
   };
   impactYears: {
     title: string;

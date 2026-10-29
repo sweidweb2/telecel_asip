@@ -12,7 +12,7 @@ describe("HOME_HERO_CONTINUUM", () => {
     expect(HOME_HERO_CONTINUUM_BEAT_S).toBeGreaterThanOrEqual(10);
 
     for (const media of HOME_HERO_CONTINUUM) {
-      expect(media.src).toMatch(/^\/asip-media\/.+\.webp$/);
+      expect(media.src).toMatch(/^\/images\/.+\.(jpe?g|webp)$/i);
       expect(media.alt.en.length).toBeGreaterThan(10);
       expect(media.alt.fr.length).toBeGreaterThan(10);
     }

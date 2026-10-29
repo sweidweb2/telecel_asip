@@ -27,7 +27,7 @@ vi.mock("@/components/marketing/home-hero-signal", () => ({
 }));
 
 describe("HomeHero", () => {
-  it("renders brand, headline, and CTAs", () => {
+  it("renders headline and CTAs without brand lockup", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", false);
 
@@ -38,7 +38,10 @@ describe("HomeHero", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: copy.hero.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText("ASIP")).toBeInTheDocument();
+    expect(screen.queryByText("ASIP")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(copy.hero.endorsement),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("home-hero-continuum")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: copy.hero.primaryCta.label }),

@@ -10,13 +10,21 @@ const en: HomePageCopy = {
     brand: "ASIP",
     eyebrow: "Africa Startup Initiative Program",
     endorsement: "A Telecel Group Program",
-    title: "African founders. Real solutions. Impact that scales.",
-    titleLines: ["African founders.", "Real solutions.", "Impact that scales."],
+    title: "African founders. Built to scale.",
+    titleLines: ["African founders.", "Built to scale."],
     description:
-      "ASIP backs African technology founders with expertise, capital pathways, market access and relationships that help ambitious businesses build and grow.",
+      "ASIP connects African technology founders to expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialise and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
-    nextCohort: { label: "2026 cohort · See what’s next", href: "#next-chapter" },
+    nextCohort: { label: "2026 next chapter", href: "#next-chapter" },
+  },
+  cohortFilm: {
+    eyebrow: "Cohort 3",
+    title: "A chapter in motion.",
+    description:
+      "Founders building, connecting and presenting during ASIP Cohort 3.",
+    playLabel: "Play Cohort 3 film",
+    watchLabel: "Watch the film",
   },
   impactYears: {
     title: "Impact, with a paper trail.",
@@ -205,17 +213,21 @@ const fr: HomePageCopy = {
     brand: "ASIP",
     eyebrow: "Programme africain d’initiative pour les startups",
     endorsement: "Un programme du Groupe Telecel",
-    title: "Fondateurs africains. Solutions concrètes. Un impact qui grandit.",
-    titleLines: [
-      "Fondateurs africains.",
-      "Solutions concrètes.",
-      "Un impact qui grandit.",
-    ],
-    nextCohort: { label: "Cohorte 2026 · Découvrir la suite", href: "#next-chapter" },
+    title: "Fondateurs africains. Faits pour grandir.",
+    titleLines: ["Fondateurs africains.", "Faits pour grandir."],
+    nextCohort: { label: "Chapitre 2026", href: "#next-chapter" },
     description:
-      "ASIP soutient des fondateurs technologiques africains avec l’expertise, les voies de financement, l’accès aux marchés et les relations qui aident les entreprises ambitieuses à construire et grandir.",
+      "ASIP relie des fondateurs technologiques africains à l’expertise, aux voies de financement, à l’accès aux marchés et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
+  },
+  cohortFilm: {
+    eyebrow: "Cohorte 3",
+    title: "Un chapitre en mouvement.",
+    description:
+      "Des fondateurs qui construisent, se connectent et présentent pendant la Cohorte 3 d’ASIP.",
+    playLabel: "Lancer le film de la Cohorte 3",
+    watchLabel: "Voir le film",
   },
   impactYears: {
     title: "Un impact, avec un dossier.",

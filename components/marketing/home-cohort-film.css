@@ -1,0 +1,24 @@
+/* Home Module 02 — cinema play control. Motion drops out under reduced motion. */
+
+@keyframes home-cohort-film-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+.home-cohort-film-pulse {
+  animation: home-cohort-film-pulse 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-cohort-film-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}

@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
+import { HomeCohortFilmSection } from "@/components/marketing/home-cohort-film-section";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
@@ -15,20 +16,10 @@ import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
-import type {
-  StartupCountryReach,
-  StartupPublicListItem,
-} from "@/types/startup";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
     (m) => m.HomePlatformModelSection,
-  ),
-);
-
-const HomeFounderSpotlightSection = dynamic(() =>
-  import("@/components/marketing/home-founder-spotlight-section").then(
-    (m) => m.HomeFounderSpotlightSection,
   ),
 );
 
@@ -45,16 +36,12 @@ type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
   openApplications: boolean;
-  countryReach: StartupCountryReach[];
-  spotlight: StartupPublicListItem[];
 };
 
 export function HomePageContent({
   locale,
   metrics,
   openApplications,
-  countryReach,
-  spotlight,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
   const intake = intakeCtaFor(locale, openApplications);
@@ -80,16 +67,11 @@ export function HomePageContent({
 
       <HomeHero locale={locale} copy={copy.hero} intake={intake} />
 
+      <HomeCohortFilmSection locale={locale} copy={copy.cohortFilm} />
+
       <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 
       <HomePlatformModelSection copy={copy.platform} />
-
-      <HomeFounderSpotlightSection
-        locale={locale}
-        copy={copy.founders}
-        countryReach={countryReach}
-        startups={spotlight}
-      />
 
       <HomeOutcomesSection
         locale={locale}

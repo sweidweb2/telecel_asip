@@ -20,7 +20,15 @@ describe("homeCopyFor", () => {
     expect(fr.hero.brand).toBe("ASIP");
     expect(en.hero.primaryCta.slug).toBe("founders");
     expect(en.hero.secondaryCta.slug).toBe("register-interest");
+    expect(en.hero.titleLines).toHaveLength(2);
+    expect(en.hero.description.length).toBeGreaterThan(80);
     expect(en.hero.description.length).toBeLessThan(220);
+    expect(fr.hero.titleLines).toHaveLength(2);
+    expect(en.cohortFilm.playLabel.length).toBeGreaterThan(0);
+    expect(fr.cohortFilm.playLabel.length).toBeGreaterThan(0);
+    expect(en.cohortFilm.watchLabel.length).toBeGreaterThan(0);
+    expect(fr.cohortFilm.watchLabel.length).toBeGreaterThan(0);
+    expect(en.cohortFilm.title).not.toEqual(fr.cohortFilm.title);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("contact");
     expect(en.outcomes.features.map((feature) => feature.id)).toEqual(
