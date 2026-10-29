@@ -57,19 +57,20 @@ export function InsightDetailPage({
     <main>
       <JsonLd data={structuredData} />
 
-      <article className="pb-16 lg:pb-24">
-        <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
-          <Link
-            href={publicPath(locale, "insights")}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "mb-6 min-h-11 w-fit gap-2 px-0 hover:bg-transparent sm:mb-8",
-            )}
-          >
-            <ArrowLeft className="size-4" />
-            {labels.backToInsights}
-          </Link>
+      <article className="relative pb-16 lg:pb-24">
+        <Link
+          href={publicPath(locale, "insights")}
+          aria-label={labels.backToInsights}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "absolute top-6 left-4 z-10 inline-flex min-h-11 items-center gap-2 px-0 hover:bg-transparent sm:top-8 sm:left-6 lg:top-12 lg:left-[max(0.25rem,calc(50%-36rem-2.75rem))] lg:min-w-11 lg:justify-center lg:px-0",
+          )}
+        >
+          <ArrowLeft className="size-4 shrink-0" />
+          <span className="lg:sr-only">{labels.backToInsights}</span>
+        </Link>
 
+        <div className="mx-auto w-full max-w-6xl px-4 pt-[4.75rem] sm:px-6 sm:pt-[5.25rem] lg:pt-12">
           <header className="max-w-3xl">
             <p className="text-sm font-semibold text-primary">
               {article.category.name}
