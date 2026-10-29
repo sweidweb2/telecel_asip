@@ -169,25 +169,32 @@
 
 /*
  * Editor and admin portals. Marketing tokens stay on :root.
- * Three planes, one green family — the warm cream reads dirty beside sage.
  * 60% — cool work area (--background). White header and cards sit on it.
- * 30% — sidebar is the deeper rail; table and section bands use a lighter --brand-soft.
- * 10% — coral on the current nav item and primary actions only.
- * Active fill is a hair darker than --asip-coral so white label text clears 4.5:1.
+ * 30% — solid primary sidebar; active nav is white (not coral).
+ * 10% — coral on primary actions only (buttons), not sidebar selection.
+ * `--brand-soft` drives card/table section headers site-wide in the portal —
+ * keep it neutral grey (not sage) so every AdminFormSection / CMS head row matches.
  */
 [data-staff-shell] {
-  --background: #f2f5f3;
-  --brand-soft: #e6f0ea;
-  --border: #d5dfd9;
-  --muted: #e7eeea;
-  --sidebar: #d5e4db;
-  --sidebar-foreground: var(--asip-ink);
-  --sidebar-primary: var(--portal-accent);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: color-mix(in srgb, var(--asip-ink) 7%, var(--sidebar));
-  --sidebar-accent-foreground: var(--asip-ink);
-  --sidebar-border: color-mix(in srgb, var(--asip-ink) 12%, var(--sidebar));
-  --sidebar-ring: var(--portal-accent);
+  --background: #f4f5f5;
+  --brand-soft: #f3f4f5;
+  --border: #e4e4e7;
+  --muted: #f3f4f5;
+  --sidebar: var(--primary);
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: color-mix(in srgb, #ffffff 22%, var(--primary));
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: color-mix(in srgb, #ffffff 22%, var(--primary));
+  --sidebar-ring: #ffffff;
+}
+
+/* Logo link — no card/chip behind the mark. */
+[data-staff-shell] [data-sidebar="header"] [data-sidebar="menu-button"]:has(img),
+[data-staff-shell] [data-sidebar="header"] [data-sidebar="menu-button"]:has(img):hover,
+[data-staff-shell] [data-sidebar="header"] [data-sidebar="menu-button"]:has(img):active {
+  background-color: transparent;
 }
 
 .dark [data-staff-shell] {
@@ -197,23 +204,30 @@
   --muted: oklch(0.295 0.026 172);
   --sidebar: oklch(0.22 0.024 175);
   --sidebar-foreground: oklch(0.947 0.019 131.6);
-  --sidebar-primary: var(--portal-accent);
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: var(--asip-ink);
   --sidebar-accent: oklch(0.28 0.026 172);
   --sidebar-accent-foreground: oklch(0.947 0.019 131.6);
   --sidebar-border: oklch(0.835 0.052 151.3 / 18%);
-  --sidebar-ring: var(--portal-accent);
+  --sidebar-ring: #ffffff;
 }
 
+/* Active nav: white pill, ink label — not coral. */
 [data-staff-shell] [data-sidebar="menu-button"][data-active],
 [data-staff-shell] [data-sidebar="menu-button"][data-active]:hover,
 [data-staff-shell] [data-sidebar="menu-button"][data-active]:active {
-  background-color: var(--portal-accent);
-  color: #ffffff;
+  background-color: #ffffff;
+  color: var(--asip-ink);
 }
 
 [data-staff-shell] [data-sidebar="menu-button"][data-active] svg {
-  color: #ffffff;
+  color: var(--asip-ink);
+}
+
+[data-staff-shell]
+  [data-sidebar="menu-item"]:has([data-sidebar="menu-button"][data-active])
+  [data-sidebar="menu-badge"] {
+  color: var(--asip-ink);
 }
 
 /* Primary actions only. Status badges keep teal via --primary. */
@@ -236,7 +250,7 @@
   background-color: color-mix(in srgb, var(--portal-accent) 86%, #ffffff);
 }
 
-/* Keep the column header on the secondary green. The row utility also sets a hover wash. */
+/* Keep thead / card headers on the portal section grey. */
 [data-staff-shell] thead [data-slot="table-row"].bg-brand-soft:hover {
   background-color: var(--brand-soft);
 }

@@ -121,7 +121,7 @@ export function AppSidebar({
             <SidebarMenuButton
               size="lg"
               tooltip={brandLabel}
-              className="justify-start group-data-[collapsible=icon]:justify-center"
+              className="justify-start hover:bg-transparent active:bg-transparent group-data-[collapsible=icon]:justify-center"
               render={
                 <Link href={homeHref} onClick={closeMobileSidebar} />
               }
@@ -134,8 +134,8 @@ export function AppSidebar({
                   height={107}
                   priority
                   quality={90}
-                  sizes="160px"
-                  className="h-8 w-auto max-w-[10rem] object-contain object-left"
+                  sizes="168px"
+                  className="h-9 w-auto max-w-[10.5rem] object-contain object-left"
                 />
               ) : (
                 <Image
@@ -146,15 +146,10 @@ export function AppSidebar({
                   priority
                   quality={90}
                   sizes="32px"
-                  className="size-7 rounded-full object-cover"
+                  className="size-8 object-contain"
                 />
               )}
             </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
-            <p className="truncate px-2 pb-1 text-xs font-medium tracking-wide text-sidebar-foreground/70 uppercase">
-              {brandLabel}
-            </p>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
