@@ -1,12 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {
-  useId,
-  useMemo,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useId, useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
@@ -16,15 +11,7 @@ import { cn } from "@/lib/utils";
 import type { CohortPublicListItem } from "@/types/cohort";
 
 const PAGE_SIZE = 5;
-
-const STATUS_FILL: Record<
-  CohortPublicListItem["programme_status"],
-  string
-> = {
-  open: "var(--brand)",
-  hold: "var(--brand-mid)",
-  closed: "var(--asip-ink)",
-};
+const FEATURED_CARD_COUNT = 4;
 
 function formatCohortWindow(cohort: CohortPublicListItem) {
   if (!cohort.programme_dates_start || !cohort.programme_dates_end) {
@@ -53,13 +40,17 @@ function programmeStatusLabel(
   return "Closed";
 }
 
+function padIndex(index: number) {
+  return String(index + 1).padStart(2, "0");
+}
+
 type ProgrammePastChaptersSectionProps = {
   locale: Locale;
   cohorts: CohortPublicListItem[];
 };
 
 /**
- * Programme past chapters — paged list on the left, continuity graph on the right.
+ * Programme past chapters — paged list on the left, horizontal stacked chapter cards on the right.
  */
 export function ProgrammePastChaptersSection({
   locale,
@@ -72,15 +63,18 @@ export function ProgrammePastChaptersSection({
     locale === "fr"
       ? "Les chapitres publiés apparaîtront ici."
       : "Published chapters will appear here.";
-  const graphCaption =
-    locale === "fr"
-      ? "Continuité des chapitres dans le temps"
-      : "Chapter continuity over time";
+  const cardsLabel =
+    locale === "fr" ? "Chapitres mis en avant" : "Featured chapters";
 
   const chronological = useMemo(
-    () => [...cohorts].sort((a, b) => a.year - b.year || a.public_label.localeCompare(b.public_label)),
+    () =>
+      [...cohorts].sort(
+        (a, b) => a.year - b.year || a.public_label.localeCompare(b.public_label),
+      ),
     [cohorts],
   );
+
+  const featured = chronological.slice(0, FEATURED_CARD_COUNT);
 
   const pageCount = Math.max(1, Math.ceil(cohorts.length / PAGE_SIZE));
   const [page, setPage] = useState(0);
@@ -129,8 +123,8 @@ export function ProgrammePastChaptersSection({
         {cohorts.length === 0 ? (
           <p className="mt-6 text-sm text-[#14333b]/65">{empty}</p>
         ) : (
-          <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:gap-8 lg:items-stretch">
-            <div className="flex min-w-0 flex-col">
+          <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:items-stretch lg:gap-8">
+            <div className="flex min-w-0 flex-col self-stretch">
               <div
                 className="relative min-h-0 flex-1 overflow-hidden"
                 aria-live="polite"
@@ -275,11 +269,11 @@ export function ProgrammePastChaptersSection({
               ) : null}
             </div>
 
-            <PastChaptersGraph
-              cohorts={chronological}
+            <PastChaptersCards
+              cohorts={featured}
               activeId={activeId}
               locale={locale}
-              caption={graphCaption}
+              label={cardsLabel}
               onSelect={selectChapter}
             />
           </div>
@@ -289,243 +283,92 @@ export function ProgrammePastChaptersSection({
   );
 }
 
-type PastChaptersGraphProps = {
+type PastChaptersCardsProps = {
   cohorts: CohortPublicListItem[];
   activeId: string | null;
   locale: Locale;
-  caption: string;
+  label: string;
   onSelect: (id: string) => void;
 };
 
-function PastChaptersGraph({
+function PastChaptersCards({
   cohorts,
   activeId,
   locale,
-  caption,
+  label,
   onSelect,
-}: PastChaptersGraphProps) {
-  const gradientId = useId().replace(/:/g, "");
-  const width = 560;
-  const height = 280;
-  const padX = 40;
-  const padY = 36;
-  const plotW = width - padX * 2;
-  const plotH = height - padY * 2;
-
-  const points = cohorts.map((cohort, index) => {
-    const t =
-      cohorts.length === 1 ? 0.5 : index / Math.max(1, cohorts.length - 1);
-    const x = padX + t * plotW;
-    // Wave elevation — open chapters peak, closed sit lower, hold mid
-    const statusLift =
-      cohort.programme_status === "open"
-        ? 0.82
-        : cohort.programme_status === "hold"
-          ? 0.55
-          : 0.28;
-    const wave = 0.35 + 0.45 * Math.sin(t * Math.PI);
-    const yNorm = Math.min(0.92, Math.max(0.12, statusLift * 0.55 + wave * 0.45));
-    const y = padY + (1 - yNorm) * plotH;
-    return { cohort, x, y, t };
-  });
-
-  const tickYears = useMemo(() => {
-    const unique = [...new Set(cohorts.map((c) => c.year))].sort((a, b) => a - b);
-    if (unique.length <= 4) return unique;
-    return [
-      unique[0],
-      unique[Math.floor(unique.length / 3)],
-      unique[Math.floor((unique.length * 2) / 3)],
-      unique[unique.length - 1],
-    ];
-  }, [cohorts]);
-
-  const pathD =
-    points.length === 0
-      ? ""
-      : points.length === 1
-        ? `M ${points[0].x} ${points[0].y}`
-        : points
-            .map((p, i) => {
-              if (i === 0) return `M ${p.x} ${p.y}`;
-              const prev = points[i - 1];
-              const cx = (prev.x + p.x) / 2;
-              return `C ${cx} ${prev.y}, ${cx} ${p.y}, ${p.x} ${p.y}`;
-            })
-            .join(" ");
-
-  const areaD =
-    points.length === 0
-      ? ""
-      : `${pathD} L ${points[points.length - 1].x} ${padY + plotH} L ${points[0].x} ${padY + plotH} Z`;
-
-  function onNodeKeyDown(
-    event: KeyboardEvent<SVGGElement>,
-    id: string,
-  ) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onSelect(id);
-    }
-  }
-
-  const statusLegend =
-    locale === "fr"
-      ? ([
-          ["open", "Ouvert"],
-          ["hold", "En attente"],
-          ["closed", "Clôturé"],
-        ] as const)
-      : ([
-          ["open", "Open"],
-          ["hold", "On hold"],
-          ["closed", "Closed"],
-        ] as const);
+}: PastChaptersCardsProps) {
+  if (cohorts.length === 0) return null;
 
   return (
-    <aside
-      className="relative flex min-h-[14rem] flex-col justify-center overflow-hidden rounded-2xl border border-[#14333b]/10 bg-white px-3 py-3 shadow-[0_12px_28px_-20px_rgba(20,51,59,0.35)] sm:min-h-[16rem] sm:px-4 sm:py-4"
-      aria-label={caption}
+    <div
+      className="flex h-full min-h-[18rem] w-full items-stretch justify-start overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:min-h-[20rem] lg:min-h-0 lg:justify-end lg:overflow-visible [&::-webkit-scrollbar]:hidden"
+      role="list"
+      aria-label={label}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-80"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 18% 18%, rgba(23,145,145,0.12), transparent 40%), radial-gradient(circle at 82% 72%, rgba(193,74,155,0.08), transparent 38%)",
-        }}
-      />
+      {cohorts.map((cohort, index) => {
+        const window = formatCohortWindow(cohort);
+        const isActive = cohort.id === activeId;
+        const body =
+          cohort.summary?.trim() ||
+          window ||
+          programmeStatusLabel(cohort.programme_status, locale);
 
-      <p className="relative px-2 text-xs font-medium text-[#14333b]/65 sm:text-sm">
-        {caption}
-      </p>
-
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="relative mt-1 h-auto w-full"
-        role="img"
-        aria-label={caption}
-      >
-        <defs>
-          <linearGradient id={`fill-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#179191" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#179191" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {/* Year baseline */}
-        <line
-          x1={padX}
-          y1={padY + plotH}
-          x2={padX + plotW}
-          y2={padY + plotH}
-          stroke="rgba(20,51,59,0.16)"
-          strokeWidth="1"
-        />
-
-        {tickYears.map((year) => {
-          const firstIndex = cohorts.findIndex((c) => c.year === year);
-          const t =
-            cohorts.length === 1
-              ? 0.5
-              : firstIndex / Math.max(1, cohorts.length - 1);
-          const x = padX + t * plotW;
-          return (
-            <g key={`tick-${year}`}>
-              <line
-                x1={x}
-                y1={padY + plotH}
-                x2={x}
-                y2={padY + plotH + 6}
-                stroke="rgba(20,51,59,0.22)"
-                strokeWidth="1"
-              />
-              <text
-                x={x}
-                y={padY + plotH + 20}
-                textAnchor="middle"
-                fill="rgba(20,51,59,0.5)"
-                fontSize="10"
-              >
-                {year}
-              </text>
-            </g>
-          );
-        })}
-
-        {points.length > 1 ? (
-          <path d={areaD} fill={`url(#fill-${gradientId})`} />
-        ) : null}
-
-        {points.length > 0 ? (
-          <path
-            d={pathD}
-            fill="none"
-            stroke="#179191"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.9"
-          />
-        ) : null}
-
-        {points.map(({ cohort, x, y }) => {
-          const isActive = cohort.id === activeId;
-          const fill = STATUS_FILL[cohort.programme_status];
-          return (
-            <g
-              key={cohort.id}
-              transform={`translate(${x} ${y})`}
-              role="button"
-              tabIndex={0}
-              aria-label={`${cohort.year} - ${cohort.public_label}`}
-              aria-current={isActive ? "true" : undefined}
-              className="cursor-pointer outline-none"
-              onClick={() => onSelect(cohort.id)}
-              onKeyDown={(event) => onNodeKeyDown(event, cohort.id)}
-            >
-              {isActive ? (
-                <circle
-                  r="16"
-                  fill="none"
-                  stroke="#179191"
-                  strokeWidth="1.5"
-                  opacity="0.45"
-                  className="motion-safe:animate-[ping_1.8s_cubic-bezier(0,0,0.2,1)_infinite]"
-                />
-              ) : null}
-              <circle
-                r={isActive ? 9 : 6.5}
-                fill={fill}
-                stroke="#ffffff"
-                strokeWidth={isActive ? 2.5 : 2}
-                className="transition-[r] duration-300 ease-out"
-              />
-              <text
-                y="24"
-                textAnchor="middle"
-                fill="rgba(20,51,59,0.72)"
-                fontSize="10"
-                fontWeight="500"
-              >
-                {cohort.year}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-
-      <ul className="relative mt-0.5 flex flex-wrap gap-x-4 gap-y-1.5 px-2 text-xs text-[#14333b]/60">
-        {statusLegend.map(([status, label]) => (
-          <li key={status} className="inline-flex items-center gap-1.5">
+        return (
+          <button
+            key={cohort.id}
+            type="button"
+            role="listitem"
+            onClick={() => onSelect(cohort.id)}
+            aria-current={isActive ? "true" : undefined}
+            aria-label={`${cohort.year} - ${cohort.public_label}`}
+            style={{ zIndex: index + 1 }}
+            className={cn(
+              "group relative flex h-full min-h-[18rem] w-[8.5rem] shrink-0 flex-col overflow-hidden rounded-2xl bg-white p-4 text-left shadow-[0_12px_28px_-16px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] transition-[transform,box-shadow,ring-color] duration-300 ease-out sm:min-h-[20rem] sm:w-[9.5rem] sm:p-5 lg:min-h-0 lg:w-[min(10.5rem,28%)]",
+              "outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbfaf6]",
+              index > 0 && "-ml-6 sm:-ml-7",
+              index % 2 === 0 ? "translate-y-0" : "translate-y-1",
+              "hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_32px_-14px_color-mix(in_srgb,var(--asip-ink)_50%,transparent)]",
+              isActive ? "ring-2 ring-brand/40" : "ring-1 ring-asip-ink/8",
+            )}
+          >
             <span
-              className="size-2 rounded-full"
-              style={{ backgroundColor: STATUS_FILL[status] }}
               aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage: [
+                  "radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--brand) 18%, transparent) 0%, transparent 42%)",
+                  "radial-gradient(circle at 100% 0%, transparent 28%, color-mix(in srgb, var(--brand) 11%, transparent) 29%, transparent 48%)",
+                  "radial-gradient(circle at 100% 0%, transparent 48%, color-mix(in srgb, var(--brand-mid) 10%, transparent) 49%, transparent 68%)",
+                  "radial-gradient(circle at 100% 0%, transparent 68%, color-mix(in srgb, var(--brand-soft) 55%, transparent) 69%, transparent 88%)",
+                ].join(", "),
+              }}
             />
-            {label}
-          </li>
-        ))}
-      </ul>
-    </aside>
+
+            <span
+              className={cn(
+                "relative font-heading text-2xl font-bold tracking-tight sm:text-3xl",
+                isActive ? "text-brand" : "text-asip-ink",
+              )}
+            >
+              {padIndex(index)}
+            </span>
+
+            <div className="relative mt-auto pt-6">
+              <h3 className="font-heading text-sm font-semibold tracking-tight text-balance text-asip-ink sm:text-base">
+                {cohort.year}
+                <span className="font-semibold">
+                  {" — "}
+                  {cohort.public_label}
+                </span>
+              </h3>
+              <p className="mt-1.5 line-clamp-5 text-xs leading-relaxed text-asip-ink/60 sm:text-sm">
+                {body}
+              </p>
+            </div>
+          </button>
+        );
+      })}
+    </div>
   );
 }

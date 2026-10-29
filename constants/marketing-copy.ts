@@ -106,14 +106,6 @@ const en: MarketingCopy = {
           "We envision an Africa where category-defining technology companies are built from the continent, scale across borders and shape global progress.",
         ],
       },
-      belief: {
-        eyebrow: "Belief",
-        title:
-          "African founders do not need to be explained. They need to be seen, backed and given room to scale.",
-        paragraphs: [
-          "The strongest companies often begin with first-hand understanding of a problem. ASIP exists to help founders turn that insight into products, businesses and impact that can travel beyond one market.",
-        ],
-      },
       timeline: {
         eyebrow: "Journey",
         title: "From the first cohort to the next chapter",
@@ -412,14 +404,6 @@ const fr: MarketingCopy = {
         imageLabel: "L’écosystème ASIP en conversation à Dakar",
         paragraphs: [
           "Nous imaginons une Afrique où des entreprises technologiques qui définissent leur catégorie sont bâties depuis le continent, se développent au-delà des frontières et façonnent le progrès mondial.",
-        ],
-      },
-      belief: {
-        eyebrow: "Conviction",
-        title:
-          "Les fondateurs africains n’ont pas besoin d’être expliqués. Ils ont besoin d’être vus, appuyés et de pouvoir grandir.",
-        paragraphs: [
-          "Les entreprises les plus solides commencent souvent par une compréhension de première main d’un problème. ASIP existe pour aider les fondateurs à transformer cet insight en produits, entreprises et impact qui peuvent voyager au-delà d’un seul marché.",
         ],
       },
       timeline: {

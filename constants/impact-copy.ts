@@ -22,13 +22,6 @@ const en: ImpactPageCopy = {
     description:
       "The portfolio has grown across sectors and markets. That journey is told through verified founder outcomes, not broad claims. Every published number leads to a source, a company or a story.",
   },
-  proof: {
-    eyebrow: "Proof",
-    title: "The numbers, with their paper trail.",
-    verifiedLabel: "Verified",
-    pending:
-      "Portfolio figures are being verified against source records. They will appear here once each has a source, period, owner and permission.",
-  },
   lenses: {
     eyebrow: "Impact lenses",
     title: "Impact Lens",
@@ -137,13 +130,6 @@ const fr: ImpactPageCopy = {
     title: "Des progrès que l’on peut retracer jusqu’aux fondateurs.",
     description:
       "Le portefeuille s’est développé à travers les secteurs et les marchés. Ce parcours se raconte par des résultats de fondateurs vérifiés, pas par des affirmations générales. Chaque chiffre publié renvoie à une source, une entreprise ou une histoire.",
-  },
-  proof: {
-    eyebrow: "Preuves",
-    title: "Les chiffres, avec leur dossier.",
-    verifiedLabel: "Vérifié",
-    pending:
-      "Les chiffres du portefeuille sont en cours de vérification. Ils apparaîtront ici dès que chacun aura une source, une période, un responsable et une autorisation.",
   },
   lenses: {
     eyebrow: "Axes d’impact",

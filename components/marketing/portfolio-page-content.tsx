@@ -1,5 +1,4 @@
 import { FoundersHeroSection } from "@/components/marketing/founders-hero-section";
-import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { Section } from "@/components/marketing/page-elements";
 import {
   FOUNDERS_RESULTS_ID,
@@ -35,7 +34,7 @@ type PortfolioPageContentProps = {
 };
 
 /**
- * Founders directory — hero, filters, StartupCard grid, pagination, CTA.
+ * Founders directory — hero, filters, StartupCard grid, pagination.
  */
 export function PortfolioPageContent({
   locale,
@@ -53,7 +52,6 @@ export function PortfolioPageContent({
           eyebrow: copy.eyebrow,
           title: copy.title,
           description: copy.description,
-          cta: copy.cta,
         }}
       />
 
@@ -89,10 +87,6 @@ export function PortfolioPageContent({
           </div>
         ) : null}
       </Section>
-
-      {copy.ctaSection ? (
-        <PageCtaSection locale={locale} cta={copy.ctaSection} />
-      ) : null}
     </main>
   );
 }

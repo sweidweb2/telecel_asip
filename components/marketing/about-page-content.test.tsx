@@ -38,8 +38,8 @@ describe("AboutPageContent", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/African founders do not need to be explained/i),
-    ).toBeInTheDocument();
+      screen.queryByText(/African founders do not need to be explained/i),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("2021")).toBeInTheDocument();
     expect(screen.getByText("2026")).toBeInTheDocument();
     expect(

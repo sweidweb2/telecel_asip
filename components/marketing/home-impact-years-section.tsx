@@ -23,7 +23,7 @@ type HomeImpactYearsSectionProps = {
 };
 
 /**
- * Home Module 02 — Seven Years of Impact.
+ * Home Module 03 — Seven Years of Impact.
  * Slanted cream band (taller on the left); cutaway triangle under the
  * diagonal uses the same patterned teal as the platform section below.
  */

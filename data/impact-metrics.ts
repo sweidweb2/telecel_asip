@@ -242,7 +242,7 @@ async function fetchVerifiedImpactMetrics(): Promise<ImpactMetricPublicItem[]> {
   return (data ?? []) as ImpactMetricPublicItem[];
 }
 
-/** Cached verified metrics for Home / Impact marketing. */
+/** Cached verified metrics for Home marketing. */
 export const getVerifiedImpactMetrics = unstable_cache(
   fetchVerifiedImpactMetrics,
   ["verified-impact-metrics"],
@@ -255,12 +255,4 @@ export async function getHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> 
   return metrics.filter((metric) =>
     metric.display_locations?.includes("homepage_module_02"),
   );
-}
-
-export async function getImpactPageMetrics(): Promise<ImpactMetricPublicItem[]> {
-  const metrics = await getVerifiedImpactMetrics();
-  const tagged = metrics.filter((metric) =>
-    metric.display_locations?.includes("impact_page"),
-  );
-  return tagged.length > 0 ? tagged : metrics;
 }

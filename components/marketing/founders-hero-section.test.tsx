@@ -14,7 +14,6 @@ describe("FoundersHeroSection", () => {
           eyebrow: copy.eyebrow,
           title: copy.title,
           description: copy.description,
-          cta: copy.cta,
         }}
       />,
     );
@@ -24,8 +23,6 @@ describe("FoundersHeroSection", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(copy.eyebrow)).toBeInTheDocument();
     expect(screen.getByText(copy.description)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: copy.cta?.label }),
-    ).toHaveAttribute("href", "/en/impact");
+    expect(screen.queryByRole("link", { name: copy.cta?.label })).toBeNull();
   });
 });

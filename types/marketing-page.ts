@@ -44,12 +44,6 @@ export type AboutNarrativeBlockCopy = {
   imageLabel: string;
 };
 
-export type AboutBeliefCopy = {
-  eyebrow?: string;
-  title: string;
-  paragraphs: string[];
-};
-
 export type AboutTimelineMilestone = {
   year: string;
   description: string;
@@ -145,7 +139,6 @@ export type MarketingPageCopy = {
     story: AboutStoryCopy;
     vision: AboutNarrativeBlockCopy;
     mission: AboutNarrativeBlockCopy;
-    belief: AboutBeliefCopy;
     timeline: AboutTimelineCopy;
     telecel: AboutNarrativeBlockCopy;
     /** Built and wired; unpublished until approved copy and media arrive. */
@@ -496,14 +489,6 @@ export type ImpactPageCopy = {
     eyebrow: string;
     title: string;
     description: string;
-  };
-  /** Large proof numbers — rendered only from `verified` impact metrics. */
-  proof: {
-    eyebrow: string;
-    title: string;
-    verifiedLabel: string;
-    /** Shown when no metric has cleared the evidence gate yet. */
-    pending: string;
   };
   lenses: {
     eyebrow: string;

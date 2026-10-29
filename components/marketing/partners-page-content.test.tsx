@@ -45,7 +45,7 @@ const historicalPartner: PartnerPublicItem = {
 };
 
 describe("PartnersPageContent", () => {
-  it("assembles hero, proposition, types, network, historical, and CTA", () => {
+  it("assembles hero, types, proposition, network, and historical", () => {
     const copy = partnersCopyFor("en");
 
     render(
@@ -84,8 +84,8 @@ describe("PartnersPageContent", () => {
       screen.getByRole("heading", { level: 2, name: /previous chapters/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: copy.ctaSection.title }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { level: 2, name: copy.ctaSection.title }),
+    ).toBeNull();
     expect(
       screen.getAllByRole("link", { name: copy.hero.cta.label }).length,
     ).toBeGreaterThan(0);

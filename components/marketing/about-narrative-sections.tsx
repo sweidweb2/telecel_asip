@@ -1,4 +1,3 @@
-import { AboutBeliefSection } from "@/components/marketing/about-belief-section";
 import { AboutCeoMessageSection } from "@/components/marketing/about-ceo-message-section";
 import { AboutJourneyTimeline } from "@/components/marketing/about-journey-timeline";
 import { AboutNarrativeSplitSection } from "@/components/marketing/about-narrative-split-section";
@@ -20,7 +19,6 @@ export function AboutNarrativeSections({
   return (
     <div className="flex flex-col gap-14 sm:gap-16 lg:gap-20">
       <AboutOurStorySection locale={locale} story={narrative.story} />
-      <AboutBeliefSection belief={narrative.belief} />
       <AboutNarrativeSplitSection
         id="mission"
         eyebrow={narrative.mission.eyebrow}

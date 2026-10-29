@@ -37,12 +37,12 @@ describe("ProgrammeValueSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses the home platform ink primary surface", () => {
+  it("uses a light surface", () => {
     const copy = programmeCopyFor("en").value;
     const { container } = render(<ProgrammeValueSection copy={copy} />);
     const section = container.querySelector("section#value");
 
-    expect(section).toHaveClass("bg-[#14333b]");
-    expect(section).toHaveClass("text-white");
+    expect(section).toHaveClass("bg-background");
+    expect(section).toHaveClass("text-foreground");
   });
 });

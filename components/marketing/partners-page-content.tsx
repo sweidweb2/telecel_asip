@@ -1,6 +1,5 @@
 import "./partners-motion.css";
 
-import { PageCtaSection } from "@/components/marketing/page-cta-section";
 import { partnerLabelsFor } from "@/components/marketing/partner-labels";
 import { PartnersHeroSection } from "@/components/marketing/partners-hero-section";
 import { PartnersByContribution } from "@/components/marketing/partners-by-contribution";
@@ -18,8 +17,8 @@ type PartnersPageContentProps = {
 };
 
 /**
- * Partners marketing page — hero, proposition, type routes, partners grouped by
- * what they bring to founders (logos as supporting proof), CTA.
+ * Partners marketing page — hero, type routes, proposition, partners grouped by
+ * what they bring to founders (logos as supporting proof).
  */
 export function PartnersPageContent({
   locale,
@@ -32,8 +31,8 @@ export function PartnersPageContent({
   return (
     <main>
       <PartnersHeroSection locale={locale} copy={copy.hero} />
-      <PartnersPropositionSection locale={locale} copy={copy.proposition} />
       <PartnersTypesSection copy={copy.types} />
+      <PartnersPropositionSection locale={locale} copy={copy.proposition} />
 
       <section
         id="network"
@@ -94,8 +93,6 @@ export function PartnersPageContent({
           </div>
         </section>
       ) : null}
-
-      <PageCtaSection locale={locale} cta={copy.ctaSection} />
     </main>
   );
 }

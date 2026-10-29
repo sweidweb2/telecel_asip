@@ -17,7 +17,7 @@ const VISUAL_CONFIG: Record<
     position: "center 42%",
   },
   telecel: {
-    src: "/asip-media/about-journey.webp",
+    src: "/images/about-telecel.jpeg",
     position: "center 42%",
   },
 };

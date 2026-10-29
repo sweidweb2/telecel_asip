@@ -63,14 +63,14 @@ export function InsightDetailPage({
             href={publicPath(locale, "insights")}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
-              "min-h-11 gap-2 px-0 hover:bg-transparent",
+              "mb-6 min-h-11 w-fit gap-2 px-0 hover:bg-transparent sm:mb-8",
             )}
           >
             <ArrowLeft className="size-4" />
             {labels.backToInsights}
           </Link>
 
-          <header className="mt-6 max-w-3xl sm:mt-8">
+          <header className="max-w-3xl">
             <p className="text-sm font-semibold text-primary">
               {article.category.name}
             </p>
