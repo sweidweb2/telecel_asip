@@ -1,60 +1,64 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
-import { CircleAlertIcon } from "lucide-react";
+import { useEffect, useSyncExternalStore } from "react";
 
-import { ErrorScreen } from "@/components/layout/error-screen";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/utils";
+import { HttpStatusPage } from "@/components/layout/http-status-page";
+import {
+  HTTP_ERROR_PATHNAMES,
+  httpErrorHref,
+} from "@/constants/http-errors";
 
 export type RouteErrorProps = {
   error: Error & { digest?: string };
-  reset: () => void;
+  /** Next.js ≤16.2 recover callback. */
+  reset?: () => void;
+  /** Next.js ≥16.3 recover callback. */
+  retry?: () => void;
   homeAsAnchor?: boolean;
 };
 
+function subscribeNoop() {
+  return () => {};
+}
+
+function getIsHttpErrorPath() {
+  return HTTP_ERROR_PATHNAMES.has(window.location.pathname);
+}
+
+function getServerIsHttpErrorPath() {
+  return false;
+}
+
+/**
+ * Segment / global error boundary UI.
+ * Unexpected failures navigate to the themed `/500` page; status routes stay inline
+ * so a failure on `/500` itself cannot loop.
+ */
 export function RouteError({
   error,
-  reset,
   homeAsAnchor = false,
 }: RouteErrorProps) {
+  const inline = useSyncExternalStore(
+    subscribeNoop,
+    getIsHttpErrorPath,
+    getServerIsHttpErrorPath,
+  );
+
   useEffect(() => {
     console.error(error);
-  }, [error]);
+    if (inline) return;
+
+    window.location.replace(
+      httpErrorHref("500", { digest: error.digest }),
+    );
+  }, [error, inline]);
 
   return (
-    <ErrorScreen
-      icon={CircleAlertIcon}
-      code="Error"
-      title="Something went wrong"
-      description="An unexpected error occurred. You can try again, or go back home."
-      tone="destructive"
-    >
-      <Button type="button" className="w-full" onClick={reset}>
-        Try again
-      </Button>
-      {homeAsAnchor ? (
-        <a
-          href={ROUTES.home}
-          className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-        >
-          Go home
-        </a>
-      ) : (
-        <Link
-          href={ROUTES.home}
-          className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-        >
-          Go home
-        </Link>
-      )}
-      {error.digest ? (
-        <p className="pt-1 text-center text-xs text-muted-foreground">
-          Reference {error.digest}
-        </p>
-      ) : null}
-    </ErrorScreen>
+    <HttpStatusPage
+      kind={inline ? "generic" : "500"}
+      digest={error.digest}
+      bare
+      homeAsAnchor={homeAsAnchor}
+    />
   );
 }

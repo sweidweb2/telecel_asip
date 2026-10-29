@@ -78,6 +78,12 @@ const nextConfig: NextConfig = {
       /** Raw request body. Matches the 10 MB upload ceiling in `constants/upload.ts`. */
       bodySizeLimit: "10mb",
     },
+    /**
+     * Dual root layouts (`[locale]` + `(unlocalized)`) have no single root
+     * `not-found` for unmatched URLs — without this, Next serves the default
+     * black 404. `app/global-not-found.tsx` is the themed fallback.
+     */
+    globalNotFound: true,
   },
   images: {
     qualities: [75, 90],
@@ -112,7 +118,7 @@ const nextConfig: NextConfig = {
         headers: SECURITY_HEADERS,
       },
       {
-        source: "/:all*(svg|ico|png|jpg|jpeg|gif|webp)",
+        source: "/:all*(svg|ico|png|jpg|jpeg|gif|webp|mp4|webm)",
         headers: [
           { key: "Cache-Control", value: PUBLIC_STATIC_CACHE },
         ],
