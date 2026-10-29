@@ -128,10 +128,10 @@ export function AppSidebar({
             >
               {showWordmark ? (
                 <Image
-                  src="/asip-logo-sidebar.webp"
+                  src="/ASIP_LOGO_WHITE.png"
                   alt="Africa Startup Initiative Program"
-                  width={320}
-                  height={107}
+                  width={864}
+                  height={289}
                   priority
                   quality={90}
                   sizes="168px"

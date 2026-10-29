@@ -170,7 +170,8 @@
 /*
  * Editor and admin portals. Marketing tokens stay on :root.
  * 60% — cool work area (--background). White header and cards sit on it.
- * 30% — solid primary sidebar; active nav is white (not coral).
+ * 30% — solid primary sidebar (a touch darker than marketing teal); idle nav
+ *       is white; active nav is a white pill with ink label (not coral).
  * 10% — coral on primary actions only (buttons), not sidebar selection.
  * `--brand-soft` drives card/table section headers site-wide in the portal —
  * keep it neutral grey (not sage) so every AdminFormSection / CMS head row matches.
@@ -180,12 +181,16 @@
   --brand-soft: #f3f4f5;
   --border: #e4e4e7;
   --muted: #f3f4f5;
+  /* Portal-only: deepen brand teal slightly for the solid rail + badges. */
+  --primary: #116f6f;
+  --brand: #116f6f;
+  --ring: #116f6f;
   --sidebar: var(--primary);
-  --sidebar-foreground: #0a0a0a;
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffffff;
   --sidebar-primary-foreground: #0a0a0a;
-  --sidebar-accent: color-mix(in srgb, #ffffff 22%, var(--primary));
-  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-accent: color-mix(in srgb, #ffffff 18%, var(--primary));
+  --sidebar-accent-foreground: #ffffff;
   --sidebar-border: color-mix(in srgb, #ffffff 22%, var(--primary));
   --sidebar-ring: #ffffff;
 }
