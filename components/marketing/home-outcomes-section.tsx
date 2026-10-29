@@ -128,7 +128,7 @@ export function HomeOutcomesSection({
             <div className="absolute right-3 bottom-0 w-[32%] max-w-[15rem] sm:w-[38%] overflow-hidden rounded-xl border-4 border-background shadow-xl sm:right-6 lg:-right-4">
               <div className="relative aspect-square">
                 <Image
-                  src="/asip-media/outcome-celebrate.webp"
+                  src="/images/ASIP-30 2.jpg"
                   alt={copy.insetAlt}
                   fill
                   sizes="15rem"

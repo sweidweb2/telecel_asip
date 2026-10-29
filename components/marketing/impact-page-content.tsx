@@ -3,7 +3,6 @@ import { ImpactEvidenceRuleSection } from "@/components/marketing/impact-evidenc
 import { ImpactFanSection } from "@/components/marketing/impact-fan-section";
 import { ImpactHero } from "@/components/marketing/impact-hero";
 import { ImpactLensesSection } from "@/components/marketing/impact-lenses-section";
-import { ImpactProgressSection } from "@/components/marketing/impact-progress-section";
 import type { Locale } from "@/constants/locales";
 import { impactCopyFor } from "@/constants/impact-copy";
 import type { ImpactCaseStudyPublic } from "@/types/founder-story";
@@ -15,8 +14,8 @@ type ImpactPageContentProps = {
 
 /**
  * Impact marketing page — static + dynamic (build spec §4).
- * Progress is narrative; case studies pull published founder stories;
- * Evidence Rule states the public publish gate.
+ * Case studies pull published founder stories; Evidence Rule states the
+ * public publish gate.
  */
 export function ImpactPageContent({
   locale,
@@ -28,11 +27,9 @@ export function ImpactPageContent({
     <main>
       <ImpactHero locale={locale} copy={copy.hero} />
 
-      <ImpactProgressSection copy={copy.progress} />
+      <ImpactFanSection locale={locale} />
 
       <ImpactLensesSection lenses={copy.lenses} />
-
-      <ImpactFanSection locale={locale} />
 
       <ImpactCaseStudiesSection
         locale={locale}
