@@ -1,9 +1,10 @@
+import { redirect } from "next/navigation";
+
 import { HttpStatusPage, httpStatusMetadata } from "@/components/layout/http-status-page";
 import {
+  httpErrorHref,
   httpErrorKindFromCode,
-  httpErrorPathFor,
 } from "@/constants/http-errors";
-import { redirect } from "next/navigation";
 
 export const metadata = httpStatusMetadata("generic");
 
@@ -20,10 +21,7 @@ export default async function GenericErrorPage({ searchParams }: PageProps) {
   const kind = httpErrorKindFromCode(code);
 
   if (kind !== "generic") {
-    const params = new URLSearchParams();
-    if (digest) params.set("digest", digest);
-    const qs = params.toString();
-    redirect(`${httpErrorPathFor(kind)}${qs ? `?${qs}` : ""}`);
+    redirect(httpErrorHref(kind, { digest }));
   }
 
   return (
