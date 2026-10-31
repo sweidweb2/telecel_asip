@@ -1,9 +1,8 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import {
   refreshAdminResource,
   runAdminMutation,
@@ -48,8 +47,7 @@ function refreshCohortPaths(id?: string) {
     detailPath: id ? `${resource.listPath}/${id}` : undefined,
     cacheTags: resource.cacheTags,
   });
-  // Insights embed related cohort labels — bust blog cache on rename/link changes.
-  revalidateTag(BLOGS_CACHE_TAG, "max");
+  // Related insight links are tagged with COHORTS_CACHE_TAG already — no blogs tag.
   revalidatePath("/en/programme");
   revalidatePath("/fr/programme");
 }

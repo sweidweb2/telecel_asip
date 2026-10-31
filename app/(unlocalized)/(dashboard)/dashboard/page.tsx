@@ -26,7 +26,7 @@ import {
   type DashboardNavGroup,
 } from "@/constants/dashboard-nav";
 import { ROUTES } from "@/constants/routes";
-import { getAdminAnalytics } from "@/data/admin-analytics";
+import { getDashboardInboxUnread } from "@/data/dashboard-inbox";
 import { requireEditor } from "@/data/auth";
 import { traceAsync } from "@/lib/admin/perf";
 
@@ -75,30 +75,30 @@ const LAUNCHER_GROUPS: readonly DashboardNavGroup[] =
 
 export default async function DashboardPage() {
   await requireEditor();
-  const analyticsResult = await traceAsync(
+  const inboxResult = await traceAsync(
     "dashboardPage",
     { eventType: "page", route: ROUTES.dashboard },
-    () => getAdminAnalytics(),
+    () => getDashboardInboxUnread(),
   );
-  const analytics =
-    analyticsResult.status === "ok" ? analyticsResult.analytics : null;
+  const unread =
+    inboxResult.status === "ok" ? inboxResult.unread : null;
 
-  const waiting = analytics
+  const waiting = unread
     ? [
         {
           title: "Registrations",
           href: ROUTES.registrations,
-          unread: analytics.registrations.unread,
+          unread: unread.registrations,
         },
         {
           title: "Applications",
           href: ROUTES.applications,
-          unread: analytics.applications.unread,
+          unread: unread.applications,
         },
         {
           title: "Contact us",
           href: ROUTES.contactUs,
-          unread: analytics.contactMessages.unread,
+          unread: unread.contactMessages,
         },
       ]
     : [];
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
               Unread items in the intake pipeline.
             </p>
           </div>
-          {analytics ? (
+          {unread ? (
             <AdminStatsCards
               items={waiting.map((item) => ({
                 key: item.href,
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
               Contact us from the sidebar.
             </p>
           )}
-          {analytics && !hasUnread ? (
+          {unread && !hasUnread ? (
             <p className="text-sm text-muted-foreground">
               Inbox is clear — no unread registrations, applications, or contact
               messages.

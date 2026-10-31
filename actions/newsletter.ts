@@ -1,7 +1,6 @@
 "use server";
 
 import { getNewsletterSignupEnabled } from "@/data/settings";
-import { revalidateDashboardNavCounts } from "@/lib/admin/run-admin-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
@@ -77,6 +76,5 @@ export async function subscribeNewsletter(
     return { status: "error", message: copy.genericError };
   }
 
-  revalidateDashboardNavCounts();
   return { status: "success", message: copy.success };
 }

@@ -81,6 +81,7 @@ export async function submitContactMessage(
   refreshAdminResource({
     listPath: resource.listPath,
     cacheTags: resource.cacheTags,
+    bustNavCounts: false,
   });
   return { status: "success", message: copy.success };
 }

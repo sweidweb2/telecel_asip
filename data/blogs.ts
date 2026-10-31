@@ -157,14 +157,20 @@ export const getBlogByIdForAdmin = cache(
   },
   );
 
-async function fetchPublishedBlogs(): Promise<BlogPublicListItem[]> {
+/** Soft cap for the Insights index — newest published first. */
+export const PUBLISHED_BLOGS_LIST_LIMIT = 100;
+
+async function fetchPublishedBlogs(
+  limit: number,
+): Promise<BlogPublicListItem[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("blogs")
     .select(PUBLIC_LIST_COLUMNS)
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false })
-    .order("id", { ascending: true });
+    .order("id", { ascending: true })
+    .limit(limit);
 
   if (error) throw error;
   return (data ?? []) as BlogPublicListItem[];
@@ -216,11 +222,20 @@ async function fetchRelatedPublishedBlogs(
   return (data ?? []) as BlogPublicListItem[];
 }
 
-export const getPublishedBlogs = unstable_cache(
-  fetchPublishedBlogs,
-  ["published-blogs-v2"],
-  { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
-);
+/**
+ * Published blog list for Insights index / home teaser.
+ * Always limited — pass a smaller `limit` for home; index uses the soft cap.
+ */
+export async function getPublishedBlogs(
+  limit: number = PUBLISHED_BLOGS_LIST_LIMIT,
+): Promise<BlogPublicListItem[]> {
+  const safeLimit = Math.max(1, Math.min(limit, PUBLISHED_BLOGS_LIST_LIMIT));
+  return unstable_cache(
+    () => fetchPublishedBlogs(safeLimit),
+    ["published-blogs-v2", String(safeLimit)],
+    { tags: [BLOGS_CACHE_TAG], revalidate: 300 },
+  )();
+}
 
 export const getPublishedBlogSlugRows = unstable_cache(
   fetchPublishedBlogSlugRows,

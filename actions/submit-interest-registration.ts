@@ -139,6 +139,7 @@ export async function submitInterestRegistration(
   refreshAdminResource({
     listPath: resource.listPath,
     cacheTags: resource.cacheTags,
+    bustNavCounts: false,
   });
   return { status: "success", message: copy.success };
 }

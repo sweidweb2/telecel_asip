@@ -120,14 +120,24 @@ export function refreshAdminResource({
   listPath,
   detailPath,
   cacheTags,
+  /**
+   * Public intake should leave this false so open apply / register-interest /
+   * contact traffic does not cold-start the shared nav-count RPC on every
+   * submit. List-stats tags still bust via `cacheTags`. Badges catch up on the
+   * 60s TTL (or the next CMS write).
+   */
+  bustNavCounts = true,
 }: {
   listPath: string;
   detailPath?: string;
   cacheTags?: readonly string[];
+  bustNavCounts?: boolean;
 }) {
   revalidatePath(listPath);
   if (detailPath) revalidatePath(detailPath);
-  revalidateDashboardNavCounts();
+  if (bustNavCounts) {
+    revalidateDashboardNavCounts();
+  }
   if (cacheTags) {
     for (const tag of cacheTags) {
       revalidateTag(tag, "max");

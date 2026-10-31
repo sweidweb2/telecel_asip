@@ -288,7 +288,7 @@ async function fetchActiveStartupsPage(
 
   let request = supabase
     .from("startups_public")
-    .select(PUBLIC_LIST_COLUMNS, { count: "exact" });
+    .select(PUBLIC_LIST_COLUMNS, { count: "estimated" });
 
   if (filters.cohort) request = request.eq("cohort", filters.cohort);
   if (filters.country) request = request.eq("country_code", filters.country);

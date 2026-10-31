@@ -25,8 +25,8 @@ export async function getLatestInsights(
   locale: Locale = "en",
   limit = 3,
 ): Promise<ArticleListItem[]> {
-  const blogs = await getPublishedBlogs();
-  return blogs.slice(0, limit).map((blog) => toArticleList(blog, locale));
+  const blogs = await getPublishedBlogs(limit);
+  return blogs.map((blog) => toArticleList(blog, locale));
 }
 
 /**

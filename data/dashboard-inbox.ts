@@ -1,0 +1,36 @@
+import { fetchAdminListStats } from "@/data/admin-list-stats";
+import { gateEditorPageData } from "@/lib/admin/admin-list-query";
+
+export type DashboardInboxUnread = {
+  registrations: number;
+  applications: number;
+  contactMessages: number;
+};
+
+/**
+ * Unread intake totals for the editor home cards.
+ * Uses the per-resource list-stats caches (already busted by intake writes)
+ * instead of the full `get_admin_analytics` snapshot.
+ */
+export async function getDashboardInboxUnread(): Promise<
+  { status: "forbidden" } | { status: "ok"; unread: DashboardInboxUnread }
+> {
+  const gated = await gateEditorPageData(async (supabase) => {
+    const [registrations, applications, contactMessages] = await Promise.all([
+      fetchAdminListStats(supabase, "interest_registrations", ["unread"]),
+      fetchAdminListStats(supabase, "applications", ["unread"]),
+      fetchAdminListStats(supabase, "contact_messages", ["unread"]),
+    ]);
+
+    return {
+      unread: {
+        registrations: registrations.unread,
+        applications: applications.unread,
+        contactMessages: contactMessages.unread,
+      },
+    };
+  });
+
+  if (gated.status === "forbidden") return gated;
+  return { status: "ok", unread: gated.unread };
+}

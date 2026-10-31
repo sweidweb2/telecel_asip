@@ -99,4 +99,22 @@ describe("refreshAdminResource", () => {
     );
     expect(revalidateTag).toHaveBeenCalledWith("blogs", "max");
   });
+
+  it("skips the nav-count tag when bustNavCounts is false", () => {
+    revalidatePath.mockClear();
+    revalidateTag.mockClear();
+
+    refreshAdminResource({
+      listPath: ROUTES.applications,
+      cacheTags: ["applications"],
+      bustNavCounts: false,
+    });
+
+    expect(revalidatePath).toHaveBeenCalledWith(ROUTES.applications);
+    expect(revalidateTag).toHaveBeenCalledWith("applications", "max");
+    expect(revalidateTag).not.toHaveBeenCalledWith(
+      DASHBOARD_NAV_COUNTS_CACHE_TAG,
+      "max",
+    );
+  });
 });

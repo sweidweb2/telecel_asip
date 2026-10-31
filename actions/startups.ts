@@ -4,7 +4,6 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { ROUTES } from "@/constants/routes";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
-import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
@@ -51,8 +50,7 @@ const LOGO_MAX_BYTES = UPLOAD_MAX_BYTES;
 
 function refreshStartupPaths(slug?: string, id?: string) {
   revalidateTag(STARTUPS_CACHE_TAG, "max");
-  // Insights embed related startup names — bust blog cache on rename/link changes.
-  revalidateTag(BLOGS_CACHE_TAG, "max");
+  // Related insight links are tagged with STARTUPS_CACHE_TAG already — no blogs tag.
   revalidateDashboardNavCounts();
   revalidatePath(ROUTES.portfolio);
   if (id) {
