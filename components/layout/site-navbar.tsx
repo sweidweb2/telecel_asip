@@ -6,7 +6,11 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
 import { useState } from "react";
 
-import type { SiteNavLabels } from "@/components/layout/site-nav-labels";
+import {
+  isNavGroup,
+  type NavEntry,
+  type SiteNavLabels,
+} from "@/components/layout/site-nav-labels";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +40,16 @@ function isNavActive(pathname: string, href: string, locale: Locale) {
     pathname === href ||
     (href !== `/${locale}` && pathname.startsWith(`${href}/`))
   );
+}
+
+function isEntryActive(pathname: string, entry: NavEntry, locale: Locale) {
+  if (isNavGroup(entry)) {
+    return (
+      isNavActive(pathname, entry.href, locale) ||
+      entry.children.some((child) => isNavActive(pathname, child.href, locale))
+    );
+  }
+  return isNavActive(pathname, entry.href, locale);
 }
 
 function LanguageToggle({
@@ -83,9 +97,6 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const homeHref = publicPath(locale, "");
-  const foundersHref = publicPath(locale, "founders");
-  const alumniHref = publicPath(locale, "alumni");
-  const alumniItem = labels.items.find((item) => item.href === alumniHref);
 
   const desktopLinkClass = (active: boolean) =>
     cn(
@@ -122,69 +133,58 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1"
           aria-label="Primary"
         >
-          {labels.items
-            .filter((item) => item.href !== alumniHref)
-            .map((item) => {
-              const active =
-                isNavActive(pathname, item.href, locale) ||
-                (item.href === foundersHref &&
-                  pathname.startsWith(alumniHref));
+          {labels.items.map((entry) => {
+            const active = isEntryActive(pathname, entry, locale);
 
-              if (item.href === foundersHref) {
-                return (
-                  <DropdownMenu key={item.href} modal={false}>
-                    <DropdownMenuTrigger
-                      className={cn(
-                        desktopLinkClass(active),
-                        "cursor-pointer border-0 [&_svg]:transition-transform [&_svg]:duration-200 data-popup-open:[&_svg]:rotate-180",
-                      )}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        {item.label}
-                        <ChevronDownIcon
-                          className="size-3.5 opacity-70"
-                          aria-hidden
-                        />
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      sideOffset={4}
-                      className="w-64 min-w-64 origin-top gap-1 rounded-md border p-2 shadow-md ring-0 duration-200 ease-out data-closed:slide-out-to-top-2 data-open:slide-in-from-top-2"
-                    >
+            if (isNavGroup(entry)) {
+              return (
+                <DropdownMenu key={entry.href} modal={false}>
+                  <DropdownMenuTrigger
+                    className={cn(
+                      desktopLinkClass(active),
+                      "cursor-pointer border-0 [&_svg]:transition-transform [&_svg]:duration-200 data-popup-open:[&_svg]:rotate-180",
+                    )}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {entry.label}
+                      <ChevronDownIcon
+                        className="size-3.5 opacity-70"
+                        aria-hidden
+                      />
+                    </span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    sideOffset={4}
+                    className="w-64 min-w-64 origin-top gap-1 rounded-md border p-2 shadow-md ring-0 duration-200 ease-out data-closed:slide-out-to-top-2 data-open:slide-in-from-top-2"
+                  >
+                    {entry.children.map((child) => (
                       <DropdownMenuItem
+                        key={child.href}
                         className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
                         nativeButton={false}
-                        render={<Link href={foundersHref} />}
+                        render={<Link href={child.href} />}
                       >
-                        {labels.foundersDirectory}
+                        {child.label}
                       </DropdownMenuItem>
-                      {alumniItem ? (
-                        <DropdownMenuItem
-                          className="min-h-12 cursor-pointer rounded-sm px-4 py-3 text-sm font-semibold"
-                          nativeButton={false}
-                          render={<Link href={alumniItem.href} />}
-                        >
-                          {alumniItem.label}
-                        </DropdownMenuItem>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={desktopLinkClass(active)}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               );
-            })}
+            }
+
+            return (
+              <Link
+                key={entry.href}
+                href={entry.href}
+                className={desktopLinkClass(active)}
+                aria-current={active ? "page" : undefined}
+              >
+                {entry.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden shrink-0 items-center gap-3 lg:flex xl:gap-4">
@@ -235,21 +235,51 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                 className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4 py-5"
                 aria-label="Primary"
               >
-                {labels.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      buttonVariants({ variant: "ghost" }),
-                      "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
-                      isNavActive(pathname, item.href, locale) &&
-                        "bg-[#179191]/10 font-semibold text-[#179191]",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {labels.items.map((entry) => {
+                  if (isNavGroup(entry)) {
+                    return (
+                      <div
+                        key={entry.href}
+                        className="flex flex-col gap-1.5"
+                      >
+                        <p className="shrink-0 px-4 pt-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {entry.label}
+                        </p>
+                        {entry.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={() => setOpen(false)}
+                            className={cn(
+                              buttonVariants({ variant: "ghost" }),
+                              "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
+                              isNavActive(pathname, child.href, locale) &&
+                                "bg-[#179191]/10 font-semibold text-[#179191]",
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={entry.href}
+                      href={entry.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "ghost" }),
+                        "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
+                        isNavActive(pathname, entry.href, locale) &&
+                          "bg-[#179191]/10 font-semibold text-[#179191]",
+                      )}
+                    >
+                      {entry.label}
+                    </Link>
+                  );
+                })}
                 <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
                 <p className="mb-1 shrink-0 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {labels.languageGroupLabel}

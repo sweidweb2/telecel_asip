@@ -3,13 +3,28 @@ import type { PublicPageSlug } from "@/constants/public-pages";
 import { publicPath } from "@/constants/routes";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
+export type NavLeaf = {
+  kind: "link";
+  href: string;
+  label: string;
+};
+
+export type NavGroup = {
+  kind: "group";
+  href: string;
+  label: string;
+  children: NavLeaf[];
+};
+
+export type NavEntry = NavLeaf | NavGroup;
+
 export type NavItem = {
   href: string;
   label: string;
 };
 
 export type SiteNavLabels = {
-  items: NavItem[];
+  items: NavEntry[];
   languageGroupLabel: string;
   menuLabel: string;
   /** Short line beside the language toggle and inside the mobile sheet. */
@@ -19,26 +34,29 @@ export type SiteNavLabels = {
   apply: NavItem;
 };
 
+export function isNavGroup(entry: NavEntry): entry is NavGroup {
+  return entry.kind === "group";
+}
+
 /**
- * Header order is one list. Each locale only supplies labels.
+ * Header order is one tree. Each locale only supplies labels.
  * Footer groups stay in `site-footer-labels.ts`.
  * The CTA follows `open_applications`: Apply while a cohort is open,
  * Register Interest otherwise. Contact, FAQ, and legal pages live in the footer.
  */
-const HEADER_NAV_SLUGS = [
+const HEADER_LEAF_SLUGS = [
   "",
   "about",
   "programme",
-  "founders",
-  "alumni",
   "impact",
   "partners",
   "insights",
 ] as const satisfies readonly PublicPageSlug[];
 
-type HeaderNavSlug = (typeof HEADER_NAV_SLUGS)[number];
+type HeaderLeafSlug = (typeof HEADER_LEAF_SLUGS)[number];
+type HeaderLabelSlug = HeaderLeafSlug | "founders" | "alumni";
 
-const HEADER_NAV_LABELS: Record<Locale, Record<HeaderNavSlug, string>> = {
+const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   en: {
     "": "Home",
     about: "About",
@@ -82,14 +100,47 @@ const NAV_CHROME: Record<
   },
 };
 
+function leaf(locale: Locale, slug: HeaderLeafSlug): NavLeaf {
+  return {
+    kind: "link",
+    href: publicPath(locale, slug),
+    label: HEADER_NAV_LABELS[locale][slug],
+  };
+}
+
 function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
   const intake = intakeCtaFor(locale, openApplications);
+  const chrome = NAV_CHROME[locale];
+  const labels = HEADER_NAV_LABELS[locale];
+  const foundersHref = publicPath(locale, "founders");
+
   return {
-    ...NAV_CHROME[locale],
-    items: HEADER_NAV_SLUGS.map((slug) => ({
-      href: publicPath(locale, slug),
-      label: HEADER_NAV_LABELS[locale][slug],
-    })),
+    ...chrome,
+    items: [
+      leaf(locale, ""),
+      leaf(locale, "about"),
+      leaf(locale, "programme"),
+      {
+        kind: "group",
+        href: foundersHref,
+        label: labels.founders,
+        children: [
+          {
+            kind: "link",
+            href: foundersHref,
+            label: chrome.foundersDirectory,
+          },
+          {
+            kind: "link",
+            href: publicPath(locale, "alumni"),
+            label: labels.alumni,
+          },
+        ],
+      },
+      leaf(locale, "impact"),
+      leaf(locale, "partners"),
+      leaf(locale, "insights"),
+    ],
     apply: { href: intake.href, label: intake.label },
   };
 }
