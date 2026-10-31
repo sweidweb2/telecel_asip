@@ -4,10 +4,7 @@ import "./marketing.css";
 
 import { AmbientMusicControlLazy } from "@/components/layout/ambient-music-control-lazy";
 import { ApplicationStatusBanner } from "@/components/layout/application-status-banner";
-import {
-  enFooterLabels,
-  frFooterLabels,
-} from "@/components/layout/site-footer-labels";
+import { footerLabelsFor } from "@/components/layout/site-footer-labels";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navLabelsFor } from "@/components/layout/site-nav-labels";
 import { SiteNavbar } from "@/components/layout/site-navbar";
@@ -27,10 +24,7 @@ export default async function MarketingLayout({
     localeFromParams(params),
     getOpenApplications(),
   ]);
-  const footerLabels =
-    locale === "fr"
-      ? frFooterLabels(openApplications)
-      : enFooterLabels(openApplications);
+  const footerLabels = footerLabelsFor(locale, openApplications);
 
   return (
     <div className="flex flex-1 flex-col scheme-light">

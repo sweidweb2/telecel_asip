@@ -47,19 +47,31 @@ export type SiteFooterLabels = {
   login: FooterLink;
 };
 
-function links(
-  locale: Locale,
-  entries: { slug: PublicPageSlug; label: string }[]
-): FooterLink[] {
-  return entries.map(({ slug, label }) => ({
-    href: publicPath(locale, slug),
-    label,
-  }));
-}
+type FooterStrings = {
+  brand: string;
+  headline: string;
+  statement: string;
+  exploreHeading: string;
+  programmeHeading: string;
+  connectHeading: string;
+  socialHeading: string;
+  parentLabel: string;
+  contactLabel: string;
+  /** Year is interpolated at call time. */
+  copyright: (year: number) => string;
+  loginLabel: string;
+  explore: { slug: PublicPageSlug; label: string }[];
+  /** Programme links before the intake CTA. */
+  programmeBefore: { slug: PublicPageSlug; label: string }[];
+  /** Programme links after the intake CTA. */
+  programmeAfter: { slug: PublicPageSlug; label: string }[];
+  connect: { slug: PublicPageSlug; label: string }[];
+  legal: { slug: PublicPageSlug; label: string }[];
+  cookiesLabel: string;
+};
 
-export function enFooterLabels(openApplications = false): SiteFooterLabels {
-  const intake = intakeCtaFor("en", openApplications);
-  return {
+const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
+  en: {
     brand: "ASIP",
     headline: "African founders. Built to scale.",
     statement:
@@ -67,47 +79,34 @@ export function enFooterLabels(openApplications = false): SiteFooterLabels {
     exploreHeading: "Explore",
     programmeHeading: "Programme",
     connectHeading: "Contact",
-    explore: links("en", [
+    socialHeading: "Follow",
+    parentLabel: "Telecel Group",
+    contactLabel: "Contact ASIP",
+    copyright: (year) =>
+      `© ${year} Telecel Group. All rights reserved.`,
+    loginLabel: "Login",
+    explore: [
       { slug: "", label: "Home" },
       { slug: "about", label: "About" },
       { slug: "founders", label: "Founders" },
       { slug: "insights", label: "Insights" },
-    ]),
-    programme: [
-      ...links("en", [
-        { slug: "programme", label: "The programme" },
-        { slug: "impact", label: "Impact" },
-      ]),
-      { href: intake.href, label: intake.label },
-      ...links("en", [{ slug: "faq", label: "FAQ" }]),
     ],
-    connect: links("en", [
+    programmeBefore: [
+      { slug: "programme", label: "The programme" },
+      { slug: "impact", label: "Impact" },
+    ],
+    programmeAfter: [{ slug: "faq", label: "FAQ" }],
+    connect: [
       { slug: "contact", label: "Contact" },
       { slug: "partners", label: "Partner with us" },
-    ]),
-    socialHeading: "Follow",
-    social: [],
-    parent: { href: TELECEL_GROUP_URL, label: "Telecel Group" },
-    contact: { href: publicPath("en", "contact"), label: "Contact ASIP" },
-    copyright: `© ${new Date().getFullYear()} Telecel Group. All rights reserved.`,
-    legal: [
-      ...links("en", [
-        { slug: "terms", label: "Terms of Service" },
-        { slug: "privacy", label: "Privacy Policy" },
-      ]),
-      {
-        href: `${publicPath("en", "privacy")}${COOKIES_ANCHOR}`,
-        label: "Cookie preferences",
-      },
     ],
-    apply: { href: intake.href, label: intake.label },
-    login: { href: authPath("en", "login"), label: "Login" },
-  };
-}
-
-export function frFooterLabels(openApplications = false): SiteFooterLabels {
-  const intake = intakeCtaFor("fr", openApplications);
-  return {
+    legal: [
+      { slug: "terms", label: "Terms of Service" },
+      { slug: "privacy", label: "Privacy Policy" },
+    ],
+    cookiesLabel: "Cookie preferences",
+  },
+  fr: {
     brand: "ASIP",
     headline: "Fondateurs africains. Faits pour grandir.",
     statement:
@@ -115,40 +114,94 @@ export function frFooterLabels(openApplications = false): SiteFooterLabels {
     exploreHeading: "Explorer",
     programmeHeading: "Programme",
     connectHeading: "Contact",
-    explore: links("fr", [
+    socialHeading: "Suivre",
+    parentLabel: "Groupe Telecel",
+    contactLabel: "Contacter ASIP",
+    copyright: (year) =>
+      `© ${year} Groupe Telecel. Tous droits réservés.`,
+    loginLabel: "Connexion",
+    explore: [
       { slug: "", label: "Accueil" },
       { slug: "about", label: "À propos" },
       { slug: "founders", label: "Fondateurs" },
       { slug: "insights", label: "Perspectives" },
-    ]),
-    programme: [
-      ...links("fr", [
-        { slug: "programme", label: "Le programme" },
-        { slug: "impact", label: "Impact" },
-      ]),
-      { href: intake.href, label: intake.label },
-      ...links("fr", [{ slug: "faq", label: "FAQ" }]),
     ],
-    connect: links("fr", [
+    programmeBefore: [
+      { slug: "programme", label: "Le programme" },
+      { slug: "impact", label: "Impact" },
+    ],
+    programmeAfter: [{ slug: "faq", label: "FAQ" }],
+    connect: [
       { slug: "contact", label: "Nous contacter" },
       { slug: "partners", label: "Devenir partenaire" },
-    ]),
-    socialHeading: "Suivre",
-    social: [],
-    parent: { href: TELECEL_GROUP_URL, label: "Groupe Telecel" },
-    contact: { href: publicPath("fr", "contact"), label: "Contacter ASIP" },
-    copyright: `© ${new Date().getFullYear()} Groupe Telecel. Tous droits réservés.`,
+    ],
     legal: [
-      ...links("fr", [
-        { slug: "terms", label: "Conditions d’utilisation" },
-        { slug: "privacy", label: "Politique de confidentialité" },
-      ]),
+      { slug: "terms", label: "Conditions d’utilisation" },
+      { slug: "privacy", label: "Politique de confidentialité" },
+    ],
+    cookiesLabel: "Préférences de cookies",
+  },
+};
+
+function links(
+  locale: Locale,
+  entries: { slug: PublicPageSlug; label: string }[],
+): FooterLink[] {
+  return entries.map(({ slug, label }) => ({
+    href: publicPath(locale, slug),
+    label,
+  }));
+}
+
+/**
+ * One footer structure; each locale only supplies strings.
+ * Explore / Programme / Contact groups stay separate from the header tree.
+ */
+export function footerLabelsFor(
+  locale: Locale,
+  openApplications = false,
+): SiteFooterLabels {
+  const intake = intakeCtaFor(locale, openApplications);
+  const strings = FOOTER_STRINGS[locale];
+
+  return {
+    brand: strings.brand,
+    headline: strings.headline,
+    statement: strings.statement,
+    exploreHeading: strings.exploreHeading,
+    programmeHeading: strings.programmeHeading,
+    connectHeading: strings.connectHeading,
+    explore: links(locale, strings.explore),
+    programme: [
+      ...links(locale, strings.programmeBefore),
+      { href: intake.href, label: intake.label },
+      ...links(locale, strings.programmeAfter),
+    ],
+    connect: links(locale, strings.connect),
+    socialHeading: strings.socialHeading,
+    social: [],
+    parent: { href: TELECEL_GROUP_URL, label: strings.parentLabel },
+    contact: {
+      href: publicPath(locale, "contact"),
+      label: strings.contactLabel,
+    },
+    copyright: strings.copyright(new Date().getFullYear()),
+    legal: [
+      ...links(locale, strings.legal),
       {
-        href: `${publicPath("fr", "privacy")}${COOKIES_ANCHOR}`,
-        label: "Préférences de cookies",
+        href: `${publicPath(locale, "privacy")}${COOKIES_ANCHOR}`,
+        label: strings.cookiesLabel,
       },
     ],
     apply: { href: intake.href, label: intake.label },
-    login: { href: authPath("fr", "login"), label: "Connexion" },
+    login: { href: authPath(locale, "login"), label: strings.loginLabel },
   };
+}
+
+export function enFooterLabels(openApplications = false): SiteFooterLabels {
+  return footerLabelsFor("en", openApplications);
+}
+
+export function frFooterLabels(openApplications = false): SiteFooterLabels {
+  return footerLabelsFor("fr", openApplications);
 }
