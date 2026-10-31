@@ -1,9 +1,31 @@
+import {
+  BarChart3Icon,
+  BookOpenIcon,
+  BriefcaseIcon,
+  CalendarIcon,
+  ChartColumnIcon,
+  ClipboardListIcon,
+  HandshakeIcon,
+  LayoutDashboardIcon,
+  MailIcon,
+  MailsIcon,
+  NewspaperIcon,
+  SettingsIcon,
+  ShieldCheckIcon,
+  UserPlusIcon,
+  UsersIcon,
+  UsersRoundIcon,
+  type LucideIcon,
+} from "lucide-react";
+
 import { ADMIN_RESOURCES } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
+import { isStaffNavActive } from "@/constants/staff-nav";
 
 export type DashboardNavItem = {
   title: string;
   href: string;
+  icon: LucideIcon;
 };
 
 export type DashboardNavGroup = {
@@ -17,7 +39,13 @@ export type DashboardNavGroup = {
 export const DASHBOARD_NAV_GROUPS = [
   {
     label: "Overview",
-    items: [{ title: "Dashboard", href: ROUTES.dashboard }],
+    items: [
+      {
+        title: "Dashboard",
+        href: ROUTES.dashboard,
+        icon: LayoutDashboardIcon,
+      },
+    ],
   },
   {
     label: "Pipeline",
@@ -25,50 +53,98 @@ export const DASHBOARD_NAV_GROUPS = [
       {
         title: ADMIN_RESOURCES.registrations.navTitle,
         href: ROUTES.registrations,
+        icon: UserPlusIcon,
       },
       {
         title: ADMIN_RESOURCES.applications.navTitle,
         href: ROUTES.applications,
+        icon: ClipboardListIcon,
       },
-      { title: ADMIN_RESOURCES.contactUs.navTitle, href: ROUTES.contactUs },
-      { title: ADMIN_RESOURCES.newsletter.navTitle, href: ROUTES.newsletter },
+      {
+        title: ADMIN_RESOURCES.contactUs.navTitle,
+        href: ROUTES.contactUs,
+        icon: MailIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.newsletter.navTitle,
+        href: ROUTES.newsletter,
+        icon: MailsIcon,
+      },
     ],
   },
   {
     label: "Founders",
     items: [
-      { title: ADMIN_RESOURCES.cohorts.navTitle, href: ROUTES.cohorts },
+      {
+        title: ADMIN_RESOURCES.cohorts.navTitle,
+        href: ROUTES.cohorts,
+        icon: UsersRoundIcon,
+      },
       {
         title: ADMIN_RESOURCES.founderStories.navTitle,
         href: ROUTES.founderStories,
+        icon: BookOpenIcon,
       },
     ],
   },
   {
     label: "Content",
     items: [
-      { title: ADMIN_RESOURCES.blogs.navTitle, href: ROUTES.blogs },
-      { title: ADMIN_RESOURCES.portfolio.navTitle, href: ROUTES.portfolio },
-      { title: ADMIN_RESOURCES.partners.navTitle, href: ROUTES.partners },
+      {
+        title: ADMIN_RESOURCES.blogs.navTitle,
+        href: ROUTES.blogs,
+        icon: NewspaperIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.portfolio.navTitle,
+        href: ROUTES.portfolio,
+        icon: BriefcaseIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.partners.navTitle,
+        href: ROUTES.partners,
+        icon: HandshakeIcon,
+      },
     ],
   },
   {
     label: "Programme",
     items: [
-      { title: ADMIN_RESOURCES.events.navTitle, href: ROUTES.events },
-      { title: ADMIN_RESOURCES.evidence.navTitle, href: ROUTES.evidence },
+      {
+        title: ADMIN_RESOURCES.events.navTitle,
+        href: ROUTES.events,
+        icon: CalendarIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.evidence.navTitle,
+        href: ROUTES.evidence,
+        icon: ShieldCheckIcon,
+      },
       {
         title: ADMIN_RESOURCES.impactMetrics.navTitle,
         href: ROUTES.impactMetrics,
+        icon: ChartColumnIcon,
       },
     ],
   },
   {
     label: "System",
     items: [
-      { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.users },
-      { title: "Analytics", href: ROUTES.analytics },
-      { title: "Settings", href: ROUTES.settings },
+      {
+        title: ADMIN_RESOURCES.users.navTitle,
+        href: ROUTES.users,
+        icon: UsersIcon,
+      },
+      {
+        title: "Analytics",
+        href: ROUTES.analytics,
+        icon: BarChart3Icon,
+      },
+      {
+        title: "Settings",
+        href: ROUTES.settings,
+        icon: SettingsIcon,
+      },
     ],
   },
 ] as const satisfies readonly DashboardNavGroup[];
@@ -148,10 +224,7 @@ const DASHBOARD_EDIT_TITLES: ReadonlyArray<{ base: string; title: string }> = [
  * `/dashboard` is exact-only so it does not steal active state from every page.
  */
 export function isDashboardNavActive(pathname: string, href: string) {
-  if (href === ROUTES.dashboard) {
-    return pathname === ROUTES.dashboard;
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return isStaffNavActive(pathname, href, ROUTES.dashboard);
 }
 
 /**

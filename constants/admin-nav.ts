@@ -1,5 +1,15 @@
+import {
+  DatabaseBackupIcon,
+  LayoutDashboardIcon,
+  MapPinnedIcon,
+  SettingsIcon,
+  TimerIcon,
+  UsersIcon,
+} from "lucide-react";
+
 import { ADMIN_RESOURCES } from "@/constants/admin-resources";
 import { ROUTES } from "@/constants/routes";
+import { isStaffNavActive } from "@/constants/staff-nav";
 import type {
   DashboardNavGroup,
   DashboardNavItem,
@@ -13,12 +23,36 @@ export const ADMIN_NAV_GROUPS = [
   {
     label: "Admin",
     items: [
-      { title: "Overview", href: ROUTES.admin },
-      { title: ADMIN_RESOURCES.users.navTitle, href: ROUTES.adminUsers },
-      { title: "Settings", href: ROUTES.adminSettings },
-      { title: "Performance", href: ROUTES.adminPerformance },
-      { title: "Backup", href: ROUTES.adminBackup },
-      { title: "Catalog", href: ROUTES.adminCatalog },
+      {
+        title: "Overview",
+        href: ROUTES.admin,
+        icon: LayoutDashboardIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.users.navTitle,
+        href: ROUTES.adminUsers,
+        icon: UsersIcon,
+      },
+      {
+        title: "Settings",
+        href: ROUTES.adminSettings,
+        icon: SettingsIcon,
+      },
+      {
+        title: "Performance",
+        href: ROUTES.adminPerformance,
+        icon: TimerIcon,
+      },
+      {
+        title: "Backup",
+        href: ROUTES.adminBackup,
+        icon: DatabaseBackupIcon,
+      },
+      {
+        title: "Catalog",
+        href: ROUTES.adminCatalog,
+        icon: MapPinnedIcon,
+      },
     ],
   },
 ] as const satisfies readonly DashboardNavGroup[];
@@ -36,10 +70,7 @@ export const ADMIN_SEARCH_PAGES: readonly DashboardSearchPage[] =
   );
 
 export function isAdminNavActive(pathname: string, href: string) {
-  if (href === ROUTES.admin) {
-    return pathname === ROUTES.admin;
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return isStaffNavActive(pathname, href, ROUTES.admin);
 }
 
 export function getAdminPageTitle(pathname: string) {

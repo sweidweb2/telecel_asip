@@ -4,28 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense, use } from "react";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3Icon,
-  BookOpenIcon,
-  BriefcaseIcon,
-  CalendarIcon,
-  ChartColumnIcon,
-  ClipboardListIcon,
-  DatabaseBackupIcon,
-  HandshakeIcon,
-  LayoutDashboardIcon,
-  MailIcon,
-  MailsIcon,
-  MapPinnedIcon,
-  NewspaperIcon,
-  SettingsIcon,
-  ShieldCheckIcon,
-  TimerIcon,
-  UserPlusIcon,
-  UsersIcon,
-  UsersRoundIcon,
-  type LucideIcon,
-} from "lucide-react";
 
 import {
   Sidebar,
@@ -44,61 +22,27 @@ import {
 } from "@/components/ui/sidebar";
 import {
   DASHBOARD_NAV_GROUPS,
-  isDashboardNavActive,
   type DashboardNavGroup,
 } from "@/constants/dashboard-nav";
 import {
   isDashboardNavCountHref,
   type DashboardNavCounts,
 } from "@/constants/dashboard-nav-counts";
-import { isAdminNavActive } from "@/constants/admin-nav";
 import { ROUTES } from "@/constants/routes";
+import { isStaffNavActive } from "@/constants/staff-nav";
 import { cn } from "@/lib/utils";
-
-const NAV_ICONS: Record<string, LucideIcon> = {
-  [ROUTES.dashboard]: LayoutDashboardIcon,
-  [ROUTES.users]: UsersIcon,
-  [ROUTES.adminUsers]: UsersIcon,
-  [ROUTES.registrations]: UserPlusIcon,
-  [ROUTES.applications]: ClipboardListIcon,
-  [ROUTES.portfolio]: BriefcaseIcon,
-  [ROUTES.blogs]: NewspaperIcon,
-  [ROUTES.cohorts]: UsersRoundIcon,
-  [ROUTES.partners]: HandshakeIcon,
-  [ROUTES.founderStories]: BookOpenIcon,
-  [ROUTES.evidence]: ShieldCheckIcon,
-  [ROUTES.impactMetrics]: ChartColumnIcon,
-  [ROUTES.events]: CalendarIcon,
-  [ROUTES.contactUs]: MailIcon,
-  [ROUTES.newsletter]: MailsIcon,
-  [ROUTES.analytics]: BarChart3Icon,
-  [ROUTES.adminPerformance]: TimerIcon,
-  [ROUTES.adminBackup]: DatabaseBackupIcon,
-  [ROUTES.adminCatalog]: MapPinnedIcon,
-  [ROUTES.settings]: SettingsIcon,
-  [ROUTES.adminSettings]: SettingsIcon,
-};
 
 function formatNavCount(count: number) {
   if (count > 999) return "999+";
   return String(count);
 }
 
-function isNavActive(pathname: string, href: string, homeHref: string) {
-  if (homeHref.startsWith(ROUTES.admin)) {
-    return isAdminNavActive(pathname, href);
-  }
-  return isDashboardNavActive(pathname, href);
-}
-
 export function AppSidebar({
-  counts = {},
   countsPromise,
   homeHref = ROUTES.dashboard,
   brandLabel = "Editor panel",
   navGroups = DASHBOARD_NAV_GROUPS,
 }: {
-  counts?: DashboardNavCounts;
   countsPromise?: Promise<DashboardNavCounts>;
   homeHref?: string;
   brandLabel?: string;
@@ -160,12 +104,9 @@ export function AppSidebar({
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const Icon = NAV_ICONS[item.href];
+                  const Icon = item.icon;
                   const expectsCount =
                     Boolean(countsPromise) && isDashboardNavCountHref(item.href);
-                  const resolvedCount = counts[item.href];
-                  const hasResolvedCount = typeof resolvedCount === "number";
-                  const showBadge = hasResolvedCount || expectsCount;
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -173,24 +114,24 @@ export function AppSidebar({
                         render={
                           <Link href={item.href} onClick={closeMobileSidebar} />
                         }
-                        isActive={isNavActive(pathname, item.href, homeHref)}
+                        isActive={isStaffNavActive(
+                          pathname,
+                          item.href,
+                          homeHref,
+                        )}
                         tooltip={item.title}
-                        className={showBadge ? "pr-8" : undefined}
+                        className={expectsCount ? "pr-8" : undefined}
                       >
-                        {Icon ? <Icon /> : null}
+                        <Icon />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
-                      {showBadge ? (
-                        countsPromise && expectsCount ? (
-                          <Suspense fallback={null}>
-                            <NavItemBadgeFromPromise
-                              href={item.href}
-                              countsPromise={countsPromise}
-                            />
-                          </Suspense>
-                        ) : hasResolvedCount ? (
-                          <NavItemBadge count={resolvedCount} />
-                        ) : null
+                      {expectsCount && countsPromise ? (
+                        <Suspense fallback={null}>
+                          <NavItemBadgeFromPromise
+                            href={item.href}
+                            countsPromise={countsPromise}
+                          />
+                        </Suspense>
                       ) : null}
                     </SidebarMenuItem>
                   );
