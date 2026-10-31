@@ -22,9 +22,17 @@ const HomePlatformModelSection = dynamic(() =>
   ),
 );
 
+type HomeImpactMetric = Pick<
+  ImpactMetricPublicItem,
+  "id" | "claim_label" | "value" | "unit"
+> & {
+  period_start?: string | null;
+  period_end?: string | null;
+};
+
 type HomePageContentProps = {
   locale: Locale;
-  metrics: ImpactMetricPublicItem[];
+  metrics: HomeImpactMetric[];
   intake: IntakeCta;
   /** Below-fold insights — owned by the home route so `data/` stays out of components. */
   latestInsights: ReactNode;

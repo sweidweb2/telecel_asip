@@ -9,9 +9,17 @@ import { cn } from "@/lib/utils";
 import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 import type { HomePageCopy } from "@/types/marketing-page";
 
+type HomeImpactYearsMetric = Pick<
+  ImpactMetricPublicItem,
+  "id" | "claim_label" | "value" | "unit"
+> & {
+  period_start?: string | null;
+  period_end?: string | null;
+};
+
 type HomeImpactYearsSectionProps = {
   copy: HomePageCopy["impactYears"];
-  metrics: ImpactMetricPublicItem[];
+  metrics: HomeImpactYearsMetric[];
   className?: string;
 };
 
