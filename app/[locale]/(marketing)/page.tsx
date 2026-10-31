@@ -7,6 +7,7 @@ import { HomeLatestInsightsLoader } from "./home-latest-insights-loader";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getOpenApplications } from "@/data/settings";
 import { localeFromParams } from "@/lib/i18n/locale-params";
+import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 type PageProps = {
@@ -42,12 +43,13 @@ export default async function Page({ params }: PageProps) {
     getHomeImpactMetrics(),
     getOpenApplications(),
   ]);
+  const intake = intakeCtaFor(locale, openApplications);
 
   return (
     <HomePageContent
       locale={locale}
       metrics={metrics}
-      openApplications={openApplications}
+      intake={intake}
       latestInsights={
         <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
           <HomeLatestInsightsLoader locale={locale} />

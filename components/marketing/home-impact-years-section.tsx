@@ -6,20 +6,12 @@ import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern
 import { SectionEyebrow } from "@/components/marketing/page-elements";
 import { metricPeriod } from "@/lib/marketing/metric-period";
 import { cn } from "@/lib/utils";
+import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 import type { HomePageCopy } from "@/types/marketing-page";
-
-export type HomeImpactYearsMetric = {
-  id: string;
-  claim_label: string;
-  value: string;
-  unit: string | null;
-  period_start?: string | null;
-  period_end?: string | null;
-};
 
 type HomeImpactYearsSectionProps = {
   copy: HomePageCopy["impactYears"];
-  metrics: HomeImpactYearsMetric[];
+  metrics: ImpactMetricPublicItem[];
   className?: string;
 };
 

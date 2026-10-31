@@ -12,8 +12,9 @@ import { HomeTelecelConnectionSection } from "@/components/marketing/home-telece
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
+import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 
 const HomePlatformModelSection = dynamic(() =>
   import("@/components/marketing/home-platform-model-section").then(
@@ -21,19 +22,10 @@ const HomePlatformModelSection = dynamic(() =>
   ),
 );
 
-type HomeImpactMetric = {
-  id: string;
-  claim_label: string;
-  value: string;
-  unit: string | null;
-  period_start?: string | null;
-  period_end?: string | null;
-};
-
 type HomePageContentProps = {
   locale: Locale;
-  metrics: HomeImpactMetric[];
-  openApplications: boolean;
+  metrics: ImpactMetricPublicItem[];
+  intake: IntakeCta;
   /** Below-fold insights — owned by the home route so `data/` stays out of components. */
   latestInsights: ReactNode;
 };
@@ -41,11 +33,10 @@ type HomePageContentProps = {
 export function HomePageContent({
   locale,
   metrics,
-  openApplications,
+  intake,
   latestInsights,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
-  const intake = intakeCtaFor(locale, openApplications);
 
   return (
     <main>
