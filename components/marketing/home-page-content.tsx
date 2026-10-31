@@ -1,13 +1,11 @@
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeCohortFilmSection } from "@/components/marketing/home-cohort-film-section";
 import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
 import { HomeHero } from "@/components/marketing/home-hero";
 import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
-import { HomeLatestInsightsFallback } from "@/components/marketing/home-latest-insights-fallback";
-import { HomeLatestInsightsLoader } from "@/components/marketing/home-latest-insights-loader";
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
@@ -36,12 +34,15 @@ type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
   openApplications: boolean;
+  /** Below-fold insights — owned by the home route so `data/` stays out of components. */
+  latestInsights: ReactNode;
 };
 
 export function HomePageContent({
   locale,
   metrics,
   openApplications,
+  latestInsights,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
   const intake = intakeCtaFor(locale, openApplications);
@@ -89,9 +90,7 @@ export function HomePageContent({
         intake={intake}
       />
 
-      <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
-        <HomeLatestInsightsLoader locale={locale} />
-      </Suspense>
+      {latestInsights}
     </main>
   );
 }

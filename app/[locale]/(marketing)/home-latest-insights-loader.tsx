@@ -9,7 +9,8 @@ type HomeLatestInsightsLoaderProps = {
 
 /**
  * Below-fold home insights — own async boundary so the hero shell is not
- * blocked on the blogs list read.
+ * blocked on the blogs list read. Lives next to the marketing home route
+ * because it calls `data/`.
  */
 export async function HomeLatestInsightsLoader({
   locale,

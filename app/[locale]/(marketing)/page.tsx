@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
+import { HomeLatestInsightsFallback } from "@/components/marketing/home-latest-insights-fallback";
 import { HomePageContent } from "@/components/marketing/home-page-content";
+import { HomeLatestInsightsLoader } from "./home-latest-insights-loader";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getOpenApplications } from "@/data/settings";
 import { localeFromParams } from "@/lib/i18n/locale-params";
@@ -45,6 +48,11 @@ export default async function Page({ params }: PageProps) {
       locale={locale}
       metrics={metrics}
       openApplications={openApplications}
+      latestInsights={
+        <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
+          <HomeLatestInsightsLoader locale={locale} />
+        </Suspense>
+      }
     />
   );
 }
