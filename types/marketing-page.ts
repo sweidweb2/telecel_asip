@@ -341,12 +341,6 @@ export type HomePageCopy = {
       description: string;
     }[];
   };
-  founders: {
-    title: string;
-    description: string;
-    cta: HomePageLink;
-    empty: string;
-  };
   outcomes: {
     eyebrow: string;
     title: string;

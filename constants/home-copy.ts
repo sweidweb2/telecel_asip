@@ -70,14 +70,6 @@ const en: HomePageCopy = {
       },
     ],
   },
-  founders: {
-    title: "Meet the founders building what Africa needs next.",
-    description:
-      "Across financial services, health, agriculture, education, clean technology, commerce and more, ASIP founders are turning first-hand market insight into solutions designed to scale.",
-    cta: { slug: "founders", label: "Explore all founders" },
-    empty:
-      "Founder stories will appear here as verified profiles are published.",
-  },
   outcomes: {
     eyebrow: "Impact",
     title: "The story is what happened next.",
@@ -272,14 +264,6 @@ const fr: HomePageCopy = {
           "Accélérer la croissance d’un marché à l’autre et garder les fondateurs solides proches de l’écosystème.",
       },
     ],
-  },
-  founders: {
-    title: "Les fondateurs qui construisent ce dont l’Afrique a besoin ensuite.",
-    description:
-      "Finance, santé, agriculture, éducation, technologies propres, commerce et plus : les fondateurs ASIP transforment une connaissance de première main du marché en solutions conçues pour grandir.",
-    cta: { slug: "founders", label: "Explorer tous les fondateurs" },
-    empty:
-      "Les parcours des fondateurs apparaîtront ici à mesure que les profils vérifiés sont publiés.",
   },
   outcomes: {
     eyebrow: "Impact",

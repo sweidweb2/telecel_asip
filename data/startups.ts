@@ -12,7 +12,6 @@ import { publicStartupDescription } from "@/lib/marketing/public-startup-descrip
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import type {
-  StartupCountryReach,
   StartupListItem,
   StartupListResult,
   StartupPublicDetail,
@@ -30,8 +29,6 @@ import {
 } from "@/validations/startup";
 
 export const STARTUPS_CACHE_TAG = "startups";
-
-export type { StartupCountryReach };
 
 const LIST_COLUMNS =
   "id, name, slug, logo_url, description, status, founded_at, created_at, updated_at" as const;
@@ -404,27 +401,6 @@ export const getActiveStartupFilterOptions = unstable_cache(
   { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
 );
 
-async function fetchActiveStartupCountryReach(): Promise<StartupCountryReach[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase.rpc(
-    "get_active_startup_country_reach",
-  );
-
-  if (error) throw error;
-
-  return (data ?? []).map((row) => ({
-    countryCode: row.country_code,
-    founderCount: row.founder_count,
-  }));
-}
-
-/** Verified public portfolio reach used by the home footprint graphic. */
-export const getActiveStartupCountryReach = unstable_cache(
-  fetchActiveStartupCountryReach,
-  ["active-startup-country-reach"],
-  { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-);
-
 async function fetchActiveStartupBySlug(
   slug: string,
 ): Promise<StartupPublicDetail | null> {
@@ -509,33 +485,6 @@ async function fetchActiveStartupSlugRows(): Promise<StartupSlugRow[]> {
     if (!row.slug) return [];
     return [{ slug: row.slug, updated_at: row.updated_at ?? new Date(0).toISOString() }];
   });
-}
-
-async function fetchSpotlightStartups(
-  limit: number,
-): Promise<StartupPublicListItem[]> {
-  const supabase = createPublicClient();
-  const { data, error } = await supabase
-    .from("startups_public")
-    .select(PUBLIC_LIST_COLUMNS)
-    .order("featured", { ascending: false })
-    .order("updated_at", { ascending: false })
-    .order("id", { ascending: true })
-    .limit(limit);
-
-  if (error) throw error;
-  return mapPublicListItems(data ?? []);
-}
-
-/** Newest active ventures for the home spotlight and outcome modules. */
-export async function getSpotlightStartups(
-  limit = 5,
-): Promise<StartupPublicListItem[]> {
-  return unstable_cache(
-    () => fetchSpotlightStartups(limit),
-    ["spotlight-startups", String(limit)],
-    { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-  )();
 }
 
 export const getActiveStartupSlugRows = unstable_cache(
