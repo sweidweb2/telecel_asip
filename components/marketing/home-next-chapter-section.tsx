@@ -1,7 +1,11 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import {
+  CoralCtaLink,
+  MarketingCtaRow,
+  OutlineCtaLink,
+  SectionEyebrow,
+} from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
@@ -64,9 +68,7 @@ export function HomeNextChapterSection({
         {/* Mobile order: copy → pillars → CTAs. Desktop: copy + CTAs left, pillars right. */}
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-x-16 lg:gap-y-10">
           <div data-reveal="section" className="lg:col-start-1 lg:row-start-1 lg:self-end">
-            <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-              {copy.eyebrow}
-            </p>
+            <SectionEyebrow>{copy.eyebrow}</SectionEyebrow>
 
             <div className="mt-5 inline-flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-brand/40 bg-brand-subtle px-4 py-1.5 font-heading text-sm font-semibold tracking-tight text-brand sm:text-base">
@@ -137,30 +139,24 @@ export function HomeNextChapterSection({
             })}
           </ol>
 
-          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4 lg:col-start-1 lg:row-start-2 lg:self-start">
-            <Link
+          <MarketingCtaRow className="lg:col-start-1 lg:row-start-2 lg:self-start">
+            <CoralCtaLink
               href={intake.href}
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "group min-h-12 w-full rounded-full bg-asip-coral px-8 text-base text-white hover:bg-asip-coral-hover sm:w-auto",
-              )}
+              className="group min-h-12 text-base"
             >
               {intake.label}
               <ArrowRight
                 aria-hidden
                 className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
               />
-            </Link>
-            <Link
+            </CoralCtaLink>
+            <OutlineCtaLink
               href={secondaryHref}
-              className={cn(
-                buttonVariants({ size: "lg", variant: "outline" }),
-                "min-h-12 w-full rounded-full border-foreground/25 bg-background px-8 text-base text-foreground hover:bg-muted sm:w-auto",
-              )}
+              className="min-h-12 border-foreground/25 bg-background text-base text-foreground hover:bg-muted"
             >
               {copy.secondaryCta.label}
-            </Link>
-          </div>
+            </OutlineCtaLink>
+          </MarketingCtaRow>
         </div>
       </div>
     </section>

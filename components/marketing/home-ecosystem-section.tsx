@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { SectionEyebrow } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
@@ -56,9 +57,7 @@ export function HomeEcosystemSection({
     >
       <div className="mx-auto w-full max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-            Ecosystem
-          </p>
+          <SectionEyebrow>Ecosystem</SectionEyebrow>
           <h2
             id="home-ecosystem-heading"
             className="mt-3 font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:text-4xl"

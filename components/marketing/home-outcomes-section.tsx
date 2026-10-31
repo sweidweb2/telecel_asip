@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   Building2,
   Globe2,
@@ -7,7 +6,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import {
+  CoralCtaLink,
+  MarketingCtaRow,
+  OutlineCtaLink,
+  SectionEyebrow,
+} from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
@@ -55,9 +59,7 @@ export function HomeOutcomesSection({
       <div className="mx-auto w-full max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12 xl:gap-14">
           <div className="min-w-0 lg:max-w-xl lg:pr-4">
-            <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-              {copy.eyebrow}
-            </p>
+            <SectionEyebrow>{copy.eyebrow}</SectionEyebrow>
             <h2
               id="home-outcomes-heading"
               className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -90,26 +92,10 @@ export function HomeOutcomesSection({
               })}
             </dl>
 
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4">
-              <Link
-                href={intake.href}
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
-                )}
-              >
-                {intake.label}
-              </Link>
-              <Link
-                href={impactHref}
-                className={cn(
-                  buttonVariants({ size: "lg", variant: "outline" }),
-                  "min-h-11 w-full rounded-full border-foreground/20 px-8 sm:w-auto",
-                )}
-              >
-                {copy.cta.label}
-              </Link>
-            </div>
+            <MarketingCtaRow className="mt-8 sm:mt-10">
+              <CoralCtaLink href={intake.href}>{intake.label}</CoralCtaLink>
+              <OutlineCtaLink href={impactHref}>{copy.cta.label}</OutlineCtaLink>
+            </MarketingCtaRow>
           </div>
 
           <div className="relative mx-auto w-full max-w-2xl min-w-0 pb-10 sm:pb-14 lg:mx-0 lg:max-w-none lg:pb-16">

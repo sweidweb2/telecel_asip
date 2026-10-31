@@ -52,8 +52,14 @@ export const ROUTES = {
 export type AuthPage = "login" | "signup";
 
 /** Locale-prefixed marketing path. Home slug `""` → `/en` or `/fr`. */
-export function publicPath(locale: Locale, slug: PublicPageSlug = ""): string {
-  return slug === "" ? `/${locale}` : `/${locale}/${slug}`;
+export function publicPath(
+  locale: Locale,
+  slug: PublicPageSlug = "",
+  hash?: string,
+): string {
+  const path = slug === "" ? `/${locale}` : `/${locale}/${slug}`;
+  if (!hash) return path;
+  return `${path}#${hash.replace(/^#/, "")}`;
 }
 
 /** Locale-prefixed auth path, e.g. `/fr/login`. */

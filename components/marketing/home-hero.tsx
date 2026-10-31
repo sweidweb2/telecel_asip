@@ -6,7 +6,11 @@ import "./home-hero.css";
 
 import { HomeHeroContinuum } from "@/components/marketing/home-hero-continuum";
 import { HomeHeroSignal } from "@/components/marketing/home-hero-signal";
-import { buttonVariants } from "@/components/ui/button";
+import {
+  CoralCtaLink,
+  MarketingCtaRow,
+  OutlineCtaLink,
+} from "@/components/marketing/page-elements";
 import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
@@ -119,30 +123,24 @@ export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
             {copy.description}
           </p>
 
-          <div className="mt-9 flex flex-col gap-3.5 sm:mt-11 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <Link
+          <MarketingCtaRow className="mt-9 gap-3.5 sm:mt-11 sm:flex-wrap">
+            <CoralCtaLink
               href={intake.href}
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "group min-h-14 w-full rounded-full bg-asip-coral px-9 text-lg text-white hover:bg-asip-coral-hover sm:w-auto sm:px-10",
-              )}
+              className="group min-h-14 px-9 text-lg sm:px-10"
             >
               {intake.label}
               <ArrowRight
                 aria-hidden
                 className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
               />
-            </Link>
-            <Link
+            </CoralCtaLink>
+            <OutlineCtaLink
               href={foundersHref}
-              className={cn(
-                buttonVariants({ size: "lg", variant: "outline" }),
-                "min-h-14 w-full rounded-full border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:w-auto sm:px-10",
-              )}
+              className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
             >
               {copy.primaryCta.label}
-            </Link>
-          </div>
+            </OutlineCtaLink>
+          </MarketingCtaRow>
         </div>
       </div>
 

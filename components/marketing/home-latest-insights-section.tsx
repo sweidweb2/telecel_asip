@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HomeInsightsCarousel } from "@/components/marketing/home-insights-carousel";
+import { SectionEyebrow } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
@@ -36,9 +37,7 @@ export function HomeLatestInsightsSection({
       <div className="mx-auto w-full max-w-7xl">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-              {copy.eyebrow}
-            </p>
+            <SectionEyebrow>{copy.eyebrow}</SectionEyebrow>
             <h2 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:text-4xl">
               {copy.title}
             </h2>

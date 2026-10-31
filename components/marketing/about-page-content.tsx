@@ -1,13 +1,12 @@
-import Link from "next/link";
-
 import { AboutHero } from "@/components/marketing/about-hero";
 import { AboutNarrativeSections } from "@/components/marketing/about-narrative-sections";
-import { Section } from "@/components/marketing/page-elements";
-import { buttonVariants } from "@/components/ui/button";
+import {
+  CoralCtaLink,
+  Section,
+} from "@/components/marketing/page-elements";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { MarketingPageCopy } from "@/types/marketing-page";
-import { cn } from "@/lib/utils";
 
 type AboutPageContentProps = {
   locale: Locale;
@@ -16,7 +15,7 @@ type AboutPageContentProps = {
 
 export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
   const ctaHref = copy.cta
-    ? `${publicPath(locale, copy.cta.slug)}${copy.cta.hash ? `#${copy.cta.hash}` : ""}`
+    ? publicPath(locale, copy.cta.slug, copy.cta.hash)
     : null;
 
   return (
@@ -28,15 +27,7 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
         heroChips={copy.heroChips}
         action={
           copy.cta && ctaHref ? (
-            <Link
-              href={ctaHref}
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "min-h-11 w-full rounded-full bg-asip-coral px-8 text-white hover:bg-asip-coral-hover sm:w-auto",
-              )}
-            >
-              {copy.cta.label}
-            </Link>
+            <CoralCtaLink href={ctaHref}>{copy.cta.label}</CoralCtaLink>
           ) : null
         }
       />

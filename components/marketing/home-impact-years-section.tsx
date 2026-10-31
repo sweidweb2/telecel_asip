@@ -3,6 +3,7 @@ import Image from "next/image";
 import { HomeImpactGrowthIllustration } from "@/components/marketing/home-impact-growth-illustration";
 import { AnimatedMetricValue } from "@/components/marketing/animated-metric-value";
 import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
+import { SectionEyebrow } from "@/components/marketing/page-elements";
 import { metricPeriod } from "@/lib/marketing/metric-period";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
@@ -78,9 +79,7 @@ export function HomeImpactYearsSection({
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <div className="max-w-xl lg:max-w-lg xl:max-w-xl">
-            <p className="text-xs font-semibold tracking-[0.2em] text-brand uppercase">
-              Impact
-            </p>
+            <SectionEyebrow>Impact</SectionEyebrow>
             <h2
               id="home-impact-years-heading"
               className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl"
