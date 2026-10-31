@@ -315,6 +315,11 @@ export type HomePageCopy = {
     secondaryCta: HomePageLink;
     /** Kept for copy parity; next-chapter CTA lives in that section, not the hero. */
     nextCohort: { label: string; href: string };
+    /**
+     * Accessible labels for `HOME_HERO_CONTINUUM` stills, same order.
+     * The first entry also labels the hero section.
+     */
+    continuumAlts: string[];
   };
   /** Home Module 02 — Cohort film (click-to-play; no autoplay download). */
   cohortFilm: {
@@ -325,6 +330,8 @@ export type HomePageCopy = {
     playLabel: string;
     /** Short visible CTA on the play control. */
     watchLabel: string;
+    /** Accessible description of the film poster still. */
+    posterAlt: string;
   };
   impactYears: {
     title: string;

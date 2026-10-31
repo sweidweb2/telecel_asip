@@ -11,7 +11,7 @@ describe("HomeCohortFilmSection", () => {
 
   it("renders framing copy and a play control without mounting the video", () => {
     const { container } = render(
-      <HomeCohortFilmSection locale="en" copy={copy} />,
+      <HomeCohortFilmSection copy={copy} />,
     );
 
     expect(
@@ -29,7 +29,7 @@ describe("HomeCohortFilmSection", () => {
     HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
 
     const { container } = render(
-      <HomeCohortFilmSection locale="en" copy={copy} />,
+      <HomeCohortFilmSection copy={copy} />,
     );
 
     await user.click(screen.getByRole("button", { name: copy.playLabel }));

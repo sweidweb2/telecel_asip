@@ -17,6 +17,12 @@ const en: HomePageCopy = {
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
     nextCohort: { label: "2026 next chapter", href: "#next-chapter" },
+    continuumAlts: [
+      "ASIP founder focused in conversation at a programme table",
+      "ASIP founders listening during a programme pitch session",
+      "ASIP founders collaborating at a programme working table",
+      "ASIP mentor and founders in conversation at a programme event",
+    ],
   },
   cohortFilm: {
     eyebrow: "Cohort 3",
@@ -25,6 +31,8 @@ const en: HomePageCopy = {
       "Founders building, connecting and presenting during ASIP Cohort 3.",
     playLabel: "Play Cohort 3 film",
     watchLabel: "Watch the film",
+    posterAlt:
+      "ASIP Cohort 3 founders together at a programme event",
   },
   impactYears: {
     title: "Impact, with a paper trail.",
@@ -212,6 +220,12 @@ const fr: HomePageCopy = {
       "ASIP relie des fondateurs technologiques africains à l’expertise, aux voies de financement, à l’accès aux marchés et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },
     secondaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
+    continuumAlts: [
+      "Fondateur ASIP concentré en conversation à une table du programme",
+      "Fondateurs ASIP à l’écoute lors d’une session de pitch du programme",
+      "Fondateurs ASIP collaborant autour d’une table de travail du programme",
+      "Mentor et fondateurs ASIP en conversation lors d’un événement du programme",
+    ],
   },
   cohortFilm: {
     eyebrow: "Cohorte 3",
@@ -220,6 +234,8 @@ const fr: HomePageCopy = {
       "Des fondateurs qui construisent, se connectent et présentent pendant la Cohorte 3 d’ASIP.",
     playLabel: "Lancer le film de la Cohorte 3",
     watchLabel: "Voir le film",
+    posterAlt:
+      "Fondateurs ASIP de la Cohorte 3 réunis lors d’un événement du programme",
   },
   impactYears: {
     title: "Un impact, avec un dossier.",

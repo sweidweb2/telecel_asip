@@ -1,8 +1,7 @@
-import type { Locale } from "@/constants/locales";
-
 /**
  * Home Module 02 — Cohort 3 film.
  * Click-to-play only: the MP4 is not requested until the visitor presses play.
+ * Poster alt lives on `HomePageCopy.cohortFilm.posterAlt`.
  */
 export const HOME_COHORT_FILM = {
   /** Served from `public/video/` — URL-safe name (no spaces). */
@@ -15,9 +14,3 @@ export const HOME_COHORT_FILM = {
   /** Intrinsic poster aspect used for the player frame. */
   aspectRatio: "16 / 9",
 } as const;
-
-export function homeCohortFilmPosterAlt(locale: Locale): string {
-  return locale === "fr"
-    ? "Fondateurs ASIP de la Cohorte 3 réunis lors d’un événement du programme"
-    : "ASIP Cohort 3 founders together at a programme event";
-}

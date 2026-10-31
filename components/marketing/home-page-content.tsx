@@ -68,7 +68,7 @@ export function HomePageContent({
 
       <HomeHero locale={locale} copy={copy.hero} intake={intake} />
 
-      <HomeCohortFilmSection locale={locale} copy={copy.cohortFilm} />
+      <HomeCohortFilmSection copy={copy.cohortFilm} />
 
       <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 

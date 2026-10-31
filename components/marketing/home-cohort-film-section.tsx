@@ -1,11 +1,8 @@
 import { HomeCohortFilmPlayer } from "@/components/marketing/home-cohort-film-player";
-import { homeCohortFilmPosterAlt } from "@/constants/home-cohort-film";
-import type { Locale } from "@/constants/locales";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
 
 type HomeCohortFilmSectionProps = {
-  locale: Locale;
   copy: HomePageCopy["cohortFilm"];
   className?: string;
 };
@@ -24,7 +21,6 @@ const SPECTRUM = [
  * path until the visitor presses play.
  */
 export function HomeCohortFilmSection({
-  locale,
   copy,
   className,
 }: HomeCohortFilmSectionProps) {
@@ -94,7 +90,7 @@ export function HomeCohortFilmSection({
               playLabel={copy.playLabel}
               watchLabel={copy.watchLabel}
               eyebrow={copy.eyebrow}
-              posterAlt={homeCohortFilmPosterAlt(locale)}
+              posterAlt={copy.posterAlt}
             />
           </div>
         </div>

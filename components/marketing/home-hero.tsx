@@ -7,10 +7,7 @@ import "./home-hero.css";
 import { HomeHeroContinuum } from "@/components/marketing/home-hero-continuum";
 import { HomeHeroSignal } from "@/components/marketing/home-hero-signal";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  HOME_HERO_CONTINUUM,
-  homeHeroContinuumAlt,
-} from "@/constants/home-hero-media";
+import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
@@ -41,7 +38,7 @@ type HomeHeroProps = {
  */
 export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
   const foundersHref = publicPath(locale, copy.primaryCta.slug);
-  const continuumLabel = homeHeroContinuumAlt(locale, 0);
+  const continuumLabel = copy.continuumAlts[0] ?? copy.title;
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
   const lastLine = copy.titleLines.length - 1;
 

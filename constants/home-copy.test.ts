@@ -28,6 +28,9 @@ describe("homeCopyFor", () => {
     expect(fr.cohortFilm.playLabel.length).toBeGreaterThan(0);
     expect(en.cohortFilm.watchLabel.length).toBeGreaterThan(0);
     expect(fr.cohortFilm.watchLabel.length).toBeGreaterThan(0);
+    expect(en.cohortFilm.posterAlt.length).toBeGreaterThan(10);
+    expect(fr.cohortFilm.posterAlt.length).toBeGreaterThan(10);
+    expect(en.hero.continuumAlts).toHaveLength(fr.hero.continuumAlts.length);
     expect(en.cohortFilm.title).not.toEqual(fr.cohortFilm.title);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("contact");
