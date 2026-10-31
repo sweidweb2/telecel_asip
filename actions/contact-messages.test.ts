@@ -42,10 +42,10 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 import {
   deleteContactMessage,
-  submitContactMessage,
   updateContactMessage,
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
+import { submitContactMessage } from "@/actions/submit-contact-message";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";

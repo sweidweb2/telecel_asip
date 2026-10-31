@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { submitContactMessage } from "@/actions/contact-messages";
+import { submitContactMessage } from "@/actions/submit-contact-message";
 import type { ContactLabels } from "@/components/marketing/contact-labels";
 import { ContactRoutePicker } from "@/components/marketing/contact-route-picker";
 import { TurnstileField } from "@/components/marketing/turnstile-field";

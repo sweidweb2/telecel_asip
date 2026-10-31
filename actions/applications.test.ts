@@ -49,10 +49,10 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 import {
   deleteApplication,
-  submitApplication,
   updateApplication,
   updateApplicationInboxStatus,
 } from "@/actions/applications";
+import { submitApplication } from "@/actions/submit-application";
 import { getOpenApplications } from "@/data/settings";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";

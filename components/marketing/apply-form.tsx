@@ -12,8 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { submitApplication } from "@/actions/applications";
-import { submitInterestRegistration } from "@/actions/interest-registrations";
+import { submitApplication } from "@/actions/submit-application";
+import { submitInterestRegistration } from "@/actions/submit-interest-registration";
 import type {
   ApplyFormMode,
   ApplyLabels,

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { contactLabelsFor } from "@/components/marketing/contact-labels";
 
-vi.mock("@/actions/contact-messages", () => ({
+vi.mock("@/actions/submit-contact-message", () => ({
   submitContactMessage: vi.fn(),
 }));
 vi.mock("@/hooks/use-turnstile", () => ({

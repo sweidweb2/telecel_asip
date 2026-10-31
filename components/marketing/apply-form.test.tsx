@@ -4,10 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import { ApplyForm } from "@/components/marketing/apply-form";
 import { applyLabelsFor } from "@/components/marketing/apply-labels";
 
-vi.mock("@/actions/applications", () => ({
+vi.mock("@/actions/submit-application", () => ({
   submitApplication: vi.fn(),
 }));
-vi.mock("@/actions/interest-registrations", () => ({
+vi.mock("@/actions/submit-interest-registration", () => ({
   submitInterestRegistration: vi.fn(),
 }));
 vi.mock("@/hooks/use-turnstile", () => ({
