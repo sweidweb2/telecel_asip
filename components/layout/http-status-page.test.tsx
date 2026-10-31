@@ -33,7 +33,7 @@ vi.mock("next/navigation", () => ({
 describe("HttpStatusPage", () => {
   it("renders themed copy for each dedicated status", () => {
     for (const kind of ["403", "404", "500", "503"] as const) {
-      const copy = httpErrorCopyFor(kind);
+      const copy = httpErrorCopyFor(kind, "en");
       const { unmount } = render(<HttpStatusPage kind={kind} bare />);
 
       expect(screen.getByText(copy.code)).toBeInTheDocument();

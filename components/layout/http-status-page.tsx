@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
-import { enFooterLabels } from "@/components/layout/site-footer-labels";
+import { footerLabelsFor } from "@/components/layout/site-footer-labels";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { HttpStatusActions } from "@/components/layout/http-status-actions";
-import { enNavLabels } from "@/components/layout/site-nav-labels";
+import { navLabelsFor } from "@/components/layout/site-nav-labels";
 import { ErrorScreen } from "@/components/layout/error-screen";
 import { SiteNavbar } from "@/components/layout/site-navbar";
+import type { Locale } from "@/constants/locales";
 import {
   httpErrorCopyFor,
   type HttpErrorKind,
@@ -13,6 +14,7 @@ import {
 
 type HttpStatusPageProps = {
   kind: HttpErrorKind;
+  locale?: Locale;
   /** Optional override when kind is generic (e.g. 502). */
   codeLabel?: string | null;
   digest?: string | null;
@@ -21,8 +23,11 @@ type HttpStatusPageProps = {
   homeAsAnchor?: boolean;
 };
 
-export function httpStatusMetadata(kind: HttpErrorKind): Metadata {
-  const copy = httpErrorCopyFor(kind);
+export function httpStatusMetadata(
+  kind: HttpErrorKind,
+  locale: Locale = "en",
+): Metadata {
+  const copy = httpErrorCopyFor(kind, locale);
   return {
     title: copy.documentTitle,
     robots: { index: false, follow: false },
@@ -34,12 +39,13 @@ export function httpStatusMetadata(kind: HttpErrorKind): Metadata {
  */
 export function HttpStatusPage({
   kind,
+  locale = "en",
   codeLabel,
   digest,
   bare = false,
   homeAsAnchor = false,
 }: HttpStatusPageProps) {
-  const copy = httpErrorCopyFor(kind);
+  const copy = httpErrorCopyFor(kind, locale);
   const code = kind === "generic" && codeLabel ? codeLabel : copy.code;
 
   const body = (
@@ -50,7 +56,13 @@ export function HttpStatusPage({
       description={copy.description}
       tone={copy.tone}
     >
-      <HttpStatusActions homeAsAnchor={homeAsAnchor} digest={digest} />
+      <HttpStatusActions
+        locale={locale}
+        tryAgainLabel={copy.tryAgain}
+        goHomeLabel={copy.goHome}
+        homeAsAnchor={homeAsAnchor}
+        digest={digest}
+      />
     </ErrorScreen>
   );
 
@@ -60,9 +72,9 @@ export function HttpStatusPage({
 
   return (
     <>
-      <SiteNavbar locale="en" labels={enNavLabels()} />
+      <SiteNavbar locale={locale} labels={navLabelsFor(locale)} />
       <div className="flex flex-1 flex-col">{body}</div>
-      <SiteFooter labels={enFooterLabels()} />
+      <SiteFooter labels={footerLabelsFor(locale)} />
     </>
   );
 }

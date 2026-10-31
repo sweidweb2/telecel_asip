@@ -1,7 +1,12 @@
 import { HttpStatusPage, httpStatusMetadata } from "@/components/layout/http-status-page";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
-export const metadata = httpStatusMetadata("404");
+export async function generateMetadata() {
+  const locale = await getRequestLocale();
+  return httpStatusMetadata("404", locale);
+}
 
-export default function NotFound() {
-  return <HttpStatusPage kind="404" />;
+export default async function NotFound() {
+  const locale = await getRequestLocale();
+  return <HttpStatusPage kind="404" locale={locale} />;
 }

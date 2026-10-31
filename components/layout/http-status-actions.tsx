@@ -3,19 +3,28 @@
 import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ROUTES } from "@/constants/routes";
+import type { Locale } from "@/constants/locales";
+import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 
 type HttpStatusActionsProps = {
+  locale?: Locale;
+  tryAgainLabel: string;
+  goHomeLabel: string;
   /** Prefer a hard navigation home when the document shell may be broken. */
   homeAsAnchor?: boolean;
   digest?: string | null;
 };
 
 export function HttpStatusActions({
+  locale = "en",
+  tryAgainLabel,
+  goHomeLabel,
   homeAsAnchor = false,
   digest,
 }: HttpStatusActionsProps) {
+  const homeHref = publicPath(locale, "");
+
   return (
     <>
       <Button
@@ -27,24 +36,24 @@ export function HttpStatusActions({
             window.history.back();
             return;
           }
-          window.location.assign(ROUTES.home);
+          window.location.assign(homeHref);
         }}
       >
-        Try again
+        {tryAgainLabel}
       </Button>
       {homeAsAnchor ? (
         <a
-          href={ROUTES.home}
+          href={homeHref}
           className={cn(buttonVariants({ variant: "outline" }), "w-full")}
         >
-          Go home
+          {goHomeLabel}
         </a>
       ) : (
         <Link
-          href={ROUTES.home}
+          href={homeHref}
           className={cn(buttonVariants({ variant: "outline" }), "w-full")}
         >
-          Go home
+          {goHomeLabel}
         </Link>
       )}
       {digest ? (
