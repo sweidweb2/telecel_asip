@@ -358,7 +358,7 @@ function PastChaptersCards({
               <h3 className="font-heading text-sm font-semibold tracking-tight text-balance text-asip-ink sm:text-base">
                 {cohort.year}
                 <span className="font-semibold">
-                  {" — "}
+                  {": "}
                   {cohort.public_label}
                 </span>
               </h3>

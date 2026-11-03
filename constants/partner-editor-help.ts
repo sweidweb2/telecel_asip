@@ -12,7 +12,7 @@ export const PARTNER_EDITOR_HELP = {
           "Primary label shown in the admin list and on the public partners section when active.",
       },
       {
-        name: "Organisation",
+        name: "Organization",
         detail:
           "Optional company or institution name shown alongside the person/partner when provided.",
       },

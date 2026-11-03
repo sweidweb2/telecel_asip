@@ -15,7 +15,7 @@ export type PartnerLabels = {
 const EN: PartnerLabels = {
   historicalTitle: "Previous chapters",
   historicalDescription:
-    "Organisations and mentors who worked with ASIP founders in earlier chapters.",
+    "Organizations and mentors who worked with ASIP founders in earlier chapters.",
   emptyState: "Partner listings are being updated. Check back soon.",
   emptyFilterState: "No partners in this category yet.",
   allFilter: "All",

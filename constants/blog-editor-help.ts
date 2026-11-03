@@ -59,7 +59,7 @@ export const BLOG_EDITOR_HELP = {
       {
         name: "Related cohort",
         detail:
-          "Optional link to one programme cohort. Shown on the public detail page when set. Not required for publishing.",
+          "Optional link to one program cohort. Shown on the public detail page when set. Not required for publishing.",
       },
       {
         name: "Meta title",

@@ -17,7 +17,7 @@ export type BlogLabels = {
 const EN: BlogLabels = {
   pageTitle: "Insights",
   pageDescription:
-    "Founder stories, portfolio news, programme updates and practical perspectives from across the ASIP ecosystem.",
+    "Founder stories, portfolio news, program updates and practical perspectives from across the ASIP ecosystem.",
   writtenBy: "Written by",
   publishedOn: "Published on",
   fileUnder: "File under",
@@ -27,7 +27,7 @@ const EN: BlogLabels = {
     { id: "all", label: "View all" },
     { id: "founder-stories", label: "Founder Stories" },
     { id: "portfolio-news", label: "Portfolio News" },
-    { id: "programme-updates", label: "Programme Updates" },
+    { id: "programme-updates", label: "Program Updates" },
     { id: "founder-resources", label: "Founder Resources" },
     { id: "partner-perspectives", label: "Partner Perspectives" },
   ],

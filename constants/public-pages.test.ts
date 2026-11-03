@@ -20,7 +20,7 @@ describe("public page indexes", () => {
       expect.arrayContaining([
         "",
         "about",
-        "programme",
+        "program",
         "founders",
         "impact",
         "partners",

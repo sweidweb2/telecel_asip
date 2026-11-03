@@ -18,7 +18,7 @@ describe("ProgrammeEligibilitySection", () => {
       expect(screen.getByText(item)).toBeInTheDocument();
     }
 
-    expect(copy.items).toHaveLength(6);
+    expect(copy.items).toHaveLength(5);
   });
 
   it("does not render the cohort notice on the public page", () => {
@@ -32,7 +32,7 @@ describe("ProgrammeEligibilitySection", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders real programme photography beside the checklist", () => {
+  it("renders real program photography beside the checklist", () => {
     const copy = programmeCopyFor("en").eligibility;
     render(<ProgrammeEligibilitySection copy={copy} />);
     const img = screen.getByRole("img", { name: copy.imageAlt });

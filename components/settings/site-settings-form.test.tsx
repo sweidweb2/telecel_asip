@@ -64,7 +64,7 @@ describe("SiteSettingsForm", () => {
     );
 
     expect(screen.queryByText("Newsletter signup")).toBeNull();
-    expect(screen.queryByText(/phase 1 — informational only/i)).toBeNull();
+    expect(screen.queryByText(/phase 1, informational only/i)).toBeNull();
     expect(screen.getAllByRole("switch")).toHaveLength(1);
     expect(screen.queryByRole("switch", { name: /newsletter/i })).toBeNull();
     expect(

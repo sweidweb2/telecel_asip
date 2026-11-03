@@ -87,10 +87,10 @@ export const partnerFieldsSchema = z.object({
   org: z
     .string()
     .trim()
-    .max(PARTNER_ORG_MAX, `Organisation must be at most ${PARTNER_ORG_MAX} characters`)
+    .max(PARTNER_ORG_MAX, `Organization must be at most ${PARTNER_ORG_MAX} characters`)
     .refine(
       (value) => value === "" || value.length >= 2,
-      "Organisation must be at least 2 characters",
+      "Organization must be at least 2 characters",
     )
     .optional()
     .or(z.literal("")),

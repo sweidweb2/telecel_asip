@@ -69,7 +69,7 @@ describe("createCohortSchema", () => {
     ).toBe(false);
   });
 
-  it("rejects an unknown programme status and invalid link ids", () => {
+  it("rejects an unknown program status and invalid link ids", () => {
     expect(
       createCohortSchema.safeParse({
         ...base,

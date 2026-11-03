@@ -38,6 +38,12 @@ const LIST_COLUMNS =
 const PUBLIC_COLUMNS =
   "id, name, org, type, link, logo_url, is_active, sort_order" as const;
 
+/**
+ * Kept in the CMS for cohort history, but not listed on the public Partners
+ * page (client request: Startupbootcamp appears only in historical cohort copy).
+ */
+const HIDDEN_PUBLIC_PARTNER = /startupbootcamp/i;
+
 /** Upper bound so one bad import cannot make the public page unbounded. */
 const PUBLIC_LIMIT = 500;
 
@@ -184,6 +190,7 @@ async function fetchPublicPartners(): Promise<PartnerPublicGroups> {
   const historical: PartnerPublicItem[] = [];
 
   for (const row of rows) {
+    if (HIDDEN_PUBLIC_PARTNER.test(row.name ?? "")) continue;
     const item = toPublicItem(row);
     if (!item) continue;
     (row.is_active ? active : historical).push(item);

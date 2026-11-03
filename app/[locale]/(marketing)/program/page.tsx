@@ -18,15 +18,15 @@ export async function generateMetadata({
     locale === "fr"
       ? {
           locale,
-          path: "/programme",
+          path: "/program",
           title: "Programme ASIP | Comment ça marche",
           description:
             "Découvrez le parcours fondateur ASIP, les bénéfices, les critères d’éligibilité, le processus de sélection et le statut actuel des candidatures.",
         }
       : {
           locale,
-          path: "/programme",
-          title: "ASIP Programme | How It Works",
+          path: "/program",
+          title: "ASIP Program | How It Works",
           description:
             "Explore the ASIP founder journey, benefits, eligibility, selection process and current application status.",
         },

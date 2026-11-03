@@ -27,12 +27,17 @@ vi.mock("@/components/marketing/home-hero-signal", () => ({
 }));
 
 describe("HomeHero", () => {
-  it("renders headline and CTAs without brand lockup", () => {
+  it("renders headline and Investor | Startup pathways without brand lockup", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", false);
 
     render(
-      <HomeHero locale="en" copy={copy.hero} intake={intake} />,
+      <HomeHero
+        locale="en"
+        copy={copy.hero}
+        pathways={copy.pathways}
+        intake={intake}
+      />,
     );
 
     expect(
@@ -44,23 +49,31 @@ describe("HomeHero", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("home-hero-continuum")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: copy.hero.primaryCta.label }),
+      screen.getByRole("group", { name: copy.pathways.prompt }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Investor" }),
     ).toHaveAttribute("href", "/en/founders");
     expect(
-      screen.getByRole("link", { name: intake.label }),
-    ).toHaveAttribute("href", intake.href);
+      screen.getByRole("link", { name: "Startup" }),
+    ).toHaveAttribute("href", "/en/register-interest");
   });
 
-  it("swaps intake CTA when applications are open", () => {
+  it("routes Startup to apply when applications are open", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", true);
 
     render(
-      <HomeHero locale="en" copy={copy.hero} intake={intake} />,
+      <HomeHero
+        locale="en"
+        copy={copy.hero}
+        pathways={copy.pathways}
+        intake={intake}
+      />,
     );
 
     expect(
-      screen.getByRole("link", { name: intake.label }),
-    ).toHaveAttribute("href", intake.href);
+      screen.getByRole("link", { name: "Startup" }),
+    ).toHaveAttribute("href", "/en/apply");
   });
 });

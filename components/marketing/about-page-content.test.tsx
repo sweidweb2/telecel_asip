@@ -14,7 +14,7 @@ describe("AboutPageContent", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Backing the builders shaping Africa’s next chapter.",
+        name: "Supporting the founders who are shaping Africa’s next chapter.",
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Knowledge").length).toBeGreaterThan(0);
@@ -24,7 +24,7 @@ describe("AboutPageContent", () => {
     ).toBeGreaterThan(0);
     expect(
       screen.getByRole("heading", {
-        name: "Backing founders. Built for Africa.",
+        name: "Backing founders, building for Africa.",
       }),
     ).toBeInTheDocument();
     expect(

@@ -21,7 +21,7 @@ export const BLOG_STREAM_CATEGORY_LABELS: Record<
 > = {
   "founder-stories": "Founder Stories",
   "portfolio-news": "Portfolio News",
-  "programme-updates": "Programme Updates",
+  "programme-updates": "Program Updates",
   "founder-resources": "Founder Resources",
   "partner-perspectives": "Partner Perspectives",
 };
@@ -33,6 +33,7 @@ const STREAM_ALIASES: Record<string, Exclude<BlogTabId, "all">> = {
   "portfolio news": "portfolio-news",
   "actualités du portefeuille": "portfolio-news",
   "actualites du portefeuille": "portfolio-news",
+  "program updates": "programme-updates",
   "programme updates": "programme-updates",
   "actualités du programme": "programme-updates",
   "actualites du programme": "programme-updates",

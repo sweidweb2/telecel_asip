@@ -47,7 +47,7 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 const HEADER_LEAF_SLUGS = [
   "",
   "about",
-  "programme",
+  "program",
   "impact",
   "partners",
   "insights",
@@ -60,7 +60,7 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   en: {
     "": "Home",
     about: "About",
-    programme: "Programme",
+    program: "Program",
     founders: "Founders",
     alumni: "Alumni",
     impact: "Impact",
@@ -70,7 +70,7 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   fr: {
     "": "Accueil",
     about: "À propos",
-    programme: "Programme",
+    program: "Programme",
     founders: "Fondateurs",
     alumni: "Alumni",
     impact: "Impact",
@@ -89,7 +89,7 @@ const NAV_CHROME: Record<
   en: {
     languageGroupLabel: "Language",
     menuLabel: "Menu",
-    masthead: "A Telecel Group programme",
+    masthead: "A Telecel Group Program",
     foundersDirectory: "Directory",
   },
   fr: {
@@ -119,7 +119,7 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
     items: [
       leaf(locale, ""),
       leaf(locale, "about"),
-      leaf(locale, "programme"),
+      leaf(locale, "program"),
       {
         kind: "group",
         href: foundersHref,

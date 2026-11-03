@@ -23,7 +23,7 @@ const PRESET_MAX_WIDTH = {
 function dummyBody(title) {
   return [
     `${title} is a topic that matters to founders building technology ventures across Africa. This article outlines practical ideas you can apply while scaling product, team, and market access.`,
-    "ASIP shares these insights to help participating ventures and the wider ecosystem learn from real programme experience. The examples here are illustrative and will evolve as cohorts progress.",
+    "ASIP shares these insights to help participating ventures and the wider ecosystem learn from real program experience. The examples here are illustrative and will evolve as cohorts progress.",
     "Founders often face similar questions around prioritisation, customer discovery, and partnership strategy. We focus on patterns that appear repeatedly across markets and sectors.",
     "Use this as a starting point for conversation with mentors, peers, and partners. Programme-specific guidance is always shared directly with selected teams during each cycle.",
   ];
@@ -134,7 +134,7 @@ const SEED_POSTS = [
     title: "What is wireframing?",
     summary:
       "Introduction to Wireframing and its Principles. Learn from the best in the industry.",
-    categories: ["Programme Updates", "Design", "Research"],
+    categories: ["Program Updates", "Design", "Research"],
     thumbnailUrl: "https://www.untitledui.com/marketing/wireframing-layout.webp",
     publishedAt: "15 Jan 2025",
     authorName: "Candice Wu",

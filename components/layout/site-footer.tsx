@@ -93,12 +93,12 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               className="inline-flex rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               <Image
-                src="/ASIP_LOGO_WHITE.png"
+                src="/ASIP_LOGO_MARK_WHITE.png"
                 alt={labels.brand}
-                width={864}
-                height={289}
-                sizes="190px"
-                className="h-10 w-auto sm:h-11"
+                width={768}
+                height={768}
+                sizes="96px"
+                className="h-20 w-auto sm:h-24"
               />
             </Link>
             <p className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">

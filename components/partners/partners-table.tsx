@@ -80,7 +80,7 @@ export function PartnersTable({
           <AdminRowNumberHead />
           <TableHead className="w-14">Logo</TableHead>
           <TableHead>Name</TableHead>
-          <TableHead>Organisation</TableHead>
+          <TableHead>Organization</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Logo permission</TableHead>

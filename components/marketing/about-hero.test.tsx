@@ -22,12 +22,12 @@ describe("AboutHero", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Backing the builders shaping Africa’s next chapter.",
+        name: "Supporting the founders who are shaping Africa’s next chapter.",
       }),
     ).toBeInTheDocument();
     expect(screen.getByText("About ASIP")).toBeInTheDocument();
     expect(
-      screen.getByText(/Telecel Group Program backing African technology founders/i),
+      screen.getByText(/Telecel Group Program supporting African founders/i),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Explore the founders" }),

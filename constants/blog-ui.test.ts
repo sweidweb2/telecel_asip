@@ -24,7 +24,7 @@ describe("blog-ui stream tabs", () => {
   it("maps canonical EN labels case-insensitively", () => {
     expect(categoryToTabId("Founder Stories")).toBe("founder-stories");
     expect(categoryToTabId("  portfolio news ")).toBe("portfolio-news");
-    expect(categoryToTabId("Programme Updates")).toBe("programme-updates");
+    expect(categoryToTabId("Program Updates")).toBe("programme-updates");
   });
 
   it("maps FR stream labels to the same tab ids", () => {

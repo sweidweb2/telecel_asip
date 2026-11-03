@@ -27,7 +27,7 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/500",
+  usePathname: () => "/error/500",
 }));
 
 describe("HttpStatusPage", () => {

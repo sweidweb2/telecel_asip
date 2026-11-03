@@ -7,10 +7,10 @@ export type MarketingMedia = {
 };
 
 export const MARKETING_MEDIA = {
-  home: { src: "/asip-media/home-founder.webp", alt: { en: "ASIP founder in conversation at a programme event", fr: "Fondateur ASIP en conversation lors d'un evenement du programme" }, position: "center 38%" },
+  home: { src: "/asip-media/home-founder.webp", alt: { en: "ASIP founder in conversation at a program event", fr: "Fondateur ASIP en conversation lors d'un evenement du programme" }, position: "center 38%" },
   about: { src: "/asip-media/about-origin.webp", alt: { en: "Founders and ecosystem leaders gathering in Dakar", fr: "Fondateurs et acteurs de l'ecosysteme reunis a Dakar" }, position: "center 42%" },
   programme: { src: "/asip-media/programme-mentor.webp", alt: { en: "A mentor working directly with an ASIP founder", fr: "Un mentor travaillant directement avec un fondateur ASIP" }, position: "center 40%" },
-  founders: { src: "/asip-media/founders-community.webp", alt: { en: "ASIP founders and programme community", fr: "Fondateurs ASIP et communaute du programme" }, position: "center 42%" },
+  founders: { src: "/asip-media/founders-community.webp", alt: { en: "ASIP founders and program community", fr: "Fondateurs ASIP et communaute du programme" }, position: "center 42%" },
   impact: {
     src: "/asip-media/impact-community-v2.webp",
     alt: {

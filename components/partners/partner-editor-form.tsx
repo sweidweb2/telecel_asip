@@ -357,7 +357,7 @@ export function PartnerEditorForm({
                         htmlFor={`${formId}-org`}
                         hint={`Optional · 2–${PARTNER_ORG_MAX} chars`}
                       >
-                        Organisation
+                        Organization
                       </AdminFormFieldLabel>
                       <Input
                         id={`${formId}-org`}

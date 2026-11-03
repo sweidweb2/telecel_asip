@@ -70,7 +70,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
         path: "/{locale}/partners",
         reflected: true,
         shows:
-          "Name, organisation, type, link, and logo (logo only when logo permission allows).",
+          "Name, organization, type, link, and logo (logo only when logo permission allows).",
         rule: "partners_public; active vs historical split by is_active; sorted by sort_order.",
       },
     ],
@@ -134,14 +134,14 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
   cohorts: {
     resourceId: "cohorts",
     title: "Where cohorts appear",
-    intro: "Published cohorts show as past programme chapters and as related labels on insights.",
+    intro: "Published cohorts show as past program chapters and as related labels on insights.",
     surfaces: [
       {
-        page: "Programme - past chapters",
-        path: "/{locale}/programme",
+        page: "Program - past chapters",
+        path: "/{locale}/program",
         reflected: true,
         shows:
-          "Year, public label, programme status, date window, and summary.",
+          "Year, public label, program status, date window, and summary.",
         rule: "publish_status = published; ordered by year.",
       },
       {

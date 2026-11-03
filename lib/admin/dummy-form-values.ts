@@ -118,7 +118,7 @@ export function dummyStartupValues(
       team: "8 people across product, sales, and operations.",
       size: "1-10",
       problem:
-        "SMEs struggle to get working-capital decisions fast enough to fulfil orders.",
+        "SMEs struggle to get working-capital decisions fast enough to fulfill orders.",
       solution:
         "A credit decisioning API that underwrites invoices in minutes using alternative data.",
       targetMarket: "Growth-stage African SMEs with recurring B2B revenue.",
@@ -172,7 +172,7 @@ export function dummyEvidenceValues(
 ): EvidenceFormValues {
   return {
     primarySource:
-      "Dummy primary source: internal programme report Q1, verified against CRM exports.",
+      "Dummy primary source: internal program report Q1, verified against CRM exports.",
     sourceFileUrl: "https://example.com/evidence-report.pdf",
     measurementPeriodStart: dateOffset(-120),
     measurementPeriodEnd: dateOffset(-30),

@@ -15,7 +15,7 @@ async function openFoundersMenu(page: Page) {
 const publicSlugs = [
   "",
   "/about",
-  "/programme",
+  "/program",
   "/founders",
   "/impact",
   "/partners",
@@ -50,7 +50,7 @@ test("bare public routes redirect to a supported locale", async ({ page }) => {
 });
 
 test("language switch preserves the current public page", async ({ page }) => {
-  await page.goto("/en/programme");
+  await page.goto("/en/program");
   await page.getByRole("link", { name: "fr", exact: true }).first().click();
   await expect(page).toHaveURL(/\/fr\/programme$/);
 });

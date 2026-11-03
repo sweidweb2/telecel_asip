@@ -72,14 +72,14 @@ export function AppSidebar({
             >
               {showWordmark ? (
                 <Image
-                  src="/ASIP_LOGO_WHITE.png"
-                  alt="Africa Startup Initiative Program"
-                  width={864}
-                  height={289}
+                  src="/ASIP_LOGO_MARK_WHITE.png"
+                  alt="Africa Startup Initiative, a Telecel Group Program"
+                  width={768}
+                  height={768}
                   priority
                   quality={90}
-                  sizes="168px"
-                  className="h-9 w-auto max-w-[10.5rem] object-contain object-left"
+                  sizes="56px"
+                  className="h-12 w-auto object-contain object-left"
                 />
               ) : (
                 <Image

@@ -119,13 +119,13 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           className="flex shrink-0 items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <Image
-            src="/ASIP_LOGO.png"
-            alt="Africa Startup Initiative Program"
-            width={864}
-            height={289}
+            src="/ASIP_LOGO_MARK.png"
+            alt="Africa Startup Initiative, a Telecel Group Program"
+            width={768}
+            height={768}
             priority
-            sizes="190px"
-            className="h-10 w-auto sm:h-11 md:h-12"
+            sizes="72px"
+            className="h-14 w-auto sm:h-[3.75rem] md:h-16"
           />
         </Link>
 

@@ -84,7 +84,7 @@ export function CohortStatsCards({ stats }: { stats: CohortListStats }) {
     { key: "total", label: "Total", icon: LayersIcon },
     { key: "published", label: "Published", icon: BadgeCheckIcon },
     { key: "draft", label: "Draft", icon: FilePenIcon },
-    { key: "open", label: "Programme open", icon: LinkIcon, accent: true },
+    { key: "open", label: "Program open", icon: LinkIcon, accent: true },
   ]);
 }
 

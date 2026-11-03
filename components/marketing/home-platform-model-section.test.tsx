@@ -105,7 +105,7 @@ describe("HomePlatformModelSection", () => {
     const build = screen.getByRole("button", { name: /02\s*Build/i });
     const connect = screen.getByRole("button", { name: /03\s*Open access/i });
     const commercialise = screen.getByRole("button", {
-      name: /04\s*Commercialise/i,
+      name: /04\s*Commercialize/i,
     });
 
     expect(discover).toHaveClass("bg-white");
