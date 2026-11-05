@@ -104,7 +104,7 @@ function StepSpinner({
 
       <div className="absolute inset-[28%] z-10 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent),0_12px_28px_-16px_rgba(0,0,0,0.35)]">
         <div className="flex size-full flex-col items-center justify-center px-3 text-center">
-          <p className="font-mono text-[0.6rem] tracking-[0.18em] text-brand uppercase">
+          <p className="font-mono text-[0.6rem] tracking-[0.18em] text-brand-strong uppercase">
             {String(activeIndex + 1).padStart(2, "0")} /{" "}
             {String(count).padStart(2, "0")}
           </p>

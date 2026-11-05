@@ -42,7 +42,7 @@ Same roles and same 60/30/10 balance, with more saturation, plus the two missing
 |---|---|---|---|
 | `--asip-ink` | `#14333b` | `#14333b` (unchanged) | anchor |
 | `--background` (canvas) | `#fbfaf6` | `#fbfaf6` (unchanged) | |
-| `--brand` (teal) | `#179191` | `#179191` for graphics, **`#117f7f` for text and buttons** | white on `#117f7f` = 4.81:1 ✅ |
+| `--brand` (teal) | `#179191` | `#179191` for graphics, **`#0e7676` for text and buttons** | white on `#0e7676` = 5.42:1 ✅ (4.67:1 on teal tints) |
 | `--asip-coral` (CTA) | `#dc395f` | **`#d42f57`** | white text 4.83:1 ✅. Shifts slightly toward the logo red |
 | `--brand-mid` (green) | `#81b764` | **`#80c451`** (logo green) | ink text on it 6.34:1 |
 | `--asip-magenta` | `#c14a9b` | `#c0499b` (logo, same) | |
@@ -94,7 +94,7 @@ How each color is used:
 
 | Section | Change |
 |---|---|
-| Nav | Spectrum hairline under the bar. Register CTA moves to `#117f7f` (contrast fix), or coral with the offset shadow. Logo size check, since the new round mark reads small at 56px |
+| Nav | Spectrum hairline under the bar. Register CTA moves to `#0e7676` (contrast fix), or coral with the offset shadow. Logo size check, since the new round mark reads small at 56px |
 | Hero | Sun highlighter on "scale", sticker eyebrow ("2026 applications open soon"), coral CTA with offset shadow, Investor | Startup unchanged in function |
 | Cohort film | Rounded 24px frame, play button becomes a big sun disc, marquee ticker below |
 | Impact years | Count-up numbers, stat stickers |
@@ -127,6 +127,24 @@ How each color is used:
 Original description:
 The marketing components hard-code colors about 200 times: `#14333b` 82×, `#9ad1bf` 35×, `#179191` 32×, `#81b764` 12× and others. Replace them with token classes (`bg-asip-ink`, `text-asip-mint`, …). After that, retuning the palette is a change in `app/globals.css` only. Before-and-after screenshots should be identical.
 
+**Phase 1: foundations. ✅ Done on 5 November 2026.**
+- **Tokens:** `[data-marketing]` on the marketing layout, lifted to `<html>` with `:root:has([data-marketing])` so portaled menus and dialogs match. The admin portal is untouched.
+  - Coral `#d42f57`, logo green `#80c451`, darker body text `#3f5257`, radius 0.75rem.
+  - Teal buttons and small teal text use `--brand-strong` `#0e7676`.
+  - New colors: sun `#efd640`, sky `#1481c4`, blush `#f6c8d6`, plus `--ease-spring`.
+- **Components** (`components/marketing/brand-accents.tsx`):
+  - `Emph` and `renderEmphasis`: `[word]` markers in copy become a sun marker on light surfaces or a sun underline on dark ones. `stripEmphasis` gives the plain version for labels.
+  - `Sticker`, `SpectrumLine` and `LOGO_SPECTRUM`, in logo order.
+- **Raised button:** the coral CTA has an ink border and a hard offset shadow that lifts on hover and collapses on press. On dark panels the shadow is mint (`coralCtaOnDarkClassName`). Outline CTAs get a spring lift.
+- **Applied as the showcase:**
+  - Header and hero spectrum in logo order.
+  - Sun underline on "Built to [scale]." / "Faits pour [grandir]."
+  - Bigger, tighter hero and section headings.
+  - The 2026 section's theme tag as a tilted sun sticker, and a marker on "[place]".
+- **Contrast:** an automated check of every text element over a solid background on Home, About, Program, Partners, Impact and Register Interest finds **0 failures**, down from 6. Several of those were already on the live site: faded timeline text on Program, and teal labels on Home and Impact.
+- **Still old** and handled in Phase 3: the cohort film's four-color stripes, section eyebrows (still small caps), and the other pages' local coral buttons.
+
+Original description:
 **Phase 1: foundations (1 day).**
 - New and retuned tokens in `globals.css`, scoped to marketing via `[data-marketing]`, so the admin portal is untouched.
 - Type scale, the radius bump, the `--ease-spring` token.

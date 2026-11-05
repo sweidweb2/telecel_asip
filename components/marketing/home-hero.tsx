@@ -6,7 +6,12 @@ import "./home-hero.css";
 import { HomeHeroContinuum } from "@/components/marketing/home-hero-continuum";
 import { HomeHeroSignal } from "@/components/marketing/home-hero-signal";
 import {
+  LOGO_SPECTRUM,
+  renderEmphasis,
+} from "@/components/marketing/brand-accents";
+import {
   CoralCtaLink,
+  coralCtaOnDarkClassName,
   MarketingCtaRow,
   OutlineCtaLink,
 } from "@/components/marketing/page-elements";
@@ -20,13 +25,6 @@ import type { HomePageCopy } from "@/types/marketing-page";
 /** LCP still — 75 is perceptually close at full-bleed and cuts decoder work. */
 const HERO_LCP_QUALITY = 75;
 
-/** ASIP multicolour spectrum — order matches the approved palette sweep. */
-const SPECTRUM = [
-  "bg-brand",
-  "bg-asip-mint",
-  "bg-asip-magenta",
-  "bg-asip-coral",
-] as const;
 
 type HomeHeroProps = {
   locale: Locale;
@@ -88,7 +86,7 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
             aria-hidden
             className="mb-4 flex h-1.5 w-28 gap-1.5 sm:mb-5 sm:w-36"
           >
-            {SPECTRUM.map((color, index) => (
+            {LOGO_SPECTRUM.map((color, index) => (
               <span
                 key={color}
                 className={cn(
@@ -102,7 +100,7 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
 
           <h1
             aria-label={copy.title}
-            className="font-heading text-5xl font-semibold leading-[1.04] tracking-tight text-balance sm:text-6xl lg:text-7xl lg:leading-[1.02]"
+            className="font-heading text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-balance sm:text-6xl lg:text-[5rem] lg:leading-[0.98]"
           >
             {copy.titleLines.map((line, index) => (
               <span
@@ -114,7 +112,7 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
                 )}
                 style={{ animationDelay: `${180 + index * 140}ms` }}
               >
-                {line}
+                {index === lastLine ? renderEmphasis(line, "underline") : line}
               </span>
             ))}
           </h1>
@@ -139,7 +137,10 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
               </OutlineCtaLink>
               <CoralCtaLink
                 href={intake.href}
-                className="group min-h-14 px-9 text-lg sm:px-10"
+                className={cn(
+                "group min-h-14 px-9 text-lg sm:px-10",
+                coralCtaOnDarkClassName,
+              )}
               >
                 {pathways.startupLabel}
                 <ArrowRight

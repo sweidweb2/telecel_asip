@@ -52,7 +52,7 @@ export function HomeCohortFilmSection({
                 <span key={color} className={cn("h-full flex-1", color)} />
               ))}
             </span>
-            <p className="text-xs font-semibold tracking-[0.16em] text-brand uppercase">
+            <p className="text-xs font-semibold tracking-[0.16em] text-brand-strong uppercase">
               {copy.eyebrow}
             </p>
             <span

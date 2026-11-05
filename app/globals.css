@@ -54,6 +54,11 @@
   --color-asip-ink-deep: var(--asip-ink-deep);
   --color-asip-ink-night: var(--asip-ink-night);
   --color-asip-sand: var(--asip-sand);
+  --color-asip-sun: var(--asip-sun);
+  --color-asip-sky: var(--asip-sky);
+  --color-asip-blush: var(--asip-blush);
+  --color-brand-strong: var(--brand-strong);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --color-asip-coral: var(--asip-coral);
   --color-asip-coral-hover: var(--asip-coral-hover);
   --color-asip-magenta: var(--asip-magenta);
@@ -90,6 +95,12 @@
   --asip-ink-deep: #0f282e;
   --asip-ink-night: #0b1c22;
   --asip-sand: #f5e6b8;
+  /* Logo ring colors the site did not use before (refresh, phase 1). */
+  --asip-sun: #efd640;
+  --asip-sky: #1481c4;
+  --asip-blush: #f6c8d6;
+  /* Teal for small text and filled buttons on light surfaces: white text 5.42:1, 4.67:1 on brand tints. */
+  --brand-strong: #0e7676;
   --asip-magenta: #c14a9b;
   --asip-coral: #dc395f;
   --asip-coral-hover: color-mix(in srgb, #dc395f 82%, #ffffff);
@@ -185,6 +196,28 @@
  * `--brand-soft` drives card/table section headers site-wide in the portal —
  * keep it neutral grey (not sage) so every AdminFormSection / CMS head row matches.
  */
+/*
+ * Public marketing site (refresh phase 1). Scoped so the editor and admin
+ * portals keep their tokens. Same roles, louder logo-matched values:
+ * - coral #d42f57: white label text 4.83:1 (was #dc395f, 4.38:1)
+ * - brand-mid #80c451: the logo green (was #81b764)
+ * - primary = brand-strong #0e7676: filled teal buttons pass AA (was #179191, 3.82:1)
+ * - muted-foreground #3f5257: darker body copy on cream
+ * - radius 0.75rem: rounder cards; pills stay pills
+ */
+/* :has() lifts the tokens to <html> so portaled menus and dialogs match. */
+:root:has([data-marketing]),
+[data-marketing] {
+  --asip-coral: #d42f57;
+  /* Hover darkens toward ink so white labels keep their contrast. */
+  --asip-coral-hover: color-mix(in srgb, #d42f57 86%, #14333b);
+  --brand-mid: #80c451;
+  --primary: var(--brand-strong);
+  --ring: var(--brand-strong);
+  --muted-foreground: #3f5257;
+  --radius: 0.75rem;
+}
+
 [data-staff-shell] {
   --background: #f4f5f5;
   --brand-soft: #f3f4f5;

@@ -1,5 +1,6 @@
 import { ArrowRight, Check } from "lucide-react";
 
+import { renderEmphasis, Sticker } from "@/components/marketing/brand-accents";
 import {
   CoralCtaLink,
   MarketingCtaRow,
@@ -73,21 +74,24 @@ export function HomeNextChapterSection({
             <SectionEyebrow>{copy.eyebrow}</SectionEyebrow>
 
             <div className="mt-5 inline-flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-brand/40 bg-brand-subtle px-4 py-1.5 font-heading text-sm font-semibold tracking-tight text-brand sm:text-base">
+              <Sticker tone="sun" tilt className="px-4 py-1.5 text-sm sm:text-base">
                 {copy.theme.name}
-              </span>
+              </Sticker>
               {copy.theme.status === "working" ? (
-                <span className="rounded-full border border-dashed border-foreground/25 px-2.5 py-1 text-[0.65rem] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                <Sticker
+                  tone="outline"
+                  className="px-2.5 text-[0.65rem] tracking-[0.14em] uppercase sm:text-[0.65rem]"
+                >
                   {copy.theme.statusLabel}
-                </span>
+                </Sticker>
               ) : null}
             </div>
 
             <h2
               id={headingId}
-              className="mt-6 max-w-xl font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl"
+              className="mt-6 max-w-xl font-heading text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-balance text-foreground sm:text-5xl lg:text-6xl"
             >
-              {copy.title}
+              {renderEmphasis(copy.title)}
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
               {copy.description}

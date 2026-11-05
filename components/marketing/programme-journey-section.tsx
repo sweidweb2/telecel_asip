@@ -86,7 +86,7 @@ function PathCard({
           className="flex size-12 shrink-0 items-center justify-center rounded-[2px] border border-asip-ink/10 bg-brand-subtle sm:size-14"
           aria-hidden
         >
-          <span className="font-heading text-base font-semibold text-brand sm:text-lg">
+          <span className="font-heading text-base font-semibold text-brand-strong sm:text-lg">
             {padStep(index)}
           </span>
         </div>

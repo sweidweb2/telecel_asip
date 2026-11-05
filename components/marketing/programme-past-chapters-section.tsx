@@ -121,7 +121,7 @@ export function ProgrammePastChaptersSection({
         </div>
 
         {cohorts.length === 0 ? (
-          <p className="mt-6 text-sm text-asip-ink/65">{empty}</p>
+          <p className="mt-6 text-sm text-asip-ink/75">{empty}</p>
         ) : (
           <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:items-stretch lg:gap-8">
             <div className="flex min-w-0 flex-col self-stretch">
@@ -164,8 +164,8 @@ export function ProgrammePastChaptersSection({
                                   className={cn(
                                     "font-heading text-sm font-semibold tracking-tight sm:text-base",
                                     isActive
-                                      ? "text-brand"
-                                      : "text-asip-ink group-hover:text-brand",
+                                      ? "text-brand-strong"
+                                      : "text-asip-ink group-hover:text-brand-strong",
                                   )}
                                 >
                                   {cohort.year}
@@ -178,8 +178,8 @@ export function ProgrammePastChaptersSection({
                                   className={cn(
                                     "shrink-0 text-[10px] font-medium tracking-wide uppercase sm:text-xs",
                                     isActive
-                                      ? "text-brand"
-                                      : "text-asip-ink/55",
+                                      ? "text-brand-strong"
+                                      : "text-asip-ink/75",
                                   )}
                                 >
                                   {programmeStatusLabel(
@@ -189,12 +189,12 @@ export function ProgrammePastChaptersSection({
                                 </span>
                               </div>
                               {window ? (
-                                <p className="mt-0.5 text-xs text-asip-ink/60">
+                                <p className="mt-0.5 text-xs text-asip-ink/75">
                                   {window}
                                 </p>
                               ) : null}
                               {cohort.summary ? (
-                                <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-asip-ink/65">
+                                <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-asip-ink/75">
                                   {cohort.summary}
                                 </p>
                               ) : null}
@@ -348,7 +348,7 @@ function PastChaptersCards({
             <span
               className={cn(
                 "relative font-heading text-2xl font-bold tracking-tight sm:text-3xl",
-                isActive ? "text-brand" : "text-asip-ink",
+                isActive ? "text-brand-strong" : "text-asip-ink",
               )}
             >
               {padIndex(index)}
@@ -362,7 +362,7 @@ function PastChaptersCards({
                   {cohort.public_label}
                 </span>
               </h3>
-              <p className="mt-1.5 line-clamp-5 text-xs leading-relaxed text-asip-ink/60 sm:text-sm">
+              <p className="mt-1.5 line-clamp-5 text-xs leading-relaxed text-asip-ink/75 sm:text-sm">
                 {body}
               </p>
             </div>

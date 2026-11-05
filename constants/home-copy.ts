@@ -16,7 +16,7 @@ const en: HomePageCopy = {
     eyebrow: "Africa Startup Initiative Program",
     endorsement: "A Telecel Group Program",
     title: "African founders. Built to scale.",
-    titleLines: ["African founders.", "Built to scale."],
+    titleLines: ["African founders.", "Built to [scale]."],
     description:
       "ASIP connects African technology founders to expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialize and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
@@ -167,7 +167,7 @@ const en: HomePageCopy = {
   },
   nextChapter: {
     eyebrow: "2026 cohort",
-    title: "AI that earns its place in the business.",
+    title: "AI that earns its [place] in the business.",
     description:
       "The 2026 chapter supports startups using AI to solve existing business challenges and demonstrate measurable gains in revenue, cost efficiency, speed, or market reach.",
     eligibility: {
@@ -234,7 +234,7 @@ const fr: HomePageCopy = {
     eyebrow: "Programme africain d’initiative pour les startups",
     endorsement: "Un programme du Groupe Telecel",
     title: "Fondateurs africains. Faits pour grandir.",
-    titleLines: ["Fondateurs africains.", "Faits pour grandir."],
+    titleLines: ["Fondateurs africains.", "Faits pour [grandir]."],
     nextCohort: { label: "Chapitre 2026", href: "#next-chapter" },
     description:
       "ASIP relie des fondateurs technologiques africains à l’expertise, aux voies de financement, à l’accès aux marchés et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
@@ -385,7 +385,7 @@ const fr: HomePageCopy = {
   },
   nextChapter: {
     eyebrow: "Cohorte 2026",
-    title: "Une IA qui mérite sa place dans l’entreprise.",
+    title: "Une IA qui mérite sa [place] dans l’entreprise.",
     description:
       "Le chapitre 2026 soutient des startups qui utilisent l’IA pour relever des défis concrets des entreprises et démontrer des gains mesurables en matière de revenus, de maîtrise des coûts, de rapidité ou de portée commerciale.",
     eligibility: {

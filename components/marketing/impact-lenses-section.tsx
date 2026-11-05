@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 import type { ImpactPageCopy } from "@/types/marketing-page";
 
 const LENS_PILL_STYLES = [
-  "bg-brand/12 text-brand ring-brand/25",
+  "bg-brand/12 text-brand-strong ring-brand/25",
   "bg-brand-mid/15 text-[#3d6b2f] ring-brand-mid/35",
   "bg-asip-magenta/12 text-[#9a2f78] ring-asip-magenta/25",
   "bg-asip-coral/12 text-[#b02a48] ring-asip-coral/25",
   "bg-asip-ink/10 text-asip-ink ring-asip-ink/20",
-  "bg-brand/12 text-brand ring-brand/25",
+  "bg-brand/12 text-brand-strong ring-brand/25",
 ] as const;
 
 type ImpactLensesSectionProps = {

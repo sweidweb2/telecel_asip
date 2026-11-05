@@ -11,6 +11,7 @@ import {
   type NavEntry,
   type SiteNavLabels,
 } from "@/components/layout/site-nav-labels";
+import { SpectrumLine } from "@/components/marketing/brand-accents";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -100,18 +101,13 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
   const desktopLinkClass = (active: boolean) =>
     cn(
-      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-asip-ink transition-colors hover:bg-transparent hover:text-brand focus:bg-transparent xl:px-3",
-      active && "text-brand shadow-[inset_0_-3px_0_var(--brand)]",
+      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-asip-ink transition-colors hover:bg-transparent hover:text-brand-strong focus:bg-transparent xl:px-3",
+      active && "text-brand-strong shadow-[inset_0_-3px_0_var(--brand)]",
     );
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 bg-background/97 text-asip-ink backdrop-blur-md">
-      <div className="grid h-1 grid-cols-4" aria-hidden>
-        <span className="bg-brand" />
-        <span className="bg-brand-mid" />
-        <span className="bg-asip-magenta" />
-        <span className="bg-asip-coral" />
-      </div>
+      <SpectrumLine />
 
       <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 md:h-[4.75rem] lg:gap-5 lg:px-8 xl:px-10">
         <Link
@@ -252,9 +248,9 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                             onClick={() => setOpen(false)}
                             className={cn(
                               buttonVariants({ variant: "ghost" }),
-                              "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand",
+                              "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand-strong",
                               isNavActive(pathname, child.href, locale) &&
-                                "bg-brand/10 font-semibold text-brand",
+                                "bg-brand/10 font-semibold text-brand-strong",
                             )}
                           >
                             {child.label}
@@ -271,9 +267,9 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                       onClick={() => setOpen(false)}
                       className={cn(
                         buttonVariants({ variant: "ghost" }),
-                        "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand",
+                        "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand-strong",
                         isNavActive(pathname, entry.href, locale) &&
-                          "bg-brand/10 font-semibold text-brand",
+                          "bg-brand/10 font-semibold text-brand-strong",
                       )}
                     >
                       {entry.label}

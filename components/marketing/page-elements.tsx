@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 
+import { renderEmphasis, stripEmphasis } from "@/components/marketing/brand-accents";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,12 @@ export function SectionHeading({
   return (
     <div className={cn("mb-10 max-w-3xl", className)}>
       {eyebrow ? <p className="mb-3 text-xs font-semibold uppercase text-primary">{eyebrow}</p> : null}
-      <h2 className="font-heading text-3xl font-semibold leading-tight text-balance sm:text-4xl">{title}</h2>
+      <h2
+        aria-label={stripEmphasis(title)}
+        className="font-heading text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-balance sm:text-5xl"
+      >
+        {renderEmphasis(title)}
+      </h2>
       {description ? <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground">{description}</p> : null}
     </div>
   );
@@ -49,7 +55,7 @@ export function SectionHeading({
 
 /** Brand-tracking eyebrow used across home (and matching) marketing modules. */
 export const sectionEyebrowClassName =
-  "text-xs font-semibold tracking-[0.2em] text-brand uppercase";
+  "text-xs font-semibold tracking-[0.2em] text-brand-strong uppercase";
 
 export function SectionEyebrow({
   children,
@@ -61,9 +67,16 @@ export function SectionEyebrow({
   return <p className={cn(sectionEyebrowClassName, className)}>{children}</p>;
 }
 
-/** Shared coral primary CTA surface; size and min-height stay overridable. */
+/**
+ * Shared coral primary CTA surface; size and min-height stay overridable.
+ * Tactile press: ink border + hard offset shadow that lifts on hover and
+ * collapses on press. Shadow colour comes from --cta-shadow (see tones).
+ */
 export const coralCtaClassName =
-  "w-full rounded-full bg-asip-coral text-white hover:bg-asip-coral-hover sm:w-auto";
+  "w-full rounded-full border-2 border-asip-ink bg-asip-coral text-white shadow-[3px_3px_0_0_var(--cta-shadow)] [--cta-shadow:var(--asip-ink)] transition-[translate,box-shadow,background-color] duration-200 ease-spring hover:-translate-x-px hover:-translate-y-px hover:bg-asip-coral-hover hover:shadow-[4px_4px_0_0_var(--cta-shadow)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none motion-reduce:transition-none sm:w-auto";
+
+/** On dark panels the ink shadow disappears, so it switches to mint. */
+export const coralCtaOnDarkClassName = "[--cta-shadow:var(--asip-mint)]";
 
 export function CoralCtaLink({
   href,
@@ -107,7 +120,7 @@ export function OutlineCtaLink({
       href={href}
       className={cn(
         buttonVariants({ size, variant: "outline" }),
-        "min-h-11 w-full rounded-full border-foreground/20 px-8 sm:w-auto",
+        "min-h-11 w-full rounded-full border-foreground/20 px-8 transition-[translate,background-color,color] duration-200 ease-spring hover:-translate-y-px motion-reduce:transition-none sm:w-auto",
         className,
       )}
     >

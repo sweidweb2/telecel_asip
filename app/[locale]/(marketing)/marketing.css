@@ -211,3 +211,60 @@
     transform: none;
   }
 }
+
+/* ── Refresh phase 1: brand accents (components/marketing/brand-accents.tsx) ── */
+
+/* Sun emphasis draws in once; the bar sits low so descenders stay clear. */
+@keyframes asip-emph-draw {
+  from {
+    background-size: 0% var(--asip-emph-size);
+  }
+  to {
+    background-size: 100% var(--asip-emph-size);
+  }
+}
+.asip-emph {
+  background-image: linear-gradient(var(--asip-sun), var(--asip-sun));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% var(--asip-emph-size);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  animation: asip-emph-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+}
+/* Light surfaces: a marker stroke behind the lower half of ink text. */
+.asip-emph--marker {
+  --asip-emph-size: 0.42em;
+  padding-inline: 0.06em;
+  margin-inline: -0.06em;
+  color: var(--asip-ink);
+}
+/* Dark surfaces: a thick bar under light text. */
+.asip-emph--underline {
+  --asip-emph-size: 0.1em;
+  padding-bottom: 0.06em;
+}
+
+/* Spectrum rule draws left to right when it scrolls into view. */
+@keyframes asip-spectrum-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@supports (animation-timeline: view()) {
+  .asip-spectrum-draw {
+    animation: asip-spectrum-draw linear both;
+    animation-range: entry 10% entry 60%;
+    animation-timeline: view();
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asip-emph,
+  .asip-spectrum-draw {
+    animation: none;
+  }
+}
