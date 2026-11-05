@@ -15,12 +15,12 @@ export type NewsletterSignupLabels = {
 const EN: NewsletterSignupLabels = {
   title: "Get ASIP updates",
   description:
-    "Occasional programme and portfolio notes. No spam - unsubscribe any time once delivery is live.",
+    "Occasional program and portfolio notes. No spam - unsubscribe any time once delivery is live.",
   inactiveNote:
     "Updates signup is built but inactive until privacy, routing and an owner are confirmed.",
   emailLabel: "Email",
   emailPlaceholder: "you@company.com",
-  consentLabel: "I agree to ASIP storing my email for programme updates.",
+  consentLabel: "I agree to ASIP storing my email for program updates.",
   submit: "Register for updates",
   submitting: "Submitting…",
   turnstileHint: "Complete the security check to continue.",

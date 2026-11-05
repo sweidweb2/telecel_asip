@@ -109,7 +109,21 @@ const nextConfig: NextConfig = {
   },
   /** 301s from the retired ASIP site (map in `constants/legacy-redirects.ts`). */
   async redirects() {
-    return legacyRedirectRules(DEFAULT_LOCALE);
+    return [
+      ...legacyRedirectRules(DEFAULT_LOCALE),
+      // Program page renamed from /programme (American English).
+      {
+        source: "/:locale(en|fr)/programme/:path*",
+        destination: "/:locale/program/:path*",
+        permanent: true,
+      },
+      // Status pages moved under /error so /[code] no longer clashes with /[locale].
+      {
+        source: "/:code(403|404|500|503)",
+        destination: "/error/:code",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

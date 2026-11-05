@@ -124,7 +124,7 @@ export const blogFieldsSchema = z
         code: "custom",
         path: ["categories", 0],
         message:
-          "First category must be one of the five ASIP streams (Founder Stories, Portfolio News, Programme Updates, Founder Resources, or Partner Perspectives).",
+          "First category must be one of the five ASIP streams (Founder Stories, Portfolio News, Program Updates, Founder Resources, or Partner Perspectives).",
       });
     }
   });

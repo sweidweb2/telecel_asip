@@ -24,7 +24,7 @@ describe("http-errors", () => {
   });
 
   it("builds hrefs with digest and generic code", () => {
-    expect(httpErrorHref("500", { digest: "abc" })).toBe("/500?digest=abc");
+    expect(httpErrorHref("500", { digest: "abc" })).toBe("/error/500?digest=abc");
     expect(httpErrorHref("generic", { code: "502" })).toBe("/error?code=502");
   });
 });

@@ -108,7 +108,7 @@ export const DASHBOARD_NAV_GROUPS = [
     ],
   },
   {
-    label: "Programme",
+    label: "Program",
     items: [
       {
         title: ADMIN_RESOURCES.events.navTitle,

@@ -14,7 +14,7 @@ export function SettingsPageContent({
   return (
     <AdminListPageShell title="Settings">
       <p className="text-sm text-muted-foreground">
-        Same site-wide intake switches for editors and admins — not two
+        Same site-wide intake switches for editors and admins, not two
         different settings products.
       </p>
       <SiteSettingsForm

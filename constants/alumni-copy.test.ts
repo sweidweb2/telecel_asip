@@ -26,7 +26,10 @@ describe("alumniCopyFor", () => {
 describe("alumni public activation", () => {
   it("is linked from the primary nav but excluded from the sitemap while HOLD", () => {
     for (const locale of ["en", "fr"] as const) {
-      const items = navLabelsFor(locale).items;
+      // Alumni sits inside the Founders dropdown, so flatten group children.
+      const items = navLabelsFor(locale).items.flatMap((item) =>
+        item.kind === "group" ? [item, ...item.children] : [item],
+      );
       expect(items.some((item) => item.href.endsWith("/alumni"))).toBe(true);
       expect(items.find((item) => item.href.endsWith("/alumni"))?.label).toBe(
         "Alumni",

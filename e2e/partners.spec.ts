@@ -59,7 +59,7 @@ test.describe("partners cms", () => {
         timeout: 20_000,
       });
       await page.getByLabel("Name").fill(name);
-      await page.getByLabel("Organisation").fill("E2E Ecosystem");
+      await page.getByLabel("Organization").fill("E2E Ecosystem");
       await page.getByLabel("Type").click();
       await page.getByRole("option", { name: "Mentors / operators" }).click();
       await page.getByRole("tab", { name: /Profile/i }).click();

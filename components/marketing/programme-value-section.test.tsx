@@ -24,7 +24,7 @@ describe("ProgrammeValueSection", () => {
     expect(copy.items).toHaveLength(7);
   });
 
-  it("renders French titles from programme copy", () => {
+  it("renders French titles from program copy", () => {
     const copy = programmeCopyFor("fr").value;
 
     render(<ProgrammeValueSection copy={copy} />);

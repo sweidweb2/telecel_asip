@@ -83,7 +83,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Cohorts",
     pageTitle: "Cohorts",
     description:
-      "Manage programme years, publish status, and linked partners and founders.",
+      "Manage program years, publish status, and linked partners and founders.",
     metaTitle: "Cohorts | ASIP Editor",
     cacheTags: ["cohorts"],
   },
@@ -132,7 +132,7 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
     navTitle: "Events",
     pageTitle: "Events",
     description:
-      "Programme events catalogue (speakers, assets, linked startups). No public events marketing page yet.",
+      "Program events catalog (speakers, assets, linked startups). No public events marketing page yet.",
     metaTitle: "Events | ASIP Editor",
     cacheTags: ["events"],
   },

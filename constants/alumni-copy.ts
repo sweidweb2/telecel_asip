@@ -17,7 +17,7 @@ const en: AlumniPageCopy = {
     eyebrow: "Alumni experience",
     title: "The cohort ends. The momentum continues.",
     description:
-      "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal programme, creating more opportunities to share knowledge, collaborate and stay close to the wider ecosystem.",
+      "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal program, creating more opportunities to share knowledge, collaborate and stay close to the wider ecosystem.",
     primaryCta: { slug: "founders", label: "Explore the community" },
   },
   purpose: {

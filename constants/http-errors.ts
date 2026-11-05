@@ -11,10 +11,10 @@ import type { Locale } from "@/constants/locales";
 
 /** Dedicated public status routes (unlocalized). */
 export const HTTP_ERROR_ROUTES = {
-  forbidden: "/403",
-  notFound: "/404",
-  serverError: "/500",
-  unavailable: "/503",
+  forbidden: "/error/403",
+  notFound: "/error/404",
+  serverError: "/error/500",
+  unavailable: "/error/503",
   generic: "/error",
 } as const;
 
@@ -95,7 +95,7 @@ const COPY: Record<Locale, Record<HttpErrorKind, HttpErrorLocaleCopy>> = {
     "503": {
       title: "Service unavailable",
       description:
-        "ASIP is temporarily unavailable. We are working on it — try again shortly.",
+        "ASIP is temporarily unavailable. We are working on it, try again shortly.",
       documentTitle: "Service unavailable",
       tryAgain: "Try again",
       goHome: "Go home",
@@ -137,7 +137,7 @@ const COPY: Record<Locale, Record<HttpErrorKind, HttpErrorLocaleCopy>> = {
     "503": {
       title: "Service indisponible",
       description:
-        "ASIP est temporairement indisponible. Nous y travaillons — réessayez sous peu.",
+        "ASIP est temporairement indisponible. Nous y travaillons, réessayez sous peu.",
       documentTitle: "Service indisponible",
       tryAgain: "Réessayer",
       goHome: "Retour à l’accueil",
@@ -210,7 +210,7 @@ export function isHttpStatusCode(value: string): value is HttpStatusCode {
   return (HTTP_STATUS_CODES as readonly string[]).includes(value);
 }
 
-/** Build `/500?digest=…` (or another status path) for client navigation. */
+/** Build `/error/500?digest=…` (or another status path) for client navigation. */
 export function httpErrorHref(
   kind: HttpErrorKind,
   options?: { digest?: string; code?: string },

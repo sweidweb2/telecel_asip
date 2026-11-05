@@ -7,7 +7,7 @@ const en: PartnersPageCopy = {
     titleLead: "The right opportunity can change a company’s",
     titleAccent: "trajectory.",
     description:
-      "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organisations to give founders practical expertise, capital, customers and markets.",
+      "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organizations to give founders practical expertise, capital, customers and markets.",
     cta: { slug: "contact", label: "Discuss a partnership" },
     proof: ["Investors", "Corporates", "Technology partners", "Mentors"],
   },
@@ -56,7 +56,7 @@ const en: PartnersPageCopy = {
         value:
           "Advance entrepreneurship, jobs, inclusion and technology-led solutions.",
         examples:
-          "Country initiatives, grants, sector programmes, impact measurement.",
+          "Country initiatives, grants, sector programs, impact measurement.",
       },
       {
         id: "mentors",
@@ -77,7 +77,7 @@ const en: PartnersPageCopy = {
   logos: {
     title: "What partners bring to founders.",
     description:
-      "Capital, technology, markets and expertise — grouped by what each partner actually puts into founders’ hands.",
+      "Capital, technology, markets and expertise, grouped by what each partner actually puts into founders’ hands.",
     bringsLabel: "What founders get:",
   },
   ctaSection: {
@@ -149,7 +149,7 @@ const fr: PartnersPageCopy = {
         value:
           "Faire progresser l’entrepreneuriat, l’emploi, l’inclusion et les solutions technologiques.",
         examples:
-          "Initiatives pays, subventions, programmes sectoriels, mesure d’impact.",
+          "Initiatives pays, subventions, programs sectoriels, mesure d’impact.",
       },
       {
         id: "mentors",
@@ -172,7 +172,7 @@ const fr: PartnersPageCopy = {
   logos: {
     title: "Ce que les partenaires apportent aux fondateurs.",
     description:
-      "Capital, technologie, marchés et expertise — regroupés selon ce que chaque partenaire met concrètement entre les mains des fondateurs.",
+      "Capital, technologie, marchés et expertise, regroupés selon ce que chaque partenaire met concrètement entre les mains des fondateurs.",
     bringsLabel: "Pour les fondateurs :",
   },
   ctaSection: {

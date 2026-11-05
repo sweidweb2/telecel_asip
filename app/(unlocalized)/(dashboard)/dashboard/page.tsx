@@ -57,12 +57,12 @@ const RESOURCE_BLURB: Partial<Record<string, string>> = {
   [ROUTES.applications]: "Official Apply submissions",
   [ROUTES.contactUs]: "Public contact messages",
   [ROUTES.newsletter]: "Update subscribers",
-  [ROUTES.cohorts]: "Programme years and linked founders",
+  [ROUTES.cohorts]: "Program years and linked founders",
   [ROUTES.founderStories]: "Narrative modules",
   [ROUTES.blogs]: "Insights articles",
   [ROUTES.portfolio]: "Startups on the public portfolio",
   [ROUTES.partners]: "Partners and mentors",
-  [ROUTES.events]: "Programme events catalogue",
+  [ROUTES.events]: "Program events catalog",
   [ROUTES.evidence]: "Evidence records",
   [ROUTES.impactMetrics]: "Impact metrics",
   [ROUTES.users]: "Accounts and CMS roles",
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
           )}
           {unread && !hasUnread ? (
             <p className="text-sm text-muted-foreground">
-              Inbox is clear — no unread registrations, applications, or contact
+              Inbox is clear, no unread registrations, applications, or contact
               messages.
             </p>
           ) : null}

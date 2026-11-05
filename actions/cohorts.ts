@@ -48,8 +48,8 @@ function refreshCohortPaths(id?: string) {
     cacheTags: resource.cacheTags,
   });
   // Related insight links are tagged with COHORTS_CACHE_TAG already — no blogs tag.
-  revalidatePath("/en/programme");
-  revalidatePath("/fr/programme");
+  revalidatePath("/en/program");
+  revalidatePath("/fr/program");
 }
 
 function toCohortJson(input: CreateCohortInput) {

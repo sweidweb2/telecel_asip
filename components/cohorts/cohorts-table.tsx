@@ -55,7 +55,7 @@ export function CohortsTable({
           <AdminRowNumberHead />
           <TableHead>Year</TableHead>
           <TableHead>Label</TableHead>
-          <TableHead>Programme</TableHead>
+          <TableHead>Program</TableHead>
           <TableHead>Publish</TableHead>
           <TableHead className="w-24 pr-4 text-right">Actions</TableHead>
         </TableRow>
@@ -67,7 +67,7 @@ export function CohortsTable({
           icon={UsersRoundIcon}
           isFiltered={isFiltered}
           emptyTitle="No cohorts yet"
-          emptyDescription="Create the first cohort to manage programmes on the site."
+          emptyDescription="Create the first cohort to manage programs on the site."
           noResultsTitle="No cohorts found"
           noResultsDescription="Try changing the filters or clearing search."
           createHref={ROUTES.cohortsNew}

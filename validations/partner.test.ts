@@ -79,7 +79,7 @@ describe("createPartnerSchema", () => {
     ).toBe(false);
   });
 
-  it("rejects a one-character organisation but allows it to be omitted", () => {
+  it("rejects a one-character organization but allows it to be omitted", () => {
     expect(createPartnerSchema.safeParse({ ...base, org: "X" }).success).toBe(
       false,
     );

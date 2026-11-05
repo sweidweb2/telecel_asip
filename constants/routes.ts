@@ -8,10 +8,10 @@ export const ROUTES = {
   /** @deprecated Use `signup` — kept for existing nav labels. */
   register: "/signup",
   /** Themed HTTP status pages (see `constants/http-errors.ts`). */
-  forbidden: "/403",
-  notFound: "/404",
-  serverError: "/500",
-  unavailable: "/503",
+  forbidden: "/error/403",
+  notFound: "/error/404",
+  serverError: "/error/500",
+  unavailable: "/error/503",
   error: "/error",
   dashboard: "/dashboard",
   users: "/dashboard/users",

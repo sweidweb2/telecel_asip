@@ -43,7 +43,7 @@ const sharedImagesEn: ImpactFanImage[] = [
   {
     id: "revenue",
     src: "/asip-media/programme-workshop.webp",
-    alt: "ASIP founders collaborating in a programme workshop",
+    alt: "ASIP founders collaborating in a program workshop",
     badge: "Revenue",
     dotClassName: "bg-brand",
   },
@@ -57,7 +57,7 @@ const sharedImagesEn: ImpactFanImage[] = [
   {
     id: "operations",
     src: "/asip-media/founders-community.webp",
-    alt: "ASIP founders and programme community together",
+    alt: "ASIP founders and program community together",
     badge: "Operations",
     dotClassName: "bg-[var(--asip-magenta)]",
   },
@@ -71,7 +71,7 @@ const sharedImagesEn: ImpactFanImage[] = [
   {
     id: "growth",
     src: "/asip-media/about-journey.webp",
-    alt: "ASIP founders on the programme journey",
+    alt: "ASIP founders on the program journey",
     badge: "Growth",
     dotClassName: "bg-brand-mid",
   },

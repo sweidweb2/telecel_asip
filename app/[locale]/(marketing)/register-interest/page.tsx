@@ -32,7 +32,7 @@ export async function generateMetadata({
           path: "/register-interest",
           title: "Register Interest | ASIP",
           description:
-            "Register to receive confirmed ASIP application dates, eligibility criteria and programme updates when announced.",
+            "Register to receive confirmed ASIP application dates, eligibility criteria and program updates when announced.",
           noIndex: openApplications,
         },
   );

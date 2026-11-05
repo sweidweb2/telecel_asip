@@ -71,7 +71,7 @@ describe("legacyRedirectRules", () => {
     });
   });
 
-  it("sends legacy entry points to the localised home page", () => {
+  it("sends legacy entry points to the localized home page", () => {
     expect(rules).toContainEqual({
       source: "/index.php",
       destination: "/en",

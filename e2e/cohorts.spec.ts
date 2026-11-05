@@ -23,8 +23,8 @@ test.describe("cohorts cms", () => {
         .click();
       await page.getByLabel("Year").fill("2026");
       await page.getByLabel("Public label").fill(label);
-      await page.getByLabel("Programme start").fill("2026-01-01");
-      await page.getByLabel("Programme end").fill("2026-12-31");
+      await page.getByLabel("Program start").fill("2026-01-01");
+      await page.getByLabel("Program end").fill("2026-12-31");
       await page.getByRole("button", { name: "Create cohort" }).click();
 
       await expect(page).toHaveURL(/\/dashboard\/cohorts\/[0-9a-f-]+/, {

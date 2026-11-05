@@ -4,7 +4,7 @@ export const EVENT_EDITOR_HELP = {
   basics: {
     title: "Basics",
     intro:
-      "Core event identity for the CMS. There is no public events marketing page yet — publish status prepares rows for when that surface ships.",
+      "Core event identity for the CMS. There is no public events marketing page yet, publish status prepares rows for when that surface ships.",
     fields: [
       {
         name: "Name",
@@ -23,7 +23,7 @@ export const EVENT_EDITOR_HELP = {
   },
   details: {
     title: "Details",
-    intro: "Where and how the event runs (admin catalogue fields).",
+    intro: "Where and how the event runs (admin catalog fields).",
     fields: [
       {
         name: "Location",

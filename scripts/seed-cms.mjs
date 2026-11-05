@@ -168,7 +168,7 @@ const SEED_STARTUPS = [
     slug: "seed-edusprint",
     name: "EduSprint",
     description:
-      "Workforce training marketplace that matches employers with modular digital skills programmes.",
+      "Workforce training marketplace that matches employers with modular digital skills programs.",
     status: "active",
     founded_at: "2021-06-10",
     details: {
@@ -408,7 +408,7 @@ const SEED_STARTUPS = [
     slug: "seed-buildcost",
     name: "BuildCost",
     description:
-      "Construction cost intelligence that benchmarks materials and labour for mid-rise developers.",
+      "Construction cost intelligence that benchmarks materials and labor for mid-rise developers.",
     status: "draft",
     founded_at: "2023-08-21",
     details: {
@@ -450,7 +450,7 @@ const SEED_COHORTS = [
     programme_dates_end: "2022-12-15",
     programme_status: "closed",
     summary:
-      "Second chapter expanded commercialisation clinics and investor dialogue for growth-stage teams.",
+      "Second chapter expanded commercialization clinics and investor dialogue for growth-stage teams.",
     publish_status: "published",
     partnerNames: ["ASIP", "Google Cloud", "FMO Ventures", "Startupbootcamp AfriTech"],
     startupSlugs: ["seed-farmtrace", "seed-solargrid-ops", "seed-insurebaobab"],
@@ -507,7 +507,7 @@ const SEED_EVIDENCE = [
   {
     key: "cohort-completions-2024",
     primary_source:
-      "ASIP programme ops export: cohort completion and demo-day attendance (2024).",
+      "ASIP program ops export: cohort completion and demo-day attendance (2024).",
     source_file_url: "https://www.untitledui.com/marketing/conversation.webp",
     measurement_period_start: "2024-01-01",
     measurement_period_end: "2024-12-31",
@@ -607,7 +607,7 @@ const SEED_EVIDENCE = [
   {
     key: "customer-pilots-open",
     primary_source:
-      "Commercialisation board: open enterprise pilots across current portfolio.",
+      "Commercialization board: open enterprise pilots across current portfolio.",
     measurement_period_start: "2025-01-01",
     measurement_period_end: "2025-06-30",
     status: "pending",
@@ -841,7 +841,7 @@ const SEED_EVENTS = [
     event_date: "2023-11-18",
     location: "Accra, Ghana",
     format: "hybrid",
-    speakers: ["Ada Okonkwo", "Yaw Owusu", "Programme lead"],
+    speakers: ["Ada Okonkwo", "Yaw Owusu", "Program lead"],
     assets: [COVER_URLS[0], COVER_URLS[2]],
     outcomes:
       "Twelve teams pitched corridor expansion plans to partners and operators.",
@@ -854,7 +854,7 @@ const SEED_EVENTS = [
     ],
   },
   {
-    name: "ASIP Commercialisation Clinic",
+    name: "ASIP Commercialization Clinic",
     event_date: "2024-06-12",
     location: "Virtual",
     format: "virtual",
@@ -1496,7 +1496,7 @@ function buildApplications() {
       traction:
         `We have early customers in ${pick(COUNTRIES, n)} and are measuring weekly active usage and paid pilots.`,
       programme_fit:
-        `We want ASIP workshops, operator introductions, and commercialisation support to expand into a second market.`,
+        `We want ASIP workshops, operator introductions, and commercialization support to expand into a second market.`,
       consent: true,
       comms_opt_in: n % 2 === 0,
       inbox_status: pick(INBOX_STATUSES, n),

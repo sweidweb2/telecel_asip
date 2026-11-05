@@ -32,7 +32,7 @@ describe("site nav apply CTA", () => {
 
 describe("site nav chrome copy", () => {
   it("keeps masthead and founders directory labels in the labels module", () => {
-    expect(enNavLabels().masthead).toBe("A Telecel Group programme");
+    expect(enNavLabels().masthead).toBe("A Telecel Group Program");
     expect(enNavLabels().foundersDirectory).toBe("Directory");
     expect(frNavLabels().masthead).toBe("Un programme du Groupe Telecel");
     expect(frNavLabels().foundersDirectory).toBe("Annuaire");
@@ -71,7 +71,7 @@ describe("site nav chrome copy", () => {
     expect(enNavLabels().items.map((entry) => entry.label)).toEqual([
       "Home",
       "About",
-      "Programme",
+      "Program",
       "Founders",
       "Impact",
       "Partners",

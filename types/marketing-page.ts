@@ -76,7 +76,7 @@ export type MarketingContentSlug = Exclude<
   | "insights"
   | "terms"
   | "privacy"
-  | "programme"
+  | "program"
   | "impact"
   | "alumni"
   | "partners"
@@ -300,6 +300,13 @@ export type ProgrammePageCopy = {
 };
 
 export type HomePageCopy = {
+  /** Investor | Startup entry pathways shared by the hero and next-chapter CTAs. */
+  pathways: {
+    prompt: string;
+    investor: HomePageLink;
+    /** Startup routes to the live intake (apply or register interest). */
+    startupLabel: string;
+  };
   hero: {
     /** Kept for copy parity; brand lives in site chrome, not the hero lockup. */
     brand: string;
@@ -385,6 +392,11 @@ export type HomePageCopy = {
     eyebrow: string;
     title: string;
     description: string;
+    /** 2026 applicant criteria, shown as a checklist under the theme. */
+    eligibility: {
+      title: string;
+      items: string[];
+    };
     /**
      * 2026 cohort theme. `status: "working"` renders a "working title" tag
      * until Telecel locks the final wording — swap `name` + flip to "final".

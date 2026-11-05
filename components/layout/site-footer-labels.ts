@@ -77,7 +77,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
     statement:
       "ASIP is a Telecel Group Program backing ambitious African technology founders with expertise, capital pathways, market access and relationships that help businesses grow.",
     exploreHeading: "Explore",
-    programmeHeading: "Programme",
+    programmeHeading: "Program",
     connectHeading: "Contact",
     socialHeading: "Follow",
     parentLabel: "Telecel Group",
@@ -92,7 +92,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "insights", label: "Insights" },
     ],
     programmeBefore: [
-      { slug: "programme", label: "The programme" },
+      { slug: "program", label: "The program" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],
@@ -127,7 +127,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "insights", label: "Perspectives" },
     ],
     programmeBefore: [
-      { slug: "programme", label: "Le programme" },
+      { slug: "program", label: "Le programme" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],
