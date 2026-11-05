@@ -107,7 +107,7 @@ export function HomeTelecelConnectionSection({
             >
               <div
                 className={cn(
-                  "flex items-center justify-center rounded-2xl border border-border/60 bg-background/80 px-3 shadow-[0_18px_40px_-20px_rgba(20,51,59,0.35)] backdrop-blur-sm",
+                  "flex items-center justify-center rounded-2xl border border-border/60 bg-background/80 px-3 shadow-[0_18px_40px_-20px_color-mix(in_srgb,var(--asip-ink)_35%,transparent)] backdrop-blur-sm",
                   slot.shell,
                 )}
               >
@@ -126,7 +126,7 @@ export function HomeTelecelConnectionSection({
 
         {/* Chat window */}
         <div className="relative z-10 mx-auto w-full max-w-xl sm:max-w-2xl">
-          <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-background shadow-[0_28px_80px_-36px_rgba(20,51,59,0.45)] sm:rounded-[2rem]">
+          <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-background shadow-[0_28px_80px_-36px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] sm:rounded-[2rem]">
             {/* Title bar */}
             <div className="flex items-center gap-3 border-b border-border/60 px-4 py-3 sm:px-5">
               <div className="flex items-center gap-1.5" aria-hidden>

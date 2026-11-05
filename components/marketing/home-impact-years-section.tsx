@@ -37,7 +37,7 @@ export function HomeImpactYearsSection({
     <section
       id="impact-years"
       aria-labelledby="home-impact-years-heading"
-      className={cn("relative overflow-hidden bg-[#14333b]", className)}
+      className={cn("relative overflow-hidden bg-asip-ink", className)}
     >
       {/* Same teal dots as platform — shows through the cutaway triangle */}
       <HomeTealDotPattern />

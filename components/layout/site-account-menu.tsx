@@ -59,7 +59,7 @@ export function SiteAccountMenu({ email, locale }: SiteAccountMenuProps) {
           aria-label={openLabel}
         >
           <Avatar className="size-8">
-            <AvatarFallback className="bg-[#14333b] text-xs text-white">
+            <AvatarFallback className="bg-asip-ink text-xs text-white">
               {initials}
             </AvatarFallback>
           </Avatar>

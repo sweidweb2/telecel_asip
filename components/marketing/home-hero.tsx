@@ -49,7 +49,7 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
   return (
     <section
       aria-label={continuumLabel}
-      className="relative isolate flex min-h-[70svh] items-start overflow-hidden bg-[#14333b] text-white sm:min-h-[80svh] md:min-h-[calc(100svh-5.5rem)]"
+      className="relative isolate flex min-h-[70svh] items-start overflow-hidden bg-asip-ink text-white sm:min-h-[80svh] md:min-h-[calc(100svh-5.5rem)]"
     >
       <div className="absolute inset-0" aria-hidden>
         <HomeHeroContinuum
@@ -75,8 +75,8 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
             </div>
           }
         />
-        <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(20,51,59,.97)_0%,rgba(20,51,59,.88)_36%,rgba(20,51,59,.45)_62%,rgba(20,51,59,.18)_82%,rgba(20,51,59,.08)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,51,59,.35)_0%,transparent_42%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(105deg,color-mix(in_srgb,var(--asip-ink)_97%,transparent)_0%,color-mix(in_srgb,var(--asip-ink)_88%,transparent)_36%,color-mix(in_srgb,var(--asip-ink)_45%,transparent)_62%,color-mix(in_srgb,var(--asip-ink)_18%,transparent)_82%,color-mix(in_srgb,var(--asip-ink)_8%,transparent)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_top,color-mix(in_srgb,var(--asip-ink)_35%,transparent)_0%,transparent_42%)]" />
       </div>
 
       <div

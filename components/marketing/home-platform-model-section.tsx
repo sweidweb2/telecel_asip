@@ -20,7 +20,7 @@ export function HomePlatformModelSection({
       id="platform-model"
       aria-labelledby="home-platform-model-heading"
       className={cn(
-        "relative overflow-hidden border-b border-white/10 bg-[#14333b] text-white",
+        "relative overflow-hidden border-b border-white/10 bg-asip-ink text-white",
         "px-4 pt-0 pb-12 sm:px-6 sm:pt-0 sm:pb-16 lg:px-8 lg:pt-0 lg:pb-20",
         className,
       )}

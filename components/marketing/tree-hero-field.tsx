@@ -205,7 +205,7 @@ export function TreeHeroField({ tone, patternId }: TreeHeroFieldProps) {
       <svg
         className={
           isPrimary
-            ? "absolute inset-0 h-full w-full text-[#9ad1bf] opacity-[0.07]"
+            ? "absolute inset-0 h-full w-full text-asip-mint opacity-[0.07]"
             : "absolute inset-0 h-full w-full text-primary opacity-[0.04]"
         }
       >
@@ -241,16 +241,16 @@ export function TreeHeroField({ tone, patternId }: TreeHeroFieldProps) {
               ? "absolute bottom-0 left-0 h-full w-full overflow-visible opacity-[0.14] sm:opacity-[0.16]"
               : "absolute bottom-0 left-0 h-full w-full overflow-visible opacity-[0.1] sm:opacity-[0.12]"
           }
-          strokeClassName={isPrimary ? "stroke-[#9ad1bf]" : "stroke-primary"}
+          strokeClassName={isPrimary ? "stroke-asip-mint" : "stroke-primary"}
         />
       </div>
 
       {isPrimary ? (
         <>
-          <div className="absolute left-1/2 top-[18%] size-[min(70vw,28rem)] -translate-x-1/2 rounded-full bg-[#179191]/25 blur-3xl" />
-          <div className="absolute -bottom-16 right-[12%] size-[min(55vw,22rem)] rounded-full bg-[#81b764]/20 blur-3xl" />
-          <div className="absolute bottom-[20%] left-[8%] size-[min(40vw,16rem)] rounded-full bg-[#9ad1bf]/15 blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(20,51,59,0.55)_0%,transparent_68%)]" />
+          <div className="absolute left-1/2 top-[18%] size-[min(70vw,28rem)] -translate-x-1/2 rounded-full bg-brand/25 blur-3xl" />
+          <div className="absolute -bottom-16 right-[12%] size-[min(55vw,22rem)] rounded-full bg-brand-mid/20 blur-3xl" />
+          <div className="absolute bottom-[20%] left-[8%] size-[min(40vw,16rem)] rounded-full bg-asip-mint/15 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,color-mix(in_srgb,var(--asip-ink)_55%,transparent)_0%,transparent_68%)]" />
         </>
       ) : (
         <>

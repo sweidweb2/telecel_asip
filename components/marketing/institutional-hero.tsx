@@ -39,7 +39,7 @@ export function InstitutionalHero({
     <section
       aria-labelledby={headingId}
       className={cn(
-        "institutional-hero relative isolate overflow-hidden bg-[#14333b] text-white",
+        "institutional-hero relative isolate overflow-hidden bg-asip-ink text-white",
         className,
       )}
     >

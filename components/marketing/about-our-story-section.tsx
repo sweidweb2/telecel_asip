@@ -94,7 +94,7 @@ export function AboutOurStorySection({
     <section id="our-story" className="relative scroll-mt-20 overflow-visible">
       <span
         aria-hidden
-        className="pointer-events-none absolute -left-56 top-8 h-[34rem] w-[30rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(23,145,145,0.08)_0%,rgba(23,145,145,0.035)_42%,transparent_76%)] blur-[52px]"
+        className="pointer-events-none absolute -left-56 top-8 h-[34rem] w-[30rem] rounded-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--brand)_8%,transparent)_0%,color-mix(in_srgb,var(--brand)_3.5%,transparent)_42%,transparent_76%)] blur-[52px]"
       />
       <span
         aria-hidden

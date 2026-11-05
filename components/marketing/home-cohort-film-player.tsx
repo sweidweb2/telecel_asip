@@ -76,11 +76,11 @@ export function HomeCohortFilmPlayer({
           />
           <div
             aria-hidden
-            className="absolute inset-0 bg-[linear-gradient(165deg,rgba(20,51,59,.35)_0%,rgba(20,51,59,.12)_38%,rgba(20,51,59,.55)_100%)]"
+            className="absolute inset-0 bg-[linear-gradient(165deg,color-mix(in_srgb,var(--asip-ink)_35%,transparent)_0%,color-mix(in_srgb,var(--asip-ink)_12%,transparent)_38%,color-mix(in_srgb,var(--asip-ink)_55%,transparent)_100%)]"
           />
           <div
             aria-hidden
-            className="absolute inset-x-0 bottom-0 h-2/5 bg-[linear-gradient(to_top,rgba(20,51,59,.72)_0%,transparent_100%)]"
+            className="absolute inset-x-0 bottom-0 h-2/5 bg-[linear-gradient(to_top,color-mix(in_srgb,var(--asip-ink)_72%,transparent)_0%,transparent_100%)]"
           />
 
           <p className="pointer-events-none absolute top-4 left-4 z-10 text-[0.65rem] font-semibold tracking-[0.18em] text-white/80 uppercase sm:top-5 sm:left-5 sm:text-xs">
@@ -104,7 +104,7 @@ export function HomeCohortFilmPlayer({
               <span
                 className={cn(
                   "relative inline-flex size-14 items-center justify-center rounded-full sm:size-16",
-                  "bg-white text-asip-ink shadow-[0_12px_40px_rgba(20,51,59,.35)]",
+                  "bg-white text-asip-ink shadow-[0_12px_40px_color-mix(in_srgb,var(--asip-ink)_35%,transparent)]",
                   "transition-transform duration-300 ease-out",
                   "group-hover/play:scale-105 group-active/play:scale-95",
                 )}

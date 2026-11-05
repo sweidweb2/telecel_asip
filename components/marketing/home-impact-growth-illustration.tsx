@@ -20,9 +20,9 @@ const STEP_FILLS = [
   "#e8f2f1",
   "#c5e0de",
   "#7bbbb8",
-  "#179191",
+  "var(--brand)",
   "#0f6e6e",
-  "#14333b",
+  "var(--asip-ink)",
 ] as const;
 
 const CORAL_PATH =

@@ -51,7 +51,7 @@ function NarrativeVisual({
         style={{ objectPosition: media.position }}
         sizes="(max-width: 1024px) 100vw, 50vw"
       />
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#14333b]/80 via-[#14333b]/35 to-transparent p-4 pt-16 sm:p-5 sm:pt-20">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-asip-ink/80 via-asip-ink/35 to-transparent p-4 pt-16 sm:p-5 sm:pt-20">
         <p className="text-center text-xs font-medium uppercase tracking-[0.14em] text-white">
           {label}
         </p>

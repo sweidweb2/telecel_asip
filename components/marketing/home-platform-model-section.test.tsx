@@ -111,7 +111,7 @@ describe("HomePlatformModelSection", () => {
     expect(discover).toHaveClass("bg-white");
     expect(build).toHaveClass("bg-white");
     expect(connect).toHaveClass("bg-white", "scale-110");
-    expect(commercialise).toHaveClass("bg-[#14333b]");
+    expect(commercialise).toHaveClass("bg-asip-ink");
   });
 
   it("loops from last stage back to first via spinner selection", async () => {

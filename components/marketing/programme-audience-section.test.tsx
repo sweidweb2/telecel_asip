@@ -61,7 +61,7 @@ describe("ProgrammeAudienceSection", () => {
     );
     const section = container.querySelector("section#audience");
 
-    expect(section).toHaveClass("bg-[#14333b]");
+    expect(section).toHaveClass("bg-asip-ink");
     expect(section).toHaveClass("text-white");
   });
 });

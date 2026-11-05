@@ -80,7 +80,7 @@ function LanguageToggle({
             className={cn(
               "inline-flex min-h-9 min-w-10 items-center justify-center rounded-full px-3 text-xs font-semibold uppercase transition-colors hover:bg-muted",
               active
-                ? "bg-[#14333b] text-white hover:bg-[#14333b]"
+                ? "bg-asip-ink text-white hover:bg-asip-ink"
                 : "text-muted-foreground",
             )}
             aria-current={active ? "true" : undefined}
@@ -100,17 +100,17 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
   const desktopLinkClass = (active: boolean) =>
     cn(
-      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-[#14333b] transition-colors hover:bg-transparent hover:text-[#179191] focus:bg-transparent xl:px-3",
-      active && "text-[#179191] shadow-[inset_0_-3px_0_#179191]",
+      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-asip-ink transition-colors hover:bg-transparent hover:text-brand focus:bg-transparent xl:px-3",
+      active && "text-brand shadow-[inset_0_-3px_0_var(--brand)]",
     );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-black/10 bg-[#fbfaf6]/97 text-[#14333b] backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-black/10 bg-background/97 text-asip-ink backdrop-blur-md">
       <div className="grid h-1 grid-cols-4" aria-hidden>
-        <span className="bg-[#179191]" />
-        <span className="bg-[#81b764]" />
-        <span className="bg-[#c14a9b]" />
-        <span className="bg-[#dc395f]" />
+        <span className="bg-brand" />
+        <span className="bg-brand-mid" />
+        <span className="bg-asip-magenta" />
+        <span className="bg-asip-coral" />
       </div>
 
       <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 md:h-[4.75rem] lg:gap-5 lg:px-8 xl:px-10">
@@ -213,7 +213,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             <SheetTrigger
               className={cn(
                 buttonVariants({ variant: "outline", size: "icon" }),
-                "min-h-11 min-w-11 border-[#14333b]/25 bg-transparent",
+                "min-h-11 min-w-11 border-asip-ink/25 bg-transparent",
               )}
               aria-label={labels.menuLabel}
             >
@@ -221,10 +221,10 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="!inset-y-2 !right-2 !h-auto w-3/4 max-w-[20rem] gap-0 overflow-hidden rounded-3xl border border-[#14333b]/12 bg-[#fbfaf6] p-0 shadow-2xl"
+              className="!inset-y-2 !right-2 !h-auto w-3/4 max-w-[20rem] gap-0 overflow-hidden rounded-3xl border border-asip-ink/12 bg-background p-0 shadow-2xl"
             >
-              <SheetHeader className="shrink-0 border-b border-[#14333b]/10 px-6 py-5">
-                <SheetTitle className="text-lg font-semibold text-[#14333b]">
+              <SheetHeader className="shrink-0 border-b border-asip-ink/10 px-6 py-5">
+                <SheetTitle className="text-lg font-semibold text-asip-ink">
                   {labels.menuLabel}
                 </SheetTitle>
                 <p className="pr-10 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
@@ -252,9 +252,9 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                             onClick={() => setOpen(false)}
                             className={cn(
                               buttonVariants({ variant: "ghost" }),
-                              "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
+                              "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand",
                               isNavActive(pathname, child.href, locale) &&
-                                "bg-[#179191]/10 font-semibold text-[#179191]",
+                                "bg-brand/10 font-semibold text-brand",
                             )}
                           >
                             {child.label}
@@ -271,16 +271,16 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                       onClick={() => setOpen(false)}
                       className={cn(
                         buttonVariants({ variant: "ghost" }),
-                        "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-[#14333b] hover:bg-[#179191]/8 hover:text-[#179191]",
+                        "h-12 shrink-0 justify-start rounded-xl px-4 text-base text-asip-ink hover:bg-brand/8 hover:text-brand",
                         isNavActive(pathname, entry.href, locale) &&
-                          "bg-[#179191]/10 font-semibold text-[#179191]",
+                          "bg-brand/10 font-semibold text-brand",
                       )}
                     >
                       {entry.label}
                     </Link>
                   );
                 })}
-                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
+                <div className="my-3 shrink-0 border-t border-asip-ink/10" />
                 <p className="mb-1 shrink-0 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {labels.languageGroupLabel}
                 </p>
@@ -290,7 +290,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                   groupLabel={labels.languageGroupLabel}
                   onLinkClick={() => setOpen(false)}
                 />
-                <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
+                <div className="my-3 shrink-0 border-t border-asip-ink/10" />
                 <Link
                   href={labels.apply.href}
                   onClick={() => setOpen(false)}

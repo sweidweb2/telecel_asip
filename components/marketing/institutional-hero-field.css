@@ -12,7 +12,7 @@
       rgb(154 209 191 / 0.16),
       transparent 58%
     ),
-    linear-gradient(180deg, #1a3f48 0%, #14333b 48%, #0f282e 100%);
+    linear-gradient(180deg, var(--asip-ink-raised) 0%, var(--asip-ink) 48%, var(--asip-ink-deep) 100%);
 }
 
 .institutional-hero-field[data-composition="ledger"] .institutional-hero-field__wash {
@@ -22,7 +22,7 @@
       rgb(23 145 145 / 0.18),
       transparent 55%
     ),
-    linear-gradient(185deg, #163840 0%, #14333b 50%, #0e262c 100%);
+    linear-gradient(185deg, #163840 0%, var(--asip-ink) 50%, #0e262c 100%);
 }
 
 .institutional-hero-field[data-composition="constellation"] .institutional-hero-field__wash {
@@ -32,7 +32,7 @@
       rgb(154 209 191 / 0.14),
       transparent 60%
     ),
-    linear-gradient(180deg, #1a3f48 0%, #123038 52%, #0f282e 100%);
+    linear-gradient(180deg, var(--asip-ink-raised) 0%, #123038 52%, var(--asip-ink-deep) 100%);
 }
 
 .institutional-hero-field[data-composition="horizon"] .institutional-hero-field__wash {
@@ -42,7 +42,7 @@
       rgb(129 183 100 / 0.12),
       transparent 55%
     ),
-    linear-gradient(175deg, #1c434c 0%, #14333b 46%, #0f282e 100%);
+    linear-gradient(175deg, #1c434c 0%, var(--asip-ink) 46%, var(--asip-ink-deep) 100%);
 }
 
 .institutional-hero-field[data-composition="blueprint"] .institutional-hero-field__wash {
@@ -52,7 +52,7 @@
       rgb(23 145 145 / 0.16),
       transparent 50%
     ),
-    linear-gradient(180deg, #173840 0%, #14333b 50%, #0d2429 100%);
+    linear-gradient(180deg, #173840 0%, var(--asip-ink) 50%, #0d2429 100%);
 }
 
 .institutional-hero-field[data-composition="portal"] .institutional-hero-field__wash,
@@ -63,7 +63,7 @@
       rgb(154 209 191 / 0.12),
       transparent 62%
     ),
-    linear-gradient(180deg, #1a3f48 0%, #14333b 48%, #0f282e 100%);
+    linear-gradient(180deg, var(--asip-ink-raised) 0%, var(--asip-ink) 48%, var(--asip-ink-deep) 100%);
 }
 
 .institutional-hero-field[data-composition="signal"] .institutional-hero-field__wash {
@@ -73,7 +73,7 @@
       rgb(154 209 191 / 0.15),
       transparent 58%
     ),
-    linear-gradient(188deg, #1a3f48 0%, #14333b 45%, #0f282e 100%);
+    linear-gradient(188deg, var(--asip-ink-raised) 0%, var(--asip-ink) 45%, var(--asip-ink-deep) 100%);
 }
 
 .institutional-hero-field__hatch {

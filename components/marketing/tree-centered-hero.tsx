@@ -58,7 +58,7 @@ export function TreeCenteredHero({
         "relative isolate overflow-hidden border-b",
         isLight
           ? "border-border bg-background text-foreground"
-          : "border-white/10 bg-[#14333b] text-white",
+          : "border-white/10 bg-asip-ink text-white",
         className,
       )}
     >

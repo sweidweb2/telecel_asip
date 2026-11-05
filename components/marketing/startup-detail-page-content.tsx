@@ -178,7 +178,7 @@ export function StartupDetailPageContent({
         </div>
 
         <div className="mx-auto mt-6 w-full max-w-7xl px-5 sm:mt-8 sm:px-8 lg:px-10">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#14333b] md:aspect-[2/1]">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-asip-ink md:aspect-[2/1]">
             {startupCoverFor(startup) ? (
               <Image
                 src={startupCoverFor(startup)!}
@@ -303,7 +303,7 @@ export function StartupDetailPageContent({
           ) : null}
 
           {publicOutcome ? (
-            <section className="mt-10 max-w-3xl border-l-4 border-[#c14a9b] bg-muted/50 p-6 sm:mt-12 sm:p-8">
+            <section className="mt-10 max-w-3xl border-l-4 border-asip-magenta bg-muted/50 p-6 sm:mt-12 sm:p-8">
               <h2 className="font-heading text-2xl font-semibold">
                 {labels.outcome}
               </h2>

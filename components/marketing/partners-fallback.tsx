@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PartnersFallback() {
   return (
     <div className="w-full">
-      <div className="relative min-h-[22rem] bg-[#0b1c22] px-4 py-16 sm:min-h-[26rem] sm:px-6 lg:px-8">
+      <div className="relative min-h-[22rem] bg-asip-ink-night px-4 py-16 sm:min-h-[26rem] sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-7xl space-y-4">
           <Skeleton className="h-3 w-36 bg-white/15" />
           <Skeleton className="h-10 w-full max-w-xl bg-white/20" />

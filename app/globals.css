@@ -50,6 +50,10 @@
   --color-brand-subtle: var(--brand-subtle);
   /* ASIP 30–60–10: ink ≈ secondary surfaces/text; coral ≈ 10% accent; mint on ink panels */
   --color-asip-ink: var(--asip-ink);
+  --color-asip-ink-raised: var(--asip-ink-raised);
+  --color-asip-ink-deep: var(--asip-ink-deep);
+  --color-asip-ink-night: var(--asip-ink-night);
+  --color-asip-sand: var(--asip-sand);
   --color-asip-coral: var(--asip-coral);
   --color-asip-coral-hover: var(--asip-coral-hover);
   --color-asip-magenta: var(--asip-magenta);
@@ -81,6 +85,11 @@
   --brand-soft: #dce9df;
   --brand-subtle: #f2f5ef;
   --asip-ink: #14333b;
+  /* Ink shades for layered dark panels: raised (lighter) → deep → night. */
+  --asip-ink-raised: #1a3f48;
+  --asip-ink-deep: #0f282e;
+  --asip-ink-night: #0b1c22;
+  --asip-sand: #f5e6b8;
   --asip-magenta: #c14a9b;
   --asip-coral: #dc395f;
   --asip-coral-hover: color-mix(in srgb, #dc395f 82%, #ffffff);

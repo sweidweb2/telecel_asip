@@ -112,7 +112,19 @@ How each color is used:
 
 ## 5. Engineering plan
 
-**Phase 0: tokenize, with no visual change (half a day to a day).**
+**Phase 0: tokenize, with no visual change. ✅ Done on 5 November 2026.**
+- Changed 219 color values in 37 files under `components/marketing`, `components/layout` and `app/[locale]`:
+  - Tailwind classes and SVG attributes now use the theme tokens.
+  - The ink-colored `rgba(...)` values in gradients and shadows now use `color-mix(in srgb, var(--token) N%, transparent)`.
+- New tokens: `--asip-ink-raised` `#1a3f48`, `--asip-ink-deep` `#0f282e`, `--asip-ink-night` `#0b1c22` and `--asip-sand` `#f5e6b8`.
+- Verified with no visible change. I compared computed colors for every element on 12 pages (EN home, About, Program, Founders, Impact, Partners, Insights, Contact, Register Interest, FAQ, Alumni and FR home) before and after, at the pixel level, and found 0 differences.
+- Left as hard-coded on purpose. These are one-off shades that Phase 1 will derive from tokens:
+  - gradient middle stops in `institutional-hero-field.css`,
+  - the stair tints in `home-impact-growth-illustration.tsx`,
+  - illustration accents in `cta-startup-illustration.tsx`,
+  - the decorative window dots.
+
+Original description:
 The marketing components hard-code colors about 200 times: `#14333b` 82×, `#9ad1bf` 35×, `#179191` 32×, `#81b764` 12× and others. Replace them with token classes (`bg-asip-ink`, `text-asip-mint`, …). After that, retuning the palette is a change in `app/globals.css` only. Before-and-after screenshots should be identical.
 
 **Phase 1: foundations (1 day).**

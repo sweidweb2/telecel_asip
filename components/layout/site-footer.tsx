@@ -83,7 +83,7 @@ function FooterLinkList({
 
 export function SiteFooter({ labels }: SiteFooterProps) {
   return (
-    <footer className="mt-auto border-t border-white/10 bg-[#14333b] text-white">
+    <footer className="mt-auto border-t border-white/10 bg-asip-ink text-white">
       <div className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         {/* 5 columns so the proposition gets 2 and the link lists sit right. */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
@@ -114,7 +114,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
+                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-asip-ink sm:w-auto",
                 )}
               >
                 {labels.parent.label}
@@ -123,7 +123,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 href={labels.contact.href}
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
+                  "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-asip-ink sm:w-auto",
                 )}
               >
                 {labels.contact.label}
@@ -195,7 +195,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               href={labels.apply.href}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-[#14333b] sm:w-auto",
+                "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-asip-ink sm:w-auto",
               )}
             >
               {labels.apply.label}

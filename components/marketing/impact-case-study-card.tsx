@@ -65,7 +65,7 @@ export function ImpactCaseStudyCard({
         ) : (
           <div
             aria-hidden
-            className="flex size-full items-center justify-center bg-[#14333b]"
+            className="flex size-full items-center justify-center bg-asip-ink"
           >
             {name ? (
               <span className="font-heading text-2xl font-semibold text-white/70 sm:text-3xl">

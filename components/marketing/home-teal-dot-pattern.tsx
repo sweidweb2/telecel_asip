@@ -34,7 +34,7 @@ export function HomeTealDotPattern({
       {withVignette ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,transparent_0%,rgba(20,51,59,0.55)_70%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,transparent_0%,color-mix(in_srgb,var(--asip-ink)_55%,transparent)_70%)]"
         />
       ) : null}
     </>

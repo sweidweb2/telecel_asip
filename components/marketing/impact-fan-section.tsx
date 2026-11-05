@@ -196,7 +196,7 @@ function FanCard({
     >
       <div
         className={cn(
-          "relative size-full rounded-2xl bg-white p-1 shadow-[0_18px_40px_-24px_rgba(20,51,59,0.45)] ring-1 ring-foreground/8 sm:rounded-3xl sm:p-1.5",
+          "relative size-full rounded-2xl bg-white p-1 shadow-[0_18px_40px_-24px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] ring-1 ring-foreground/8 sm:rounded-3xl sm:p-1.5",
           "origin-center transition-transform duration-300 ease-out will-change-transform hover:scale-105",
         )}
       >

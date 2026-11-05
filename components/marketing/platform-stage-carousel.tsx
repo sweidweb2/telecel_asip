@@ -62,11 +62,11 @@ export function PlatformStageCarousel({
       <div className="relative min-h-0 w-full flex-1 overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-10 bg-linear-to-r from-[#14333b] to-transparent sm:w-14"
+          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-10 bg-linear-to-r from-asip-ink to-transparent sm:w-14"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-10 bg-linear-to-l from-[#14333b] to-transparent sm:w-14"
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-10 bg-linear-to-l from-asip-ink to-transparent sm:w-14"
         />
 
         <ul className="absolute inset-0">
@@ -104,10 +104,10 @@ export function PlatformStageCarousel({
                   aria-label={slide.alt}
                   className={cn(
                     "relative block size-full overflow-hidden rounded-xl outline-none",
-                    "focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#14333b]",
+                    "focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-asip-ink",
                     isActive
-                      ? "border-[5px] border-white shadow-[0_18px_40px_-18px_rgba(20,51,59,0.45),0_0_0_1px_rgba(20,51,59,0.08)]"
-                      : "border border-transparent shadow-[0_10px_24px_-16px_rgba(20,51,59,0.35)]",
+                      ? "border-[5px] border-white shadow-[0_18px_40px_-18px_color-mix(in_srgb,var(--asip-ink)_45%,transparent),0_0_0_1px_color-mix(in_srgb,var(--asip-ink)_8%,transparent)]"
+                      : "border border-transparent shadow-[0_10px_24px_-16px_color-mix(in_srgb,var(--asip-ink)_35%,transparent)]",
                   )}
                 >
                   <Image
@@ -126,7 +126,7 @@ export function PlatformStageCarousel({
                   {!isActive ? (
                     <span
                       aria-hidden
-                      className="absolute inset-0 bg-[#14333b]/25"
+                      className="absolute inset-0 bg-asip-ink/25"
                     />
                   ) : null}
                 </button>

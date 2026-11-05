@@ -139,7 +139,7 @@ function StepSpinner({
                     ? isActive
                       ? "scale-110 bg-white text-asip-ink shadow-[0_0_0_6px_color-mix(in_oklab,white_22%,transparent)]"
                       : "bg-white text-asip-ink shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent)] hover:scale-105"
-                    : "bg-[#14333b] text-white shadow-[0_0_0_1px_color-mix(in_oklab,white_35%,transparent)] hover:scale-105 hover:shadow-[0_0_0_4px_color-mix(in_oklab,white_14%,transparent)]",
+                    : "bg-asip-ink text-white shadow-[0_0_0_1px_color-mix(in_oklab,white_35%,transparent)] hover:scale-105 hover:shadow-[0_0_0_4px_color-mix(in_oklab,white_14%,transparent)]",
                 )}
               >
                 <span className="leading-none">

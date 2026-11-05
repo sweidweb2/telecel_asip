@@ -80,7 +80,7 @@ export function HomeCohortFilmSection({
             aria-hidden
             className="absolute -inset-x-3 -inset-y-3 -z-10 rounded-[1.5rem] bg-asip-ink/10 blur-2xl sm:-inset-x-5 sm:-inset-y-4"
           />
-          <div className="overflow-hidden rounded-xl shadow-[0_24px_60px_-28px_rgba(20,51,59,.45)] sm:rounded-2xl">
+          <div className="overflow-hidden rounded-xl shadow-[0_24px_60px_-28px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] sm:rounded-2xl">
             <div className="flex h-1.5 w-full" aria-hidden>
               {SPECTRUM.map((color) => (
                 <span key={color} className={cn("h-full flex-1", color)} />
