@@ -21,8 +21,9 @@ export function startupInitials(name: string): string {
  * Classes are literal so Tailwind can see them.
  */
 const COHORT_ACCENTS = [
-  { bar: "bg-brand", chip: "bg-brand text-white" },
-  { bar: "bg-asip-magenta", chip: "bg-asip-magenta text-white" },
+  { bar: "bg-brand", chip: "bg-brand-strong text-white" },
+  // Chips carry 12px white labels: teal uses brand-strong and magenta darkens toward ink to clear AA.
+  { bar: "bg-asip-magenta", chip: "bg-[color-mix(in_srgb,var(--asip-magenta)_85%,var(--asip-ink))] text-white" },
   { bar: "bg-asip-coral", chip: "bg-asip-coral text-white" },
   { bar: "bg-asip-mint", chip: "bg-asip-mint text-asip-ink" },
   { bar: "bg-asip-ink", chip: "bg-asip-ink text-white" },

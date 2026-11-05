@@ -11,6 +11,7 @@ const en: HomePageCopy = {
     investor: { slug: "founders", label: "Investor" },
     startupLabel: "Startup",
   },
+  portfolioMarqueeLabel: "Countries in the ASIP portfolio",
   hero: {
     brand: "ASIP",
     eyebrow: "Africa Startup Initiative Program",
@@ -229,6 +230,7 @@ const fr: HomePageCopy = {
     investor: { slug: "founders", label: "Investisseur" },
     startupLabel: "Startup",
   },
+  portfolioMarqueeLabel: "Pays du portefeuille ASIP",
   hero: {
     brand: "ASIP",
     eyebrow: "Programme africain d’initiative pour les startups",

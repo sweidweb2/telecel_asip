@@ -9,9 +9,12 @@ import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years
 import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
 import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
 import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
+import { MarqueeStrip } from "@/components/marketing/marquee-strip";
+import { MobilePathwayBar } from "@/components/marketing/mobile-pathway-bar";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homeCopyFor } from "@/constants/home-copy";
 import type { Locale } from "@/constants/locales";
+import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ImpactMetricPublicItem } from "@/types/impact-metric";
@@ -34,6 +37,8 @@ type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
   intake: IntakeCta;
+  /** ISO country codes with active portfolio startups, for the ticker. */
+  portfolioCountries: string[];
   /** Below-fold insights — owned by the home route so `data/` stays out of components. */
   latestInsights: ReactNode;
 };
@@ -42,9 +47,14 @@ export function HomePageContent({
   locale,
   metrics,
   intake,
+  portfolioCountries,
   latestInsights,
 }: HomePageContentProps) {
   const copy = homeCopyFor(locale);
+  const countryNames = new Intl.DisplayNames([locale], { type: "region" });
+  const countries = portfolioCountries
+    .map((code) => countryNames.of(code) ?? code)
+    .sort((a, b) => a.localeCompare(b, locale));
 
   return (
     <main>
@@ -74,6 +84,8 @@ export function HomePageContent({
 
       <HomeCohortFilmSection copy={copy.cohortFilm} />
 
+      <MarqueeStrip items={countries} label={copy.portfolioMarqueeLabel} />
+
       <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
 
       <HomePlatformModelSection copy={copy.platform} />
@@ -96,6 +108,15 @@ export function HomePageContent({
       />
 
       {latestInsights}
+
+      <MobilePathwayBar
+        prompt={copy.pathways.prompt}
+        investor={{
+          href: publicPath(locale, copy.pathways.investor.slug),
+          label: copy.pathways.investor.label,
+        }}
+        startup={{ href: intake.href, label: copy.pathways.startupLabel }}
+      />
     </main>
   );
 }

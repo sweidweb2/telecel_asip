@@ -150,6 +150,25 @@ Original description:
 - Type scale, the radius bump, the `--ease-spring` token.
 - Components: `Emph` (highlighter), `Sticker`, the `SpectrumLine` divider, and the CTA offset shadow in `coralCtaClassName`.
 
+**Phase 2: components. ✅ Done on 5 November 2026.**
+- **Built:**
+  - `bento.tsx`: `BentoGrid`, `BentoCard` (spans out of six, tones, tall) and `BentoIcon`.
+  - `quote-card.tsx`: `QuoteCard`.
+  - `count-up-stat.tsx`: `CountUpStat`. Server HTML and reduced-motion visitors get the final number, and screen readers hear it once.
+  - `marquee-strip.tsx`: `MarqueeStrip`. It loops seamlessly, pauses on hover, and screen readers read the list once. With reduced motion it's a static wrapped line.
+  - `mobile-pathway-bar.tsx`: `MobilePathwayBar`. A phone-only Investor | Startup bar that appears after the hero buttons scroll away and hides at the footer. It's `inert` while hidden, and it sets `--pathway-bar-offset` so the music button moves up.
+- **Live on the site now:**
+  - A ticker of the portfolio's countries under the cohort film. It reads `get_active_startup_filter_options`, uses names in the visitor's language (12 countries), and falls back to nothing if the read fails.
+  - The phone pathway bar on home.
+  - Founder cards: tilted cohort stickers, sector pills, founder names more prominent, 24px corners, a spring hover with a slight tilt.
+  - Insight cards: category pill, rounder image, spring lift.
+- **Built and tested, applied in Phase 3:** bento grid, quote card and count-up stat.
+- **Contrast:** 0 failures across 10 pages, including Founders, Insights and FAQ. Three issues that were already on the live site are fixed:
+  - white on the teal and magenta cohort chips,
+  - faded Insights and FAQ tab labels.
+- **Note:** sector names are stored only in English, so the ticker shows countries, which translate. Sectors can join once the French CMS columns exist (see plan [2]).
+
+Original description:
 **Phase 2: components (1–2 days).**
 - Bento card grid, quote card, stat sticker with count-up, marquee strip, mobile sticky pathway bar.
 - Founder card refresh, insight card refresh.

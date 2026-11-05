@@ -41,7 +41,7 @@ export function StartupCard({
     <Link
       href={founderStartupPath(locale, startup.slug, fromPage)}
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card outline-none transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-foreground/15 hover:shadow-[0_18px_40px_-20px_rgb(20_51_59/0.45)] focus-visible:ring-3 focus-visible:ring-ring/50",
+        "group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-card outline-none transition-[translate,rotate,box-shadow,border-color] duration-300 ease-spring hover:-translate-y-1 hover:rotate-[-0.4deg] hover:border-foreground/15 hover:shadow-[0_18px_40px_-20px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none",
         className,
       )}
     >
@@ -64,12 +64,12 @@ export function StartupCard({
         )}
         <div
           aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(to_top,rgb(20_51_59/0.55)_0%,transparent_45%)]"
+          className="absolute inset-0 bg-[linear-gradient(to_top,color-mix(in_srgb,var(--asip-ink)_55%,transparent)_0%,transparent_45%)]"
         />
         {startup.cohort ? (
           <span
             className={cn(
-              "absolute top-4 left-4 rounded-full px-2.5 py-1 text-[0.7rem] font-semibold tracking-wide shadow-sm",
+              "absolute top-4 left-4 -rotate-2 rounded-full px-2.5 py-1 font-heading text-xs font-semibold tracking-tight shadow-sm",
               accent.chip,
             )}
           >
@@ -90,7 +90,7 @@ export function StartupCard({
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5 sm:p-6">
         {startup.sector ? (
-          <p className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">
+          <p className="w-fit rounded-full bg-brand-subtle px-2.5 py-0.5 text-xs font-semibold text-brand-strong">
             {startup.sector}
           </p>
         ) : null}
@@ -98,7 +98,7 @@ export function StartupCard({
           {startup.name}
         </h3>
         {startup.founder_names.length > 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-asip-ink/80">
             {startup.founder_names.join(", ")}
           </p>
         ) : null}
@@ -123,7 +123,7 @@ export function StartupCard({
           {labels.view}
           <ArrowUpRight
             aria-hidden
-            className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="size-4 transition-transform duration-300 ease-spring group-hover:translate-x-1 group-hover:-translate-y-1 motion-reduce:transition-none"
           />
         </span>
       </div>

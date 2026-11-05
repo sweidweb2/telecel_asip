@@ -172,7 +172,7 @@ export function HomeInsightsCarousel({
             <BlogCard
               article={article}
               locale={locale}
-              className="h-full rounded-2xl border border-border/70 p-3 sm:p-3.5"
+              className="h-full rounded-3xl border border-border/70 bg-card p-3 sm:p-3.5"
             />
           </li>
         ))}

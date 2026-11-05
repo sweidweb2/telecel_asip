@@ -307,6 +307,8 @@ export type HomePageCopy = {
     /** Startup routes to the live intake (apply or register interest). */
     startupLabel: string;
   };
+  /** Screen-reader name for the portfolio countries ticker under the cohort film. */
+  portfolioMarqueeLabel: string;
   hero: {
     /** Kept for copy parity; brand lives in site chrome, not the hero lockup. */
     brand: string;

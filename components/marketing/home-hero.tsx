@@ -121,7 +121,11 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
             {copy.description}
           </p>
 
-          <div role="group" aria-labelledby="home-hero-pathways">
+          <div
+            role="group"
+            aria-labelledby="home-hero-pathways"
+            data-pathway-hero
+          >
             <p
               id="home-hero-pathways"
               className="mt-9 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"

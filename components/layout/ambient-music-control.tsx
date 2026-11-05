@@ -289,7 +289,7 @@ export function AmbientMusicControl() {
   };
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-40 sm:right-6 sm:bottom-6">
+    <div className="pointer-events-none fixed right-4 bottom-[calc(1rem+var(--pathway-bar-offset,0px))] z-40 transition-[bottom] duration-300 sm:right-6 sm:bottom-6">
       <Button
         type="button"
         variant="outline"

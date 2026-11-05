@@ -6,6 +6,7 @@ import { HomePageContent } from "@/components/marketing/home-page-content";
 import { HomeLatestInsightsLoader } from "./home-latest-insights-loader";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getOpenApplications } from "@/data/settings";
+import { getActiveStartupFilterOptions } from "@/data/startups";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
@@ -39,9 +40,13 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [metrics, openApplications] = await Promise.all([
+  const [metrics, openApplications, portfolioCountries] = await Promise.all([
     getHomeImpactMetrics(),
     getOpenApplications(),
+    // The ticker is decoration: a failed read hides it rather than the page.
+    getActiveStartupFilterOptions()
+      .then((options) => options.countries)
+      .catch(() => [] as string[]),
   ]);
   const intake = intakeCtaFor(locale, openApplications);
 
@@ -50,6 +55,7 @@ export default async function Page({ params }: PageProps) {
       locale={locale}
       metrics={metrics}
       intake={intake}
+      portfolioCountries={portfolioCountries}
       latestInsights={
         <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
           <HomeLatestInsightsLoader locale={locale} />
