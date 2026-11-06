@@ -27,7 +27,7 @@ export async function generateMetadata({
           path: "/contact",
           title: "Contact us - ASIP",
           description:
-            "Choose a founder, partner, media or general enquiry route and the ASIP team will direct it to the relevant owner.",
+            "Choose a founder, partner, media or general inquiry route and the ASIP team will direct it to the relevant owner.",
         },
   );
 }

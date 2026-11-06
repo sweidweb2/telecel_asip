@@ -27,7 +27,7 @@ describe("ContactForm", () => {
 
     render(<ContactForm locale="en" labels={labels} />);
 
-    const partner = screen.getByRole("radio", { name: /partner enquiry/i });
+    const partner = screen.getByRole("radio", { name: /partner inquiry/i });
     await user.click(partner);
     expect(partner).toBeChecked();
   });

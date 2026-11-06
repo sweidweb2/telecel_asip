@@ -203,7 +203,7 @@ const SEED_STARTUPS = [
       country_code: "CI",
       sector: "Logistics",
       founder_names: ["Fatou Diop"],
-      public_outcome: "Digitised 22,000 border document packs in 2025.",
+      public_outcome: "Digitized 22,000 border document packs in 2025.",
       featured: false,
       founding_year: 2020,
       problem: "Shippers lose days to paper checks and opaque lane rates.",
@@ -462,7 +462,7 @@ const SEED_COHORTS = [
     programme_dates_end: "2023-12-01",
     programme_status: "closed",
     summary:
-      "Cohort centred on corridor expansion, B2B sales playbooks, and Telecel network introductions.",
+      "Cohort centered on corridor expansion, B2B sales playbooks, and Telecel network introductions.",
     publish_status: "published",
     partnerNames: ["ASIP", "AWS", "HubSpot", "Freshworks", "Accelerator²"],
     startupSlugs: [
@@ -1541,7 +1541,7 @@ function buildContactMessages() {
       full_name: `${first} ${last}`,
       email: `seed.contact.${n}@example.com`,
       phone: phoneFor(n + 100),
-      subject: `${enquiry} enquiry #${n} about ASIP`,
+      subject: `${enquiry} inquiry #${n} about ASIP`,
       message:
         `Hello ASIP team - this is a seeded ${enquiry} message (#${n}) to exercise the contact inbox filters, ` +
         `search, and triage flows. Please ignore in production.`,

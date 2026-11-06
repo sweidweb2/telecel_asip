@@ -24,8 +24,8 @@ function dummyBody(title) {
   return [
     `${title} is a topic that matters to founders building technology ventures across Africa. This article outlines practical ideas you can apply while scaling product, team, and market access.`,
     "ASIP shares these insights to help participating ventures and the wider ecosystem learn from real program experience. The examples here are illustrative and will evolve as cohorts progress.",
-    "Founders often face similar questions around prioritisation, customer discovery, and partnership strategy. We focus on patterns that appear repeatedly across markets and sectors.",
-    "Use this as a starting point for conversation with mentors, peers, and partners. Programme-specific guidance is always shared directly with selected teams during each cycle.",
+    "Founders often face similar questions around prioritization, customer discovery, and partnership strategy. We focus on patterns that appear repeatedly across markets and sectors.",
+    "Use this as a starting point for conversation with mentors, peers, and partners. Program-specific guidance is always shared directly with selected teams during each cycle.",
   ];
 }
 

@@ -25,7 +25,7 @@ type ContactMessageMessages = {
 
 const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
   en: {
-    enquiryTypeInvalid: "Choose an enquiry route",
+    enquiryTypeInvalid: "Choose an inquiry route",
     fullNameMin: "Name must be at least 2 characters",
     fullNameMax: "Name must be at most 100 characters",
     invalidEmail: "Enter a valid email address",

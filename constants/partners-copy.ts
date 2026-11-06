@@ -149,7 +149,7 @@ const fr: PartnersPageCopy = {
         value:
           "Faire progresser l’entrepreneuriat, l’emploi, l’inclusion et les solutions technologiques.",
         examples:
-          "Initiatives pays, subventions, programs sectoriels, mesure d’impact.",
+          "Initiatives pays, subventions, programmes sectoriels, mesure d’impact.",
       },
       {
         id: "mentors",

@@ -111,7 +111,7 @@ export function PartnerSortOrderMap({
               <p className="min-w-0 text-xs text-muted-foreground">
                 Showing {start}–{end} (page {page} of {pageCount}
                 {takenOnPage > 0 ? ` · ${takenOnPage} taken` : ""}). Taken slots
-                are marked; free slots are grey.
+                are marked; free slots are gray.
               </p>
               <div className="flex items-center gap-1">
                 <Button
