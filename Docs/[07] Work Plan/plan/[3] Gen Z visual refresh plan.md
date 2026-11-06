@@ -198,6 +198,22 @@ Original description:
 - Home sections per the table above.
 - Copy files gain optional emphasis markers (EN and FR), with no wording changes.
 
+**Phase 4: polish and QA. ✅ Done on 6 November 2026.**
+- **Sideways scrolling:** checked 14 pages (EN and FR) at 375, 768, 1280 and 1536px on the production build. One issue, already on the live site: About scrolled sideways by 30–50px at every width because a decorative glow stuck out. Fixed with `overflow-x-clip`. Re-check: 0.
+- **Reduced motion:** checked 8 pages with `prefers-reduced-motion`. One issue, also already live: the platform ring kept spinning forever. Fixed with `motion-reduce:animate-none`. Re-check: no endless animations. The ticker, highlighter, spectrum draw and spring hovers already switch off.
+- **Page speed:** production builds, phone viewport, CPU slowed 4×, median of 3 runs per page, `main` vs this branch:
+
+| Page | LCP main → branch | Blocking time main → branch | JS | Layout shift |
+|---|---|---|---|---|
+| /en | 800 → 800–832 ms | 94 → 100–131 ms | +4 KB | 0 → 0 |
+| /en/about | 324 → 400–436 ms | 130 → 163–197 ms | +1 KB | 0 → 0 |
+| /en/founders | 316 → 292–328 ms | 69 → 81–117 ms | +1 KB | 0 → 0 |
+| /en/program | 724 → 760–784 ms | 87 → 68–130 ms | +1 KB | 0 → 0 |
+
+  The branch's two runs moved by as much as the difference from `main` (Program blocking time 130 → 68 ms between runs), so there's no measurable slowdown. Every page stays well under the "good" thresholds (largest content paint under 2.5s, blocking time under 200 ms, layout shift under 0.1). No new JavaScript libraries were added.
+- **Contrast:** checked in Phases 1–3. 0 failures on 10 EN and FR pages.
+
+Original description:
 **Phase 4: polish and QA (1 day).**
 - Contrast check for every text and background pair (target AA 4.5:1, or 3:1 for large text).
 - `prefers-reduced-motion` turns off marquee, tilt, count-up and line-draw.
