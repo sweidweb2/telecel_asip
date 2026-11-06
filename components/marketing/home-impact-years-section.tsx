@@ -3,6 +3,7 @@ import Image from "next/image";
 import { HomeImpactGrowthIllustration } from "@/components/marketing/home-impact-growth-illustration";
 import { AnimatedMetricValue } from "@/components/marketing/animated-metric-value";
 import { HomeTealDotPattern } from "@/components/marketing/home-teal-dot-pattern";
+import { LOGO_SPECTRUM } from "@/components/marketing/brand-accents";
 import { SectionEyebrow } from "@/components/marketing/page-elements";
 import { metricPeriod } from "@/lib/marketing/metric-period";
 import { cn } from "@/lib/utils";
@@ -82,7 +83,7 @@ export function HomeImpactYearsSection({
             <SectionEyebrow>Impact</SectionEyebrow>
             <h2
               id="home-impact-years-heading"
-              className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl"
+              className="mt-4 font-heading text-3xl font-semibold leading-[1.05] tracking-[-0.03em] text-balance text-foreground sm:text-4xl lg:text-5xl"
             >
               {copy.title}
             </h2>
@@ -92,10 +93,10 @@ export function HomeImpactYearsSection({
 
             {metrics.length > 0 ? (
               <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
-                {metrics.map((metric) => {
+                {metrics.map((metric, index) => {
                   const period = metricPeriod(metric);
                   return <li key={metric.id} className="min-w-0" data-reveal="fade">
-                    <p className="font-heading text-3xl font-semibold tracking-tight text-foreground metric-numeral sm:text-4xl">
+                    <p className="font-heading text-4xl font-semibold tracking-[-0.04em] text-foreground metric-numeral sm:text-5xl">
                       <AnimatedMetricValue value={metric.value} />
                       {metric.unit ? (
                         <span className="ml-1 text-xl font-semibold text-muted-foreground sm:text-2xl">
@@ -103,7 +104,14 @@ export function HomeImpactYearsSection({
                         </span>
                       ) : null}
                     </p>
-                    <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "mt-2.5 block h-1.5 w-10 rounded-full",
+                        LOGO_SPECTRUM[index % LOGO_SPECTRUM.length],
+                      )}
+                    />
+                    <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
                       {metric.claim_label}
                     </p>
                     {period ? <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{period}</p> : null}

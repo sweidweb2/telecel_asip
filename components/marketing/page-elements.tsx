@@ -54,8 +54,9 @@ export function SectionHeading({
 }
 
 /** Brand-tracking eyebrow used across home (and matching) marketing modules. */
+/** Mint pill label above home section headings (refresh phase 3). */
 export const sectionEyebrowClassName =
-  "text-xs font-semibold tracking-[0.2em] text-brand-strong uppercase";
+  "flex w-fit items-center gap-1.5 rounded-full bg-asip-mint px-3 py-1 font-heading text-xs font-semibold tracking-tight text-asip-ink sm:text-sm";
 
 export function SectionEyebrow({
   children,

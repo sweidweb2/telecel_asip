@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CtaStartupIllustration } from "@/components/marketing/cta-startup-illustration";
+import { coralCtaClassName } from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
@@ -47,7 +48,8 @@ export function PageCtaSection({ locale, cta, className }: PageCtaSectionProps) 
           href={href}
           className={cn(
             buttonVariants({ size: "lg" }),
-            "mt-4 min-h-11 rounded-full px-8 sm:mt-5",
+            coralCtaClassName,
+            "mt-4 min-h-11 px-8 sm:mt-5",
           )}
         >
           {cta.label}

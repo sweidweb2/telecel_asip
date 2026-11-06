@@ -134,10 +134,10 @@ function StepSpinner({
                 aria-label={`${String(index + 1).padStart(2, "0")} ${step.title}`}
                 title={step.title}
                 className={cn(
-                  "flex size-12 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-xs font-semibold transition-all duration-300",
+                  "flex size-12 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-xs font-semibold transition-all duration-300 ease-spring motion-reduce:transition-none",
                   isReached
                     ? isActive
-                      ? "scale-110 bg-white text-asip-ink shadow-[0_0_0_6px_color-mix(in_oklab,white_22%,transparent)]"
+                      ? "scale-110 bg-asip-sun text-asip-ink shadow-[0_0_0_6px_color-mix(in_oklab,var(--asip-sun)_30%,transparent)]"
                       : "bg-white text-asip-ink shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent)] hover:scale-105"
                     : "bg-asip-ink text-white shadow-[0_0_0_1px_color-mix(in_oklab,white_35%,transparent)] hover:scale-105 hover:shadow-[0_0_0_4px_color-mix(in_oklab,white_14%,transparent)]",
                 )}

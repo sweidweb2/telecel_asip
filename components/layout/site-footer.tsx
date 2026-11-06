@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ComponentType } from "react";
 
 import type { SiteFooterLabels } from "@/components/layout/site-footer-labels";
+import { SpectrumLine } from "@/components/marketing/brand-accents";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -83,7 +84,8 @@ function FooterLinkList({
 
 export function SiteFooter({ labels }: SiteFooterProps) {
   return (
-    <footer className="mt-auto border-t border-white/10 bg-asip-ink text-white">
+    <footer className="mt-auto bg-asip-ink text-white">
+      <SpectrumLine draw />
       <div className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         {/* 5 columns so the proposition gets 2 and the link lists sit right. */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
@@ -101,7 +103,7 @@ export function SiteFooter({ labels }: SiteFooterProps) {
                 className="h-20 w-auto sm:h-24"
               />
             </Link>
-            <p className="font-heading text-lg font-semibold tracking-tight text-balance sm:text-xl">
+            <p className="font-heading text-2xl font-semibold leading-[1.05] tracking-[-0.03em] text-balance sm:text-3xl">
               {labels.headline}
             </p>
             <p className="max-w-md text-sm leading-6 text-white/65 text-pretty">

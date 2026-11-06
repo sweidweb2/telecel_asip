@@ -1,3 +1,4 @@
+import { LOGO_SPECTRUM } from "@/components/marketing/brand-accents";
 import { HomeCohortFilmPlayer } from "@/components/marketing/home-cohort-film-player";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
@@ -8,12 +9,7 @@ type HomeCohortFilmSectionProps = {
 };
 
 /** ASIP spectrum — same order as the hero and next-chapter bars. */
-const SPECTRUM = [
-  "bg-brand",
-  "bg-asip-mint",
-  "bg-asip-magenta",
-  "bg-asip-coral",
-] as const;
+const SPECTRUM = LOGO_SPECTRUM;
 
 /**
  * Home Module 02 — Cohort 3 film.
@@ -80,7 +76,7 @@ export function HomeCohortFilmSection({
             aria-hidden
             className="absolute -inset-x-3 -inset-y-3 -z-10 rounded-[1.5rem] bg-asip-ink/10 blur-2xl sm:-inset-x-5 sm:-inset-y-4"
           />
-          <div className="overflow-hidden rounded-xl shadow-[0_24px_60px_-28px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] sm:rounded-2xl">
+          <div className="overflow-hidden rounded-3xl shadow-[0_24px_60px_-28px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] sm:rounded-2xl">
             <div className="flex h-1.5 w-full" aria-hidden>
               {SPECTRUM.map((color) => (
                 <span key={color} className={cn("h-full flex-1", color)} />

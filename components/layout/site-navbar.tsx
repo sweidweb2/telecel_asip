@@ -101,7 +101,7 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
 
   const desktopLinkClass = (active: boolean) =>
     cn(
-      "relative flex min-h-11 items-center rounded-none bg-transparent px-2.5 text-sm font-semibold text-asip-ink transition-colors hover:bg-transparent hover:text-brand-strong focus:bg-transparent xl:px-3",
+      "relative flex min-h-11 items-center whitespace-nowrap rounded-none bg-transparent px-2.5 text-sm font-semibold text-asip-ink transition-colors hover:bg-transparent hover:text-brand-strong focus:bg-transparent xl:px-3",
       active && "text-brand-strong shadow-[inset_0_-3px_0_var(--brand)]",
     );
 

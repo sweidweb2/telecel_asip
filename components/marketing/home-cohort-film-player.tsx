@@ -99,14 +99,14 @@ export function HomeCohortFilmPlayer({
             <span className="relative inline-flex items-center justify-center">
               <span
                 aria-hidden
-                className="home-cohort-film-pulse absolute size-20 rounded-full bg-white/35 sm:size-24"
+                className="home-cohort-film-pulse absolute size-24 rounded-full bg-asip-sun/40 sm:size-28"
               />
               <span
                 className={cn(
-                  "relative inline-flex size-14 items-center justify-center rounded-full sm:size-16",
-                  "bg-white text-asip-ink shadow-[0_12px_40px_color-mix(in_srgb,var(--asip-ink)_35%,transparent)]",
-                  "transition-transform duration-300 ease-out",
-                  "group-hover/play:scale-105 group-active/play:scale-95",
+                  "relative inline-flex size-16 items-center justify-center rounded-full border-2 border-asip-ink sm:size-20",
+                  "bg-asip-sun text-asip-ink shadow-[3px_3px_0_0_var(--asip-ink)]",
+                  "transition-transform duration-300 ease-spring motion-reduce:transition-none",
+                  "group-hover/play:scale-110 group-active/play:scale-95",
                 )}
               >
                 <Play

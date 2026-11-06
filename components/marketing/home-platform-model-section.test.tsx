@@ -110,7 +110,7 @@ describe("HomePlatformModelSection", () => {
 
     expect(discover).toHaveClass("bg-white");
     expect(build).toHaveClass("bg-white");
-    expect(connect).toHaveClass("bg-white", "scale-110");
+    expect(connect).toHaveClass("bg-asip-sun", "scale-110");
     expect(commercialise).toHaveClass("bg-asip-ink");
   });
 

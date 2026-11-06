@@ -115,6 +115,7 @@ const en: HomePageCopy = {
     insetAlt: "An ASIP founder celebrating with her team",
   },
   ecosystem: {
+    eyebrow: "Ecosystem",
     title: "The right opportunity can change a company’s trajectory.",
     description:
       "ASIP works across a network of mentors, investors, corporates, technology partners, development institutions and ecosystem organizations to open practical opportunities for founder growth.",
@@ -334,6 +335,7 @@ const fr: HomePageCopy = {
     insetAlt: "Une fondatrice ASIP célèbre avec son équipe",
   },
   ecosystem: {
+    eyebrow: "Écosystème",
     title: "La bonne opportunité peut changer la trajectoire d’une entreprise.",
     description:
       "ASIP travaille avec un réseau de mentors, d’investisseurs, d’entreprises, de partenaires technologiques, d’institutions de développement et d’organisations de l’écosystème pour ouvrir aux fondateurs des opportunités concrètes de croissance.",

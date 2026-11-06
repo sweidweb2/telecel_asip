@@ -110,10 +110,12 @@ export function HomeNextChapterSection({
                     key={item}
                     className="flex items-start gap-2.5 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7"
                   >
-                    <Check
+                    <span
                       aria-hidden
-                      className="mt-1 size-4 shrink-0 text-brand sm:mt-1.5"
-                    />
+                      className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-asip-mint text-asip-ink sm:mt-1"
+                    >
+                      <Check className="size-3.5" strokeWidth={3} />
+                    </span>
                     {item}
                   </li>
                 ))}

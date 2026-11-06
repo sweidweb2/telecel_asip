@@ -372,6 +372,7 @@ export type HomePageCopy = {
     insetAlt: string;
   };
   ecosystem: {
+    eyebrow: string;
     title: string;
     description: string;
     cta: HomePageLink;

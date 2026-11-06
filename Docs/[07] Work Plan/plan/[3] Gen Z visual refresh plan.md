@@ -173,6 +173,27 @@ Original description:
 - Bento card grid, quote card, stat sticker with count-up, marquee strip, mobile sticky pathway bar.
 - Founder card refresh, insight card refresh.
 
+**Phase 3: apply to sections. ✅ Done on 6 November 2026.**
+- **Ecosystem:** a bento grid with a 4+2 / 2+4 / 3+3 rhythm (mint Mentors, ink Investors, blush Ecosystem organizations), larger headings, and a translated eyebrow. It was hard-coded English before, so it showed in English on the French page.
+- **Section eyebrows:** now mint pills in sentence case (`sectionEyebrowClassName`), used on all home sections.
+- **Cohort film:**
+  - spectrum in logo order,
+  - 24px frame,
+  - a sun play disc with an ink border and offset shadow.
+- **Impact metrics:** bigger numerals with a spectrum bar under each. The live database has no published metrics yet, so they show once metrics are added.
+- **Platform:** the active step is a sun disc.
+- **2026 eligibility:** mint check chips.
+- **Footer:**
+  - spectrum line on top that draws in on scroll,
+  - larger "African founders. Built to scale." line.
+- **Inner pages:** the shared hero (`tree-centered-hero`) and closing CTA (`page-cta-section`) now use the raised coral CTA, so About, Program, Founders, Impact, Partners and the rest match home.
+- **Header:** nav labels no longer wrap. French "À propos" used to break onto two lines at 1280px.
+- **Not done:**
+  - Quote cards: the CMS has no quote text yet, only `quote_permission_status`. They need approved founder quotes (client question 2).
+  - Telecel panel grain: skipped, because the panel is light, not ink.
+- **Contrast:** 0 failures on 10 pages: EN and FR home, About, EN and FR Program, Founders, Impact, Partners, Insights and FAQ.
+
+Original description:
 **Phase 3: apply to sections (2 days).**
 - Home sections per the table above.
 - Copy files gain optional emphasis markers (EN and FR), with no wording changes.
