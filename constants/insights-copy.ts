@@ -12,7 +12,7 @@ const en: InsightsPageCopy = {
     eyebrow: "Insights",
     title: "Stories, signals and lessons from the ecosystem.",
     description:
-      "Founder stories, portfolio progress, programme news and practical perspectives from across the ASIP ecosystem.",
+      "Founder stories, portfolio progress, program news and practical perspectives from across the ASIP ecosystem.",
   },
   streams: {
     columns: {
@@ -37,7 +37,7 @@ const en: InsightsPageCopy = {
       },
       {
         id: "programme-updates",
-        stream: "Programme Updates",
+        stream: "Program Updates",
         purpose: "Cohort, application, event and demo-day status.",
         example: "ASIP opens registration for its next founder cycle.",
       },
@@ -60,7 +60,7 @@ const en: InsightsPageCopy = {
   updates: {
     title: "Stay close to the next chapter.",
     description:
-      "Register for confirmed ASIP programme updates, founder stories and ecosystem opportunities.",
+      "Register for confirmed ASIP program updates, founder stories and ecosystem opportunities.",
     slug: "register-interest",
     label: "Register for updates",
   },

@@ -27,7 +27,7 @@ const SEED_PARTNERS = [
     org: "Telecel Group",
     type: "media",
     contribution:
-      "Programme brand presence across ecosystem events and founder showcases.",
+      "Program brand presence across ecosystem events and founder showcases.",
     is_active: true,
     logo_permission: true,
     logo_url: "/partners/asip.png",
@@ -75,7 +75,7 @@ const SEED_PARTNERS = [
     org: null,
     type: "technology",
     contribution:
-      "Digital hub programmes and founder community connections.",
+      "Digital hub programs and founder community connections.",
     is_active: true,
     logo_permission: true,
     logo_url: "/partners/dhub.png",
@@ -159,7 +159,7 @@ const SEED_PARTNERS = [
     org: null,
     type: "development",
     contribution:
-      "Sector programmes and cohort delivery across African markets.",
+      "Sector programs and cohort delivery across African markets.",
     is_active: true,
     logo_permission: true,
     logo_url: "/partners/sbc-afritech.png",

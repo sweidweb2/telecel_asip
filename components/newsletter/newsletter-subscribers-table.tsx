@@ -82,7 +82,7 @@ export function NewsletterSubscribersTable({
             {subscriber.email}
           </TableCell>
           <TableCell className="max-w-[10rem] truncate text-muted-foreground sm:max-w-[14rem]">
-            {subscriber.source_page ?? "—"}
+            {subscriber.source_page ?? "Not recorded"}
           </TableCell>
           <TableCell>{subscriber.consent ? "Yes" : "No"}</TableCell>
           <TableCell className="whitespace-nowrap text-muted-foreground">

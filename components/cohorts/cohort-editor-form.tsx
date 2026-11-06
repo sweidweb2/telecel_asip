@@ -55,7 +55,7 @@ import {
 const COHORT_EDITOR_STEPS = [
   {
     id: "programme",
-    title: "Programme",
+    title: "Program",
     description: "Identity & dates",
     fields: [
       "year",
@@ -294,7 +294,7 @@ export function CohortEditorForm({
 
                 <div className="grid gap-2">
                   <AdminFormFieldLabel htmlFor="programmeDatesStart">
-                    Programme start
+                    Program start
                   </AdminFormFieldLabel>
                   <Input
                     id="programmeDatesStart"
@@ -311,7 +311,7 @@ export function CohortEditorForm({
 
                 <div className="grid gap-2">
                   <AdminFormFieldLabel htmlFor="programmeDatesEnd">
-                    Programme end
+                    Program end
                   </AdminFormFieldLabel>
                   <Input
                     id="programmeDatesEnd"
@@ -328,7 +328,7 @@ export function CohortEditorForm({
 
                 <div className="grid gap-2">
                   <AdminFormFieldLabel htmlFor="programmeStatus">
-                    Programme status
+                    Program status
                   </AdminFormFieldLabel>
                   <Controller
                     control={control}

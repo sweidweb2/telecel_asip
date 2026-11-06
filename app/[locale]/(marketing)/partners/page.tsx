@@ -18,14 +18,14 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/partners",
-          title: "Devenir partenaire d’ASIP | Rencontrer les fondateurs africains",
+          title: "Découvrir les opportunités de partenariat | ASIP",
           description:
             "Travaillez avec ASIP pour soutenir les fondateurs africains avec l’expertise, la technologie, le capital, l’accès marché et des opportunités concrètes.",
         }
       : {
           locale,
           path: "/partners",
-          title: "Partner with ASIP | Back African Founders",
+          title: "Explore Partnership Opportunities | ASIP",
           description:
             "Work with ASIP to back African founders with expertise, technology, capital, market access and practical opportunities.",
         },

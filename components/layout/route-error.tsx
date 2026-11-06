@@ -31,8 +31,8 @@ function getServerIsHttpErrorPath() {
 
 /**
  * Segment / global error boundary UI.
- * Unexpected failures navigate to the themed `/500` page; status routes stay inline
- * so a failure on `/500` itself cannot loop.
+ * Unexpected failures navigate to the themed `/error/500` page; status routes stay inline
+ * so a failure on `/error/500` itself cannot loop.
  */
 export function RouteError({
   error,

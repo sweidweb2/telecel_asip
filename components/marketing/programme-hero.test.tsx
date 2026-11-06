@@ -6,7 +6,7 @@ import { programmeCopyFor } from "@/constants/programme-copy";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 describe("ProgrammeHero", () => {
-  it("renders the programme copy and both CTAs", () => {
+  it("renders the program copy and both CTAs", () => {
     const copy = programmeCopyFor("en");
     const intake = intakeCtaFor("en", false);
 

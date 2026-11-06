@@ -13,7 +13,7 @@ const en: ImpactPageCopy = {
     eyebrow: "Impact",
     title: "The story is what happened next.",
     description:
-      "ASIP’s impact is measured by what founders build after the programme: stronger companies, better products, new markets, investment readiness, jobs, partnerships and technology that changes how people live and work.",
+      "ASIP’s impact is measured by what founders build after the program: stronger companies, better products, new markets, investment readiness, jobs, partnerships and technology that changes how people live and work.",
     cta: { slug: "founders", label: "Explore founder stories" },
   },
   progress: {
@@ -55,7 +55,7 @@ const en: ImpactPageCopy = {
       },
       {
         id: "commercialisation",
-        lens: "Commercialisation",
+        lens: "Commercialization",
         framing: "Where ideas become pilots, customers and partnerships",
         evidence:
           "Named pilots, contracts, proof-of-concepts, partner confirmation.",
@@ -166,7 +166,7 @@ const fr: ImpactPageCopy = {
       },
       {
         id: "commercialisation",
-        lens: "Commercialisation",
+        lens: "Commercialization",
         framing:
           "Là où les idées deviennent pilotes, clients et partenariats",
         evidence:

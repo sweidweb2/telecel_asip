@@ -204,7 +204,7 @@ test.describe("apply and register-interest", () => {
       await page
         .locator("#intake-problem")
         .fill(
-          "Clinics lose patients to paper records. We digitise outpatient workflows so teams ship care faster across African cities.",
+          "Clinics lose patients to paper records. We digitize outpatient workflows so teams ship care faster across African cities.",
         );
       await page
         .locator("#intake-traction")

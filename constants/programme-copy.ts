@@ -10,7 +10,7 @@ import type { ProgrammePageCopy } from "@/types/marketing-page";
  */
 const en: ProgrammePageCopy = {
   hero: {
-    eyebrow: "The programme",
+    eyebrow: "The program",
     title: "Build the company, not just the pitch.",
     description:
       "ASIP helps ambitious African technology founders strengthen the fundamentals behind growth: product, strategy, operations, market access, investor readiness and the relationships that help opportunities become real.",
@@ -42,7 +42,7 @@ const en: ProgrammePageCopy = {
         id: "select",
         title: "Select",
         description:
-          "Teams are assessed against founder quality, problem relevance, product potential, traction, scalability and programme fit.",
+          "Teams are assessed against founder quality, problem relevance, product potential, traction, scalability and program fit.",
       },
       {
         id: "build",
@@ -58,7 +58,7 @@ const en: ProgrammePageCopy = {
       },
       {
         id: "commercialise",
-        title: "Commercialise",
+        title: "Commercialize",
         description:
           "Founders prepare for pilots, customer conversations, proof-of-concept opportunities and longer-term partnerships.",
       },
@@ -113,20 +113,19 @@ const en: ProgrammePageCopy = {
         id: "continuity",
         title: "Continuity",
         description:
-          "A relationship with the portfolio that can continue beyond the cohort, subject to programme priorities.",
+          "A relationship with the portfolio that can continue beyond the cohort, subject to program priorities.",
       },
     ],
   },
   eligibility: {
     title: "General eligibility",
-    imageAlt: "ASIP founders working on laptops during a programme session",
+    imageAlt: "ASIP founders working on laptops during a program session",
     items: [
-      "African-founded, Africa-focused or solving a material challenge in African markets.",
-      "Technology-led product or platform with credible potential to scale.",
-      "Committed founding team with relevant insight and execution capacity.",
-      "Evidence of market need. Traction requirements may vary by cohort.",
-      "Clear potential for commercial, social or economic value.",
-      "Ability to participate fully in the published programme format and timelines.",
+      "Solve a real and meaningful problem (business, industry, or community-related).",
+      "Have at least one woman represented within the founding team or executive leadership.",
+      "Have a proven product or solution in market.",
+      "Demonstrate existing revenue or commercial traction.",
+      "Have a founder working full-time within the business.",
     ],
     notice:
       "Official cohort criteria, dates, format and terms are published when applications open.",
@@ -253,12 +252,11 @@ const fr: ProgrammePageCopy = {
     title: "Éligibilité générale",
     imageAlt: "Des fondateurs ASIP au travail lors d’une session du programme",
     items: [
-      "Fondée en Afrique, tournée vers l’Afrique, ou qui résout un enjeu substantiel sur les marchés africains.",
-      "Produit ou plateforme technologique avec un potentiel crédible de scale.",
-      "Équipe fondatrice engagée, avec la connaissance du marché et la capacité d’exécution nécessaires.",
-      "Preuve d’un besoin de marché. Les exigences de traction peuvent varier selon la cohorte.",
-      "Un potentiel clair de valeur commerciale, sociale ou économique.",
-      "Capacité à participer pleinement au format et au calendrier publiés du programme.",
+      "Résoudre un problème réel et significatif (lié à une entreprise, un secteur ou une communauté).",
+      "Compter au moins une femme dans l’équipe fondatrice ou la direction exécutive.",
+      "Disposer d’un produit ou d’une solution ayant fait ses preuves sur le marché.",
+      "Démontrer des revenus existants ou une traction commerciale.",
+      "Avoir au moins un fondateur ou une fondatrice à temps plein dans l’entreprise.",
     ],
     notice:
       "Les critères, dates, format et conditions officiels de chaque cohorte sont publiés à l’ouverture des candidatures.",

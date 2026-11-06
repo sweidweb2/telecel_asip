@@ -42,9 +42,9 @@ export const LEGACY_REDIRECTS: readonly LegacyRedirect[] = [
   { source: "/who-we-are", slug: "about" },
 
   // Programme
-  { source: "/the-programme", slug: "programme" },
-  { source: "/program", slug: "programme" },
-  { source: "/accelerator", slug: "programme" },
+  { source: "/the-programme", slug: "program" },
+  { source: "/programme", slug: "program" },
+  { source: "/accelerator", slug: "program" },
 
   // Founders / portfolio
   { source: "/startups", slug: "founders" },

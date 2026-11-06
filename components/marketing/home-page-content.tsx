@@ -65,7 +65,12 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero locale={locale} copy={copy.hero} intake={intake} />
+      <HomeHero
+        locale={locale}
+        copy={copy.hero}
+        pathways={copy.pathways}
+        intake={intake}
+      />
 
       <HomeCohortFilmSection copy={copy.cohortFilm} />
 
@@ -86,6 +91,7 @@ export function HomePageContent({
       <HomeNextChapterSection
         locale={locale}
         copy={copy.nextChapter}
+        pathways={copy.pathways}
         intake={intake}
       />
 

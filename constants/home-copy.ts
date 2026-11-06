@@ -6,6 +6,11 @@ import type { HomePageCopy } from "@/types/marketing-page";
  * is in `public/media/home/`. Copy stays readable without them.
  */
 const en: HomePageCopy = {
+  pathways: {
+    prompt: "I am",
+    investor: { slug: "founders", label: "Investor" },
+    startupLabel: "Startup",
+  },
   hero: {
     brand: "ASIP",
     eyebrow: "Africa Startup Initiative Program",
@@ -13,15 +18,15 @@ const en: HomePageCopy = {
     title: "African founders. Built to scale.",
     titleLines: ["African founders.", "Built to scale."],
     description:
-      "ASIP connects African technology founders to expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialise and grow.",
+      "ASIP connects African technology founders to expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialize and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
     nextCohort: { label: "2026 next chapter", href: "#next-chapter" },
     continuumAlts: [
-      "ASIP founder focused in conversation at a programme table",
-      "ASIP founders listening during a programme pitch session",
-      "ASIP founders collaborating at a programme working table",
-      "ASIP mentor and founders in conversation at a programme event",
+      "ASIP founder focused in conversation at a program table",
+      "ASIP founders listening during a program pitch session",
+      "ASIP founders collaborating at a program working table",
+      "ASIP mentor and founders in conversation at a program event",
     ],
   },
   cohortFilm: {
@@ -32,7 +37,7 @@ const en: HomePageCopy = {
     playLabel: "Play Cohort 3 film",
     watchLabel: "Watch the film",
     posterAlt:
-      "ASIP Cohort 3 founders together at a programme event",
+      "ASIP Cohort 3 founders together at a program event",
   },
   impactYears: {
     title: "Impact, with a paper trail.",
@@ -66,7 +71,7 @@ const en: HomePageCopy = {
       },
       {
         id: "commercialise",
-        title: "Commercialise",
+        title: "Commercialize",
         description:
           "Create pathways to pilots, customers and practical partnerships.",
       },
@@ -105,14 +110,14 @@ const en: HomePageCopy = {
     ],
     cta: { slug: "impact", label: "See the impact" },
     imageAlt:
-      "Rural Farmers Hub founder receiving an ASIP programme award",
+      "Rural Farmers Hub founder receiving an ASIP program award",
     insetAlt: "An ASIP founder celebrating with her team",
   },
   ecosystem: {
     title: "The right opportunity can change a company’s trajectory.",
     description:
-      "ASIP works across a network of mentors, investors, corporates, technology partners, development institutions and ecosystem organisations to open practical opportunities for founder growth.",
-    cta: { slug: "partners", label: "Partner with ASIP" },
+      "ASIP works across a network of mentors, investors, corporates, technology partners, development institutions and ecosystem organizations to open practical opportunities for founder growth.",
+    cta: { slug: "partners", label: "Explore Partnership Opportunities" },
     roles: [
       {
         id: "mentors",
@@ -142,11 +147,11 @@ const en: HomePageCopy = {
         id: "institutions",
         title: "Development institutions",
         description:
-          "Programme collaboration that extends founder access to markets, networks and follow-on opportunities.",
+          "Program collaboration that extends founder access to markets, networks and follow-on opportunities.",
       },
       {
         id: "ecosystem",
-        title: "Ecosystem organisations",
+        title: "Ecosystem organizations",
         description:
           "Community, events and knowledge that keep founders moving forward after a cohort ends.",
       },
@@ -164,7 +169,17 @@ const en: HomePageCopy = {
     eyebrow: "2026 cohort",
     title: "AI that earns its place in the business.",
     description:
-      "The 2026 chapter backs startups applying AI to problems existing businesses already have — and proving the advantage in revenue, cost, speed or reach.",
+      "The 2026 chapter supports startups using AI to solve existing business challenges and demonstrate measurable gains in revenue, cost efficiency, speed, or market reach.",
+    eligibility: {
+      title: "Who should apply",
+      items: [
+        "Solve a real and meaningful problem (business, industry, or community-related).",
+        "Have at least one woman represented within the founding team or executive leadership.",
+        "Have a proven product or solution in market.",
+        "Demonstrate existing revenue or commercial traction.",
+        "Have a founder working full-time within the business.",
+      ],
+    },
     theme: {
       name: "AI Advantage in Action",
       status: "working",
@@ -178,7 +193,7 @@ const en: HomePageCopy = {
         label: "01",
         title: "A real business problem",
         description:
-          "Start with an operator’s pain point in a live market — not a model looking for a use case.",
+          "Start with an operator’s pain point in a live market, not a model looking for a use case.",
       },
       {
         id: "applied",
@@ -192,7 +207,7 @@ const en: HomePageCopy = {
         label: "03",
         title: "Advantage you can measure",
         description:
-          "Show the difference in numbers a customer, partner or investor would recognise.",
+          "Show the difference in numbers a customer, partner or investor would recognize.",
       },
     ],
     primaryCta: { slug: "register-interest", label: "Register interest" },
@@ -202,13 +217,18 @@ const en: HomePageCopy = {
     eyebrow: "Latest",
     title: "From the portfolio.",
     description:
-      "Founder stories, portfolio progress, programme updates and useful perspectives from the people building Africa’s next technology companies.",
+      "Founder stories, portfolio progress, program updates and useful perspectives from the people building Africa’s next technology companies.",
     cta: { slug: "insights", label: "Explore insights" },
     empty: "Insights from the portfolio will appear here as stories are published.",
   },
 };
 
 const fr: HomePageCopy = {
+  pathways: {
+    prompt: "Je suis",
+    investor: { slug: "founders", label: "Investisseur" },
+    startupLabel: "Startup",
+  },
   hero: {
     brand: "ASIP",
     eyebrow: "Programme africain d’initiative pour les startups",
@@ -315,7 +335,7 @@ const fr: HomePageCopy = {
     title: "La bonne opportunité peut changer la trajectoire d’une entreprise.",
     description:
       "ASIP travaille avec un réseau de mentors, d’investisseurs, d’entreprises, de partenaires technologiques, d’institutions de développement et d’organisations de l’écosystème pour ouvrir aux fondateurs des opportunités concrètes de croissance.",
-    cta: { slug: "partners", label: "Devenir partenaire d’ASIP" },
+    cta: { slug: "partners", label: "Découvrir les opportunités de partenariat" },
     roles: [
       {
         id: "mentors",
@@ -367,7 +387,17 @@ const fr: HomePageCopy = {
     eyebrow: "Cohorte 2026",
     title: "Une IA qui mérite sa place dans l’entreprise.",
     description:
-      "Le chapitre 2026 soutient des startups qui appliquent l’IA aux problèmes que les entreprises existantes rencontrent déjà — et qui prouvent l’avantage en revenus, coûts, rapidité ou portée.",
+      "Le chapitre 2026 soutient des startups qui utilisent l’IA pour relever des défis concrets des entreprises et démontrer des gains mesurables en matière de revenus, de maîtrise des coûts, de rapidité ou de portée commerciale.",
+    eligibility: {
+      title: "Qui peut candidater",
+      items: [
+        "Résoudre un problème réel et significatif (lié à une entreprise, un secteur ou une communauté).",
+        "Compter au moins une femme dans l’équipe fondatrice ou la direction exécutive.",
+        "Disposer d’un produit ou d’une solution ayant fait ses preuves sur le marché.",
+        "Démontrer des revenus existants ou une traction commerciale.",
+        "Avoir au moins un fondateur ou une fondatrice à temps plein dans l’entreprise.",
+      ],
+    },
     theme: {
       name: "AI Advantage in Action",
       status: "working",
@@ -381,7 +411,7 @@ const fr: HomePageCopy = {
         label: "01",
         title: "Un vrai problème business",
         description:
-          "Partir d’un point de friction réel sur un marché vivant — pas d’un modèle en quête d’usage.",
+          "Partir d’un point de friction réel sur un marché vivant, pas d’un modèle en quête d’usage.",
       },
       {
         id: "applied",

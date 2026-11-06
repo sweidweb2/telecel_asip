@@ -33,7 +33,7 @@ export function PartnersFilters({ query }: { query: PartnerListQuery }) {
     <AdminFilterBar
       searchId="partners-search"
       searchLabel="Search partners"
-      searchPlaceholder="Filter by name or organisation…"
+      searchPlaceholder="Filter by name or organization…"
       search={search}
       isPending={isPending}
       onSearchChange={handleSearchChange}

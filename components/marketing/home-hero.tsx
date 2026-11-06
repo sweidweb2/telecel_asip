@@ -31,6 +31,7 @@ const SPECTRUM = [
 type HomeHeroProps = {
   locale: Locale;
   copy: HomePageCopy["hero"];
+  pathways: HomePageCopy["pathways"];
   intake: IntakeCta;
 };
 
@@ -39,8 +40,8 @@ type HomeHeroProps = {
  * Upper lockup: spectrum cue → title → fuller description → CTA pair.
  * Next-chapter lives further down the page, not in the hero.
  */
-export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
-  const foundersHref = publicPath(locale, copy.primaryCta.slug);
+export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
+  const investorHref = publicPath(locale, pathways.investor.slug);
   const continuumLabel = copy.continuumAlts[0] ?? copy.title;
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
   const lastLine = copy.titleLines.length - 1;
@@ -122,24 +123,32 @@ export function HomeHero({ locale, copy, intake }: HomeHeroProps) {
             {copy.description}
           </p>
 
-          <MarketingCtaRow className="mt-9 gap-3.5 sm:mt-11 sm:flex-wrap">
-            <CoralCtaLink
-              href={intake.href}
-              className="group min-h-14 px-9 text-lg sm:px-10"
+          <div role="group" aria-labelledby="home-hero-pathways">
+            <p
+              id="home-hero-pathways"
+              className="mt-9 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"
             >
-              {intake.label}
-              <ArrowRight
-                aria-hidden
-                className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
-              />
-            </CoralCtaLink>
-            <OutlineCtaLink
-              href={foundersHref}
-              className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
-            >
-              {copy.primaryCta.label}
-            </OutlineCtaLink>
-          </MarketingCtaRow>
+              {pathways.prompt}
+            </p>
+            <MarketingCtaRow className="mt-3.5 gap-3.5 sm:flex-wrap">
+              <OutlineCtaLink
+                href={investorHref}
+                className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
+              >
+                {pathways.investor.label}
+              </OutlineCtaLink>
+              <CoralCtaLink
+                href={intake.href}
+                className="group min-h-14 px-9 text-lg sm:px-10"
+              >
+                {pathways.startupLabel}
+                <ArrowRight
+                  aria-hidden
+                  className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              </CoralCtaLink>
+            </MarketingCtaRow>
+          </div>
         </div>
       </div>
 

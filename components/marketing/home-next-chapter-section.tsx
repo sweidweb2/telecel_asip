@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import {
   CoralCtaLink,
@@ -15,6 +15,7 @@ import type { HomePageCopy } from "@/types/marketing-page";
 type HomeNextChapterSectionProps = {
   locale: Locale;
   copy: HomePageCopy["nextChapter"];
+  pathways: HomePageCopy["pathways"];
   intake: IntakeCta;
   className?: string;
 };
@@ -43,10 +44,11 @@ const PILLAR_OFFSETS = ["", "lg:ml-6", "lg:ml-12"] as const;
 export function HomeNextChapterSection({
   locale,
   copy,
+  pathways,
   intake,
   className,
 }: HomeNextChapterSectionProps) {
-  const secondaryHref = publicPath(locale, copy.secondaryCta.slug);
+  const investorHref = publicPath(locale, pathways.investor.slug);
   const headingId = "home-next-chapter-heading";
 
   return (
@@ -94,6 +96,26 @@ export function HomeNextChapterSection({
               {copy.theme.summary}
             </p>
 
+            <div className="mt-8 max-w-xl">
+              <h3 className="font-heading text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                {copy.eligibility.title}
+              </h3>
+              <ul className="mt-3 grid gap-2.5">
+                {copy.eligibility.items.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7"
+                  >
+                    <Check
+                      aria-hidden
+                      className="mt-1 size-4 shrink-0 text-brand sm:mt-1.5"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
           </div>
 
           <ol className="relative grid gap-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
@@ -140,22 +162,22 @@ export function HomeNextChapterSection({
           </ol>
 
           <MarketingCtaRow className="lg:col-start-1 lg:row-start-2 lg:self-start">
+            <OutlineCtaLink
+              href={investorHref}
+              className="min-h-12 border-foreground/25 bg-background text-base text-foreground hover:bg-muted"
+            >
+              {pathways.investor.label}
+            </OutlineCtaLink>
             <CoralCtaLink
               href={intake.href}
               className="group min-h-12 text-base"
             >
-              {intake.label}
+              {pathways.startupLabel}
               <ArrowRight
                 aria-hidden
                 className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
               />
             </CoralCtaLink>
-            <OutlineCtaLink
-              href={secondaryHref}
-              className="min-h-12 border-foreground/25 bg-background text-base text-foreground hover:bg-muted"
-            >
-              {copy.secondaryCta.label}
-            </OutlineCtaLink>
           </MarketingCtaRow>
         </div>
       </div>

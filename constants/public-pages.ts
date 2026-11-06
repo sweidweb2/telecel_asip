@@ -2,7 +2,7 @@
 export const PUBLIC_PAGE_SLUGS = [
   "",
   "about",
-  "programme",
+  "program",
   "founders",
   "impact",
   "partners",

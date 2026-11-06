@@ -187,7 +187,7 @@ export function ApplicationViewDialog({
                   {record.problem_product}
                 </AdminDetailRow>
                 <AdminDetailRow label="Traction">{record.traction}</AdminDetailRow>
-                <AdminDetailRow label="Programme fit">
+                <AdminDetailRow label="Program fit">
                   {record.programme_fit}
                 </AdminDetailRow>
               </div>
@@ -497,7 +497,7 @@ function ApplicationEditForm({
               htmlFor="edit-app-fit"
               hint={`${APPLICATION_FIT_MIN}–${APPLICATION_FIT_MAX} chars`}
             >
-              Programme fit
+              Program fit
             </AdminFormFieldLabel>
             <Textarea
               id="edit-app-fit"

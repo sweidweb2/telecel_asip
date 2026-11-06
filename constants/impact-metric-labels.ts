@@ -5,7 +5,7 @@ export const IMPACT_LENS_LABELS: Record<ImpactLens, string> = {
   pipeline: "Pipeline",
   inclusion: "Inclusion",
   business_growth: "Business growth",
-  commercialisation: "Commercialisation",
+  commercialisation: "Commercialization",
   jobs_capability: "Jobs & capability",
   sector_outcomes: "Sector outcomes",
 };

@@ -29,7 +29,7 @@ export async function generateMetadata({
           path: "/insights",
           title: "ASIP Insights | Founder Stories and Portfolio Progress",
           description:
-            "Read founder stories, portfolio news, programme updates and practical perspectives from across the ASIP ecosystem.",
+            "Read founder stories, portfolio news, program updates and practical perspectives from across the ASIP ecosystem.",
         },
   );
 }

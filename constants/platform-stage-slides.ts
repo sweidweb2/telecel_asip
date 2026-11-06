@@ -15,7 +15,7 @@ export const PLATFORM_STAGE_SLIDES: PlatformStageSlide[] = [
   {
     stepId: "discover",
     src: "/asip-media/home-founder.webp",
-    alt: "ASIP founder in conversation at a programme event",
+    alt: "ASIP founder in conversation at a program event",
     position: "center 38%",
   },
   {
@@ -39,7 +39,7 @@ export const PLATFORM_STAGE_SLIDES: PlatformStageSlide[] = [
   {
     stepId: "scale",
     src: "/asip-media/impact-award.webp",
-    alt: "ASIP founders celebrating programme impact",
+    alt: "ASIP founders celebrating program impact",
     position: "center 42%",
   },
 ];

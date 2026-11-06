@@ -30,7 +30,7 @@ const MESSAGES = {
 /** Pages whose own render reads site settings. Not the locale layout. */
 const SETTINGS_PUBLIC_PATHS = [
   "",
-  "/programme",
+  "/program",
   "/apply",
   "/register-interest",
   "/login",
