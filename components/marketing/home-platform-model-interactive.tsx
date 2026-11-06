@@ -99,7 +99,7 @@ function StepSpinner({
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-[4%] animate-[spin_28s_linear_infinite] rounded-full border border-dashed border-white/35"
+        className="pointer-events-none absolute inset-[4%] animate-[spin_28s_linear_infinite] motion-reduce:animate-none rounded-full border border-dashed border-white/35"
       />
 
       <div className="absolute inset-[28%] z-10 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_color-mix(in_oklab,white_20%,transparent),0_12px_28px_-16px_rgba(0,0,0,0.35)]">
