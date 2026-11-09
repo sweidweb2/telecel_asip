@@ -55,7 +55,7 @@ export function ContactMessagesFilters({
         }
       />
       <Label htmlFor="contact-messages-enquiry-type" className="sr-only">
-        Enquiry route
+        Inquiry route
       </Label>
       <Select
         value={query.enquiryType}

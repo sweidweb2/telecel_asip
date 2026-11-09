@@ -44,31 +44,31 @@ export type ContactLabels = {
 const EN: ContactLabels = {
   pageTitle: "Contact us",
   pageDescription:
-    "Choose a founder, partner, media or general enquiry route and the ASIP team will direct it to the relevant owner.",
-  routesLegend: "Enquiry route",
-  routesHint: "Pick the route that matches your enquiry.",
+    "Choose a founder, partner, media or general inquiry route and the ASIP team will direct it to the relevant owner.",
+  routesLegend: "Inquiry route",
+  routesHint: "Pick the route that matches your inquiry.",
   routes: [
     {
       id: "founder",
-      label: "Founder enquiry",
+      label: "Founder inquiry",
       microcopy:
         "Questions about eligibility, applications, cohorts or portfolio support.",
     },
     {
       id: "partner",
-      label: "Partner enquiry",
+      label: "Partner inquiry",
       microcopy:
         "Corporate, investor, technology, development or ecosystem collaboration.",
     },
     {
       id: "media",
-      label: "Media enquiry",
+      label: "Media inquiry",
       microcopy:
         "Interview requests, approved data, founder stories, imagery and event information.",
     },
     {
       id: "general",
-      label: "General enquiry",
+      label: "General inquiry",
       microcopy: "Use when none of the defined routes applies.",
     },
   ],
@@ -79,7 +79,7 @@ const EN: ContactLabels = {
   phoneLabel: "Phone number",
   formTitle: "Send a message",
   formDescription: "Tell us how we can help. We will get back to you shortly.",
-  enquiryTypeLabel: "Enquiry route",
+  enquiryTypeLabel: "Inquiry route",
   nameLabel: "Name",
   namePlaceholder: "Your name",
   phoneFieldLabel: "Phone",

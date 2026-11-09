@@ -239,7 +239,7 @@ function ContactMessageEditForm({
         <FieldGroup>
           <Field data-invalid={Boolean(form.formState.errors.enquiryType)}>
             <AdminFormFieldLabel htmlFor="edit-msg-enquiry-type" hint="Required">
-              Enquiry route
+              Inquiry route
             </AdminFormFieldLabel>
             <Select
               value={enquiryType}
@@ -335,7 +335,7 @@ function ContactMessageEditForm({
               disabled={isUpdating}
               maxLength={CONTACT_MESSAGE_SUBJECT_MAX}
               className="min-h-11"
-              placeholder="e.g. Partnership enquiry"
+              placeholder="e.g. Partnership inquiry"
               aria-invalid={Boolean(form.formState.errors.subject)}
               {...form.register("subject")}
             />

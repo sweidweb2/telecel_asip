@@ -41,15 +41,15 @@ const en: LegalCopy = {
           "Register Interest and Apply require a signed-in account. Only one intake path is live at a time, based on the site Applications setting:",
           "When applications are closed, Register Interest is available and Apply redirects to Register Interest. Apply submissions are rejected.",
           "When applications are open, Apply is available and Register Interest redirects to Apply. Interest submissions are rejected.",
-          "Register Interest records a short founder and venture profile for updates when the next chapter opens. Apply is the official program intake and asks for additional product, traction, and programme-fit detail. Submitting either form does not create a contractual right to join ASIP, receive investment, or obtain any other benefit.",
+          "Register Interest records a short founder and venture profile for updates when the next chapter opens. Apply is the official program intake and asks for additional product, traction, and program-fit detail. Submitting either form does not create a contractual right to join ASIP, receive investment, or obtain any other benefit.",
           "Interest registrations and applications are separate tables. Registering interest does not become an application when Apply opens. Duplicate submissions for the same email and company name may be rejected.",
-          "You must confirm the consent checkbox before submit. Optional programme-update opt-in is separate. We use Cloudflare Turnstile and rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
+          "You must confirm the consent checkbox before submit. Optional program-update opt-in is separate. We use Cloudflare Turnstile and rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
         ],
       },
       {
         title: "5. Contact and newsletter",
         paragraphs: [
-          "The Contact form lets you send founder, partner, media, or general enquiries without creating an application. Messages are stored for the ASIP team to review; this site does not automatically email a confirmation to you or forward your message to a public mailbox outside the admin tools.",
+          "The Contact form lets you send founder, partner, media, or general inquiries without creating an application. Messages are stored for the ASIP team to review; this site does not automatically email a confirmation to you or forward your message to a public mailbox outside the admin tools.",
           "Public newsletter signup on Insights is not offered in the current phase. The setting stays off and the server rejects new subscriptions until a later phase after privacy, routing, and ownership are confirmed.",
         ],
       },
@@ -96,7 +96,7 @@ const en: LegalCopy = {
           "Account signup: name, email, and password (password is handled by our authentication provider; we do not store it in plain text on the ASIP application tables).",
           "Register Interest (signed-in, when applications are closed): founder name and role, email, phone, country, optional LinkedIn and website, company name and country, sector, optional short note, required consent, and optional communications opt-in.",
           "Apply (signed-in, when applications are open): the same profile fields as Register Interest, plus problem and product description, traction, and program fit, with required consent and optional communications opt-in.",
-          "Contact (may be anonymous): enquiry type (founder, partner, media, or general), name, email, phone, subject, and message. No separate consent checkbox is required on Contact beyond these terms and this policy.",
+          "Contact (may be anonymous): inquiry type (founder, partner, media, or general), name, email, phone, subject, and message. No separate consent checkbox is required on Contact beyond these terms and this policy.",
           "Newsletter: there is no public signup UI in the current phase; forced or future subscriptions would use email and required consent only when that feature is turned on.",
           "Security and operations: Cloudflare Turnstile tokens for public form abuse protection; limited request metadata such as IP used for short-window rate limiting; and technical data needed to run the site (for example language preference and signed-in session).",
         ],
@@ -104,7 +104,7 @@ const en: LegalCopy = {
       {
         title: "3. How we use information",
         paragraphs: [
-          "We use personal data to operate the site, create and secure accounts, review Register Interest and Apply submissions in the admin dashboard, respond to Contact enquiries, improve and protect the service, and meet legal or security obligations. Programme-update opt-in on intake forms is recorded for later contact when that channel is active.",
+          "We use personal data to operate the site, create and secure accounts, review Register Interest and Apply submissions in the admin dashboard, respond to Contact inquiries, improve and protect the service, and meet legal or security obligations. Program-update opt-in on intake forms is recorded for later contact when that channel is active.",
           "Public form submissions are written to our database for ASIP administrators. This site does not currently send automatic confirmation emails to visitors or CRM syncs from those forms. Admins may export inbox data (for example CSV) for program operations.",
           "We do not load third-party marketing or advertising analytics scripts on this site today. If that changes, we will update this policy and, where required, ask for consent.",
         ],

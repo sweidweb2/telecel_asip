@@ -41,6 +41,13 @@ This covers the client's revision list: copy, terminology, American English, Fre
 - **Program page address:** now `/en/program` and `/fr/program`. The old `/programme` addresses redirect permanently.
 - **French wording:** the new French lines were reviewed and tightened (Program introduction, 2026 sentence, two eligibility items).
 
+### Follow-up round (6 November)
+- **Enquiry → Inquiry:** the Contact page (route labels, legend, hint, page description, form validation message), the Terms and Privacy pages, and the admin contact inbox now use the American "inquiry". Internal names and the `contact_enquiry_type` database enum are unchanged, so no migration is needed.
+- **Program in the legal pages:** the last three English "programme" mentions in Terms and Privacy ("programme-fit", "programme-update", "Programme-update") are now "program".
+- **French fix:** the Partners page line "programs sectoriels" is back to the correct French "programmes sectoriels".
+- **CMS seed content:** the Cohort 3 and Cohort 4 insight articles ("programme" ×3, "digitisation") and three startup descriptions (Agrodata, ParcSmart, Proxalys) now use American spelling. Check the same posts and descriptions in the live CMS and update them in the admin if they still show the British spelling.
+- **Old logos deleted:** the unused "Powered by Startupbootcamp AfriTech" lockups (`public/ASIP_LOGO.png`, `public/ASIP_LOGO_WHITE.png`, `public/asip-logo-sidebar.webp`) are removed, so they can no longer be opened by URL.
+
 ## Still open
 - **Investor form:** the Investor button should open a form for investors. The plan is in `Docs/[07] Work Plan/plan/[2] Investor form and French CMS content.md`. Until that ships, Investor goes to the founders directory.
 - **French for CMS content:** blogs, founder stories, startups, partners and cohorts are stored in English only, so the French site shows them in English. The plan is in the same document and needs database changes.
@@ -71,6 +78,15 @@ Each row is one line of copy that changed. The British spelling is in **bold** i
 | specialist | 1 |
 | fulfil | 1 |
 | labour | 1 |
+| enquiry / enquiries (6 November) | 12 |
+| programme (6 November) | 6 |
+| digitisation / digitising / digitised (6 November) | 3 |
+| centred (6 November) | 2 |
+| optimises (6 November) | 1 |
+| capitalising (6 November) | 1 |
+| modernise (6 November) | 1 |
+| prioritisation (6 November) | 1 |
+| grey (6 November) | 1 |
 
 | Area | File | Before | After |
 |---|---|---|---|
@@ -250,3 +266,25 @@ Each row is one line of copy that changed. The British spelling is in **bold** i
 | Form messages | `validations/partner.test.ts` | it("rejects a one-character **organisation** but allows it to be omitted", () => { | it("rejects a one-character organization but allows it to be omitted", () => { |
 | Form messages | `validations/partner.ts` | .max(PARTNER_ORG_MAX, `**Organisation** must be at most ${PARTNER_ORG_MAX} characters`) | .max(PARTNER_ORG_MAX, `Organization must be at most ${PARTNER_ORG_MAX} characters`) |
 | Form messages | `validations/partner.ts` | **Organisation** must be at least 2 characters | Organization must be at least 2 characters |
+| Public website | `components/marketing/contact-labels.ts` | Choose a founder, partner, media or general **enquiry** route… | Choose a founder, partner, media or general inquiry route… |
+| Public website | `components/marketing/contact-labels.ts` | **Enquiry** route (legend and field label) | Inquiry route |
+| Public website | `components/marketing/contact-labels.ts` | Pick the route that matches your **enquiry**. | Pick the route that matches your inquiry. |
+| Public website | `components/marketing/contact-labels.ts` | Founder / Partner / Media / General **enquiry** | Founder / Partner / Media / General inquiry |
+| Public website | `app/[locale]/(marketing)/contact/page.tsx` | Choose a founder, partner, media or general **enquiry** route… | Choose a founder, partner, media or general inquiry route… |
+| Form messages | `validations/contact-message.ts` | Choose an **enquiry** route | Choose an inquiry route |
+| Public website | `constants/legal-copy.ts` | …additional product, traction, and **programme**-fit detail. | …additional product, traction, and program-fit detail. |
+| Public website | `constants/legal-copy.ts` | Optional **programme**-update opt-in is separate. | Optional program-update opt-in is separate. |
+| Public website | `constants/legal-copy.ts` | …send founder, partner, media, or general **enquiries**… | …send founder, partner, media, or general inquiries… |
+| Public website | `constants/legal-copy.ts` | Contact (may be anonymous): **enquiry** type… | Contact (may be anonymous): inquiry type… |
+| Public website | `constants/legal-copy.ts` | …respond to Contact **enquiries**… **Programme**-update opt-in… | …respond to Contact inquiries… Program-update opt-in… |
+| Public website (French) | `constants/partners-copy.ts` | Initiatives pays, subventions, **programs** sectoriels, mesure d’impact. | Initiatives pays, subventions, programmes sectoriels, mesure d’impact. (French correction) |
+| Admin / editor panel | `components/contact-messages/contact-message-dialogs.tsx` | **Enquiry** route / e.g. Partnership **enquiry** | Inquiry route / e.g. Partnership inquiry |
+| Admin / editor panel | `components/contact-messages/contact-messages-filters.tsx` | **Enquiry** route | Inquiry route |
+| Admin / editor panel | `components/partners/partner-sort-order-map.tsx` | …free slots are **grey**. | …free slots are gray. |
+| CMS content (seed data) | `data/seed/cms/blogs.json` | …hospital **digitisation**… entered the **programme**… | …hospital digitization… entered the program… |
+| CMS content (seed data) | `data/seed/cms/blogs.json` | …joined the **programme**. … The **programme** combined… | …joined the program. … The program combined… |
+| CMS content (seed data) | `data/seed/cms/startups.json` | Agrodata **optimises** farmlands… A bee-**centred** crops model… | Agrodata optimizes farmlands… A bee-centered crops model… |
+| CMS content (seed data) | `data/seed/cms/startups.json` | …**capitalising** on parking spaces… | …capitalizing on parking spaces… |
+| CMS content (seed data) | `data/seed/cms/startups.json` | …to **modernise** and empower African retailers… by **digitising** their supply chain… | …to modernize and empower African retailers… by digitizing their supply chain… |
+| CMS content (seed data) | `scripts/seed-blogs.mjs` | …**prioritisation**… / **Programme**-specific guidance… | …prioritization… / Program-specific guidance… |
+| CMS content (seed data) | `scripts/seed-cms.mjs` | **Digitised** 22,000 border document packs… / Cohort **centred** on… / …**enquiry** #n… | Digitized… / Cohort centered on… / …inquiry #n… |
