@@ -2,6 +2,7 @@
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { getOpenApplications } from "@/data/settings";
+import { getCurrentUserProfile } from "@/data/users";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import {
   refreshAdminResource,
@@ -28,6 +29,7 @@ const MESSAGES = {
     ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your interest has been registered.",
     signedInRequired: "Sign in to register your interest.",
+    startupOnly: "Investor accounts should use the investor interest form.",
     duplicate: "You already registered this company with this email.",
     applicationsOpen:
       "Applications are open. Submit an official application instead of registering interest.",
@@ -36,6 +38,8 @@ const MESSAGES = {
     ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre intérêt a bien été enregistré.",
     signedInRequired: "Connectez-vous pour manifester votre intérêt.",
+    startupOnly:
+      "Les comptes investisseurs doivent utiliser le formulaire d’intérêt investisseur.",
     duplicate:
       "Vous avez déjà enregistré cette entreprise avec cet e-mail.",
     applicationsOpen:
@@ -68,6 +72,11 @@ export async function submitInterestRegistration(
   const user = await getAuthUser();
   if (!user?.email) {
     return { status: "error", message: copy.signedInRequired };
+  }
+
+  const profile = await getCurrentUserProfile();
+  if (profile?.type === "investor") {
+    return { status: "error", message: copy.startupOnly };
   }
 
   const sessionEmail = user.email.trim().toLowerCase();
