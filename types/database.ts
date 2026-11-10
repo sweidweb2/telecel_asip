@@ -767,6 +767,150 @@ export type Database = {
         }
         Relationships: []
       }
+      investor_engagements: {
+        Row: {
+          comms_opt_in: boolean
+          consent: boolean
+          consent_version: string | null
+          created_at: string
+          email: string
+          engagement_intent: Database["public"]["Enums"]["investor_engagement_intent"]
+          full_name: string
+          geographies: string[]
+          id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
+          investor_type: Database["public"]["Enums"]["investor_kind"]
+          job_title: string | null
+          linkedin: string | null
+          locale: string
+          message: string | null
+          organization: string
+          phone: string | null
+          referred_by: string | null
+          sectors: string[]
+          source_path: string | null
+          stages: Database["public"]["Enums"]["investor_stage"][]
+          thesis: string
+          ticket_size: Database["public"]["Enums"]["investor_ticket_size"]
+          timeline: Database["public"]["Enums"]["investor_timeline"] | null
+          user_id: string | null
+        }
+        Insert: {
+          comms_opt_in?: boolean
+          consent: boolean
+          consent_version?: string | null
+          created_at?: string
+          email: string
+          engagement_intent: Database["public"]["Enums"]["investor_engagement_intent"]
+          full_name: string
+          geographies?: string[]
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          investor_type: Database["public"]["Enums"]["investor_kind"]
+          job_title?: string | null
+          linkedin?: string | null
+          locale?: string
+          message?: string | null
+          organization: string
+          phone?: string | null
+          referred_by?: string | null
+          sectors?: string[]
+          source_path?: string | null
+          stages?: Database["public"]["Enums"]["investor_stage"][]
+          thesis: string
+          ticket_size: Database["public"]["Enums"]["investor_ticket_size"]
+          timeline?: Database["public"]["Enums"]["investor_timeline"] | null
+          user_id?: string | null
+        }
+        Update: {
+          comms_opt_in?: boolean
+          consent?: boolean
+          consent_version?: string | null
+          created_at?: string
+          email?: string
+          engagement_intent?: Database["public"]["Enums"]["investor_engagement_intent"]
+          full_name?: string
+          geographies?: string[]
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          investor_type?: Database["public"]["Enums"]["investor_kind"]
+          job_title?: string | null
+          linkedin?: string | null
+          locale?: string
+          message?: string | null
+          organization?: string
+          phone?: string | null
+          referred_by?: string | null
+          sectors?: string[]
+          source_path?: string | null
+          stages?: Database["public"]["Enums"]["investor_stage"][]
+          thesis?: string
+          ticket_size?: Database["public"]["Enums"]["investor_ticket_size"]
+          timeline?: Database["public"]["Enums"]["investor_timeline"] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      investor_interests: {
+        Row: {
+          comms_opt_in: boolean
+          consent: boolean
+          consent_version: string | null
+          created_at: string
+          email: string
+          focus_note: string | null
+          full_name: string
+          id: string
+          inbox_status: Database["public"]["Enums"]["inbox_status"]
+          investor_type: Database["public"]["Enums"]["investor_kind"]
+          job_title: string | null
+          linkedin: string | null
+          locale: string
+          organization: string
+          phone: string | null
+          source_path: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comms_opt_in?: boolean
+          consent: boolean
+          consent_version?: string | null
+          created_at?: string
+          email: string
+          focus_note?: string | null
+          full_name: string
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          investor_type: Database["public"]["Enums"]["investor_kind"]
+          job_title?: string | null
+          linkedin?: string | null
+          locale?: string
+          organization: string
+          phone?: string | null
+          source_path?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comms_opt_in?: boolean
+          consent?: boolean
+          consent_version?: string | null
+          created_at?: string
+          email?: string
+          focus_note?: string | null
+          full_name?: string
+          id?: string
+          inbox_status?: Database["public"]["Enums"]["inbox_status"]
+          investor_type?: Database["public"]["Enums"]["investor_kind"]
+          job_title?: string | null
+          linkedin?: string | null
+          locale?: string
+          organization?: string
+          phone?: string | null
+          source_path?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           consent: boolean
@@ -843,6 +987,7 @@ export type Database = {
           full_name: string | null
           id: string
           role: Database["public"]["Enums"]["user_role"]
+          type: Database["public"]["Enums"]["profile_type"]
           updated_at: string
         }
         Insert: {
@@ -851,6 +996,7 @@ export type Database = {
           full_name?: string | null
           id: string
           role?: Database["public"]["Enums"]["user_role"]
+          type?: Database["public"]["Enums"]["profile_type"]
           updated_at?: string
         }
         Update: {
@@ -859,6 +1005,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          type?: Database["public"]["Enums"]["profile_type"]
           updated_at?: string
         }
         Relationships: []
@@ -1298,6 +1445,28 @@ export type Database = {
         | "jobs_capability"
         | "sector_outcomes"
       inbox_status: "unread" | "reviewed" | "archived"
+      investor_engagement_intent:
+        | "portfolio_access"
+        | "introductions"
+        | "co_invest"
+        | "pilot_partnership"
+        | "mentorship"
+        | "other"
+      investor_kind:
+        | "angel"
+        | "vc"
+        | "corporate"
+        | "dfi"
+        | "family_office"
+        | "other"
+      investor_stage: "pre_seed" | "seed" | "series_a" | "growth"
+      investor_ticket_size:
+        | "under_50k"
+        | "50k_250k"
+        | "250k_1m"
+        | "1m_plus"
+        | "undisclosed"
+      investor_timeline: "exploring" | "this_quarter" | "this_year"
       partner_type:
         | "corporate"
         | "investors"
@@ -1305,6 +1474,7 @@ export type Database = {
         | "development"
         | "mentors"
         | "media"
+      profile_type: "startup" | "investor" | "admin"
       quote_permission_status: "granted" | "pending" | "denied"
       startup_status: "draft" | "active" | "inactive"
       user_role: "admin" | "editor" | "viewer"
@@ -1475,6 +1645,31 @@ export const Constants = {
         "sector_outcomes",
       ],
       inbox_status: ["unread", "reviewed", "archived"],
+      investor_engagement_intent: [
+        "portfolio_access",
+        "introductions",
+        "co_invest",
+        "pilot_partnership",
+        "mentorship",
+        "other",
+      ],
+      investor_kind: [
+        "angel",
+        "vc",
+        "corporate",
+        "dfi",
+        "family_office",
+        "other",
+      ],
+      investor_stage: ["pre_seed", "seed", "series_a", "growth"],
+      investor_ticket_size: [
+        "under_50k",
+        "50k_250k",
+        "250k_1m",
+        "1m_plus",
+        "undisclosed",
+      ],
+      investor_timeline: ["exploring", "this_quarter", "this_year"],
       partner_type: [
         "corporate",
         "investors",
@@ -1483,6 +1678,7 @@ export const Constants = {
         "mentors",
         "media",
       ],
+      profile_type: ["startup", "investor", "admin"],
       quote_permission_status: ["granted", "pending", "denied"],
       startup_status: ["draft", "active", "inactive"],
       user_role: ["admin", "editor", "viewer"],

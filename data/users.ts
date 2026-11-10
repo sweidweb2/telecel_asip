@@ -18,9 +18,10 @@ import type {
 } from "@/types/profile";
 import type { UserListQuery } from "@/validations/users";
 
-const USER_COLUMNS = "id, email, full_name, role, created_at, updated_at" as const;
+const USER_COLUMNS =
+  "id, email, full_name, role, type, created_at, updated_at" as const;
 
-const CURRENT_USER_COLUMNS = "id, email, full_name, role" as const;
+const CURRENT_USER_COLUMNS = "id, email, full_name, role, type" as const;
 
 /**
  * Signed-in user's own profile for the dashboard chrome.
