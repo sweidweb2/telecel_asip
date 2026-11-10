@@ -1,10 +1,14 @@
 export type UserRole = "admin" | "editor" | "viewer";
 
+/** Audience account type — distinct from access `role`. */
+export type ProfileType = "startup" | "investor" | "admin";
+
 export type Profile = {
   id: string;
   email: string;
   full_name: string | null;
   role: UserRole;
+  type: ProfileType;
   created_at: string;
   updated_at: string;
 };
@@ -12,7 +16,7 @@ export type Profile = {
 /** Subset shown in the dashboard chrome for the signed-in user. */
 export type CurrentUserProfile = Pick<
   Profile,
-  "id" | "email" | "full_name" | "role"
+  "id" | "email" | "full_name" | "role" | "type"
 >;
 
 /** Presentational shape passed from the dashboard layout into client chrome. */

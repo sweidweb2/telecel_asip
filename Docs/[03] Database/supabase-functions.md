@@ -196,7 +196,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 **Details:** Creates the matching `public.profiles` row when a row is inserted into `auth.users`.
 
-**How it works:** Reads `raw_app_meta_data.app_role` (`admin` / `editor` / `viewer`); anything else (including public signup) becomes `viewer`. Copies `id`, `email`, and display name from `raw_user_meta_data.full_name`, falling back to `raw_user_meta_data.name` (Google OAuth) when `full_name` is blank (`20260910010000`). Public clients cannot write `app_metadata`, so only Admin API–created users can get elevated roles at insert time. The `profiles.role` column default is also `viewer` (20260828191000), so an insert that bypasses this trigger cannot silently create an admin.
+**How it works:** Reads `raw_app_meta_data.app_role` (`admin` / `editor` / `viewer`); anything else (including public signup) becomes `viewer`. Copies `id`, `email`, and display name from `raw_user_meta_data.full_name`, falling back to `raw_user_meta_data.name` (Google OAuth) when `full_name` is blank (`20260910010000`). Sets `profiles.type` (`20261110200000`): `admin` when role is `admin`; otherwise `raw_user_meta_data.account_type` of `startup` or `investor` (default `startup`). Public clients cannot write `app_metadata`, so only Admin API–created users can get elevated roles at insert time. The `profiles.role` column default is also `viewer` (20260828191000), so an insert that bypasses this trigger cannot silently create an admin.
 
 ---
 
@@ -270,6 +270,33 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ---
 
+### `public.prevent_unauthorized_profile_type_change()`
+
+| | |
+| --- | --- |
+| **Role** | Privilege escalation guard |
+| **Returns** | `trigger` |
+| **Security** | `SECURITY DEFINER`, `search_path = public` |
+
+**Details:** Guards `profiles.type` updates (`20261110200000`).
+
+**How it works:** No-op when type is unchanged. `is_admin()` may set any type. `is_editor()` may only move between `startup` and `investor`. Own-profile updates may only move between `startup` and `investor`. Assigning or clearing `admin` type otherwise raises `42501`.
+
+---
+
+### `profiles_protect_type`
+
+| | |
+| --- | --- |
+| **Role** | Privilege escalation guard |
+| **Table** | `public.profiles` |
+| **Timing** | `BEFORE UPDATE OF type`, `FOR EACH ROW` |
+| **Calls** | `public.prevent_unauthorized_profile_type_change()` |
+
+**How it works:** Blocks unauthorized account-type changes even when the own-profile UPDATE policy would otherwise allow the row update.
+
+---
+
 ## Tables without functions / triggers
 
 ### `public.admin_perf_events`
@@ -279,6 +306,14 @@ No triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`)
 ### `public.interest_registrations`
 
 No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=apply`), and in-memory rate limits (hits recorded only after a successful insert). Editors list/update/delete via the session client under `is_editor()` RLS policies.
+
+### `public.investor_interests`
+
+No RPCs, functions, or triggers (`20261110210000`). Investor light-lead intake (Register Interest path when `profiles.type = investor`). Public inserts via Server Action + service role after Zod, Turnstile (`action=apply`), and rate limits. Editors list/update/delete under `is_editor()` RLS.
+
+### `public.investor_engagements`
+
+No RPCs, functions, or triggers (`20261110210000`). Investor deeper engagement intake (Apply path when `profiles.type = investor` and applications are open). Same write/guard pattern as `investor_interests`. Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.contact_messages`
 
