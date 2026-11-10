@@ -193,6 +193,7 @@ export async function createUser(
     .from("profiles")
     .update({
       role: parsed.data.role,
+      type: parsed.data.role === "admin" ? "admin" : "startup",
       full_name: parsed.data.fullName,
       email: parsed.data.email,
     })
@@ -320,13 +321,21 @@ export async function updateUser(
     };
   }
 
+  const profileUpdate: Database["public"]["Tables"]["profiles"]["Update"] = {
+    role: parsed.data.role,
+    full_name: parsed.data.fullName,
+    email: parsed.data.email,
+  };
+  // Keep audience type aligned with staff admin role changes.
+  if (parsed.data.role === "admin") {
+    profileUpdate.type = "admin";
+  } else if (targetRole === "admin") {
+    profileUpdate.type = "startup";
+  }
+
   const { error: profileError } = await session.supabase
     .from("profiles")
-    .update({
-      role: parsed.data.role,
-      full_name: parsed.data.fullName,
-      email: parsed.data.email,
-    })
+    .update(profileUpdate)
     .eq("id", parsed.data.id);
 
   if (profileError) {
