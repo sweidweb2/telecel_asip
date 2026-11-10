@@ -108,7 +108,7 @@ export async function signUp(
     };
   }
 
-  const { fullName, email, password, turnstileToken } = parsed.data;
+  const { fullName, email, password, type, turnstileToken } = parsed.data;
   const ip = await getClientIp();
   const turnstileOk = await verifyTurnstileToken({
     token: turnstileToken,
@@ -128,8 +128,8 @@ export async function signUp(
     password,
     options: {
       // Public signup never sets app_metadata.app_role — handle_new_user
-      // defaults the profile to viewer.
-      data: { full_name: fullName },
+      // defaults the profile to viewer. account_type is startup|investor only.
+      data: { full_name: fullName, account_type: type },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/callback?next=${encodeURIComponent(afterAuthPath)}&locale=${locale}`,
     },
   });
