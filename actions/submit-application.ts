@@ -2,6 +2,7 @@
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { getOpenApplications } from "@/data/settings";
+import { getCurrentUserProfile } from "@/data/users";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import {
   refreshAdminResource,
@@ -27,6 +28,7 @@ const MESSAGES = {
     ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your application has been submitted.",
     signedInRequired: "Sign in to submit an application.",
+    startupOnly: "Investor accounts should use the investor engagement form.",
     duplicate: "You already applied with this company and email.",
     applicationsClosed:
       "Applications are closed. Register your interest to hear when the next chapter opens.",
@@ -35,6 +37,8 @@ const MESSAGES = {
     ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre candidature a bien été envoyée.",
     signedInRequired: "Connectez-vous pour envoyer une candidature.",
+    startupOnly:
+      "Les comptes investisseurs doivent utiliser le formulaire d’engagement investisseur.",
     duplicate:
       "Vous avez déjà candidaté avec cette entreprise et cet e-mail.",
     applicationsClosed:
@@ -67,6 +71,11 @@ export async function submitApplication(
   const user = await getAuthUser();
   if (!user?.email) {
     return { status: "error", message: copy.signedInRequired };
+  }
+
+  const profile = await getCurrentUserProfile();
+  if (profile?.type === "investor") {
+    return { status: "error", message: copy.startupOnly };
   }
 
   const sessionEmail = user.email.trim().toLowerCase();
