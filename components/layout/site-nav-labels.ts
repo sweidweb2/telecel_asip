@@ -1,6 +1,6 @@
 import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
-import { publicPath } from "@/constants/routes";
+import { authPath, publicPath } from "@/constants/routes";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 export type NavLeaf = {
@@ -32,6 +32,7 @@ export type SiteNavLabels = {
   /** Founders dropdown label for the directory. The trigger still uses the Founders item label. */
   foundersDirectory: string;
   apply: NavItem;
+  login: NavItem;
 };
 
 export function isNavGroup(entry: NavEntry): entry is NavGroup {
@@ -84,19 +85,21 @@ const NAV_CHROME: Record<
   Pick<
     SiteNavLabels,
     "languageGroupLabel" | "menuLabel" | "masthead" | "foundersDirectory"
-  >
+  > & { loginLabel: string }
 > = {
   en: {
     languageGroupLabel: "Language",
     menuLabel: "Menu",
     masthead: "A Telecel Group Program",
     foundersDirectory: "Directory",
+    loginLabel: "Login",
   },
   fr: {
     languageGroupLabel: "Langue",
     menuLabel: "Menu",
     masthead: "Un programme du Groupe Telecel",
     foundersDirectory: "Annuaire",
+    loginLabel: "Connexion",
   },
 };
 
@@ -115,7 +118,10 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
   const foundersHref = publicPath(locale, "founders");
 
   return {
-    ...chrome,
+    languageGroupLabel: chrome.languageGroupLabel,
+    menuLabel: chrome.menuLabel,
+    masthead: chrome.masthead,
+    foundersDirectory: chrome.foundersDirectory,
     items: [
       leaf(locale, ""),
       leaf(locale, "about"),
@@ -142,6 +148,7 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
       leaf(locale, "insights"),
     ],
     apply: { href: intake.href, label: intake.label },
+    login: { href: authPath(locale, "login"), label: chrome.loginLabel },
   };
 }
 

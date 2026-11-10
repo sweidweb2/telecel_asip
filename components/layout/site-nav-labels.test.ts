@@ -28,6 +28,17 @@ describe("site nav apply CTA", () => {
     });
     expect(frNavLabels(false).apply.href).toBe("/fr/register-interest");
   });
+
+  it("exposes a locale-prefixed Login link beside the intake CTA", () => {
+    expect(enNavLabels().login).toEqual({
+      href: "/en/login",
+      label: "Login",
+    });
+    expect(frNavLabels().login).toEqual({
+      href: "/fr/login",
+      label: "Connexion",
+    });
+  });
 });
 
 describe("site nav chrome copy", () => {
