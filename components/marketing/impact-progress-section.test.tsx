@@ -5,7 +5,7 @@ import { ImpactProgressSection } from "@/components/marketing/impact-progress-se
 import { impactCopyFor } from "@/constants/impact-copy";
 
 describe("ImpactProgressSection", () => {
-  it("renders the framing heading and a single narrative paragraph", () => {
+  it("renders the framing heading without filler copy", () => {
     const copy = impactCopyFor("en");
 
     const { container } = render(<ImpactProgressSection copy={copy.progress} />);
@@ -14,8 +14,8 @@ describe("ImpactProgressSection", () => {
       screen.getByRole("heading", { level: 2, name: copy.progress.title }),
     ).toBeInTheDocument();
     expect(screen.getByText(copy.progress.eyebrow)).toBeInTheDocument();
-    expect(screen.getByText(copy.progress.description)).toBeInTheDocument();
-    expect(container.querySelectorAll("p")).toHaveLength(2);
+    // v2: no sentence is needed; an empty description renders nothing.
+    expect(container.querySelectorAll("p")).toHaveLength(1);
     expect(container.querySelector("ul")).not.toBeInTheDocument();
     expect(container.querySelector("svg")).not.toBeInTheDocument();
   });
@@ -28,6 +28,6 @@ describe("ImpactProgressSection", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: copy.progress.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText(copy.progress.description)).toBeInTheDocument();
+    expect(copy.progress.description).toBe("");
   });
 });

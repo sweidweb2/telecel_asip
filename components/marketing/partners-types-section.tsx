@@ -31,9 +31,11 @@ export function PartnersTypesSection({
           >
             {copy.title}
           </h2>
-          <p className="mt-3 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-            {copy.description}
-          </p>
+          {copy.description ? (
+            <p className="mt-3 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              {copy.description}
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-8 sm:mt-10">
@@ -49,9 +51,11 @@ export function PartnersTypesSection({
                 <p className="mt-3 text-sm leading-6 text-foreground/85 sm:text-base sm:leading-7">
                   {row.value}
                 </p>
-                <p className="mt-3 border-t border-border pt-3 text-sm leading-6 text-muted-foreground">
-                  {row.examples}
-                </p>
+                {row.examples ? (
+                  <p className="mt-3 border-t border-border pt-3 text-sm leading-6 text-muted-foreground">
+                    {row.examples}
+                  </p>
+                ) : null}
               </li>
             ))}
           </ul>

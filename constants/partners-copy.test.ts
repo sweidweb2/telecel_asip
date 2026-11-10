@@ -13,17 +13,17 @@ describe("partnersCopyFor", () => {
     );
     expect(en.types.rows).toHaveLength(6);
     expect(en.hero.cta.slug).toBe("contact");
-    expect(en.hero.cta.label).toBe("Discuss a partnership");
+    expect(en.hero.cta.label).toBe("Discuss collaboration");
     expect(en.ctaSection.slug).toBe("contact");
-    expect(en.ctaSection.label).toBe("Discuss a partnership");
+    expect(en.ctaSection.label).toBe("Discuss collaboration");
     expect(fr.hero.titleLead.length).toBeGreaterThan(0);
     expect(fr.hero.titleAccent.length).toBeGreaterThan(0);
     expect(en.hero.proof).toHaveLength(fr.hero.proof.length);
     expect(fr.hero.cta.label.length).toBeGreaterThan(0);
     expect(en.types.title.length).toBeGreaterThan(0);
     expect(fr.types.title.length).toBeGreaterThan(0);
-    expect(en.types.description.length).toBeGreaterThan(0);
-    expect(fr.types.description.length).toBeGreaterThan(0);
+    // v2 bans unverified "deal flow" language in investor copy.
+    expect(JSON.stringify(en)).not.toMatch(/deal flow/i);
   });
 
   it("covers every partner_type enum value so DB rows always have a label", () => {

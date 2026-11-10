@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { homeCopyFor } from "@/constants/home-copy";
+import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import {
   HOME_HERO_CONTINUUM,
   HOME_HERO_CONTINUUM_BEAT_S,
@@ -18,7 +18,7 @@ describe("HOME_HERO_CONTINUUM", () => {
     }
 
     for (const locale of ["en", "fr"] as const) {
-      expect(homeCopyFor(locale).hero.continuumAlts).toHaveLength(
+      expect(homeV2CopyFor(locale).hero.continuumAlts).toHaveLength(
         HOME_HERO_CONTINUUM.length,
       );
     }

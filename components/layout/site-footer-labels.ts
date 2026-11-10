@@ -73,14 +73,14 @@ type FooterStrings = {
 const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
   en: {
     brand: "ASIP",
-    headline: "African founders. Built to scale.",
+    headline: "Built around African founders. Backed by Telecel Group.",
     statement:
-      "ASIP is a Telecel Group Program backing ambitious African technology founders with expertise, capital pathways, market access and relationships that help businesses grow.",
+      "ASIP brings founders together with investors, operators and partners around practical pathways to build and scale technology businesses in African markets.",
     exploreHeading: "Explore",
-    programmeHeading: "Program",
+    programmeHeading: "Programme",
     connectHeading: "Contact",
     socialHeading: "Follow",
-    parentLabel: "Telecel Group",
+    parentLabel: "Explore founders",
     contactLabel: "Contact ASIP",
     copyright: (year) =>
       `© ${year} Telecel Group. All rights reserved.`,
@@ -89,20 +89,20 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "", label: "Home" },
       { slug: "about", label: "About" },
       { slug: "founders", label: "Founders" },
+      { slug: "partners", label: "Partners" },
       { slug: "insights", label: "Insights" },
     ],
     programmeBefore: [
-      { slug: "program", label: "The program" },
+      { slug: "program", label: "Programme" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],
     connect: [
       { slug: "contact", label: "Contact" },
-      { slug: "partners", label: "Partner with us" },
     ],
     legal: [
-      { slug: "terms", label: "Terms of Service" },
-      { slug: "privacy", label: "Privacy Policy" },
+      { slug: "privacy", label: "Privacy" },
+      { slug: "terms", label: "Terms" },
     ],
     cookiesLabel: "Cookie preferences",
   },
@@ -115,7 +115,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
     programmeHeading: "Programme",
     connectHeading: "Contact",
     socialHeading: "Suivre",
-    parentLabel: "Groupe Telecel",
+    parentLabel: "Explorer les fondateurs",
     contactLabel: "Contacter ASIP",
     copyright: (year) =>
       `© ${year} Groupe Telecel. Tous droits réservés.`,
@@ -180,7 +180,8 @@ export function footerLabelsFor(
     connect: links(locale, strings.connect),
     socialHeading: strings.socialHeading,
     social: [],
-    parent: { href: TELECEL_GROUP_URL, label: strings.parentLabel },
+    // Footer CTAs per Text Pack v2: Explore founders | Contact ASIP.
+    parent: { href: publicPath(locale, "founders"), label: strings.parentLabel },
     contact: {
       href: publicPath(locale, "contact"),
       label: strings.contactLabel,

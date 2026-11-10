@@ -26,9 +26,11 @@ export function ImpactLensesSection({ lenses }: ImpactLensesSectionProps) {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {lenses.title}
           </h2>
-          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-            {lenses.description}
-          </p>
+          {lenses.description ? (
+            <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              {lenses.description}
+            </p>
+          ) : null}
         </header>
 
         <div className="mt-10 overflow-hidden rounded-xl border border-border bg-card sm:mt-12">

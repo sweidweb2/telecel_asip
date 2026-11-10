@@ -3,184 +3,89 @@ import type { PartnersPageCopy } from "@/types/marketing-page";
 
 const en: PartnersPageCopy = {
   hero: {
-    eyebrow: "Partners & mentors",
-    titleLead: "The right opportunity can change a company’s",
-    titleAccent: "trajectory.",
+    eyebrow: "Investors & partners",
+    titleLead: "Find the founders.",
+    titleAccent: "Understand the opportunity.",
     description:
-      "ASIP works with investors, corporates, technology leaders, development institutions, mentors and ecosystem organizations to give founders practical expertise, capital, customers and markets.",
-    cta: { slug: "contact", label: "Discuss a partnership" },
-    proof: ["Investors", "Corporates", "Technology partners", "Mentors"],
+      "Explore the portfolio, sectors and markets represented across ASIP, follow current and upcoming programme activity, and speak with us about relevant investment, technology and commercial collaboration.",
+    cta: { slug: "contact", label: "Discuss collaboration" },
+    proof: ["Investors", "Technology partners", "Corporates", "Mentors"],
   },
   proposition: {
-    title: "Bring an opportunity to the ecosystem.",
+    title: "Built for informed engagement.",
     description:
-      "Tell us the market, sector or challenge you want to address. ASIP can help identify relevant founders, shape the right engagement route and bring together the people needed to turn conversation into practical opportunity.",
+      "Start with the companies, sectors and markets. Then go deeper into verified founder outcomes, current programme activity and relevant introductions where founder consent and fit allow.",
   },
   types: {
-    title: "Ways to work with founders.",
-    description:
-      "Choose the route that matches the opportunity, expertise or access you can bring.",
+    title: "Partner contribution model",
+    description: "",
     columns: {
       type: "Partner type",
-      value: "Value to the ecosystem",
-      examples: "Examples of engagement",
+      value: "Value to founders",
+      examples: "",
     },
     rows: [
-      {
-        id: "corporate",
-        type: "Corporate innovation",
-        value:
-          "Match real business needs with a qualified founder pipeline.",
-        examples:
-          "Challenge statements, pilots, proof-of-concepts, commercial partnerships.",
-      },
-      {
-        id: "investors",
-        type: "Investors",
-        value:
-          "Discover structured founder deal flow across sectors and markets.",
-        examples:
-          "Portfolio introductions, demo days, investment-readiness dialogue.",
-      },
-      {
-        id: "technology",
-        type: "Technology partners",
-        value:
-          "Put useful products and technical expertise into founders’ hands.",
-        examples:
-          "Credits, architecture support, workshops, specialist mentoring.",
-      },
-      {
-        id: "development",
-        type: "Development / public sector",
-        value:
-          "Advance entrepreneurship, jobs, inclusion and technology-led solutions.",
-        examples:
-          "Country initiatives, grants, sector programs, impact measurement.",
-      },
-      {
-        id: "mentors",
-        type: "Mentors / operators",
-        value: "Share experience founders can apply immediately.",
-        examples:
-          "1:1 mentoring, functional clinics, market expertise, founder sessions.",
-      },
-      {
-        id: "media",
-        type: "Media / ecosystem",
-        value: "Amplify credible founder stories and bring communities together.",
-        examples:
-          "Editorial, events, founder showcases, ecosystem research.",
-      },
+      { id: "investors", type: "Investors", value: "Relevant portfolio discovery, founder introductions and investment-readiness dialogue.", examples: "" },
+      { id: "technology", type: "Technology partners", value: "Technical expertise, tools, platforms, credits or specialist mentoring where available.", examples: "" },
+      { id: "corporate", type: "Corporates", value: "Real business challenges, pilot pathways, customers and commercial partnerships.", examples: "" },
+      { id: "development", type: "Development / public sector", value: "Country initiatives, founder programmes, grants, inclusion and impact collaboration.", examples: "" },
+      { id: "mentors", type: "Mentors / operators", value: "Practical operating experience founders can apply immediately.", examples: "" },
+      { id: "media", type: "Media / ecosystem", value: "Credible founder visibility, events, research and access to wider communities.", examples: "" },
     ],
   },
   logos: {
-    title: "What partners bring to founders.",
+    title: "An ecosystem built around founder progress.",
     description:
-      "Capital, technology, markets and expertise, grouped by what each partner actually puts into founders’ hands.",
+      "ASIP has worked with ecosystem partners including Startupbootcamp AfriTech, AWS, Google, Microsoft, IBM, FMO, the United Nations and VC4A.",
     bringsLabel: "What founders get:",
   },
   ctaSection: {
-    title: "Have an opportunity for founders?",
-    description:
-      "Tell us the market, sector or challenge you want to address. ASIP will help identify relevant founders and the right engagement route.",
+    title: "Find the founders. Understand the opportunity.",
+    description: "",
     slug: "contact",
-    label: "Discuss a partnership",
+    label: "Discuss collaboration",
   },
 };
 
 const fr: PartnersPageCopy = {
   hero: {
-    eyebrow: "Partenaires et mentors",
-    titleLead: "La bonne opportunité peut changer la",
-    titleAccent: "trajectoire d’une entreprise.",
+    eyebrow: "Investisseurs et partenaires",
+    titleLead: "Trouvez les fondateurs.",
+    titleAccent: "Comprenez l’opportunité.",
     description:
-      "ASIP travaille avec des investisseurs, des entreprises, des leaders technologiques, des institutions de développement, des mentors et des organisations de l’écosystème pour offrir aux fondateurs une expertise concrète, du capital, des clients et des marchés.",
-    cta: { slug: "contact", label: "Discuter d’un partenariat" },
-    proof: [
-      "Investisseurs",
-      "Entreprises",
-      "Partenaires technologiques",
-      "Mentors",
-    ],
+      "Explorez le portefeuille, les secteurs et les marchés représentés dans ASIP, suivez l’activité en cours et à venir du programme, et échangez avec nous sur les collaborations d’investissement, technologiques et commerciales pertinentes.",
+    cta: { slug: "contact", label: "Discuter d’une collaboration" },
+    proof: ["Investisseurs", "Partenaires technologiques", "Entreprises", "Mentors"],
   },
   proposition: {
-    title: "Apportez une opportunité à l’écosystème.",
+    title: "Conçu pour un engagement éclairé.",
     description:
-      "Indiquez le marché, le secteur ou le défi que vous souhaitez adresser. ASIP peut aider à identifier les fondateurs pertinents, façonner le bon format d’engagement et réunir les personnes nécessaires pour passer de la conversation à une opportunité concrète.",
+      "Commencez par les entreprises, les secteurs et les marchés. Allez ensuite plus loin avec les résultats vérifiés des fondateurs, l’activité en cours du programme et des mises en relation pertinentes, lorsque le consentement des fondateurs et l’adéquation le permettent.",
   },
   types: {
-    title: "Des façons de travailler avec les fondateurs.",
-    description:
-      "Choisissez le format qui correspond à l’opportunité, l’expertise ou l’accès que vous pouvez apporter.",
-    columns: {
-      type: "Type de partenaire",
-      value: "Valeur pour l’écosystème",
-      examples: "Exemples d’engagement",
-    },
+    title: "Modèle de contribution des partenaires",
+    description: "",
+    columns: { type: "Type de partenaire", value: "Valeur pour les fondateurs", examples: "" },
     rows: [
-      {
-        id: "corporate",
-        type: "Innovation corporate",
-        value:
-          "Faire correspondre des besoins business réels à un pipeline de fondateurs qualifiés.",
-        examples:
-          "Briefs de challenge, pilotes, preuves de concept, partenariats commerciaux.",
-      },
-      {
-        id: "investors",
-        type: "Investisseurs",
-        value:
-          "Découvrir un deal flow structuré de fondateurs, tous secteurs et marchés.",
-        examples:
-          "Introductions portefeuille, demo days, dialogues de préparation à l’investissement.",
-      },
-      {
-        id: "technology",
-        type: "Partenaires technologiques",
-        value:
-          "Mettre des produits utiles et une expertise technique entre les mains des fondateurs.",
-        examples:
-          "Crédits, accompagnement d’architecture, ateliers, mentorat spécialisé.",
-      },
-      {
-        id: "development",
-        type: "Développement / secteur public",
-        value:
-          "Faire progresser l’entrepreneuriat, l’emploi, l’inclusion et les solutions technologiques.",
-        examples:
-          "Initiatives pays, subventions, programmes sectoriels, mesure d’impact.",
-      },
-      {
-        id: "mentors",
-        type: "Mentors / opérateurs",
-        value:
-          "Partager une expérience que les fondateurs peuvent appliquer tout de suite.",
-        examples:
-          "Mentorat 1:1, cliniques fonctionnelles, expertise marché, sessions fondateurs.",
-      },
-      {
-        id: "media",
-        type: "Médias / écosystème",
-        value:
-          "Amplifier des histoires de fondateurs crédibles et rassembler les communautés.",
-        examples:
-          "Éditorial, événements, mises en avant de fondateurs, recherche écosystème.",
-      },
+      { id: "investors", type: "Investisseurs", value: "Découverte pertinente du portefeuille, mises en relation avec les fondateurs et dialogue sur la préparation à l’investissement.", examples: "" },
+      { id: "technology", type: "Partenaires technologiques", value: "Expertise technique, outils, plateformes, crédits ou mentorat spécialisé selon disponibilité.", examples: "" },
+      { id: "corporate", type: "Entreprises", value: "Vrais défis métier, voies vers des pilotes, clients et partenariats commerciaux.", examples: "" },
+      { id: "development", type: "Développement / secteur public", value: "Initiatives nationales, programmes pour fondateurs, subventions, inclusion et collaboration à impact.", examples: "" },
+      { id: "mentors", type: "Mentors / opérateurs", value: "Une expérience opérationnelle que les fondateurs peuvent appliquer immédiatement.", examples: "" },
+      { id: "media", type: "Médias / écosystème", value: "Visibilité crédible des fondateurs, événements, recherche et accès à des communautés plus larges.", examples: "" },
     ],
   },
   logos: {
-    title: "Ce que les partenaires apportent aux fondateurs.",
+    title: "Un écosystème construit autour de la progression des fondateurs.",
     description:
-      "Capital, technologie, marchés et expertise, regroupés selon ce que chaque partenaire met concrètement entre les mains des fondateurs.",
-    bringsLabel: "Pour les fondateurs :",
+      "ASIP a travaillé avec des partenaires de l’écosystème, dont Startupbootcamp AfriTech, AWS, Google, Microsoft, IBM, FMO, les Nations unies et VC4A.",
+    bringsLabel: "Ce que les fondateurs reçoivent :",
   },
   ctaSection: {
-    title: "Une opportunité pour les fondateurs ?",
-    description:
-      "Indiquez le marché, le secteur ou le défi que vous souhaitez adresser. ASIP aidera à identifier les fondateurs pertinents et le bon format d’engagement.",
+    title: "Trouvez les fondateurs. Comprenez l’opportunité.",
+    description: "",
     slug: "contact",
-    label: "Discuter d’un partenariat",
+    label: "Discuter d’une collaboration",
   },
 };
 

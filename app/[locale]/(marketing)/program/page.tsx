@@ -19,16 +19,16 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/program",
-          title: "Programme ASIP | Comment ça marche",
+          title: "Programme ASIP | Construire l’avantage IA",
           description:
-            "Découvrez le parcours fondateur ASIP, les bénéfices, les critères d’éligibilité, le processus de sélection et le statut actuel des candidatures.",
+            "Découvrez le fonctionnement d’ASIP, ce que les fondateurs y gagnent, l’orientation IA 2026, l’éligibilité et le statut actuel des candidatures.",
         }
       : {
           locale,
           path: "/program",
-          title: "ASIP Program | How It Works",
+          title: "ASIP Programme | Building the AI Advantage",
           description:
-            "Explore the ASIP founder journey, benefits, eligibility, selection process and current application status.",
+            "See how ASIP works, what founders gain, the 2026 AI direction, eligibility guidance and current application status.",
         },
   );
 }

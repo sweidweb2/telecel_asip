@@ -7,11 +7,11 @@ import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import type { ArticleListItem } from "@/types/article";
-import type { HomePageCopy } from "@/types/marketing-page";
+import type { HomeV2Copy } from "@/constants/home-v2-copy";
 
 type HomeLatestInsightsSectionProps = {
   locale: Locale;
-  copy: HomePageCopy["latest"];
+  copy: HomeV2Copy["latest"];
   articles: ArticleListItem[];
   className?: string;
 };

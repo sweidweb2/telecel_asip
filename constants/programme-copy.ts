@@ -10,23 +10,28 @@ import type { ProgrammePageCopy } from "@/types/marketing-page";
  */
 const en: ProgrammePageCopy = {
   hero: {
-    eyebrow: "The program",
+    eyebrow: "The programme",
     title: "Build the company, not just the pitch.",
     description:
-      "ASIP helps ambitious African technology founders strengthen the fundamentals behind growth: product, strategy, operations, market access, investor readiness and the relationships that help opportunities become real.",
+      "ASIP helps ambitious technology founders strengthen the fundamentals behind growth: product, strategy, market understanding, commercial readiness, investor readiness and the relationships that can open the next door.",
     primaryCta: { slug: "register-interest", label: "Register interest" },
-    secondaryCta: { slug: "founders", label: "Explore past cohorts" },
+    secondaryCta: { slug: "founders", label: "Explore founders" },
+  },
+  aiDirection: {
+    eyebrow: "Building the AI Advantage",
+    title: "AI that earns its place in the business.",
+    description:
+      "The 2026 direction focuses on founders using AI to solve real operating, customer and market problems. The emphasis is practical advantage: better products, better decisions, stronger productivity and new ways to grow.",
   },
   audience: {
     eyebrow: "Who it is for",
-    title:
-      "Built for ambitious technology ventures solving real African market problems.",
+    title: "Built for ambitious technology ventures solving real market problems.",
     description:
-      "ASIP is designed for founders with a credible team, a technology-enabled solution, a meaningful African market opportunity and the ambition to build beyond one customer or one geography. Exact stage, sector, geography and selection criteria are published for each cohort.",
+      "Exact stage, sector, geography and selection criteria are confirmed for each cohort. At a minimum, ASIP looks for strong founder insight, a credible technology-led solution, evidence of market need and the ambition to scale.",
     highlights: [
-      { id: "team", label: "Credible team" },
-      { id: "product", label: "Tech-enabled solution" },
-      { id: "market", label: "African market" },
+      { id: "team", label: "Founder insight" },
+      { id: "product", label: "Technology-led solution" },
+      { id: "market", label: "Evidence of market need" },
     ],
   },
   journey: {
@@ -36,37 +41,31 @@ const en: ProgrammePageCopy = {
         id: "discover",
         title: "Discover",
         description:
-          "ASIP identifies founders through applications, ecosystem partners and market networks.",
-      },
-      {
-        id: "select",
-        title: "Select",
-        description:
-          "Teams are assessed against founder quality, problem relevance, product potential, traction, scalability and program fit.",
+          "Find founders solving meaningful problems with clear market potential.",
       },
       {
         id: "build",
         title: "Build",
         description:
-          "Selected founders work with mentors and specialists to sharpen product, strategy, operations, leadership and investor readiness.",
+          "Sharpen product, strategy, operations and leadership around the company's real priorities.",
+      },
+      {
+        id: "select",
+        title: "Test",
+        description:
+          "Pressure-test assumptions with mentors, market insight and relevant technical or commercial expertise.",
       },
       {
         id: "connect",
-        title: "Open access",
+        title: "Accelerate",
         description:
-          "ASIP opens structured access to partners, investors, corporate buyers, technical expertise and market intelligence.",
-      },
-      {
-        id: "commercialise",
-        title: "Commercialize",
-        description:
-          "Founders prepare for pilots, customer conversations, proof-of-concept opportunities and longer-term partnerships.",
+          "Strengthen investor readiness, market access and pathways to pilots, customers or partnerships.",
       },
       {
         id: "grow",
-        title: "Grow",
+        title: "Scale",
         description:
-          "Strong founders stay close to the wider ASIP ecosystem, with follow-on visibility and portfolio support where relevant.",
+          "Prepare for growth across customers and markets, with continued portfolio visibility where relevant.",
       },
     ],
   },
@@ -77,63 +76,56 @@ const en: ProgrammePageCopy = {
         id: "expertise",
         title: "Practical expertise",
         description:
-          "Specialist support shaped around the company’s real growth constraints, not generic classroom theory.",
-      },
-      {
-        id: "network",
-        title: "Founder network",
-        description:
-          "Access to mentors, operators, investors and peers who understand what it takes to build.",
+          "Specialist input shaped around the company's real growth constraints, not generic classroom theory.",
       },
       {
         id: "intelligence",
-        title: "Market intelligence",
+        title: "Market access",
         description:
-          "Sharper insight into customers, sectors, regulation and commercial pathways.",
+          "Sharper understanding of customers, sectors, regulation and commercial pathways in relevant markets.",
       },
       {
         id: "investment",
-        title: "Investment readiness",
+        title: "Investor readiness",
         description:
-          "Stronger narratives, metrics, data rooms and fundraising preparation.",
+          "Clearer narratives, stronger metrics, better materials and preparation for investor conversations.",
+      },
+      {
+        id: "network",
+        title: "Technology & tools",
+        description:
+          "Access to relevant technical expertise, platforms or partner resources where available.",
       },
       {
         id: "commercial",
         title: "Commercial pathways",
         description:
-          "Routes to potential corporate and public-sector use cases where strategic fit exists.",
+          "Opportunities to explore pilots, customers and partnerships where there is a genuine strategic fit.",
       },
       {
         id: "visibility",
-        title: "Visibility",
+        title: "Founder visibility",
         description:
-          "Founder stories, demo opportunities and access to relevant industry platforms.",
-      },
-      {
-        id: "continuity",
-        title: "Continuity",
-        description:
-          "A relationship with the portfolio that can continue beyond the cohort, subject to program priorities.",
+          "A stronger platform for credible founder stories, portfolio milestones and relevant industry exposure.",
       },
     ],
   },
   eligibility: {
     title: "General eligibility",
-    imageAlt: "ASIP founders working on laptops during a program session",
+    imageAlt: "ASIP founders working on laptops during a programme session",
     items: [
-      "Solve a real and meaningful problem (business, industry, or community-related).",
-      "Have at least one woman represented within the founding team or executive leadership.",
-      "Have a proven product or solution in market.",
-      "Demonstrate existing revenue or commercial traction.",
-      "Have a founder working full-time within the business.",
+      "African-founded, Africa-focused or solving a material challenge in African markets.",
+      "Technology-led product, platform or business model with credible potential to scale.",
+      "Committed founding team with relevant insight and the ability to execute.",
+      "Evidence of a real market need. Traction requirements may vary by cohort.",
+      "Clear potential for commercial, social or economic value.",
+      "Ability to participate fully in the published programme format and timetable.",
     ],
-    notice:
-      "Official cohort criteria, dates, format and terms are published when applications open.",
+    notice: "",
   },
   ctaSection: {
-    title: "Ready for the next chapter?",
-    description:
-      "Register interest for updates, or explore founders who have already built through ASIP.",
+    title: "Your next build could start here.",
+    description: "",
     slug: "register-interest",
     label: "Register interest",
   },
@@ -144,127 +136,64 @@ const fr: ProgrammePageCopy = {
     eyebrow: "Le programme",
     title: "Construire l’entreprise, pas seulement le pitch.",
     description:
-      "ASIP aide les fondateurs technologiques africains ambitieux à renforcer les fondamentaux de la croissance : produit, stratégie, opérations, accès au marché, préparation à l’investissement et les relations qui transforment les opportunités en résultats concrets.",
+      "ASIP aide les fondateurs technologiques ambitieux à renforcer les fondamentaux de la croissance : produit, stratégie, compréhension du marché, préparation commerciale, préparation à l’investissement et les relations qui ouvrent la porte suivante.",
     primaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
-    secondaryCta: { slug: "founders", label: "Explorer les cohortes passées" },
+    secondaryCta: { slug: "founders", label: "Explorer les fondateurs" },
+  },
+  aiDirection: {
+    eyebrow: "Construire l’avantage IA",
+    title: "Une IA qui a sa place dans l’entreprise.",
+    description:
+      "L’orientation 2026 met l’accent sur les fondateurs qui utilisent l’IA pour résoudre de vrais problèmes opérationnels, clients et de marché : de meilleurs produits, de meilleures décisions, plus de productivité et de nouvelles façons de grandir.",
   },
   audience: {
     eyebrow: "Pour qui",
-    title:
-      "Conçu pour les entreprises technologiques ambitieuses qui résolvent de vrais problèmes de marché en Afrique.",
+    title: "Conçu pour des entreprises technologiques ambitieuses qui résolvent de vrais problèmes de marché.",
     description:
-      "ASIP s’adresse aux fondateurs qui ont une équipe crédible, une solution technologique, une opportunité de marché africaine significative et l’ambition de construire au-delà d’un client ou d’une géographie. Le stade, le secteur, la géographie et les critères de sélection sont publiés pour chaque cohorte.",
+      "Le stade, le secteur, la géographie et les critères de sélection sont confirmés pour chaque cohorte. Au minimum, ASIP recherche une solide connaissance du problème, une solution technologique crédible, des preuves d’un besoin réel et l’ambition de grandir.",
     highlights: [
-      { id: "team", label: "Équipe crédible" },
+      { id: "team", label: "Connaissance du problème" },
       { id: "product", label: "Solution technologique" },
-      { id: "market", label: "Marché africain" },
+      { id: "market", label: "Besoin de marché prouvé" },
     ],
   },
   journey: {
-    title: "Parcours du fondateur",
+    title: "Parcours fondateur",
     steps: [
-      {
-        id: "discover",
-        title: "Découvrir",
-        description:
-          "ASIP identifie les fondateurs via les candidatures, les partenaires de l’écosystème et les réseaux de marché.",
-      },
-      {
-        id: "select",
-        title: "Sélectionner",
-        description:
-          "Les équipes sont évaluées selon la qualité des fondateurs, la pertinence du problème, le potentiel du produit, la traction, la scalabilité et l’adéquation au programme.",
-      },
-      {
-        id: "build",
-        title: "Construire",
-        description:
-          "Les fondateurs sélectionnés travaillent avec des mentors et des spécialistes pour affiner le produit, la stratégie, les opérations, le leadership et la préparation à l’investissement.",
-      },
-      {
-        id: "connect",
-        title: "Ouvrir l’accès",
-        description:
-          "ASIP ouvre un accès structuré aux partenaires, investisseurs, acheteurs corporate, à l’expertise technique et à l’intelligence de marché.",
-      },
-      {
-        id: "commercialise",
-        title: "Commercialiser",
-        description:
-          "Les fondateurs se préparent aux pilotes, aux conversations clients, aux preuves de concept et aux partenariats de plus long terme.",
-      },
-      {
-        id: "grow",
-        title: "Grandir",
-        description:
-          "Les fondateurs solides restent proches de l’écosystème ASIP, avec une visibilité de suivi et un accompagnement du portefeuille lorsque cela est pertinent.",
-      },
+      { id: "discover", title: "Découvrir", description: "Repérer des fondateurs qui résolvent des problèmes importants avec un potentiel de marché clair." },
+      { id: "build", title: "Construire", description: "Affiner produit, stratégie, opérations et leadership autour des vraies priorités de l’entreprise." },
+      { id: "select", title: "Tester", description: "Mettre les hypothèses à l’épreuve avec des mentors, la connaissance du marché et une expertise technique ou commerciale." },
+      { id: "connect", title: "Accélérer", description: "Renforcer la préparation à l’investissement, l’accès aux marchés et les voies vers des pilotes, clients ou partenariats." },
+      { id: "grow", title: "Grandir", description: "Préparer la croissance sur plusieurs clients et marchés, avec une visibilité continue dans le portefeuille si pertinent." },
     ],
   },
   value: {
     title: "Ce que les fondateurs y gagnent",
     items: [
-      {
-        id: "expertise",
-        title: "Expertise pratique",
-        description:
-          "Un accompagnement de spécialistes calé sur les vraies contraintes de croissance de l’entreprise, pas une théorie générique de salle de classe.",
-      },
-      {
-        id: "network",
-        title: "Réseau de fondateurs",
-        description:
-          "Accès à des mentors, opérateurs, investisseurs et pairs qui savent ce qu’il faut pour construire.",
-      },
-      {
-        id: "intelligence",
-        title: "Intelligence de marché",
-        description:
-          "Une lecture plus nette des clients, des secteurs, de la régulation et des voies commerciales.",
-      },
-      {
-        id: "investment",
-        title: "Préparation à l’investissement",
-        description:
-          "Des récits plus solides, des métriques, des data rooms et une préparation à la levée.",
-      },
-      {
-        id: "commercial",
-        title: "Voies commerciales",
-        description:
-          "Des voies vers des cas d’usage corporate et du secteur public lorsque l’adéquation stratégique existe.",
-      },
-      {
-        id: "visibility",
-        title: "Visibilité",
-        description:
-          "Des histoires de fondateurs, des opportunités de démo et l’accès aux plateformes sectorielles pertinentes.",
-      },
-      {
-        id: "continuity",
-        title: "Continuité",
-        description:
-          "Une relation avec le portefeuille qui peut se poursuivre au-delà de la cohorte, selon les priorités du programme.",
-      },
+      { id: "expertise", title: "Expertise concrète", description: "Un appui spécialisé adapté aux vraies contraintes de croissance de l’entreprise, pas une théorie générique." },
+      { id: "intelligence", title: "Accès aux marchés", description: "Une meilleure compréhension des clients, secteurs, réglementations et voies commerciales sur les marchés pertinents." },
+      { id: "investment", title: "Préparation à l’investissement", description: "Un récit plus clair, de meilleurs indicateurs et supports, et une préparation aux échanges avec les investisseurs." },
+      { id: "network", title: "Technologie et outils", description: "Accès à une expertise technique, des plateformes ou des ressources partenaires selon disponibilité." },
+      { id: "commercial", title: "Voies commerciales", description: "Des occasions d’explorer pilotes, clients et partenariats lorsqu’il existe une réelle adéquation stratégique." },
+      { id: "visibility", title: "Visibilité des fondateurs", description: "Une plateforme plus solide pour des récits crédibles, des étapes du portefeuille et une exposition sectorielle pertinente." },
     ],
   },
   eligibility: {
     title: "Éligibilité générale",
-    imageAlt: "Des fondateurs ASIP au travail lors d’une session du programme",
+    imageAlt: "Fondateurs ASIP travaillant sur ordinateur lors d’une session du programme",
     items: [
-      "Résoudre un problème réel et significatif (lié à une entreprise, un secteur ou une communauté).",
-      "Compter au moins une femme dans l’équipe fondatrice ou la direction exécutive.",
-      "Disposer d’un produit ou d’une solution ayant fait ses preuves sur le marché.",
-      "Démontrer des revenus existants ou une traction commerciale.",
-      "Avoir au moins un fondateur ou une fondatrice à temps plein dans l’entreprise.",
+      "Fondée en Afrique, centrée sur l’Afrique ou répondant à un enjeu important des marchés africains.",
+      "Produit, plateforme ou modèle d’affaires technologique avec un potentiel crédible de croissance.",
+      "Équipe fondatrice engagée, avec une connaissance pertinente et la capacité d’exécuter.",
+      "Preuve d’un besoin réel du marché. Les exigences de traction peuvent varier selon la cohorte.",
+      "Potentiel clair de valeur commerciale, sociale ou économique.",
+      "Capacité à participer pleinement au format et au calendrier publiés du programme.",
     ],
-    notice:
-      "Les critères, dates, format et conditions officiels de chaque cohorte sont publiés à l’ouverture des candidatures.",
+    notice: "",
   },
   ctaSection: {
-    title: "Prêt pour le prochain chapitre ?",
-    description:
-      "Manifestez votre intérêt pour les mises à jour, ou explorez les fondateurs déjà passés par ASIP.",
+    title: "Votre prochaine étape pourrait commencer ici.",
+    description: "",
     slug: "register-interest",
     label: "Manifester votre intérêt",
   },

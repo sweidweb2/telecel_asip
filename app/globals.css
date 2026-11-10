@@ -70,8 +70,6 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --animate-scroll-horizontal: scroll-horizontal var(--scroll-duration, 40s) linear infinite;
-  --animate-scroll-horizontal-reverse: scroll-horizontal-reverse var(--scroll-duration, 40s) linear infinite;
   --animate-fade-in-up: fade-in-up 0.7s ease-out forwards;
 }
 
@@ -408,41 +406,11 @@ html {
   }
 }
 
-@keyframes scroll-horizontal {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes scroll-horizontal-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.scroller-mask {
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 8%,
-    black 92%,
-    transparent
-  );
-}
-
 ::selection {
   background: color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-scroll-horizontal,
-  .animate-scroll-horizontal-reverse,
   .animate-fade-in-up {
     animation: none !important;
     opacity: 1;

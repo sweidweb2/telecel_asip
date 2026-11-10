@@ -68,7 +68,7 @@ function StoryHeroVisual({ locale }: { locale: Locale }) {
         alt={
           locale === "fr"
             ? "Fondateurs ASIP et communauté du programme"
-            : "ASIP founders and program community"
+            : "ASIP founders and programme community"
         }
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"

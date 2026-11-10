@@ -177,22 +177,7 @@ function RegisterIntakeForm({
           errors={errors}
           isPending={isPending}
         />
-        <div className="grid gap-2">
-          <ApplyFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
-            {labels.pitchLabel}
-          </ApplyFieldLabel>
-          <Textarea
-            id="intake-pitch"
-            rows={4}
-            placeholder={labels.pitchPlaceholder}
-            aria-invalid={Boolean(errors.pitch)}
-            disabled={isPending}
-            {...register("pitch")}
-          />
-          {errors.pitch ? (
-            <p className="text-sm text-destructive">{errors.pitch.message}</p>
-          ) : null}
-        </div>
+        {/* Text Pack v2: no long-form answers at Register Interest stage. */}
         <ConsentFields
           labels={labels}
           control={control}

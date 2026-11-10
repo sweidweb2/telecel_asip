@@ -19,16 +19,16 @@ export async function generateMetadata({
           locale,
           path: "/about",
           title:
-            "À propos d’ASIP | De l’innovation africaine aux opportunités mondiales",
+            "À propos d’ASIP | Programme fondateurs du Groupe Telecel",
           description:
-            "Découvrez la mission d’ASIP et son parcours, de la première cohorte d’accélération au prochain chapitre, aux côtés des fondateurs technologiques africains.",
+            "Découvrez l’origine d’ASIP en 2019, sa raison d’être centrée sur les fondateurs et son parcours aux côtés d’entreprises technologiques sur les marchés africains.",
         }
       : {
           locale,
           path: "/about",
-          title: "About ASIP | From African Innovation to Global Opportunity",
+          title: "About ASIP | Founder Programme by Telecel Group",
           description:
-            "Discover ASIP’s mission and journey, from the first accelerator cohort to the next chapter, backing African technology founders with expertise, markets and relationships.",
+            "Discover ASIP's 2019 origin, founder-first purpose and journey supporting technology ventures across African markets.",
         },
   );
 }

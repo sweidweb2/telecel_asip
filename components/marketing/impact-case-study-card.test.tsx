@@ -5,7 +5,11 @@ import { ImpactCaseStudyCard } from "@/components/marketing/impact-case-study-ca
 import { impactCopyFor } from "@/constants/impact-copy";
 import type { ImpactCaseStudyPublic } from "@/types/founder-story";
 
-const copy = impactCopyFor("en").caseStudy;
+// The card still supports a pending seat; give it a label for these tests.
+const copy = {
+  ...impactCopyFor("en").caseStudy,
+  comingSoon: "Founder story coming soon",
+};
 
 function story(
   overrides: Partial<ImpactCaseStudyPublic> = {},
@@ -109,7 +113,6 @@ describe("ImpactCaseStudyCard", () => {
     expect(screen.queryByText("$974K revenue")).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText(copy.steps.barrier)).not.toBeInTheDocument();
-    expect(screen.queryByText(copy.body)).not.toBeInTheDocument();
   });
 
   it("renders an anonymous reserved seat without a fake founder name", () => {

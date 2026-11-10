@@ -21,7 +21,7 @@ describe("ImpactEvidenceRuleSection", () => {
     expect(screen.getByText("Measurement period")).toBeInTheDocument();
     expect(screen.getByText("Owner")).toBeInTheDocument();
     expect(screen.getByText("Last verified")).toBeInTheDocument();
-    expect(screen.getByText("Permission status")).toBeInTheDocument();
+    expect(screen.getByText("Permission")).toBeInTheDocument();
   });
 
   it("renders the French evidence rule copy", () => {

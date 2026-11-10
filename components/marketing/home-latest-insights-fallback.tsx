@@ -1,5 +1,5 @@
 import { SectionEyebrow } from "@/components/marketing/page-elements";
-import { homeCopyFor } from "@/constants/home-copy";
+import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 
 type HomeLatestInsightsFallbackProps = {
@@ -10,7 +10,7 @@ type HomeLatestInsightsFallbackProps = {
 export function HomeLatestInsightsFallback({
   locale,
 }: HomeLatestInsightsFallbackProps) {
-  const copy = homeCopyFor(locale);
+  const copy = homeV2CopyFor(locale);
 
   return (
     <section

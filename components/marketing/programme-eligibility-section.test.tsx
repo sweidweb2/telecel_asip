@@ -18,7 +18,7 @@ describe("ProgrammeEligibilitySection", () => {
       expect(screen.getByText(item)).toBeInTheDocument();
     }
 
-    expect(copy.items).toHaveLength(5);
+    expect(copy.items).toHaveLength(6);
   });
 
   it("does not render the cohort notice on the public page", () => {
@@ -26,7 +26,7 @@ describe("ProgrammeEligibilitySection", () => {
 
     render(<ProgrammeEligibilitySection copy={copy} />);
 
-    expect(screen.queryByText(copy.notice)).not.toBeInTheDocument();
+    expect(copy.notice).toBe("");
     expect(
       screen.queryByText(/when applications open, replace/i),
     ).not.toBeInTheDocument();

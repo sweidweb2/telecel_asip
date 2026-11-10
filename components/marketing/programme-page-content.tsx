@@ -5,6 +5,8 @@ import { ProgrammeHero } from "@/components/marketing/programme-hero";
 import { ProgrammeJourneySection } from "@/components/marketing/programme-journey-section";
 import { ProgrammePastChaptersSection } from "@/components/marketing/programme-past-chapters-section";
 import { ProgrammeValueSection } from "@/components/marketing/programme-value-section";
+import { HomeAiAdvantageSection } from "@/components/marketing/home-v2-sections";
+import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 import { programmeCopyFor } from "@/constants/programme-copy";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
@@ -31,6 +33,20 @@ export function ProgrammePageContent({
   return (
     <main>
       <ProgrammeHero locale={locale} copy={copy.hero} intake={intake} />
+
+      {copy.aiDirection ? (
+        <HomeAiAdvantageSection
+          locale={locale}
+          intake={intake}
+          copy={{
+            ...homeV2CopyFor(locale).ai,
+            ...copy.aiDirection,
+            support: "",
+            founderCta: { slug: intake.slug, label: intake.label },
+            investorCta: { slug: "founders", label: copy.hero.secondaryCta.label },
+          }}
+        />
+      ) : null}
 
       <ProgrammeAudienceSection
         locale={locale}

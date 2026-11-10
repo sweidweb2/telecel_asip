@@ -18,16 +18,16 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/contact",
-          title: "Nous contacter - ASIP",
+          title: "Contacter ASIP | Commencez par la bonne conversation",
           description:
-            "Choisissez un parcours fondateur, partenaire, presse ou général : l’équipe ASIP transmettra votre demande au bon interlocuteur.",
+            "Choisissez le parcours qui correspond le mieux à votre besoin : fondateur, investisseur ou partenaire, presse ou demande générale.",
         }
       : {
           locale,
           path: "/contact",
-          title: "Contact us - ASIP",
+          title: "Contact ASIP | Start with the right conversation",
           description:
-            "Choose a founder, partner, media or general inquiry route and the ASIP team will direct it to the relevant owner.",
+            "Choose a founder, partner, media or general enquiry route and the ASIP team will direct it to the relevant owner.",
         },
   );
 }

@@ -23,7 +23,7 @@ vi.mock("sonner", () => ({
 }));
 
 describe("ApplyForm", () => {
-  it("shows register-interest pitch field in register mode", () => {
+  it("keeps Register Interest short: no long-form pitch field (Text Pack v2)", () => {
     render(
       <ApplyForm
         locale="en"
@@ -31,7 +31,7 @@ describe("ApplyForm", () => {
         labels={applyLabelsFor("en", "register")}
       />,
     );
-    expect(screen.getByLabelText(/short note/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/short note/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/problem & product/i)).not.toBeInTheDocument();
   });
 

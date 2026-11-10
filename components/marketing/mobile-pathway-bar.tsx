@@ -69,21 +69,23 @@ export function MobilePathwayBar({
       )}
     >
       <div className="flex items-center gap-2.5">
-        <span className="shrink-0 text-xs font-semibold tracking-[0.12em] text-asip-ink/75 uppercase">
+        {/* The group's aria-label carries the prompt; the visible text only fits wider phones. */}
+        <span className="hidden shrink-0 text-xs font-semibold tracking-[0.12em] text-asip-ink/75 uppercase min-[430px]:inline">
           {prompt}
         </span>
-        <Link
-          href={investor.href}
-          className="flex min-h-12 flex-1 items-center justify-center rounded-full border border-asip-ink/25 bg-background px-4 text-sm font-semibold text-asip-ink"
-        >
-          {investor.label}
-        </Link>
+        {/* Founder first, matching the hero order. */}
         <Link
           href={startup.href}
-          className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-asip-ink bg-asip-coral px-4 text-sm font-semibold text-white shadow-[2px_2px_0_0_var(--asip-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="flex min-h-12 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-2 border-asip-ink bg-asip-coral px-3 text-sm font-semibold text-white shadow-[2px_2px_0_0_var(--asip-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
           {startup.label}
           <ArrowRight aria-hidden className="size-4" />
+        </Link>
+        <Link
+          href={investor.href}
+          className="flex min-h-12 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-asip-ink/25 bg-background px-3 text-sm font-semibold text-asip-ink"
+        >
+          {investor.label}
         </Link>
       </div>
     </div>

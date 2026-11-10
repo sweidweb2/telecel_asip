@@ -47,7 +47,11 @@ describe("blog-ui stream tabs", () => {
         "founder-stories",
       ),
     ).toBe(true);
+    // Founder & Portfolio Stories is one public category in v2.
     expect(articleMatchesTab(["Portfolio News"], "founder-stories")).toBe(
+      true,
+    );
+    expect(articleMatchesTab(["Portfolio News"], "programme-updates")).toBe(
       false,
     );
     expect(articleMatchesTab(["anything"], "all")).toBe(true);
@@ -63,7 +67,9 @@ describe("blog-ui stream tabs", () => {
     const en = blogLabelsFor("en");
     const fr = blogLabelsFor("fr");
     expect(en.tabs.map((t) => t.id)).toEqual(fr.tabs.map((t) => t.id));
-    expect(en.tabs.map((t) => t.id)).toEqual([...BLOG_TAB_IDS]);
+    expect(en.tabs.map((t) => t.id)).toEqual(
+      BLOG_TAB_IDS.filter((id) => id !== "portfolio-news"),
+    );
     expect(en.emptyStreamState.length).toBeGreaterThan(0);
     expect(fr.emptyStreamState.length).toBeGreaterThan(0);
   });

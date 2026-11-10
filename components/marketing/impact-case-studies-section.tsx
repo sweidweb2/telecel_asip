@@ -15,26 +15,6 @@ type ImpactCaseStudiesSectionProps = {
   stories: ImpactCaseStudyPublic[];
 };
 
-function reservedSeats(): ImpactCaseStudyPublic[] {
-  return [0, 1, 2].map((index) => ({
-    id: `pending-slot-${index}`,
-    startupId: null,
-    title: "",
-    name: "",
-    slug: "",
-    founderNames: [],
-    sector: null,
-    country: null,
-    coverImageUrl: null,
-    imageFocalX: 50,
-    imageFocalY: 50,
-    barrier: null,
-    support: null,
-    outcome: null,
-    stat: null,
-    status: "pending" as const,
-  }));
-}
 
 /**
  * Impact case studies — first 3 cards SSR; remaining via client load-more.
@@ -44,7 +24,9 @@ export function ImpactCaseStudiesSection({
   copy,
   stories,
 }: ImpactCaseStudiesSectionProps) {
-  const slots = stories.length > 0 ? stories : reservedSeats();
+  // Text Pack v2: no placeholder stories or "coming soon" shells.
+  if (stories.length === 0) return null;
+  const slots = stories;
   const cappedStories = slots.slice(0, IMPACT_CASE_STUDIES_MAX);
   const initialStories = cappedStories.slice(0, INITIAL_VISIBLE);
   const remainingStories = cappedStories.slice(INITIAL_VISIBLE);

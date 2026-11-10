@@ -18,16 +18,16 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/partners",
-          title: "Découvrir les opportunités de partenariat | ASIP",
+          title: "Investisseurs et partenaires ASIP | Portefeuille et collaboration",
           description:
-            "Travaillez avec ASIP pour soutenir les fondateurs africains avec l’expertise, la technologie, le capital, l’accès marché et des opportunités concrètes.",
+            "Explorez le portefeuille ASIP, les partenaires de l’écosystème, l’activité en cours et les voies de collaboration en investissement, technologie et commerce.",
         }
       : {
           locale,
           path: "/partners",
-          title: "Explore Partnership Opportunities | ASIP",
+          title: "ASIP Investors & Partners | Portfolio & Collaboration",
           description:
-            "Work with ASIP to back African founders with expertise, technology, capital, market access and practical opportunities.",
+            "Explore ASIP's founder portfolio, ecosystem partners, current activity and routes for investment, technology and commercial collaboration.",
         },
   );
 }

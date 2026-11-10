@@ -101,7 +101,7 @@ export function PartnersByContribution({
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               <span className="font-semibold text-foreground">{bringsLabel} </span>
-              {row.examples}
+              {row.examples || row.value}
             </p>
           </div>
           <ul className="grid grid-cols-2 content-start gap-3 sm:grid-cols-3">

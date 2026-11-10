@@ -6,597 +6,452 @@ import type {
 
 type MarketingCopy = Record<MarketingContentSlug, MarketingPageCopy>;
 
+/** FAQ master copy, Text Pack v2 section 13 (final public answers). */
+const FAQ_EN = {
+  what: "ASIP is Telecel Group's Africa Startup Initiative Program, launched in 2019 to help ambitious technology founders build stronger companies through structured development, market access and an ecosystem of mentors, investors and partners.",
+  ai: "It is the 2026 programme direction, focused on founders applying AI to practical business challenges and measurable growth. Cohort details are published only when formally confirmed.",
+  who: "Eligibility varies by cohort. ASIP generally looks for committed founders, a technology-led solution, evidence of a real market need and credible potential to scale in African markets.",
+  open: "Not unless the website explicitly shows an open application state. If applications are closed, register your interest to receive confirmed dates, criteria and application details.",
+  invest: "No. Participation in ASIP does not guarantee investment. Any investment discussion is subject to separate evaluation, terms and decision-making.",
+  format: "Format varies by cohort. The confirmed delivery format, locations and timetable are published with the cohort details.",
+  sectors: "ASIP has supported technology ventures across sectors including FinTech, HealthTech, AgriTech, InsurTech, EdTech, CleanTech, eCommerce and related technology-enabled fields. Cohort-specific priorities may vary.",
+  telecel: "Telecel Group provides programme backing and access to relevant market context, expertise and relationships. Specific support varies by cohort and by founder need.",
+  investors: "Yes. Public founder profiles can be explored on the website. Relevant introductions or non-public information are subject to founder consent, confidentiality and applicable process.",
+  organisations: "Organisations can contribute through technology, expertise, market access, pilots, commercial collaboration, investment dialogue, founder visibility or other relevant ecosystem roles.",
+  impact: "Material public claims are reviewed against a named source, reporting period and owner before publication. Metrics that cannot be substantiated are not published.",
+} as const;
+
 const en: MarketingCopy = {
   about: {
     eyebrow: "About ASIP",
-    title: "Supporting the founders who are shaping Africa’s next chapter.",
+    title: "Started in 2019. Still building.",
     description:
-      "ASIP is a Telecel Group Program supporting African founders with knowledge, capital pathways, markets, and relationships that can accelerate their growth.",
-    notice:
-      "The leadership message stays unpublished until Telecel Group supplies approved text and media.",
-    sectionTitle: "Origin, purpose and the journey ahead",
-    sectionDescription:
-      "From the first accelerator cohort to the 2026 next chapter - how ASIP backs African founders with knowledge, capital pathways, markets and relationships.",
+      "ASIP launched in Barcelona to give ambitious African technology founders stronger access to expertise, markets, investors and commercial opportunity. The model has evolved, but the focus remains the same: help good companies move faster.",
+    notice: "",
+    sectionTitle: "Origin, purpose and the journey",
+    sectionDescription: "",
     cards: [],
-    heroChips: {
-      focusKind: "Focus",
-      chapterKind: "Chapter",
-      chips: [
-        { kind: "focus", label: "Knowledge" },
-        { kind: "focus", label: "Capital pathways" },
-        { kind: "focus", label: "Markets", hideSm: true },
-        { kind: "focus", label: "Relationships", hideSm: true },
-        { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "First cohort · 2021", hideMd: true },
-        { kind: "chapter", label: "Africa", hideSm: true },
-        { kind: "chapter", label: "Founders", hideMd: true },
-        { kind: "chapter", label: "Next chapter · 2026", hideSm: true },
-      ],
-    },
-    cta: { slug: "founders", label: "Explore the founders" },
+    cta: { slug: "founders", label: "Explore the portfolio" },
     ctaSection: {
-      title: "Meet the founders building Africa’s next chapter.",
-      description:
-        "Explore ventures across ASIP cohorts - real companies, markets and progress.",
+      title: "Meet the people building what comes next.",
+      description: "",
       slug: "founders",
-      label: "Explore the founders",
+      label: "Explore the portfolio",
     },
     aboutNarrative: {
       story: {
-        title: "Backing founders, building for Africa.",
+        title: "Built around founders who know the problem first-hand.",
         eyebrow: "Our story",
         paragraphs: [
-          "ASIP began with a simple idea: Africa has no shortage of ambitious founders. What is often uneven is access to the networks, expertise and opportunities that help strong companies move faster.",
-          "Since then, ASIP has worked with founders across multiple sectors and markets, combining structured founder development with exposure to mentors, partners, investors and commercial opportunities. The program has evolved, but the principle remains the same: back local insight, bring the right people and capabilities together, and give good businesses a stronger path to scale.",
+          "Africa does not lack ideas. The harder gap is often access: to the right expertise, market insight, technology, capital pathways and commercial relationships at the right moment. ASIP was created to narrow that gap. Since 2019, the programme has worked with founders across sectors and markets, helping teams sharpen what they are building, test growth assumptions and move towards stronger businesses.",
         ],
-        features: [
-          {
-            icon: "rocket",
-            title: "Knowledge",
-            description:
-              "Structured founder development with mentors, partners and practical expertise.",
-            slug: "program",
-            linkLabel: "Learn more",
-          },
-          {
-            icon: "trending-up",
-            title: "Capital pathways",
-            description:
-              "Closer to investors and the relationships that can accelerate growth.",
-            slug: "program",
-            linkLabel: "Learn more",
-          },
-          {
-            icon: "globe",
-            title: "Markets",
-            description:
-              "Exposure to commercial opportunities across sectors and African markets.",
-            slug: "founders",
-            linkLabel: "Learn more",
-          },
-          {
-            icon: "heart",
-            title: "Relationships",
-            description:
-              "Bring the right people together so good businesses have a stronger path to scale.",
-            slug: "partners",
-            linkLabel: "Learn more",
-          },
-        ],
-        imageCta: { slug: "founders", label: "Explore the founders" },
+        features: [],
+        imageCta: { slug: "founders", label: "Explore the portfolio" },
         bottomCta: {
-          title: "Meet the founders ASIP has worked with",
+          title: "Local insight is an advantage.",
           slug: "founders",
-          label: "Explore the founders",
+          label: "Explore the portfolio",
         },
       },
       mission: {
         eyebrow: "Mission",
-        title: "Turn African innovation into opportunity.",
+        title: "Help ambitious founders build stronger companies.",
         imageLabel: "ASIP founders and ecosystem leaders gathering in Dakar",
         paragraphs: [
-          "Our mission is to identify and accelerate African technology ventures solving meaningful problems, opening access to practical expertise, capital pathways, market access and commercial relationships.",
+          "ASIP identifies technology ventures solving meaningful problems in African markets and strengthens the company behind the idea: product, strategy, market access, investor readiness and commercial opportunity.",
         ],
       },
       vision: {
         eyebrow: "Vision",
-        title: "From the continent, to the world.",
+        title: "African technology companies built for local relevance and global scale.",
         imageLabel: "The ASIP ecosystem in conversation in Dakar",
         paragraphs: [
-          "We envision an Africa where category-defining technology companies are built from the continent, scale across borders and shape global progress.",
+          "We want more category-defining companies to be built from the continent, grow across borders and compete on the strength of their products, teams and market insight.",
         ],
       },
       timeline: {
         eyebrow: "Journey",
-        title: "From the first cohort to the next chapter",
+        title: "Started in 2019. Still building.",
         milestones: [
+          {
+            year: "2019",
+            description:
+              "ASIP launches in Barcelona at Mobile World Congress, bringing African founders into a global technology and investment setting.",
+          },
           {
             year: "2021",
             description:
-              "The first ASIP accelerator cohort runs virtually from 5 July to 30 September, with Demo Day in Dakar.",
+              "ASIP expands its Pan-African founder pipeline and structured acceleration support.",
           },
           {
             year: "2022",
             description:
-              "The second cohort runs from 11 April to 6 July, with in-person program work in Dakar.",
+              "A new cohort broadens sector reach and deepens founder development.",
           },
           {
             year: "2023",
             description:
-              "The third cohort runs from 20 February to 25 May, with Demo Day at the Museum of Black Civilisations.",
+              "The programme strengthens founder readiness and pathways to markets, partners and investment.",
           },
           {
             year: "2024",
             description:
-              "The fourth cohort runs from 13 November 2023 to 7 February 2024.",
+              "Founders progress through acceleration, portfolio development and market-readiness support.",
           },
           {
             year: "2025",
             description:
-              "Portfolio support year: follow-on work with founders already in the program, and preparation for the next chapter.",
+              "Portfolio Support Year: continued founder relationships, portfolio support and preparation for the next phase.",
           },
           {
             year: "2026",
             description:
-              "The next chapter is taking shape around a working theme, AI Advantage in Action: startups applying AI to existing business problems and proving an advantage a customer can measure.",
+              "Building the AI Advantage: a renewed focus on founders applying AI to practical business challenges and growth.",
           },
         ],
       },
       ceoMessage: {
         published: false,
-        imageLabel: "Leadership portrait - to be supplied by Telecel Group",
+        imageLabel: "",
       },
       telecel: {
         eyebrow: "Telecel Group",
-        title: "A Telecel Group Program, built on Connecting Energies.",
-        imageLabel: "ASIP program leaders and founders in Dakar",
+        title: "A Telecel Group programme.",
+        imageLabel: "ASIP programme leaders and founders in Dakar",
         paragraphs: [
-          "Telecel’s African legacy and digital ecosystem give ASIP a distinctive perspective: innovation matters most when it reaches people, businesses and markets. ASIP applies that same belief to founders, bringing different capabilities and relationships together around growth.",
+          "ASIP draws on Telecel Group's African experience, technology ecosystem and relationships to help founders move from potential to practical opportunity. \"Connecting Energies\" is the brand principle behind that role, not a slogan to repeat across every page.",
         ],
       },
     },
   },
   founders: {
     eyebrow: "Founders",
-    title: "Meet the companies building Africa’s next chapter.",
+    title: "Meet the people building what comes next.",
     description:
-      "Search the founders supported by ASIP across cohorts, countries, and technology sectors.",
-    notice:
-      "Profiles and performance information are published only after verification.",
-    sectionTitle: "A growing founder archive",
+      "Explore ASIP founders by country, sector and cohort. Each profile should show the problem, the product, the founder insight and the progress that followed.",
+    notice: "",
+    sectionTitle: "Different markets. Different models. Real problems to solve.",
     sectionDescription:
-      "Search and filter to discover founders, understand their solutions, and follow their progress.",
-    cards: [
-      {
-        title: "Across cohorts",
-        description:
-          "Explore ventures from each program cycle as profiles are approved.",
-      },
-      {
-        title: "Across markets",
-        description:
-          "See the countries and communities where ASIP founders are building.",
-      },
-      {
-        title: "Across sectors",
-        description:
-          "Discover solutions in financial services, health, climate, commerce, and more.",
-      },
-    ],
-    cta: { slug: "impact", label: "Explore our impact" },
+      "The ASIP portfolio spans financial services, health, agriculture, education, insurance, clean technology, commerce, mobility and other technology-enabled sectors. The common thread is simple: founders building from direct market insight.",
+    cards: [],
+    cta: { slug: "founders", label: "Explore the portfolio" },
     ctaSection: {
-      title: "Explore our impact",
-      description:
-        "See how ASIP ventures contribute to communities across Africa - with verified reach, founder outcomes, and program stories.",
+      title: "Proof, not promises.",
+      description: "",
       slug: "impact",
-      label: "Explore our impact",
+      label: "Explore founder outcomes",
     },
   },
   "register-interest": {
-    eyebrow: "For founders",
-    title: "Stay close to the next cohort.",
+    eyebrow: "AI Next Cohort",
+    title: "Your next build could start here.",
     description:
-      "Tell ASIP about your team, technology venture, market, and current stage.",
-    notice:
-      "Your submission is stored securely and reviewed by the ASIP team for each program cycle.",
-    sectionTitle: "Prepare your venture profile",
-    sectionDescription:
-      "Before registering, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.",
-    cards: [
-      {
-        title: "Team",
-        description:
-          "Introduce the founders and the experience that prepares you to solve this problem.",
-      },
-      {
-        title: "Solution",
-        description:
-          "Explain the customer problem, your product, and what makes your approach relevant.",
-      },
-      {
-        title: "Progress",
-        description:
-          "Summarize traction, learning, current stage, and the next milestones you are pursuing.",
-      },
-    ],
-    cta: { slug: "contact", label: "Ask a question" },
+      "Applications are not currently open. Register your interest in the AI Next Cohort to receive confirmed dates, eligibility criteria and application details when announced.",
+    notice: "",
+    sectionTitle: "",
+    sectionDescription: "",
+    cards: [],
+    cta: { slug: "contact", label: "Founder enquiry" },
     ctaSection: {
-      title: "Building a venture is already hard enough.",
-      description:
-        "Questions about eligibility, timing, or fit? Reach the ASIP team before you submit.",
+      title: "Start with the right conversation.",
+      description: "Eligibility, cohort status, applications or founder support.",
       slug: "contact",
-      label: "Ask a question",
+      label: "Founder enquiry",
     },
   },
   apply: {
-    eyebrow: "For founders", title: "Build what Africa needs next.", description: "Tell ASIP about your team, technology venture, market, and current stage.", notice: "Your submission is stored securely and reviewed by the ASIP team for each program cycle.", sectionTitle: "Prepare your venture profile", sectionDescription: "Before applying, gather a concise description of the problem, your solution, evidence of progress, and the support you need next.", cards: [
-      { title: "Team", description: "Introduce the founders and the experience that prepares you to solve this problem." },
-      { title: "Solution", description: "Explain the customer problem, your product, and what makes your approach relevant." },
-      { title: "Progress", description: "Summarize traction, learning, current stage, and the next milestones you are pursuing." },
-    ], cta: { slug: "contact", label: "Ask a question" },
+    eyebrow: "AI Next Cohort",
+    title: "Ready to build the AI Advantage?",
+    description:
+      "Applications are now open for the published cohort. Review the criteria before starting, then tell us what you are building, why it matters and where you need to grow.",
+    notice: "",
+    sectionTitle: "Application journey",
+    sectionDescription: "",
+    cards: [
+      { title: "1. Check the criteria", description: "Review the published cohort focus, stage, geography and participation requirements." },
+      { title: "2. Tell us what you are building", description: "Share the team, problem, product, traction, market and growth priorities." },
+      { title: "3. Initial review", description: "Eligible applications are assessed against the published selection framework." },
+      { title: "4. Founder conversations", description: "Shortlisted teams may be invited to interviews, diligence or a selection session." },
+      { title: "5. Final selection", description: "Selected founders receive written programme terms, timetable and participation requirements." },
+      { title: "6. Onboarding", description: "The programme begins with clear goals, baseline priorities and a structured support plan." },
+    ],
+    cta: { slug: "contact", label: "Founder enquiry" },
     ctaSection: {
-      title: "Building a venture is already hard enough.",
-      description:
-        "Need clarity on the cohort, criteria, or what to include? Ask ASIP before you start the application.",
+      title: "Start with the right conversation.",
+      description: "Eligibility, cohort status, applications or founder support.",
       slug: "contact",
-      label: "Ask a question",
+      label: "Founder enquiry",
     },
   },
   faq: {
     eyebrow: "FAQ",
     title: "Questions, answered clearly.",
-    description:
-      "Practical information about the program, applications, founders, and partnerships.",
-    notice: "Cohort dates, eligibility and terms are published with each confirmed cohort.",
-    sectionTitle: "What founders and partners ask",
-    sectionDescription:
-      "These answers describe the current program structure and will evolve with each published cohort.",
+    description: "",
+    notice: "",
+    sectionTitle: "",
+    sectionDescription: "",
     cards: [
-      { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, reach new markets and build toward sustainable scale." },
-      { title: "Who can apply?", description: "Eligibility is published for each cohort. ASIP generally targets technology-led ventures with an African market focus, a committed founding team and credible potential to scale." },
-      { title: "Are applications open?", description: "When applications are open, the navbar promotes Apply and only that form accepts submissions. When closed, Register Interest is the live intake and Apply redirects there. Only one path is available at a time." },
-      { title: "Does ASIP invest in every startup?", description: "Funding and investment terms vary by cohort and partner structure. Any cash, equity or in-kind support is disclosed in the official cohort terms." },
-      { title: "Is the program virtual or in person?", description: "The format varies by cohort and may combine virtual sessions, in-person activities, market visits, events and demo opportunities." },
-      { title: "Which sectors does ASIP support?", description: "ASIP has supported ventures across financial technology, health, agriculture, education, insurance, clean technology, commerce, logistics and other technology-enabled sectors." },
-      { title: "What does Telecel contribute?", description: "ASIP draws on Telecel’s African legacy, digital expertise, partnerships and business ecosystem. Specific market, pilot or commercial access depends on strategic fit and local approvals." },
-      { title: "Can investors access the portfolio?", description: "Investors can explore public founder profiles and contact ASIP for relevant introductions, subject to founder consent and program protocols." },
-      { title: "How can organizations partner with ASIP?", description: "Partners can contribute business challenges, pilot opportunities, capital, technology, expertise, market access or ecosystem platforms." },
-      { title: "How is impact verified?", description: "ASIP maintains an evidence record for published metrics, including source, period, owner, verification date and permission status." },
+      { title: "What is ASIP?", description: FAQ_EN.what },
+      { title: "What is “Building the AI Advantage”?", description: FAQ_EN.ai },
+      { title: "Who can apply?", description: FAQ_EN.who },
+      { title: "Are applications open?", description: FAQ_EN.open },
+      { title: "Does ASIP invest in every startup?", description: FAQ_EN.invest },
+      { title: "Is the programme virtual or in person?", description: FAQ_EN.format },
+      { title: "Which sectors does ASIP support?", description: FAQ_EN.sectors },
+      { title: "What does Telecel Group contribute?", description: FAQ_EN.telecel },
+      { title: "Can investors access the portfolio?", description: FAQ_EN.investors },
+      { title: "How can organisations work with ASIP?", description: FAQ_EN.organisations },
+      { title: "How is impact verified?", description: FAQ_EN.impact },
     ],
     tabsSectionTitle: "Browse by topic",
-    tabsSectionDescription:
-      "Explore answers grouped by program, founders, and partners.",
+    tabsSectionDescription: "",
     tabs: [
       {
         id: "programme",
-        label: "Program",
+        label: "Programme",
         items: [
-          { title: "What is ASIP?", description: "ASIP is a Telecel Group Program that helps African technology founders strengthen their businesses, access expertise and capital pathways, reach new markets and build toward sustainable scale." },
-          { title: "Is the program virtual or in person?", description: "The format varies by cohort and may combine virtual sessions, in-person activities, market visits, events and demo opportunities." },
-          { title: "Which sectors does ASIP support?", description: "ASIP has supported ventures across financial technology, health, agriculture, education, insurance, clean technology, commerce, logistics and other technology-enabled sectors." },
-          { title: "What does Telecel contribute?", description: "ASIP draws on Telecel’s African legacy, digital expertise, partnerships and business ecosystem. Specific market, pilot or commercial access depends on strategic fit and local approvals." },
-          { title: "How is impact verified?", description: "ASIP maintains an evidence record for published metrics, including source, period, owner, verification date and permission status." },
+          { title: "What is ASIP?", description: FAQ_EN.what },
+          { title: "What is “Building the AI Advantage”?", description: FAQ_EN.ai },
+          { title: "Is the programme virtual or in person?", description: FAQ_EN.format },
+          { title: "Which sectors does ASIP support?", description: FAQ_EN.sectors },
+          { title: "What does Telecel Group contribute?", description: FAQ_EN.telecel },
+          { title: "How is impact verified?", description: FAQ_EN.impact },
         ],
       },
       {
         id: "founders",
         label: "Founders",
         items: [
-          { title: "Who can apply?", description: "Eligibility is published for each cohort. ASIP generally targets technology-led ventures with an African market focus, a committed founding team and credible potential to scale." },
-          { title: "Are applications open?", description: "When applications are open, the navbar promotes Apply and only that form accepts submissions. When closed, Register Interest is the live intake and Apply redirects there. Only one path is available at a time." },
-          { title: "Does ASIP invest in every startup?", description: "Funding and investment terms vary by cohort and partner structure. Any cash, equity or in-kind support is disclosed in the official cohort terms." },
+          { title: "Who can apply?", description: FAQ_EN.who },
+          { title: "Are applications open?", description: FAQ_EN.open },
+          { title: "Does ASIP invest in every startup?", description: FAQ_EN.invest },
         ],
       },
       {
         id: "partners",
-        label: "Partners",
+        label: "Investors & partners",
         items: [
-          { title: "How can organizations partner with ASIP?", description: "Partners can contribute business challenges, pilot opportunities, capital, technology, expertise, market access or ecosystem platforms." },
-          { title: "Can investors access the portfolio?", description: "Investors can explore public founder profiles and contact ASIP for relevant introductions, subject to founder consent and program protocols." },
+          { title: "Can investors access the portfolio?", description: FAQ_EN.investors },
+          { title: "How can organisations work with ASIP?", description: FAQ_EN.organisations },
         ],
       },
     ],
     ctaSection: {
-      title: "Still have questions?",
-      description:
-        "If you cannot find what you need, contact the ASIP team and we will follow up.",
+      title: "Start with the right conversation.",
+      description: "Choose the route that best matches what you need.",
       slug: "contact",
-      label: "Ask another question",
+      label: "Contact ASIP",
     },
   },
 };
 
+/** FAQ, réponses publiques finales (Text Pack v2, section 13), traduction de travail. */
+const FAQ_FR = {
+  what: "ASIP est l’Africa Startup Initiative Program du Groupe Telecel, lancé en 2019 pour aider des fondateurs technologiques ambitieux à bâtir des entreprises plus solides grâce à un accompagnement structuré, à l’accès aux marchés et à un écosystème de mentors, d’investisseurs et de partenaires.",
+  ai: "C’est l’orientation 2026 du programme, centrée sur les fondateurs qui appliquent l’IA à des défis métier concrets et à une croissance mesurable. Les détails de la cohorte ne sont publiés qu’une fois officiellement confirmés.",
+  who: "L’éligibilité varie selon la cohorte. ASIP recherche généralement des fondateurs engagés, une solution technologique, la preuve d’un besoin réel du marché et un potentiel crédible de croissance sur les marchés africains.",
+  open: "Non, sauf si le site affiche explicitement que les candidatures sont ouvertes. Si elles sont fermées, manifestez votre intérêt pour recevoir les dates, critères et modalités confirmés.",
+  invest: "Non. La participation à ASIP ne garantit pas un investissement. Toute discussion d’investissement fait l’objet d’une évaluation, de conditions et d’une décision distinctes.",
+  format: "Le format varie selon la cohorte. Le format, les lieux et le calendrier confirmés sont publiés avec les détails de la cohorte.",
+  sectors: "ASIP a accompagné des entreprises technologiques dans des secteurs comme la FinTech, la HealthTech, l’AgriTech, l’InsurTech, l’EdTech, la CleanTech, l’e-commerce et d’autres domaines technologiques. Les priorités peuvent varier selon la cohorte.",
+  telecel: "Le Groupe Telecel apporte le soutien du programme et l’accès à un contexte de marché, une expertise et des relations pertinentes. L’appui concret varie selon la cohorte et les besoins des fondateurs.",
+  investors: "Oui. Les profils publics des fondateurs peuvent être consultés sur le site. Les mises en relation ou les informations non publiques dépendent du consentement des fondateurs, de la confidentialité et du processus applicable.",
+  organisations: "Les organisations peuvent contribuer par la technologie, l’expertise, l’accès aux marchés, des pilotes, une collaboration commerciale, un dialogue d’investissement, la visibilité des fondateurs ou d’autres rôles pertinents dans l’écosystème.",
+  impact: "Les affirmations publiques importantes sont vérifiées auprès d’une source nommée, d’une période de référence et d’un responsable avant publication. Les indicateurs qui ne peuvent pas être étayés ne sont pas publiés.",
+} as const;
+
 const fr: MarketingCopy = {
   about: {
     eyebrow: "À propos d’ASIP",
-    title: "Soutenir les fondateurs qui façonnent le prochain chapitre de l’Afrique.",
+    title: "Lancé en 2019. Toujours en construction.",
     description:
-      "ASIP est un programme du Groupe Telecel qui soutient les fondateurs africains grâce aux connaissances, aux voies de capital, aux marchés et aux relations qui peuvent accélérer leur croissance.",
-    notice:
-      "Le message de direction reste non publié tant que le Groupe Telecel n’a pas fourni le texte et les visuels approuvés.",
-    sectionTitle: "Origine, mission et parcours",
-    sectionDescription:
-      "De la première cohorte d’accélération au chapitre 2026 - comment ASIP soutient les fondateurs africains avec les connaissances, les voies de capital, les marchés et les relations.",
+      "ASIP a été lancé à Barcelone pour offrir aux fondateurs technologiques africains ambitieux un meilleur accès à l’expertise, aux marchés, aux investisseurs et aux opportunités commerciales. Le modèle a évolué, mais l’objectif reste le même : aider les bonnes entreprises à avancer plus vite.",
+    notice: "",
+    sectionTitle: "Origine, raison d’être et parcours",
+    sectionDescription: "",
     cards: [],
-    heroChips: {
-      focusKind: "Axe",
-      chapterKind: "Chapitre",
-      chips: [
-        { kind: "focus", label: "Connaissance" },
-        { kind: "focus", label: "Voies de capital" },
-        { kind: "focus", label: "Marchés", hideSm: true },
-        { kind: "focus", label: "Relations", hideSm: true },
-        { kind: "focus", label: "Connecting Energies", hideMd: true },
-        { kind: "chapter", label: "Première cohorte · 2021", hideMd: true },
-        { kind: "chapter", label: "Afrique", hideSm: true },
-        { kind: "chapter", label: "Fondateurs", hideMd: true },
-        { kind: "chapter", label: "Prochain chapitre · 2026", hideSm: true },
-      ],
-    },
-    cta: { slug: "founders", label: "Découvrir les fondateurs" },
+    cta: { slug: "founders", label: "Explorer le portefeuille" },
     ctaSection: {
-      title: "Rencontrez les fondateurs qui construisent le prochain chapitre de l’Afrique.",
-      description:
-        "Explorez des entreprises issues des cohortes ASIP - des sociétés, des marchés et des progrès concrets.",
+      title: "Rencontrez ceux qui construisent la suite.",
+      description: "",
       slug: "founders",
-      label: "Découvrir les fondateurs",
+      label: "Explorer le portefeuille",
     },
     aboutNarrative: {
       story: {
-        title: "Soutenir les fondateurs, bâtir pour l’Afrique.",
+        title: "Construit autour de fondateurs qui connaissent le problème de l’intérieur.",
         eyebrow: "Notre histoire",
         paragraphs: [
-          "ASIP a commencé avec une idée simple : l’Afrique ne manque pas de fondateurs ambitieux. Ce qui est souvent inégal, c’est l’accès aux réseaux, à l’expertise et aux opportunités qui aident les entreprises solides à avancer plus vite.",
-          "Depuis, ASIP a travaillé avec des fondateurs dans plusieurs secteurs et marchés, en combinant un développement structuré avec l’exposition à des mentors, partenaires, investisseurs et opportunités commerciales. Le programme a évolué, mais le principe reste le même : s’appuyer sur l’insight local, rassembler les bonnes personnes et les bonnes capacités, et offrir aux bonnes entreprises un chemin plus solide vers l’échelle.",
+          "L’Afrique ne manque pas d’idées. Le vrai écart tient souvent à l’accès : à la bonne expertise, à la connaissance du marché, à la technologie, aux voies de financement et aux relations commerciales au bon moment. ASIP a été créé pour réduire cet écart. Depuis 2019, le programme travaille avec des fondateurs de nombreux secteurs et marchés, pour les aider à affiner ce qu’ils construisent, tester leurs hypothèses de croissance et bâtir des entreprises plus solides.",
         ],
-        features: [
-          {
-            icon: "rocket",
-            title: "Connaissance",
-            description:
-              "Un développement structuré des fondateurs, avec mentors, partenaires et expertise concrète.",
-            slug: "program",
-            linkLabel: "En savoir plus",
-          },
-          {
-            icon: "trending-up",
-            title: "Voies de capital",
-            description:
-              "Plus près des investisseurs et des relations qui peuvent accélérer la croissance.",
-            slug: "program",
-            linkLabel: "En savoir plus",
-          },
-          {
-            icon: "globe",
-            title: "Marchés",
-            description:
-              "Une exposition aux opportunités commerciales à travers les secteurs et les marchés africains.",
-            slug: "founders",
-            linkLabel: "En savoir plus",
-          },
-          {
-            icon: "heart",
-            title: "Relations",
-            description:
-              "Rassembler les bonnes personnes pour que les bonnes entreprises aient un chemin plus solide vers l’échelle.",
-            slug: "partners",
-            linkLabel: "En savoir plus",
-          },
-        ],
-        imageCta: { slug: "founders", label: "Découvrir les fondateurs" },
+        features: [],
+        imageCta: { slug: "founders", label: "Explorer le portefeuille" },
         bottomCta: {
-          title: "Rencontrez les fondateurs avec lesquels ASIP a travaillé",
+          title: "La connaissance locale est un avantage.",
           slug: "founders",
-          label: "Découvrir les fondateurs",
+          label: "Explorer le portefeuille",
         },
       },
       mission: {
         eyebrow: "Mission",
-        title: "Transformer l’innovation africaine en opportunité.",
+        title: "Aider des fondateurs ambitieux à bâtir des entreprises plus solides.",
         imageLabel: "Fondateurs ASIP et acteurs de l’écosystème réunis à Dakar",
         paragraphs: [
-          "Notre mission est d’identifier et d’accélérer les entreprises technologiques africaines qui résolvent des problèmes concrets, avec une expertise pratique, des voies de capital, l’accès aux marchés et des relations commerciales.",
+          "ASIP repère des entreprises technologiques qui résolvent des problèmes importants sur les marchés africains et renforce l’entreprise derrière l’idée : produit, stratégie, accès aux marchés, préparation à l’investissement et opportunités commerciales.",
         ],
       },
       vision: {
         eyebrow: "Vision",
-        title: "Du continent, vers le monde.",
-        imageLabel: "L’écosystème ASIP en conversation à Dakar",
+        title: "Des entreprises technologiques africaines pertinentes localement et taillées pour le monde.",
+        imageLabel: "L’écosystème ASIP en discussion à Dakar",
         paragraphs: [
-          "Nous imaginons une Afrique où des entreprises technologiques qui définissent leur catégorie sont bâties depuis le continent, se développent au-delà des frontières et façonnent le progrès mondial.",
+          "Nous voulons que davantage d’entreprises de référence soient bâties depuis le continent, grandissent au-delà des frontières et rivalisent par la qualité de leurs produits, de leurs équipes et de leur connaissance du marché.",
         ],
       },
       timeline: {
         eyebrow: "Parcours",
-        title: "De la première cohorte au prochain chapitre",
+        title: "Lancé en 2019. Toujours en construction.",
         milestones: [
-          {
-            year: "2021",
-            description:
-              "La première cohorte de l’accélérateur ASIP se déroule en ligne du 5 juillet au 30 septembre, avec un Demo Day à Dakar.",
-          },
-          {
-            year: "2022",
-            description:
-              "La deuxième cohorte se déroule du 11 avril au 6 juillet, avec un travail de programme en présentiel à Dakar.",
-          },
-          {
-            year: "2023",
-            description:
-              "La troisième cohorte se déroule du 20 février au 25 mai, avec un Demo Day au Musée des civilisations noires.",
-          },
-          {
-            year: "2024",
-            description:
-              "La quatrième cohorte se déroule du 13 novembre 2023 au 7 février 2024.",
-          },
-          {
-            year: "2025",
-            description:
-              "Année d’accompagnement du portefeuille : travail de suivi avec les fondateurs déjà dans le programme, et préparation du prochain chapitre.",
-          },
-          {
-            year: "2026",
-            description:
-              "Le prochain chapitre prend forme autour d’un thème provisoire, AI Advantage in Action : des startups qui appliquent l’IA à des problèmes d’entreprises existantes et qui prouvent un avantage mesurable pour un client.",
-          },
+          { year: "2019", description: "ASIP est lancé à Barcelone lors du Mobile World Congress, plaçant des fondateurs africains dans un cadre technologique et d’investissement mondial." },
+          { year: "2021", description: "ASIP élargit son vivier panafricain de fondateurs et son accompagnement structuré à l’accélération." },
+          { year: "2022", description: "Une nouvelle cohorte élargit la couverture sectorielle et approfondit l’accompagnement des fondateurs." },
+          { year: "2023", description: "Le programme renforce la préparation des fondateurs et leurs voies vers les marchés, les partenaires et l’investissement." },
+          { year: "2024", description: "Les fondateurs progressent à travers l’accélération, le développement du portefeuille et la préparation au marché." },
+          { year: "2025", description: "Année de soutien au portefeuille : relations suivies avec les fondateurs, accompagnement du portefeuille et préparation de la prochaine phase." },
+          { year: "2026", description: "Construire l’avantage IA : un nouvel accent sur les fondateurs qui appliquent l’IA à des défis métier concrets et à la croissance." },
         ],
       },
       ceoMessage: {
         published: false,
-        imageLabel: "Portrait de direction - à fournir par le Groupe Telecel",
+        imageLabel: "",
       },
       telecel: {
-        eyebrow: "Lien Telecel",
-        title: "Un programme du Groupe Telecel, bâti sur Connecting Energies.",
-        imageLabel: "Équipe du programme ASIP et fondateurs à Dakar",
+        eyebrow: "Groupe Telecel",
+        title: "Un programme du Groupe Telecel.",
+        imageLabel: "Responsables du programme ASIP et fondateurs à Dakar",
         paragraphs: [
-          "L’héritage africain de Telecel et son écosystème numérique donnent à ASIP une perspective distincte : l’innovation compte surtout lorsqu’elle atteint les personnes, aux entreprises et aux marchés. ASIP applique cette même conviction aux fondateurs, en rassemblant des capacités et des relations différentes autour de la croissance.",
+          "ASIP s’appuie sur l’expérience africaine, l’écosystème technologique et les relations du Groupe Telecel pour aider les fondateurs à passer du potentiel à l’opportunité concrète. « Connecting Energies » est le principe de marque derrière ce rôle, pas un slogan à répéter sur chaque page.",
         ],
       },
     },
   },
   founders: {
     eyebrow: "Fondateurs",
-    title: "Les entreprises qui construisent le prochain chapitre de l’Afrique.",
+    title: "Rencontrez ceux qui construisent la suite.",
     description:
-      "Explorez les fondateurs accompagnés par ASIP selon les cohortes, pays et secteurs technologiques.",
-    notice:
-      "Les profils et résultats ne sont publiés qu’après vérification.",
-    sectionTitle: "Une archive de fondateurs en croissance",
+      "Explorez les fondateurs ASIP par pays, secteur et cohorte. Chaque profil présente le problème, le produit, la connaissance du fondateur et les progrès qui ont suivi.",
+    notice: "",
+    sectionTitle: "Des marchés différents. Des modèles différents. De vrais problèmes à résoudre.",
     sectionDescription:
-      "Recherchez et filtrez pour découvrir les fondateurs, leurs solutions et leurs progrès.",
-    cards: [
-      {
-        title: "Par cohorte",
-        description:
-          "Explorez les entreprises de chaque cycle à mesure que les profils sont approuvés.",
-      },
-      {
-        title: "Par marché",
-        description:
-          "Découvrez les pays et communautés où les fondateurs ASIP construisent leurs solutions.",
-      },
-      {
-        title: "Par secteur",
-        description:
-          "Explorez la finance, la santé, le climat, le commerce et d’autres domaines.",
-      },
-    ],
-    cta: { slug: "impact", label: "Découvrir notre impact" },
+      "Le portefeuille ASIP couvre les services financiers, la santé, l’agriculture, l’éducation, l’assurance, les technologies propres, le commerce, la mobilité et d’autres secteurs technologiques. Le fil conducteur est simple : des fondateurs qui construisent à partir d’une connaissance directe du marché.",
+    cards: [],
+    cta: { slug: "founders", label: "Explorer le portefeuille" },
     ctaSection: {
-      title: "Découvrir notre impact",
-      description:
-        "Découvrez comment les entreprises ASIP contribuent aux communautés en Afrique - portée vérifiée, résultats des fondateurs et histoires du programme.",
+      title: "Des preuves, pas des promesses.",
+      description: "",
       slug: "impact",
-      label: "Découvrir notre impact",
+      label: "Explorer les résultats des fondateurs",
     },
   },
   "register-interest": {
-    eyebrow: "Pour les fondateurs",
-    title: "Restez au plus près de la prochaine cohorte.",
+    eyebrow: "Cohorte IA",
+    title: "Votre prochaine étape pourrait commencer ici.",
     description:
-      "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.",
-    notice:
-      "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.",
-    sectionTitle: "Préparez le profil de votre entreprise",
-    sectionDescription:
-      "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.",
-    cards: [
-      {
-        title: "Équipe",
-        description:
-          "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème.",
-      },
-      {
-        title: "Solution",
-        description:
-          "Expliquez le problème client, votre produit et la pertinence de votre approche.",
-      },
-      {
-        title: "Progrès",
-        description:
-          "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes.",
-      },
-    ],
-    cta: { slug: "contact", label: "Poser une question" },
+      "Les candidatures ne sont pas ouvertes. Manifestez votre intérêt pour la cohorte IA afin de recevoir les dates, les critères d’éligibilité et les modalités confirmés dès leur annonce.",
+    notice: "",
+    sectionTitle: "",
+    sectionDescription: "",
+    cards: [],
+    cta: { slug: "contact", label: "Demande fondateur" },
     ctaSection: {
-      title: "Construire une entreprise est déjà assez difficile.",
-      description:
-        "Des questions sur l’éligibilité, le calendrier ou l’adéquation ? Contactez l’équipe ASIP avant d’envoyer votre dossier.",
+      title: "Commencez par la bonne conversation.",
+      description: "Éligibilité, statut de la cohorte, candidatures ou accompagnement des fondateurs.",
       slug: "contact",
-      label: "Poser une question",
+      label: "Demande fondateur",
     },
   },
-  apply: { eyebrow: "Pour les fondateurs", title: "Construisez ce dont l’Afrique a besoin.", description: "Présentez à ASIP votre équipe, votre entreprise technologique, votre marché et votre stade actuel.", notice: "Votre candidature est stockée de façon sécurisée et examinée par l’équipe ASIP pour chaque cycle du programme.", sectionTitle: "Préparez le profil de votre entreprise", sectionDescription: "Rassemblez une description concise du problème, de la solution, des progrès et du soutien recherché.", cards: [{ title: "Équipe", description: "Présentez les fondateurs et l’expérience qui vous prépare à résoudre ce problème." }, { title: "Solution", description: "Expliquez le problème client, votre produit et la pertinence de votre approche." }, { title: "Progrès", description: "Résumez la traction, les apprentissages, le stade actuel et les prochaines étapes." }], cta: { slug: "contact", label: "Poser une question" },
+  apply: {
+    eyebrow: "Cohorte IA",
+    title: "Prêt à construire l’avantage IA ?",
+    description:
+      "Les candidatures sont ouvertes pour la cohorte publiée. Consultez les critères avant de commencer, puis dites-nous ce que vous construisez, pourquoi c’est important et où vous devez grandir.",
+    notice: "",
+    sectionTitle: "Parcours de candidature",
+    sectionDescription: "",
+    cards: [
+      { title: "1. Vérifier les critères", description: "Consultez l’orientation, le stade, la géographie et les conditions de participation de la cohorte publiée." },
+      { title: "2. Présenter votre projet", description: "Présentez l’équipe, le problème, le produit, la traction, le marché et les priorités de croissance." },
+      { title: "3. Examen initial", description: "Les candidatures éligibles sont évaluées selon le cadre de sélection publié." },
+      { title: "4. Échanges avec les fondateurs", description: "Les équipes présélectionnées peuvent être invitées à des entretiens, des vérifications ou une session de sélection." },
+      { title: "5. Sélection finale", description: "Les fondateurs retenus reçoivent par écrit les conditions, le calendrier et les exigences de participation." },
+      { title: "6. Intégration", description: "Le programme démarre avec des objectifs clairs, des priorités de départ et un plan d’accompagnement structuré." },
+    ],
+    cta: { slug: "contact", label: "Demande fondateur" },
     ctaSection: {
-      title: "Construire une entreprise est déjà assez difficile.",
-      description:
-        "Besoin de clarté sur la cohorte, les critères ou le contenu attendu ? Demandez à ASIP avant de commencer.",
+      title: "Commencez par la bonne conversation.",
+      description: "Éligibilité, statut de la cohorte, candidatures ou accompagnement des fondateurs.",
       slug: "contact",
-      label: "Poser une question",
+      label: "Demande fondateur",
     },
   },
   faq: {
     eyebrow: "FAQ",
-    title: "Des réponses claires à vos questions.",
-    description:
-      "Informations pratiques sur le programme, les candidatures, les fondateurs et les partenariats.",
-    notice: "Les dates, critères d’éligibilité et conditions sont publiés avec chaque cohorte confirmée.",
-    sectionTitle: "Les questions des fondateurs et partenaires",
-    sectionDescription:
-      "Ces réponses décrivent la structure actuelle et évolueront avec chaque cohorte publiée.",
+    title: "Des réponses claires.",
+    description: "",
+    notice: "",
+    sectionTitle: "",
+    sectionDescription: "",
     cards: [
-      { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, atteindre de nouveaux marchés et construire une croissance durable." },
-      { title: "Qui peut candidater ?", description: "Les critères d’éligibilité sont publiés pour chaque cohorte. ASIP cible généralement des entreprises technologiques orientées vers les marchés africains, avec une équipe fondatrice engagée et un potentiel crédible de passage à l’échelle." },
-      { title: "Les candidatures sont-elles ouvertes ?", description: "Lorsque les candidatures sont ouvertes, la barre de navigation promeut Postuler et seul ce formulaire accepte les envois. Lorsqu’elles sont fermées, Manifester votre intérêt est le parcours actif et Postuler y redirige. Un seul parcours est disponible à la fois." },
-      { title: "ASIP investit-il dans chaque startup ?", description: "Le financement et les conditions d’investissement varient selon la cohorte et la structure des partenariats. Tout apport en numéraire, en capital ou en nature est précisé dans les conditions officielles de la cohorte." },
-      { title: "Le programme est-il virtuel ou en présentiel ?", description: "Le format varie selon la cohorte et peut combiner sessions virtuelles, activités en présentiel, visites de marché, événements et opportunités de démonstration." },
-      { title: "Quels secteurs ASIP accompagne-t-il ?", description: "ASIP a accompagné des entreprises dans la technologie financière, la santé, l’agriculture, l’éducation, l’assurance, les technologies propres, le commerce, la logistique et d’autres secteurs portés par la technologie." },
-      { title: "Qu’apporte Telecel ?", description: "ASIP s’appuie sur l’héritage africain de Telecel, son expertise numérique, ses partenariats et son écosystème d’affaires. L’accès concret aux marchés, aux pilotes ou aux opportunités commerciales dépend de l’adéquation stratégique et des validations locales." },
-      { title: "Les investisseurs peuvent-ils accéder au portefeuille ?", description: "Les investisseurs peuvent consulter les profils publics des fondateurs et contacter ASIP pour des mises en relation pertinentes, sous réserve du consentement des fondateurs et des protocoles du programme." },
-      { title: "Comment les organisations peuvent-elles devenir partenaires d’ASIP ?", description: "Les partenaires peuvent apporter des défis d’entreprise, des opportunités de pilote, du capital, de la technologie, de l’expertise, un accès aux marchés ou des plateformes d’écosystème." },
-      { title: "Comment l’impact est-il vérifié ?", description: "ASIP tient un registre de preuves pour les indicateurs publiés, incluant la source, la période, le responsable, la date de vérification et le statut des autorisations." },
+      { title: "Qu’est-ce qu’ASIP ?", description: FAQ_FR.what },
+      { title: "Qu’est-ce que « Construire l’avantage IA » ?", description: FAQ_FR.ai },
+      { title: "Qui peut candidater ?", description: FAQ_FR.who },
+      { title: "Les candidatures sont-elles ouvertes ?", description: FAQ_FR.open },
+      { title: "ASIP investit-il dans chaque startup ?", description: FAQ_FR.invest },
+      { title: "Le programme est-il en ligne ou en présentiel ?", description: FAQ_FR.format },
+      { title: "Quels secteurs ASIP accompagne-t-il ?", description: FAQ_FR.sectors },
+      { title: "Qu’apporte le Groupe Telecel ?", description: FAQ_FR.telecel },
+      { title: "Les investisseurs peuvent-ils accéder au portefeuille ?", description: FAQ_FR.investors },
+      { title: "Comment les organisations peuvent-elles travailler avec ASIP ?", description: FAQ_FR.organisations },
+      { title: "Comment l’impact est-il vérifié ?", description: FAQ_FR.impact },
     ],
     tabsSectionTitle: "Parcourir par thème",
-    tabsSectionDescription:
-      "Explorez les réponses regroupées par programme, fondateurs et partenaires.",
+    tabsSectionDescription: "",
     tabs: [
       {
         id: "programme",
-        label: "Program",
+        label: "Programme",
         items: [
-          { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, atteindre de nouveaux marchés et construire une croissance durable." },
-          { title: "Le programme est-il virtuel ou en présentiel ?", description: "Le format varie selon la cohorte et peut combiner sessions virtuelles, activités en présentiel, visites de marché, événements et opportunités de démonstration." },
-          { title: "Quels secteurs ASIP accompagne-t-il ?", description: "ASIP a accompagné des entreprises dans la technologie financière, la santé, l’agriculture, l’éducation, l’assurance, les technologies propres, le commerce, la logistique et d’autres secteurs portés par la technologie." },
-          { title: "Qu’apporte Telecel ?", description: "ASIP s’appuie sur l’héritage africain de Telecel, son expertise numérique, ses partenariats et son écosystème d’affaires. L’accès concret aux marchés, aux pilotes ou aux opportunités commerciales dépend de l’adéquation stratégique et des validations locales." },
-          { title: "Comment l’impact est-il vérifié ?", description: "ASIP tient un registre de preuves pour les indicateurs publiés, incluant la source, la période, le responsable, la date de vérification et le statut des autorisations." },
+          { title: "Qu’est-ce qu’ASIP ?", description: FAQ_FR.what },
+          { title: "Qu’est-ce que « Construire l’avantage IA » ?", description: FAQ_FR.ai },
+          { title: "Le programme est-il en ligne ou en présentiel ?", description: FAQ_FR.format },
+          { title: "Quels secteurs ASIP accompagne-t-il ?", description: FAQ_FR.sectors },
+          { title: "Qu’apporte le Groupe Telecel ?", description: FAQ_FR.telecel },
+          { title: "Comment l’impact est-il vérifié ?", description: FAQ_FR.impact },
         ],
       },
       {
         id: "founders",
         label: "Fondateurs",
         items: [
-          { title: "Qui peut candidater ?", description: "Les critères d’éligibilité sont publiés pour chaque cohorte. ASIP cible généralement des entreprises technologiques orientées vers les marchés africains, avec une équipe fondatrice engagée et un potentiel crédible de passage à l’échelle." },
-          { title: "Les candidatures sont-elles ouvertes ?", description: "Lorsque les candidatures sont ouvertes, la barre de navigation promeut Postuler et seul ce formulaire accepte les envois. Lorsqu’elles sont fermées, Manifester votre intérêt est le parcours actif et Postuler y redirige. Un seul parcours est disponible à la fois." },
-          { title: "ASIP investit-il dans chaque startup ?", description: "Le financement et les conditions d’investissement varient selon la cohorte et la structure des partenariats. Tout apport en numéraire, en capital ou en nature est précisé dans les conditions officielles de la cohorte." },
+          { title: "Qui peut candidater ?", description: FAQ_FR.who },
+          { title: "Les candidatures sont-elles ouvertes ?", description: FAQ_FR.open },
+          { title: "ASIP investit-il dans chaque startup ?", description: FAQ_FR.invest },
         ],
       },
       {
         id: "partners",
-        label: "Partenaires",
+        label: "Investisseurs et partenaires",
         items: [
-          { title: "Comment les organisations peuvent-elles devenir partenaires d’ASIP ?", description: "Les partenaires peuvent apporter des défis d’entreprise, des opportunités de pilote, du capital, de la technologie, de l’expertise, un accès aux marchés ou des plateformes d’écosystème." },
-          { title: "Les investisseurs peuvent-ils accéder au portefeuille ?", description: "Les investisseurs peuvent consulter les profils publics des fondateurs et contacter ASIP pour des mises en relation pertinentes, sous réserve du consentement des fondateurs et des protocoles du programme." },
+          { title: "Les investisseurs peuvent-ils accéder au portefeuille ?", description: FAQ_FR.investors },
+          { title: "Comment les organisations peuvent-elles travailler avec ASIP ?", description: FAQ_FR.organisations },
         ],
       },
     ],
     ctaSection: {
-      title: "Vous avez encore des questions ?",
-      description:
-        "Si vous ne trouvez pas ce qu’il vous faut, contactez l’équipe ASIP et nous vous répondrons.",
+      title: "Commencez par la bonne conversation.",
+      description: "Choisissez le parcours qui correspond le mieux à votre besoin.",
       slug: "contact",
-      label: "Poser une autre question",
+      label: "Contacter ASIP",
     },
   },
 };

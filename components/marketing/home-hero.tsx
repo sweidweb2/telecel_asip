@@ -16,31 +16,25 @@ import {
   OutlineCtaLink,
 } from "@/components/marketing/page-elements";
 import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
-import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
-import type { IntakeCta } from "@/lib/marketing/intake-cta";
+import type { HomeV2Copy } from "@/constants/home-v2-copy";
 import { cn } from "@/lib/utils";
-import type { HomePageCopy } from "@/types/marketing-page";
 
 /** LCP still — 75 is perceptually close at full-bleed and cuts decoder work. */
 const HERO_LCP_QUALITY = 75;
 
 
 type HomeHeroProps = {
-  locale: Locale;
-  copy: HomePageCopy["hero"];
-  pathways: HomePageCopy["pathways"];
-  intake: IntakeCta;
+  copy: HomeV2Copy["hero"];
+  continuumAlts: string[];
 };
 
 /**
  * Home Module 01 — Founder Continuum.
- * Upper lockup: spectrum cue → title → fuller description → CTA pair.
- * Next-chapter lives further down the page, not in the hero.
+ * v2: proposition, one supporting sentence, Founder / Investor routes.
+ * The 2026 AI Advantage module sits directly below.
  */
-export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
-  const investorHref = publicPath(locale, pathways.investor.slug);
-  const continuumLabel = copy.continuumAlts[0] ?? copy.title;
+export function HomeHero({ copy, continuumAlts }: HomeHeroProps) {
+  const continuumLabel = continuumAlts[0] ?? copy.title;
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
   const lastLine = copy.titleLines.length - 1;
 
@@ -93,14 +87,14 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
                   "home-hero-spectrum-seg h-full flex-1 rounded-full",
                   color,
                 )}
-                style={{ animationDelay: `${350 + index * 110}ms` }}
+                style={{ animationDelay: `${index * 60}ms` }}
               />
             ))}
           </span>
 
           <h1
             aria-label={copy.title}
-            className="font-heading text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-balance sm:text-6xl lg:text-[5rem] lg:leading-[0.98]"
+            className="font-heading text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] text-balance sm:text-6xl lg:text-[5rem] lg:leading-[0.98]"
           >
             {copy.titleLines.map((line, index) => (
               <span
@@ -110,14 +104,14 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
                   "home-hero-line block",
                   index === lastLine && "home-hero-line--accent",
                 )}
-                style={{ animationDelay: `${180 + index * 140}ms` }}
+                style={{ animationDelay: `${40 + index * 70}ms` }}
               >
                 {index === lastLine ? renderEmphasis(line, "underline") : line}
               </span>
             ))}
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg leading-8 text-white/75 sm:mt-6 sm:max-w-2xl sm:text-xl sm:leading-9">
+          <p className="mt-4 max-w-xl text-base leading-7 text-white/75 sm:mt-6 sm:text-lg sm:leading-8 sm:max-w-2xl sm:text-xl sm:leading-9">
             {copy.description}
           </p>
 
@@ -128,30 +122,35 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
           >
             <p
               id="home-hero-pathways"
-              className="mt-9 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"
+              className="mt-6 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"
             >
-              {pathways.prompt}
+              {copy.prompt}
             </p>
-            <MarketingCtaRow className="mt-3.5 gap-3.5 sm:flex-wrap">
-              <OutlineCtaLink
-                href={investorHref}
-                className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
-              >
-                {pathways.investor.label}
-              </OutlineCtaLink>
+            {/* Founder and Investor are the only two primary hero decisions. */}
+            <MarketingCtaRow className="mt-3.5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3.5">
               <CoralCtaLink
-                href={intake.href}
+                href={`#${copy.founder.hash}`}
                 className={cn(
-                "group min-h-14 px-9 text-lg sm:px-10",
-                coralCtaOnDarkClassName,
-              )}
+                  "group min-h-14 px-3 text-base sm:px-10 sm:text-lg",
+                  coralCtaOnDarkClassName,
+                )}
               >
-                {pathways.startupLabel}
+                {copy.founder.label}
                 <ArrowRight
                   aria-hidden
                   className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
                 />
               </CoralCtaLink>
+              <OutlineCtaLink
+                href={`#${copy.investor.hash}`}
+                className="group min-h-14 border-white/55 bg-white/5 px-3 text-base sm:px-10 sm:text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
+              >
+                {copy.investor.label}
+                <ArrowRight
+                  aria-hidden
+                  className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              </OutlineCtaLink>
             </MarketingCtaRow>
           </div>
         </div>

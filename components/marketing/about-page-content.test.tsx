@@ -11,42 +11,26 @@ describe("AboutPageContent", () => {
       <AboutPageContent locale="en" copy={marketingCopyFor("en", "about")} />,
     );
 
+    // Text Pack v2 locked About copy.
     expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Supporting the founders who are shaping Africa’s next chapter.",
-      }),
+      screen.getByRole("heading", { level: 1, name: "Started in 2019. Still building." }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("Knowledge").length).toBeGreaterThan(0);
-    expect(screen.getByText("First cohort · 2021")).toBeInTheDocument();
+    expect(screen.getByText(/launched in Barcelona/i)).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: "Explore the founders" }).length,
+      screen.getAllByRole("link", { name: "Explore the portfolio" }).length,
     ).toBeGreaterThan(0);
-    expect(
-      screen.getByRole("heading", {
-        name: "Backing founders, building for Africa.",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        name: "Turn African innovation into opportunity.",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        name: "From the continent, to the world.",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(/African founders do not need to be explained/i),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText("2021")).toBeInTheDocument();
-    expect(screen.getByText("2026")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        name: "A Telecel Group Program, built on Connecting Energies.",
-      }),
-    ).toBeInTheDocument();
+    for (const name of [
+      "Built around founders who know the problem first-hand.",
+      "Help ambitious founders build stronger companies.",
+      "African technology companies built for local relevance and global scale.",
+      "A Telecel Group programme.",
+    ]) {
+      expect(screen.getByRole("heading", { name })).toBeInTheDocument();
+    }
+    for (const year of ["2019", "2025", "2026"]) {
+      expect(screen.getByText(year)).toBeInTheDocument();
+    }
+    expect(screen.getByText(/Portfolio Support Year/)).toBeInTheDocument();
 
     expect(
       screen.queryByLabelText(/Leadership portrait/i),

@@ -41,9 +41,11 @@ export function PageCtaSection({ locale, cta, className }: PageCtaSectionProps) 
         <h2 className="max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl lg:text-5xl">
           {cta.title}
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-muted-foreground sm:mt-3.5 sm:text-lg sm:leading-8">
-          {cta.description}
-        </p>
+        {cta.description ? (
+          <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-muted-foreground sm:mt-3.5 sm:text-lg sm:leading-8">
+            {cta.description}
+          </p>
+        ) : null}
         <Link
           href={href}
           className={cn(

@@ -10,11 +10,13 @@ describe("insightsCopyFor", () => {
     expect(en.streams.rows.map((row) => row.id)).toEqual(
       fr.streams.rows.map((row) => row.id),
     );
-    expect(en.streams.rows).toHaveLength(5);
+    // v2 launch categories only; empty streams stay hidden.
+    expect(en.streams.rows).toHaveLength(2);
     expect(en.updates.slug).toBe("register-interest");
     expect(fr.updates.slug).toBe("register-interest");
     expect(en.updates.label).toBe("Register for updates");
     expect(fr.hero.title.length).toBeGreaterThan(0);
-    expect(fr.streams.rows.every((row) => row.example.length > 0)).toBe(true);
+    // Placeholder example headlines ("[Startup] ...") are never public copy.
+    expect(en.streams.rows.every((row) => !row.example.includes("["))).toBe(true);
   });
 });

@@ -1,15 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
-function foundersMenuButton(page: Page) {
+/** Founders is a direct link in the primary bar (Text Pack v2: Alumni hidden). */
+function foundersNavLink(page: Page) {
   return page
     .locator("header nav[aria-label='Primary']")
-    .getByRole("button", { name: "Founders", exact: true });
-}
-
-/** Opens the desktop Founders menu. Alumni is a menuitem, portaled outside the header. */
-async function openFoundersMenu(page: Page) {
-  await foundersMenuButton(page).click();
-  return page.getByRole("menuitem", { name: "Alumni", exact: true });
+    .getByRole("link", { name: "Founders", exact: true });
 }
 
 const publicSlugs = [
@@ -55,18 +50,18 @@ test("language switch preserves the current public page", async ({ page }) => {
   await expect(page).toHaveURL(/\/fr\/programme$/);
 });
 
-test("alumni is in the primary navigation", async ({ page }) => {
+test("alumni stays out of the primary navigation while on HOLD", async ({ page }) => {
   await page.goto("/en");
-  const alumni = await openFoundersMenu(page);
-  await expect(alumni).toHaveAttribute("href", "/en/alumni");
+  await expect(foundersNavLink(page)).toHaveAttribute("href", "/en/founders");
+  await expect(page.locator('header a[href="/en/alumni"]')).toHaveCount(0);
 });
 
-test("founders directory closes when clicking outside", async ({ page }) => {
+test("hero routes jump to the founder and investor pathways", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/en");
-  const alumni = await openFoundersMenu(page);
-  await expect(alumni).toBeVisible();
-  await page.locator("main").click({ position: { x: 10, y: 10 } });
-  await expect(alumni).toBeHidden();
+  await page.getByRole("link", { name: "I'm an Investor" }).first().click();
+  await expect(page).toHaveURL(/#investors$/);
+  await expect(page.locator("#investors")).toBeInViewport();
 });
 
 test("mobile navigation remains usable", async ({ page }) => {
@@ -74,7 +69,7 @@ test("mobile navigation remains usable", async ({ page }) => {
   await page.goto("/en");
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Alumni" })).toHaveCount(0);
   await expect(
     page
       .getByRole("navigation", { name: "Primary" })
@@ -86,10 +81,10 @@ test("tablet navigation uses the sheet menu", async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 900 });
   await page.goto("/en");
   await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
-  await expect(foundersMenuButton(page)).toBeHidden();
+  await expect(foundersNavLink(page)).toBeHidden();
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Alumni" })).toHaveCount(0);
 });
 
 test("desktop navigation keeps the primary routes in the main bar", async ({
@@ -100,7 +95,7 @@ test("desktop navigation keeps the primary routes in the main bar", async ({
   await expect(
     page.locator("header").getByRole("link", { name: "About" }),
   ).toBeVisible();
-  await expect(foundersMenuButton(page)).toBeVisible();
+  await expect(foundersNavLink(page)).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
 

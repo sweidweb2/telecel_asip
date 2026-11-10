@@ -110,17 +110,15 @@ export function SiteFooter({ labels }: SiteFooterProps) {
               {labels.statement}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <a
+              <Link
                 href={labels.parent.href}
-                target="_blank"
-                rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
                   "min-h-11 w-full justify-center border-white/30 bg-transparent text-white hover:bg-white hover:text-asip-ink sm:w-auto",
                 )}
               >
                 {labels.parent.label}
-              </a>
+              </Link>
               <Link
                 href={labels.contact.href}
                 className={cn(
