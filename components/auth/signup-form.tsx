@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useCallback, useTransition } from "react";
-import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -13,14 +13,20 @@ import { signUp } from "@/actions/auth";
 import type { SignupLabels } from "@/components/auth/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/constants/locales";
 import { authPath } from "@/constants/routes";
 import { useTurnstile } from "@/hooks/use-turnstile";
+import { cn } from "@/lib/utils";
 import { TURNSTILE_SIGNUP_ACTION } from "@/types/turnstile";
-import { registerSchemaFor, type RegisterInput } from "@/validations/auth";
+import {
+  REGISTER_ACCOUNT_TYPES,
+  registerSchemaFor,
+  type RegisterAccountType,
+  type RegisterInput,
+} from "@/validations/auth";
 
 export function SignupForm({
   locale,
@@ -48,6 +54,7 @@ export function SignupForm({
       email: "",
       password: "",
       confirmPassword: "",
+      type: "startup",
       turnstileToken: "",
     },
   });
@@ -74,6 +81,7 @@ export function SignupForm({
           password: values.password ?? getValues("password") ?? "",
           confirmPassword:
             values.confirmPassword ?? getValues("confirmPassword") ?? "",
+          type: values.type ?? getValues("type") ?? "startup",
           turnstileToken:
             turnstileToken ||
             values.turnstileToken ||
@@ -118,6 +126,51 @@ export function SignupForm({
         <span className="h-px flex-1 bg-border" />
         <span>{labels.dividerLabel}</span>
         <span className="h-px flex-1 bg-border" />
+      </div>
+      <div className="grid gap-2">
+        <Label id="account-type-label">{labels.accountTypeLabel}</Label>
+        <Controller
+          control={control}
+          name="type"
+          render={({ field }) => (
+            <div
+              role="group"
+              aria-labelledby="account-type-label"
+              className="grid grid-cols-2 gap-2"
+            >
+              {REGISTER_ACCOUNT_TYPES.map((accountType) => {
+                const isSelected = field.value === accountType;
+                const optionLabel =
+                  accountType === "startup"
+                    ? labels.startupLabel
+                    : labels.investorLabel;
+                return (
+                  <button
+                    key={accountType}
+                    type="button"
+                    disabled={isPending}
+                    aria-pressed={isSelected}
+                    onClick={() =>
+                      field.onChange(accountType as RegisterAccountType)
+                    }
+                    className={cn(
+                      buttonVariants({
+                        variant: isSelected ? "default" : "outline",
+                        size: "default",
+                      }),
+                      "min-h-11 w-full",
+                    )}
+                  >
+                    {optionLabel}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        />
+        {errors.type ? (
+          <p className="text-sm text-destructive">{errors.type.message}</p>
+        ) : null}
       </div>
       <div className="grid gap-2">
         <Label htmlFor="fullName">{labels.nameLabel}</Label>

@@ -29,6 +29,9 @@ export type LoginLabels = {
 export type SignupLabels = {
   title: string;
   description: string;
+  accountTypeLabel: string;
+  startupLabel: string;
+  investorLabel: string;
   nameLabel: string;
   namePlaceholder: string;
   emailLabel: string;
@@ -124,6 +127,9 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     title: "Sign up",
     description:
       "Create an account to register interest or apply to ASIP.",
+    accountTypeLabel: "I am a",
+    startupLabel: "Startup",
+    investorLabel: "Investor",
     nameLabel: "Name",
     namePlaceholder: "Your name",
     emailLabel: "Email",
@@ -148,6 +154,9 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     title: "Inscription",
     description:
       "Créez un compte pour manifester votre intérêt ou candidater à ASIP.",
+    accountTypeLabel: "Je suis",
+    startupLabel: "Startup",
+    investorLabel: "Investisseur",
     nameLabel: "Nom",
     namePlaceholder: "Votre nom",
     emailLabel: "E-mail",
