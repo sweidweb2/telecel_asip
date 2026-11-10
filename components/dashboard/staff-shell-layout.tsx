@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import {
+  AppSidebar,
+  type StaffNavKey,
+} from "@/components/dashboard/app-sidebar";
 import { StaffHeader } from "@/components/dashboard/staff-header";
 import { StaffKeyboardShortcuts } from "@/components/dashboard/staff-keyboard-shortcuts";
 import { SkipToContent } from "@/components/dashboard/skip-to-content";
 import { StaffOfflineBanner } from "@/components/dashboard/staff-offline-banner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import type { DashboardNavGroup } from "@/constants/dashboard-nav";
 import type { DashboardNavCounts } from "@/constants/dashboard-nav-counts";
 import type { DashboardAccount } from "@/types/profile";
 
@@ -16,7 +18,7 @@ type StaffShellLayoutProps = {
   homeHref: string;
   brandLabel: string;
   panelLabel: string;
-  navGroups: readonly DashboardNavGroup[];
+  navKey: StaffNavKey;
   titleResolver?: "editor" | "admin";
   countsPromise?: Promise<DashboardNavCounts>;
 };
@@ -31,7 +33,7 @@ export function StaffShellLayout({
   homeHref,
   brandLabel,
   panelLabel,
-  navGroups,
+  navKey,
   titleResolver = "editor",
   countsPromise,
 }: StaffShellLayoutProps) {
@@ -43,7 +45,7 @@ export function StaffShellLayout({
         countsPromise={countsPromise}
         homeHref={homeHref}
         brandLabel={brandLabel}
-        navGroups={navGroups}
+        navKey={navKey}
       />
       <SidebarInset>
         <StaffOfflineBanner />

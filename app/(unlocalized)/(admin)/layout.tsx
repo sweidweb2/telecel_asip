@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { StaffShellLayout } from "@/components/dashboard/staff-shell-layout";
-import { ADMIN_NAV_GROUPS } from "@/constants/admin-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
 import { getStaffShell } from "@/data/admin-shell";
 import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
@@ -49,7 +48,7 @@ export default async function AdminLayout({
       homeHref={ROUTES.admin}
       brandLabel="Admin panel"
       panelLabel="Admin panel"
-      navGroups={ADMIN_NAV_GROUPS}
+      navKey="admin"
       titleResolver="admin"
     >
       {children}

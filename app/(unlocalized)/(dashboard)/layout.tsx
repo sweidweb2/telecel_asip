@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { StaffShellLayout } from "@/components/dashboard/staff-shell-layout";
-import { DASHBOARD_NAV_GROUPS } from "@/constants/dashboard-nav";
 import { publicPath, ROUTES } from "@/constants/routes";
 import { getStaffShell } from "@/data/admin-shell";
 import { getDashboardNavCounts } from "@/data/dashboard-nav-counts";
@@ -50,7 +49,7 @@ export default async function DashboardLayout({
       homeHref={ROUTES.dashboard}
       brandLabel="Editor panel"
       panelLabel="Editor panel"
-      navGroups={DASHBOARD_NAV_GROUPS}
+      navKey="dashboard"
       countsPromise={getDashboardNavCounts()}
     >
       {children}

@@ -20,10 +20,8 @@ import {
   useSidebarLayout,
   useSidebarMobile,
 } from "@/components/ui/sidebar";
-import {
-  DASHBOARD_NAV_GROUPS,
-  type DashboardNavGroup,
-} from "@/constants/dashboard-nav";
+import { ADMIN_NAV_GROUPS } from "@/constants/admin-nav";
+import { DASHBOARD_NAV_GROUPS } from "@/constants/dashboard-nav";
 import {
   isDashboardNavCountHref,
   type DashboardNavCounts,
@@ -32,26 +30,34 @@ import { ROUTES } from "@/constants/routes";
 import { isStaffNavActive } from "@/constants/staff-nav";
 import { cn } from "@/lib/utils";
 
+export type StaffNavKey = "admin" | "dashboard";
+
 function formatNavCount(count: number) {
   if (count > 999) return "999+";
   return String(count);
+}
+
+function navGroupsFor(navKey: StaffNavKey) {
+  return navKey === "admin" ? ADMIN_NAV_GROUPS : DASHBOARD_NAV_GROUPS;
 }
 
 export function AppSidebar({
   countsPromise,
   homeHref = ROUTES.dashboard,
   brandLabel = "Editor panel",
-  navGroups = DASHBOARD_NAV_GROUPS,
+  navKey = "dashboard",
 }: {
   countsPromise?: Promise<DashboardNavCounts>;
   homeHref?: string;
   brandLabel?: string;
-  navGroups?: readonly DashboardNavGroup[];
+  /** Resolved on the client so Lucide icons never cross the RSC boundary. */
+  navKey?: StaffNavKey;
 }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebarMobile();
   const { state, isMobile } = useSidebarLayout();
   const showWordmark = isMobile || state === "expanded";
+  const navGroups = navGroupsFor(navKey);
 
   function closeMobileSidebar() {
     setOpenMobile(false);
