@@ -197,6 +197,15 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             groupLabel={labels.languageGroupLabel}
           />
           <Link
+            href={labels.login.href}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "min-h-10 border-[#14333b]/25 bg-transparent px-4 text-[#14333b] hover:bg-[#14333b]/5",
+            )}
+          >
+            {labels.login.label}
+          </Link>
+          <Link
             href={labels.apply.href}
             className={cn(
               buttonVariants({ size: "sm" }),
@@ -292,11 +301,21 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                 />
                 <div className="my-3 shrink-0 border-t border-[#14333b]/10" />
                 <Link
+                  href={labels.login.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "w-full shrink-0 rounded-full border-[#14333b]/25 bg-transparent text-[#14333b] hover:bg-[#14333b]/5",
+                  )}
+                >
+                  {labels.login.label}
+                </Link>
+                <Link
                   href={labels.apply.href}
                   onClick={() => setOpen(false)}
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "w-full shrink-0 gap-2 rounded-full",
+                    "mt-2 w-full shrink-0 gap-2 rounded-full",
                   )}
                 >
                   {labels.apply.label}
