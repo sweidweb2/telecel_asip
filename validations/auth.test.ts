@@ -57,10 +57,37 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "ali@1234",
       confirmPassword: "ali@1234",
+      type: "startup",
       turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
+  });
+
+  it("accepts investor account type", () => {
+    const result = registerSchema.safeParse({
+      fullName: "ASIP Investor",
+      email: "investor@example.com",
+      password: "ali@1234",
+      confirmPassword: "ali@1234",
+      type: "investor",
+      turnstileToken: "test-turnstile-token",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects admin as a public account type", () => {
+    const result = registerSchema.safeParse({
+      fullName: "ASIP Admin",
+      email: "dev@example.com",
+      password: "ali@1234",
+      confirmPassword: "ali@1234",
+      type: "admin",
+      turnstileToken: "test-turnstile-token",
+    });
+
+    expect(result.success).toBe(false);
   });
 
   it("rejects mismatched passwords", () => {
@@ -69,6 +96,7 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "ali@1234",
       confirmPassword: "ali@9999",
+      type: "startup",
       turnstileToken: "test-turnstile-token",
     });
 
@@ -81,6 +109,7 @@ describe("registerSchema", () => {
       email: "dev@example.com",
       password: "short",
       confirmPassword: "short",
+      type: "startup",
       turnstileToken: "test-turnstile-token",
     });
 
@@ -94,6 +123,7 @@ describe("registerSchema", () => {
       email: "bad",
       password: "short",
       confirmPassword: "other",
+      type: "startup",
       turnstileToken: "test-turnstile-token",
     });
 

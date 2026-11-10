@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
 
+/** Public signup audience choices only — never `admin`. */
+export const REGISTER_ACCOUNT_TYPES = ["startup", "investor"] as const;
+export type RegisterAccountType = (typeof REGISTER_ACCOUNT_TYPES)[number];
+
 type AuthValidationMessages = {
   invalidEmail: string;
   passwordRequired: string;
@@ -13,6 +17,7 @@ type AuthValidationMessages = {
   confirmRequired: string;
   passwordsMismatch: string;
   turnstileRequired: string;
+  accountTypeRequired: string;
 };
 
 const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
@@ -27,6 +32,7 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     confirmRequired: "Confirm your password",
     passwordsMismatch: "Passwords do not match",
     turnstileRequired: "Please complete the security check",
+    accountTypeRequired: "Choose Startup or Investor",
   },
   fr: {
     invalidEmail: "Entrez une adresse e-mail valide",
@@ -39,6 +45,7 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     confirmRequired: "Confirmez votre mot de passe",
     passwordsMismatch: "Les mots de passe ne correspondent pas",
     turnstileRequired: "Veuillez compléter la vérification de sécurité",
+    accountTypeRequired: "Choisissez Startup ou Investor",
   },
 };
 
@@ -91,6 +98,7 @@ export function registerSchemaFor(locale: Locale = DEFAULT_LOCALE) {
       confirmPassword: requiredString(messages.confirmRequired).pipe(
         z.string().min(1, messages.confirmRequired),
       ),
+      type: z.enum(REGISTER_ACCOUNT_TYPES, messages.accountTypeRequired),
       turnstileToken: requiredString(messages.turnstileRequired).pipe(
         z
           .string()
