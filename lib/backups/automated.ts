@@ -201,11 +201,13 @@ export async function applyAutomatedBackupRetention(
       try {
         await deleteBackupObject(row.file_path);
       } catch (err) {
-        console.error("[backups] retention R2 delete failed", {
+        console.error("[backups] retention R2 delete failed — keeping DB row", {
           id: row.id,
           file_path: row.file_path,
           err,
         });
+        // Keep the row so the object remains discoverable for a later retry.
+        continue;
       }
     }
     const { error: deleteError } = await admin

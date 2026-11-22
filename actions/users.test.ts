@@ -129,8 +129,14 @@ describe("users actions", () => {
   });
 
   it("createUser syncs profile role after auth create", async () => {
-    const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
-    profileUpdateEq.mockResolvedValue({ error: null });
+    const profileUpdate = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          maybeSingle: profileUpdateEq,
+        })),
+      })),
+    }));
+    profileUpdateEq.mockResolvedValue({ data: { id: userId }, error: null });
     vi.mocked(authorizeStaff).mockResolvedValue(
       staffSession({
         from: vi.fn(() => ({ update: profileUpdate })),
@@ -344,8 +350,16 @@ describe("users actions", () => {
         })),
       };
     });
-    const profileUpdateEq = vi.fn().mockResolvedValue({ error: null });
-    const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
+    const profileUpdateMaybe = vi
+      .fn()
+      .mockResolvedValue({ data: { id: userId }, error: null });
+    const profileUpdate = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          maybeSingle: profileUpdateMaybe,
+        })),
+      })),
+    }));
 
     vi.mocked(authorizeStaff).mockResolvedValue(
       staffSession({
@@ -374,8 +388,14 @@ describe("users actions", () => {
   });
 
   it("createUser can assign investor audience type", async () => {
-    const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
-    profileUpdateEq.mockResolvedValue({ error: null });
+    const profileUpdate = vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          maybeSingle: profileUpdateEq,
+        })),
+      })),
+    }));
+    profileUpdateEq.mockResolvedValue({ data: { id: userId }, error: null });
     vi.mocked(authorizeStaff).mockResolvedValue(
       staffSession({
         from: vi.fn(() => ({ update: profileUpdate })),

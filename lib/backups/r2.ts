@@ -20,6 +20,10 @@ type R2Config = {
   keyPrefix: string;
 };
 
+/** Abort hung R2 calls so backup jobs do not sit until platform kill. */
+const R2_UPLOAD_TIMEOUT_MS = 120_000;
+const R2_DELETE_TIMEOUT_MS = 30_000;
+
 function getR2Config(): R2Config {
   const resolved = resolveBackupStorageConfig();
   const client = new S3Client({
@@ -70,6 +74,7 @@ export async function uploadBackupObject(input: {
       ContentType: input.contentType,
       CacheControl: "private, max-age=31536000, immutable",
     }),
+    { abortSignal: AbortSignal.timeout(R2_UPLOAD_TIMEOUT_MS) },
   );
   return { key: input.key, size: input.body.byteLength };
 }
@@ -79,6 +84,8 @@ export async function getSignedBackupUrl(
   expiresInSeconds = 900,
 ): Promise<string> {
   const { client, bucket } = getR2Config();
+  // Presigning is local (no R2 round-trip); AbortSignal is not in
+  // RequestPresigningArguments — upload/delete use client.send timeouts.
   return getSignedUrl(
     client,
     new GetObjectCommand({ Bucket: bucket, Key: key }),
@@ -93,5 +100,6 @@ export async function deleteBackupObject(key: string): Promise<void> {
       Bucket: bucket,
       Key: key,
     }),
+    { abortSignal: AbortSignal.timeout(R2_DELETE_TIMEOUT_MS) },
   );
 }

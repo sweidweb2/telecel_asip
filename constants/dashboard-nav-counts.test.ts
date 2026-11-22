@@ -28,7 +28,7 @@ describe("mapDashboardNavCounts", () => {
   });
 
   it("covers every sidebar badge href", () => {
-    expect(DASHBOARD_NAV_COUNT_TABLES).toHaveLength(13);
+    expect(DASHBOARD_NAV_COUNT_TABLES).toHaveLength(15);
     expect(isDashboardNavCountHref(ROUTES.registrations)).toBe(true);
     expect(isDashboardNavCountHref(ROUTES.dashboard)).toBe(false);
     expect(isDashboardNavCountHref(ROUTES.analytics)).toBe(false);

@@ -119,7 +119,8 @@ export function parseUserListQuery(input: RawSearchParams): UserListQuery {
   });
 }
 
-export type CreateUserInput = z.infer<typeof createUserSchema>;
+/** Input type — `type` stays optional; Zod applies the `startup` default on parse. */
+export type CreateUserInput = z.input<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type DeleteUserInput = z.infer<typeof deleteUserSchema>;
 export type HardDeleteUserInput = z.infer<typeof hardDeleteUserSchema>;

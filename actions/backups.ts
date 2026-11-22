@@ -22,7 +22,8 @@ import type { AdminActionResult } from "@/types/admin-action";
 import type { Database } from "@/types/database";
 import { ROUTES } from "@/constants/routes";
 import { consumeStaffMutationRateLimit } from "@/lib/rate-limit";
-import { createAdminClient } from "@/lib/supabase/admin";import {
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
   createBackupSchema,
   getBackupDownloadUrlSchema,
   type CreateBackupInput,
@@ -120,9 +121,14 @@ export async function createBackup(
     return { status: "error", message: MESSAGES.rateLimited };
   }
 
-  await failStuckInFlightBackups();
-  if (await hasInFlightBackup()) {
-    return { status: "error", message: MESSAGES.inFlight };
+  try {
+    await failStuckInFlightBackups();
+    if (await hasInFlightBackup()) {
+      return { status: "error", message: MESSAGES.inFlight };
+    }
+  } catch (err) {
+    console.error("[backups] createBackup in-flight check failed", err);
+    return { status: "error", message: MESSAGES.genericError };
   }
 
   const data = parsed.data;
@@ -178,9 +184,14 @@ export async function runBackupNow(): Promise<RunBackupNowResult> {
     return { status: "error", message: MESSAGES.rateLimited };
   }
 
-  await failStuckInFlightBackups();
-  if (await hasInFlightBackup()) {
-    return { status: "error", message: MESSAGES.inFlight };
+  try {
+    await failStuckInFlightBackups();
+    if (await hasInFlightBackup()) {
+      return { status: "error", message: MESSAGES.inFlight };
+    }
+  } catch (err) {
+    console.error("[backups] runBackupNow in-flight check failed", err);
+    return { status: "error", message: MESSAGES.genericError };
   }
 
   const { data: backupTime, error } = await session.supabase.rpc(
@@ -250,7 +261,11 @@ export async function getBackupStatus(
   const session = await authorizeAdmin(MESSAGES);
   if (session.status === "error") return session;
 
-  await failStuckInFlightBackups();
+  try {
+    await failStuckInFlightBackups();
+  } catch (err) {
+    console.error("[backups] getBackupStatus stuck cleanup failed", err);
+  }
 
   const { data: row, error } = await session.supabase
     .from("backups")

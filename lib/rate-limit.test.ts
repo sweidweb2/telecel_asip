@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   consumeRateLimit,
+  consumeSharedRateLimit,
+  consumeStaffMutationRateLimit,
   isRateLimited,
   recordRateLimitHit,
   resetRateLimitBuckets,
@@ -32,5 +34,32 @@ describe("rate-limit", () => {
     const key = "test:expire";
     expect(consumeRateLimit(key, 1, 1_000, 0)).toBe(true);
     expect(consumeRateLimit(key, 1, 1_000, 1_001)).toBe(true);
+  });
+
+  it("falls back to in-memory for public shared limits on RPC error", async () => {
+    const rpc = vi.fn(async () => ({
+      data: null,
+      error: { message: "rpc down", code: "57014" },
+    }));
+    const admin = { rpc } as never;
+
+    await expect(
+      consumeSharedRateLimit(admin, "public:key", 1, 60_000),
+    ).resolves.toBe(true);
+    await expect(
+      consumeSharedRateLimit(admin, "public:key", 1, 60_000),
+    ).resolves.toBe(false);
+  });
+
+  it("fails closed for staff mutation limits on RPC error", async () => {
+    const rpc = vi.fn(async () => ({
+      data: null,
+      error: { message: "rpc down", code: "57014" },
+    }));
+    const admin = { rpc } as never;
+
+    await expect(
+      consumeStaffMutationRateLimit(admin, "user-1", "userCreate"),
+    ).resolves.toBe(false);
   });
 });

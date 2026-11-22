@@ -38,11 +38,18 @@ export function useMarkInboxReviewed({
       id,
       inboxStatus: "reviewed",
       onlyIfStatus: "unread",
-    }).then((result) => {
-      if (result.status === "success") {
-        router.refresh();
-      }
-    });
+    })
+      .then((result) => {
+        if (result.status === "success") {
+          router.refresh();
+        } else {
+          // Allow a later open to retry if the mark failed.
+          markedRef.current = null;
+        }
+      })
+      .catch(() => {
+        markedRef.current = null;
+      });
   }, [id, inboxStatus, updateAction, router]);
 
   useEffect(() => {

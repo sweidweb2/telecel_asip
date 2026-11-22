@@ -56,23 +56,33 @@ export async function POST(request: Request) {
     );
   }
 
+  async function safeRetention(now?: Date): Promise<number> {
+    try {
+      const retention = await applyAutomatedBackupRetention(now);
+      return retention.deleted;
+    } catch (err) {
+      console.error("[backups] cron retention failed", err);
+      return 0;
+    }
+  }
+
   const backupTime = settings.backup_time;
   if (!isBackupSchedule(backupTime) || backupTime === "off") {
-    const retention = await applyAutomatedBackupRetention();
+    const retentionDeleted = await safeRetention();
     return NextResponse.json({
       ok: true,
       skipped: "off",
-      retentionDeleted: retention.deleted,
+      retentionDeleted,
     });
   }
 
   const now = new Date();
   if (!isScheduleDue(backupTime, now)) {
-    const retention = await applyAutomatedBackupRetention(now);
+    const retentionDeleted = await safeRetention(now);
     return NextResponse.json({
       ok: true,
       skipped: "not_due",
-      retentionDeleted: retention.deleted,
+      retentionDeleted,
     });
   }
 
@@ -86,7 +96,7 @@ export async function POST(request: Request) {
     scheduleWindow: windowKey,
   });
 
-  const retention = await applyAutomatedBackupRetention(now);
+  const retentionDeleted = await safeRetention(now);
 
   if (result.status === "failed") {
     console.error("[backups] scheduled window failed", result);
@@ -94,7 +104,7 @@ export async function POST(request: Request) {
       {
         error: "Backup window failed after retries.",
         ...result,
-        retentionDeleted: retention.deleted,
+        retentionDeleted,
       },
       { status: 500 },
     );
@@ -104,6 +114,6 @@ export async function POST(request: Request) {
     ok: true,
     ...result,
     scheduleWindow: windowKey,
-    retentionDeleted: retention.deleted,
+    retentionDeleted,
   });
 }

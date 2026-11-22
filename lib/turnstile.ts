@@ -46,6 +46,19 @@ export async function verifyTurnstileToken(options: {
 }): Promise<boolean> {
   const { token, expectedAction, remoteip } = options;
   if (!TURNSTILE_WIDGET_ENABLED && token === TURNSTILE_BYPASS_TOKEN) {
+    // Bypass is for local/E2E only. Production must not accept the stand-in
+    // unless ALLOW_TURNSTILE_BYPASS=true is set explicitly (emergency).
+    const allowBypass =
+      process.env.ALLOW_TURNSTILE_BYPASS === "true" ||
+      process.env.NODE_ENV !== "production" ||
+      process.env.VERCEL_ENV === "preview" ||
+      process.env.VERCEL_ENV === "development";
+    if (!allowBypass) {
+      console.error(
+        "[turnstile] bypass token rejected outside local/preview",
+      );
+      return false;
+    }
     return true;
   }
 

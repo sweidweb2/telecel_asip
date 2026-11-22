@@ -148,9 +148,16 @@ async function refreshSupabaseSession(
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: Awaited<
+    ReturnType<typeof supabase.auth.getUser>
+  >["data"]["user"] = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (err) {
+    console.error("[middleware] auth.getUser failed", err);
+    return { response, userId: null, isAdmin: false, isEditor: false };
+  }
 
   if (!user) {
     return { response, userId: null, isAdmin: false, isEditor: false };

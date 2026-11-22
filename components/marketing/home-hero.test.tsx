@@ -53,7 +53,7 @@ describe("HomeHero", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Investor" }),
-    ).toHaveAttribute("href", "/en/founders");
+    ).toHaveAttribute("href", "/en/register-interest");
     expect(
       screen.getByRole("link", { name: "Startup" }),
     ).toHaveAttribute("href", "/en/register-interest");

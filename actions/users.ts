@@ -116,37 +116,52 @@ function isAssignable(
 async function countRole(
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
   role: ProfileRole,
-): Promise<number> {
+): Promise<number | null> {
   const { count, error } = await supabase
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("role", role);
-  if (error) throw error;
+  if (error) {
+    console.error("[users] countRole failed", { role, message: error.message });
+    return null;
+  }
   return count ?? 0;
 }
 
 async function getProfileRole(
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
   id: string,
-): Promise<ProfileRole | null> {
+): Promise<ProfileRole | null | undefined> {
   const { data, error } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", id)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    console.error("[users] getProfileRole failed", {
+      id,
+      message: error.message,
+    });
+    return undefined;
+  }
   return data?.role ?? null;
 }
 
 async function countEvidenceOwned(
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
   ownerId: string,
-): Promise<number> {
+): Promise<number | null> {
   const { count, error } = await supabase
     .from("evidence_records")
     .select("id", { count: "exact", head: true })
     .eq("owner_id", ownerId);
-  if (error) throw error;
+  if (error) {
+    console.error("[users] countEvidenceOwned failed", {
+      ownerId,
+      message: error.message,
+    });
+    return null;
+  }
   return count ?? 0;
 }
 
@@ -214,7 +229,7 @@ export async function createUser(
     };
   }
 
-  const { error: profileError } = await session.supabase
+  const { data: profileRow, error: profileError } = await session.supabase
     .from("profiles")
     .update({
       role: parsed.data.role,
@@ -222,9 +237,11 @@ export async function createUser(
       full_name: parsed.data.fullName,
       email: parsed.data.email,
     })
-    .eq("id", created.user.id);
+    .eq("id", created.user.id)
+    .select("id")
+    .maybeSingle();
 
-  if (profileError) {
+  if (profileError || !profileRow) {
     const { error: rollbackError } = await admin.auth.admin.deleteUser(
       created.user.id,
     );
@@ -233,7 +250,7 @@ export async function createUser(
         "Failed to roll back Auth user after profile sync failure",
         {
           userId: created.user.id,
-          profileError: profileError.message,
+          profileError: profileError?.message ?? "profile row missing",
           rollbackError: rollbackError.message,
         },
       );
@@ -245,7 +262,9 @@ export async function createUser(
     }
     return {
       status: "error",
-      message: mapSupabaseError(profileError.message),
+      message: profileError
+        ? mapSupabaseError(profileError.message)
+        : "Profile sync failed after Auth create. The Auth user was rolled back.",
     };
   }
 
@@ -280,7 +299,10 @@ export async function updateUser(
   }
 
   const targetRole = await getProfileRole(session.supabase, parsed.data.id);
-  if (!targetRole) {
+  if (targetRole === undefined) {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+  if (targetRole === null) {
     return { status: "error", message: "User not found." };
   }
 
@@ -304,6 +326,12 @@ export async function updateUser(
 
   if (targetRole === "admin" && parsed.data.role !== "admin") {
     const admins = await countRole(session.supabase, "admin");
+    if (admins === null) {
+      return {
+        status: "error",
+        message: "Something went wrong. Please try again.",
+      };
+    }
     if (admins <= 1) {
       return {
         status: "error",
@@ -315,6 +343,12 @@ export async function updateUser(
 
   if (targetRole === "editor" && parsed.data.role !== "editor") {
     const editors = await countRole(session.supabase, "editor");
+    if (editors === null) {
+      return {
+        status: "error",
+        message: "Something went wrong. Please try again.",
+      };
+    }
     if (editors <= 1) {
       return {
         status: "error",
@@ -371,12 +405,14 @@ export async function updateUser(
     type: parsed.data.role === "admin" ? "admin" : parsed.data.type,
   };
 
-  const { error: profileError } = await session.supabase
+  const { data: profileRow, error: profileError } = await session.supabase
     .from("profiles")
     .update(profileUpdate)
-    .eq("id", parsed.data.id);
+    .eq("id", parsed.data.id)
+    .select("id")
+    .maybeSingle();
 
-  if (profileError) {
+  if (profileError || !profileRow) {
     const { error: revertError } = await admin.auth.admin.updateUserById(
       parsed.data.id,
       {
@@ -390,7 +426,7 @@ export async function updateUser(
         "Failed to revert Auth user after profile update failure",
         {
           userId: parsed.data.id,
-          profileError: profileError.message,
+          profileError: profileError?.message ?? "profile row missing",
           revertError: revertError.message,
         },
       );
@@ -402,7 +438,9 @@ export async function updateUser(
     }
     return {
       status: "error",
-      message: mapSupabaseError(profileError.message),
+      message: profileError
+        ? mapSupabaseError(profileError.message)
+        : "User not found.",
     };
   }
 
@@ -431,7 +469,10 @@ export async function deleteUser(
   }
 
   const targetRole = await getProfileRole(session.supabase, parsed.data.id);
-  if (!targetRole) {
+  if (targetRole === undefined) {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+  if (targetRole === null) {
     return { status: "error", message: "User not found." };
   }
 
@@ -444,6 +485,12 @@ export async function deleteUser(
 
   if (targetRole === "admin") {
     const admins = await countRole(session.supabase, "admin");
+    if (admins === null) {
+      return {
+        status: "error",
+        message: "Something went wrong. Please try again.",
+      };
+    }
     if (admins <= 1) {
       return {
         status: "error",
@@ -455,6 +502,12 @@ export async function deleteUser(
 
   if (targetRole === "editor") {
     const editors = await countRole(session.supabase, "editor");
+    if (editors === null) {
+      return {
+        status: "error",
+        message: "Something went wrong. Please try again.",
+      };
+    }
     if (editors <= 1) {
       return {
         status: "error",
@@ -468,6 +521,9 @@ export async function deleteUser(
     session.supabase,
     parsed.data.id,
   );
+  if (evidenceCount === null) {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
   if (evidenceCount > 0) {
     return {
       status: "error",

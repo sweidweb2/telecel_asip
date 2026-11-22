@@ -4,6 +4,7 @@ import JSZip from "jszip";
 
 import {
   buildBackupObjectKey,
+  deleteBackupObject,
   uploadBackupObject,
 } from "@/lib/backups/r2";
 import { serializeTableFile } from "@/lib/backups/serialize";
@@ -130,12 +131,26 @@ export async function runBackupJob(input: RunBackupInput): Promise<void> {
       contentType: "application/zip",
     });
 
-    await updateBackupRow(input.backupId, {
-      status: "completed",
-      file_path: uploaded.key,
-      file_size: uploaded.size,
-      error_message: null,
-    });
+    try {
+      await updateBackupRow(input.backupId, {
+        status: "completed",
+        file_path: uploaded.key,
+        file_size: uploaded.size,
+        error_message: null,
+      });
+    } catch (markError) {
+      // Avoid orphaning an R2 object when the completed row write fails.
+      try {
+        await deleteBackupObject(uploaded.key);
+      } catch (cleanupError) {
+        console.error("[backups] failed to remove orphaned R2 object", {
+          backupId: input.backupId,
+          key: uploaded.key,
+          cleanupError,
+        });
+      }
+      throw markError;
+    }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown backup failure.";

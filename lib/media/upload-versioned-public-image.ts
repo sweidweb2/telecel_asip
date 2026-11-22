@@ -118,15 +118,44 @@ export async function uploadVersionedPublicImage(options: {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl) {
-    await supabase.storage.from(bucket).remove([path]);
+    const { error: rollbackError } = await supabase.storage
+      .from(bucket)
+      .remove([path]);
+    if (rollbackError) {
+      console.error("Failed to roll back uploaded object", {
+        bucket,
+        path,
+        error: rollbackError,
+      });
+    }
     return { status: "error", message: messages.genericError };
   }
 
   const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
-  const { error: updateError, data: updated } = await updateRow(publicUrl);
+
+  let updateError: { message?: string } | null = null;
+  let updated: { id: string } | null | undefined;
+  try {
+    const result = await updateRow(publicUrl);
+    updateError = result.error;
+    updated = result.data;
+  } catch (err) {
+    console.error("DB update threw during media upload", { bucket, path, err });
+    updateError = { message: "update threw" };
+    updated = null;
+  }
 
   if (updateError || updated === null) {
-    await supabase.storage.from(bucket).remove([path]);
+    const { error: rollbackError } = await supabase.storage
+      .from(bucket)
+      .remove([path]);
+    if (rollbackError) {
+      console.error("Failed to roll back uploaded object", {
+        bucket,
+        path,
+        error: rollbackError,
+      });
+    }
     return { status: "error", message: messages.genericError };
   }
 

@@ -314,7 +314,7 @@ export function CreateUserDialog({
                 render={({ field }) => (
                   <AudienceTypeSelectField
                     id="create-type"
-                    value={field.value}
+                    value={field.value ?? "startup"}
                     onChange={field.onChange}
                     disabled={isPending}
                     error={errors.type?.message}

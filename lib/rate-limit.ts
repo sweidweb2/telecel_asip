@@ -2,8 +2,9 @@
  * Rate limiting for public form actions.
  *
  * Prefer the Postgres `consume_rate_limit` RPC (shared across instances via
- * service role). Falls back to an in-process Map only when the RPC is
- * unavailable (local tests / migration not applied).
+ * service role). Public intake may fall back to an in-process Map when the RPC
+ * is unavailable (local tests / migration not applied) — always logged.
+ * Staff mutations fail closed on RPC errors.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -56,6 +57,14 @@ export function consumeRateLimit(
 
 type AdminClient = SupabaseClient<Database>;
 
+export type ConsumeSharedRateLimitOptions = {
+  /**
+   * When true, RPC errors deny the attempt (staff / sensitive paths).
+   * When false (default), falls back to in-memory for public forms.
+   */
+  failClosed?: boolean;
+};
+
 /**
  * Shared rate limit via `public.consume_rate_limit`.
  * Returns true when the attempt is allowed.
@@ -65,6 +74,7 @@ export async function consumeSharedRateLimit(
   key: string,
   limit: number,
   windowMs: number,
+  options?: ConsumeSharedRateLimitOptions,
 ): Promise<boolean> {
   const { data, error } = await admin.rpc("consume_rate_limit", {
     p_key: key,
@@ -73,7 +83,16 @@ export async function consumeSharedRateLimit(
   });
 
   if (error) {
-    // Migration not applied or RPC error — degrade to in-memory (single instance).
+    console.error("[rate-limit] consume_rate_limit RPC failed", {
+      key,
+      failClosed: Boolean(options?.failClosed),
+      message: error.message,
+      code: error.code,
+    });
+    if (options?.failClosed) {
+      return false;
+    }
+    // Public forms only: degrade to in-memory (single instance).
     return consumeRateLimit(key, limit, windowMs);
   }
 
@@ -97,7 +116,7 @@ export const STAFF_RATE_LIMITS = {
 
 /**
  * Rate-limit a staff mutation by acting user id.
- * Returns true when the attempt is allowed.
+ * Returns true when the attempt is allowed. Fails closed if the shared RPC errors.
  */
 export async function consumeStaffMutationRateLimit(
   admin: AdminClient,
@@ -109,5 +128,6 @@ export async function consumeStaffMutationRateLimit(
     `staff:${action}:${userId}`,
     STAFF_RATE_LIMITS[action],
     STAFF_MUTATION_WINDOW_MS,
+    { failClosed: true },
   );
 }
