@@ -7,6 +7,7 @@ import { BlogCard } from "@/components/marketing/blog-card";
 import type { BlogLabels } from "@/components/marketing/blog-labels";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonVariants } from "@/components/ui/button";
+import { publicCategoryLabel } from "@/components/marketing/blog-labels";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import { sanitizeBlogHtml } from "@/lib/sanitize-html";
@@ -73,7 +74,7 @@ export function InsightDetailPage({
         <div className="mx-auto w-full max-w-6xl px-4 pt-[4.75rem] sm:px-6 sm:pt-[5.25rem] lg:pt-12">
           <header className="max-w-3xl">
             <p className="text-sm font-semibold text-primary">
-              {article.category.name}
+              {publicCategoryLabel(article.category.name, locale)}
             </p>
             <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
               {article.title}

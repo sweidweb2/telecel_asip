@@ -1,0 +1,235 @@
+# ASIP visual refresh: "Same ASIP, more energy"
+
+Status: plan, not started. Branch: `design/genz-refresh-plan`. Written 5 November 2026.
+
+**Goal:** make the public site feel more current and appealing to a Gen Z audience (founders roughly 18–28, plus the people who share founder content), without changing the concept, the brand colors or the content the client just approved.
+
+**Rule of thumb:** someone who knows the current site should recognize it immediately. Someone new should feel it's alive, confident and made for them.
+
+---
+
+## 1. What stays (guardrails)
+
+| Keep | Why |
+|---|---|
+| Deep ink `#14333b` as the anchor color, cream canvas, teal and coral roles | This is the ASIP identity, and the client approved it |
+| The four-to-five color spectrum as the brand signature | It comes straight from the logo ring |
+| Sora for headings and Source Sans for body | Both are modern; we push how they're used, not which fonts |
+| Real founder photography and the cohort film | Real people are the strongest Gen Z signal |
+| The page structure, section order and all approved copy (EN and FR) | Nothing the client signed off on gets rewritten |
+| The diagonal section cuts, kite sketch and stair motif | They're distinctive. We sharpen them, not remove them |
+| Investor and Startup as the two pathways | This was just delivered |
+
+## 2. What reads "not Gen Z" today
+
+From a full walk-through of the home page at 1280px:
+
+1. **Muted everything.** The palette is used at low intensity: mint tints, cream, grey-green borders. The logo's own colors are brighter than anything on the page. The logo has a **sun yellow `#efd640`** and a **sky blue `#1481c4`** the site never uses, and its green (`#80c451`) and red (`#e93343`) are punchier than the site's `#81b764` and `#dc395f`.
+2. **Quiet type.** Headlines are large but uniform. There's no emphasis inside a headline, eyebrows are tiny letter-spaced caps (very "annual report"), and body copy is 16px grey.
+3. **Corporate grids.** For example, the six ecosystem roles are an evenly ruled 3×2 table with icons, which reads like a consulting deck.
+4. **Few moments of play.** Motion is limited to fade-and-slide reveals. Nothing reacts to the cursor or a tap, and nothing moves on its own except the hero slideshow.
+5. **Desktop-first actions.** On a phone, the Investor | Startup choice scrolls away. Gen Z traffic is mostly mobile and comes from social links.
+6. **Some contrast issues**, worth fixing regardless:
+   - White on teal `#179191` is **3.82:1**, which fails WCAG for normal text. The header "Register interest" button uses it.
+   - White on coral `#dc395f` is **4.38:1**, also a fail for normal text.
+
+## 3. The direction in six moves
+
+### Move 1: Color, retuned rather than replaced
+Same roles and same 60/30/10 balance, with more saturation, plus the two missing logo colors used as small accents only.
+
+| Token | Now | Proposed | Note |
+|---|---|---|---|
+| `--asip-ink` | `#14333b` | `#14333b` (unchanged) | anchor |
+| `--background` (canvas) | `#fbfaf6` | `#fbfaf6` (unchanged) | |
+| `--brand` (teal) | `#179191` | `#179191` for graphics, **`#0e7676` for text and buttons** | white on `#0e7676` = 5.42:1 ✅ (4.67:1 on teal tints) |
+| `--asip-coral` (CTA) | `#dc395f` | **`#d42f57`** | white text 4.83:1 ✅. Shifts slightly toward the logo red |
+| `--brand-mid` (green) | `#81b764` | **`#80c451`** (logo green) | ink text on it 6.34:1 |
+| `--asip-magenta` | `#c14a9b` | `#c0499b` (logo, same) | |
+| `--asip-mint` | `#9ad1bf` | `#9ad1bf` (unchanged) | |
+| **new** `--asip-sun` | none | **`#efd640`** (logo yellow) | highlights, stickers, ink text on it 9.17:1 |
+| **new** `--asip-sky` | none | **`#1481c4`** (logo blue) | graphics and illustrations only, not for small text |
+
+How each color is used:
+- **Spectrum as a living element.** The 4-segment bar already in the hero becomes the system's signature: a thin animated spectrum line under the nav, on section dividers, on card hover outlines, on the active nav item, and as the focus ring. It always appears in logo order.
+- **Sun is the "highlighter".** One word per hero or section headline gets a sun marker stroke behind it, for example "Built to **scale**." No structural change.
+- **No gradients over photos, no neon.** The colors get louder in small doses, never as page washes.
+
+### Move 2: Type with attitude
+- **Display sizes go up one step** and use tighter leading and tracking (Sora 600–700, `tracking-[-0.03em]`, leading 0.95–1.0) for the hero and section titles.
+- **Emphasis inside headlines:**
+  - the sun highlighter (Move 1), or
+  - one word set in the outline or teal variant.
+  - Applied through a tiny `<Emph>` wrapper, so the copy files only gain markers like `"Built to [scale]."`, not new text.
+- **Eyebrows become stickers.** The tiny letter-spaced caps become small rounded pills: ink text on mint or sun, sentence case, slight -2° rotation on hero and section openers only. Uniform in admin.
+- **Body copy:** 17–18px on marketing pages, darker (`muted-foreground` from `#52666b` to around `#3f5257`), and max line length about 62ch.
+- **Numbers as stickers:** stats ("11 ventures", "4 cohorts") set huge in Sora with a colored underline.
+
+### Move 3: Shape and surface
+- **Radius scale up:** cards go to 20–24px (`--radius` 0.5rem → 0.75rem on marketing only). Buttons stay pill-shaped.
+- **"Neo-brutal lite" on primary actions only:** the coral CTA gets a 2px ink border and a 3px offset ink shadow that collapses on press. That's the tactile feel Gen Z associates with modern apps, used sparingly. Outline buttons stay soft.
+- **Bento grids instead of ruled tables:** the ecosystem roles, platform model and outcomes become bento cards of mixed sizes. One big card has a photo, the others get an icon on a colored chip. It's the same content in a different layout.
+- **Subtle film grain** on the dark ink panels (a 2–3% noise PNG, about 4kb) for warmth. The hero and footer already lean this way.
+- **Sticker accents:** small rotated badges for tags such as "2026 cohort", "Women-led", "AI", "Working theme". They're reusable and replace the current dashed tag.
+
+### Move 4: Motion and micro-interaction (respects `prefers-reduced-motion`)
+- **Springy hovers:** cards lift 4px and tilt slightly, CTAs squash on press, and arrows nudge. These are CSS only, with a single easing token (`cubic-bezier(.34,1.56,.64,1)`).
+- **Marquee ticker:** one slow strip of countries, sectors and founder names ("Ghana · Agritech · Senegal · Fintech · …") between the cohort film and the impact section. It's built from existing data. The keyframes already exist in `app/globals.css` (`--animate-scroll-horizontal`), but no component uses them yet.
+- **Count-up stats** when the impact numbers scroll into view.
+- **Spectrum line draw:** section dividers draw in their colors on scroll, using the existing `animation-timeline: view()` setup in `marketing.css`.
+- **No scroll-jacking** and no heavy JavaScript animation libraries. Everything is CSS or IntersectionObserver.
+
+### Move 5: Founder-first presentation (no copy changes)
+- **Faces before facts:** founder cards lead with a portrait, a name and a one-line "what they're building". Logos go secondary.
+- **"Reels" strip:** if we have short clips from the cohort film, show 3–5 vertical cards (9:16, muted, autoplay on hover or in view) on home and Founders. Without clips, use portrait stills with a play-style frame and link to the film.
+- **Quote cards:** founder-story pull quotes as large colored cards (mint, sun or blush), screenshot-friendly so people share them.
+- **Shareable proof:** Open Graph images per founder and story, using the same sticker language, so links shared on WhatsApp, LinkedIn and X look designed.
+
+### Move 6: Mobile-first actions
+- **Sticky bottom bar on mobile:** "I am: [Investor] [Startup]" appears after the hero scrolls away and hides near the footer, so the two pathways are always one tap away.
+- **Swipe carousels** with snap points for insights, founders and outcomes. The insights carousel exists; we extend the pattern.
+- **Thumb targets at least 48px**, and the nav menu as a full-screen sheet with big type and the spectrum bar.
+
+## 4. Section by section (home first)
+
+| Section | Change |
+|---|---|
+| Nav | Spectrum hairline under the bar. Register CTA moves to `#0e7676` (contrast fix), or coral with the offset shadow. Logo size check, since the new round mark reads small at 56px |
+| Hero | Sun highlighter on "scale", sticker eyebrow ("2026 applications open soon"), coral CTA with offset shadow, Investor | Startup unchanged in function |
+| Cohort film | Rounded 24px frame, play button becomes a big sun disc, marquee ticker below |
+| Impact years | Count-up numbers, stat stickers |
+| Platform model | Bento layout, spectrum-colored step numbers |
+| Outcomes ("The story is what happened next") | Photo-led bento with a quote card |
+| Ecosystem | Bento grid instead of the 3×2 ruled table. "Explore Partnership Opportunities" stays as is |
+| Telecel connection | Grain on the ink panel, spectrum divider |
+| 2026 cohort | "AI Advantage in Action" becomes a sticker. The eligibility checklist gets colored check chips. Investor | Startup stay |
+| Latest insights | Taller cards with an image on top, category sticker, swipe on mobile |
+| Footer | Big type line ("African founders. Built to scale.") larger, spectrum bar on top |
+
+**Other pages** reuse the same components, so they pick up the changes through shared parts: `page-elements.tsx`, `tree-centered-hero.tsx`, the cards and the CTAs. Founders and Insights get the founder-first and swipe treatments, Program gets bento and stickers, and the forms get bigger inputs and friendlier focus states.
+
+**Admin and editor portals stay unchanged.** They already override tokens under `[data-staff-shell]`, and the new tokens are scoped to marketing.
+
+## 5. Engineering plan
+
+**Phase 0: tokenize, with no visual change. ✅ Done on 5 November 2026.**
+- Changed 219 color values in 37 files under `components/marketing`, `components/layout` and `app/[locale]`:
+  - Tailwind classes and SVG attributes now use the theme tokens.
+  - The ink-colored `rgba(...)` values in gradients and shadows now use `color-mix(in srgb, var(--token) N%, transparent)`.
+- New tokens: `--asip-ink-raised` `#1a3f48`, `--asip-ink-deep` `#0f282e`, `--asip-ink-night` `#0b1c22` and `--asip-sand` `#f5e6b8`.
+- Verified with no visible change. I compared computed colors for every element on 12 pages (EN home, About, Program, Founders, Impact, Partners, Insights, Contact, Register Interest, FAQ, Alumni and FR home) before and after, at the pixel level, and found 0 differences.
+- Left as hard-coded on purpose. These are one-off shades that Phase 1 will derive from tokens:
+  - gradient middle stops in `institutional-hero-field.css`,
+  - the stair tints in `home-impact-growth-illustration.tsx`,
+  - illustration accents in `cta-startup-illustration.tsx`,
+  - the decorative window dots.
+
+Original description:
+The marketing components hard-code colors about 200 times: `#14333b` 82×, `#9ad1bf` 35×, `#179191` 32×, `#81b764` 12× and others. Replace them with token classes (`bg-asip-ink`, `text-asip-mint`, …). After that, retuning the palette is a change in `app/globals.css` only. Before-and-after screenshots should be identical.
+
+**Phase 1: foundations. ✅ Done on 5 November 2026.**
+- **Tokens:** `[data-marketing]` on the marketing layout, lifted to `<html>` with `:root:has([data-marketing])` so portaled menus and dialogs match. The admin portal is untouched.
+  - Coral `#d42f57`, logo green `#80c451`, darker body text `#3f5257`, radius 0.75rem.
+  - Teal buttons and small teal text use `--brand-strong` `#0e7676`.
+  - New colors: sun `#efd640`, sky `#1481c4`, blush `#f6c8d6`, plus `--ease-spring`.
+- **Components** (`components/marketing/brand-accents.tsx`):
+  - `Emph` and `renderEmphasis`: `[word]` markers in copy become a sun marker on light surfaces or a sun underline on dark ones. `stripEmphasis` gives the plain version for labels.
+  - `Sticker`, `SpectrumLine` and `LOGO_SPECTRUM`, in logo order.
+- **Raised button:** the coral CTA has an ink border and a hard offset shadow that lifts on hover and collapses on press. On dark panels the shadow is mint (`coralCtaOnDarkClassName`). Outline CTAs get a spring lift.
+- **Applied as the showcase:**
+  - Header and hero spectrum in logo order.
+  - Sun underline on "Built to [scale]." / "Faits pour [grandir]."
+  - Bigger, tighter hero and section headings.
+  - The 2026 section's theme tag as a tilted sun sticker, and a marker on "[place]".
+- **Contrast:** an automated check of every text element over a solid background on Home, About, Program, Partners, Impact and Register Interest finds **0 failures**, down from 6. Several of those were already on the live site: faded timeline text on Program, and teal labels on Home and Impact.
+- **Still old** and handled in Phase 3: the cohort film's four-color stripes, section eyebrows (still small caps), and the other pages' local coral buttons.
+
+Original description:
+**Phase 1: foundations (1 day).**
+- New and retuned tokens in `globals.css`, scoped to marketing via `[data-marketing]`, so the admin portal is untouched.
+- Type scale, the radius bump, the `--ease-spring` token.
+- Components: `Emph` (highlighter), `Sticker`, the `SpectrumLine` divider, and the CTA offset shadow in `coralCtaClassName`.
+
+**Phase 2: components. ✅ Done on 5 November 2026.**
+- **Built:**
+  - `bento.tsx`: `BentoGrid`, `BentoCard` (spans out of six, tones, tall) and `BentoIcon`.
+  - `quote-card.tsx`: `QuoteCard`.
+  - `count-up-stat.tsx`: `CountUpStat`. Server HTML and reduced-motion visitors get the final number, and screen readers hear it once.
+  - `marquee-strip.tsx`: `MarqueeStrip`. It loops seamlessly, pauses on hover, and screen readers read the list once. With reduced motion it's a static wrapped line.
+  - `mobile-pathway-bar.tsx`: `MobilePathwayBar`. A phone-only Investor | Startup bar that appears after the hero buttons scroll away and hides at the footer. It's `inert` while hidden, and it sets `--pathway-bar-offset` so the music button moves up.
+- **Live on the site now:**
+  - A ticker of the portfolio's countries under the cohort film. It reads `get_active_startup_filter_options`, uses names in the visitor's language (12 countries), and falls back to nothing if the read fails.
+  - The phone pathway bar on home.
+  - Founder cards: tilted cohort stickers, sector pills, founder names more prominent, 24px corners, a spring hover with a slight tilt.
+  - Insight cards: category pill, rounder image, spring lift.
+- **Built and tested, applied in Phase 3:** bento grid, quote card and count-up stat.
+- **Contrast:** 0 failures across 10 pages, including Founders, Insights and FAQ. Three issues that were already on the live site are fixed:
+  - white on the teal and magenta cohort chips,
+  - faded Insights and FAQ tab labels.
+- **Note:** sector names are stored only in English, so the ticker shows countries, which translate. Sectors can join once the French CMS columns exist (see plan [2]).
+
+Original description:
+**Phase 2: components (1–2 days).**
+- Bento card grid, quote card, stat sticker with count-up, marquee strip, mobile sticky pathway bar.
+- Founder card refresh, insight card refresh.
+
+**Phase 3: apply to sections. ✅ Done on 6 November 2026.**
+- **Ecosystem:** a bento grid with a 4+2 / 2+4 / 3+3 rhythm (mint Mentors, ink Investors, blush Ecosystem organizations), larger headings, and a translated eyebrow. It was hard-coded English before, so it showed in English on the French page.
+- **Section eyebrows:** now mint pills in sentence case (`sectionEyebrowClassName`), used on all home sections.
+- **Cohort film:**
+  - spectrum in logo order,
+  - 24px frame,
+  - a sun play disc with an ink border and offset shadow.
+- **Impact metrics:** bigger numerals with a spectrum bar under each. The live database has no published metrics yet, so they show once metrics are added.
+- **Platform:** the active step is a sun disc.
+- **2026 eligibility:** mint check chips.
+- **Footer:**
+  - spectrum line on top that draws in on scroll,
+  - larger "African founders. Built to scale." line.
+- **Inner pages:** the shared hero (`tree-centered-hero`) and closing CTA (`page-cta-section`) now use the raised coral CTA, so About, Program, Founders, Impact, Partners and the rest match home.
+- **Header:** nav labels no longer wrap. French "À propos" used to break onto two lines at 1280px.
+- **Not done:**
+  - Quote cards: the CMS has no quote text yet, only `quote_permission_status`. They need approved founder quotes (client question 2).
+  - Telecel panel grain: skipped, because the panel is light, not ink.
+- **Contrast:** 0 failures on 10 pages: EN and FR home, About, EN and FR Program, Founders, Impact, Partners, Insights and FAQ.
+
+Original description:
+**Phase 3: apply to sections (2 days).**
+- Home sections per the table above.
+- Copy files gain optional emphasis markers (EN and FR), with no wording changes.
+
+**Phase 4: polish and QA. ✅ Done on 6 November 2026.**
+- **Sideways scrolling:** checked 14 pages (EN and FR) at 375, 768, 1280 and 1536px on the production build. One issue, already on the live site: About scrolled sideways by 30–50px at every width because a decorative glow stuck out. Fixed with `overflow-x-clip`. Re-check: 0.
+- **Reduced motion:** checked 8 pages with `prefers-reduced-motion`. One issue, also already live: the platform ring kept spinning forever. Fixed with `motion-reduce:animate-none`. Re-check: no endless animations. The ticker, highlighter, spectrum draw and spring hovers already switch off.
+- **Page speed:** production builds, phone viewport, CPU slowed 4×, median of 3 runs per page, `main` vs this branch:
+
+| Page | LCP main → branch | Blocking time main → branch | JS | Layout shift |
+|---|---|---|---|---|
+| /en | 800 → 800–832 ms | 94 → 100–131 ms | +4 KB | 0 → 0 |
+| /en/about | 324 → 400–436 ms | 130 → 163–197 ms | +1 KB | 0 → 0 |
+| /en/founders | 316 → 292–328 ms | 69 → 81–117 ms | +1 KB | 0 → 0 |
+| /en/program | 724 → 760–784 ms | 87 → 68–130 ms | +1 KB | 0 → 0 |
+
+  The branch's two runs moved by as much as the difference from `main` (Program blocking time 130 → 68 ms between runs), so there's no measurable slowdown. Every page stays well under the "good" thresholds (largest content paint under 2.5s, blocking time under 200 ms, layout shift under 0.1). No new JavaScript libraries were added.
+- **Contrast:** checked in Phases 1–3. 0 failures on 10 EN and FR pages.
+
+Original description:
+**Phase 4: polish and QA (1 day).**
+- Contrast check for every text and background pair (target AA 4.5:1, or 3:1 for large text).
+- `prefers-reduced-motion` turns off marquee, tilt, count-up and line-draw.
+- Lighthouse performance stays at or above the current score. Grain and marquee are CSS only, and there are no new JavaScript libraries.
+- French layouts checked, since French runs about 15–20% longer.
+- Visual check at 375, 768, 1280 and 1536px.
+
+**Total: about 6–7 working days.** Each phase ships as its own PR off this branch, with screenshots so the client can approve.
+
+## 6. How we get sign-off without a full rebuild
+1. Build **the hero and one section (Ecosystem bento)** first, on a preview deploy.
+2. Show the client a side-by-side of before and after for the same two sections.
+3. Use one "dial" to calibrate how far to go: the sun highlighter plus offset-shadow CTA (bolder), or only the retuned colors and stickers (gentler). Lock it, then roll out to the rest.
+
+## 7. Questions for the client
+1. Is the **sun yellow** from the logo OK as a highlight color on the site? It's the biggest visible change.
+2. Do we have **short founder clips** (vertical, 10–20s) for a reels strip, or can we cut them from the cohort film?
+3. Should we keep the **"Working theme" tag** on "AI Advantage in Action", or is the theme final?
+4. Does anything in Telecel Group's **brand guidelines** forbid offset shadows or rotated elements?

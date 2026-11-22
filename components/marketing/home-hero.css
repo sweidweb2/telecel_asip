@@ -76,7 +76,8 @@
 }
 
 .home-hero-line {
-  animation: home-hero-line-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Design Brief: 200-500ms, no intro sequence that delays the proposition. */
+  animation: home-hero-line-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Last beat carries the ASIP colour — flat mint, no animated gradient. */

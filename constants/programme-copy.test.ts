@@ -10,11 +10,20 @@ describe("programmeCopyFor", () => {
     expect(en.journey.steps.map((step) => step.id)).toEqual(
       fr.journey.steps.map((step) => step.id),
     );
-    expect(en.journey.steps).toHaveLength(6);
+    // Discover > Build > Test > Accelerate > Scale (Text Pack v2).
+    expect(en.journey.steps.map((step) => step.title)).toEqual([
+      "Discover",
+      "Build",
+      "Test",
+      "Accelerate",
+      "Scale",
+    ]);
     expect(en.value.items.map((item) => item.id)).toEqual(
       fr.value.items.map((item) => item.id),
     );
-    expect(en.value.items).toHaveLength(7);
+    expect(en.value.items).toHaveLength(6);
+    // Cohort-specific criteria are not published until formally confirmed.
+    expect(en.eligibility.items.join(" ")).not.toMatch(/woman|revenue|full-time/i);
     expect(en.eligibility.items).toHaveLength(fr.eligibility.items.length);
 
     expect(en.hero.primaryCta.slug).toBe("register-interest");

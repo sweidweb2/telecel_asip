@@ -42,33 +42,32 @@ export type ContactLabels = {
 };
 
 const EN: ContactLabels = {
-  pageTitle: "Contact us",
-  pageDescription:
-    "Choose a founder, partner, media or general inquiry route and the ASIP team will direct it to the relevant owner.",
-  routesLegend: "Inquiry route",
-  routesHint: "Pick the route that matches your inquiry.",
+  pageTitle: "Start with the right conversation.",
+  pageDescription: "Choose the route that best matches what you need.",
+  routesLegend: "Enquiry route",
+  routesHint: "Choose the route that best matches what you need.",
   routes: [
     {
       id: "founder",
-      label: "Founder inquiry",
+      label: "Founder enquiry",
       microcopy:
-        "Questions about eligibility, applications, cohorts or portfolio support.",
+        "Eligibility, cohort status, applications or founder support.",
     },
     {
       id: "partner",
-      label: "Partner inquiry",
+      label: "Investor / partner enquiry",
       microcopy:
-        "Corporate, investor, technology, development or ecosystem collaboration.",
+        "Portfolio, current activity, technology, investment or commercial collaboration.",
     },
     {
       id: "media",
-      label: "Media inquiry",
+      label: "Media enquiry",
       microcopy:
-        "Interview requests, approved data, founder stories, imagery and event information.",
+        "Approved data, founder stories, interviews, imagery or programme information.",
     },
     {
       id: "general",
-      label: "General inquiry",
+      label: "General enquiry",
       microcopy: "Use when none of the defined routes applies.",
     },
   ],
@@ -79,7 +78,7 @@ const EN: ContactLabels = {
   phoneLabel: "Phone number",
   formTitle: "Send a message",
   formDescription: "Tell us how we can help. We will get back to you shortly.",
-  enquiryTypeLabel: "Inquiry route",
+  enquiryTypeLabel: "Enquiry route",
   nameLabel: "Name",
   namePlaceholder: "Your name",
   phoneFieldLabel: "Phone",
@@ -92,7 +91,7 @@ const EN: ContactLabels = {
   messagePlaceholder: "Write your message (at least 20 characters)",
   submitLabel: "Send message",
   submittingLabel: "Sending…",
-  successToast: "Thank you - your message has been sent.",
+  successToast: "Thank you. Your message has been sent.",
   successTitle: "Thank you",
   successDescription:
     "Your message has been sent. The ASIP team will get back to you shortly.",
@@ -101,29 +100,28 @@ const EN: ContactLabels = {
 };
 
 const FR: ContactLabels = {
-  pageTitle: "Nous contacter",
-  pageDescription:
-    "Choisissez une demande fondateur, partenaire, presse ou générale et l’équipe ASIP la dirigera vers le bon interlocuteur.",
+  pageTitle: "Commencez par la bonne conversation.",
+  pageDescription: "Choisissez le parcours qui correspond le mieux à votre besoin.",
   routesLegend: "Type de demande",
-  routesHint: "Choisissez le parcours qui correspond à votre demande.",
+  routesHint: "Choisissez le parcours qui correspond le mieux à votre besoin.",
   routes: [
     {
       id: "founder",
       label: "Demande fondateur",
       microcopy:
-        "Questions sur l’éligibilité, les candidatures, les cohortes ou l’accompagnement du portefeuille.",
+        "Éligibilité, statut de la cohorte, candidatures ou accompagnement des fondateurs.",
     },
     {
       id: "partner",
-      label: "Demande partenaire",
+      label: "Demande investisseur / partenaire",
       microcopy:
-        "Collaboration entreprise, investisseur, technologie, développement ou écosystème.",
+        "Portefeuille, activité en cours, technologie, investissement ou collaboration commerciale.",
     },
     {
       id: "media",
       label: "Demande presse",
       microcopy:
-        "Demandes d’interview, données validées, histoires de fondateurs, images et informations sur les événements.",
+        "Données validées, histoires de fondateurs, interviews, images ou informations sur le programme.",
     },
     {
       id: "general",
@@ -153,7 +151,7 @@ const FR: ContactLabels = {
   messagePlaceholder: "Écrivez votre message (au moins 20 caractères)",
   submitLabel: "Envoyer le message",
   submittingLabel: "Envoi…",
-  successToast: "Merci - votre message a bien été envoyé.",
+  successToast: "Merci. Votre message a bien été envoyé.",
   successTitle: "Merci",
   successDescription:
     "Votre message a bien été envoyé. L’équipe ASIP vous répondra rapidement.",

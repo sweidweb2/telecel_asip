@@ -36,16 +36,16 @@ function SilkDefs({
   return (
     <defs>
       <linearGradient id={silkGrad} x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#9ad1bf" stopOpacity="0" />
-        <stop offset="35%" stopColor="#9ad1bf" stopOpacity="0.55" />
-        <stop offset="70%" stopColor="#179191" stopOpacity="0.4" />
-        <stop offset="100%" stopColor="#179191" stopOpacity="0" />
+        <stop offset="0%" stopColor="var(--asip-mint)" stopOpacity="0" />
+        <stop offset="35%" stopColor="var(--asip-mint)" stopOpacity="0.55" />
+        <stop offset="70%" stopColor="var(--brand)" stopOpacity="0.4" />
+        <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
       </linearGradient>
       <linearGradient id={silkGold} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#9ad1bf" stopOpacity="0" />
-        <stop offset="40%" stopColor="#f5e6b8" stopOpacity="0.35" />
-        <stop offset="75%" stopColor="#81b764" stopOpacity="0.28" />
-        <stop offset="100%" stopColor="#81b764" stopOpacity="0" />
+        <stop offset="0%" stopColor="var(--asip-mint)" stopOpacity="0" />
+        <stop offset="40%" stopColor="var(--asip-sand)" stopOpacity="0.35" />
+        <stop offset="75%" stopColor="var(--brand-mid)" stopOpacity="0.28" />
+        <stop offset="100%" stopColor="var(--brand-mid)" stopOpacity="0" />
       </linearGradient>
       <filter id={softGlow} x="-20%" y="-40%" width="140%" height="180%">
         <feGaussianBlur stdDeviation="2.2" result="blur" />
@@ -69,19 +69,19 @@ function Motifs({
         <>
           <g
             opacity="0.16"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.25"
             transform="translate(780 48)"
           >
             <polygon points="180,18 342,298 18,298" />
             <polygon points="180,72 292,268 68,268" />
-            <circle cx="180" cy="18" r="3.5" fill="#9ad1bf" stroke="none" />
-            <circle cx="342" cy="298" r="3.5" fill="#9ad1bf" stroke="none" />
-            <circle cx="18" cy="298" r="3.5" fill="#9ad1bf" stroke="none" />
+            <circle cx="180" cy="18" r="3.5" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="342" cy="298" r="3.5" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="18" cy="298" r="3.5" fill="var(--asip-mint)" stroke="none" />
           </g>
           <g
             opacity="0.14"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1"
             strokeDasharray="6 7"
             transform="translate(72 360) rotate(-12)"
@@ -95,7 +95,7 @@ function Motifs({
         <>
           <g
             opacity="0.15"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.2"
             transform="translate(40 40) rotate(8)"
           >
@@ -104,7 +104,7 @@ function Motifs({
           </g>
           <g
             opacity="0.13"
-            stroke="#81b764"
+            stroke="var(--brand-mid)"
             strokeWidth="1"
             strokeDasharray="4 8"
             transform="translate(860 300) rotate(18)"
@@ -116,7 +116,7 @@ function Motifs({
             cy="120"
             r="46"
             opacity="0.12"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1"
           />
         </>
@@ -124,14 +124,14 @@ function Motifs({
     case "constellation":
       return (
         <>
-          <g opacity="0.15" stroke="#9ad1bf" strokeWidth="1.15">
+          <g opacity="0.15" stroke="var(--asip-mint)" strokeWidth="1.15">
             <circle cx="920" cy="160" r="72" />
             <circle cx="920" cy="160" r="42" strokeDasharray="5 6" />
-            <circle cx="920" cy="160" r="3.5" fill="#9ad1bf" stroke="none" />
+            <circle cx="920" cy="160" r="3.5" fill="var(--asip-mint)" stroke="none" />
           </g>
           <g
             opacity="0.12"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1"
             transform="translate(80 380)"
           >
@@ -139,7 +139,7 @@ function Motifs({
             <line x1="90" y1="2" x2="90" y2="178" />
             <line x1="2" y1="90" x2="178" y2="90" />
           </g>
-          <g opacity="0.18" fill="#9ad1bf">
+          <g opacity="0.18" fill="var(--asip-mint)">
             <circle cx="540" cy="90" r="2.5" />
             <circle cx="610" cy="140" r="2" />
             <circle cx="480" cy="150" r="2" />
@@ -152,18 +152,18 @@ function Motifs({
         <>
           <g
             opacity="0.14"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.3"
             transform="translate(620 220) rotate(6)"
           >
             <polygon points="220,20 420,360 20,360" />
-            <circle cx="220" cy="20" r="3.5" fill="#f5e6b8" stroke="none" />
-            <circle cx="420" cy="360" r="3" fill="#9ad1bf" stroke="none" />
-            <circle cx="20" cy="360" r="3" fill="#9ad1bf" stroke="none" />
+            <circle cx="220" cy="20" r="3.5" fill="var(--asip-sand)" stroke="none" />
+            <circle cx="420" cy="360" r="3" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="20" cy="360" r="3" fill="var(--asip-mint)" stroke="none" />
           </g>
           <g
             opacity="0.12"
-            stroke="#81b764"
+            stroke="var(--brand-mid)"
             strokeWidth="1"
             strokeDasharray="7 6"
             transform="translate(60 60) rotate(-22)"
@@ -177,7 +177,7 @@ function Motifs({
         <>
           <g
             opacity="0.14"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.1"
             transform="translate(880 80) rotate(45)"
           >
@@ -186,13 +186,13 @@ function Motifs({
           </g>
           <g
             opacity="0.13"
-            stroke="#179191"
+            stroke="var(--brand)"
             strokeWidth="1"
             transform="translate(80 300) rotate(12)"
           >
             <polygon points="70,0 140,40 140,110 70,150 0,110 0,40" />
           </g>
-          <g opacity="0.16" stroke="#9ad1bf" strokeWidth="1">
+          <g opacity="0.16" stroke="var(--asip-mint)" strokeWidth="1">
             <line x1="400" y1="40" x2="400" y2="200" strokeDasharray="2 6" />
             <line x1="360" y1="80" x2="520" y2="80" strokeDasharray="2 6" />
           </g>
@@ -203,7 +203,7 @@ function Motifs({
         <>
           <g
             opacity="0.14"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.2"
             transform="translate(180 160) rotate(45)"
           >
@@ -212,7 +212,7 @@ function Motifs({
           </g>
           <g
             opacity="0.13"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.15"
             transform="translate(820 280) rotate(-8)"
           >
@@ -223,7 +223,7 @@ function Motifs({
             cy="320"
             r="110"
             opacity="0.1"
-            stroke="#f5e6b8"
+            stroke="var(--asip-sand)"
             strokeWidth="1"
             strokeDasharray="5 9"
           />
@@ -234,24 +234,24 @@ function Motifs({
         <>
           <g
             opacity="0.15"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.25"
             transform="translate(740 40)"
           >
             <polygon points="160,12 300,250 20,250" />
-            <circle cx="160" cy="12" r="3.5" fill="#9ad1bf" stroke="none" />
-            <circle cx="300" cy="250" r="3" fill="#9ad1bf" stroke="none" />
-            <circle cx="20" cy="250" r="3" fill="#9ad1bf" stroke="none" />
+            <circle cx="160" cy="12" r="3.5" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="300" cy="250" r="3" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="20" cy="250" r="3" fill="var(--asip-mint)" stroke="none" />
           </g>
           <g
             opacity="0.12"
-            stroke="#81b764"
+            stroke="var(--brand-mid)"
             strokeWidth="1"
             transform="translate(100 420) rotate(-18)"
           >
             <polygon points="90,8 170,150 10,150" strokeDasharray="6 5" />
           </g>
-          <g opacity="0.14" stroke="#9ad1bf" strokeWidth="1">
+          <g opacity="0.14" stroke="var(--asip-mint)" strokeWidth="1">
             <circle cx="280" cy="140" r="54" />
             <circle cx="280" cy="140" r="28" strokeDasharray="3 5" />
           </g>
@@ -262,18 +262,18 @@ function Motifs({
         <>
           <g
             opacity="0.15"
-            stroke="#9ad1bf"
+            stroke="var(--asip-mint)"
             strokeWidth="1.2"
             transform="translate(700 100) rotate(-6)"
           >
             <polygon points="150,16 280,250 20,250" />
             <polygon points="150,70 230,220 70,220" />
           </g>
-          <g opacity="0.14" stroke="#179191" strokeWidth="1.1">
+          <g opacity="0.14" stroke="var(--brand)" strokeWidth="1.1">
             <path d="M120 480 C220 420, 320 520, 420 460 S580 400, 680 470" />
-            <circle cx="120" cy="480" r="3" fill="#9ad1bf" stroke="none" />
-            <circle cx="420" cy="460" r="2.5" fill="#9ad1bf" stroke="none" />
-            <circle cx="680" cy="470" r="3" fill="#81b764" stroke="none" />
+            <circle cx="120" cy="480" r="3" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="420" cy="460" r="2.5" fill="var(--asip-mint)" stroke="none" />
+            <circle cx="680" cy="470" r="3" fill="var(--brand-mid)" stroke="none" />
           </g>
         </>
       );

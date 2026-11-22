@@ -38,16 +38,16 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/founders",
-          title: "Fondateurs ASIP | Cohortes, secteurs et marchés",
+          title: "Fondateurs ASIP | Portefeuille par secteur et marché",
           description:
-            "Explorez les fondateurs technologiques africains accompagnés par ASIP par cohorte, pays, secteur et résultats.",
+            "Explorez les fondateurs et startups ASIP par pays, secteur et cohorte, avec des histoires et résultats vérifiés.",
         }
       : {
           locale,
           path: "/founders",
-          title: "ASIP Founders | Cohorts, Sectors and Markets",
+          title: "ASIP Founders | Portfolio by Sector & Market",
           description:
-            "Explore African technology founders supported by ASIP across cohorts, countries, sectors and outcomes.",
+            "Explore ASIP founders and startups by country, sector and cohort, with verified company stories and outcomes.",
         },
   );
 }

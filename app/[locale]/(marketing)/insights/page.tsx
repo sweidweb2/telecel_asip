@@ -20,16 +20,16 @@ export async function generateMetadata({
           locale,
           path: "/insights",
           title:
-            "Perspectives ASIP | Récits de fondateurs et avancées du portefeuille",
+            "Perspectives ASIP | Histoires de fondateurs et actualités du programme",
           description:
-            "Lisez des récits de fondateurs, les actualités du portefeuille, les mises à jour du programme et des regards concrets de l’écosystème ASIP.",
+            "Lisez des histoires de fondateurs et du portefeuille, des étapes vérifiées et les actualités récentes du programme ASIP.",
         }
       : {
           locale,
           path: "/insights",
-          title: "ASIP Insights | Founder Stories and Portfolio Progress",
+          title: "ASIP Insights | Founder Stories & Programme Updates",
           description:
-            "Read founder stories, portfolio news, program updates and practical perspectives from across the ASIP ecosystem.",
+            "Read founder and portfolio stories, verified milestones and current ASIP programme updates.",
         },
   );
 }

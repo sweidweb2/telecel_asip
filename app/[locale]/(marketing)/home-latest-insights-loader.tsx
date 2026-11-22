@@ -1,5 +1,5 @@
 import { HomeLatestInsightsSection } from "@/components/marketing/home-latest-insights-section";
-import { homeCopyFor } from "@/constants/home-copy";
+import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 import { getLatestInsights } from "@/data/insights";
 
@@ -16,7 +16,9 @@ export async function HomeLatestInsightsLoader({
   locale,
 }: HomeLatestInsightsLoaderProps) {
   const articles = await getLatestInsights(locale, 8);
-  const copy = homeCopyFor(locale);
+  const copy = homeV2CopyFor(locale);
+  // Only populated, current content: no empty shell on the homepage.
+  if (articles.length === 0) return null;
 
   return (
     <HomeLatestInsightsSection

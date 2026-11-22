@@ -49,22 +49,15 @@ describe("site nav chrome copy", () => {
     expect(frNavLabels().foundersDirectory).toBe("Annuaire");
   });
 
-  it("nests Directory and Alumni under Founders in the nav tree", () => {
+  it("links Founders directly and keeps Alumni out of the nav (Text Pack v2 HOLD)", () => {
     for (const labels of [enNavLabels(), frNavLabels()]) {
-      const founders = labels.items.find(
-        (entry) => isNavGroup(entry) && entry.href.endsWith("/founders"),
+      expect(labels.items.some(isNavGroup)).toBe(false);
+      expect(labels.items.some((entry) => entry.href.endsWith("/founders"))).toBe(
+        true,
       );
-      expect(founders && isNavGroup(founders)).toBe(true);
-      if (!founders || !isNavGroup(founders)) return;
-
-      expect(founders.children.map((child) => child.label)).toEqual([
-        labels.foundersDirectory,
-        "Alumni",
-      ]);
-      expect(founders.children.map((child) => child.href)).toEqual([
-        founders.href,
-        founders.href.replace(/\/founders$/, "/alumni"),
-      ]);
+      expect(labels.items.some((entry) => entry.href.endsWith("/alumni"))).toBe(
+        false,
+      );
     }
   });
 
@@ -82,7 +75,7 @@ describe("site nav chrome copy", () => {
     expect(enNavLabels().items.map((entry) => entry.label)).toEqual([
       "Home",
       "About",
-      "Program",
+      "Programme",
       "Founders",
       "Impact",
       "Partners",

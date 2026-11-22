@@ -46,7 +46,7 @@ export function PartnersPropositionSection({
           </p>
         </div>
 
-        <div className="relative min-h-[16rem] overflow-hidden rounded-sm bg-[#14333b] sm:min-h-[20rem] lg:col-span-7 lg:min-h-[24rem]">
+        <div className="relative min-h-[16rem] overflow-hidden rounded-sm bg-asip-ink sm:min-h-[20rem] lg:col-span-7 lg:min-h-[24rem]">
           <Image
             src="/asip-media/partners-stage.webp"
             alt={stageAlt}
@@ -56,7 +56,7 @@ export function PartnersPropositionSection({
           />
           <div
             aria-hidden
-            className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(20,51,59,0.55)_100%)]"
+            className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,color-mix(in_srgb,var(--asip-ink)_55%,transparent)_100%)]"
           />
         </div>
       </div>

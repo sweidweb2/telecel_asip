@@ -60,7 +60,7 @@ export type ApplyLabels = {
 const EN_REGISTER: ApplyLabels = {
   formTitle: "Register your interest",
   formDescription:
-    "Share a short profile. The ASIP team uses this for updates when the next chapter opens - not as an official application.",
+    "Share a short profile. The ASIP team uses this for updates when the next chapter opens. It is not an official application.",
   nameLabel: "Founder name",
   namePlaceholder: "Your full name",
   roleLabel: "Founder role",
@@ -96,11 +96,11 @@ const EN_REGISTER: ApplyLabels = {
   fitPlaceholder: "",
   fitHint: "",
   consentLabel:
-    "I agree that ASIP may store and use this information to contact me about the program.",
-  commsLabel: "Send me program updates by email.",
+    "I agree that ASIP may store and use this information to contact me about the programme.",
+  commsLabel: "Send me programme updates by email.",
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
-  successToast: "Thank you - your interest has been registered.",
+  successToast: "Thank you. Your interest has been registered.",
   successTitle: "Thank you",
   successDescription:
     "Your interest has been registered. The ASIP team will use this for updates when the next chapter opens.",
@@ -111,7 +111,7 @@ const EN_REGISTER: ApplyLabels = {
 const EN_APPLY: ApplyLabels = {
   formTitle: "Apply to ASIP",
   formDescription:
-    "Official program intake. Complete the full profile so the team can review your venture.",
+    "Official programme intake. Complete the full profile so the team can review your venture.",
   nameLabel: "Founder name",
   namePlaceholder: "Your full name",
   roleLabel: "Founder role",
@@ -144,15 +144,15 @@ const EN_APPLY: ApplyLabels = {
   tractionPlaceholder:
     "Users, revenue, funding, pilots, or other proof points.",
   tractionHint: "20–2000 characters",
-  fitLabel: "Program fit",
+  fitLabel: "Programme fit",
   fitPlaceholder: "Growth needs and why ASIP now.",
   fitHint: "20–2000 characters",
   consentLabel:
     "I agree that ASIP may store and use this information to review my application.",
-  commsLabel: "Send me program updates by email.",
+  commsLabel: "Send me programme updates by email.",
   submitLabel: "Submit application",
   submittingLabel: "Submitting…",
-  successToast: "Thank you - your application has been submitted.",
+  successToast: "Thank you. Your application has been submitted.",
   successTitle: "Thank you",
   successDescription:
     "Your application has been submitted. The ASIP team will review it and follow up when ready.",
@@ -203,7 +203,7 @@ const FR_REGISTER: ApplyLabels = {
   commsLabel: "Recevoir des mises à jour du programme par e-mail.",
   submitLabel: "Envoyer",
   submittingLabel: "Envoi…",
-  successToast: "Merci - votre intérêt a bien été enregistré.",
+  successToast: "Merci. Votre intérêt a bien été enregistré.",
   successTitle: "Merci",
   successDescription:
     "Votre intérêt a bien été enregistré. L’équipe ASIP s’en servira pour les mises à jour lorsque le prochain chapitre ouvrira.",
@@ -255,7 +255,7 @@ const FR_APPLY: ApplyLabels = {
   commsLabel: "Recevoir des mises à jour du programme par e-mail.",
   submitLabel: "Envoyer la candidature",
   submittingLabel: "Envoi…",
-  successToast: "Merci - votre candidature a bien été envoyée.",
+  successToast: "Merci. Votre candidature a bien été envoyée.",
   successTitle: "Merci",
   successDescription:
     "Votre candidature a bien été envoyée. L’équipe ASIP l’examinera et vous contactera le moment venu.",

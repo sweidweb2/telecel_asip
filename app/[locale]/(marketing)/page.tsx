@@ -6,6 +6,10 @@ import { HomePageContent } from "@/components/marketing/home-page-content";
 import { HomeLatestInsightsLoader } from "./home-latest-insights-loader";
 import { getHomeImpactMetrics } from "@/data/impact-metrics";
 import { getOpenApplications } from "@/data/settings";
+import {
+  getActiveStartupFilterOptions,
+  getActiveStartupsPage,
+} from "@/data/startups";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
@@ -23,33 +27,55 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/",
-          title: "ASIP | Fondateurs africains, technologie et impact",
+          title: "ASIP | Fondateurs africains, IA et croissance des startups",
           description:
-            "ASIP, par le Groupe Telecel, soutient les fondateurs technologiques africains avec l’expertise, les voies de capital, l’accès aux marchés et les partenaires pour bâtir et faire croître des entreprises solides.",
+            "Découvrez ASIP, le programme fondateurs du Groupe Telecel pour les entreprises technologiques africaines : expertise concrète, accès aux marchés, preuves du portefeuille et activité IA 2026.",
         }
       : {
           locale,
           path: "/",
-          title: "ASIP | African Founders, Technology & Impact",
+          title: "ASIP | African Founders, AI & Startup Growth",
           description:
-            "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners to build and scale strong businesses.",
+            "Explore ASIP, Telecel Group's founder programme for African technology ventures, with practical expertise, market access, portfolio proof and 2026 AI activity.",
         },
   );
 }
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [metrics, openApplications] = await Promise.all([
+  const [metrics, openApplications, filterOptions, firstPage] =
+    await Promise.all([
     getHomeImpactMetrics(),
     getOpenApplications(),
+    // Map + investor counts are additive: a failed read hides them, not the page.
+    getActiveStartupFilterOptions().catch(() => null),
+    // Founder stories: published portfolio, featured first. Hidden if empty.
+    getActiveStartupsPage(1).catch(() => null),
   ]);
   const intake = intakeCtaFor(locale, openApplications);
+  const portfolioCountries = filterOptions?.countries ?? [];
+  // Featured first; the section then prefers companies with real imagery.
+  const featuredStartups = [...(firstPage?.items ?? [])].sort(
+    (a, b) => Number(b.featured) - Number(a.featured),
+  );
+  // Live counts of the published portfolio (not cleared impact claims).
+  const portfolioStats =
+    firstPage && filterOptions
+      ? {
+          companies: firstPage.total,
+          markets: filterOptions.countries.length,
+          sectors: filterOptions.sectors.length,
+        }
+      : null;
 
   return (
     <HomePageContent
       locale={locale}
       metrics={metrics}
       intake={intake}
+      portfolioCountries={portfolioCountries}
+      featuredStartups={featuredStartups}
+      portfolioStats={portfolioStats}
       latestInsights={
         <Suspense fallback={<HomeLatestInsightsFallback locale={locale} />}>
           <HomeLatestInsightsLoader locale={locale} />

@@ -20,6 +20,8 @@ describe("FAQ marketing copy", () => {
     const text = en.cards
       .map((item) => `${item.title} ${item.description}`)
       .join(" ");
-    expect(text).toMatch(/Register Interest|register interest/i);
+    expect(text).toMatch(/register your interest/i);
+    // No internal implementation language ("navbar", "redirects") in public answers.
+    expect(text).not.toMatch(/navbar|redirect/i);
   });
 });

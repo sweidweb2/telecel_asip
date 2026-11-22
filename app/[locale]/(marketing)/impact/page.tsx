@@ -18,16 +18,16 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/impact",
-          title: "Impact ASIP | Le progrès des fondateurs, avec un dossier",
+          title: "Impact ASIP | Résultats vérifiés des fondateurs",
           description:
-            "Découvrez les résultats d’ASIP, appuyés par des preuves : fondateurs, marchés, emplois, partenariats et impact porté par la technologie.",
+            "Découvrez des résultats ASIP fondés sur des preuves : croissance des entreprises, marchés, partenariats, emplois et usage réel des technologies.",
         }
       : {
           locale,
           path: "/impact",
-          title: "ASIP Impact | Founder progress, with a paper trail",
+          title: "ASIP Impact | Verified Founder Outcomes",
           description:
-            "See evidence-led ASIP outcomes across founders, markets, jobs, partnerships and technology-led impact.",
+            "Explore evidence-led ASIP outcomes across company growth, markets, partnerships, jobs and real-world technology use.",
         },
   );
 }

@@ -60,7 +60,7 @@ export function FaqTabsSection({ copy }: FaqTabsSectionProps) {
           <TabsTrigger
             key={tab.id}
             value={tab.id}
-            className="min-h-9 shrink-0 px-2.5 text-sm sm:px-3"
+            className="min-h-9 shrink-0 px-2.5 text-sm text-foreground/75 sm:px-3"
           >
             {tab.label}
           </TabsTrigger>

@@ -136,57 +136,8 @@
   animation: about-story-float 6s ease-in-out 1s infinite;
 }
 
-.next-chapter-float {
-  animation: about-story-float 5.5s ease-in-out infinite;
-}
-
-.next-chapter-float-delayed {
-  animation: about-story-float 7s ease-in-out 1.2s infinite;
-}
-
-.honeycomb-float {
-  animation: about-story-float 5.8s ease-in-out infinite;
-}
-
-.honeycomb-float-delayed {
-  animation: about-story-float 7.2s ease-in-out 0.9s infinite;
-}
-
-.honeycomb-float-centre {
-  animation: about-story-float 6.4s ease-in-out 0.4s infinite;
-}
-
 .editorial-rule {
   border-top: 1px solid color-mix(in srgb, currentColor 24%, transparent);
-}
-
-.metric-numeral {
-  font-variant-numeric: tabular-nums;
-}
-
-/*
- * Home Module 07→08 seam — mirrored puzzle halves.
- * Same radial strength/size; one anchored at bottom, one at top.
- * Same linear end/start colour (brand-subtle) so the join is continuous.
- */
-.home-module-seam-from {
-  background-image:
-    radial-gradient(
-      120% 80% at 50% 100%,
-      color-mix(in oklab, var(--brand) 14%, transparent),
-      transparent 55%
-    ),
-    linear-gradient(180deg, var(--background) 0%, var(--brand-subtle) 100%);
-}
-
-.home-module-seam-to {
-  background-image:
-    radial-gradient(
-      120% 80% at 50% 0%,
-      color-mix(in oklab, var(--brand) 14%, transparent),
-      transparent 55%
-    ),
-    linear-gradient(180deg, var(--brand-subtle) 0%, var(--background) 70%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -194,20 +145,70 @@
   [data-reveal="section"],
   [data-reveal="media"],
   [data-reveal="fade"],
-  .animate-scroll-horizontal,
-  .animate-scroll-horizontal-reverse,
   .animate-fade-in-up,
   .about-story-fade-up,
   .about-story-underline,
   .about-story-float,
-  .about-story-float-delayed,
-  .next-chapter-float,
-  .next-chapter-float-delayed,
-  .honeycomb-float,
-  .honeycomb-float-delayed,
-  .honeycomb-float-centre {
+  .about-story-float-delayed {
     animation: none !important;
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ── Refresh phase 1: brand accents (components/marketing/brand-accents.tsx) ── */
+
+/* Sun emphasis draws in once; the bar sits low so descenders stay clear. */
+@keyframes asip-emph-draw {
+  from {
+    background-size: 0% var(--asip-emph-size);
+  }
+  to {
+    background-size: 100% var(--asip-emph-size);
+  }
+}
+.asip-emph {
+  background-image: linear-gradient(var(--asip-sun), var(--asip-sun));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% var(--asip-emph-size);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  animation: asip-emph-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+}
+/* Light surfaces: a marker stroke behind the lower half of ink text. */
+.asip-emph--marker {
+  --asip-emph-size: 0.42em;
+  padding-inline: 0.06em;
+  margin-inline: -0.06em;
+  color: var(--asip-ink);
+}
+/* Dark surfaces: a thick bar under light text. */
+.asip-emph--underline {
+  --asip-emph-size: 0.1em;
+  padding-bottom: 0.06em;
+}
+
+/* Spectrum rule draws left to right when it scrolls into view. */
+@keyframes asip-spectrum-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@supports (animation-timeline: view()) {
+  .asip-spectrum-draw {
+    animation: asip-spectrum-draw linear both;
+    animation-range: entry 10% entry 60%;
+    animation-timeline: view();
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asip-emph,
+  .asip-spectrum-draw {
+    animation: none;
   }
 }

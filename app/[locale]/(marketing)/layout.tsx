@@ -27,7 +27,7 @@ export default async function MarketingLayout({
   const footerLabels = footerLabelsFor(locale, openApplications);
 
   return (
-    <div className="flex flex-1 flex-col scheme-light">
+    <div data-marketing className="flex flex-1 flex-col scheme-light">
       <SiteNavbar
         locale={locale}
         labels={navLabelsFor(locale, openApplications)}

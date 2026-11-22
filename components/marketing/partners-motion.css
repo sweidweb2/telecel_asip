@@ -37,7 +37,7 @@
 }
 
 .partner-route::before {
-  background: #dc395f;
+  background: var(--asip-coral);
   content: "";
   inset: 0 auto 0 0;
   position: absolute;

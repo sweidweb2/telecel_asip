@@ -68,7 +68,7 @@ function StoryHeroVisual({ locale }: { locale: Locale }) {
         alt={
           locale === "fr"
             ? "Fondateurs ASIP et communauté du programme"
-            : "ASIP founders and program community"
+            : "ASIP founders and programme community"
         }
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
@@ -91,10 +91,10 @@ export function AboutOurStorySection({
   const rightFeatures = features.slice(2, 4);
 
   return (
-    <section id="our-story" className="relative scroll-mt-20 overflow-visible">
+    <section id="our-story" className="relative scroll-mt-20 overflow-x-clip overflow-y-visible">
       <span
         aria-hidden
-        className="pointer-events-none absolute -left-56 top-8 h-[34rem] w-[30rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(23,145,145,0.08)_0%,rgba(23,145,145,0.035)_42%,transparent_76%)] blur-[52px]"
+        className="pointer-events-none absolute -left-56 top-8 h-[34rem] w-[30rem] rounded-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--brand)_8%,transparent)_0%,color-mix(in_srgb,var(--brand)_3.5%,transparent)_42%,transparent_76%)] blur-[52px]"
       />
       <span
         aria-hidden

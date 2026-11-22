@@ -21,6 +21,8 @@ export const BLOG_STREAM_CATEGORY_LABELS: Record<
 > = {
   "founder-stories": "Founder Stories",
   "portfolio-news": "Portfolio News",
+  // Stored CMS value: existing posts and server validation use this exact
+  // string. The public site shows "Programme Updates" via publicCategoryLabel.
   "programme-updates": "Program Updates",
   "founder-resources": "Founder Resources",
   "partner-perspectives": "Partner Perspectives",
@@ -68,5 +70,11 @@ export function articleMatchesTab(
   tab: BlogTabId,
 ): boolean {
   if (tab === "all") return true;
-  return categories.some((name) => categoryToTabId(name) === tab);
+  // Text Pack v2: founder stories and portfolio news share one public
+  // category ("Founder & Portfolio Stories") until volume justifies a split.
+  const accepts =
+    tab === "founder-stories"
+      ? ["founder-stories", "portfolio-news"]
+      : [tab];
+  return categories.some((name) => accepts.includes(categoryToTabId(name)));
 }

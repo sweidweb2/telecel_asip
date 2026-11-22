@@ -22,18 +22,18 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/register-interest",
-          title: "Manifester votre intérêt | ASIP",
+          title: "Manifester votre intérêt | Cohorte IA ASIP",
           description:
-            "Inscrivez-vous pour recevoir les dates de candidature confirmées d’ASIP, les critères d’éligibilité et les mises à jour du programme dès leur annonce.",
+            "Manifestez votre intérêt pour la prochaine cohorte ASIP et recevez l’éligibilité, les dates et les modalités confirmées dès leur annonce.",
           // Index only while applications are closed; redirects to Apply when open.
           noIndex: openApplications,
         }
       : {
           locale,
           path: "/register-interest",
-          title: "Register Interest | ASIP",
+          title: "Register Interest | ASIP AI Next Cohort",
           description:
-            "Register to receive confirmed ASIP application dates, eligibility criteria and program updates when announced.",
+            "Register interest in the next ASIP cohort and receive confirmed eligibility, dates and application information when announced.",
           noIndex: openApplications,
         },
   );

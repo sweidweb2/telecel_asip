@@ -12,26 +12,22 @@ describe("impactCopyFor", () => {
     );
     expect(en.lenses.rows).toHaveLength(6);
     expect(en.hero.cta.slug).toBe("founders");
-    expect(en.hero.title).toBe("The story is what happened next.");
-    expect(en.progress.eyebrow).toBe("Verified outcomes");
-    expect(en.progress.description.includes("verified founder outcomes")).toBe(
-      true,
-    );
-    expect(fr.progress.eyebrow).toBe("Résultats vérifiés");
+    // Text Pack v2 locked copy.
+    expect(en.hero.title).toBe("Proof, not promises.");
+    expect(en.hero.cta.label).toBe("Explore founder outcomes");
     expect(en.caseStudy.readStory).toBe("Read full story");
-    expect(en.caseStudy.comingSoon).toBe("Founder story coming soon");
-    expect(fr.caseStudy.comingSoon.length).toBeGreaterThan(0);
+    // No "coming soon" placeholder copy ships in English.
+    expect(en.caseStudy.comingSoon).toBe("");
     expect(fr.caseStudy.readStory.length).toBeGreaterThan(0);
-    expect(en.caseStudy.steps.barrier).toBe("Barrier");
+    expect(en.caseStudy.steps.barrier).toBe("The problem");
     expect(fr.caseStudy.steps.outcome.length).toBeGreaterThan(0);
     expect(en.evidenceRule.requirements).toHaveLength(5);
     expect(en.evidenceRule.requirements.map((item) => item.id)).toEqual(
       fr.evidenceRule.requirements.map((item) => item.id),
     );
-    expect(en.evidenceRule.title).toContain("paper trail");
-    expect(fr.hero.title).toBe("L’histoire, c’est ce qui s’est passé ensuite.");
+    expect(en.evidenceRule.title).toBe("How impact is verified.");
     expect(en.ctaSection.slug).toBe("founders");
-    expect(en.ctaSection.label).toBe("Explore founder stories");
+    expect(en.ctaSection.label).toBe("Explore the portfolio");
     expect(fr.hero.title.length).toBeGreaterThan(0);
     expect(fr.hero.cta.label.length).toBeGreaterThan(0);
   });

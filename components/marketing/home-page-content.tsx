@@ -1,26 +1,26 @@
-import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
-import { HomeCohortFilmSection } from "@/components/marketing/home-cohort-film-section";
-import { HomeEcosystemSection } from "@/components/marketing/home-ecosystem-section";
+import { HomeAfricaMap } from "@/components/marketing/home-africa-map";
 import { HomeHero } from "@/components/marketing/home-hero";
-import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
-import { HomeNextChapterSection } from "@/components/marketing/home-next-chapter-section";
-import { HomeOutcomesSection } from "@/components/marketing/home-outcomes-section";
-import { HomeTelecelConnectionSection } from "@/components/marketing/home-telecel-connection-section";
+import {
+  HomeAiAdvantageSection,
+  HomeClosingSection,
+  HomeEcosystemValueSection,
+  HomeFounderStoriesSection,
+  HomeImpactBand,
+  HomePathwaysSection,
+  HomeProofStrip,
+  type PortfolioStats,
+} from "@/components/marketing/home-v2-sections";
+import { MobilePathwayBar } from "@/components/marketing/mobile-pathway-bar";
 import { JsonLd } from "@/components/seo/json-ld";
-import { homeCopyFor } from "@/constants/home-copy";
+import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ImpactMetricPublicItem } from "@/types/impact-metric";
-
-const HomePlatformModelSection = dynamic(() =>
-  import("@/components/marketing/home-platform-model-section").then(
-    (m) => m.HomePlatformModelSection,
-  ),
-);
+import type { StartupPublicListItem } from "@/types/startup";
 
 type HomeImpactMetric = Pick<
   ImpactMetricPublicItem,
@@ -34,17 +34,32 @@ type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
   intake: IntakeCta;
+  /** ISO country codes with active portfolio startups (verified presence). */
+  portfolioCountries: string[];
+  /** Featured, published portfolio companies for founder stories. */
+  featuredStartups: StartupPublicListItem[];
+  /** Live counts of the published portfolio for the investor pathway. */
+  portfolioStats: PortfolioStats | null;
   /** Below-fold insights — owned by the home route so `data/` stays out of components. */
   latestInsights: ReactNode;
 };
 
+/**
+ * Homepage order from the Final Design Brief / Text Pack v2 (08.11.2026):
+ * hero + two routes → 2026 AI Advantage → proof → founder / investor
+ * pathways → founder stories → impact → footprint map → ecosystem →
+ * current activity → closing status CTA.
+ */
 export function HomePageContent({
   locale,
   metrics,
   intake,
+  portfolioCountries,
+  featuredStartups,
+  portfolioStats,
   latestInsights,
 }: HomePageContentProps) {
-  const copy = homeCopyFor(locale);
+  const copy = homeV2CopyFor(locale);
 
   return (
     <main>
@@ -56,7 +71,7 @@ export function HomePageContent({
           alternateName: "ASIP",
           url: localeUrl(locale),
           description:
-            "ASIP by Telecel Group backs African technology founders with expertise, capital pathways, market access and partners.",
+            "ASIP helps ambitious technology founders build stronger companies through practical expertise, market access and an ecosystem of investors, operators and partners.",
           parentOrganization: {
             "@type": "Organization",
             name: "Telecel Group",
@@ -65,36 +80,45 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero
+      <HomeHero copy={copy.hero} continuumAlts={copy.hero.continuumAlts} />
+
+      <HomeAiAdvantageSection locale={locale} copy={copy.ai} intake={intake} />
+
+      <HomeProofStrip copy={copy.proof} metrics={metrics} />
+
+      <HomePathwaysSection
         locale={locale}
-        copy={copy.hero}
-        pathways={copy.pathways}
+        founder={copy.founder}
+        investor={copy.investor}
         intake={intake}
+        stats={portfolioStats}
       />
 
-      <HomeCohortFilmSection copy={copy.cohortFilm} />
-
-      <HomeImpactYearsSection copy={copy.impactYears} metrics={metrics} />
-
-      <HomePlatformModelSection copy={copy.platform} />
-
-      <HomeOutcomesSection
+      <HomeFounderStoriesSection
         locale={locale}
-        copy={copy.outcomes}
-        intake={intake}
+        copy={copy.stories}
+        startups={featuredStartups}
       />
 
-      <HomeEcosystemSection locale={locale} copy={copy.ecosystem} />
+      <HomeImpactBand locale={locale} copy={copy.impact} />
 
-      <HomeTelecelConnectionSection copy={copy.telecel} />
-
-      <HomeNextChapterSection
+      <HomeAfricaMap
         locale={locale}
-        copy={copy.nextChapter}
-        intake={intake}
+        copy={copy.map}
+        portfolioCountries={portfolioCountries}
       />
+
+      <HomeEcosystemValueSection locale={locale} copy={copy.ecosystem} />
 
       {latestInsights}
+
+      <HomeClosingSection locale={locale} copy={copy.closing} intake={intake} />
+
+      <MobilePathwayBar
+        prompt={copy.hero.prompt}
+        investor={{ href: "#investors", label: copy.hero.investor.label }}
+        startup={{ href: "#founders", label: copy.hero.founder.label }}
+      />
     </main>
   );
 }

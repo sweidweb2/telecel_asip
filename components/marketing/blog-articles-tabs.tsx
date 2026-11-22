@@ -70,7 +70,7 @@ export function BlogArticlesTabs({
             <TabsTrigger
               key={item.id}
               value={item.id}
-              className="h-9 flex-none px-3 after:hidden sm:px-3.5"
+              className="h-9 flex-none px-3 text-foreground/75 after:hidden sm:px-3.5"
             >
               {item.label}
             </TabsTrigger>

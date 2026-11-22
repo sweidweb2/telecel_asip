@@ -9,7 +9,7 @@ type ProgrammeJourneySectionProps = {
   copy: ProgrammePageCopy["journey"];
 };
 
-const TAPE_COLORS = ["bg-[#e8d48a]/90", "bg-[#9ad1bf]/85", "bg-[#f5b7b1]/80"] as const;
+const TAPE_COLORS = ["bg-[#e8d48a]/90", "bg-asip-mint/85", "bg-[#f5b7b1]/80"] as const;
 
 const CARD_TILTS = [
   "lg:rotate-[-0.85deg]",
@@ -52,7 +52,7 @@ function PageEdge({ side }: { side: "left" | "right" }) {
     >
       <span
         className={cn(
-          "absolute inset-y-0 w-px bg-[#14333b]/12",
+          "absolute inset-y-0 w-px bg-asip-ink/12",
           side === "left" ? "right-0" : "left-0",
         )}
       />
@@ -70,7 +70,7 @@ function PathCard({
   return (
     <article
       className={cn(
-        "relative rounded-sm border border-[#14333b]/10 bg-[#fffef9] p-4 shadow-[2px_3px_0_rgb(20_51_59/0.08)] transition-transform duration-300 sm:p-5 lg:hover:-translate-y-0.5",
+        "relative rounded-sm border border-asip-ink/10 bg-[#fffef9] p-4 shadow-[2px_3px_0_rgb(20_51_59/0.08)] transition-transform duration-300 sm:p-5 lg:hover:-translate-y-0.5",
         CARD_TILTS[index % CARD_TILTS.length],
       )}
     >
@@ -83,18 +83,18 @@ function PathCard({
       />
       <div className="flex gap-3 sm:gap-4">
         <div
-          className="flex size-12 shrink-0 items-center justify-center rounded-[2px] border border-[#14333b]/10 bg-[#f2f5ef] sm:size-14"
+          className="flex size-12 shrink-0 items-center justify-center rounded-[2px] border border-asip-ink/10 bg-brand-subtle sm:size-14"
           aria-hidden
         >
-          <span className="font-heading text-base font-semibold text-[#179191] sm:text-lg">
+          <span className="font-heading text-base font-semibold text-brand-strong sm:text-lg">
             {padStep(index)}
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-heading text-base font-semibold tracking-tight text-[#14333b] sm:text-lg">
+          <h3 className="font-heading text-base font-semibold tracking-tight text-asip-ink sm:text-lg">
             {step.title}
           </h3>
-          <p className="mt-1.5 text-sm leading-6 text-[#14333b]/72">
+          <p className="mt-1.5 text-sm leading-6 text-asip-ink/72">
             {step.description}
           </p>
         </div>
@@ -139,8 +139,8 @@ function BookPage({
         className={cn(
           "absolute top-5 hidden h-3.5 rounded-[1px] lg:block",
           isLeft
-            ? "left-16 w-16 -rotate-6 bg-[#9ad1bf]/55"
-            : "left-1/2 w-20 -translate-x-1/2 rotate-1 bg-[#14333b]/35",
+            ? "left-16 w-16 -rotate-6 bg-asip-mint/55"
+            : "left-1/2 w-20 -translate-x-1/2 rotate-1 bg-asip-ink/35",
         )}
       />
 
@@ -181,7 +181,7 @@ export function ProgrammeJourneySection({
       className="border-b border-border bg-background"
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="lg:rounded-lg lg:bg-[#f2f5ef] lg:p-1 lg:shadow-[0_18px_40px_-18px_rgb(20_51_59/0.35)] lg:ring-1 lg:ring-[#14333b]/10">
+        <div className="lg:rounded-lg lg:bg-brand-subtle lg:p-1 lg:shadow-[0_18px_40px_-18px_rgb(20_51_59/0.35)] lg:ring-1 lg:ring-asip-ink/10">
           <div className="relative lg:grid lg:grid-cols-2 lg:overflow-hidden lg:rounded-[6px] lg:bg-[#fffef7]">
             <div
               aria-hidden
@@ -201,7 +201,7 @@ export function ProgrammeJourneySection({
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-y-6 left-1/2 z-30 hidden w-px -translate-x-1/2 bg-[#14333b]/10 lg:block"
+              className="pointer-events-none absolute inset-y-6 left-1/2 z-30 hidden w-px -translate-x-1/2 bg-asip-ink/10 lg:block"
             />
 
             <BookPage
@@ -209,7 +209,7 @@ export function ProgrammeJourneySection({
               title={
                 <h2
                   id="programme-journey-heading"
-                  className="max-w-md font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:text-[#14333b] xl:text-4xl"
+                  className="max-w-md font-heading text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl lg:text-asip-ink xl:text-4xl"
                 >
                   {copy.title}
                 </h2>

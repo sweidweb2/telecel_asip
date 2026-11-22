@@ -10,57 +10,35 @@ import type { InsightsPageCopy } from "@/types/marketing-page";
 const en: InsightsPageCopy = {
   hero: {
     eyebrow: "Insights",
-    title: "Stories, signals and lessons from the ecosystem.",
+    title: "From the people building.",
     description:
-      "Founder stories, portfolio progress, program news and practical perspectives from across the ASIP ecosystem.",
+      "Founder stories, portfolio milestones and programme updates from across ASIP. Keep the emphasis on what changed, what was built and what matters now.",
   },
   streams: {
     columns: {
-      stream: "Content stream",
+      stream: "Category",
       purpose: "Purpose",
-      example: "Example headline",
+      example: "",
     },
     rows: [
       {
         id: "founder-stories",
-        stream: "Founder Stories",
-        purpose: "Human, evidence-led stories from the portfolio.",
-        example:
-          "How [Founder] is redesigning access to [service] across [market].",
-      },
-      {
-        id: "portfolio-news",
-        stream: "Portfolio News",
-        purpose:
-          "Verified milestones, partnerships, funding and expansion.",
-        example: "[Startup] enters [market] following [validated milestone].",
+        stream: "Founder & Portfolio Stories",
+        purpose: "Human, evidence-led stories and verified company milestones.",
+        example: "",
       },
       {
         id: "programme-updates",
-        stream: "Program Updates",
-        purpose: "Cohort, application, event and demo-day status.",
-        example: "ASIP opens registration for its next founder cycle.",
-      },
-      {
-        id: "founder-resources",
-        stream: "Founder Resources",
-        purpose: "Practical guides, tools and useful sessions.",
-        example: "What to prepare before your first enterprise pilot.",
-      },
-      {
-        id: "partner-perspectives",
-        stream: "Partner Perspectives",
-        purpose:
-          "Useful expertise from operators and ecosystem partners.",
-        example:
-          "What corporates need before a startup pilot can scale.",
+        stream: "Programme Updates",
+        purpose: "Cohort status, AI Advantage activity, events and application updates.",
+        example: "",
       },
     ],
   },
   updates: {
-    title: "Stay close to the next chapter.",
+    title: "Stay close to what's next.",
     description:
-      "Register for confirmed ASIP program updates, founder stories and ecosystem opportunities.",
+      "Receive confirmed ASIP programme updates, founder stories and relevant ecosystem opportunities.",
     slug: "register-interest",
     label: "Register for updates",
   },
@@ -69,62 +47,21 @@ const en: InsightsPageCopy = {
 const fr: InsightsPageCopy = {
   hero: {
     eyebrow: "Perspectives",
-    title: "Récits, signaux et enseignements de l’écosystème.",
+    title: "De la part de ceux qui construisent.",
     description:
-      "Récits de fondateurs, avancées du portefeuille, actualités du programme et regards concrets de l’écosystème ASIP.",
+      "Histoires de fondateurs, étapes du portefeuille et actualités du programme ASIP, centrées sur ce qui a changé, ce qui a été construit et ce qui compte maintenant.",
   },
   streams: {
-    columns: {
-      stream: "Fil de contenus",
-      purpose: "Objectif",
-      example: "Exemple de titre",
-    },
+    columns: { stream: "Catégorie", purpose: "Objectif", example: "" },
     rows: [
-      {
-        id: "founder-stories",
-        stream: "Récits de fondateurs",
-        purpose:
-          "Récits humains, fondés sur des faits, issus du portefeuille.",
-        example:
-          "Comment [Fondateur] redéfinit l’accès à [service] sur [marché].",
-      },
-      {
-        id: "portfolio-news",
-        stream: "Actualités du portefeuille",
-        purpose:
-          "Étapes vérifiées, partenariats, financements et expansion.",
-        example:
-          "[Startup] entre sur [marché] après [étape validée].",
-      },
-      {
-        id: "programme-updates",
-        stream: "Actualités du programme",
-        purpose:
-          "Statut des cohortes, candidatures, événements et demo days.",
-        example:
-          "ASIP ouvre les inscriptions pour son prochain cycle de fondateurs.",
-      },
-      {
-        id: "founder-resources",
-        stream: "Ressources pour fondateurs",
-        purpose: "Guides pratiques, outils et sessions utiles.",
-        example:
-          "Que préparer avant votre premier pilote en entreprise.",
-      },
-      {
-        id: "partner-perspectives",
-        stream: "Regards de partenaires",
-        purpose:
-          "Expertise utile d’opérateurs et de partenaires de l’écosystème.",
-        example:
-          "Ce dont les entreprises ont besoin avant qu’un pilote startup puisse passer à l’échelle.",
-      },
+      { id: "founder-stories", stream: "Histoires de fondateurs et du portefeuille", purpose: "Des récits humains et fondés sur des preuves, et des étapes vérifiées des entreprises.", example: "" },
+      { id: "programme-updates", stream: "Actualités du programme", purpose: "Statut des cohortes, activité Avantage IA, événements et candidatures.", example: "" },
     ],
   },
   updates: {
-    title: "Restez proche du prochain chapitre.",
+    title: "Restez au plus près de la suite.",
     description:
-      "Inscrivez-vous pour recevoir les actualités confirmées du programme ASIP, les récits de fondateurs et les opportunités de l’écosystème.",
+      "Recevez les actualités confirmées du programme ASIP, des histoires de fondateurs et des opportunités pertinentes de l’écosystème.",
     slug: "register-interest",
     label: "S’inscrire aux actualités",
   },

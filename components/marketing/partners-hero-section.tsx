@@ -28,7 +28,7 @@ export function PartnersHeroSection({
   return (
     <section
       aria-labelledby="partners-hero-heading"
-      className={cn("border-b border-border bg-[#0b1c22]", className)}
+      className={cn("border-b border-border bg-asip-ink-night", className)}
     >
       <div className="relative isolate min-h-[min(78dvh,40rem)] overflow-hidden sm:min-h-[min(72dvh,42rem)]">
         <Image
@@ -42,11 +42,11 @@ export function PartnersHeroSection({
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(105deg,rgba(11,28,34,0.92)_0%,rgba(20,51,59,0.78)_42%,rgba(20,51,59,0.45)_68%,rgba(20,51,59,0.28)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(105deg,color-mix(in_srgb,var(--asip-ink-night)_92%,transparent)_0%,color-mix(in_srgb,var(--asip-ink)_78%,transparent)_42%,color-mix(in_srgb,var(--asip-ink)_45%,transparent)_68%,color-mix(in_srgb,var(--asip-ink)_28%,transparent)_100%)]"
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0b1c22] to-transparent"
+          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-asip-ink-night to-transparent"
         />
 
         <div className="relative z-10 mx-auto flex min-h-[min(78dvh,40rem)] w-full max-w-7xl flex-col justify-end px-4 pb-10 pt-28 sm:min-h-[min(72dvh,42rem)] sm:px-6 sm:pb-12 sm:pt-32 lg:px-8 lg:pb-14">

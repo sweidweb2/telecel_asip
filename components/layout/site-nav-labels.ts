@@ -55,15 +55,14 @@ const HEADER_LEAF_SLUGS = [
 ] as const satisfies readonly PublicPageSlug[];
 
 type HeaderLeafSlug = (typeof HEADER_LEAF_SLUGS)[number];
-type HeaderLabelSlug = HeaderLeafSlug | "founders" | "alumni";
+type HeaderLabelSlug = HeaderLeafSlug | "founders";
 
 const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   en: {
     "": "Home",
     about: "About",
-    program: "Program",
+    program: "Programme",
     founders: "Founders",
-    alumni: "Alumni",
     impact: "Impact",
     partners: "Partners",
     insights: "Insights",
@@ -73,7 +72,6 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
     about: "À propos",
     program: "Programme",
     founders: "Fondateurs",
-    alumni: "Alumni",
     impact: "Impact",
     partners: "Partenaires",
     insights: "Perspectives",
@@ -126,23 +124,8 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
       leaf(locale, ""),
       leaf(locale, "about"),
       leaf(locale, "program"),
-      {
-        kind: "group",
-        href: foundersHref,
-        label: labels.founders,
-        children: [
-          {
-            kind: "link",
-            href: foundersHref,
-            label: chrome.foundersDirectory,
-          },
-          {
-            kind: "link",
-            href: publicPath(locale, "alumni"),
-            label: labels.alumni,
-          },
-        ],
-      },
+      // Alumni stays hidden until its public proposition is approved (Text Pack v2).
+      { kind: "link", href: foundersHref, label: labels.founders },
       leaf(locale, "impact"),
       leaf(locale, "partners"),
       leaf(locale, "insights"),

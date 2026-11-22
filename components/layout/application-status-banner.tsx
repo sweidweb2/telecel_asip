@@ -6,10 +6,10 @@ import { intakeCtaFor } from "@/lib/marketing/intake-cta";
 
 const COPY = {
   en: {
-    open: "Applications for the next ASIP cohort are open.",
+    open: "Applications are open.",
   },
   fr: {
-    open: "Les candidatures pour la prochaine cohorte ASIP sont ouvertes.",
+    open: "Les candidatures sont ouvertes.",
   },
 } as const;
 

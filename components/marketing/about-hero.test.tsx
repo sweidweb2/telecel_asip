@@ -6,7 +6,7 @@ import { AboutHero } from "@/components/marketing/about-hero";
 import { marketingCopyFor } from "@/constants/marketing-copy";
 
 describe("AboutHero", () => {
-  it("renders centered copy, CTA, and decorative focus chips", () => {
+  it("renders the v2 hero copy and CTA", () => {
     const copy = marketingCopyFor("en", "about");
 
     render(
@@ -20,19 +20,12 @@ describe("AboutHero", () => {
     );
 
     expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Supporting the founders who are shaping Africa’s next chapter.",
-      }),
+      screen.getByRole("heading", { level: 1, name: "Started in 2019. Still building." }),
     ).toBeInTheDocument();
     expect(screen.getByText("About ASIP")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Telecel Group Program supporting African founders/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/launched in Barcelona/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Explore the founders" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Knowledge")).toBeInTheDocument();
-    expect(screen.getByText("First cohort · 2021")).toBeInTheDocument();
   });
 });

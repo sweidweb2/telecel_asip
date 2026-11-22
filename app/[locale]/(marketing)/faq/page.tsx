@@ -28,7 +28,7 @@ export async function generateMetadata({
           path: "/faq",
           title: "FAQ - ASIP",
           description:
-            "Answers about the ASIP program, applications, and partnerships.",
+            "Answers about the ASIP programme, applications, and partnerships.",
         },
   );
 }

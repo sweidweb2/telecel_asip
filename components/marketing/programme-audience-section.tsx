@@ -39,13 +39,13 @@ export function ProgrammeAudienceSection({
     <section
       id="audience"
       aria-labelledby="programme-audience-heading"
-      className="relative scroll-mt-24 overflow-hidden border-b border-white/10 bg-[#14333b] text-white"
+      className="relative scroll-mt-24 overflow-hidden border-b border-white/10 bg-asip-ink text-white"
     >
       <HomeTealDotPattern withVignette />
 
       <div
         className={cn(
-          "relative h-64 w-full bg-[#14333b] sm:h-80",
+          "relative h-64 w-full bg-asip-ink sm:h-80",
           "md:absolute md:inset-0 md:h-auto",
           "md:[clip-path:polygon(56%_0,100%_0,100%_100%,72%_100%)]",
         )}
@@ -59,7 +59,7 @@ export function ProgrammeAudienceSection({
           sizes="(max-width: 768px) 100vw, 48vw"
         />
         <div
-          className="absolute inset-0 bg-[#14333b]/35 md:bg-[#14333b]/20"
+          className="absolute inset-0 bg-asip-ink/35 md:bg-asip-ink/20"
           aria-hidden
         />
       </div>

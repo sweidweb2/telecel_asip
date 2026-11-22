@@ -13,7 +13,7 @@ describe("ImpactHero", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "The story is what happened next.",
+        name: "Proof, not promises.",
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(copy.hero.description)).toBeInTheDocument();

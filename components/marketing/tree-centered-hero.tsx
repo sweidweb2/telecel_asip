@@ -5,6 +5,10 @@ import {
   TreeGlyph,
   TreeHeroField,
 } from "@/components/marketing/tree-hero-field";
+import {
+  coralCtaClassName,
+  coralCtaOnDarkClassName,
+} from "@/components/marketing/page-elements";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +62,7 @@ export function TreeCenteredHero({
         "relative isolate overflow-hidden border-b",
         isLight
           ? "border-border bg-background text-foreground"
-          : "border-white/10 bg-[#14333b] text-white",
+          : "border-white/10 bg-asip-ink text-white",
         className,
       )}
     >
@@ -111,7 +115,9 @@ export function TreeCenteredHero({
                   href={primaryCta.href}
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "min-h-11 w-full rounded-full px-8 sm:w-auto",
+                    coralCtaClassName,
+                    "group min-h-11 px-8",
+                    !isLight && coralCtaOnDarkClassName,
                   )}
                 >
                   {primaryCta.label}

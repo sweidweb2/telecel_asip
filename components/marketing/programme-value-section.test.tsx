@@ -5,7 +5,7 @@ import { ProgrammeValueSection } from "@/components/marketing/programme-value-se
 import { programmeCopyFor } from "@/constants/programme-copy";
 
 describe("ProgrammeValueSection", () => {
-  it("renders all seven value items with the section heading", () => {
+  it("renders all six value items with the section heading", () => {
     const copy = programmeCopyFor("en").value;
 
     render(<ProgrammeValueSection copy={copy} />);
@@ -21,7 +21,7 @@ describe("ProgrammeValueSection", () => {
       expect(screen.getByText(item.description)).toBeInTheDocument();
     }
 
-    expect(copy.items).toHaveLength(7);
+    expect(copy.items).toHaveLength(6);
   });
 
   it("renders French titles from program copy", () => {
@@ -33,7 +33,7 @@ describe("ProgrammeValueSection", () => {
       screen.getByRole("heading", { level: 2, name: copy.title }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 3, name: "Expertise pratique" }),
+      screen.getByRole("heading", { level: 3, name: "Expertise concrète" }),
     ).toBeInTheDocument();
   });
 

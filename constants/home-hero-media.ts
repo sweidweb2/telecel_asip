@@ -1,7 +1,7 @@
 /**
  * Ordered stills for the home Founder Continuum hero loop.
  * Soft crossfade only — no video until Telecel-approved footage lands.
- * Localized alts live on `HomePageCopy.hero.continuumAlts` (same order).
+ * Localized alts live on `HomeV2Copy.hero.continuumAlts` (same order).
  */
 export type HomeHeroContinuumSlide = {
   src: string;

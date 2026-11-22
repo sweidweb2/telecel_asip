@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 import type { ImpactPageCopy } from "@/types/marketing-page";
 
 const LENS_PILL_STYLES = [
-  "bg-brand/12 text-brand ring-brand/25",
+  "bg-brand/12 text-brand-strong ring-brand/25",
   "bg-brand-mid/15 text-[#3d6b2f] ring-brand-mid/35",
   "bg-asip-magenta/12 text-[#9a2f78] ring-asip-magenta/25",
   "bg-asip-coral/12 text-[#b02a48] ring-asip-coral/25",
   "bg-asip-ink/10 text-asip-ink ring-asip-ink/20",
-  "bg-brand/12 text-brand ring-brand/25",
+  "bg-brand/12 text-brand-strong ring-brand/25",
 ] as const;
 
 type ImpactLensesSectionProps = {
@@ -26,9 +26,11 @@ export function ImpactLensesSection({ lenses }: ImpactLensesSectionProps) {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             {lenses.title}
           </h2>
-          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-            {lenses.description}
-          </p>
+          {lenses.description ? (
+            <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              {lenses.description}
+            </p>
+          ) : null}
         </header>
 
         <div className="mt-10 overflow-hidden rounded-xl border border-border bg-card sm:mt-12">

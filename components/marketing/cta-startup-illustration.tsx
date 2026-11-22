@@ -218,9 +218,9 @@ export function CtaStartupIllustration({
     >
       <defs>
         <linearGradient id="cta-orbit" x1="506" y1="116" x2="694" y2="30">
-          <stop stopColor="#c14a9b" />
-          <stop offset="0.52" stopColor="#179191" />
-          <stop offset="1" stopColor="#81b764" />
+          <stop stopColor="var(--asip-magenta)" />
+          <stop offset="0.52" stopColor="var(--brand)" />
+          <stop offset="1" stopColor="var(--brand-mid)" />
         </linearGradient>
         <linearGradient id="cta-pillar" x1="0" y1="0" x2="0" y2="1">
           <stop stopColor="#25a3a0" />
@@ -231,17 +231,17 @@ export function CtaStartupIllustration({
             dx="0"
             dy="8"
             stdDeviation="8"
-            floodColor="#14333b"
+            floodColor="var(--asip-ink)"
             floodOpacity="0.12"
           />
         </filter>
       </defs>
-      <Wave points={leftTeal} color="#179191" width={2} />
-      <Wave points={leftPink} color="#c14a9b" width={1.85} opacity={0.9} />
+      <Wave points={leftTeal} color="var(--brand)" width={2} />
+      <Wave points={leftPink} color="var(--asip-magenta)" width={1.85} opacity={0.9} />
       <Wave points={leftBlue} color="#3b82c4" width={1.6} opacity={0.85} />
 
-      <Wave points={rightTeal} color="#179191" width={2} />
-      <Wave points={rightPink} color="#c14a9b" width={1.85} opacity={0.9} />
+      <Wave points={rightTeal} color="var(--brand)" width={2} />
+      <Wave points={rightPink} color="var(--asip-magenta)" width={1.85} opacity={0.9} />
       <Wave points={rightBlue} color="#3b82c4" width={1.6} opacity={0.85} />
 
       <ellipse
@@ -249,7 +249,7 @@ export function CtaStartupIllustration({
         cy="132"
         rx="104"
         ry="10"
-        fill="#14333b"
+        fill="var(--asip-ink)"
         opacity="0.08"
       />
 
@@ -260,8 +260,8 @@ export function CtaStartupIllustration({
           width="156"
           height="78"
           rx="24"
-          fill="#fbfaf6"
-          stroke="#14333b"
+          fill="var(--background)"
+          stroke="var(--asip-ink)"
           strokeOpacity="0.08"
         />
 
@@ -285,23 +285,23 @@ export function CtaStartupIllustration({
         <path
           d="M667 40l9 7-10 5"
           fill="none"
-          stroke="#81b764"
+          stroke="var(--brand-mid)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
         />
 
-        <circle cx="540" cy="94" r="7" fill="#c14a9b" />
-        <circle cx="540" cy="94" r="3" fill="#fbfaf6" />
-        <circle cx="582" cy="78" r="5" fill="#f59e0b" stroke="#fbfaf6" strokeWidth="2" />
-        <circle cx="613" cy="83" r="5" fill="#179191" stroke="#fbfaf6" strokeWidth="2" />
-        <circle cx="647" cy="49" r="5" fill="#81b764" stroke="#fbfaf6" strokeWidth="2" />
+        <circle cx="540" cy="94" r="7" fill="var(--asip-magenta)" />
+        <circle cx="540" cy="94" r="3" fill="var(--background)" />
+        <circle cx="582" cy="78" r="5" fill="#f59e0b" stroke="var(--background)" strokeWidth="2" />
+        <circle cx="613" cy="83" r="5" fill="var(--brand)" stroke="var(--background)" strokeWidth="2" />
+        <circle cx="647" cy="49" r="5" fill="var(--brand-mid)" stroke="var(--background)" strokeWidth="2" />
       </g>
 
-      <circle cx="510" cy="54" r="3" fill="#c14a9b" opacity="0.7" />
-      <circle cx="690" cy="92" r="3" fill="#179191" opacity="0.65" />
-      <circle cx="688" cy="34" r="2" fill="#81b764" opacity="0.8" />
+      <circle cx="510" cy="54" r="3" fill="var(--asip-magenta)" opacity="0.7" />
+      <circle cx="690" cy="92" r="3" fill="var(--brand)" opacity="0.65" />
+      <circle cx="688" cy="34" r="2" fill="var(--brand-mid)" opacity="0.8" />
     </svg>
   );
 }

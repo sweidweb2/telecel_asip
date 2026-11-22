@@ -27,7 +27,7 @@ export async function generateMetadata({
           path: "/alumni",
           title: "Alumni - ASIP",
           description:
-            "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal program.",
+            "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal programme.",
           noIndex: true,
         },
   );

@@ -37,9 +37,11 @@ export function ImpactProgressSection({ copy }: ImpactProgressSectionProps) {
           {copy.title}
         </h2>
 
-        <p className="mt-6 text-lg leading-[1.7] text-muted-foreground sm:mt-7 sm:text-xl sm:leading-[1.75]">
-          {copy.description}
-        </p>
+        {copy.description ? (
+          <p className="mt-6 text-lg leading-[1.7] text-muted-foreground sm:mt-7 sm:text-xl sm:leading-[1.75]">
+            {copy.description}
+          </p>
+        ) : null}
       </div>
     </section>
   );

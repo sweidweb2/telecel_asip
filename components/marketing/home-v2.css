@@ -1,0 +1,68 @@
+/* Home v2 motion: short, purposeful, off under reduced motion. */
+
+/* Faint modular grid behind the AI Advantage module (data/system cue). */
+.home-v2-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--asip-ink) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--asip-ink) 6%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 70% 40%, black 0%, transparent 70%);
+}
+
+/* "Live" dot on the 2026 eyebrow. */
+.home-v2-live {
+  animation: home-v2-pulse 2.4s ease-in-out infinite;
+}
+@keyframes home-v2-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--asip-magenta) 45%, transparent); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+
+/* Signal bars fill once, like a model output resolving. */
+.home-v2-trace {
+  width: 100%;
+  transform-origin: left;
+  animation: home-v2-trace 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes home-v2-trace {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(1); }
+}
+
+/* Map nodes with portfolio presence pulse gently. */
+.home-v2-node[data-active="true"] {
+  animation: home-v2-node 3.2s ease-in-out infinite;
+}
+@keyframes home-v2-node {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.78; }
+}
+
+/* Arrival highlight when a pathway anchor is targeted from the hero. */
+.home-v2-pathway:target h2 {
+  animation: home-v2-arrive 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes home-v2-arrive {
+  from { transform: translateY(12px); opacity: 0.4; }
+  to { transform: none; opacity: 1; }
+}
+
+html:has(#founders) {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-v2-live,
+  .home-v2-trace,
+  .home-v2-node[data-active="true"],
+  .home-v2-pathway:target h2 {
+    animation: none;
+  }
+  html:has(#founders) {
+    scroll-behavior: auto;
+  }
+}

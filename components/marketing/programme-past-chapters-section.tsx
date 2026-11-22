@@ -107,21 +107,21 @@ export function ProgrammePastChaptersSection({
   return (
     <section
       aria-labelledby={titleId}
-      className="border-b border-border bg-[#fbfaf6]"
+      className="border-b border-border bg-background"
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="max-w-2xl">
           <h2
             id={titleId}
-            className="font-heading text-xl font-semibold tracking-tight text-balance text-[#14333b] sm:text-2xl"
+            className="font-heading text-xl font-semibold tracking-tight text-balance text-asip-ink sm:text-2xl"
           >
             {pastTitle}
           </h2>
-          <p className="mt-1 text-sm text-[#14333b]/70 sm:text-base">{note}</p>
+          <p className="mt-1 text-sm text-asip-ink/70 sm:text-base">{note}</p>
         </div>
 
         {cohorts.length === 0 ? (
-          <p className="mt-6 text-sm text-[#14333b]/65">{empty}</p>
+          <p className="mt-6 text-sm text-asip-ink/75">{empty}</p>
         ) : (
           <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:items-stretch lg:gap-8">
             <div className="flex min-w-0 flex-col self-stretch">
@@ -129,7 +129,7 @@ export function ProgrammePastChaptersSection({
                 className="relative min-h-0 flex-1 overflow-hidden"
                 aria-live="polite"
               >
-                <ul className="space-y-0 divide-y divide-[#14333b]/12">
+                <ul className="space-y-0 divide-y divide-asip-ink/12">
                   {pageItems.map((cohort) => {
                     const window = formatCohortWindow(cohort);
                     const isActive = cohort.id === activeId;
@@ -140,10 +140,10 @@ export function ProgrammePastChaptersSection({
                           onClick={() => selectChapter(cohort.id)}
                           className={cn(
                             "group w-full min-h-11 rounded-none px-1 py-2.5 text-left transition-colors duration-200 outline-none",
-                            "focus-visible:bg-[#179191]/8 focus-visible:ring-2 focus-visible:ring-[#179191]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbfaf6]",
+                            "focus-visible:bg-brand/8 focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                             isActive
-                              ? "bg-[#179191]/8"
-                              : "hover:bg-[#14333b]/5",
+                              ? "bg-brand/8"
+                              : "hover:bg-asip-ink/5",
                           )}
                           aria-current={isActive ? "true" : undefined}
                         >
@@ -155,7 +155,7 @@ export function ProgrammePastChaptersSection({
                                 width={160}
                                 height={90}
                                 sizes="96px"
-                                className="hidden aspect-video w-24 shrink-0 rounded-md border border-[#14333b]/10 object-cover sm:block"
+                                className="hidden aspect-video w-24 shrink-0 rounded-md border border-asip-ink/10 object-cover sm:block"
                               />
                             ) : null}
                             <div className="min-w-0 flex-1">
@@ -164,12 +164,12 @@ export function ProgrammePastChaptersSection({
                                   className={cn(
                                     "font-heading text-sm font-semibold tracking-tight sm:text-base",
                                     isActive
-                                      ? "text-[#179191]"
-                                      : "text-[#14333b] group-hover:text-[#179191]",
+                                      ? "text-brand-strong"
+                                      : "text-asip-ink group-hover:text-brand-strong",
                                   )}
                                 >
                                   {cohort.year}
-                                  <span className="font-medium text-[#14333b]">
+                                  <span className="font-medium text-asip-ink">
                                     {" - "}
                                     {cohort.public_label}
                                   </span>
@@ -178,8 +178,8 @@ export function ProgrammePastChaptersSection({
                                   className={cn(
                                     "shrink-0 text-[10px] font-medium tracking-wide uppercase sm:text-xs",
                                     isActive
-                                      ? "text-[#179191]"
-                                      : "text-[#14333b]/55",
+                                      ? "text-brand-strong"
+                                      : "text-asip-ink/75",
                                   )}
                                 >
                                   {programmeStatusLabel(
@@ -189,12 +189,12 @@ export function ProgrammePastChaptersSection({
                                 </span>
                               </div>
                               {window ? (
-                                <p className="mt-0.5 text-xs text-[#14333b]/60">
+                                <p className="mt-0.5 text-xs text-asip-ink/75">
                                   {window}
                                 </p>
                               ) : null}
                               {cohort.summary ? (
-                                <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-[#14333b]/65">
+                                <p className="mt-0.5 line-clamp-1 text-xs leading-snug text-asip-ink/75">
                                   {cohort.summary}
                                 </p>
                               ) : null}
@@ -208,12 +208,12 @@ export function ProgrammePastChaptersSection({
               </div>
 
               {showPager ? (
-                <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#14333b]/12 pt-3">
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-asip-ink/12 pt-3">
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="min-h-11 min-w-11 rounded-full border-[#14333b]/20 bg-transparent text-[#14333b] hover:bg-[#14333b]/5"
+                    className="min-h-11 min-w-11 rounded-full border-asip-ink/20 bg-transparent text-asip-ink hover:bg-asip-ink/5"
                     aria-label={
                       locale === "fr" ? "Chapitres précédents" : "Previous chapters"
                     }
@@ -244,8 +244,8 @@ export function ProgrammePastChaptersSection({
                         className={cn(
                           "h-2.5 rounded-full transition-[width,background-color] duration-300 ease-out",
                           i === page
-                            ? "w-7 bg-[#179191]"
-                            : "w-2.5 bg-[#14333b]/25 hover:bg-[#14333b]/40",
+                            ? "w-7 bg-brand"
+                            : "w-2.5 bg-asip-ink/25 hover:bg-asip-ink/40",
                         )}
                         onClick={() => goToPage(i)}
                       />
@@ -256,7 +256,7 @@ export function ProgrammePastChaptersSection({
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="min-h-11 min-w-11 rounded-full border-[#14333b]/20 bg-transparent text-[#14333b] hover:bg-[#14333b]/5"
+                    className="min-h-11 min-w-11 rounded-full border-asip-ink/20 bg-transparent text-asip-ink hover:bg-asip-ink/5"
                     aria-label={
                       locale === "fr" ? "Chapitres suivants" : "Next chapters"
                     }
@@ -325,7 +325,7 @@ function PastChaptersCards({
             style={{ zIndex: index + 1 }}
             className={cn(
               "group relative flex h-full min-h-[18rem] w-[8.5rem] shrink-0 flex-col overflow-hidden rounded-2xl bg-white p-4 text-left shadow-[0_12px_28px_-16px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] transition-[transform,box-shadow,ring-color] duration-300 ease-out sm:min-h-[20rem] sm:w-[9.5rem] sm:p-5 lg:min-h-0 lg:w-[min(10.5rem,28%)]",
-              "outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbfaf6]",
+              "outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               index > 0 && "-ml-6 sm:-ml-7",
               index % 2 === 0 ? "translate-y-0" : "translate-y-1",
               "hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_32px_-14px_color-mix(in_srgb,var(--asip-ink)_50%,transparent)]",
@@ -348,7 +348,7 @@ function PastChaptersCards({
             <span
               className={cn(
                 "relative font-heading text-2xl font-bold tracking-tight sm:text-3xl",
-                isActive ? "text-brand" : "text-asip-ink",
+                isActive ? "text-brand-strong" : "text-asip-ink",
               )}
             >
               {padIndex(index)}
@@ -362,7 +362,7 @@ function PastChaptersCards({
                   {cohort.public_label}
                 </span>
               </h3>
-              <p className="mt-1.5 line-clamp-5 text-xs leading-relaxed text-asip-ink/60 sm:text-sm">
+              <p className="mt-1.5 line-clamp-5 text-xs leading-relaxed text-asip-ink/75 sm:text-sm">
                 {body}
               </p>
             </div>

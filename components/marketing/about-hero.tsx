@@ -44,7 +44,7 @@ export function AboutHero({
 }: AboutHeroProps) {
   return (
     <section
-      className="about-hero relative isolate flex min-h-[min(64dvh,34rem)] items-center overflow-hidden bg-[#14333b] text-white sm:pt-20"
+      className="about-hero relative isolate flex min-h-[min(64dvh,34rem)] items-center overflow-hidden bg-asip-ink text-white sm:pt-20"
       aria-labelledby="about-hero-title"
     >
       <div className="about-hero__wash pointer-events-none absolute inset-0" aria-hidden />

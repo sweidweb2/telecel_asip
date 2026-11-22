@@ -162,26 +162,6 @@ export type MarketingPageCopy = {
   };
 };
 
-export type HomePlatformStepId =
-  | "discover"
-  | "build"
-  | "connect"
-  | "commercialise"
-  | "scale";
-
-export type HomePartnerRoleId =
-  | "mentors"
-  | "investors"
-  | "corporates"
-  | "technology"
-  | "institutions"
-  | "ecosystem";
-
-export type HomeOutcomeFeatureId =
-  | "businesses"
-  | "markets"
-  | "readiness";
-
 export type HomePageLink = {
   slug: PublicPageSlug;
   label: string;
@@ -256,6 +236,12 @@ export type ProgrammePageCopy = {
     primaryCta: HomePageLink;
     secondaryCta: HomePageLink;
   };
+  /** Text Pack v2 "2026 direction" block; rendered with the AI Advantage module. */
+  aiDirection?: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
   audience: {
     eyebrow: string;
     title: string;
@@ -296,137 +282,6 @@ export type ProgrammePageCopy = {
     description: string;
     slug: PublicPageSlug;
     label: string;
-  };
-};
-
-export type HomeAudiencePathway = {
-  /** Same-page hash (`#founders` / `#investors`) or a public path. */
-  href: string;
-  label: string;
-};
-
-export type HomePageCopy = {
-  /**
-   * Hero-only Founder / Investor entry pathways (Text Pack v2).
-   * Next-chapter CTAs stay on `nextChapter.primaryCta` / `secondaryCta`.
-   */
-  pathways: {
-    /** Accessible name for the CTA group; not a visible "I am" prompt. */
-    groupLabel: string;
-    founder: HomeAudiencePathway;
-    investor: HomeAudiencePathway;
-  };
-  hero: {
-    /** Kept for copy parity; brand lives in site chrome, not the hero lockup. */
-    brand: string;
-    /** Kept for SEO/metadata consumers; not rendered in the hero lockup. */
-    eyebrow: string;
-    /** Kept for copy parity; Telecel endorsement is not rendered in the hero. */
-    endorsement: string;
-    title: string;
-    /** `title` split into reveal beats; the last beat gets the ASIP spectrum accent. */
-    titleLines: string[];
-    description: string;
-    primaryCta: HomePageLink;
-    secondaryCta: HomePageLink;
-    /** Kept for copy parity; next-chapter CTA lives in that section, not the hero. */
-    nextCohort: { label: string; href: string };
-    /**
-     * Accessible labels for `HOME_HERO_CONTINUUM` stills, same order.
-     * The first entry also labels the hero section.
-     */
-    continuumAlts: string[];
-  };
-  /** Home Module 02 — Cohort film (click-to-play; no autoplay download). */
-  cohortFilm: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    /** Accessible label for the play control before the video mounts. */
-    playLabel: string;
-    /** Short visible CTA on the play control. */
-    watchLabel: string;
-    /** Accessible description of the film poster still. */
-    posterAlt: string;
-  };
-  impactYears: {
-    title: string;
-    description: string;
-    metrics: { value: string; label: string }[];
-    notice: string;
-  };
-  platform: {
-    title: string;
-    description: string;
-    steps: {
-      id: HomePlatformStepId;
-      title: string;
-      description: string;
-    }[];
-  };
-  outcomes: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    features: {
-      id: HomeOutcomeFeatureId;
-      title: string;
-      description: string;
-    }[];
-    /** Secondary link to the Impact page. Primary intake CTA is wired via `intakeCtaFor`. */
-    cta: HomePageLink;
-    imageAlt: string;
-    insetAlt: string;
-  };
-  ecosystem: {
-    title: string;
-    description: string;
-    cta: HomePageLink;
-    roles: {
-      id: HomePartnerRoleId;
-      title: string;
-      description: string;
-    }[];
-  };
-  telecel: {
-    title: string;
-    description: string;
-    ctaLabel: string;
-    /** Chat-style user prompt shown above the answer */
-    prompt: string;
-    /** Decorative input placeholder (send links out) */
-    inputPlaceholder: string;
-  };
-  nextChapter: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    /** 2026 applicant criteria, shown as a checklist under the theme. */
-    eligibility: {
-      title: string;
-      items: string[];
-    };
-    /**
-     * 2026 cohort theme. `status: "working"` renders a "working title" tag
-     * until Telecel locks the final wording — swap `name` + flip to "final".
-     */
-    theme: {
-      name: string;
-      status: "working" | "final";
-      statusLabel: string;
-      summary: string;
-    };
-    /** Practical framing of the AI direction — business problem → applied AI → measurable advantage. */
-    pillars: { id: string; label: string; title: string; description: string }[];
-    primaryCta: HomePageLink;
-    secondaryCta: HomePageLink;
-  };
-  latest: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    cta: HomePageLink;
-    empty: string;
   };
 };
 

@@ -35,19 +35,12 @@ function story(
 }
 
 describe("ImpactCaseStudiesSection", () => {
-  it("shows reserved coming-soon seats instead of generic success copy when empty", () => {
-    render(
+  it("renders nothing when there are no published stories (no placeholder shells)", () => {
+    const { container } = render(
       <ImpactCaseStudiesSection locale="en" copy={copy} stories={[]} />,
     );
 
-    expect(
-      screen.getByRole("heading", { level: 2, name: copy.title }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText(copy.comingSoon)).toHaveLength(3);
-    expect(screen.queryByText(copy.body)).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: copy.readStory }),
-    ).not.toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("renders published stories and load more when there are more than three", async () => {

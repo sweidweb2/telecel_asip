@@ -23,16 +23,16 @@ const en: LegalCopy = {
       {
         title: "2. About ASIP",
         paragraphs: [
-          "ASIP is a Telecel Group Program that helps African technology founders test ideas, work with customers and partners, and grow early-stage ventures. Content on this site describes the program for visitors; it is not a binding offer of funding, admission, partnership, or any other commitment unless Telecel Group confirms that in writing.",
-          "Program capacity, eligibility, and chapter timing can change. Status banners and CTAs (Apply vs Register Interest) reflect the current settings on this site; they do not guarantee that a cohort is open or that your submission will be selected.",
+          "ASIP is a Telecel Group Program that helps African technology founders test ideas, work with customers and partners, and grow early-stage ventures. Content on this site describes the programme for visitors; it is not a binding offer of funding, admission, partnership, or any other commitment unless Telecel Group confirms that in writing.",
+          "Programme capacity, eligibility, and chapter timing can change. Status banners and CTAs (Apply vs Register Interest) reflect the current settings on this site; they do not guarantee that a cohort is open or that your submission will be selected.",
         ],
       },
       {
         title: "3. Accounts",
         paragraphs: [
-          "You can create an account with your name, email, and password. Public signup creates a viewer account: you can use signed-in intake forms, not the Editor or Admin panels. Only staff designated by Telecel Group can manage program content and platform operations.",
+          "You can create an account with your name, email, and password. Public signup creates a viewer account: you can use signed-in intake forms, not the Editor or Admin panels. Only staff designated by Telecel Group can manage programme content and platform operations.",
           "You must provide accurate information, keep your credentials secure, and not share your account. You are responsible for activity under your account. There is no self-serve password reset on this site, if you cannot sign in, contact the ASIP team using the details in section 8.",
-          "We may refuse, suspend, or remove access where we reasonably believe these terms have been breached, or where security or program rules require it.",
+          "We may refuse, suspend, or remove access where we reasonably believe these terms have been breached, or where security or programme rules require it.",
         ],
       },
       {
@@ -41,15 +41,15 @@ const en: LegalCopy = {
           "Register Interest and Apply require a signed-in account. Only one intake path is live at a time, based on the site Applications setting:",
           "When applications are closed, Register Interest is available and Apply redirects to Register Interest. Apply submissions are rejected.",
           "When applications are open, Apply is available and Register Interest redirects to Apply. Interest submissions are rejected.",
-          "Register Interest records a short founder and venture profile for updates when the next chapter opens. Apply is the official program intake and asks for additional product, traction, and program-fit detail. Investor accounts use the same routes with investor-specific forms (light interest vs deeper engagement). Submitting either form does not create a contractual right to join ASIP, receive investment, or obtain any other benefit.",
-          "Founder interest registrations and applications are separate tables from investor interests and engagements. Registering interest does not become an application when Apply opens. Duplicate submissions for the same email and organization or company name may be rejected.",
-          "You must confirm the consent checkbox before submit. Optional program-update opt-in is separate. We use Cloudflare Turnstile and rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
+          "Register Interest records a short founder and venture profile for updates when the next chapter opens. Apply is the official programme intake and asks for additional product, traction, and programme-fit detail. Submitting either form does not create a contractual right to join ASIP, receive investment, or obtain any other benefit.",
+          "Interest registrations and applications are separate tables. Registering interest does not become an application when Apply opens. Duplicate submissions for the same email and company name may be rejected.",
+          "You must confirm the consent checkbox before submit. Optional programme-update opt-in is separate. We use Cloudflare Turnstile and rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
         ],
       },
       {
         title: "5. Contact and newsletter",
         paragraphs: [
-          "The Contact form lets you send founder, partner, media, or general inquiries without creating an application. Messages are stored for the ASIP team to review; this site does not automatically email a confirmation to you or forward your message to a public mailbox outside the admin tools.",
+          "The Contact form lets you send founder, partner, media, or general enquiries without creating an application. Messages are stored for the ASIP team to review; this site does not automatically email a confirmation to you or forward your message to a public mailbox outside the admin tools.",
           "Public newsletter signup on Insights is not offered in the current phase. The setting stays off and the server rejects new subscriptions until a later phase after privacy, routing, and ownership are confirmed.",
         ],
       },
@@ -57,13 +57,13 @@ const en: LegalCopy = {
         title: "6. Acceptable use and intellectual property",
         paragraphs: [
           "You agree not to misuse the site, including unauthorized access, disrupting services, scraping content at scale without permission, or submitting unlawful, harmful, or misleading material.",
-          "Program materials, branding, founder stories, insights, and other site content remain the property of Telecel Group, its licensors, or named third parties, and may not be reused commercially without prior written consent.",
+          "Programme materials, branding, founder stories, insights, and other site content remain the property of Telecel Group, its licensors, or named third parties, and may not be reused commercially without prior written consent.",
         ],
       },
       {
         title: "7. Disclaimers and limitation of liability",
         paragraphs: [
-          "The site and program information are provided on an “as is” basis. We do not guarantee uninterrupted availability, error-free content, or any particular outcome for applicants, registrants, or partners.",
+          "The site and programme information are provided on an “as is” basis. We do not guarantee uninterrupted availability, error-free content, or any particular outcome for applicants, registrants, or partners.",
           "To the fullest extent permitted by law, Telecel Group and its affiliates are not liable for indirect, incidental, or consequential losses arising from use of the site. Nothing in these terms excludes liability that cannot be limited under applicable law.",
         ],
       },
@@ -79,24 +79,24 @@ const en: LegalCopy = {
     eyebrow: "Legal",
     title: "Privacy Policy",
     description:
-      "How ASIP collects, uses, stores, and protects personal information on this website and related program services.",
+      "How ASIP collects, uses, stores, and protects personal information on this website and related programme services.",
     lastUpdated: "Last updated: 9 September 2026",
     notice: "",
     sections: [
       {
         title: "1. Who we are",
         paragraphs: [
-          "ASIP (Africa Startup Initiative Program) is operated as part of Telecel Group’s programs. This policy covers the public website, viewer accounts (startup or investor), Register Interest and Apply forms, and Contact. Public newsletter signup is not offered in the current phase.",
+          "ASIP (Africa Startup Initiative Program) is operated as part of Telecel Group’s programmes. This policy covers the public website, viewer accounts, Register Interest and Apply forms, and Contact. Public newsletter signup is not offered in the current phase.",
           `Controller contact for privacy requests: ${CONTACT.email}. Address: ${CONTACT.addressLines.join(" ")}. Phone: ${CONTACT.phone}.`,
         ],
       },
       {
         title: "2. Information we collect",
         paragraphs: [
-          "Account signup: name, email, password, and account type (startup or investor). Password is handled by our authentication provider; we do not store it in plain text on the ASIP application tables.",
-          "Register Interest (signed-in, when applications are closed): for startup accounts, founder name and role, email, phone, country, optional LinkedIn and website, company name and country, sector, optional short note, required consent, and optional communications opt-in. For investor accounts, name, email, optional phone, organization, optional job title and LinkedIn, investor type, optional focus note, required consent, and optional communications opt-in.",
-          "Apply (signed-in, when applications are open): for startup accounts, the same profile fields as Register Interest, plus problem and product description, traction, and program fit. For investor accounts, contact and organization fields, stages, ticket size, sectors, geographies, engagement intent, thesis, optional timeline, referral and message, with required consent and optional communications opt-in.",
-          "Contact (may be anonymous): inquiry type (founder, partner, media, or general), name, email, phone, subject, and message. No separate consent checkbox is required on Contact beyond these terms and this policy.",
+          "Account signup: name, email, and password (password is handled by our authentication provider; we do not store it in plain text on the ASIP application tables).",
+          "Register Interest (signed-in, when applications are closed): founder name and role, email, phone, country, optional LinkedIn and website, company name and country, sector, optional short note, required consent, and optional communications opt-in.",
+          "Apply (signed-in, when applications are open): the same profile fields as Register Interest, plus problem and product description, traction, and programme fit, with required consent and optional communications opt-in.",
+          "Contact (may be anonymous): enquiry type (founder, partner, media, or general), name, email, phone, subject, and message. No separate consent checkbox is required on Contact beyond these terms and this policy.",
           "Newsletter: there is no public signup UI in the current phase; forced or future subscriptions would use email and required consent only when that feature is turned on.",
           "Security and operations: Cloudflare Turnstile tokens for public form abuse protection; limited request metadata such as IP used for short-window rate limiting; and technical data needed to run the site (for example language preference and signed-in session).",
         ],
@@ -104,8 +104,8 @@ const en: LegalCopy = {
       {
         title: "3. How we use information",
         paragraphs: [
-          "We use personal data to operate the site, create and secure accounts, review founder and investor Register Interest and Apply submissions in the admin dashboard, respond to Contact inquiries, improve and protect the service, and meet legal or security obligations. Program-update opt-in on intake forms is recorded for later contact when that channel is active.",
-          "Public form submissions are written to our database for ASIP administrators. This site does not currently send automatic confirmation emails to visitors or CRM syncs from those forms. Admins may export inbox data (for example CSV) for program operations.",
+          "We use personal data to operate the site, create and secure accounts, review Register Interest and Apply submissions in the admin dashboard, respond to Contact enquiries, improve and protect the service, and meet legal or security obligations. Programme-update opt-in on intake forms is recorded for later contact when that channel is active.",
+          "Public form submissions are written to our database for ASIP administrators. This site does not currently send automatic confirmation emails to visitors or CRM syncs from those forms. Admins may export inbox data (for example CSV) for programme operations.",
           "We do not load third-party marketing or advertising analytics scripts on this site today. If that changes, we will update this policy and, where required, ask for consent.",
         ],
       },
@@ -122,7 +122,7 @@ const en: LegalCopy = {
         paragraphs: [
           "We use trusted processors to host and run the product, including our database and authentication provider (Supabase), application hosting, and Cloudflare Turnstile for bot checks, under appropriate agreements. We do not sell your personal data.",
           "Admin users with authorized access can view and manage intake and contact records inside the dashboard. Viewer accounts cannot access other people’s submissions through the admin UI.",
-          "We retain personal data only as long as needed for program administration, security, and legal requirements, then delete or anonymize it where practicable. You can ask us to review retention for your records using the contact details above.",
+          "We retain personal data only as long as needed for programme administration, security, and legal requirements, then delete or anonymise it where practicable. You can ask us to review retention for your records using the contact details above.",
         ],
       },
       {
@@ -135,7 +135,7 @@ const en: LegalCopy = {
       {
         title: "7. Children",
         paragraphs: [
-          "ASIP is aimed at founders and professional contacts. The site is not directed at children, and we do not knowingly collect personal data from children for program intake.",
+          "ASIP is aimed at founders and professional contacts. The site is not directed at children, and we do not knowingly collect personal data from children for programme intake.",
         ],
       },
       {
@@ -185,8 +185,8 @@ const fr: LegalCopy = {
           "Manifester votre intérêt et Postuler exigent un compte connecté. Une seule voie d’admission est active à la fois, selon le réglage Candidatures du site :",
           "Lorsque les candidatures sont fermées, Manifester votre intérêt est disponible et Postuler redirige vers Manifester votre intérêt. Les envois de candidature sont refusés.",
           "Lorsque les candidatures sont ouvertes, Postuler est disponible et Manifester votre intérêt redirige vers Postuler. Les manifestations d’intérêt sont refusées.",
-          "Manifester votre intérêt enregistre un court profil fondateur et entreprise pour les mises à jour à l’ouverture du prochain chapitre. Postuler est l’admission officielle et demande des détails supplémentaires sur le produit, la traction et l’adéquation au programme. Les comptes investisseurs utilisent les mêmes routes avec des formulaires spécifiques (intérêt léger vs engagement approfondi). L’envoi d’un formulaire ne crée aucun droit contractuel d’intégrer ASIP, de recevoir un investissement ou d’obtenir un autre avantage.",
-          "Les manifestations d’intérêt et candidatures fondateurs sont distinctes des intérêts et engagements investisseurs. Une manifestation d’intérêt ne devient pas une candidature à l’ouverture de Postuler. Les doublons pour le même e-mail et la même organisation ou entreprise peuvent être refusés.",
+          "Manifester votre intérêt enregistre un court profil fondateur et entreprise pour les mises à jour à l’ouverture du prochain chapitre. Postuler est l’admission officielle et demande des détails supplémentaires sur le produit, la traction et l’adéquation au programme. L’envoi d’un formulaire ne crée aucun droit contractuel d’intégrer ASIP, de recevoir un investissement ou d’obtenir un autre avantage.",
+          "Les manifestations d’intérêt et les candidatures sont des tables distinctes. Une manifestation d’intérêt ne devient pas une candidature à l’ouverture de Postuler. Les doublons pour le même e-mail et le même nom d’entreprise peuvent être refusés.",
           "Vous devez cocher la case de consentement avant l’envoi. L’opt-in facultatif aux mises à jour du programme est distinct. Nous utilisons Cloudflare Turnstile et des limites de débit pour réduire le spam ; les abus ou envois automatisés massifs peuvent être bloqués.",
         ],
       },
@@ -230,16 +230,16 @@ const fr: LegalCopy = {
       {
         title: "1. Qui nous sommes",
         paragraphs: [
-          "ASIP (Programme africain d’initiative pour les startups) est opéré dans le cadre des programmes du Groupe Telecel. Cette politique couvre le site public, les comptes viewer (startup ou investisseur), les formulaires Manifester votre intérêt et Postuler, et Contact. L’inscription newsletter publique n’est pas proposée dans la phase actuelle.",
+          "ASIP (Programme africain d’initiative pour les startups) est opéré dans le cadre des programmes du Groupe Telecel. Cette politique couvre le site public, les comptes viewer, les formulaires Manifester votre intérêt et Postuler, et Contact. L’inscription newsletter publique n’est pas proposée dans la phase actuelle.",
           `Contact du responsable pour les demandes de confidentialité : ${CONTACT.email}. Adresse : ${CONTACT.addressLines.join(" ")}. Téléphone : ${CONTACT.phone}.`,
         ],
       },
       {
         title: "2. Informations collectées",
         paragraphs: [
-          "Création de compte : nom, e-mail, mot de passe et type de compte (startup ou investisseur). Le mot de passe est géré par notre fournisseur d’authentification ; nous ne le stockons pas en clair dans les tables applicatives ASIP.",
-          "Manifester votre intérêt (connecté, lorsque les candidatures sont fermées) : pour les comptes startup, nom et rôle du fondateur, e-mail, téléphone, pays, LinkedIn et site web facultatifs, nom et pays de l’entreprise, secteur, note courte facultative, consentement obligatoire et opt-in communications facultatif. Pour les comptes investisseurs, nom, e-mail, téléphone facultatif, organisation, titre et LinkedIn facultatifs, type d’investisseur, note d’intérêt facultative, consentement obligatoire et opt-in communications facultatif.",
-          "Postuler (connecté, lorsque les candidatures sont ouvertes) : pour les comptes startup, les mêmes champs de profil que Manifester votre intérêt, plus description du problème et du produit, traction et adéquation au programme. Pour les comptes investisseurs, contact et organisation, stades, taille de ticket, secteurs, géographies, intention d’engagement, thèse, calendrier facultatif, référence et message, avec consentement obligatoire et opt-in communications facultatif.",
+          "Création de compte : nom, e-mail et mot de passe (le mot de passe est géré par notre fournisseur d’authentification ; nous ne le stockons pas en clair dans les tables applicatives ASIP).",
+          "Manifester votre intérêt (connecté, lorsque les candidatures sont fermées) : nom et rôle du fondateur, e-mail, téléphone, pays, LinkedIn et site web facultatifs, nom et pays de l’entreprise, secteur, note courte facultative, consentement obligatoire et opt-in communications facultatif.",
+          "Postuler (connecté, lorsque les candidatures sont ouvertes) : les mêmes champs de profil que Manifester votre intérêt, plus description du problème et du produit, traction et adéquation au programme, avec consentement obligatoire et opt-in communications facultatif.",
           "Contact (peut être anonyme) : type de demande (fondateur, partenaire, presse ou générale), nom, e-mail, téléphone, objet et message. Aucune case de consentement séparée n’est exigée sur Contact au-delà des présentes conditions et de cette politique.",
           "Newsletter : il n’y a pas d’interface publique d’inscription dans la phase actuelle ; des abonnements forcés ou futurs utiliseraient e-mail et consentement obligatoire uniquement lorsque cette fonctionnalité sera activée.",
           "Sécurité et exploitation : jetons Cloudflare Turnstile pour la protection anti-abus des formulaires publics ; métadonnées limitées de requête telles que l’IP pour le rate limiting à court terme ; et données techniques nécessaires au fonctionnement du site (par exemple préférence de langue et session connectée).",
@@ -248,7 +248,7 @@ const fr: LegalCopy = {
       {
         title: "3. Comment nous utilisons les informations",
         paragraphs: [
-          "Nous utilisons les données personnelles pour faire fonctionner le site, créer et sécuriser les comptes, examiner les manifestations d’intérêt et candidatures fondateurs et investisseurs dans le tableau de bord admin, répondre aux demandes Contact, améliorer et protéger le service, et respecter nos obligations légales ou de sécurité. L’opt-in aux mises à jour du programme sur les formulaires d’admission est enregistré pour un contact ultérieur lorsque ce canal sera actif.",
+          "Nous utilisons les données personnelles pour faire fonctionner le site, créer et sécuriser les comptes, examiner les manifestations d’intérêt et candidatures dans le tableau de bord admin, répondre aux demandes Contact, améliorer et protéger le service, et respecter nos obligations légales ou de sécurité. L’opt-in aux mises à jour du programme sur les formulaires d’admission est enregistré pour un contact ultérieur lorsque ce canal sera actif.",
           "Les envois de formulaires publics sont enregistrés dans notre base pour les administrateurs ASIP. Ce site n’envoie actuellement pas d’e-mails de confirmation automatiques aux visiteurs ni de synchronisation CRM depuis ces formulaires. Les admins peuvent exporter les données de boîte de réception (par exemple CSV) pour les opérations du programme.",
           "Nous ne chargeons aujourd’hui aucun script marketing ou d’analyse publicitaire tiers sur ce site. Si cela change, nous mettrons à jour cette politique et, le cas échéant, demanderons votre consentement.",
         ],
