@@ -138,9 +138,14 @@ export function FounderStoryEditorForm({
   const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
     null,
   );
-  const [storedCoverUrl, setStoredCoverUrl] = useState(
-    story?.cover_image_url ?? null,
-  );
+  /** `undefined` = use prop; otherwise local override after remove/upload. */
+  const [coverOverride, setCoverOverride] = useState<
+    string | null | undefined
+  >(undefined);
+  const storedCoverUrl =
+    coverOverride !== undefined
+      ? coverOverride
+      : (story?.cover_image_url ?? null);
 
   const editor = useCmsEditorForm<FounderStoryFormValues, CreateFounderStoryInput>({
     mode,
@@ -164,10 +169,6 @@ export function FounderStoryEditorForm({
     useDebouncedOptionSearch(mode === "create" && optionsEnabled);
 
   const coverPreviewSrc = pendingCoverPreview ?? storedCoverUrl;
-
-  useEffect(() => {
-    setStoredCoverUrl(story?.cover_image_url ?? null);
-  }, [story?.cover_image_url]);
 
   function replacePendingCover(file: File | null) {
     if (pendingCoverPreview) URL.revokeObjectURL(pendingCoverPreview);
@@ -261,7 +262,7 @@ export function FounderStoryEditorForm({
         return;
       }
       replacePendingCover(null);
-      setStoredCoverUrl(null);
+      setCoverOverride(null);
       form.setValue("coverImageUrl", "", { shouldDirty: true });
       toast.success(result.message);
       router.refresh();

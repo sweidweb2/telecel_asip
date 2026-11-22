@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useWatch } from "react-hook-form";
@@ -231,18 +231,19 @@ export function StartupEditorForm({
   const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
     null,
   );
-  const [storedCoverUrl, setStoredCoverUrl] = useState(
-    startup?.details?.cover_image_url ?? null,
-  );
+  /** `undefined` = use prop; otherwise local override after remove/upload. */
+  const [coverOverride, setCoverOverride] = useState<
+    string | null | undefined
+  >(undefined);
+  const storedCoverUrl =
+    coverOverride !== undefined
+      ? coverOverride
+      : (startup?.details?.cover_image_url ?? null);
 
   const status = useWatch({ control: form.control, name: "status" });
   const logoUrl = startup?.logo_url ?? null;
   const previewSrc = pendingLogoPreview ?? logoUrl;
   const coverPreviewSrc = pendingCoverPreview ?? storedCoverUrl;
-
-  useEffect(() => {
-    setStoredCoverUrl(startup?.details?.cover_image_url ?? null);
-  }, [startup?.details?.cover_image_url]);
 
   function onNameChange(value: string) {
     form.setValue("name", value, { shouldDirty: true });
@@ -422,7 +423,7 @@ export function StartupEditorForm({
         return;
       }
       onCoverPicked(null);
-      setStoredCoverUrl(null);
+      setCoverOverride(null);
       form.setValue("details.coverImageUrl", "", { shouldDirty: true });
       toast.success(result.message);
       router.refresh();

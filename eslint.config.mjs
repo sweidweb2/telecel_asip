@@ -15,6 +15,9 @@ const eslintConfig = defineConfig([
     // Cursor / skill scripts are not app source
     ".cursor/**",
     ".github/skills/**",
+    // Playwright HTML report / traces (generated locally)
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

@@ -45,16 +45,10 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
  * The CTA follows `open_applications`: Apply while a cohort is open,
  * Register Interest otherwise. Contact, FAQ, and legal pages live in the footer.
  */
-const HEADER_LEAF_SLUGS = [
-  "",
-  "about",
-  "programme",
-  "impact",
-  "partners",
-  "insights",
-] as const satisfies readonly PublicPageSlug[];
-
-type HeaderLeafSlug = (typeof HEADER_LEAF_SLUGS)[number];
+type HeaderLeafSlug = Extract<
+  PublicPageSlug,
+  "" | "about" | "programme" | "impact" | "partners" | "insights"
+>;
 type HeaderLabelSlug = HeaderLeafSlug | "founders";
 
 const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {

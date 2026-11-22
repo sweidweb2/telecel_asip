@@ -107,7 +107,12 @@ export function CohortEditorForm({
   const [pendingMediaPreview, setPendingMediaPreview] = useState<string | null>(
     null,
   );
-  const [storedMediaUrl, setStoredMediaUrl] = useState(cohort?.media_url ?? null);
+  /** `undefined` = use prop; otherwise local override after remove/upload. */
+  const [mediaOverride, setMediaOverride] = useState<
+    string | null | undefined
+  >(undefined);
+  const storedMediaUrl =
+    mediaOverride !== undefined ? mediaOverride : (cohort?.media_url ?? null);
 
   const editor = useCmsEditorForm<CreateCohortInput>({
     mode,
@@ -262,16 +267,12 @@ export function CohortEditorForm({
         return;
       }
       replacePendingMedia(null);
-      setStoredMediaUrl(null);
+      setMediaOverride(null);
       form.setValue("mediaUrl", "", { shouldDirty: true });
       toast.success(result.message);
       router.refresh();
     });
   }
-
-  useEffect(() => {
-    setStoredMediaUrl(cohort?.media_url ?? null);
-  }, [cohort?.media_url]);
 
   useEffect(() => {
     if (!partnersEnabled) return;
