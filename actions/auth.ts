@@ -261,7 +261,9 @@ export async function signInWithGoogle(
 export async function signOut(): Promise<void> {
   const locale = await getRequestLocale();
   const supabase = await createClient();
-  const { error } = await supabase.auth.signOut();
+  // Local only — "Log out" means this browser. Global would revoke every
+  // session for the user (and flake parallel E2E that share storageState).
+  const { error } = await supabase.auth.signOut({ scope: "local" });
 
   // Still redirect on failure: the local cookies are cleared either way, so
   // leaving the user on the dashboard would be worse than a stale server session.

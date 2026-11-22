@@ -1,5 +1,5 @@
 ---
-description: Vitest for unit/component tests, Playwright for E2E auth and RLS
+description: Vitest for unit/component tests, Playwright for E2E auth and RLS; agents run feature-scoped tests only
 alwaysApply: true
 ---
 
@@ -8,3 +8,14 @@ alwaysApply: true
 - **Vitest** (`npm test`) — unit and component tests. Colocate as `*.test.ts` / `*.test.tsx` next to the code (not under `e2e/`).
 - **Playwright** (`npm run test:e2e`) — real-browser E2E in `e2e/`. Required for auth flows and RLS-dependent behavior (easy to break silently).
 - They do not replace each other. Do not add Jest.
+
+## Agent test runs
+
+Do **not** run the full Vitest suite or full Playwright E2E suite unless the user explicitly asks.
+
+Agents may only run tests tied to the current change:
+
+- Vitest: the colocated `*.test.ts` / `*.test.tsx` for files touched (e.g. `npx vitest run path/to/file.test.ts`)
+- Playwright: the matching `e2e/*.spec.ts` and/or a `-g` filter for the feature under test (e.g. `npx playwright test e2e/public-site.spec.ts -g "alumni"`)
+
+If there is no related test file for the change, do not invent a full-suite run — skip running tests or ask before broadening.

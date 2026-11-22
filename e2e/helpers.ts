@@ -130,40 +130,64 @@ async function loginViaUi(
   });
 }
 
+async function loginWithSavedAuthOrUi(
+  page: Page,
+  authFile: string,
+  email: string,
+  password: string,
+  nextPath: string,
+  options?: { freshSession?: boolean },
+): Promise<void> {
+  const pathRe = new RegExp(nextPath.replace(/\//g, "\\/"));
+
+  if (!options?.freshSession && (await applySavedAuth(page, authFile))) {
+    await page.goto(nextPath, { waitUntil: "domcontentloaded" });
+    // Stale/revoked storage can briefly land off /login then bounce there.
+    try {
+      await expect(page).toHaveURL(pathRe, { timeout: 8_000 });
+      return;
+    } catch {
+      // Fall through to a real UI login.
+    }
+  }
+
+  await loginViaUi(page, email, password, nextPath);
+}
+
 /**
  * Prefer saved storageState from auth.setup; fall back to a full UI login.
+ * Pass `freshSession: true` when the test will log out — shared storageState
+ * tokens must not be the ones revoked.
  */
 export async function loginAsEditor(
   page: Page,
   nextPath = "/dashboard",
+  options?: { freshSession?: boolean },
 ): Promise<void> {
-  if (await applySavedAuth(page, EDITOR_AUTH_FILE)) {
-    await page.goto(nextPath, { waitUntil: "domcontentloaded" });
-    if (!/\/login/.test(page.url())) {
-      await expect(page).toHaveURL(new RegExp(nextPath.replace(/\//g, "\\/")), {
-        timeout: 15_000,
-      });
-      return;
-    }
-  }
-  await loginViaUi(page, e2eEditorEmail, e2eEditorPassword, nextPath);
+  await loginWithSavedAuthOrUi(
+    page,
+    EDITOR_AUTH_FILE,
+    e2eEditorEmail,
+    e2eEditorPassword,
+    nextPath,
+    options,
+  );
 }
 
 /** Sign in as admin and land on an `/admin` path. */
 export async function loginAsAdmin(
   page: Page,
   nextPath = "/admin",
+  options?: { freshSession?: boolean },
 ): Promise<void> {
-  if (await applySavedAuth(page, ADMIN_AUTH_FILE)) {
-    await page.goto(nextPath, { waitUntil: "domcontentloaded" });
-    if (!/\/login/.test(page.url())) {
-      await expect(page).toHaveURL(new RegExp(nextPath.replace(/\//g, "\\/")), {
-        timeout: 15_000,
-      });
-      return;
-    }
-  }
-  await loginViaUi(page, e2eAdminEmail, e2eAdminPassword, nextPath);
+  await loginWithSavedAuthOrUi(
+    page,
+    ADMIN_AUTH_FILE,
+    e2eAdminEmail,
+    e2eAdminPassword,
+    nextPath,
+    options,
+  );
 }
 
 /**

@@ -240,14 +240,16 @@ describe("auth actions", () => {
     );
   });
 
-  it("signs out and redirects to login", async () => {
+  it("signs out locally and redirects to login", async () => {
+    const signOutMock = vi.fn().mockResolvedValue({ error: null });
     createClient.mockResolvedValue({
       auth: {
-        signOut: vi.fn().mockResolvedValue({ error: null }),
+        signOut: signOutMock,
       },
     });
 
     await signOut();
+    expect(signOutMock).toHaveBeenCalledWith({ scope: "local" });
     expect(redirect).toHaveBeenCalled();
   });
 });

@@ -204,7 +204,9 @@ test.describe("auth", () => {
     { tag: "@smoke" },
     async ({ page }) => {
       test.setTimeout(60_000);
-      await loginAsEditor(page, "/dashboard");
+      // Fresh UI session — must not revoke the shared editor storageState
+      // used by parallel smoke workers.
+      await loginAsEditor(page, "/dashboard", { freshSession: true });
       await expect(
         page.getByRole("heading", { name: "Dashboard", exact: true }),
       ).toBeVisible({ timeout: 20_000 });
