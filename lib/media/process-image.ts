@@ -4,9 +4,13 @@ export const IMAGE_PRESETS = {
   blogCover: { maxWidth: 1600 },
   blogAvatar: { maxWidth: 512 },
   startupLogo: { maxWidth: 512 },
+  /** Portfolio profile hero — same ceiling as blog / cohort covers. */
+  startupCover: { maxWidth: 1600 },
   partnerLogo: { maxWidth: 512 },
   /** Programme past-chapters / cohort cards — same ceiling as blog covers. */
   cohortCover: { maxWidth: 1600 },
+  /** Impact case-study / founder story cover. */
+  founderStoryCover: { maxWidth: 1600 },
 } as const;
 
 export type ImagePreset = keyof typeof IMAGE_PRESETS;

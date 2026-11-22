@@ -93,7 +93,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "insights", label: "Insights" },
     ],
     programmeBefore: [
-      { slug: "program", label: "Programme" },
+      { slug: "programme", label: "Programme" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],
@@ -127,7 +127,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "insights", label: "Perspectives" },
     ],
     programmeBefore: [
-      { slug: "program", label: "Le programme" },
+      { slug: "programme", label: "Le programme" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],

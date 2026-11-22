@@ -73,7 +73,7 @@ test.describe("cohorts cms", () => {
     "programme page renders public cohort chapters",
     { tag: "@smoke" },
     async ({ page }) => {
-      await page.goto("/en/program");
+      await page.goto("/en/programme");
       await expect(page.locator("h1").first()).toBeVisible({ timeout: 15_000 });
       await expect(page.locator("header").first()).toBeVisible();
       await expect(page.locator("footer").first()).toBeVisible();

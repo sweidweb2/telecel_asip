@@ -111,10 +111,15 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...legacyRedirectRules(DEFAULT_LOCALE),
-      // Program page renamed from /programme (American English).
+      // Canonical public path is /programme (Text Pack v2). Keep /program as 301.
       {
-        source: "/:locale(en|fr)/programme/:path*",
-        destination: "/:locale/program/:path*",
+        source: "/:locale(en|fr)/program/:path*",
+        destination: "/:locale/programme/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|fr)/program",
+        destination: "/:locale/programme",
         permanent: true,
       },
       // Status pages moved under /error so /[code] no longer clashes with /[locale].

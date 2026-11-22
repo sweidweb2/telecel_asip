@@ -551,7 +551,9 @@ Table startups {
     - "Anyone can read active startups" dropped in 20260903090000
 
     Storage bucket (public read, editor write via is_editor()):
-    - startups — logo images (10 MB)
+    - startups — logo and portfolio cover images (10 MB). Objects under
+      `{startup_id}/` with versioned nanoid WebP paths. Cover URL lives on
+      startup_details.cover_image_url; logo on startups.logo_url.
 
     Trigger: startups_set_updated_at BEFORE UPDATE
     Writes go through create_startup_with_details / update_startup_with_details
@@ -579,7 +581,7 @@ Table startup_details {
   country_code text [note: 'ISO 3166-1 alpha-2; CHECK ^[A-Z]{2}$']
   sector text [note: 'CHECK length <= 100']
   founder_names text[] [not null, default: '{}', note: 'CHECK cardinality <= 12']
-  cover_image_url text [note: 'CHECK length <= 500']
+  cover_image_url text [note: 'Storage bucket startups; CHECK length <= 500; https URL']
   public_outcome text [note: 'CHECK length <= 2000']
   featured boolean [not null, default: false, note: 'Partial unique-style list index WHERE featured']
   image_focal_x numeric [not null, default: 50, note: 'CHECK 0–100']
@@ -595,6 +597,8 @@ Table startup_details {
 
   Note: '''
     RLS enabled. 1:1 extension of startups.
+    cover_image_url is owned by uploadStartupCover / removeStartupCover
+    (versioned WebP in the startups bucket) — form saves must not overwrite it.
 
     Grants:
     - authenticated: SELECT, INSERT, UPDATE, DELETE
@@ -865,7 +869,7 @@ Table founder_stories {
   the_asip_connection text [not null, note: 'CHECK char_length 2..4000']
   where_they_are_now text [not null, note: 'CHECK char_length 2..4000']
   story_title text [note: 'Optional Impact case-study title; CHECK 2..200 when set (20260910170000)']
-  cover_image_url text [note: 'Optional story cover; CHECK length <= 2048 when set (20260910170000)']
+  cover_image_url text [note: 'Storage bucket founder-stories; CHECK length <= 2048 when set (20260910170000)']
   headline_stat text [note: 'Optional headline stat; CHECK length <= 80 when set (20260910170000)']
   founder_quote_text text [note: 'CHECK char_length <= 2000 when set']
   quote_attribution_name text [note: 'Required when quote present; CHECK 2..120']
@@ -906,6 +910,12 @@ Table founder_stories {
     case-study presentation off startup directory metadata.
     Evidence M2M (founder_story_evidence) deferred on purpose for Phase 4
     (evidence_records exists; junction not wired in admin yet).
+
+    Storage:
+    - founder-stories — Impact cover images (10 MB). Objects under
+      `{story_id}/` with versioned nanoid WebP paths. Public SELECT; editor
+      INSERT/UPDATE/DELETE via is_editor() (20261122170000).
+      cover_image_url is owned by uploadFounderStoryCover / removeFounderStoryCover.
 
     Trigger: founder_stories_set_updated_at BEFORE UPDATE
     English-only content phase 1; EN/FR public pages show the same stories.

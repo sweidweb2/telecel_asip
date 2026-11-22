@@ -90,7 +90,11 @@ describe("startups actions", () => {
         error: null,
       });
     const maybeSingle = vi.fn().mockResolvedValue({
-      data: { id: startupId, slug: validCreate.slug, logo_url: null },
+      data: {
+        id: startupId,
+        slug: validCreate.slug,
+        cover_image_url: null,
+      },
       error: null,
     });
     const deleteEq = vi.fn().mockResolvedValue({ error: null });
@@ -100,11 +104,15 @@ describe("startups actions", () => {
       })),
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
+    const storageFrom = vi.fn(() => ({
+      list: vi.fn().mockResolvedValue({ data: [], error: null }),
+      remove: vi.fn().mockResolvedValue({ error: null }),
+    }));
 
     authorizeEditor.mockResolvedValue({
       status: "success",
       userId: "admin-1",
-      supabase: { rpc, from, storage: { from: vi.fn() } },
+      supabase: { rpc, from, storage: { from: storageFrom } },
     });
 
     await expect(createStartup(validCreate)).resolves.toMatchObject({

@@ -22,6 +22,11 @@ export const FOUNDER_STORY_EDITOR_HELP = {
     intro: "Narrative blocks that structure the public founder story.",
     fields: [
       {
+        name: "Cover image",
+        detail:
+          "Optional Impact case-study cover. Uploaded, resized, and stored as WebP.",
+      },
+      {
         name: "The problem",
         detail: "What the founder set out to solve. Shown in the public story layout.",
       },

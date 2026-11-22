@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { Controller, useWatch } from "react-hook-form";
@@ -10,10 +10,13 @@ import { toast } from "sonner";
 import {
   createStartup,
   deleteStartup,
+  removeStartupCover,
   removeStartupLogo,
   updateStartup,
+  uploadStartupCover,
   uploadStartupLogo,
 } from "@/actions/startups";
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
@@ -219,14 +222,27 @@ export function StartupEditorForm({
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(mode === "edit");
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [pendingLogo, setPendingLogo] = useState<File | null>(null);
   const [pendingLogoPreview, setPendingLogoPreview] = useState<string | null>(
     null,
+  );
+  const [pendingCover, setPendingCover] = useState<File | null>(null);
+  const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
+    null,
+  );
+  const [storedCoverUrl, setStoredCoverUrl] = useState(
+    startup?.details?.cover_image_url ?? null,
   );
 
   const status = useWatch({ control: form.control, name: "status" });
   const logoUrl = startup?.logo_url ?? null;
   const previewSrc = pendingLogoPreview ?? logoUrl;
+  const coverPreviewSrc = pendingCoverPreview ?? storedCoverUrl;
+
+  useEffect(() => {
+    setStoredCoverUrl(startup?.details?.cover_image_url ?? null);
+  }, [startup?.details?.cover_image_url]);
 
   function onNameChange(value: string) {
     form.setValue("name", value, { shouldDirty: true });
@@ -249,6 +265,69 @@ export function StartupEditorForm({
     setPendingLogoPreview(URL.createObjectURL(file));
   }
 
+  function onCoverPicked(file: File | null) {
+    if (pendingCoverPreview) URL.revokeObjectURL(pendingCoverPreview);
+    if (!file) {
+      setPendingCover(null);
+      setPendingCoverPreview(null);
+      return;
+    }
+    setPendingCover(file);
+    setPendingCoverPreview(URL.createObjectURL(file));
+  }
+
+  async function uploadPendingLogo(startupId: string): Promise<boolean> {
+    if (!pendingLogo) return true;
+    const formData = new FormData();
+    formData.set("file", pendingLogo);
+    setIsProcessingImage(true);
+    const uploadToast = toast.loading("Processing logo…");
+    try {
+      const upload = await uploadStartupLogo(startupId, formData);
+      if (upload.status === "error") {
+        toast.error(upload.message, { id: uploadToast });
+        return false;
+      }
+      toast.dismiss(uploadToast);
+      onLogoPicked(null);
+      return true;
+    } catch {
+      toast.error(
+        "The logo could not be uploaded. Check that it is under 10 MB and try again.",
+        { id: uploadToast },
+      );
+      return false;
+    } finally {
+      setIsProcessingImage(false);
+    }
+  }
+
+  async function uploadPendingCover(startupId: string): Promise<boolean> {
+    if (!pendingCover) return true;
+    const formData = new FormData();
+    formData.set("file", pendingCover);
+    setIsProcessingImage(true);
+    const uploadToast = toast.loading("Processing cover image…");
+    try {
+      const upload = await uploadStartupCover(startupId, formData);
+      if (upload.status === "error") {
+        toast.error(upload.message, { id: uploadToast });
+        return false;
+      }
+      toast.dismiss(uploadToast);
+      onCoverPicked(null);
+      return true;
+    } catch {
+      toast.error(
+        "The cover image could not be uploaded. Check that it is under 10 MB and try again.",
+        { id: uploadToast },
+      );
+      return false;
+    } finally {
+      setIsProcessingImage(false);
+    }
+  }
+
   function submit(values: StartupFormValues) {
     editor.run(async () => {
       if (mode === "create") {
@@ -264,39 +343,26 @@ export function StartupEditorForm({
           toast.error(result.message);
           return;
         }
-        if (pendingLogo && result.id) {
-          const formData = new FormData();
-          formData.set("file", pendingLogo);
-          setIsProcessingImage(true);
-          const uploadToast = toast.loading("Processing image…");
-          try {
-            const upload = await uploadStartupLogo(result.id, formData);
-            if (upload.status === "error") {
-              toast.error(
-                "Startup created, but the logo could not be processed. Add it from this page.",
-                { id: uploadToast },
-              );
-              router.push(`${ROUTES.portfolio}/${result.id}`);
-              router.refresh();
-              return;
-            }
-            toast.dismiss(uploadToast);
-          } catch {
-            toast.error(
-              "Startup created, but the logo could not be uploaded. Check that it is under 10 MB and add it from this page.",
-              { id: uploadToast },
-            );
-            router.push(`${ROUTES.portfolio}/${result.id}`);
-            router.refresh();
-            return;
-          } finally {
-            setIsProcessingImage(false);
-          }
+        if (!result.id) {
+          toast.success(result.message);
+          router.push(ROUTES.portfolio);
+          router.refresh();
+          return;
         }
+
+        const logoOk = await uploadPendingLogo(result.id);
+        const coverOk = logoOk ? await uploadPendingCover(result.id) : false;
+        if (!logoOk || !coverOk) {
+          toast.error(
+            "Startup created, but an image could not be uploaded. Add it from this page.",
+          );
+          router.push(`${ROUTES.portfolio}/${result.id}`);
+          router.refresh();
+          return;
+        }
+
         toast.success(result.message);
-        router.push(
-          result.id ? `${ROUTES.portfolio}/${result.id}` : ROUTES.portfolio,
-        );
+        router.push(`${ROUTES.portfolio}/${result.id}`);
         router.refresh();
         return;
       }
@@ -315,34 +381,18 @@ export function StartupEditorForm({
         toast.error(result.message);
         return;
       }
-      if (pendingLogo) {
-        const formData = new FormData();
-        formData.set("file", pendingLogo);
-        setIsProcessingImage(true);
-        const uploadToast = toast.loading("Processing image…");
-        try {
-          const upload = await uploadStartupLogo(startup.id, formData);
-          if (upload.status === "error") {
-            toast.error(upload.message, { id: uploadToast });
-            // Fields already saved — clear dirty so only pending logo keeps Save open.
-            form.reset(form.getValues());
-            return;
-          }
-          toast.dismiss(uploadToast);
-          setPendingLogo(null);
-          if (pendingLogoPreview) URL.revokeObjectURL(pendingLogoPreview);
-          setPendingLogoPreview(null);
-        } catch {
-          toast.error(
-            "The logo could not be uploaded. Check that it is under 10 MB and try again.",
-            { id: uploadToast },
-          );
-          form.reset(form.getValues());
-          return;
-        } finally {
-          setIsProcessingImage(false);
-        }
+
+      const logoOk = await uploadPendingLogo(startup.id);
+      if (!logoOk) {
+        form.reset(form.getValues());
+        return;
       }
+      const coverOk = await uploadPendingCover(startup.id);
+      if (!coverOk) {
+        form.reset(form.getValues());
+        return;
+      }
+
       toast.success(result.message);
       form.reset(form.getValues());
       router.refresh();
@@ -363,7 +413,25 @@ export function StartupEditorForm({
     });
   }
 
-  const saveDisabled = editor.submitDisabled(Boolean(pendingLogo));
+  function onRemoveCover() {
+    if (!startup) return;
+    editor.run(async () => {
+      const result = await removeStartupCover(startup.id);
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+      onCoverPicked(null);
+      setStoredCoverUrl(null);
+      form.setValue("details.coverImageUrl", "", { shouldDirty: true });
+      toast.success(result.message);
+      router.refresh();
+    });
+  }
+
+  const saveDisabled = editor.submitDisabled(
+    Boolean(pendingLogo || pendingCover),
+  );
   const saveLabel = mode === "create" ? "Create startup" : "Save changes";
   const pendingLabel = isProcessingImage
     ? "Processing image…"
@@ -428,6 +496,7 @@ export function StartupEditorForm({
         applyClearFormValues(form, defaultsFromStartup());
         setSlugTouched(false);
         onLogoPicked(null);
+        onCoverPicked(null);
       }}
       actions={
         <div className="flex w-full flex-col gap-3">
@@ -762,39 +831,111 @@ export function StartupEditorForm({
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <AdminFormFieldLabel
-                    htmlFor="founderNames"
-                    hint="Comma-separated · max 500"
-                  >
-                    Founder names
-                  </AdminFormFieldLabel>
-                  <Input
-                    id="founderNames"
-                    placeholder="First Founder, Second Founder"
-                    disabled={isPending}
-                    maxLength={500}
-                    className={FIELD}
-                    {...form.register("details.founderNames")}
-                  />
+              <div className="grid gap-2">
+                <AdminFormFieldLabel
+                  htmlFor="founderNames"
+                  hint="Comma-separated · max 500"
+                >
+                  Founder names
+                </AdminFormFieldLabel>
+                <Input
+                  id="founderNames"
+                  placeholder="First Founder, Second Founder"
+                  disabled={isPending}
+                  maxLength={500}
+                  className={FIELD}
+                  {...form.register("details.founderNames")}
+                />
+              </div>
+              <div className="grid gap-3">
+                <AdminFormFieldLabel hint="Optional · JPEG / PNG / WebP / GIF · max 10 MB">
+                  Cover image
+                </AdminFormFieldLabel>
+                <div className="relative aspect-[16/9] w-full max-w-xl overflow-hidden rounded-lg border border-border bg-muted">
+                  {coverPreviewSrc ? (
+                    pendingCoverPreview ? (
+                      // Local blob preview — next/image cannot optimize object URLs.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={coverPreviewSrc}
+                        alt="Cover preview"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={coverPreviewSrc}
+                        alt={startup?.name ?? "Startup cover"}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 36rem"
+                      />
+                    )
+                  ) : (
+                    <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
+                      No cover image yet
+                    </div>
+                  )}
+                  {coverPreviewSrc ? (
+                    <>
+                      <AdminImagePreviewButton
+                        src={coverPreviewSrc}
+                        alt={startup?.name ?? "Startup cover"}
+                        label="View full cover"
+                        disabled={isPending}
+                      />
+                      <AdminClearIconButton
+                        label={
+                          pendingCover
+                            ? "Clear cover selection"
+                            : "Remove cover image"
+                        }
+                        disabled={isPending}
+                        onClick={() => {
+                          if (pendingCover) {
+                            onCoverPicked(null);
+                            return;
+                          }
+                          onRemoveCover();
+                        }}
+                      />
+                    </>
+                  ) : null}
                 </div>
-                <div className="grid gap-2">
-                  <AdminFormFieldLabel
-                    htmlFor="coverImageUrl"
-                    hint={`Optional · http(s) · max ${STARTUP_URL_MAX}`}
-                  >
-                    Cover image URL
-                  </AdminFormFieldLabel>
-                  <UrlInput
-                    id="coverImageUrl"
-                    placeholder="example.com/cover.jpg"
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    if (file && file.size > UPLOAD_MAX_BYTES) {
+                      toast.error("Image must be under 10 MB.");
+                      event.currentTarget.value = "";
+                      return;
+                    }
+                    onCoverPicked(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="min-h-11"
                     disabled={isPending}
-                    maxLength={STARTUP_URL_MAX}
-                    className={FIELD}
-                    {...form.register("details.coverImageUrl")}
-                  />
+                    onClick={() => coverInputRef.current?.click()}
+                  >
+                    <UploadIcon className="size-4" />
+                    {pendingCover || storedCoverUrl
+                      ? "Replace cover"
+                      : "Choose cover"}
+                  </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Optional portfolio hero. On create, the file uploads after the
+                  startup row is saved. Images are resized and stored as WebP in
+                  the startups bucket.
+                </p>
               </div>
               <div className="grid gap-2">
                 <AdminFormFieldLabel

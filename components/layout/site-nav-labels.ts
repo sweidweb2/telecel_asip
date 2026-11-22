@@ -48,7 +48,7 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 const HEADER_LEAF_SLUGS = [
   "",
   "about",
-  "program",
+  "programme",
   "impact",
   "partners",
   "insights",
@@ -61,7 +61,7 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   en: {
     "": "Home",
     about: "About",
-    program: "Programme",
+    programme: "Programme",
     founders: "Founders",
     impact: "Impact",
     partners: "Partners",
@@ -70,7 +70,7 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   fr: {
     "": "Accueil",
     about: "À propos",
-    program: "Programme",
+    programme: "Programme",
     founders: "Fondateurs",
     impact: "Impact",
     partners: "Partenaires",
@@ -123,7 +123,7 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
     items: [
       leaf(locale, ""),
       leaf(locale, "about"),
-      leaf(locale, "program"),
+      leaf(locale, "programme"),
       // Alumni stays hidden until its public proposition is approved (Text Pack v2).
       { kind: "link", href: foundersHref, label: labels.founders },
       leaf(locale, "impact"),

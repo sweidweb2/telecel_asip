@@ -440,7 +440,7 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_startups_updated_at()` |
 
-**How it works:** Keeps `updated_at` current. Active rows are readable by anon/authenticated via RLS; editors CRUD via `is_editor()`. Logos live in Storage bucket `startups`. Related 1:1 row in `public.startup_details` cascades on delete.
+**How it works:** Keeps `updated_at` current. Active rows are readable by anon/authenticated via RLS; editors CRUD via `is_editor()`. Logos and portfolio covers live in Storage bucket `startups` (logo on `startups.logo_url`, cover on `startup_details.cover_image_url`). Related 1:1 row in `public.startup_details` cascades on delete.
 
 ### `public.create_startup_with_details(p_core jsonb, p_details jsonb)`
 
@@ -769,7 +769,7 @@ No triggers. Composite PK `(event_id, startup_id)` with `ON DELETE CASCADE` to b
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_founder_stories_updated_at()` |
 
-**How it works:** Keeps `updated_at` current. No write RPCs — flat table with a unique `startup_id` FK, so `actions/founder-stories.ts` uses plain INSERT/UPDATE/DELETE. Published rows are readable by anon/authenticated; editors CRUD via `is_editor()`. Quote permission for public rendering is an app-layer gate (Phase 6), not RLS.
+**How it works:** Keeps `updated_at` current. No write RPCs — flat table with a unique `startup_id` FK, so `actions/founder-stories.ts` uses plain INSERT/UPDATE/DELETE. Published rows are readable by anon/authenticated; editors CRUD via `is_editor()`. Cover images live in Storage bucket `founder-stories` (`cover_image_url`, versioned WebP under `{story_id}/`; 20261122170000). Quote permission for public rendering is an app-layer gate (Phase 6), not RLS.
 
 ### `public.evidence_records`
 

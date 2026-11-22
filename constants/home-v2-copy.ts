@@ -122,7 +122,7 @@ const en: HomeV2Copy = {
     statusClosed:
       "Applications are not currently open. Register your interest to receive confirmed eligibility, dates and application details when announced.",
     statusOpen: "Applications are open.",
-    founderCta: { slug: "program", label: "Explore the AI Next Cohort" },
+    founderCta: { slug: "programme", label: "Explore the AI Next Cohort" },
     investorCta: { slug: "insights", label: "See 2026 activity" },
     panelLabel: "Where AI earns its place",
     signals: [
@@ -137,7 +137,7 @@ const en: HomeV2Copy = {
     title: "Build what comes next.",
     description:
       "See what ASIP offers, how the founder journey works, what the 2026 AI direction means and how to register for the next cohort.",
-    cta: { slug: "program", label: "Explore the founder journey" },
+    cta: { slug: "programme", label: "Explore the founder journey" },
     steps: ["Discover", "Build", "Test", "Accelerate", "Scale"],
   },
   investor: {
@@ -232,7 +232,7 @@ const fr: HomeV2Copy = {
     statusClosed:
       "Les candidatures ne sont pas ouvertes. Manifestez votre intérêt pour recevoir l’éligibilité, les dates et les modalités confirmées dès leur annonce.",
     statusOpen: "Les candidatures sont ouvertes.",
-    founderCta: { slug: "program", label: "Découvrir la cohorte IA" },
+    founderCta: { slug: "programme", label: "Découvrir la cohorte IA" },
     investorCta: { slug: "insights", label: "Voir l’activité 2026" },
     panelLabel: "Là où l’IA fait ses preuves",
     signals: [
@@ -247,7 +247,7 @@ const fr: HomeV2Copy = {
     title: "Construisez la suite.",
     description:
       "Découvrez ce qu’offre ASIP, le parcours fondateur, l’orientation IA 2026 et comment vous inscrire pour la prochaine cohorte.",
-    cta: { slug: "program", label: "Découvrir le parcours fondateur" },
+    cta: { slug: "programme", label: "Découvrir le parcours fondateur" },
     steps: ["Découvrir", "Construire", "Tester", "Accélérer", "Grandir"],
   },
   investor: {

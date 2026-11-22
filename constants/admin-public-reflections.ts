@@ -138,7 +138,7 @@ export const ADMIN_PUBLIC_REFLECTIONS = {
     surfaces: [
       {
         page: "Program - past chapters",
-        path: "/{locale}/program",
+        path: "/{locale}/programme",
         reflected: true,
         shows:
           "Year, public label, program status, date window, and summary.",

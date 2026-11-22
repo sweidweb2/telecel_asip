@@ -40,7 +40,7 @@ export function AboutNarrativeSections({
   const afterTimeline = [telecel];
 
   return (
-    <div className="flex flex-col gap-14 sm:gap-16 lg:gap-20">
+    <div className="flex flex-col gap-16 sm:gap-20 lg:gap-28">
       <AboutOurStorySection locale={locale} story={narrative.story} />
       {beforeTimeline.map((split) => {
         const block = narrative[split.key];

@@ -33,7 +33,7 @@ export function AboutPageContent({ locale, copy }: AboutPageContentProps) {
       />
 
       {copy.aboutNarrative ? (
-        <Section className="border-t py-14 sm:py-16 lg:py-20">
+        <Section className="border-t bg-background py-16 sm:py-20 lg:py-28">
           <AboutNarrativeSections locale={locale} narrative={copy.aboutNarrative} />
         </Section>
       ) : null}

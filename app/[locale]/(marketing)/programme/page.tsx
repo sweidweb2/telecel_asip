@@ -18,14 +18,14 @@ export async function generateMetadata({
     locale === "fr"
       ? {
           locale,
-          path: "/program",
+          path: "/programme",
           title: "Programme ASIP | Construire l’avantage IA",
           description:
             "Découvrez le fonctionnement d’ASIP, ce que les fondateurs y gagnent, l’orientation IA 2026, l’éligibilité et le statut actuel des candidatures.",
         }
       : {
           locale,
-          path: "/program",
+          path: "/programme",
           title: "ASIP Programme | Building the AI Advantage",
           description:
             "See how ASIP works, what founders gain, the 2026 AI direction, eligibility guidance and current application status.",

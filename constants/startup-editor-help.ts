@@ -16,7 +16,8 @@ export const STARTUP_EDITOR_HELP = {
       },
       {
         name: "Description",
-        detail: "Short company blurb for cards and detail intros.",
+        detail:
+          "Public card proposition: verified 10–18 words on what the company builds. No award fluff or unverified metrics.",
       },
       {
         name: "Status",
@@ -53,8 +54,9 @@ export const STARTUP_EDITOR_HELP = {
         detail: "People credited on the public profile.",
       },
       {
-        name: "Cover image URL",
-        detail: "Optional hero/cover URL for the profile (not the logo upload).",
+        name: "Cover image",
+        detail:
+          "Optional portfolio hero upload (separate from the logo). Resized and stored as WebP.",
       },
       {
         name: "Approved public outcome",

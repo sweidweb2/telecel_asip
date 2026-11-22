@@ -76,7 +76,7 @@ describe("founder-stories actions", () => {
       error: null,
     });
     const existingMaybe = vi.fn().mockResolvedValue({
-      data: { id: storyId },
+      data: { id: storyId, cover_image_url: null },
       error: null,
     });
     const deleteEq = vi.fn().mockResolvedValue({ error: null });
@@ -94,11 +94,15 @@ describe("founder-stories actions", () => {
       })),
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
+    const storageFrom = vi.fn(() => ({
+      list: vi.fn().mockResolvedValue({ data: [], error: null }),
+      remove: vi.fn().mockResolvedValue({ error: null }),
+    }));
 
     authorizeEditor.mockResolvedValue({
       status: "success",
       userId: "admin-1",
-      supabase: { from },
+      supabase: { from, storage: { from: storageFrom } },
     });
 
     await expect(createFounderStory(validCreate)).resolves.toMatchObject({

@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { useRouter } from "nextjs-toploader/app";
+import { UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   createFounderStory,
   deleteFounderStory,
+  removeFounderStoryCover,
   updateFounderStory,
+  uploadFounderStoryCover,
 } from "@/actions/founder-stories";
 import { loadStoryStartupOptions } from "@/actions/admin-pickers";
+import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-button";
 import {
   CmsEditorFrame,
   CmsEditorSaveActions,
@@ -18,6 +23,8 @@ import {
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
+import { AdminImagePreviewButton } from "@/components/dashboard/admin-image-preview-button";
+import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { FounderAttributionTitleInput } from "@/components/founder-stories/founder-attribution-title-input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +39,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { StepperContent } from "@/components/ui/stepper";
 import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help";
+import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
@@ -53,6 +61,8 @@ import {
   type CreateFounderStoryInput,
   type FounderStoryFormValues,
 } from "@/validations/founder-story";
+
+const COVER_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 
 const FOUNDER_STORY_EDITOR_STEPS = [
   {
@@ -122,6 +132,16 @@ export function FounderStoryEditorForm({
   startups: initialStartups = [],
 }: FounderStoryEditorFormProps) {
   const router = useRouter();
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [pendingCover, setPendingCover] = useState<File | null>(null);
+  const [pendingCoverPreview, setPendingCoverPreview] = useState<string | null>(
+    null,
+  );
+  const [storedCoverUrl, setStoredCoverUrl] = useState(
+    story?.cover_image_url ?? null,
+  );
+
   const editor = useCmsEditorForm<FounderStoryFormValues, CreateFounderStoryInput>({
     mode,
     schema: createFounderStorySchema,
@@ -142,6 +162,111 @@ export function FounderStoryEditorForm({
   const [optionsEnabled, setOptionsEnabled] = useState(false);
   const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
     useDebouncedOptionSearch(mode === "create" && optionsEnabled);
+
+  const coverPreviewSrc = pendingCoverPreview ?? storedCoverUrl;
+
+  useEffect(() => {
+    setStoredCoverUrl(story?.cover_image_url ?? null);
+  }, [story?.cover_image_url]);
+
+  function replacePendingCover(file: File | null) {
+    if (pendingCoverPreview) URL.revokeObjectURL(pendingCoverPreview);
+    if (!file) {
+      setPendingCover(null);
+      setPendingCoverPreview(null);
+      return;
+    }
+    setPendingCover(file);
+    setPendingCoverPreview(URL.createObjectURL(file));
+  }
+
+  function handleCoverChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    if (file && file.size > UPLOAD_MAX_BYTES) {
+      toast.error("Image must be under 10 MB.");
+      event.currentTarget.value = "";
+      return;
+    }
+    replacePendingCover(file);
+    event.currentTarget.value = "";
+  }
+
+  async function uploadPendingCover(storyId: string): Promise<boolean> {
+    if (!pendingCover) return true;
+    const formData = new FormData();
+    formData.append("file", pendingCover);
+    setIsProcessingImage(true);
+    const uploadToast = toast.loading("Processing image…");
+    try {
+      const result = await uploadFounderStoryCover(storyId, formData);
+      if (result.status === "error") {
+        toast.error(result.message, { id: uploadToast });
+        return false;
+      }
+      toast.dismiss(uploadToast);
+      replacePendingCover(null);
+      return true;
+    } catch {
+      toast.error(
+        "The image could not be uploaded. Check that it is under 10 MB and try again.",
+        { id: uploadToast },
+      );
+      return false;
+    } finally {
+      setIsProcessingImage(false);
+    }
+  }
+
+  function onSubmit(values: FounderStoryFormValues) {
+    editor.run(async () => {
+      const result =
+        mode === "create"
+          ? await createFounderStory(values)
+          : await updateFounderStory({ ...values, id: story!.id });
+
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+
+      const coverUploaded = result.id
+        ? await uploadPendingCover(result.id)
+        : true;
+
+      if (coverUploaded) {
+        toast.success(result.message);
+      } else {
+        toast.error(
+          mode === "create"
+            ? "Story created, but the image could not be uploaded. Add it from this page."
+            : "Story saved, but the image could not be uploaded. Try again.",
+        );
+      }
+
+      if (mode === "create" && result.id) {
+        router.push(founderStoryEditPath(result.id));
+      } else if (mode === "edit") {
+        form.reset(form.getValues());
+      }
+      router.refresh();
+    });
+  }
+
+  function onRemoveCover() {
+    if (!story) return;
+    editor.run(async () => {
+      const result = await removeFounderStoryCover(story.id);
+      if (result.status === "error") {
+        toast.error(result.message);
+        return;
+      }
+      replacePendingCover(null);
+      setStoredCoverUrl(null);
+      form.setValue("coverImageUrl", "", { shouldDirty: true });
+      toast.success(result.message);
+      router.refresh();
+    });
+  }
 
   useEffect(() => {
     if (mode !== "create" || !optionsEnabled) return;
@@ -184,7 +309,7 @@ export function FounderStoryEditorForm({
     <CmsEditorFrame
       isPending={isPending}
       isDirty={editor.isDirty}
-      onSubmit={editor.handleFormSubmit}
+      onSubmit={form.handleSubmit(onSubmit, editor.onInvalid)}
       steps={FOUNDER_STORY_EDITOR_STEPS}
       step={step}
       onStepChange={setStep}
@@ -214,31 +339,29 @@ export function FounderStoryEditorForm({
           },
           { keepDefaultValues: true },
         );
+        replacePendingCover(null);
       }}
       actions={
-        <CmsEditorSaveActions
-          mode={mode}
-          isPending={isPending}
-          disabled={
-            editor.submitDisabled() ||
-            (mode === "create" && startups.length === 0)
-          }
-          createLabel="Create story"
-          deleteLabel="Delete story"
-          onDelete={() => editor.setDeleteOpen(true)}
-          leading={
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-11 w-full sm:w-auto"
-              disabled={isPending}
-              onClick={() => router.push(ROUTES.founderStories)}
-            >
-              Cancel
-            </Button>
-          }
-          trailing={
-            mode === "edit" ? (
+        <div className="flex w-full flex-col gap-3">
+          <AdminImageProcessingBanner active={isProcessingImage} />
+          <CmsEditorSaveActions
+            mode={mode}
+            isPending={isPending}
+            pendingLabel={
+              isProcessingImage
+                ? "Processing image…"
+                : mode === "create"
+                  ? "Creating…"
+                  : "Saving…"
+            }
+            disabled={
+              editor.submitDisabled(Boolean(pendingCover)) ||
+              (mode === "create" && startups.length === 0)
+            }
+            createLabel="Create story"
+            deleteLabel="Delete story"
+            onDelete={() => editor.setDeleteOpen(true)}
+            leading={
               <Button
                 type="button"
                 variant="outline"
@@ -248,9 +371,22 @@ export function FounderStoryEditorForm({
               >
                 Cancel
               </Button>
-            ) : undefined
-          }
-        />
+            }
+            trailing={
+              mode === "edit" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11 w-full sm:w-auto"
+                  disabled={isPending}
+                  onClick={() => router.push(ROUTES.founderStories)}
+                >
+                  Cancel
+                </Button>
+              ) : undefined
+            }
+          />
+        </div>
       }
       deleteDialog={{
         open: editor.deleteOpen,
@@ -374,15 +510,92 @@ export function FounderStoryEditorForm({
                 help={FOUNDER_STORY_EDITOR_HELP.storyModules}
                 contentClassName="grid gap-4"
               >
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="grid gap-2 md:col-span-2">
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
                       <AdminFormFieldLabel htmlFor="storyTitle">Impact story title</AdminFormFieldLabel>
                       <Input id="storyTitle" disabled={isPending} maxLength={200} placeholder="A result-led editorial headline" {...register("storyTitle")} />
                       <AdminFieldError message={errors.storyTitle?.message} />
                     </div>
-                    <div className="grid gap-2">
-                      <AdminFormFieldLabel htmlFor="coverImageUrl">Impact cover image URL</AdminFormFieldLabel>
-                      <Input id="coverImageUrl" disabled={isPending} maxLength={2048} placeholder="https://…" {...register("coverImageUrl")} />
+                    <div className="grid gap-3">
+                      <AdminFormFieldLabel hint="Optional · JPEG / PNG / WebP / GIF · max 10 MB">
+                        Impact cover image
+                      </AdminFormFieldLabel>
+                      <div className="relative aspect-[16/9] w-full max-w-xl overflow-hidden rounded-lg border border-border bg-muted">
+                        {coverPreviewSrc ? (
+                          pendingCoverPreview ? (
+                            // Local blob preview — next/image cannot optimize object URLs.
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={coverPreviewSrc}
+                              alt="Cover preview"
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={coverPreviewSrc}
+                              alt={story?.story_title ?? "Founder story cover"}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 1024px) 100vw, 36rem"
+                            />
+                          )
+                        ) : (
+                          <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
+                            No cover image yet
+                          </div>
+                        )}
+                        {coverPreviewSrc ? (
+                          <>
+                            <AdminImagePreviewButton
+                              src={coverPreviewSrc}
+                              alt={story?.story_title ?? "Founder story cover"}
+                              label="View full cover"
+                              disabled={isPending}
+                            />
+                            <AdminClearIconButton
+                              label={
+                                pendingCover
+                                  ? "Clear image selection"
+                                  : "Remove cover image"
+                              }
+                              disabled={isPending}
+                              onClick={() => {
+                                if (pendingCover) {
+                                  replacePendingCover(null);
+                                  return;
+                                }
+                                onRemoveCover();
+                              }}
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept={COVER_ACCEPT}
+                        className="sr-only"
+                        onChange={handleCoverChange}
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="min-h-11"
+                          disabled={isPending}
+                          onClick={() => coverInputRef.current?.click()}
+                        >
+                          <UploadIcon className="size-4" />
+                          {pendingCover || storedCoverUrl
+                            ? "Replace cover"
+                            : "Choose cover"}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Optional. On create, the file uploads after the story row
+                        is saved. Images are resized and stored as WebP in the
+                        founder-stories bucket.
+                      </p>
                     </div>
                     <div className="grid gap-2">
                       <AdminFormFieldLabel htmlFor="headlineStat">Headline stat</AdminFormFieldLabel>

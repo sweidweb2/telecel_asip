@@ -76,7 +76,7 @@ export type MarketingContentSlug = Exclude<
   | "insights"
   | "terms"
   | "privacy"
-  | "program"
+  | "programme"
   | "impact"
   | "alumni"
   | "partners"

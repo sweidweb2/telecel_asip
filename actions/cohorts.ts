@@ -66,8 +66,8 @@ function refreshCohortPaths(id?: string) {
     cacheTags: resource.cacheTags,
   });
   // Related insight links are tagged with COHORTS_CACHE_TAG already — no blogs tag.
-  revalidatePath("/en/program");
-  revalidatePath("/fr/program");
+  revalidatePath("/en/programme");
+  revalidatePath("/fr/programme");
 }
 
 function writeErrorMessage(error: { code?: string; message?: string }): string {
