@@ -4,6 +4,8 @@ import { gateEditorPageData } from "@/lib/admin/admin-list-query";
 export type DashboardInboxUnread = {
   registrations: number;
   applications: number;
+  investorInterests: number;
+  investorEngagements: number;
   contactMessages: number;
 };
 
@@ -16,9 +18,17 @@ export async function getDashboardInboxUnread(): Promise<
   { status: "forbidden" } | { status: "ok"; unread: DashboardInboxUnread }
 > {
   const gated = await gateEditorPageData(async (supabase) => {
-    const [registrations, applications, contactMessages] = await Promise.all([
+    const [
+      registrations,
+      applications,
+      investorInterests,
+      investorEngagements,
+      contactMessages,
+    ] = await Promise.all([
       fetchAdminListStats(supabase, "interest_registrations", ["unread"]),
       fetchAdminListStats(supabase, "applications", ["unread"]),
+      fetchAdminListStats(supabase, "investor_interests", ["unread"]),
+      fetchAdminListStats(supabase, "investor_engagements", ["unread"]),
       fetchAdminListStats(supabase, "contact_messages", ["unread"]),
     ]);
 
@@ -26,6 +36,8 @@ export async function getDashboardInboxUnread(): Promise<
       unread: {
         registrations: registrations.unread,
         applications: applications.unread,
+        investorInterests: investorInterests.unread,
+        investorEngagements: investorEngagements.unread,
         contactMessages: contactMessages.unread,
       },
     };

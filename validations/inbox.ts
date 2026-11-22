@@ -5,6 +5,8 @@ import { INBOX_STATUSES } from "@/constants/inbox";
 export const updateInboxStatusSchema = z.object({
   id: z.uuid("Invalid id"),
   inboxStatus: z.enum(INBOX_STATUSES),
+  /** When set, the UPDATE only applies if the row currently has this status. */
+  onlyIfStatus: z.enum(INBOX_STATUSES).optional(),
 });
 
 export type UpdateInboxStatusInput = z.infer<typeof updateInboxStatusSchema>;

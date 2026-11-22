@@ -1,5 +1,10 @@
 /** Shared enums / option lists for investor Register Interest + Apply forms. */
 
+/** Cache tags for investor intake rows (admin inbox + public submit). */
+export const INVESTOR_INTEREST_CACHE_TAGS = ["investor-interests"] as const;
+export const INVESTOR_ENGAGEMENT_CACHE_TAGS = ["investor-engagements"] as const;
+
+
 export const INVESTOR_KINDS = [
   "angel",
   "vc",

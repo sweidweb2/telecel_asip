@@ -9,7 +9,7 @@ import { AdminActionTooltip } from "@/components/dashboard/admin-action-tooltip"
 import { ADMIN_ICON_BUTTON_CLASS } from "@/components/dashboard/admin-icon-button";
 import { Button } from "@/components/ui/button";
 import type { InboxStatus } from "@/constants/inbox";
-import { toastWithUndo } from "@/lib/admin/toast-with-undo";
+import { toastWithUndo } from "@/lib/toast-with-undo";
 import type { AdminActionResult } from "@/types/admin-action";
 import type { UpdateInboxStatusInput } from "@/validations/inbox";
 

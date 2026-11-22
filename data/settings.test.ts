@@ -39,6 +39,7 @@ import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import {
   getNewsletterSignupEnabled,
   getOpenApplications,
+  getOpenApplicationsFresh,
   getSiteSettingsForAdmin,
 } from "@/data/settings";
 
@@ -72,6 +73,7 @@ describe("site settings reads", () => {
     });
     expect(rpcMock).toHaveBeenCalledWith("get_admin_backup_schedule");
     await expect(getOpenApplications()).resolves.toBe(true);
+    await expect(getOpenApplicationsFresh()).resolves.toBe(true);
     await expect(getNewsletterSignupEnabled()).resolves.toBe(false);
   });
 

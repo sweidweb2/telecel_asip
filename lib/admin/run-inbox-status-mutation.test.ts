@@ -52,13 +52,14 @@ describe("runInboxStatusMutation", () => {
     const call = vi.mocked(runAdminMutation).mock.calls[0]?.[0];
     expect(call?.execute).toBeTypeOf("function");
 
-    const updateEq = vi.fn(() => ({
-      select: vi.fn(() => ({
-        maybeSingle: vi.fn(async () => ({ data: { id: "1" }, error: null })),
-      })),
+    const maybeSingle = vi.fn(async () => ({
+      data: { id: "1" },
+      error: null,
     }));
+    const select = vi.fn(() => ({ maybeSingle }));
+    const eq = vi.fn(() => ({ eq, select }));
     const from = vi.fn(() => ({
-      update: vi.fn(() => ({ eq: updateEq })),
+      update: vi.fn(() => ({ eq })),
     }));
 
     const result = await call!.execute(
@@ -66,10 +67,13 @@ describe("runInboxStatusMutation", () => {
       {
         id: "11111111-1111-4111-8111-111111111111",
         inboxStatus: "reviewed",
+        onlyIfStatus: "unread",
       },
     );
 
     expect(from).toHaveBeenCalledWith("applications");
+    expect(eq).toHaveBeenCalledWith("id", "11111111-1111-4111-8111-111111111111");
+    expect(eq).toHaveBeenCalledWith("inbox_status", "unread");
     expect(result).toEqual({ status: "success" });
   });
 });

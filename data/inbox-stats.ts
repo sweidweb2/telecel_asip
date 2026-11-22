@@ -11,6 +11,8 @@ export type InboxTableStats = {
 export type InboxStatsTable =
   | "applications"
   | "interest_registrations"
+  | "investor_interests"
+  | "investor_engagements"
   | "contact_messages";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;

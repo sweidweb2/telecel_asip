@@ -6,7 +6,9 @@ import {
   CalendarIcon,
   ClipboardListIcon,
   FileBarChartIcon,
+  HandCoinsIcon,
   HandshakeIcon,
+  LandmarkIcon,
   LineChartIcon,
   MailIcon,
   MegaphoneIcon,
@@ -37,6 +39,8 @@ export const metadata: Metadata = {
 const NAV_ICONS: Record<string, LucideIcon> = {
   [ROUTES.registrations]: UserPlusIcon,
   [ROUTES.applications]: ClipboardListIcon,
+  [ROUTES.investorInterests]: LandmarkIcon,
+  [ROUTES.investorEngagements]: HandCoinsIcon,
   [ROUTES.contactUs]: MailIcon,
   [ROUTES.newsletter]: MegaphoneIcon,
   [ROUTES.cohorts]: UsersIcon,
@@ -55,6 +59,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 const RESOURCE_BLURB: Partial<Record<string, string>> = {
   [ROUTES.registrations]: "Register Interest leads",
   [ROUTES.applications]: "Official Apply submissions",
+  [ROUTES.investorInterests]: "Investor Register Interest leads",
+  [ROUTES.investorEngagements]: "Investor engagement requests",
   [ROUTES.contactUs]: "Public contact messages",
   [ROUTES.newsletter]: "Update subscribers",
   [ROUTES.cohorts]: "Program years and linked founders",
@@ -96,6 +102,16 @@ export default async function DashboardPage() {
           unread: unread.applications,
         },
         {
+          title: "Investor interests",
+          href: ROUTES.investorInterests,
+          unread: unread.investorInterests,
+        },
+        {
+          title: "Investor engagements",
+          href: ROUTES.investorEngagements,
+          unread: unread.investorEngagements,
+        },
+        {
           title: "Contact us",
           href: ROUTES.contactUs,
           unread: unread.contactMessages,
@@ -128,14 +144,12 @@ export default async function DashboardPage() {
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              Could not load inbox counts. Open Registrations, Applications, or
-              Contact us from the sidebar.
+              Could not load inbox counts. Open Pipeline pages from the sidebar.
             </p>
           )}
           {unread && !hasUnread ? (
             <p className="text-sm text-muted-foreground">
-              Inbox is clear, no unread registrations, applications, or contact
-              messages.
+              Inbox is clear — no unread founder, investor, or contact items.
             </p>
           ) : null}
         </section>

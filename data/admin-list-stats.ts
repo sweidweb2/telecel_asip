@@ -16,6 +16,8 @@ export type AdminListStatsResource =
   | "impact_metrics"
   | "applications"
   | "interest_registrations"
+  | "investor_interests"
+  | "investor_engagements"
   | "contact_messages";
 
 /**
@@ -32,6 +34,8 @@ const LIST_STATS_CACHE_TAG: Record<AdminListStatsResource, string> = {
   impact_metrics: "impact-metrics",
   applications: "applications",
   interest_registrations: "interest-registrations",
+  investor_interests: "investor-interests",
+  investor_engagements: "investor-engagements",
   contact_messages: "contact-messages",
 };
 

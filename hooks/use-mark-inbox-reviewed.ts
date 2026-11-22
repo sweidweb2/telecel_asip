@@ -34,7 +34,11 @@ export function useMarkInboxReviewed({
     if (markedRef.current === id) return;
     markedRef.current = id;
 
-    void updateAction({ id, inboxStatus: "reviewed" }).then((result) => {
+    void updateAction({
+      id,
+      inboxStatus: "reviewed",
+      onlyIfStatus: "unread",
+    }).then((result) => {
       if (result.status === "success") {
         router.refresh();
       }

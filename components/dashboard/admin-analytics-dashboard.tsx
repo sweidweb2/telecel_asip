@@ -56,7 +56,7 @@ export function AdminAnalyticsDashboard({
     <div className="grid gap-8">
       <section className="grid gap-3">
         <AdminSectionHeading>Pipeline</AdminSectionHeading>
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           <PipelineCard
             title="Applications"
             href={ROUTES.applications}
@@ -66,6 +66,16 @@ export function AdminAnalyticsDashboard({
             title="Registrations"
             href={ROUTES.registrations}
             stats={analytics.registrations}
+          />
+          <PipelineCard
+            title="Investor interests"
+            href={ROUTES.investorInterests}
+            stats={analytics.investorInterests}
+          />
+          <PipelineCard
+            title="Investor engagements"
+            href={ROUTES.investorEngagements}
+            stats={analytics.investorEngagements}
           />
           <PipelineCard
             title="Contact messages"

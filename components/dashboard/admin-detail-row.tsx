@@ -67,6 +67,10 @@ export function AdminDetailGrid({ children }: { children: ReactNode }) {
 export const ADMIN_INBOX_VIEW_DIALOG_CLASS =
   "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-2xl";
 
+/** Shared shell classes for inbox edit dialogs (narrower than view). */
+export const ADMIN_INBOX_EDIT_DIALOG_CLASS =
+  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
+
 /** Soft-green title band for inbox edit dialogs. */
 export const ADMIN_INBOX_EDIT_HEADER_CLASS =
   "rounded-lg bg-brand-soft px-3 py-3 pr-10";

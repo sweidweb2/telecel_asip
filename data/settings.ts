@@ -95,6 +95,16 @@ export async function getOpenApplications(): Promise<boolean> {
   return settings.openApplications;
 }
 
+/**
+ * Uncached open/closed flag for intake Server Actions.
+ * Marketing chrome can stay on the tagged cache; submits must not accept
+ * stale `open_applications` after an admin toggle.
+ */
+export async function getOpenApplicationsFresh(): Promise<boolean> {
+  const settings = await fetchSiteSettings();
+  return settings.openApplications;
+}
+
 export async function getNewsletterSignupEnabled(): Promise<boolean> {
   const settings = await getSiteSettings();
   return settings.newsletterSignupEnabled;

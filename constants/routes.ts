@@ -17,6 +17,8 @@ export const ROUTES = {
   users: "/dashboard/users",
   registrations: "/dashboard/registrations",
   applications: "/dashboard/applications",
+  investorInterests: "/dashboard/investor-interests",
+  investorEngagements: "/dashboard/investor-engagements",
   portfolio: "/dashboard/portfolio",
   portfolioNew: "/dashboard/portfolio/new",
   blogs: "/dashboard/blogs",

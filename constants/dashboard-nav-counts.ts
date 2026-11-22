@@ -7,6 +7,8 @@ import { ROUTES } from "@/constants/routes";
 export const DASHBOARD_NAV_COUNT_TABLES = [
   { href: ROUTES.registrations, table: "interest_registrations" },
   { href: ROUTES.applications, table: "applications" },
+  { href: ROUTES.investorInterests, table: "investor_interests" },
+  { href: ROUTES.investorEngagements, table: "investor_engagements" },
   { href: ROUTES.contactUs, table: "contact_messages" },
   { href: ROUTES.newsletter, table: "newsletter_subscribers" },
   { href: ROUTES.blogs, table: "blogs" },

@@ -5,9 +5,11 @@ import {
   CalendarIcon,
   ChartColumnIcon,
   ClipboardListIcon,
+  HandCoinsIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
   MailIcon,
+  LandmarkIcon,
   MailsIcon,
   NewspaperIcon,
   SettingsIcon,
@@ -59,6 +61,16 @@ export const DASHBOARD_NAV_GROUPS = [
         title: ADMIN_RESOURCES.applications.navTitle,
         href: ROUTES.applications,
         icon: ClipboardListIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.investorInterests.navTitle,
+        href: ROUTES.investorInterests,
+        icon: LandmarkIcon,
+      },
+      {
+        title: ADMIN_RESOURCES.investorEngagements.navTitle,
+        href: ROUTES.investorEngagements,
+        icon: HandCoinsIcon,
       },
       {
         title: ADMIN_RESOURCES.contactUs.navTitle,

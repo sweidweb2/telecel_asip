@@ -27,6 +27,8 @@ export type ContentSnapshotRow = {
 export type AdminAnalytics = {
   applications: InboxPipelineStats;
   registrations: InboxPipelineStats;
+  investorInterests: InboxPipelineStats;
+  investorEngagements: InboxPipelineStats;
   contactMessages: InboxPipelineStats;
   content: ContentSnapshotRow[];
 };
@@ -60,6 +62,8 @@ type ContentPayload = {
 type AnalyticsPayload = {
   applications?: InboxPayload;
   registrations?: InboxPayload;
+  investorInterests?: InboxPayload;
+  investorEngagements?: InboxPayload;
   contactMessages?: InboxPayload;
   content?: ContentPayload;
 };
@@ -160,6 +164,8 @@ function mapAnalyticsPayload(data: unknown): AdminAnalytics {
   return {
     applications: mapInbox(payload.applications),
     registrations: mapInbox(payload.registrations),
+    investorInterests: mapInbox(payload.investorInterests),
+    investorEngagements: mapInbox(payload.investorEngagements),
     contactMessages: mapInbox(payload.contactMessages),
     content: mapContent(payload.content),
   };

@@ -3,6 +3,8 @@ export const BACKUP_TABLE_ALLOWLIST = [
   "profiles",
   "interest_registrations",
   "applications",
+  "investor_interests",
+  "investor_engagements",
   "contact_messages",
   "site_settings",
   "newsletter_subscribers",

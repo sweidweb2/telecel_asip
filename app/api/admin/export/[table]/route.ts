@@ -33,6 +33,16 @@ const EXPORT_TABLES = {
     columns:
       "id,full_name,founder_role,email,phone,country,linkedin,company_name,website,company_country,sector,pitch,consent,comms_opt_in,inbox_status,created_at" as const,
   },
+  investor_interests: {
+    filename: "investor-interests",
+    columns:
+      "id,full_name,email,phone,organization,job_title,linkedin,investor_type,focus_note,consent,comms_opt_in,inbox_status,locale,created_at" as const,
+  },
+  investor_engagements: {
+    filename: "investor-engagements",
+    columns:
+      "id,full_name,email,phone,organization,job_title,linkedin,investor_type,stages,ticket_size,sectors,geographies,engagement_intent,thesis,timeline,referred_by,message,consent,comms_opt_in,inbox_status,locale,created_at" as const,
+  },
   contact_messages: {
     filename: "contact-messages",
     columns:

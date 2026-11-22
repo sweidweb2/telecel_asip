@@ -1,9 +1,15 @@
+import {
+  INVESTOR_ENGAGEMENT_CACHE_TAGS,
+  INVESTOR_INTEREST_CACHE_TAGS,
+} from "@/constants/investor-intake";
 import { ROUTES } from "@/constants/routes";
 
 export type AdminResourceId =
   | "users"
   | "registrations"
   | "applications"
+  | "investorInterests"
+  | "investorEngagements"
   | "portfolio"
   | "blogs"
   | "cohorts"
@@ -57,6 +63,26 @@ export const ADMIN_RESOURCES: Record<AdminResourceId, AdminResource> = {
       "Official Apply submissions. Separate from Register Interest leads - there is no automatic conversion.",
     metaTitle: "Applications | ASIP Editor",
     cacheTags: ["applications"],
+  },
+  investorInterests: {
+    id: "investorInterests",
+    listPath: ROUTES.investorInterests,
+    navTitle: "Investor interests",
+    pageTitle: "Investor interests",
+    description:
+      "Register Interest leads from investor accounts. Full engagement requests live under Investor engagements.",
+    metaTitle: "Investor interests | ASIP Editor",
+    cacheTags: INVESTOR_INTEREST_CACHE_TAGS,
+  },
+  investorEngagements: {
+    id: "investorEngagements",
+    listPath: ROUTES.investorEngagements,
+    navTitle: "Investor engagements",
+    pageTitle: "Investor engagements",
+    description:
+      "Official investor engagement requests from the Apply path. Separate from investor interest leads - there is no automatic conversion.",
+    metaTitle: "Investor engagements | ASIP Editor",
+    cacheTags: INVESTOR_ENGAGEMENT_CACHE_TAGS,
   },
   portfolio: {
     id: "portfolio",
