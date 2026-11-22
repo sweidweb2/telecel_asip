@@ -109,6 +109,12 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
           turnstileToken: "",
         });
         setSuccessOpen(true);
+      } catch {
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       } finally {
         turnstile.reset();
       }

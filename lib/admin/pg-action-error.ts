@@ -53,7 +53,8 @@ export function mapPgActionError(
       if (list.some((n) => message.includes(n.toLowerCase()))) {
         return messages.uniqueViolation;
       }
-      if (code === "23505") return messages.uniqueViolation;
+      // Needles were provided but did not match — do not mis-label junction
+      // PK collisions (e.g. duplicate cohort partner ids) as the entity unique.
     }
   }
 

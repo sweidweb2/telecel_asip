@@ -1,17 +1,12 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
-
-import { getOpenApplications } from "@/data/settings";
-import { getCurrentUserProfile } from "@/data/users";
-import { getAuthUser } from "@/lib/admin/get-auth-user";
-import type { AdminActionResult } from "@/lib/admin/run-admin-mutation";
-import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { getAdminResource } from "@/constants/admin-resources";
 import {
-  guardPublicFormSubmission,
-  PUBLIC_SUBMIT_GUARD_COPY,
-} from "@/lib/intake/submit-guard";
-import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
+  refreshAdminResource
+} from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
+import { runAuthenticatedIntakeSubmit } from "@/actions/run-authenticated-intake-submit";
+import { PUBLIC_SUBMIT_GUARD_COPY } from "@/lib/intake/submit-guard";
 import {
   investorInterestSchemaFor,
   type InvestorInterestInput,
@@ -19,6 +14,7 @@ import {
 
 export type SubmitInvestorInterestResult = AdminActionResult;
 
+const resource = getAdminResource("investorInterests");
 const CONSENT_VERSION = "2026-11-10";
 
 const MESSAGES = {
@@ -26,103 +22,65 @@ const MESSAGES = {
     ...PUBLIC_SUBMIT_GUARD_COPY.en,
     success: "Thank you - your investor interest has been registered.",
     signedInRequired: "Sign in to register your investor interest.",
-    investorOnly: "This form is for investor accounts only.",
-    duplicate: "You already registered interest for this organisation.",
-    applicationsOpen:
+    accountTypeRejected: "This form is for investor accounts only.",
+    applicationsGate:
       "Engagement is open. Submit the full investor engagement form instead.",
+    duplicate: "You already registered interest for this organisation.",
   },
   fr: {
     ...PUBLIC_SUBMIT_GUARD_COPY.fr,
     success: "Merci - votre intérêt d’investisseur a bien été enregistré.",
     signedInRequired:
       "Connectez-vous pour manifester votre intérêt d’investisseur.",
-    investorOnly: "Ce formulaire est réservé aux comptes investisseurs.",
-    duplicate: "Vous avez déjà enregistré cette organisation.",
-    applicationsOpen:
+    accountTypeRejected: "Ce formulaire est réservé aux comptes investisseurs.",
+    applicationsGate:
       "Les engagements sont ouverts. Envoyez le formulaire d’engagement investisseur complet.",
+    duplicate: "Vous avez déjà enregistré cette organisation.",
   },
 } as const;
-
-function isUniqueViolation(error: {
-  code?: string;
-  message?: string;
-}): boolean {
-  if (error.code === "23505") return true;
-  const message = (error.message ?? "").toLowerCase();
-  return (
-    message.includes("investor_interests_email_org") ||
-    message.includes("investor_interests_user_org")
-  );
-}
 
 export async function submitInvestorInterest(
   input: InvestorInterestInput,
 ): Promise<SubmitInvestorInterestResult> {
-  const locale = await getRequestLocale();
-  const copy = MESSAGES[locale];
-
-  if (await getOpenApplications()) {
-    return { status: "error", message: copy.applicationsOpen };
-  }
-
-  const user = await getAuthUser();
-  if (!user?.email) {
-    return { status: "error", message: copy.signedInRequired };
-  }
-
-  const profile = await getCurrentUserProfile();
-  if (profile?.type !== "investor") {
-    return { status: "error", message: copy.investorOnly };
-  }
-
-  const sessionEmail = user.email.trim().toLowerCase();
-  const parsed = investorInterestSchemaFor(locale).safeParse({
-    ...input,
-    email: sessionEmail,
-  });
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? copy.invalidDetails,
-    };
-  }
-
-  const data = parsed.data;
-  const guard = await guardPublicFormSubmission({
-    turnstileToken: data.turnstileToken,
-    expectedAction: TURNSTILE_APPLY_ACTION,
+  return runAuthenticatedIntakeSubmit({
+    input,
+    messages: MESSAGES,
+    applicationsMustBeOpen: false,
+    accountGate: { mode: "require", type: "investor" },
     rateLimitPrefix: "investor-interest",
-    identityKind: "user",
-    identity: user.id,
-    messages: copy,
+    uniqueConstraintNeedles: [
+      "investor_interests_email_org",
+      "investor_interests_user_org",
+    ],
+    parse: ({ input: values, sessionEmail, locale }) =>
+      investorInterestSchemaFor(locale).safeParse({
+        ...values,
+        email: sessionEmail,
+      }),
+    insert: async ({ admin, user, data, sessionEmail, locale }) => {
+      const { error } = await admin.from("investor_interests").insert({
+        user_id: user.id,
+        full_name: data.fullName,
+        email: sessionEmail,
+        phone: data.phone.trim() ? data.phone.trim() : null,
+        organization: data.organization,
+        job_title: data.jobTitle.trim() ? data.jobTitle.trim() : null,
+        linkedin: data.linkedin?.trim() ? data.linkedin.trim() : null,
+        investor_type: data.investorType,
+        focus_note: data.focusNote.trim() ? data.focusNote.trim() : null,
+        consent: data.consent,
+        comms_opt_in: data.commsOptIn,
+        locale,
+        source_path: `/${locale}/register-interest`,
+        consent_version: CONSENT_VERSION,
+      });
+      return { error };
+    },
+    refresh: () =>
+      refreshAdminResource({
+        listPath: resource.listPath,
+        cacheTags: resource.cacheTags,
+        bustNavCounts: false,
+      }),
   });
-  if (guard.status === "error") return guard;
-
-  const { error } = await guard.admin.from("investor_interests").insert({
-    user_id: user.id,
-    full_name: data.fullName,
-    email: sessionEmail,
-    phone: data.phone.trim() ? data.phone.trim() : null,
-    organization: data.organization,
-    job_title: data.jobTitle.trim() ? data.jobTitle.trim() : null,
-    linkedin: data.linkedin.trim() ? data.linkedin.trim() : null,
-    investor_type: data.investorType,
-    focus_note: data.focusNote.trim() ? data.focusNote.trim() : null,
-    consent: data.consent,
-    comms_opt_in: data.commsOptIn,
-    locale,
-    source_path: `/${locale}/register-interest`,
-    consent_version: CONSENT_VERSION,
-  });
-
-  if (error) {
-    if (isUniqueViolation(error)) {
-      return { status: "error", message: copy.duplicate };
-    }
-    return { status: "error", message: copy.genericError };
-  }
-
-  revalidateTag("investor-interests", "max");
-  return { status: "success", message: copy.success };
 }

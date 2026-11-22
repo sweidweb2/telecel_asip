@@ -273,6 +273,25 @@ export function applyLabelsFor(
   return mode === "apply" ? EN_APPLY : EN_REGISTER;
 }
 
+/** Shown when a signed-in non-startup (e.g. staff) hits founder intake. */
+export function applyStartupOnlyLabelsFor(locale: Locale): {
+  title: string;
+  description: string;
+} {
+  if (locale === "fr") {
+    return {
+      title: "Compte startup requis",
+      description:
+        "Seuls les comptes startup peuvent utiliser ce formulaire. Les comptes staff doivent utiliser le tableau de bord.",
+    };
+  }
+  return {
+    title: "Startup account required",
+    description:
+      "Only startup accounts can use this form. Staff accounts should use the dashboard instead.",
+  };
+}
+
 export function applyAuthGateLabelsFor(
   locale: Locale,
   mode: ApplyFormMode = "register",

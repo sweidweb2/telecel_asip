@@ -125,7 +125,10 @@ const startupIds = z.preprocess((value) => {
   if (value === undefined || value === null || value === "") return [];
   if (Array.isArray(value)) return value;
   return [value];
-}, z.array(z.uuid("Invalid startup id")).max(200));
+}, z
+  .array(z.uuid("Invalid startup id"))
+  .max(200)
+  .transform((ids) => [...new Set(ids)]));
 
 export const eventFieldsSchema = z.object({
   name: z

@@ -5,6 +5,14 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import {
+  optionalHttpUrl,
+  optionalMinLengthString,
+  requiredConsent,
+  requiredPhone,
+  trimmedEmail,
+  turnstileTokenField,
+} from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
 type InterestRegistrationMessages = {
@@ -76,9 +84,6 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
   },
 };
 
-const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
-const HTTP_URL_REGEX = /^https?:\/\/.+/i;
-
 export const INTEREST_REGISTRATION_PAGE_SIZE = 10;
 export const INTEREST_REGISTRATION_FULL_NAME_MAX = 100;
 export const INTEREST_REGISTRATION_EMAIL_MAX = 254;
@@ -91,28 +96,13 @@ export const INTEREST_REGISTRATION_PITCH_MIN = 20;
 export const INTEREST_REGISTRATION_ROLE_MAX = 80;
 export const INTEREST_REGISTRATION_URL_MAX = 500;
 
-function optionalHttpUrl(message: string) {
-  return z
-    .string()
-    .trim()
-    .max(INTEREST_REGISTRATION_URL_MAX, message)
-    .refine(
-      (value) => value === "" || HTTP_URL_REGEX.test(value),
-      message,
-    )
-    .optional()
-    .or(z.literal(""));
-}
-
 function optionalPitch(messages: InterestRegistrationMessages) {
-  return z
-    .string()
-    .trim()
-    .max(INTEREST_REGISTRATION_PITCH_MAX, messages.pitchMax)
-    .refine(
-      (value) => value === "" || value.length >= 20,
-      messages.pitchMax,
-    )
+  return optionalMinLengthString(
+    INTEREST_REGISTRATION_PITCH_MIN,
+    INTEREST_REGISTRATION_PITCH_MAX,
+    messages.pitchMax,
+    messages.pitchMax,
+  )
     .optional()
     .or(z.literal(""));
 }
@@ -129,33 +119,26 @@ function registrationFieldsSchema(messages: InterestRegistrationMessages) {
       .trim()
       .min(2, messages.roleMin)
       .max(80, messages.roleMax),
-    email: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .pipe(z.email(messages.invalidEmail).max(254, messages.emailMax)),
-    phone: z
-      .string()
-      .trim()
-      .min(7, messages.phoneInvalid)
-      .max(20, messages.phoneInvalid)
-      .regex(PHONE_REGEX, messages.phoneInvalid)
-      .refine(
-        (value) => value.replace(/\D/g, "").length >= 7,
-        messages.phoneInvalid,
-      ),
+    email: trimmedEmail(messages.invalidEmail, messages.emailMax),
+    phone: requiredPhone(messages.phoneInvalid),
     country: z
       .string()
       .trim()
       .min(2, messages.countryMin)
       .max(80, messages.countryMax),
-    linkedin: optionalHttpUrl(messages.linkedinInvalid),
+    linkedin: optionalHttpUrl(messages.linkedinInvalid, {
+      max: INTEREST_REGISTRATION_URL_MAX,
+      allowUndefined: true,
+    }),
     companyName: z
       .string()
       .trim()
       .min(2, messages.companyMin)
       .max(120, messages.companyMax),
-    website: optionalHttpUrl(messages.websiteInvalid),
+    website: optionalHttpUrl(messages.websiteInvalid, {
+      max: INTEREST_REGISTRATION_URL_MAX,
+      allowUndefined: true,
+    }),
     companyCountry: z
       .string()
       .trim()
@@ -176,14 +159,8 @@ export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
 
   return z.object({
     ...registrationFieldsSchema(messages),
-    consent: z.boolean().refine((value) => value === true, {
-      message: messages.consentRequired,
-    }),
-    turnstileToken: z
-      .string()
-      .trim()
-      .min(1, messages.turnstileRequired)
-      .max(2048, messages.turnstileRequired),
+    consent: requiredConsent(messages.consentRequired),
+    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 

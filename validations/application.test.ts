@@ -5,6 +5,7 @@ import {
   applicationSchemaFor,
   deleteApplicationSchema,
   parseApplicationListQuery,
+  toUpdateApplicationInput,
   updateApplicationSchema,
 } from "@/validations/application";
 
@@ -101,6 +102,36 @@ describe("applicationSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0]?.message).toMatch(/caractères|accepter/i);
     }
+  });
+});
+
+describe("toUpdateApplicationInput", () => {
+  it("maps DB nullables to empty strings for optional URL fields", () => {
+    const mapped = toUpdateApplicationInput({
+      id: "11111111-1111-4111-8111-111111111111",
+      full_name: "Ama Mensah",
+      founder_role: "Founder",
+      email: "ama@example.com",
+      phone: "+233200000000",
+      country: "Ghana",
+      linkedin: null,
+      company_name: "Example",
+      website: null,
+      company_country: "Ghana",
+      sector: "Fintech",
+      problem_product: "x".repeat(40),
+      traction: "y".repeat(20),
+      programme_fit: "z".repeat(20),
+      consent: true,
+      comms_opt_in: true,
+      user_id: null,
+      inbox_status: "unread",
+      created_at: "2026-01-01T00:00:00Z",
+    });
+    expect(mapped.linkedin).toBe("");
+    expect(mapped.website).toBe("");
+    expect(mapped.fullName).toBe("Ama Mensah");
+    expect(mapped.commsOptIn).toBe(true);
   });
 });
 

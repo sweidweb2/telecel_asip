@@ -2,9 +2,9 @@
 
 import { getAdminResource } from "@/constants/admin-resources";
 import {
-  refreshAdminResource,
-  type AdminActionResult,
+  refreshAdminResource
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,

@@ -5,6 +5,7 @@ import { ApplyForm } from "@/components/marketing/apply-form";
 import {
   applyAuthGateLabelsFor,
   applyLabelsFor,
+  applyStartupOnlyLabelsFor,
 } from "@/components/marketing/apply-labels";
 import { InvestorIntakeForm } from "@/components/marketing/investor-intake-form";
 import { investorIntakeLabelsFor } from "@/components/marketing/investor-intake-labels";
@@ -57,17 +58,20 @@ export function ApplyPageContent({
   }
 
   const isInvestor = accountType === "investor";
-  const labels = isInvestor
+  const isStartup = accountType === "startup";
+  const investorLabels = isInvestor
     ? investorIntakeLabelsFor(locale, mode)
-    : applyLabelsFor(locale, mode);
+    : null;
+  const labels = investorLabels ?? applyLabelsFor(locale, mode);
   const gateLabels = applyAuthGateLabelsFor(locale, mode);
+  const startupOnlyLabels = applyStartupOnlyLabelsFor(locale);
 
   return (
     <main>
       <InstitutionalHero
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
+        eyebrow={investorLabels?.pageEyebrow ?? copy.eyebrow}
+        title={investorLabels?.pageTitle ?? copy.title}
+        description={investorLabels?.pageDescription ?? copy.description}
         headingId={
           mode === "register" ? "register-hero-heading" : "apply-hero-heading"
         }
@@ -81,8 +85,16 @@ export function ApplyPageContent({
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">
-                <CardTitle>{labels.formTitle}</CardTitle>
-                <CardDescription>{labels.formDescription}</CardDescription>
+                <CardTitle>
+                  {user && !isInvestor && !isStartup
+                    ? startupOnlyLabels.title
+                    : labels.formTitle}
+                </CardTitle>
+                <CardDescription>
+                  {user && !isInvestor && !isStartup
+                    ? startupOnlyLabels.description
+                    : labels.formDescription}
+                </CardDescription>
               </div>
               {user?.email ? (
                 <SiteAccountMenu email={user.email} locale={locale} />
@@ -91,28 +103,28 @@ export function ApplyPageContent({
           </CardHeader>
           <CardContent>
             {user ? (
-              isInvestor ? (
+              isInvestor && investorLabels ? (
                 <InvestorIntakeForm
                   locale={locale}
-                  labels={investorIntakeLabelsFor(locale, mode)}
+                  labels={investorLabels}
                   mode={mode}
                   defaultEmail={user.email ?? ""}
                 />
-              ) : (
+              ) : isStartup ? (
                 <ApplyForm
                   locale={locale}
                   labels={applyLabelsFor(locale, mode)}
                   mode={mode}
                   defaultEmail={user.email ?? ""}
                 />
-              )
+              ) : null
             ) : (
               <IntakeAuthGate locale={locale} mode={mode} labels={gateLabels} />
             )}
           </CardContent>
         </Card>
 
-        {mode === "apply" ? (
+        {mode === "apply" && !isInvestor ? (
           <div className="mt-10">
             <SectionHeading
               title={copy.sectionTitle}
@@ -130,7 +142,7 @@ export function ApplyPageContent({
         ) : null}
       </Section>
 
-      {mode === "apply" && copy.ctaSection ? (
+      {mode === "apply" && !isInvestor && copy.ctaSection ? (
         <PageCtaSection locale={locale} cta={copy.ctaSection} />
       ) : null}
     </main>

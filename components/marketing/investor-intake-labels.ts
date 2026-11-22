@@ -2,6 +2,9 @@ import type { Locale } from "@/constants/locales";
 import type { ApplyFormMode } from "@/components/marketing/apply-labels";
 
 export type InvestorIntakeLabels = {
+  pageEyebrow: string;
+  pageTitle: string;
+  pageDescription: string;
   formTitle: string;
   formDescription: string;
   nameLabel: string;
@@ -132,6 +135,10 @@ const TIMELINE = {
 
 const REGISTER: Record<Locale, Omit<InvestorIntakeLabels, "kindLabels" | "stageLabels" | "ticketLabels" | "intentLabels" | "timelineLabels">> = {
   en: {
+    pageEyebrow: "For investors",
+    pageTitle: "Connect with ASIP founders.",
+    pageDescription:
+      "Register interest to hear about portfolio introductions, co-invest routes and partnership conversations when they fit.",
     formTitle: "Register investor interest",
     formDescription:
       "Tell us who you are and what you are looking for. We will share confirmed updates and relevant routes to engage.",
@@ -177,6 +184,10 @@ const REGISTER: Record<Locale, Omit<InvestorIntakeLabels, "kindLabels" | "stageL
     successCloseLabel: "Close",
   },
   fr: {
+    pageEyebrow: "Pour les investisseurs",
+    pageTitle: "Connectez-vous aux fondateurs ASIP.",
+    pageDescription:
+      "Manifestez votre intérêt pour être informé des introductions portefeuille, co-investissements et partenariats pertinents.",
     formTitle: "Manifester un intérêt investisseur",
     formDescription:
       "Indiquez qui vous êtes et ce que vous recherchez. Nous partagerons les mises à jour confirmées et les voies d’engagement pertinentes.",
@@ -225,8 +236,26 @@ const REGISTER: Record<Locale, Omit<InvestorIntakeLabels, "kindLabels" | "stageL
   },
 };
 
-const APPLY: Record<Locale, Pick<InvestorIntakeLabels, "formTitle" | "formDescription" | "submitLabel" | "submittingLabel" | "successTitle" | "successDescription">> = {
+const APPLY: Record<
+  Locale,
+  Pick<
+    InvestorIntakeLabels,
+    | "pageEyebrow"
+    | "pageTitle"
+    | "pageDescription"
+    | "formTitle"
+    | "formDescription"
+    | "submitLabel"
+    | "submittingLabel"
+    | "successTitle"
+    | "successDescription"
+  >
+> = {
   en: {
+    pageEyebrow: "For investors",
+    pageTitle: "Engage with ASIP founders.",
+    pageDescription:
+      "Share your thesis and ticket range so ASIP can route relevant portfolio, co-invest and partnership conversations.",
     formTitle: "Investor engagement",
     formDescription:
       "Share your thesis, ticket range and focus so ASIP can route relevant founder, portfolio and partnership conversations.",
@@ -237,6 +266,10 @@ const APPLY: Record<Locale, Pick<InvestorIntakeLabels, "formTitle" | "formDescri
       "Thanks. The ASIP team will review your request and follow up where there is a fit.",
   },
   fr: {
+    pageEyebrow: "Pour les investisseurs",
+    pageTitle: "Engagez-vous avec les fondateurs ASIP.",
+    pageDescription:
+      "Partagez votre thèse et votre ticket pour qu’ASIP oriente les conversations portefeuille, co-investissement et partenariats pertinentes.",
     formTitle: "Engagement investisseur",
     formDescription:
       "Partagez votre thèse, votre ticket et votre focus pour qu’ASIP oriente les conversations fondateurs, portefeuille et partenariats pertinentes.",

@@ -1,15 +1,13 @@
 "use client";
 
-import { useCallback, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useState, useTransition } from "react";
 import {
-  Controller,
   useForm,
   useWatch,
   type FieldValues,
   type UseFormRegister,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { submitApplication } from "@/actions/submit-application";
@@ -18,18 +16,13 @@ import type {
   ApplyFormMode,
   ApplyLabels,
 } from "@/components/marketing/apply-labels";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  IntakeConsentFields,
+  IntakeFieldLabel,
+  IntakeSubmitButton,
+  IntakeSuccessDialog,
+} from "@/components/marketing/intake-form-chrome";
+import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -158,6 +151,12 @@ function RegisterIntakeForm({
         }
         reset({ ...REGISTER_DEFAULTS, email: defaultEmail });
         setSuccessOpen(true);
+      } catch {
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       } finally {
         turnstile.reset();
       }
@@ -178,9 +177,9 @@ function RegisterIntakeForm({
           isPending={isPending}
         />
         <div className="grid gap-2">
-          <ApplyFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
+          <IntakeFieldLabel htmlFor="intake-pitch" hint={labels.pitchHint}>
             {labels.pitchLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="intake-pitch"
             rows={4}
@@ -193,7 +192,7 @@ function RegisterIntakeForm({
             <p className="text-sm text-destructive">{errors.pitch.message}</p>
           ) : null}
         </div>
-        <ConsentFields
+        <IntakeConsentFields
           labels={labels}
           control={control}
           consentError={errors.consent?.message}
@@ -207,9 +206,9 @@ function RegisterIntakeForm({
           error={errors.turnstileToken?.message}
           testId="register-turnstile"
         />
-        <SubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton labels={labels} isPending={isPending} />
       </form>
-      <ApplySuccessDialog
+      <IntakeSuccessDialog
         open={successOpen}
         onOpenChange={setSuccessOpen}
         labels={labels}
@@ -257,6 +256,12 @@ function ApplyIntakeForm({
         }
         reset({ ...APPLY_DEFAULTS, email: defaultEmail });
         setSuccessOpen(true);
+      } catch {
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       } finally {
         turnstile.reset();
       }
@@ -277,12 +282,12 @@ function ApplyIntakeForm({
           isPending={isPending}
         />
         <div className="grid gap-2">
-          <ApplyFieldLabel
+          <IntakeFieldLabel
             htmlFor="intake-problem"
             hint={labels.problemHint}
           >
             {labels.problemLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="intake-problem"
             rows={5}
@@ -298,12 +303,12 @@ function ApplyIntakeForm({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <ApplyFieldLabel
+          <IntakeFieldLabel
             htmlFor="intake-traction"
             hint={labels.tractionHint}
           >
             {labels.tractionLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="intake-traction"
             rows={4}
@@ -317,9 +322,9 @@ function ApplyIntakeForm({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <ApplyFieldLabel htmlFor="intake-fit" hint={labels.fitHint}>
+          <IntakeFieldLabel htmlFor="intake-fit" hint={labels.fitHint}>
             {labels.fitLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="intake-fit"
             rows={4}
@@ -334,7 +339,7 @@ function ApplyIntakeForm({
             </p>
           ) : null}
         </div>
-        <ConsentFields
+        <IntakeConsentFields
           labels={labels}
           control={control}
           consentError={errors.consent?.message}
@@ -348,9 +353,9 @@ function ApplyIntakeForm({
           error={errors.turnstileToken?.message}
           testId="apply-turnstile"
         />
-        <SubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton labels={labels} isPending={isPending} />
       </form>
-      <ApplySuccessDialog
+      <IntakeSuccessDialog
         open={successOpen}
         onOpenChange={setSuccessOpen}
         labels={labels}
@@ -359,61 +364,9 @@ function ApplyIntakeForm({
   );
 }
 
-function ApplySuccessDialog({
-  open,
-  onOpenChange,
-  labels,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  labels: ApplyLabels;
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" showCloseButton>
-        <DialogHeader>
-          <DialogTitle className="pr-8 text-lg">
-            {labels.successTitle}
-          </DialogTitle>
-          <DialogDescription>{labels.successDescription}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="sm:justify-end">
-          <DialogClose
-            render={
-              <Button variant="default" className="min-h-11 w-full sm:w-auto" />
-            }
-          >
-            {labels.successCloseLabel}
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 type FieldErrors = Partial<
   Record<string, { message?: string } | undefined>
 >;
-
-/** Label with optional/required (or other) rules beside it — never under the input. */
-function ApplyFieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="text-xs leading-4 text-muted-foreground">{hint}</span>
-      ) : null}
-    </div>
-  );
-}
 
 type SharedFieldsProps = {
   labels: ApplyLabels;
@@ -516,12 +469,12 @@ function SharedFields({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <ApplyFieldLabel
+          <IntakeFieldLabel
             htmlFor="intake-linkedin"
             hint={labels.linkedinHint}
           >
             {labels.linkedinLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <UrlInput
             id="intake-linkedin"
             placeholder={labels.linkedinPlaceholder}
@@ -552,12 +505,12 @@ function SharedFields({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <ApplyFieldLabel
+          <IntakeFieldLabel
             htmlFor="intake-website"
             hint={labels.websiteHint}
           >
             {labels.websiteLabel}
-          </ApplyFieldLabel>
+          </IntakeFieldLabel>
           <UrlInput
             id="intake-website"
             placeholder={labels.websitePlaceholder}
@@ -608,77 +561,3 @@ function SharedFields({
   );
 }
 
-type ConsentFieldsProps = {
-  labels: ApplyLabels;
-  control:
-    | ReturnType<typeof useForm<InterestRegistrationInput>>["control"]
-    | ReturnType<typeof useForm<ApplicationInput>>["control"];
-  consentError?: string;
-  isPending: boolean;
-};
-
-function ConsentFields({
-  labels,
-  control,
-  consentError,
-  isPending,
-}: ConsentFieldsProps) {
-  return (
-    <>
-      <Controller
-        // Shared consent/comms fields exist on both intake schemas.
-        control={control as ReturnType<typeof useForm<ApplicationInput>>["control"]}
-        name="consent"
-        render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={(checked) => field.onChange(checked === true)}
-              disabled={isPending}
-              className="mt-0.5"
-            />
-            <span>{labels.consentLabel}</span>
-          </label>
-        )}
-      />
-      {consentError ? (
-        <p className="text-sm text-destructive">{consentError}</p>
-      ) : null}
-
-      <Controller
-        control={control as ReturnType<typeof useForm<ApplicationInput>>["control"]}
-        name="commsOptIn"
-        render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={(checked) => field.onChange(checked === true)}
-              disabled={isPending}
-              className="mt-0.5"
-            />
-            <span>{labels.commsLabel}</span>
-          </label>
-        )}
-      />
-    </>
-  );
-}
-
-function SubmitButton({
-  labels,
-  isPending,
-}: {
-  labels: ApplyLabels;
-  isPending: boolean;
-}) {
-  return (
-    <Button
-      type="submit"
-      disabled={isPending}
-      className="min-h-11 w-full sm:w-auto"
-    >
-      {isPending ? <Loader2Icon className="animate-spin" /> : null}
-      {isPending ? labels.submittingLabel : labels.submitLabel}
-    </Button>
-  );
-}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useTransition, type ReactNode } from "react";
+import { useCallback, useState, useTransition } from "react";
 import {
   Controller,
   useForm,
@@ -12,25 +12,20 @@ import {
   type UseFormRegister,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { submitInvestorEngagement } from "@/actions/submit-investor-engagement";
 import { submitInvestorInterest } from "@/actions/submit-investor-interest";
 import type { ApplyFormMode } from "@/components/marketing/apply-labels";
+import {
+  IntakeConsentFields,
+  IntakeFieldLabel,
+  IntakeSubmitButton,
+  IntakeSuccessDialog,
+} from "@/components/marketing/intake-form-chrome";
 import type { InvestorIntakeLabels } from "@/components/marketing/investor-intake-labels";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -173,6 +168,12 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
         }
         reset({ ...INTEREST_DEFAULTS, email: defaultEmail });
         setSuccessOpen(true);
+      } catch {
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       } finally {
         turnstile.reset();
       }
@@ -190,9 +191,9 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
           isPending={isPending}
         />
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-focus" hint={labels.focusNoteHint}>
+          <IntakeFieldLabel htmlFor="investor-focus" hint={labels.focusNoteHint}>
             {labels.focusNoteLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="investor-focus"
             rows={4}
@@ -205,9 +206,9 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
             <p className="text-sm text-destructive">{errors.focusNote.message}</p>
           ) : null}
         </div>
-        <ConsentBlock
+        <IntakeConsentFields
           labels={labels}
-          control={control as unknown as Control<FieldValues>}
+          control={control}
           consentError={errors.consent?.message}
           isPending={isPending}
         />
@@ -219,9 +220,9 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
           error={errors.turnstileToken?.message}
           testId="investor-register-turnstile"
         />
-        <SubmitBlock labels={labels} isPending={isPending} />
+        <IntakeSubmitButton labels={labels} isPending={isPending} />
       </form>
-      <SuccessDialog
+      <IntakeSuccessDialog
         open={successOpen}
         onOpenChange={setSuccessOpen}
         labels={labels}
@@ -267,6 +268,12 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
         }
         reset({ ...ENGAGEMENT_DEFAULTS, email: defaultEmail });
         setSuccessOpen(true);
+      } catch {
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       } finally {
         turnstile.reset();
       }
@@ -381,9 +388,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-thesis" hint={labels.thesisHint}>
+          <IntakeFieldLabel htmlFor="investor-thesis" hint={labels.thesisHint}>
             {labels.thesisLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="investor-thesis"
             rows={5}
@@ -397,9 +404,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-timeline" hint={labels.timelineHint}>
+          <IntakeFieldLabel htmlFor="investor-timeline" hint={labels.timelineHint}>
             {labels.timelineLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Controller
             control={control}
             name="timeline"
@@ -432,9 +439,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-referred" hint={labels.referredByHint}>
+          <IntakeFieldLabel htmlFor="investor-referred" hint={labels.referredByHint}>
             {labels.referredByLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Input
             id="investor-referred"
             disabled={isPending}
@@ -448,9 +455,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-message" hint={labels.messageHint}>
+          <IntakeFieldLabel htmlFor="investor-message" hint={labels.messageHint}>
             {labels.messageLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Textarea
             id="investor-message"
             rows={3}
@@ -463,9 +470,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
             <p className="text-sm text-destructive">{errors.message.message}</p>
           ) : null}
         </div>
-        <ConsentBlock
+        <IntakeConsentFields
           labels={labels}
-          control={control as unknown as Control<FieldValues>}
+          control={control}
           consentError={errors.consent?.message}
           isPending={isPending}
         />
@@ -477,9 +484,9 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           error={errors.turnstileToken?.message}
           testId="investor-apply-turnstile"
         />
-        <SubmitBlock labels={labels} isPending={isPending} />
+        <IntakeSubmitButton labels={labels} isPending={isPending} />
       </form>
-      <SuccessDialog
+      <IntakeSuccessDialog
         open={successOpen}
         onOpenChange={setSuccessOpen}
         labels={labels}
@@ -533,9 +540,9 @@ function InvestorContactFields({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-phone" hint={labels.phoneHint}>
+          <IntakeFieldLabel htmlFor="investor-phone" hint={labels.phoneHint}>
             {labels.phoneLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Input
             id="investor-phone"
             autoComplete="tel"
@@ -564,9 +571,9 @@ function InvestorContactFields({
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-title" hint={labels.jobTitleHint}>
+          <IntakeFieldLabel htmlFor="investor-title" hint={labels.jobTitleHint}>
             {labels.jobTitleLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <Input
             id="investor-title"
             disabled={isPending}
@@ -578,9 +585,9 @@ function InvestorContactFields({
           ) : null}
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="investor-linkedin" hint={labels.linkedinHint}>
+          <IntakeFieldLabel htmlFor="investor-linkedin" hint={labels.linkedinHint}>
             {labels.linkedinLabel}
-          </FieldLabel>
+          </IntakeFieldLabel>
           <UrlInput
             id="investor-linkedin"
             disabled={isPending}
@@ -682,131 +689,5 @@ function CheckboxGroup<T extends FieldValues>({
       />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </fieldset>
-  );
-}
-
-function ConsentBlock({
-  labels,
-  control,
-  consentError,
-  isPending,
-}: {
-  labels: InvestorIntakeLabels;
-  control: Control<FieldValues>;
-  consentError?: string;
-  isPending: boolean;
-}) {
-  return (
-    <div className="grid gap-3">
-      <Controller
-        control={control}
-        name="consent"
-        render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
-            <Checkbox
-              checked={field.value === true}
-              disabled={isPending}
-              onCheckedChange={(next) => field.onChange(next === true)}
-              className="mt-0.5"
-            />
-            <span>{labels.consentLabel}</span>
-          </label>
-        )}
-      />
-      {consentError ? (
-        <p className="text-sm text-destructive">{consentError}</p>
-      ) : null}
-      <Controller
-        control={control}
-        name="commsOptIn"
-        render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
-            <Checkbox
-              checked={field.value === true}
-              disabled={isPending}
-              onCheckedChange={(next) => field.onChange(next === true)}
-              className="mt-0.5"
-            />
-            <span>{labels.commsLabel}</span>
-          </label>
-        )}
-      />
-    </div>
-  );
-}
-
-function SubmitBlock({
-  labels,
-  isPending,
-}: {
-  labels: InvestorIntakeLabels;
-  isPending: boolean;
-}) {
-  return (
-    <Button
-      type="submit"
-      className="min-h-11 w-full sm:w-auto"
-      disabled={isPending}
-    >
-      {isPending ? (
-        <>
-          <Loader2Icon className="animate-spin" />
-          {labels.submittingLabel}
-        </>
-      ) : (
-        labels.submitLabel
-      )}
-    </Button>
-  );
-}
-
-function SuccessDialog({
-  open,
-  onOpenChange,
-  labels,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  labels: InvestorIntakeLabels;
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" showCloseButton>
-        <DialogHeader>
-          <DialogTitle className="pr-8 text-lg">
-            {labels.successTitle}
-          </DialogTitle>
-          <DialogDescription>{labels.successDescription}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="sm:justify-end">
-          <DialogClose
-            render={
-              <Button variant="default" className="min-h-11 w-full sm:w-auto" />
-            }
-          >
-            {labels.successCloseLabel}
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function FieldLabel({
-  htmlFor,
-  children,
-  hint,
-}: {
-  htmlFor: string;
-  children: ReactNode;
-  hint?: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-      <Label htmlFor={htmlFor}>{children}</Label>
-      {hint ? (
-        <span className="text-xs leading-4 text-muted-foreground">{hint}</span>
-      ) : null}
-    </div>
   );
 }

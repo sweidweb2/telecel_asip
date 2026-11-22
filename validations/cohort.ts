@@ -72,7 +72,10 @@ const optionalMediaUrl = z
   .or(z.literal(""));
 
 const uuidList = (label: string) =>
-  z.array(z.uuid(`Invalid ${label} id`)).max(COHORT_LINKS_MAX);
+  z
+    .array(z.uuid(`Invalid ${label} id`))
+    .max(COHORT_LINKS_MAX)
+    .transform((ids) => [...new Set(ids)]);
 
 const yearField = z
   .number()

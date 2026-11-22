@@ -47,6 +47,17 @@ describe("createCohortSchema", () => {
     expect(parsed.partnerIds).toEqual([]);
   });
 
+  it("dedupes partner and startup ids", () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const parsed = createCohortSchema.parse({
+      ...base,
+      partnerIds: [id, id],
+      startupIds: [id, id, id],
+    });
+    expect(parsed.partnerIds).toEqual([id]);
+    expect(parsed.startupIds).toEqual([id]);
+  });
+
   it("rejects an over-long label, a non-http media URL, and inverted dates", () => {
     expect(
       createCohortSchema.safeParse({

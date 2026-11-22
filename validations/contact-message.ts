@@ -6,6 +6,11 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import {
+  requiredPhone,
+  trimmedEmail,
+  turnstileTokenField,
+} from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
 type ContactMessageMessages = {
@@ -56,8 +61,6 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
   },
 };
 
-const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
-
 export const CONTACT_MESSAGE_PAGE_SIZE = 10;
 export const CONTACT_MESSAGE_FULL_NAME_MAX = 100;
 export const CONTACT_MESSAGE_EMAIL_MAX = 254;
@@ -74,21 +77,8 @@ function contactMessageFieldsSchema(messages: ContactMessageMessages) {
       .trim()
       .min(2, messages.fullNameMin)
       .max(100, messages.fullNameMax),
-    email: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .pipe(z.email(messages.invalidEmail).max(254, messages.emailMax)),
-    phone: z
-      .string()
-      .trim()
-      .min(7, messages.phoneInvalid)
-      .max(20, messages.phoneInvalid)
-      .regex(PHONE_REGEX, messages.phoneInvalid)
-      .refine(
-        (value) => value.replace(/\D/g, "").length >= 7,
-        messages.phoneInvalid,
-      ),
+    email: trimmedEmail(messages.invalidEmail, messages.emailMax),
+    phone: requiredPhone(messages.phoneInvalid),
     subject: z
       .string()
       .trim()
@@ -106,11 +96,7 @@ export function contactMessageSchemaFor(locale: Locale = DEFAULT_LOCALE) {
   const messages = VALIDATION_MESSAGES[locale];
   return z.object({
     ...contactMessageFieldsSchema(messages),
-    turnstileToken: z
-      .string()
-      .trim()
-      .min(1, messages.turnstileRequired)
-      .max(2048, messages.turnstileRequired),
+    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 

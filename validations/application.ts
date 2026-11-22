@@ -1,10 +1,18 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import type { Application } from "@/types/application";
 import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import {
+  optionalHttpUrl,
+  requiredConsent,
+  requiredPhone,
+  trimmedEmail,
+  turnstileTokenField,
+} from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
 type ApplicationMessages = {
@@ -91,9 +99,6 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
   },
 };
 
-const PHONE_REGEX = /^\+?[0-9\s().-]{7,20}$/;
-const HTTP_URL_REGEX = /^https?:\/\/.+/i;
-
 export const APPLICATION_PAGE_SIZE = 10;
 export const APPLICATION_FULL_NAME_MAX = 100;
 export const APPLICATION_ROLE_MAX = 80;
@@ -110,19 +115,6 @@ export const APPLICATION_PROBLEM_MIN = 40;
 export const APPLICATION_TRACTION_MIN = 20;
 export const APPLICATION_FIT_MIN = 20;
 
-function optionalHttpUrl(message: string) {
-  return z
-    .string()
-    .trim()
-    .max(APPLICATION_URL_MAX, message)
-    .refine(
-      (value) => value === "" || HTTP_URL_REGEX.test(value),
-      message,
-    )
-    .optional()
-    .or(z.literal(""));
-}
-
 function applicationFieldsSchema(messages: ApplicationMessages) {
   return {
     fullName: z
@@ -135,33 +127,26 @@ function applicationFieldsSchema(messages: ApplicationMessages) {
       .trim()
       .min(2, messages.roleMin)
       .max(80, messages.roleMax),
-    email: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .pipe(z.email(messages.invalidEmail).max(254, messages.emailMax)),
-    phone: z
-      .string()
-      .trim()
-      .min(7, messages.phoneInvalid)
-      .max(20, messages.phoneInvalid)
-      .regex(PHONE_REGEX, messages.phoneInvalid)
-      .refine(
-        (value) => value.replace(/\D/g, "").length >= 7,
-        messages.phoneInvalid,
-      ),
+    email: trimmedEmail(messages.invalidEmail, messages.emailMax),
+    phone: requiredPhone(messages.phoneInvalid),
     country: z
       .string()
       .trim()
       .min(2, messages.countryMin)
       .max(80, messages.countryMax),
-    linkedin: optionalHttpUrl(messages.linkedinInvalid),
+    linkedin: optionalHttpUrl(messages.linkedinInvalid, {
+      max: APPLICATION_URL_MAX,
+      allowUndefined: true,
+    }),
     companyName: z
       .string()
       .trim()
       .min(2, messages.companyMin)
       .max(120, messages.companyMax),
-    website: optionalHttpUrl(messages.websiteInvalid),
+    website: optionalHttpUrl(messages.websiteInvalid, {
+      max: APPLICATION_URL_MAX,
+      allowUndefined: true,
+    }),
     companyCountry: z
       .string()
       .trim()
@@ -196,14 +181,8 @@ export function applicationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
 
   return z.object({
     ...applicationFieldsSchema(messages),
-    consent: z.boolean().refine((value) => value === true, {
-      message: messages.consentRequired,
-    }),
-    turnstileToken: z
-      .string()
-      .trim()
-      .min(1, messages.turnstileRequired)
-      .max(2048, messages.turnstileRequired),
+    consent: requiredConsent(messages.consentRequired),
+    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 
@@ -250,3 +229,26 @@ export function parseApplicationListQuery(
 
 export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;
 export type DeleteApplicationInput = z.infer<typeof deleteApplicationSchema>;
+
+/** Map a DB application row into the admin edit-form shape. */
+export function toUpdateApplicationInput(
+  application: Application,
+): UpdateApplicationInput {
+  return {
+    id: application.id,
+    fullName: application.full_name,
+    founderRole: application.founder_role,
+    email: application.email,
+    phone: application.phone,
+    country: application.country,
+    linkedin: application.linkedin ?? "",
+    companyName: application.company_name,
+    website: application.website ?? "",
+    companyCountry: application.company_country,
+    sector: application.sector,
+    problemProduct: application.problem_product,
+    traction: application.traction,
+    programmeFit: application.programme_fit,
+    commsOptIn: application.comms_opt_in,
+  };
+}

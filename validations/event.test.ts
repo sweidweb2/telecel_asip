@@ -29,6 +29,15 @@ describe("createEventSchema", () => {
     expect(parsed.startupIds).toHaveLength(1);
   });
 
+  it("dedupes startup ids", () => {
+    const id = "550e8400-e29b-41d4-a716-446655440000";
+    const parsed = createEventSchema.parse({
+      ...base,
+      startupIds: [id, id],
+    });
+    expect(parsed.startupIds).toEqual([id]);
+  });
+
   it("allows empty optional fields and null format", () => {
     const parsed = createEventSchema.parse({
       name: "Founder Mixer",

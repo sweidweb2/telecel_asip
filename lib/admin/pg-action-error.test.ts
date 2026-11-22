@@ -41,5 +41,11 @@ describe("mapPgActionError", () => {
         messages,
       ),
     ).toBe("label taken");
+    expect(
+      mapPgActionError(
+        { code: "23505", message: "cohort_partners_pkey" },
+        messages,
+      ),
+    ).toBe("generic");
   });
 });
