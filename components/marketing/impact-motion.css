@@ -1,0 +1,126 @@
+/* Impact stairs / arrows / kite — imported by home-impact-growth-illustration */
+
+/* Escalator stair belt (one 6-tread cycle up-right). Keep translate in sync
+   with CYCLE * STEP_DX / STEP_DY in home-impact-growth-illustration. */
+@keyframes impact-stairs-escalator {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(540px, -360px);
+  }
+}
+
+.impact-stairs-belt {
+  animation: impact-stairs-escalator 9s linear infinite;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+/*
+  Arrow reborn: stroke climbs bottom→tip, holds, fades, resets.
+  Twin starts at 50% so a new arrow replaces the last — infinite.
+  Coral / yellow use separate base delays.
+*/
+@keyframes impact-arrow-stroke-reborn {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  52% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  62% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  72% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  73%,
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes impact-arrow-tip-reborn {
+  0%,
+  46% {
+    opacity: 0;
+  }
+  52%,
+  62% {
+    opacity: 1;
+  }
+  72%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.impact-arrow-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: impact-arrow-stroke-reborn 4.2s linear infinite;
+}
+
+.impact-arrow-tip {
+  opacity: 0;
+  animation: impact-arrow-tip-reborn 4.2s linear infinite;
+}
+
+.impact-arrow-coral {
+  animation-delay: 0s;
+}
+
+.impact-arrow-coral.impact-arrow-twin {
+  animation-delay: 2.1s;
+}
+
+.impact-arrow-yellow {
+  animation-delay: 0.85s;
+}
+
+.impact-arrow-yellow.impact-arrow-twin {
+  animation-delay: 2.95s;
+}
+
+@keyframes impact-kite-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.impact-kite-float {
+  animation: impact-kite-float 6.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-stairs-belt,
+  .impact-kite-float {
+    animation: none !important;
+    transform: none;
+  }
+
+  .impact-stairs-belt-copy {
+    display: none;
+  }
+
+  .impact-arrow-stroke,
+  .impact-arrow-tip {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+
+  .impact-arrow-twin {
+    display: none;
+  }
+}

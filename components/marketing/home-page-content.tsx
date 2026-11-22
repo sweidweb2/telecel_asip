@@ -3,14 +3,13 @@ import type { ReactNode } from "react";
 import { TELECEL_GROUP_URL } from "@/components/layout/site-footer-labels";
 import { HomeAfricaMap } from "@/components/marketing/home-africa-map";
 import { HomeHero } from "@/components/marketing/home-hero";
+import { HomeImpactYearsSection } from "@/components/marketing/home-impact-years-section";
 import {
   HomeAiAdvantageSection,
   HomeClosingSection,
   HomeEcosystemValueSection,
   HomeFounderStoriesSection,
-  HomeImpactBand,
   HomePathwaysSection,
-  HomeProofStrip,
   type PortfolioStats,
 } from "@/components/marketing/home-v2-sections";
 import { MobilePathwayBar } from "@/components/marketing/mobile-pathway-bar";
@@ -45,10 +44,10 @@ type HomePageContentProps = {
 };
 
 /**
- * Homepage order from the Final Design Brief / Text Pack v2 (08.11.2026):
- * hero + two routes → 2026 AI Advantage → proof → founder / investor
- * pathways → founder stories → impact → footprint map → ecosystem →
- * current activity → closing status CTA.
+ * Homepage order:
+ * hero → impact years (kite + escalator) → 2026 AI Advantage →
+ * founder / investor pathways → founder stories → footprint map →
+ * ecosystem → current activity → closing status CTA.
  */
 export function HomePageContent({
   locale,
@@ -82,9 +81,9 @@ export function HomePageContent({
 
       <HomeHero copy={copy.hero} continuumAlts={copy.hero.continuumAlts} />
 
-      <HomeAiAdvantageSection locale={locale} copy={copy.ai} intake={intake} />
+      <HomeImpactYearsSection copy={copy.impact} metrics={metrics} />
 
-      <HomeProofStrip copy={copy.proof} metrics={metrics} />
+      <HomeAiAdvantageSection locale={locale} copy={copy.ai} intake={intake} />
 
       <HomePathwaysSection
         locale={locale}
@@ -99,8 +98,6 @@ export function HomePageContent({
         copy={copy.stories}
         startups={featuredStartups}
       />
-
-      <HomeImpactBand locale={locale} copy={copy.impact} />
 
       <HomeAfricaMap
         locale={locale}
