@@ -63,11 +63,13 @@ Table profiles {
     cannot be self-assigned.
     Auth user create/delete via Admin API; profile insert via handle_new_user;
     delete via FK cascade. Admin hard-delete of non-admins: admin_hard_delete_user.
+    Last admin/editor integrity: enforce_last_staff_role (20261122060000);
+    hard-delete may bypass last-editor via app.bypass_last_editor_guard.
 
     Helpers (see supabase-functions.md): is_admin, is_editor, is_staff.
     CMS/intake/settings/media RLS uses is_editor(); backups + admin_perf stay is_admin().
-    Editor sidebar badge totals: get_dashboard_nav_counts (20260910230000).
-    Editor list-page stat cards: get_admin_list_stats (20260910250000).
+    Editor sidebar badge totals: get_dashboard_nav_counts (20260910230000; investor tables 20261122070000).
+    Editor list-page stat cards: get_admin_list_stats (20260910250000; investor tables 20261122070000).
     Profiles staff list uses is_admin/is_editor (not raw is_staff) so editors
     never see administrator accounts in Manage Users.
 
@@ -123,6 +125,7 @@ Table interest_registrations {
       (historical policy titles still say "Admins"; behaviour is editor-gated)
 
     Public inserts only via Server Action + service role client.
+    BEFORE INSERT interest_registrations_require_closed (20261122060000).
     No automatic conversion to applications when Apply opens.
     user_id added in 20260910210000.
   '''
@@ -173,6 +176,8 @@ Table applications {
     - Admins can read/update/delete — is_editor() (editor CMS panel; 20260910180000)
 
     Public inserts via Server Action + service role only.
+    BEFORE INSERT applications_require_open → enforce_intake_requires_open
+    (20261122060000) blocks inserts while open_applications is false.
     No automatic conversion from interest_registrations.
     user_id added in 20260910210000.
   '''
@@ -250,6 +255,7 @@ Table investor_interests {
     Public inserts via Server Action + service role only.
     Staff SELECT/UPDATE/DELETE via is_editor() (20261110210000).
     Shown on /register-interest when profiles.type = investor.
+    BEFORE INSERT investor_interests_require_closed (20261122060000).
   '''
 }
 
@@ -294,6 +300,7 @@ Table investor_engagements {
     Public inserts via Server Action + service role only.
     Staff SELECT/UPDATE/DELETE via is_editor() (20261110210000).
     Shown on /apply when profiles.type = investor and applications are open.
+    BEFORE INSERT investor_engagements_require_open (20261122060000).
   '''
 }
 
@@ -702,6 +709,8 @@ Table partners {
       and the whole prefix is deleted with the row.
 
     Trigger: partners_set_updated_at BEFORE UPDATE
+    Write RPCs (20261122060000): create_partner_with_sort_order /
+    update_partner_with_sort_order displace conflicting sort_order atomically.
     English-only content phase 1; EN/FR public pages show the same partners.
   '''
 }

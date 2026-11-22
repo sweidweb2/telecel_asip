@@ -116,13 +116,13 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 | | |
 | --- | --- |
 | **Role** | RPC (Editor CMS Analytics page) |
-| **Returns** | `jsonb` snapshot: `applications` / `registrations` / `contactMessages` inbox counts + `content` publish/status counts |
+| **Returns** | `jsonb` snapshot: `applications` / `registrations` / `investorInterests` / `investorEngagements` / `contactMessages` inbox counts + `content` publish/status counts |
 | **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, editor-only |
 | **Granted to** | `authenticated` (raises `42501` unless `is_editor()`) |
 
 **Details:** Replaces ~32 exact head-count PostgREST queries on the Analytics page with one RPC.
 
-**How it works:** Raises `42501` unless `is_editor()` (`20260910180000`; previously `is_admin()`). Builds one `jsonb` with inbox totals/status/7d/30d windows (UTC `now() - interval`) and content counts matching prior TS filters (blog `status`, startup `active`, partner `is_active`, cohort/event/story `publish_status`, impact `verified`). Labels/hrefs stay in the app data layer. Added `20260905221100`.
+**How it works:** Raises `42501` unless `is_editor()` (`20260910180000`; previously `is_admin()`). Builds one `jsonb` with inbox totals/status/7d/30d windows (UTC `now() - interval`) and content counts matching prior TS filters (blog `status`, startup `active`, partner `is_active`, cohort/event/story `publish_status`, impact `verified`). Labels/hrefs stay in the app data layer. Added `20260905221100`; investor pipelines added `20261122070000`.
 
 ---
 
@@ -131,13 +131,13 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 | | |
 | --- | --- |
 | **Role** | RPC (Editor sidebar record badges) |
-| **Returns** | `jsonb` of table → total: `interest_registrations`, `applications`, `contact_messages`, `newsletter_subscribers`, `blogs`, `startups`, `partners`, `founder_stories`, `cohorts`, `events`, `evidence_records`, `impact_metrics`, `profiles` |
+| **Returns** | `jsonb` of table → total: `interest_registrations`, `applications`, `investor_interests`, `investor_engagements`, `contact_messages`, `newsletter_subscribers`, `blogs`, `startups`, `partners`, `founder_stories`, `cohorts`, `events`, `evidence_records`, `impact_metrics`, `profiles` |
 | **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, editor-only |
 | **Granted to** | `authenticated` (raises `42501` unless `is_editor()`) |
 
-**Details:** Replaces 13 parallel PostgREST `count: exact` head queries on the Editor layout with one round-trip. The app maps table keys to nav hrefs. The Editor layout does not await this RPC before streaming the page; badges resolve in `Suspense`. Writes that call `refreshAdminResource` also `revalidateTag('dashboard-nav-counts')`.
+**Details:** Replaces parallel PostgREST `count: exact` head queries on the Editor layout with one round-trip. The app maps table keys to nav hrefs. The Editor layout does not await this RPC before streaming the page; badges resolve in `Suspense`. Writes that call `refreshAdminResource` also `revalidateTag('dashboard-nav-counts')`.
 
-**How it works:** Raises `42501` unless `is_editor()`. Each value is `count(*)` on that table. Invoker, so RLS still applies — editors do not count administrator `profiles` (`20260910220000`). Added `20260910230000`.
+**How it works:** Raises `42501` unless `is_editor()`. Each value is `count(*)` on that table. Invoker, so RLS still applies — editors do not count administrator `profiles` (`20260910220000`). Added `20260910230000`; investor tables added `20261122070000`.
 
 ---
 
@@ -150,9 +150,9 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 | **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, editor-only |
 | **Granted to** | `authenticated` (raises `42501` unless `is_editor()`; `22023` on unknown `p_resource`) |
 
-**Details:** Replaces 3–4 parallel PostgREST `count: exact` head queries per list page (blogs, partners, startups, cohorts, events, founder stories, evidence, impact metrics, applications, interest registrations, contact messages). Sidebar totals stay on `get_dashboard_nav_counts`; this RPC is one extra round-trip for the page cards, not a recount of every nav table.
+**Details:** Replaces 3–4 parallel PostgREST `count: exact` head queries per list page (blogs, partners, startups, cohorts, events, founder stories, evidence, impact metrics, applications, interest registrations, investor interests, investor engagements, contact messages). Sidebar totals stay on `get_dashboard_nav_counts`; this RPC is one extra round-trip for the page cards, not a recount of every nav table.
 
-**How it works:** Raises `42501` unless `is_editor()`. `CASE` on `p_resource` runs one `count(*)` + `FILTER` scan of that table. Event `upcoming` uses UTC `now()::date`. Inbox `last7Days` uses UTC `now() - 7 days`. Invoker, so RLS applies. Added `20260910250000`.
+**How it works:** Raises `42501` unless `is_editor()`. `CASE` on `p_resource` runs one `count(*)` + `FILTER` scan of that table. Event `upcoming` uses UTC `now()::date`. Inbox `last7Days` uses UTC `now() - 7 days`. Invoker, so RLS applies. Added `20260910250000`; investor inbox resources added `20261122070000`.
 
 ---
 
@@ -182,7 +182,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 **Details:** Hard-deletes a non-admin user (editors/viewers with entity links). Admins use normal flows; this path is not for deleting other admins.
 
-**How it works:** Requires `is_admin()`. Rejects null target, self-delete, missing profile, or target `role = admin`. Deletes `evidence_records` where `owner_id = p_target` (FK `ON DELETE RESTRICT`), then deletes `auth.users` for `p_target` so the profile cascades away. Added `20260910180000`.
+**How it works:** Requires `is_admin()`. Rejects null target, self-delete, missing profile, or target `role = admin`. Raises `23503` when the target’s evidence is still linked from `impact_metrics`. Sets `app.bypass_last_editor_guard=on` (transaction-local) so hard-delete may remove the last editor, then deletes `evidence_records` where `owner_id = p_target`, then deletes `auth.users` for `p_target` so the profile cascades away. Added `20260910180000`; impact-metric check + last-editor bypass in `20261122060000`.
 
 ---
 
@@ -270,6 +270,29 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ---
 
+### `public.enforce_last_staff_role()`
+
+| | |
+| --- | --- |
+| **Role** | Last-admin / last-editor integrity guard |
+| **Returns** | `trigger` |
+| **Security** | `SECURITY DEFINER`, `search_path = public` |
+
+**Details:** Added `20261122060000`.
+
+**How it works:** On `BEFORE UPDATE OF role` / `BEFORE DELETE`, locks matching staff rows with `FOR UPDATE` and raises `P0001` when the change would remove the last `admin` (always) or last `editor` (unless `app.bypass_last_editor_guard=on`, set by `admin_hard_delete_user`).
+
+### `profiles_enforce_last_staff_role_update` / `profiles_enforce_last_staff_role_delete`
+
+| | |
+| --- | --- |
+| **Role** | Last staff integrity |
+| **Table** | `public.profiles` |
+| **Timing** | `BEFORE UPDATE OF role` / `BEFORE DELETE`, `FOR EACH ROW` |
+| **Calls** | `public.enforce_last_staff_role()` |
+
+---
+
 ### `public.prevent_unauthorized_profile_type_change()`
 
 | | |
@@ -303,17 +326,21 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 No triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. Chart reads use `get_admin_perf_analytics`. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the Performance page reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
 
+### `public.applications`
+
+Public Apply inserts via Server Action + service role after Zod, Turnstile, and rate limits. `BEFORE INSERT` trigger `applications_require_open` → `enforce_intake_requires_open()` rejects inserts while `site_settings.open_applications` is false (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
+
 ### `public.interest_registrations`
 
-No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=apply`), and in-memory rate limits (hits recorded only after a successful insert). Editors list/update/delete via the session client under `is_editor()` RLS policies.
+Public inserts via Server Action + service role after Zod, Turnstile, and rate limits. `BEFORE INSERT` trigger `interest_registrations_require_closed` → `enforce_intake_requires_closed()` rejects inserts while `site_settings.open_applications` is true (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.investor_interests`
 
-No RPCs, functions, or triggers (`20261110210000`). Investor light-lead intake (Register Interest path when `profiles.type = investor`). Public inserts via Server Action + service role after Zod, Turnstile (`action=apply`), and rate limits. Editors list/update/delete under `is_editor()` RLS.
+Investor light-lead intake (`20261110210000`). Same public write/guard pattern as interest registrations, plus `investor_interests_require_closed` → `enforce_intake_requires_closed()` (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.investor_engagements`
 
-No RPCs, functions, or triggers (`20261110210000`). Investor deeper engagement intake (Apply path when `profiles.type = investor` and applications are open). Same write/guard pattern as `investor_interests`. Editors list/update/delete under `is_editor()` RLS.
+Investor deeper engagement intake (`20261110210000`). Public inserts require open applications in the Server Action and via `investor_engagements_require_open` → `enforce_intake_requires_open()` (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.contact_messages`
 
@@ -569,6 +596,38 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK/FK, `ON DELETE CASCADE`). Public SELECT only when the parent startup `status = active`. Editors CRUD via `is_editor()`.
 
 ---
+
+### `public.create_partner_with_sort_order(p_partner jsonb)` / `public.update_partner_with_sort_order(p_id uuid, p_partner jsonb)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (editor partner create/update) |
+| **Returns** | One row: `id` (uuid) |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Added `20261122060000`. Calls `partners_displace_sort_order` then inserts/updates the partner in the same transaction so sort-order moves cannot partially apply.
+
+### `public.partners_displace_sort_order(p_desired integer, p_current_id uuid default null)`
+
+| | |
+| --- | --- |
+| **Role** | Helper used by partner write RPCs |
+| **Returns** | `void` |
+| **Security** | `SECURITY INVOKER` |
+
+**How it works:** `SELECT … FOR UPDATE` on all partners, then moves the occupant of `p_desired` to the first free slot in 1–170.
+
+### `public.update_blog_status(p_id uuid, p_status blog_status)`
+
+| | |
+| --- | --- |
+| **Role** | RPC (editor publish/draft toggle) |
+| **Returns** | One row: `id`, `slug` |
+| **Security** | `SECURITY INVOKER`, `search_path = public` |
+| **Granted to** | `authenticated` |
+
+**Details:** Added `20261122060000`. Locks the blog row, clears `is_featured` when drafting, stamps `published_at` once when publishing.
 
 ### `public.partners`
 

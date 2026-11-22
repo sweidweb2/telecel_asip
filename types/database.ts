@@ -1263,6 +1263,32 @@ export type Database = {
     }
     Functions: {
       admin_hard_delete_user: { Args: { p_target: string }; Returns: undefined }
+      create_partner_with_sort_order: {
+        Args: { p_partner: Json }
+        Returns: {
+          id: string
+        }[]
+      }
+      partners_displace_sort_order: {
+        Args: { p_desired: number; p_current_id?: string }
+        Returns: undefined
+      }
+      update_blog_status: {
+        Args: {
+          p_id: string
+          p_status: Database["public"]["Enums"]["blog_status"]
+        }
+        Returns: {
+          id: string
+          slug: string
+        }[]
+      }
+      update_partner_with_sort_order: {
+        Args: { p_id: string; p_partner: Json }
+        Returns: {
+          id: string
+        }[]
+      }
       blog_categories_within_bounds: {
         Args: { categories: string[] }
         Returns: boolean
