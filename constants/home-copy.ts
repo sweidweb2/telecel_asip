@@ -210,8 +210,8 @@ const en: HomePageCopy = {
           "Show the difference in numbers a customer, partner or investor would recognize.",
       },
     ],
-    primaryCta: { slug: "register-interest", label: "Register interest" },
-    secondaryCta: { slug: "contact", label: "Discuss a partnership" },
+    primaryCta: { slug: "register-interest", label: "Investor" },
+    secondaryCta: { slug: "register-interest", label: "Startup" },
   },
   latest: {
     eyebrow: "Latest",
@@ -428,8 +428,8 @@ const fr: HomePageCopy = {
           "Montrer la différence en chiffres qu’un client, un partenaire ou un investisseur reconnaîtrait.",
       },
     ],
-    primaryCta: { slug: "register-interest", label: "Manifester votre intérêt" },
-    secondaryCta: { slug: "contact", label: "Discuter d’un partenariat" },
+    primaryCta: { slug: "register-interest", label: "Investisseur" },
+    secondaryCta: { slug: "register-interest", label: "Startup" },
   },
   latest: {
     eyebrow: "À la une",

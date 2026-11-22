@@ -54,7 +54,7 @@ const en: PartnersPageCopy = {
         id: "development",
         type: "Development / public sector",
         value:
-          "Advance entrepreneurship, jobs, inclusion and technology-led solutions.",
+          "Advance founder growth, jobs, inclusion and technology-led solutions.",
         examples:
           "Country initiatives, grants, sector programs, impact measurement.",
       },
@@ -147,7 +147,7 @@ const fr: PartnersPageCopy = {
         id: "development",
         type: "Développement / secteur public",
         value:
-          "Faire progresser l’entrepreneuriat, l’emploi, l’inclusion et les solutions technologiques.",
+          "Faire progresser la croissance des fondateurs, l’emploi, l’inclusion et les solutions technologiques.",
         examples:
           "Initiatives pays, subventions, programmes sectoriels, mesure d’impact.",
       },

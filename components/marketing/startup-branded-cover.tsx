@@ -9,20 +9,16 @@ type StartupBrandedCoverProps = {
     cohort: string | null;
     logo_url: string | null;
   };
-  /** Hide the centred logo when the parent already overlays one. */
-  showMark?: boolean;
   className?: string;
 };
 
 /**
- * Restrained graphic cover for startups without real founder photography:
- * ink field, a fine dot grid and the company's own mark. The card around it
- * carries the cohort colour in its top rule.
+ * Upper image area for startups without founder photography: ink field,
+ * fine dot grid, and the company logo as the main mark (or initials).
  * Fills its (relative) parent.
  */
 export function StartupBrandedCover({
   startup,
-  showMark = true,
   className,
 }: StartupBrandedCoverProps) {
   return (
@@ -41,25 +37,23 @@ export function StartupBrandedCover({
           backgroundSize: "18px 18px",
         }}
       />
-      {showMark ? (
-        startup.logo_url ? (
-          <span className="relative block h-[38%] w-[46%] max-w-56 rounded-xl bg-white p-3 shadow-lg">
-            <span className="relative block size-full">
-              <Image
-                src={startup.logo_url}
-                alt=""
-                fill
-                sizes="14rem"
-                className="object-contain"
-              />
-            </span>
+      {startup.logo_url ? (
+        <span className="relative block h-[42%] w-[52%] max-w-64 rounded-xl bg-white p-3 shadow-lg sm:p-4">
+          <span className="relative block size-full">
+            <Image
+              src={startup.logo_url}
+              alt=""
+              fill
+              sizes="16rem"
+              className="object-contain"
+            />
           </span>
-        ) : (
-          <span className="font-heading text-4xl font-semibold tracking-tight text-white/80 sm:text-5xl">
-            {startupInitials(startup.name)}
-          </span>
-        )
-      ) : null}
+        </span>
+      ) : (
+        <span className="font-heading text-4xl font-semibold tracking-tight text-white/80 sm:text-5xl">
+          {startupInitials(startup.name)}
+        </span>
+      )}
     </div>
   );
 }

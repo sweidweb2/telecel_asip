@@ -30,7 +30,7 @@ const ACTION_MESSAGES = {
     unauthorized: "You do not have permission to manage investor engagements.",
     signedInRequired: "You must be signed in.",
     notFound: "Investor engagement not found.",
-    duplicate: "An engagement already exists for this organisation and email.",
+    duplicate: "An engagement already exists for this organization and email.",
     genericError: "Something went wrong. Please try again.",
   },
   fr: {

@@ -45,8 +45,8 @@ export const INVESTOR_CONTACT_MESSAGES: Record<
     emailMax: "Email must be at most 254 characters",
     phoneInvalid:
       "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
-    organizationMin: "Organisation must be at least 2 characters",
-    organizationMax: "Organisation must be at most 120 characters",
+    organizationMin: "Organization must be at least 2 characters",
+    organizationMax: "Organization must be at most 120 characters",
     jobTitleMin: "Job title must be at least 2 characters",
     jobTitleMax: "Job title must be at most 80 characters",
     linkedinInvalid: "LinkedIn must be a valid http(s) URL",

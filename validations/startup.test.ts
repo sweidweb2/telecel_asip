@@ -4,6 +4,7 @@ import {
   createStartupSchema,
   parseActiveStartupFilters,
   parsePortfolioPageParam,
+  parseShuffleSeed,
   parseStartupListQuery,
   updateStartupSchema,
 } from "@/validations/startup";
@@ -201,5 +202,13 @@ describe("parseActiveStartupFilters", () => {
       sector: "Health",
       query: "clinic",
     });
+  });
+});
+
+describe("parseShuffleSeed", () => {
+  it("accepts a non-negative integer seed", () => {
+    expect(parseShuffleSeed("42")).toBe(42);
+    expect(parseShuffleSeed(undefined)).toBeNull();
+    expect(parseShuffleSeed("-1")).toBeNull();
   });
 });

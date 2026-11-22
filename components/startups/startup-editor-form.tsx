@@ -19,6 +19,7 @@ import { AdminClearIconButton } from "@/components/dashboard/admin-clear-icon-bu
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
+import { AdminImagePreviewButton } from "@/components/dashboard/admin-image-preview-button";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { StepperContent } from "@/components/ui/stepper";
 import {
@@ -656,19 +657,27 @@ export function StartupEditorForm({
                     </div>
                   )}
                   {previewSrc ? (
-                    <AdminClearIconButton
-                      label={
-                        pendingLogo ? "Clear logo selection" : "Remove logo"
-                      }
-                      disabled={isPending}
-                      onClick={() => {
-                        if (pendingLogo) {
-                          onLogoPicked(null);
-                          return;
+                    <>
+                      <AdminImagePreviewButton
+                        src={previewSrc}
+                        alt={startup?.name ?? "Startup logo"}
+                        label="View full logo"
+                        disabled={isPending}
+                      />
+                      <AdminClearIconButton
+                        label={
+                          pendingLogo ? "Clear logo selection" : "Remove logo"
                         }
-                        onRemoveLogo();
-                      }}
-                    />
+                        disabled={isPending}
+                        onClick={() => {
+                          if (pendingLogo) {
+                            onLogoPicked(null);
+                            return;
+                          }
+                          onRemoveLogo();
+                        }}
+                      />
+                    </>
                   ) : null}
                 </div>
                 <input

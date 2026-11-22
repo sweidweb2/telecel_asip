@@ -18,7 +18,10 @@ import type { Locale } from "@/constants/locales";
 import { cohortAccent } from "@/lib/startup-display";
 import { cn } from "@/lib/utils";
 import type { StartupFilterOptions, StartupPublicListItem } from "@/types/startup";
-import type { ActiveStartupFilters } from "@/validations/startup";
+import {
+  createShuffleSeed,
+  type ActiveStartupFilters,
+} from "@/validations/startup";
 
 const LABELS = {
   en: {
@@ -78,6 +81,8 @@ export function PortfolioStartupsGrid({
       if (next.country) params.set("country", next.country);
       if (next.sector) params.set("sector", next.sector);
       if (next.query) params.set("q", next.query);
+      // New filter set → new random order for this visit.
+      params.set("s", String(createShuffleSeed()));
       const search = params.toString();
       router.replace(search ? `${pathname}?${search}` : pathname, {
         scroll: false,
@@ -231,7 +236,7 @@ export function PortfolioStartupsGrid({
               {resultLabel}
             </p>
           ) : null}
-          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-5">
             {startups.map((startup) => (
               <li key={startup.id} className="min-w-0">
                 <StartupCard

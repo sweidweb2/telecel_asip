@@ -83,7 +83,7 @@ export function InvestorInterestsTable({
             <TableHead>Name</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Organisation</TableHead>
+            <TableHead>Organization</TableHead>
             <TableHead>Submitted</TableHead>
             <TableHead className="w-36 pr-4 text-right">Actions</TableHead>
           </TableRow>

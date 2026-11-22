@@ -30,7 +30,7 @@ const ACTION_MESSAGES = {
     unauthorized: "You do not have permission to manage investor interests.",
     signedInRequired: "You must be signed in.",
     notFound: "Investor interest not found.",
-    duplicate: "An interest already exists for this organisation and email.",
+    duplicate: "An interest already exists for this organization and email.",
     genericError: "Something went wrong. Please try again.",
   },
   fr: {

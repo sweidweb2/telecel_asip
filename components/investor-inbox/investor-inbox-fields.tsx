@@ -87,7 +87,7 @@ export function InvestorContactViewSections({
           </AdminDetailRow>
         </AdminDetailGrid>
       </AdminDetailSection>
-      <AdminDetailSection title="Organisation">
+      <AdminDetailSection title="Organization">
         <AdminDetailGrid>
           <AdminDetailRow label="Name">{record.organization}</AdminDetailRow>
           <AdminDetailRow label="Job title">{record.job_title}</AdminDetailRow>
@@ -127,7 +127,7 @@ export function InvestorContextViewSection({
   );
 }
 
-/** Shared contact + organisation inputs for both investor edit dialogs. */
+/** Shared contact + organization inputs for both investor edit dialogs. */
 export function InvestorContactEditFields({
   form,
   idPrefix,
@@ -205,7 +205,7 @@ export function InvestorContactEditFields({
             htmlFor={`${idPrefix}-organization`}
             hint={`2–${INVESTOR_ORGANIZATION_MAX} chars`}
           >
-            Organisation
+            Organization
           </AdminFormFieldLabel>
           <Input
             id={`${idPrefix}-organization`}

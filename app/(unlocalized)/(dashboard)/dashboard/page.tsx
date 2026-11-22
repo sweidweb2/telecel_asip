@@ -149,7 +149,7 @@ export default async function DashboardPage() {
           )}
           {unread && !hasUnread ? (
             <p className="text-sm text-muted-foreground">
-              Inbox is clear — no unread founder, investor, or contact items.
+              Inbox is clear: no unread founder, investor, or contact items.
             </p>
           ) : null}
         </section>

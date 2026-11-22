@@ -106,7 +106,7 @@ test("desktop navigation keeps the primary routes in the main bar", async ({
 
 test("retired portfolio URLs resolve to the founders directory", async ({ page }) => {
   await page.goto("/en/portfolio");
-  await expect(page).toHaveURL(/\/en\/founders$/);
+  await expect(page).toHaveURL(/\/en\/founders(\?.*)?$/);
 });
 
 test("inactive intake path redirects to the live path", async ({ page }) => {

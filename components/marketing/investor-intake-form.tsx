@@ -422,7 +422,7 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
                   id="investor-timeline"
                   className="min-h-11 w-full"
                 >
-                  <SelectValue placeholder="—" />
+                  <SelectValue placeholder="-" />
                 </SelectTrigger>
                 <SelectContent>
                   {INVESTOR_TIMELINES.map((value) => (

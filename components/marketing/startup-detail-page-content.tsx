@@ -6,9 +6,8 @@ import { StartupCard } from "@/components/marketing/startup-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { StartupBrandedCover } from "@/components/marketing/startup-branded-cover";
 import { startupCoverFor } from "@/constants/startup-cover-review";
-import { formatFoundedDate } from "@/lib/startup-display";
+import { formatFoundedDate, startupInitials } from "@/lib/startup-display";
 import type { FounderStoryPublic } from "@/types/founder-story";
 import type {
   StartupPublicDetail,
@@ -161,6 +160,10 @@ export function StartupDetailPageContent({
   const publicOutcome =
     details?.public_outcome?.trim() || startup.public_outcome?.trim() || null;
 
+  const cover = startupCoverFor(startup);
+  const heroImage = cover ?? startup.logo_url;
+  const isLogoHero = !cover && Boolean(startup.logo_url);
+
   return (
     <main>
       <article className="pb-16 lg:pb-24">
@@ -178,36 +181,45 @@ export function StartupDetailPageContent({
         </div>
 
         <div className="mx-auto mt-6 w-full max-w-7xl px-5 sm:mt-8 sm:px-8 lg:px-10">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#14333b] md:aspect-[2/1]">
-            {startupCoverFor(startup) ? (
-              <Image
-                src={startupCoverFor(startup)!}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                style={{
-                  objectPosition: `${startup.image_focal_x}% ${startup.image_focal_y}%`,
-                }}
-                sizes="(max-width: 1152px) 100vw, 1152px"
-              />
-            ) : (
-              <StartupBrandedCover
-                startup={startup}
-                showMark={!startup.logo_url}
-              />
-            )}
-            {startup.logo_url ? (
-              <div className="absolute bottom-5 left-5 size-20 overflow-hidden rounded-lg border bg-white shadow-lg sm:bottom-8 sm:left-8 sm:size-24">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-white md:aspect-[2/1]">
+            {heroImage ? (
+              <>
                 <Image
-                  src={startup.logo_url}
-                  alt={`${startup.name} logo`}
+                  src={heroImage}
+                  alt=""
                   fill
-                  className="object-contain p-2"
-                  sizes="96px"
+                  priority
+                  className={
+                    isLogoHero ? "object-contain p-10 sm:p-16" : "object-cover"
+                  }
+                  style={
+                    cover
+                      ? {
+                          objectPosition: `${startup.image_focal_x}% ${startup.image_focal_y}%`,
+                        }
+                      : undefined
+                  }
+                  sizes="(max-width: 1152px) 100vw, 1152px"
                 />
-              </div>
-            ) : null}
+                {cover && startup.logo_url ? (
+                  <div className="absolute bottom-5 left-5 z-10 size-20 overflow-hidden rounded-lg border bg-white shadow-lg sm:bottom-8 sm:left-8 sm:size-24">
+                    <div className="relative size-full">
+                      <Image
+                        src={startup.logo_url}
+                        alt={`${startup.name} logo`}
+                        fill
+                        className="object-contain p-2"
+                        sizes="96px"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <span className="absolute inset-0 flex items-center justify-center font-heading text-5xl font-semibold tracking-tight text-muted-foreground/50 sm:text-6xl">
+                {startupInitials(startup.name)}
+              </span>
+            )}
           </div>
 
           <header className="mt-8 max-w-3xl sm:mt-10">

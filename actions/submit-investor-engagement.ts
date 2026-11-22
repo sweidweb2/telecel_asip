@@ -25,7 +25,7 @@ const MESSAGES = {
     accountTypeRejected: "This form is for investor accounts only.",
     applicationsGate:
       "Engagement is closed. Register your investor interest to hear when the next chapter opens.",
-    duplicate: "You already submitted an engagement request for this organisation.",
+    duplicate: "You already submitted an engagement request for this organization.",
   },
   fr: {
     ...PUBLIC_SUBMIT_GUARD_COPY.fr,

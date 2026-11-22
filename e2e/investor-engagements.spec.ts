@@ -64,7 +64,7 @@ test.describe("investor engagements admin", () => {
       await page.getByRole("button", { name: "Edit Inv Engage E2E" }).click();
       const dialog = page.getByRole("dialog");
       await dialog
-        .getByLabel("Organisation", { exact: true })
+        .getByLabel("Organization", { exact: true })
         .fill(`${organization} edited`);
       await dialog.getByRole("button", { name: "Save changes" }).click();
       await expect(

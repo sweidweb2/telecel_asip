@@ -1,19 +1,26 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { MarketingPageFallback } from "@/components/marketing/marketing-page-fallback";
 import { PortfolioPageContent } from "@/components/marketing/portfolio-page-content";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
+import { publicPath } from "@/constants/routes";
 import {
   getActiveStartupFilterOptions,
   getActiveStartupsPage,
 } from "@/data/startups";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
-import type { RawSearchParams } from "@/validations/admin-list-query";
 import {
+  firstSearchParam,
+  type RawSearchParams,
+} from "@/validations/admin-list-query";
+import {
+  createShuffleSeed,
   parseActiveStartupFilters,
   parsePortfolioPageParam,
+  parseShuffleSeed,
 } from "@/validations/startup";
 
 type PageProps = {
@@ -53,15 +60,38 @@ function FoundersFallback() {
   );
 }
 
+function foundersHref(locale: string, query: RawSearchParams, seed: number) {
+  const params = new URLSearchParams();
+  const page = firstSearchParam(query.page);
+  const cohort = firstSearchParam(query.cohort);
+  const country = firstSearchParam(query.country);
+  const sector = firstSearchParam(query.sector);
+  const q = firstSearchParam(query.q);
+  if (page && page !== "1") params.set("page", page);
+  if (cohort) params.set("cohort", cohort);
+  if (country) params.set("country", country);
+  if (sector) params.set("sector", sector);
+  if (q) params.set("q", q);
+  params.set("s", String(seed));
+  const qs = params.toString();
+  const base = publicPath(locale, "founders");
+  return qs ? `${base}?${qs}` : base;
+}
+
 async function FoundersPage({ params, searchParams }: PageProps) {
   const [locale, query] = await Promise.all([
     localeFromParams(params),
     searchParams,
   ]);
+  const shuffleSeed = parseShuffleSeed(query.s);
+  if (shuffleSeed === null) {
+    redirect(foundersHref(locale, query, createShuffleSeed()));
+  }
+
   const page = parsePortfolioPageParam(query.page);
   const filters = parseActiveStartupFilters(query);
   const [list, options] = await Promise.all([
-    getActiveStartupsPage(page, filters),
+    getActiveStartupsPage(page, filters, shuffleSeed),
     getActiveStartupFilterOptions(),
   ]);
 
@@ -71,6 +101,7 @@ async function FoundersPage({ params, searchParams }: PageProps) {
       list={list}
       options={options}
       filters={filters}
+      shuffleSeed={shuffleSeed}
     />
   );
 }

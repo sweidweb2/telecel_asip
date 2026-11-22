@@ -433,7 +433,7 @@ export async function updateUser(
       return {
         status: "error",
         message:
-          "Profile update failed and Auth could not be reverted. Auth and profile may disagree — contact support.",
+          "Profile update failed and Auth could not be reverted. Auth and profile may disagree; contact support.",
       };
     }
     return {

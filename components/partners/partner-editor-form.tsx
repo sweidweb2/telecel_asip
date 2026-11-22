@@ -27,6 +27,7 @@ import {
   CmsEditorFrame,
   CmsEditorSaveActions,
 } from "@/components/dashboard/cms-editor-frame";
+import { AdminImagePreviewButton } from "@/components/dashboard/admin-image-preview-button";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import {
   ADMIN_FORM_PAIR_FIELD,
@@ -501,6 +502,15 @@ export function PartnerEditorForm({
                             <ImageIcon className="size-6 text-muted-foreground" />
                           )}
                         </div>
+                        {displayLogo ? (
+                          <AdminImagePreviewButton
+                            src={displayLogo}
+                            alt={`${partner?.name ?? "Partner"} logo`}
+                            label="View full logo"
+                            disabled={isPending}
+                            className="-top-1 -left-1"
+                          />
+                        ) : null}
                         {pendingFile ? (
                           <AdminClearIconButton
                             label="Clear logo selection"

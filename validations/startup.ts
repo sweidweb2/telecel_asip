@@ -7,7 +7,7 @@ import {
 } from "@/validations/admin-list-query";
 
 export const STARTUP_PAGE_SIZE = 12;
-export const STARTUP_PUBLIC_PAGE_SIZE = 6;
+export const STARTUP_PUBLIC_PAGE_SIZE = 12;
 export const PORTFOLIO_SEARCH_MAX = 100;
 
 export const STARTUP_NAME_MAX = 120;
@@ -267,4 +267,23 @@ export function parseActiveStartupFilters(
     sector: parsePublicFilterParam(input.sector),
     query: parsePortfolioSearchParam(input.q),
   };
+}
+
+/**
+ * Optional `?s=` shuffle seed so pagination keeps one random order for the
+ * visit. Missing / invalid → null (caller should mint a new seed).
+ */
+export function parseShuffleSeed(
+  value: string | string[] | undefined,
+): number | null {
+  const raw = firstSearchParam(value);
+  if (!raw) return null;
+  const seed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(seed) || seed < 0) return null;
+  return seed >>> 0;
+}
+
+/** Fresh shuffle seed for a new directory visit or filter change. */
+export function createShuffleSeed(): number {
+  return Math.floor(Math.random() * 0x1_0000_0000) >>> 0;
 }

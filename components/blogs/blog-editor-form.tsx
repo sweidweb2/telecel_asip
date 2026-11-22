@@ -23,6 +23,7 @@ import { CmsEditorFrame } from "@/components/dashboard/cms-editor-frame";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
+import { AdminImagePreviewButton } from "@/components/dashboard/admin-image-preview-button";
 import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-processing-banner";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
@@ -1022,12 +1023,25 @@ export function BlogEditorForm({
                       )}
                     </div>
                     {hasAvatar ? (
-                      <AdminClearIconButton
-                        label="Clear avatar"
-                        disabled={isPending}
-                        className="-top-1 -right-1"
-                        onClick={onRemoveAvatar}
-                      />
+                      <>
+                        <AdminImagePreviewButton
+                          src={avatarPreview}
+                          alt={
+                            title
+                              ? `${title} author avatar`
+                              : "Author avatar"
+                          }
+                          label="View full avatar"
+                          disabled={isPending}
+                          className="-top-1 -left-1"
+                        />
+                        <AdminClearIconButton
+                          label="Clear avatar"
+                          disabled={isPending}
+                          className="-top-1 -right-1"
+                          onClick={onRemoveAvatar}
+                        />
+                      </>
                     ) : null}
                   </div>
                   <Button
@@ -1100,11 +1114,19 @@ export function BlogEditorForm({
                   </p>
                 )}
                 {hasCover ? (
-                  <AdminClearIconButton
-                    label="Clear cover image"
-                    disabled={isPending}
-                    onClick={onRemoveCover}
-                  />
+                  <>
+                    <AdminImagePreviewButton
+                      src={coverPreview}
+                      alt={title || "Cover preview"}
+                      label="View full cover image"
+                      disabled={isPending}
+                    />
+                    <AdminClearIconButton
+                      label="Clear cover image"
+                      disabled={isPending}
+                      onClick={onRemoveCover}
+                    />
+                  </>
                 ) : null}
               </div>
               <AdminImageProcessingBanner active={isProcessingImage} />

@@ -16,22 +16,23 @@ import { getActiveStartupsPage } from "@/data/startups";
 describe("getActiveStartupsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const range = vi.fn().mockResolvedValue({ data: [], count: 0, error: null });
-    const orderId = vi.fn(() => ({ range }));
-    const orderUpdated = vi.fn(() => ({ order: orderId }));
-    const orderFeatured = vi.fn(() => ({ order: orderUpdated }));
+    const orderId = vi.fn().mockResolvedValue({ data: [], error: null });
     from.mockReturnValue({
-      select: vi.fn(() => ({ order: orderFeatured })),
+      select: vi.fn(() => ({ order: orderId })),
     });
   });
 
   it("reads from the active-only startups_public view", async () => {
-    await getActiveStartupsPage(1, {
-      cohort: "",
-      country: "",
-      sector: "",
-      query: "",
-    });
+    await getActiveStartupsPage(
+      1,
+      {
+        cohort: "",
+        country: "",
+        sector: "",
+        query: "",
+      },
+      42,
+    );
     expect(from).toHaveBeenCalledWith("startups_public");
   });
 });

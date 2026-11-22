@@ -25,7 +25,7 @@ const MESSAGES = {
     accountTypeRejected: "This form is for investor accounts only.",
     applicationsGate:
       "Engagement is open. Submit the full investor engagement form instead.",
-    duplicate: "You already registered interest for this organisation.",
+    duplicate: "You already registered interest for this organization.",
   },
   fr: {
     ...PUBLIC_SUBMIT_GUARD_COPY.fr,

@@ -33,7 +33,11 @@ describe("homeCopyFor", () => {
     expect(en.hero.continuumAlts).toHaveLength(fr.hero.continuumAlts.length);
     expect(en.cohortFilm.title).not.toEqual(fr.cohortFilm.title);
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
-    expect(en.nextChapter.secondaryCta.slug).toBe("contact");
+    expect(en.nextChapter.secondaryCta.slug).toBe("register-interest");
+    expect(en.nextChapter.primaryCta.label).toBe("Investor");
+    expect(en.nextChapter.secondaryCta.label).toBe("Startup");
+    expect(fr.nextChapter.primaryCta.label).toBe("Investisseur");
+    expect(fr.nextChapter.secondaryCta.label).toBe("Startup");
     expect(en.outcomes.features.map((feature) => feature.id)).toEqual(
       fr.outcomes.features.map((feature) => feature.id),
     );

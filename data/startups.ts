@@ -276,19 +276,35 @@ export async function getStartupsForBlogPicker(
   );
 }
 
-async function fetchActiveStartupsPage(
-  page: number,
-  pageSize: number,
-  filters: ActiveStartupFilters,
-): Promise<StartupPublicPageResult> {
-  const supabase = createPublicClient();
-  const safePage = Math.max(1, page);
-  const from = (safePage - 1) * pageSize;
-  const to = from + pageSize - 1;
+/** Mulberry32 — tiny seeded PRNG so the same `?s=` yields a stable shuffle. */
+function mulberry32(seed: number): () => number {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-  let request = supabase
-    .from("startups_public")
-    .select(PUBLIC_LIST_COLUMNS, { count: "estimated" });
+function shuffleSeeded<T>(items: readonly T[], seed: number): T[] {
+  const next = mulberry32(seed);
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(next() * (i + 1));
+    const tmp = out[i]!;
+    out[i] = out[j]!;
+    out[j] = tmp;
+  }
+  return out;
+}
+
+async function fetchActiveStartupsMatching(
+  filters: ActiveStartupFilters,
+): Promise<StartupPublicListItem[]> {
+  const supabase = createPublicClient();
+
+  let request = supabase.from("startups_public").select(PUBLIC_LIST_COLUMNS);
 
   if (filters.cohort) request = request.eq("cohort", filters.cohort);
   if (filters.country) request = request.eq("country_code", filters.country);
@@ -296,51 +312,63 @@ async function fetchActiveStartupsPage(
 
   if (filters.query) {
     const pattern = escapeIlikePattern(filters.query);
-    request = request.or(`name.ilike.%${pattern}%,description.ilike.%${pattern}%`);
+    request = request.or(
+      `name.ilike.%${pattern}%,description.ilike.%${pattern}%`,
+    );
   }
 
-  const { data, count, error } = await request
-    .order("featured", { ascending: false })
-    .order("updated_at", { ascending: false })
-    .order("id", { ascending: true })
-    .range(from, to);
+  // Stable base order — randomisation happens in-process via the shuffle seed.
+  const { data, error } = await request.order("id", { ascending: true });
 
   if (error) throw error;
 
-  const total = count ?? 0;
+  return mapPublicListItems(data ?? []);
+}
+
+/**
+ * One page of the public founders list. Matching rows are cached; the shuffle
+ * seed (`?s=`) randomises order per visit without duplicating rows across pages.
+ */
+export async function getActiveStartupsPage(
+  page: number,
+  filters: ActiveStartupFilters = {
+    cohort: null,
+    country: null,
+    sector: null,
+    query: "",
+  },
+  shuffleSeed = 0,
+): Promise<StartupPublicPageResult> {
+  // Free-text search is attacker-controlled and would mint unbounded cache
+  // entries, so those queries go straight to Postgres. Filter-only lists are
+  // small and safe to cache; shuffle happens after the cache hit.
+  const all = filters.query
+    ? await fetchActiveStartupsMatching(filters)
+    : await unstable_cache(
+        () => fetchActiveStartupsMatching(filters),
+        [
+          "active-startups-all",
+          filters.cohort ?? "all",
+          filters.country ?? "all",
+          filters.sector ?? "all",
+        ],
+        { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
+      )();
+
+  const pageSize = STARTUP_PUBLIC_PAGE_SIZE;
+  const shuffled = shuffleSeeded(all, shuffleSeed);
+  const total = shuffled.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const from = (safePage - 1) * pageSize;
 
   return {
-    items: mapPublicListItems(data ?? []),
+    items: shuffled.slice(from, from + pageSize),
     total,
     totalPages,
     currentPage: safePage,
     pageSize,
   };
-}
-
-/**
- * One page of the public founders list, filtered in Postgres. Year and search
- * come from the URL, so each combination is cached independently instead of
- * shipping every active startup to the browser.
- */
-export async function getActiveStartupsPage(
-  page: number,
-  filters: ActiveStartupFilters = { cohort: null, country: null, sector: null, query: "" },
-): Promise<StartupPublicPageResult> {
-  // Page and year have a small, known set of values, so they are safe cache
-  // keys. A free-text search is attacker-controlled and would let anyone mint
-  // unbounded cache entries, so those queries go straight to Postgres — the
-  // gin_trgm index on `name` keeps them cheap.
-  if (filters.query) {
-    return fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters);
-  }
-
-  return unstable_cache(
-    () => fetchActiveStartupsPage(page, STARTUP_PUBLIC_PAGE_SIZE, filters),
-    ["active-startups-page", String(page), filters.cohort ?? "all", filters.country ?? "all", filters.sector ?? "all"],
-    { tags: [STARTUPS_CACHE_TAG], revalidate: 300 },
-  )();
 }
 
 async function fetchActiveStartupFilterOptions(): Promise<StartupFilterOptions> {

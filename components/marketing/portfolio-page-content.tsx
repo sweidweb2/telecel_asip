@@ -31,6 +31,8 @@ type PortfolioPageContentProps = {
   list: StartupPublicPageResult;
   options: StartupFilterOptions;
   filters?: ActiveStartupFilters;
+  /** Keeps one random order across pagination for this visit. */
+  shuffleSeed?: number;
 };
 
 /**
@@ -41,8 +43,11 @@ export function PortfolioPageContent({
   list,
   options,
   filters = { cohort: null, country: null, sector: null, query: "" },
+  shuffleSeed,
 }: PortfolioPageContentProps) {
   const copy = marketingCopyFor(locale, "founders");
+  const shuffleParam =
+    shuffleSeed === undefined ? undefined : String(shuffleSeed);
 
   return (
     <main>
@@ -82,6 +87,7 @@ export function PortfolioPageContent({
                 country: filters.country ?? undefined,
                 sector: filters.sector ?? undefined,
                 q: filters.query || undefined,
+                s: shuffleParam,
               }}
             />
           </div>

@@ -564,7 +564,7 @@ const fr: MarketingCopy = {
     tabs: [
       {
         id: "programme",
-        label: "Program",
+        label: "Programme",
         items: [
           { title: "Qu’est-ce qu’ASIP ?", description: "ASIP est un programme du Groupe Telecel qui aide les fondateurs technologiques africains à renforcer leur entreprise, accéder à l’expertise et aux voies de capital, atteindre de nouveaux marchés et construire une croissance durable." },
           { title: "Le programme est-il virtuel ou en présentiel ?", description: "Le format varie selon la cohorte et peut combiner sessions virtuelles, activités en présentiel, visites de marché, événements et opportunités de démonstration." },

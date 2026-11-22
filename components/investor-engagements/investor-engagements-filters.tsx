@@ -23,7 +23,7 @@ export function InvestorEngagementsFilters({
     <AdminFilterBar
       searchId="investor-engagements-search"
       searchLabel="Search investor engagements"
-      searchPlaceholder="Filter by name, email, or organisation…"
+      searchPlaceholder="Filter by name, email, or organization…"
       search={search}
       isPending={isPending}
       onSearchChange={handleSearchChange}
