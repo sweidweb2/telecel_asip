@@ -13,12 +13,14 @@ import {
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
 import {
+  ADMIN_INBOX_EDIT_DIALOG_CLASS,
+  ADMIN_INBOX_EDIT_HEADER_CLASS,
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
-  ADMIN_INBOX_EDIT_HEADER_CLASS,
   AdminDetailSection,
 } from "@/components/dashboard/admin-detail-row";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
@@ -34,7 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -67,14 +69,6 @@ import {
   updateContactMessageSchema,
   type UpdateContactMessageInput,
 } from "@/validations/contact-message";
-
-function FormFieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <FieldError>{message}</FieldError>;
-}
-
-const EDIT_DIALOG_CONTENT_CLASS =
-  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 function toEditDefaults(message: ContactMessage): UpdateContactMessageInput {
   return {
@@ -237,7 +231,7 @@ function ContactMessageEditForm({
       <form id={editFormId} onSubmit={form.handleSubmit(onUpdate)} noValidate>
         <input type="hidden" {...form.register("id")} />
         <FieldGroup>
-          <Field data-invalid={Boolean(form.formState.errors.enquiryType)}>
+          <Field data-invalid={Boolean(errors.enquiryType)}>
             <AdminFormFieldLabel htmlFor="edit-msg-enquiry-type" hint="Required">
               Inquiry route
             </AdminFormFieldLabel>
@@ -263,10 +257,10 @@ function ContactMessageEditForm({
                 ))}
               </SelectContent>
             </Select>
-            <FormFieldError message={form.formState.errors.enquiryType?.message} />
+            <AdminFieldError message={errors.enquiryType?.message} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+            <Field data-invalid={Boolean(errors.fullName)}>
               <AdminFormFieldLabel
                 htmlFor="edit-msg-name"
                 hint={`2–${CONTACT_MESSAGE_FULL_NAME_MAX} chars`}
@@ -279,12 +273,12 @@ function ContactMessageEditForm({
                 maxLength={CONTACT_MESSAGE_FULL_NAME_MAX}
                 className="min-h-11"
                 placeholder="e.g. Ama Mensah"
-                aria-invalid={Boolean(form.formState.errors.fullName)}
+                aria-invalid={Boolean(errors.fullName)}
                 {...form.register("fullName")}
               />
-              <FormFieldError message={form.formState.errors.fullName?.message} />
+              <AdminFieldError message={errors.fullName?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.phone)}>
+            <Field data-invalid={Boolean(errors.phone)}>
               <AdminFormFieldLabel
                 htmlFor="edit-msg-phone"
                 hint={`7–${CONTACT_MESSAGE_PHONE_MAX} · +()- spaces`}
@@ -298,13 +292,13 @@ function ContactMessageEditForm({
                 maxLength={CONTACT_MESSAGE_PHONE_MAX}
                 className="min-h-11"
                 placeholder="+233 20 000 0000"
-                aria-invalid={Boolean(form.formState.errors.phone)}
+                aria-invalid={Boolean(errors.phone)}
                 {...form.register("phone")}
               />
-              <FormFieldError message={form.formState.errors.phone?.message} />
+              <AdminFieldError message={errors.phone?.message} />
             </Field>
           </div>
-          <Field data-invalid={Boolean(form.formState.errors.email)}>
+          <Field data-invalid={Boolean(errors.email)}>
             <AdminFormFieldLabel
               htmlFor="edit-msg-email"
               hint={`max ${CONTACT_MESSAGE_EMAIL_MAX}`}
@@ -318,12 +312,12 @@ function ContactMessageEditForm({
               maxLength={CONTACT_MESSAGE_EMAIL_MAX}
               className="min-h-11"
               placeholder="name@company.com"
-              aria-invalid={Boolean(form.formState.errors.email)}
+              aria-invalid={Boolean(errors.email)}
               {...form.register("email")}
             />
-            <FormFieldError message={form.formState.errors.email?.message} />
+            <AdminFieldError message={errors.email?.message} />
           </Field>
-          <Field data-invalid={Boolean(form.formState.errors.subject)}>
+          <Field data-invalid={Boolean(errors.subject)}>
             <AdminFormFieldLabel
               htmlFor="edit-msg-subject"
               hint={`2–${CONTACT_MESSAGE_SUBJECT_MAX} chars`}
@@ -336,12 +330,12 @@ function ContactMessageEditForm({
               maxLength={CONTACT_MESSAGE_SUBJECT_MAX}
               className="min-h-11"
               placeholder="e.g. Partnership inquiry"
-              aria-invalid={Boolean(form.formState.errors.subject)}
+              aria-invalid={Boolean(errors.subject)}
               {...form.register("subject")}
             />
-            <FormFieldError message={form.formState.errors.subject?.message} />
+            <AdminFieldError message={errors.subject?.message} />
           </Field>
-          <Field data-invalid={Boolean(form.formState.errors.message)}>
+          <Field data-invalid={Boolean(errors.message)}>
             <AdminFormFieldLabel
               htmlFor="edit-msg-body"
               hint={`${CONTACT_MESSAGE_BODY_MIN}–${CONTACT_MESSAGE_BODY_MAX} chars`}
@@ -355,10 +349,10 @@ function ContactMessageEditForm({
               maxLength={CONTACT_MESSAGE_BODY_MAX}
               className="min-h-32"
               placeholder="What they want to discuss…"
-              aria-invalid={Boolean(form.formState.errors.message)}
+              aria-invalid={Boolean(errors.message)}
               {...form.register("message")}
             />
-            <FormFieldError message={form.formState.errors.message?.message} />
+            <AdminFieldError message={errors.message?.message} />
           </Field>
         </FieldGroup>
       </form>
@@ -411,7 +405,7 @@ export function ContactMessageEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
+      <DialogContent className={ADMIN_INBOX_EDIT_DIALOG_CLASS}>
         {record ? (
           <ContactMessageEditForm
             message={record}

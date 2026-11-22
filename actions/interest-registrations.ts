@@ -5,9 +5,9 @@ import { getInterestRegistrationById } from "@/data/interest-registrations";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import {
   deleteInterestRegistrationSchema,

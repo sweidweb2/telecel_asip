@@ -4,9 +4,9 @@ import { getAdminResource } from "@/constants/admin-resources";
 import { getContactMessageById } from "@/data/contact-messages";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import {
   deleteContactMessageSchema,

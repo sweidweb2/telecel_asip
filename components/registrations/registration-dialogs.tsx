@@ -13,12 +13,15 @@ import {
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
 import {
+  ADMIN_INBOX_EDIT_DIALOG_CLASS,
   ADMIN_INBOX_EDIT_HEADER_CLASS,
   ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
   AdminDetailSection,
 } from "@/components/dashboard/admin-detail-row";
+import { AdminExternalLink } from "@/components/dashboard/admin-external-link";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
@@ -33,7 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
@@ -60,28 +63,6 @@ import {
   type UpdateInterestRegistrationInput,
 } from "@/validations/interest-registration";
 
-function FormFieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <FieldError>{message}</FieldError>;
-}
-
-function ExternalLink({ href, label }: { href: string; label: string }) {
-  const trimmed = href.trim();
-  if (!trimmed) return null;
-  return (
-    <a
-      href={trimmed}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="break-all text-primary hover:underline"
-    >
-      {label || trimmed}
-    </a>
-  );
-}
-
-const EDIT_DIALOG_CONTENT_CLASS =
-  "max-h-[90vh] w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto sm:max-w-lg";
 
 function toEditDefaults(
   registration: InterestRegistration,
@@ -184,7 +165,7 @@ export function RegistrationViewDialog({
                 <AdminDetailRow label="Phone">{record.phone}</AdminDetailRow>
                 <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
                   {record.linkedin ? (
-                    <ExternalLink href={record.linkedin} label={record.linkedin} />
+                    <AdminExternalLink href={record.linkedin} label={record.linkedin} />
                   ) : null}
                 </AdminDetailRow>
               </AdminDetailGrid>
@@ -204,7 +185,7 @@ export function RegistrationViewDialog({
                 </AdminDetailRow>
                 <AdminDetailRow label="Website" className="sm:col-span-2">
                   {record.website ? (
-                    <ExternalLink href={record.website} label={record.website} />
+                    <AdminExternalLink href={record.website} label={record.website} />
                   ) : null}
                 </AdminDetailRow>
               </AdminDetailGrid>
@@ -279,7 +260,7 @@ function RegistrationEditForm({
         <input type="hidden" {...form.register("id")} />
         <FieldGroup>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+            <Field data-invalid={Boolean(errors.fullName)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-name"
                 hint={`2–${INTEREST_REGISTRATION_FULL_NAME_MAX} chars`}
@@ -292,12 +273,12 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_FULL_NAME_MAX}
                 className="min-h-11"
                 placeholder="e.g. Ama Mensah"
-                aria-invalid={Boolean(form.formState.errors.fullName)}
+                aria-invalid={Boolean(errors.fullName)}
                 {...form.register("fullName")}
               />
-              <FormFieldError message={form.formState.errors.fullName?.message} />
+              <AdminFieldError message={errors.fullName?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.email)}>
+            <Field data-invalid={Boolean(errors.email)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-email"
                 hint={`max ${INTEREST_REGISTRATION_EMAIL_MAX}`}
@@ -311,14 +292,14 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_EMAIL_MAX}
                 className="min-h-11"
                 placeholder="name@company.com"
-                aria-invalid={Boolean(form.formState.errors.email)}
+                aria-invalid={Boolean(errors.email)}
                 {...form.register("email")}
               />
-              <FormFieldError message={form.formState.errors.email?.message} />
+              <AdminFieldError message={errors.email?.message} />
             </Field>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.phone)}>
+            <Field data-invalid={Boolean(errors.phone)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-phone"
                 hint={`7–${INTEREST_REGISTRATION_PHONE_MAX} · +()- spaces`}
@@ -332,12 +313,12 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_PHONE_MAX}
                 className="min-h-11"
                 placeholder="+233 20 000 0000"
-                aria-invalid={Boolean(form.formState.errors.phone)}
+                aria-invalid={Boolean(errors.phone)}
                 {...form.register("phone")}
               />
-              <FormFieldError message={form.formState.errors.phone?.message} />
+              <AdminFieldError message={errors.phone?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.companyName)}>
+            <Field data-invalid={Boolean(errors.companyName)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-company"
                 hint={`2–${INTEREST_REGISTRATION_COMPANY_MAX} chars`}
@@ -350,16 +331,16 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_COMPANY_MAX}
                 className="min-h-11"
                 placeholder="Startup or company name"
-                aria-invalid={Boolean(form.formState.errors.companyName)}
+                aria-invalid={Boolean(errors.companyName)}
                 {...form.register("companyName")}
               />
-              <FormFieldError
-                message={form.formState.errors.companyName?.message}
+              <AdminFieldError
+                message={errors.companyName?.message}
               />
             </Field>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.sector)}>
+            <Field data-invalid={Boolean(errors.sector)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-sector"
                 hint={`2–${INTEREST_REGISTRATION_SECTOR_MAX} chars`}
@@ -372,12 +353,12 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_SECTOR_MAX}
                 className="min-h-11"
                 placeholder="e.g. Fintech"
-                aria-invalid={Boolean(form.formState.errors.sector)}
+                aria-invalid={Boolean(errors.sector)}
                 {...form.register("sector")}
               />
-              <FormFieldError message={form.formState.errors.sector?.message} />
+              <AdminFieldError message={errors.sector?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.country)}>
+            <Field data-invalid={Boolean(errors.country)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-country"
                 hint={`2–${INTEREST_REGISTRATION_COUNTRY_MAX} chars`}
@@ -390,14 +371,14 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_COUNTRY_MAX}
                 className="min-h-11"
                 placeholder="e.g. Ghana"
-                aria-invalid={Boolean(form.formState.errors.country)}
+                aria-invalid={Boolean(errors.country)}
                 {...form.register("country")}
               />
-              <FormFieldError message={form.formState.errors.country?.message} />
+              <AdminFieldError message={errors.country?.message} />
             </Field>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.founderRole)}>
+            <Field data-invalid={Boolean(errors.founderRole)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-role"
                 hint={`max ${INTEREST_REGISTRATION_ROLE_MAX}`}
@@ -410,14 +391,14 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_ROLE_MAX}
                 className="min-h-11"
                 placeholder="e.g. Founder / CEO"
-                aria-invalid={Boolean(form.formState.errors.founderRole)}
+                aria-invalid={Boolean(errors.founderRole)}
                 {...form.register("founderRole")}
               />
-              <FormFieldError
-                message={form.formState.errors.founderRole?.message}
+              <AdminFieldError
+                message={errors.founderRole?.message}
               />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.companyCountry)}>
+            <Field data-invalid={Boolean(errors.companyCountry)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-company-country"
                 hint={`2–${INTEREST_REGISTRATION_COUNTRY_MAX} chars`}
@@ -430,16 +411,16 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_COUNTRY_MAX}
                 className="min-h-11"
                 placeholder="e.g. Ghana"
-                aria-invalid={Boolean(form.formState.errors.companyCountry)}
+                aria-invalid={Boolean(errors.companyCountry)}
                 {...form.register("companyCountry")}
               />
-              <FormFieldError
-                message={form.formState.errors.companyCountry?.message}
+              <AdminFieldError
+                message={errors.companyCountry?.message}
               />
             </Field>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field data-invalid={Boolean(form.formState.errors.linkedin)}>
+            <Field data-invalid={Boolean(errors.linkedin)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-linkedin"
                 hint={`Optional · http(s):// · max ${INTEREST_REGISTRATION_URL_MAX}`}
@@ -452,12 +433,12 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_URL_MAX}
                 className="min-h-11"
                 placeholder="linkedin.com/in/…"
-                aria-invalid={Boolean(form.formState.errors.linkedin)}
+                aria-invalid={Boolean(errors.linkedin)}
                 {...form.register("linkedin")}
               />
-              <FormFieldError message={form.formState.errors.linkedin?.message} />
+              <AdminFieldError message={errors.linkedin?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.website)}>
+            <Field data-invalid={Boolean(errors.website)}>
               <AdminFormFieldLabel
                 htmlFor="edit-reg-website"
                 hint={`Optional · http(s):// · max ${INTEREST_REGISTRATION_URL_MAX}`}
@@ -470,13 +451,13 @@ function RegistrationEditForm({
                 maxLength={INTEREST_REGISTRATION_URL_MAX}
                 className="min-h-11"
                 placeholder="example.com"
-                aria-invalid={Boolean(form.formState.errors.website)}
+                aria-invalid={Boolean(errors.website)}
                 {...form.register("website")}
               />
-              <FormFieldError message={form.formState.errors.website?.message} />
+              <AdminFieldError message={errors.website?.message} />
             </Field>
           </div>
-          <Field data-invalid={Boolean(form.formState.errors.pitch)}>
+          <Field data-invalid={Boolean(errors.pitch)}>
             <AdminFormFieldLabel
               htmlFor="edit-reg-pitch"
               hint={`Optional · ${INTEREST_REGISTRATION_PITCH_MIN}–${INTEREST_REGISTRATION_PITCH_MAX} if filled`}
@@ -490,10 +471,10 @@ function RegistrationEditForm({
               maxLength={INTEREST_REGISTRATION_PITCH_MAX}
               className="min-h-32"
               placeholder="Optional note about the startup or interest…"
-              aria-invalid={Boolean(form.formState.errors.pitch)}
+              aria-invalid={Boolean(errors.pitch)}
               {...form.register("pitch")}
             />
-            <FormFieldError message={form.formState.errors.pitch?.message} />
+            <AdminFieldError message={errors.pitch?.message} />
           </Field>
           <Field>
             <label className="flex items-start gap-3 text-sm">
@@ -557,7 +538,7 @@ export function RegistrationEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={EDIT_DIALOG_CONTENT_CLASS}>
+      <DialogContent className={ADMIN_INBOX_EDIT_DIALOG_CLASS}>
         {record ? (
           <RegistrationEditForm
             registration={record}

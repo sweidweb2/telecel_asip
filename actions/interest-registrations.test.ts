@@ -33,6 +33,11 @@ vi.mock("@/lib/admin/get-auth-user", () => ({
 
 vi.mock("@/data/settings", () => ({
   getOpenApplications: vi.fn(),
+  getOpenApplicationsFresh: vi.fn(),
+}));
+
+vi.mock("@/data/users", () => ({
+  getCurrentUserProfile: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -53,7 +58,11 @@ import {
   updateInterestRegistrationInboxStatus,
 } from "@/actions/interest-registrations";
 import { submitInterestRegistration } from "@/actions/submit-interest-registration";
-import { getOpenApplications } from "@/data/settings";
+import {
+  getOpenApplications,
+  getOpenApplicationsFresh,
+} from "@/data/settings";
+import { getCurrentUserProfile } from "@/data/users";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
@@ -98,14 +107,22 @@ describe("submitInterestRegistration", () => {
     insertMock.mockResolvedValue({ error: null });
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
     vi.mocked(getOpenApplications).mockResolvedValue(false);
+    vi.mocked(getOpenApplicationsFresh).mockResolvedValue(false);
     vi.mocked(getAuthUser).mockResolvedValue({
       id: "user-1",
       email: "ada@example.com",
     } as Awaited<ReturnType<typeof getAuthUser>>);
+    vi.mocked(getCurrentUserProfile).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+      full_name: "Ada Lovelace",
+      role: "viewer",
+      type: "startup",
+    });
   });
 
   it("rejects when applications are open", async () => {
-    vi.mocked(getOpenApplications).mockResolvedValue(true);
+    vi.mocked(getOpenApplicationsFresh).mockResolvedValue(true);
 
     const result = await submitInterestRegistration(validSubmit);
 
@@ -127,6 +144,25 @@ describe("submitInterestRegistration", () => {
     expect(result).toEqual({
       status: "error",
       message: "Sign in to register your interest.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-startup accounts before Turnstile", async () => {
+    vi.mocked(getCurrentUserProfile).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+      full_name: "Ada Lovelace",
+      role: "admin",
+      type: "admin",
+    });
+
+    const result = await submitInterestRegistration(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Only startup accounts can register interest.",
     });
     expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();

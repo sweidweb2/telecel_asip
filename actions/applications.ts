@@ -4,9 +4,9 @@ import { getAdminResource } from "@/constants/admin-resources";
 import { getApplicationById } from "@/data/applications";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { runInboxStatusMutation } from "@/lib/admin/run-inbox-status-mutation";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
@@ -179,7 +179,11 @@ export async function updateApplicationInboxStatus(
   });
 }
 
-/** Full application for the shared inbox view/edit dialog. */
+/**
+ * Client-callable façade over `data/applications.getApplicationById`.
+ * Auth + SELECT stay in `data/`; this exists only so dialogs can invoke the
+ * read across the server-action boundary (components must not import `data/`).
+ */
 export async function loadApplication(id: string) {
   return getApplicationById(id);
 }

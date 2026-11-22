@@ -33,6 +33,11 @@ vi.mock("@/lib/admin/get-auth-user", () => ({
 
 vi.mock("@/data/settings", () => ({
   getOpenApplications: vi.fn(),
+  getOpenApplicationsFresh: vi.fn(),
+}));
+
+vi.mock("@/data/users", () => ({
+  getCurrentUserProfile: vi.fn(),
 }));
 
 const insertMock = vi.fn();
@@ -53,7 +58,11 @@ import {
   updateApplicationInboxStatus,
 } from "@/actions/applications";
 import { submitApplication } from "@/actions/submit-application";
-import { getOpenApplications } from "@/data/settings";
+import {
+  getOpenApplications,
+  getOpenApplicationsFresh,
+} from "@/data/settings";
+import { getCurrentUserProfile } from "@/data/users";
 import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
@@ -103,14 +112,22 @@ describe("submitApplication", () => {
     insertMock.mockResolvedValue({ error: null });
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
     vi.mocked(getOpenApplications).mockResolvedValue(true);
+    vi.mocked(getOpenApplicationsFresh).mockResolvedValue(true);
     vi.mocked(getAuthUser).mockResolvedValue({
       id: "user-1",
       email: "ada@example.com",
     } as Awaited<ReturnType<typeof getAuthUser>>);
+    vi.mocked(getCurrentUserProfile).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+      full_name: "Ada Lovelace",
+      role: "viewer",
+      type: "startup",
+    });
   });
 
   it("rejects when applications are closed", async () => {
-    vi.mocked(getOpenApplications).mockResolvedValue(false);
+    vi.mocked(getOpenApplicationsFresh).mockResolvedValue(false);
 
     const result = await submitApplication(validSubmit);
 
@@ -132,6 +149,38 @@ describe("submitApplication", () => {
     expect(result).toEqual({
       status: "error",
       message: "Sign in to submit an application.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-startup accounts before Turnstile", async () => {
+    vi.mocked(getCurrentUserProfile).mockResolvedValue({
+      id: "user-1",
+      email: "ada@example.com",
+      full_name: "Ada Lovelace",
+      role: "admin",
+      type: "admin",
+    });
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Only startup accounts can submit an application.",
+    });
+    expect(verifyTurnstileToken).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the profile is missing", async () => {
+    vi.mocked(getCurrentUserProfile).mockResolvedValue(null);
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Only startup accounts can submit an application.",
     });
     expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
@@ -213,6 +262,23 @@ describe("submitApplication", () => {
 
   it("maps unique violations to a duplicate message", async () => {
     vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
+    insertMock.mockResolvedValue({
+      error: {
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "applications_email_company_uidx"',
+      },
+    });
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message: "You already applied with this company and email.",
+    });
+  });
+
+  it("maps bare unique violations without a constraint message", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     insertMock.mockResolvedValue({ error: { code: "23505" } });
 
     const result = await submitApplication(validSubmit);
@@ -220,6 +286,21 @@ describe("submitApplication", () => {
     expect(result).toEqual({
       status: "error",
       message: "You already applied with this company and email.",
+    });
+  });
+
+  it("maps open/closed INSERT trigger failures to the gate message", async () => {
+    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
+    insertMock.mockResolvedValue({
+      error: { code: "P0001", message: "applications are closed" },
+    });
+
+    const result = await submitApplication(validSubmit);
+
+    expect(result).toEqual({
+      status: "error",
+      message:
+        "Applications are closed. Register your interest to hear when the next chapter opens.",
     });
   });
 });
