@@ -4,7 +4,7 @@ import { CreateUserDialog } from "@/components/users/user-dialogs";
 import { UserStatsCards } from "@/components/users/user-stats";
 import { UsersTable } from "@/components/users/users-table";
 import { getAdminResource } from "@/constants/admin-resources";
-import { getUsersPageData } from "@/data/users";
+import type { getUsersPageData } from "@/data/users";
 import {
   adminListClampParams,
   loadAdminListPage,
@@ -13,10 +13,14 @@ import { parseUserListQuery } from "@/validations/users";
 
 const resource = getAdminResource("users");
 
+type UsersPageFetch = typeof getUsersPageData;
+
 type UsersListPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
   actorRole: "admin" | "editor";
   listPath: string;
+  /** Route injects the data loader so this component never imports `data/` at runtime. */
+  fetchPage: UsersPageFetch;
   /** Shown only on the editor Users list. */
   showEditorBlurb?: boolean;
 };
@@ -34,18 +38,19 @@ function usersClampFilters(query: ReturnType<typeof parseUserListQuery>) {
 
 /**
  * Shared Users list for Admin and Editor shells. Routes pass role, list path,
- * and optional editor-only blurb; metadata stays on the route files.
+ * fetchPage, and optional editor-only blurb; metadata stays on the route files.
  */
 export async function UsersListPage({
   searchParams,
   actorRole,
   listPath,
+  fetchPage,
   showEditorBlurb = false,
 }: UsersListPageProps) {
   const query = parseUserListQuery(await searchParams);
   const { list, stats } = await loadAdminListPage({
     query,
-    fetchPage: getUsersPageData,
+    fetchPage,
     listPath,
     buildClampParams: (q, totalPages) =>
       adminListClampParams(totalPages, usersClampFilters(q)),

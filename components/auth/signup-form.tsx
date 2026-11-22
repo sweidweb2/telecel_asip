@@ -10,7 +10,7 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signUp } from "@/actions/auth";
-import type { SignupLabels } from "@/components/auth/auth-labels";
+import type { SignupLabels } from "@/constants/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -60,6 +60,7 @@ export function SignupForm({
   });
 
   const turnstileToken = useWatch({ control, name: "turnstileToken" });
+  const accountType = useWatch({ control, name: "type" }) ?? "startup";
   const turnstile = useTurnstile({
     action: TURNSTILE_SIGNUP_ACTION,
     onTokenChange: useCallback(
@@ -116,17 +117,6 @@ export function SignupForm({
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <GoogleAuthButton
-        label={labels.googleLabel}
-        loadingLabel={labels.googleLoadingLabel}
-        errorMessage={labels.googleError}
-        redirectTo={redirectTo}
-      />
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-border" />
-        <span>{labels.dividerLabel}</span>
-        <span className="h-px flex-1 bg-border" />
-      </div>
       <div className="grid gap-2">
         <Label id="account-type-label">{labels.accountTypeLabel}</Label>
         <Controller
@@ -138,20 +128,20 @@ export function SignupForm({
               aria-labelledby="account-type-label"
               className="grid grid-cols-2 gap-2"
             >
-              {REGISTER_ACCOUNT_TYPES.map((accountType) => {
-                const isSelected = field.value === accountType;
+              {REGISTER_ACCOUNT_TYPES.map((option) => {
+                const isSelected = field.value === option;
                 const optionLabel =
-                  accountType === "startup"
+                  option === "startup"
                     ? labels.startupLabel
                     : labels.investorLabel;
                 return (
                   <button
-                    key={accountType}
+                    key={option}
                     type="button"
                     disabled={isPending}
                     aria-pressed={isSelected}
                     onClick={() =>
-                      field.onChange(accountType as RegisterAccountType)
+                      field.onChange(option as RegisterAccountType)
                     }
                     className={cn(
                       buttonVariants({
@@ -171,6 +161,18 @@ export function SignupForm({
         {errors.type ? (
           <p className="text-sm text-destructive">{errors.type.message}</p>
         ) : null}
+      </div>
+      <GoogleAuthButton
+        label={labels.googleLabel}
+        loadingLabel={labels.googleLoadingLabel}
+        errorMessage={labels.googleError}
+        redirectTo={redirectTo}
+        accountType={accountType}
+      />
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        <span>{labels.dividerLabel}</span>
+        <span className="h-px flex-1 bg-border" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="fullName">{labels.nameLabel}</Label>

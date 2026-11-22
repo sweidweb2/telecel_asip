@@ -203,6 +203,24 @@ describe("auth actions", () => {
     });
   });
 
+  it("forwards signup account_type on the Google OAuth callback URL", async () => {
+    const signInWithOAuth = vi.fn().mockResolvedValue({
+      data: { url: "https://accounts.google.com/oauth" },
+      error: null,
+    });
+    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
+
+    await signInWithGoogle("/en/apply", "investor");
+
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: {
+        redirectTo:
+          "http://localhost:3000/auth/callback?next=%2Fen%2Fapply&locale=en&account_type=investor",
+      },
+    });
+  });
+
   it("does not forward an external Google OAuth destination", async () => {
     const signInWithOAuth = vi.fn().mockResolvedValue({
       data: { url: "https://accounts.google.com/oauth" },

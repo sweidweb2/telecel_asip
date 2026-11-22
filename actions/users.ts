@@ -64,6 +64,23 @@ function mapSupabaseError(message: string): string {
       () => "The password does not meet the project requirements.",
     )
     .with(
+      P.when((value) => value.includes("last administrator")),
+      () => "You cannot demote or delete the last administrator.",
+    )
+    .with(
+      P.when((value) => value.includes("last editor")),
+      () => "You cannot demote or delete the last editor.",
+    )
+    .with(
+      P.when(
+        (value) =>
+          value.includes("linked to impact metrics") ||
+          value.includes("impact metrics"),
+      ),
+      () =>
+        "This user owns evidence linked to impact metrics. Unlink or delete those metrics first, then hard-delete again.",
+    )
+    .with(
       P.when(
         (value) =>
           value.includes("foreign key") ||
@@ -71,7 +88,7 @@ function mapSupabaseError(message: string): string {
           value.includes("restrict"),
       ),
       () =>
-        "This user still owns connected records (for example evidence). An administrator can hard-delete them with those records.",
+        "This user still owns connected records that cannot be removed automatically. Resolve linked rows first, then retry.",
     )
     .otherwise(() => message || "The user operation failed.");
 }
@@ -170,11 +187,19 @@ export async function createUser(
     return { status: "error", message: AUTH_MESSAGES.rateLimited };
   }
 
+  const profileType =
+    parsed.data.role === "admin" ? "admin" : parsed.data.type;
+
   const { data: created, error } = await admin.auth.admin.createUser({
     email: parsed.data.email,
     password: parsed.data.password,
     email_confirm: true,
-    user_metadata: { full_name: parsed.data.fullName },
+    user_metadata: {
+      full_name: parsed.data.fullName,
+      ...(parsed.data.role === "admin"
+        ? {}
+        : { account_type: parsed.data.type }),
+    },
     app_metadata: { app_role: parsed.data.role },
   });
 
@@ -193,14 +218,31 @@ export async function createUser(
     .from("profiles")
     .update({
       role: parsed.data.role,
-      type: parsed.data.role === "admin" ? "admin" : "startup",
+      type: profileType,
       full_name: parsed.data.fullName,
       email: parsed.data.email,
     })
     .eq("id", created.user.id);
 
   if (profileError) {
-    await admin.auth.admin.deleteUser(created.user.id);
+    const { error: rollbackError } = await admin.auth.admin.deleteUser(
+      created.user.id,
+    );
+    if (rollbackError) {
+      console.error(
+        "Failed to roll back Auth user after profile sync failure",
+        {
+          userId: created.user.id,
+          profileError: profileError.message,
+          rollbackError: rollbackError.message,
+        },
+      );
+      return {
+        status: "error",
+        message:
+          "User was created in Auth but profile sync failed, and Auth rollback also failed. Contact support before retrying.",
+      };
+    }
     return {
       status: "error",
       message: mapSupabaseError(profileError.message),
@@ -325,13 +367,9 @@ export async function updateUser(
     role: parsed.data.role,
     full_name: parsed.data.fullName,
     email: parsed.data.email,
+    // Admin role always forces type=admin; otherwise use staff-chosen audience.
+    type: parsed.data.role === "admin" ? "admin" : parsed.data.type,
   };
-  // Keep audience type aligned with staff admin role changes.
-  if (parsed.data.role === "admin") {
-    profileUpdate.type = "admin";
-  } else if (targetRole === "admin") {
-    profileUpdate.type = "startup";
-  }
 
   const { error: profileError } = await session.supabase
     .from("profiles")
@@ -339,11 +377,29 @@ export async function updateUser(
     .eq("id", parsed.data.id);
 
   if (profileError) {
-    await admin.auth.admin.updateUserById(parsed.data.id, {
-      email: snapshot.email,
-      user_metadata: { full_name: snapshot.full_name },
-      app_metadata: { app_role: snapshot.role },
-    });
+    const { error: revertError } = await admin.auth.admin.updateUserById(
+      parsed.data.id,
+      {
+        email: snapshot.email,
+        user_metadata: { full_name: snapshot.full_name },
+        app_metadata: { app_role: snapshot.role },
+      },
+    );
+    if (revertError) {
+      console.error(
+        "Failed to revert Auth user after profile update failure",
+        {
+          userId: parsed.data.id,
+          profileError: profileError.message,
+          revertError: revertError.message,
+        },
+      );
+      return {
+        status: "error",
+        message:
+          "Profile update failed and Auth could not be reverted. Auth and profile may disagree — contact support.",
+      };
+    }
     return {
       status: "error",
       message: mapSupabaseError(profileError.message),

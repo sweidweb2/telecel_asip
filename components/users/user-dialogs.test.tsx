@@ -97,6 +97,7 @@ describe("CreateUserDialog", () => {
         email: "ada@example.com",
         password: "Testpass1",
         role: "admin",
+        type: "startup",
       });
       expect(toastSuccess).toHaveBeenCalledWith("User created successfully.");
       await waitFor(() => expect(refresh).toHaveBeenCalled());

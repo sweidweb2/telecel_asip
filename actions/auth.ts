@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { match, P } from "ts-pattern";
 
-import { authActionMessagesFor } from "@/components/auth/auth-labels";
+import { authActionMessagesFor } from "@/constants/auth-labels";
 import type { Locale } from "@/constants/locales";
 import { authPath, publicPath } from "@/constants/routes";
 import { resolvePostAuthRedirect } from "@/lib/auth/role-landing";
@@ -21,6 +21,7 @@ import {
   loginSchemaFor,
   registerSchemaFor,
   type LoginInput,
+  type RegisterAccountType,
   type RegisterInput,
 } from "@/validations/auth";
 
@@ -221,7 +222,8 @@ export async function signIn(
 }
 
 export async function signInWithGoogle(
-  redirectTo?: string
+  redirectTo?: string,
+  accountType?: RegisterAccountType,
 ): Promise<AuthActionResult> {
   const locale = await getRequestLocale();
   const copy = authActionMessagesFor(locale);
@@ -234,6 +236,10 @@ export async function signInWithGoogle(
     safeRedirectPath(redirectTo, publicPath(locale, "")),
   );
   callbackUrl.searchParams.set("locale", locale);
+  // Signup Google only — login omits this. Callback applies it to new viewer profiles.
+  if (accountType === "startup" || accountType === "investor") {
+    callbackUrl.searchParams.set("account_type", accountType);
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

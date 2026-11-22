@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { createUser } from "@/actions/users";
 import { ADMIN_INBOX_EDIT_HEADER_CLASS } from "@/components/dashboard/admin-detail-row";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -35,10 +36,12 @@ import {
   assignableRolesForActor,
   createUserSchema,
   defaultRoleForActor,
+  STAFF_AUDIENCE_TYPES,
   USER_EMAIL_MAX,
   USER_FULL_NAME_MAX,
   USER_PASSWORD_MAX,
   type CreateUserInput,
+  type StaffAudienceType,
   type UserRole,
 } from "@/validations/users";
 
@@ -48,10 +51,10 @@ const ROLE_LABELS: Record<UserRole, string> = {
   viewer: "Viewer",
 };
 
-function FormFieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <FieldError>{message}</FieldError>;
-}
+const TYPE_LABELS: Record<StaffAudienceType, string> = {
+  startup: "Startup",
+  investor: "Investor",
+};
 
 function RoleSelectField({
   id,
@@ -89,7 +92,46 @@ function RoleSelectField({
           ))}
         </SelectContent>
       </Select>
-      <FormFieldError message={error} />
+      <AdminFieldError message={error} />
+    </Field>
+  );
+}
+
+function AudienceTypeSelectField({
+  id,
+  value,
+  onChange,
+  disabled,
+  error,
+}: {
+  id: string;
+  value: StaffAudienceType;
+  onChange: (type: StaffAudienceType) => void;
+  disabled?: boolean;
+  error?: string;
+}) {
+  return (
+    <Field data-invalid={Boolean(error)}>
+      <Label htmlFor={id}>Account type</Label>
+      <Select
+        value={value}
+        onValueChange={(next) => {
+          if (next) onChange(next as StaffAudienceType);
+        }}
+        disabled={disabled}
+      >
+        <SelectTrigger id={id} className="w-full" aria-invalid={Boolean(error)}>
+          <SelectValue>{TYPE_LABELS[value]}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {STAFF_AUDIENCE_TYPES.map((type) => (
+            <SelectItem key={type} value={type}>
+              {TYPE_LABELS[type]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <AdminFieldError message={error} />
     </Field>
   );
 }
@@ -114,9 +156,11 @@ export function CreateUserDialog({
       email: "",
       password: "",
       role: defaultRole,
+      type: "startup",
     },
   });
   const { errors, isDirty } = form.formState;
+  const selectedRole = form.watch("role");
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -127,6 +171,7 @@ export function CreateUserDialog({
         email: "",
         password: "",
         role: defaultRole,
+        type: "startup",
       });
     }
   }
@@ -162,7 +207,7 @@ export function CreateUserDialog({
         <DialogHeader className={ADMIN_INBOX_EDIT_HEADER_CLASS}>
           <DialogTitle>Create user</DialogTitle>
           <DialogDescription>
-            Add an account and choose their access role.
+            Add an account and choose their access role and audience type.
           </DialogDescription>
         </DialogHeader>
 
@@ -172,7 +217,7 @@ export function CreateUserDialog({
           noValidate
         >
           <FieldGroup>
-            <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+            <Field data-invalid={Boolean(errors.fullName)}>
               <AdminFormFieldLabel
                 htmlFor="create-name"
                 hint={`2–${USER_FULL_NAME_MAX} chars`}
@@ -184,12 +229,12 @@ export function CreateUserDialog({
                 disabled={isPending}
                 maxLength={USER_FULL_NAME_MAX}
                 placeholder="e.g. Ama Mensah"
-                aria-invalid={Boolean(form.formState.errors.fullName)}
+                aria-invalid={Boolean(errors.fullName)}
                 {...form.register("fullName")}
               />
-              <FormFieldError message={form.formState.errors.fullName?.message} />
+              <AdminFieldError message={errors.fullName?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.email)}>
+            <Field data-invalid={Boolean(errors.email)}>
               <AdminFormFieldLabel
                 htmlFor="create-email"
                 hint={`max ${USER_EMAIL_MAX}`}
@@ -202,12 +247,12 @@ export function CreateUserDialog({
                 disabled={isPending}
                 maxLength={USER_EMAIL_MAX}
                 placeholder="name@company.com"
-                aria-invalid={Boolean(form.formState.errors.email)}
+                aria-invalid={Boolean(errors.email)}
                 {...form.register("email")}
               />
-              <FormFieldError message={form.formState.errors.email?.message} />
+              <AdminFieldError message={errors.email?.message} />
             </Field>
-            <Field data-invalid={Boolean(form.formState.errors.password)}>
+            <Field data-invalid={Boolean(errors.password)}>
               <AdminFormFieldLabel htmlFor="create-password" hint="required">
                 Password
               </AdminFormFieldLabel>
@@ -219,7 +264,7 @@ export function CreateUserDialog({
                   disabled={isPending}
                   maxLength={USER_PASSWORD_MAX}
                   placeholder="At least 8 characters, letter + number"
-                  aria-invalid={Boolean(form.formState.errors.password)}
+                  aria-invalid={Boolean(errors.password)}
                   className="pr-11"
                   {...form.register("password")}
                 />
@@ -244,8 +289,8 @@ export function CreateUserDialog({
                   />
                 </button>
               </div>
-              <FormFieldError
-                message={form.formState.errors.password?.message}
+              <AdminFieldError
+                message={errors.password?.message}
               />
             </Field>
             <Controller
@@ -258,10 +303,25 @@ export function CreateUserDialog({
                   onChange={field.onChange}
                   roles={roles}
                   disabled={isPending}
-                  error={form.formState.errors.role?.message}
+                  error={errors.role?.message}
                 />
               )}
             />
+            {selectedRole !== "admin" ? (
+              <Controller
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <AudienceTypeSelectField
+                    id="create-type"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                    error={errors.type?.message}
+                  />
+                )}
+              />
+            ) : null}
           </FieldGroup>
         </form>
 

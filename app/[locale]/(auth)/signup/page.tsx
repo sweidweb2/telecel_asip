@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { signupLabelsFor } from "@/components/auth/auth-labels";
+import { signupLabelsFor } from "@/constants/auth-labels";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignupForm } from "@/components/auth/signup-form";
 import { Skeleton } from "@/components/ui/skeleton";

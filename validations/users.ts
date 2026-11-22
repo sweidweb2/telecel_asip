@@ -8,6 +8,10 @@ import {
 export const USER_ROLES = ["admin", "editor", "viewer"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+/** Audience types staff may assign to non-admin accounts. */
+export const STAFF_AUDIENCE_TYPES = ["startup", "investor"] as const;
+export type StaffAudienceType = (typeof STAFF_AUDIENCE_TYPES)[number];
+
 /** Fixed page size — not configurable via URL or UI. */
 export const USER_PAGE_SIZE = 10;
 
@@ -45,12 +49,15 @@ const passwordSchema = z
   .regex(/[0-9]/, "Password must include a number");
 
 const userRoleSchema = z.enum(USER_ROLES);
+const staffAudienceTypeSchema = z.enum(STAFF_AUDIENCE_TYPES);
 
 export const createUserSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
   password: passwordSchema,
   role: userRoleSchema,
+  /** Ignored when role is admin (forced to admin type in the action). */
+  type: staffAudienceTypeSchema.default("startup"),
 });
 
 export const updateUserSchema = z.object({
@@ -58,6 +65,8 @@ export const updateUserSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
   role: userRoleSchema,
+  /** Ignored when role is admin (forced to admin type in the action). */
+  type: staffAudienceTypeSchema,
 });
 
 export const deleteUserSchema = z.object({

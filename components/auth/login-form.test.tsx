@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LoginForm } from "@/components/auth/login-form";
-import { loginLabelsFor } from "@/components/auth/auth-labels";
+import { loginLabelsFor } from "@/constants/auth-labels";
 import { ROUTES } from "@/constants/routes";
 
 const signIn = vi.hoisted(() => vi.fn());

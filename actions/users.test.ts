@@ -249,6 +249,7 @@ describe("users actions", () => {
       fullName: "Only Admin",
       email: "only@example.com",
       role: "viewer",
+      type: "startup",
     });
 
     expect(result).toMatchObject({
@@ -302,6 +303,7 @@ describe("users actions", () => {
       fullName: "Peer Editor",
       email: "attacker@evil.example",
       role: "editor",
+      type: "startup",
     });
 
     expect(result).toMatchObject({
@@ -358,9 +360,46 @@ describe("users actions", () => {
       fullName: "New Name",
       email: "viewer@example.com",
       role: "viewer",
+      type: "investor",
     });
 
     expect(result.status).toBe("success");
     expect(updateUserByIdMock).toHaveBeenCalled();
+    expect(profileUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "investor",
+        full_name: "New Name",
+      }),
+    );
+  });
+
+  it("createUser can assign investor audience type", async () => {
+    const profileUpdate = vi.fn(() => ({ eq: profileUpdateEq }));
+    profileUpdateEq.mockResolvedValue({ error: null });
+    vi.mocked(authorizeStaff).mockResolvedValue(
+      staffSession({
+        from: vi.fn(() => ({ update: profileUpdate })),
+      }),
+    );
+    createUserMock.mockResolvedValue({
+      data: { user: { id: userId } },
+      error: null,
+    });
+
+    const result = await createUser({
+      fullName: "Ivy Investor",
+      email: "ivy@example.com",
+      password: "Testpass1",
+      role: "viewer",
+      type: "investor",
+    });
+
+    expect(result.status).toBe("success");
+    expect(profileUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "investor",
+        role: "viewer",
+      }),
+    );
   });
 });

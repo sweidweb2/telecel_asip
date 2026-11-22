@@ -10,7 +10,7 @@ import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signIn } from "@/actions/auth";
-import type { LoginLabels } from "@/components/auth/auth-labels";
+import type { LoginLabels } from "@/constants/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button } from "@/components/ui/button";

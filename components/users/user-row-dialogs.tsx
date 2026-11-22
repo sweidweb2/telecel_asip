@@ -15,6 +15,7 @@ import {
   AdminDetailRow,
   AdminDetailSection,
 } from "@/components/dashboard/admin-detail-row";
+import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import {
@@ -36,7 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup } from "@/components/ui/field";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -52,9 +53,11 @@ import type { Profile } from "@/types/profile";
 import {
   assignableRolesForActor,
   defaultRoleForActor,
+  STAFF_AUDIENCE_TYPES,
   updateUserSchema,
   USER_EMAIL_MAX,
   USER_FULL_NAME_MAX,
+  type StaffAudienceType,
   type UpdateUserInput,
   type UserRole,
 } from "@/validations/users";
@@ -65,10 +68,11 @@ const ROLE_LABELS: Record<UserRole, string> = {
   viewer: "Viewer",
 };
 
-function FormFieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <FieldError>{message}</FieldError>;
-}
+const TYPE_LABELS: Record<StaffAudienceType, string> = {
+  startup: "Startup",
+  investor: "Investor",
+};
+
 
 function RoleSelectField({
   id,
@@ -106,9 +110,52 @@ function RoleSelectField({
           ))}
         </SelectContent>
       </Select>
-      <FormFieldError message={error} />
+      <AdminFieldError message={error} />
     </Field>
   );
+}
+
+function AudienceTypeSelectField({
+  id,
+  value,
+  onChange,
+  disabled,
+  error,
+}: {
+  id: string;
+  value: StaffAudienceType;
+  onChange: (type: StaffAudienceType) => void;
+  disabled?: boolean;
+  error?: string;
+}) {
+  return (
+    <Field data-invalid={Boolean(error)}>
+      <Label htmlFor={id}>Account type</Label>
+      <Select
+        value={value}
+        onValueChange={(next) => {
+          if (next) onChange(next as StaffAudienceType);
+        }}
+        disabled={disabled}
+      >
+        <SelectTrigger id={id} className="w-full" aria-invalid={Boolean(error)}>
+          <SelectValue>{TYPE_LABELS[value]}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {STAFF_AUDIENCE_TYPES.map((type) => (
+            <SelectItem key={type} value={type}>
+              {TYPE_LABELS[type]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <AdminFieldError message={error} />
+    </Field>
+  );
+}
+
+function audienceTypeForProfile(user: Profile): StaffAudienceType {
+  return user.type === "investor" ? "investor" : "startup";
 }
 
 export const UserRowActions = memo(function UserRowActions({
@@ -165,6 +212,9 @@ export function UserViewDialog({
             <AdminDetailRow label="Role">
               <Badge variant="outline">{user.role}</Badge>
             </AdminDetailRow>
+            <AdminDetailRow label="Account type">
+              <Badge variant="outline">{user.type}</Badge>
+            </AdminDetailRow>
             <AdminDetailRow label="User ID">
               <span className="font-mono text-xs">{user.id}</span>
             </AdminDetailRow>
@@ -208,6 +258,7 @@ function UserEditForm({
       canEditRole && roles.includes(user.role as UserRole)
         ? (user.role as UserRole)
         : defaultRoleForActor(actorRole),
+    type: audienceTypeForProfile(user),
   };
   const form = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
@@ -215,6 +266,7 @@ function UserEditForm({
     defaultValues: editDefaults,
   });
   const { errors, isDirty } = form.formState;
+  const selectedRole = form.watch("role");
 
   function onUpdate(values: UpdateUserInput) {
     startUpdate(async () => {
@@ -239,15 +291,15 @@ function UserEditForm({
         <DialogTitle>Edit user</DialogTitle>
         <DialogDescription>
           {canEditEmail
-            ? "Update email, name, and role for this account."
-            : "Update name and role for this account. Only administrators can change emails."}
+            ? "Update email, name, role, and account type for this account."
+            : "Update name, role, and account type. Only administrators can change emails."}
         </DialogDescription>
       </DialogHeader>
 
       <form id={editFormId} onSubmit={form.handleSubmit(onUpdate)} noValidate>
         <input type="hidden" {...form.register("id")} />
         <FieldGroup>
-          <Field data-invalid={Boolean(form.formState.errors.fullName)}>
+          <Field data-invalid={Boolean(errors.fullName)}>
             <AdminFormFieldLabel
               htmlFor="edit-user-name"
               hint={`2–${USER_FULL_NAME_MAX} chars`}
@@ -259,12 +311,12 @@ function UserEditForm({
               disabled={isUpdating}
               maxLength={USER_FULL_NAME_MAX}
               placeholder="e.g. Ama Mensah"
-              aria-invalid={Boolean(form.formState.errors.fullName)}
+              aria-invalid={Boolean(errors.fullName)}
               {...form.register("fullName")}
             />
-            <FormFieldError message={form.formState.errors.fullName?.message} />
+            <AdminFieldError message={errors.fullName?.message} />
           </Field>
-          <Field data-invalid={Boolean(form.formState.errors.email)}>
+          <Field data-invalid={Boolean(errors.email)}>
             <AdminFormFieldLabel
               htmlFor="edit-user-email"
               hint={canEditEmail ? `max ${USER_EMAIL_MAX}` : "admin only"}
@@ -279,10 +331,10 @@ function UserEditForm({
               maxLength={USER_EMAIL_MAX}
               placeholder="name@company.com"
               className={!canEditEmail ? "bg-muted" : undefined}
-              aria-invalid={Boolean(form.formState.errors.email)}
+              aria-invalid={Boolean(errors.email)}
               {...form.register("email")}
             />
-            <FormFieldError message={form.formState.errors.email?.message} />
+            <AdminFieldError message={errors.email?.message} />
           </Field>
           <Controller
             control={form.control}
@@ -294,10 +346,25 @@ function UserEditForm({
                 onChange={field.onChange}
                 roles={roles}
                 disabled={isUpdating}
-                error={form.formState.errors.role?.message}
+                error={errors.role?.message}
               />
             )}
           />
+          {selectedRole !== "admin" ? (
+            <Controller
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <AudienceTypeSelectField
+                  id="edit-user-type"
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isUpdating}
+                  error={errors.type?.message}
+                />
+              )}
+            />
+          ) : null}
         </FieldGroup>
       </form>
 

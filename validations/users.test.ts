@@ -18,6 +18,18 @@ describe("users validation", () => {
     expect(result.email).toBe("ada@example.com");
     expect(result.role).toBe("editor");
     expect(result.password).toBe("Password1");
+    expect(result.type).toBe("startup");
+  });
+
+  it("accepts investor audience type on create", () => {
+    const result = createUserSchema.parse({
+      fullName: "Ivy Investor",
+      email: "ivy@example.com",
+      password: "Password1",
+      role: "viewer",
+      type: "investor",
+    });
+    expect(result.type).toBe("investor");
   });
 
   it("requires a password and rejects empty or weak values", () => {
@@ -85,6 +97,7 @@ describe("users validation", () => {
         fullName: "Ada Lovelace",
         email: "ada@example.com",
         role: "admin",
+        type: "startup",
       }).success,
     ).toBe(false);
 
@@ -94,8 +107,18 @@ describe("users validation", () => {
         fullName: "Ada Lovelace",
         email: "ada@example.com",
         role: "viewer",
+        type: "investor",
       }).success,
     ).toBe(true);
+
+    expect(
+      updateUserSchema.safeParse({
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        fullName: "Ada Lovelace",
+        email: "ada@example.com",
+        role: "viewer",
+      }).success,
+    ).toBe(false);
   });
 
   it("validates and defaults list query parameters", () => {

@@ -6,23 +6,27 @@ import { toast } from "sonner";
 
 import { signInWithGoogle } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import type { RegisterAccountType } from "@/validations/auth";
 
 export function GoogleAuthButton({
   label,
   loadingLabel,
   errorMessage,
   redirectTo,
+  accountType,
 }: {
   label: string;
   loadingLabel: string;
   errorMessage: string;
   redirectTo?: string;
+  /** Signup only — forwarded to /auth/callback for new viewer profiles. */
+  accountType?: RegisterAccountType;
 }) {
   const [isPending, setIsPending] = useState(false);
 
   async function handleClick() {
     setIsPending(true);
-    const result = await signInWithGoogle(redirectTo);
+    const result = await signInWithGoogle(redirectTo, accountType);
 
     if (result.status === "error" || !result.redirectTo) {
       toast.error(result.status === "error" ? result.message : errorMessage);
