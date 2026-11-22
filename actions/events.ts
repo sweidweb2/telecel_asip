@@ -5,9 +5,9 @@ import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import {
   createEventSchema,
   deleteEventSchema,

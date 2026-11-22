@@ -8,7 +8,7 @@ import type { HomePageCopy } from "@/types/marketing-page";
 const en: HomePageCopy = {
   pathways: {
     prompt: "I am",
-    investor: { slug: "founders", label: "Investor" },
+    investor: { slug: "register-interest", label: "Investor" },
     startupLabel: "Startup",
   },
   hero: {
@@ -226,7 +226,7 @@ const en: HomePageCopy = {
 const fr: HomePageCopy = {
   pathways: {
     prompt: "Je suis",
-    investor: { slug: "founders", label: "Investisseur" },
+    investor: { slug: "register-interest", label: "Investisseur" },
     startupLabel: "Startup",
   },
   hero: {

@@ -9,9 +9,9 @@ import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import { traceAsync } from "@/lib/admin/perf";
 import {
@@ -19,10 +19,6 @@ import {
   uploadVersionedPublicImage,
 } from "@/lib/media/upload-versioned-public-image";
 import { createClient } from "@/lib/supabase/server";
-import {
-  planSortOrderDisplacement,
-  type PartnerSortOrderOccupant,
-} from "@/lib/partners/sort-order";
 import {
   createPartnerSchema,
   deletePartnerSchema,
@@ -81,7 +77,7 @@ function refreshPartnerPaths(id?: string) {
   revalidatePath("/fr/partners");
 }
 
-function toPartnerRow(input: CreatePartnerInput | UpdatePartnerInput) {
+function toPartnerJson(input: CreatePartnerInput | UpdatePartnerInput) {
   return {
     name: input.name,
     org: emptyToNull(input.org),
@@ -98,43 +94,6 @@ function writeErrorMessage(error: { code?: string; message?: string }): string {
   return mapPgActionError(error, PG_MESSAGES);
 }
 
-async function loadSortOrderOccupants(
-  supabase: SupabaseServerClient,
-): Promise<PartnerSortOrderOccupant[]> {
-  const { data, error } = await supabase
-    .from("partners")
-    .select("id, name, sort_order")
-    .order("sort_order", { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as PartnerSortOrderOccupant[];
-}
-
-/**
- * If another partner already owns `desiredOrder`, move them to the first free
- * slot before writing the editor partner.
- */
-async function displaceSortOrderIfNeeded(
-  supabase: SupabaseServerClient,
-  desiredOrder: number,
-  currentPartnerId?: string,
-): Promise<{ error?: { code?: string; message?: string } }> {
-  const partners = await loadSortOrderOccupants(supabase);
-  const plan = planSortOrderDisplacement({
-    desiredOrder,
-    currentPartnerId,
-    partners,
-  });
-  if (!plan) return {};
-
-  const { error } = await supabase
-    .from("partners")
-    .update({ sort_order: plan.displace.toOrder })
-    .eq("id", plan.displace.id);
-
-  return error ? { error } : {};
-}
-
 export async function createPartner(
   input: CreatePartnerInput,
 ): Promise<PartnerActionResult> {
@@ -147,21 +106,12 @@ export async function createPartner(
     },
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
-      const desiredOrder = data.sortOrder ?? PARTNER_SORT_ORDER_MIN;
-      const displaced = await displaceSortOrderIfNeeded(
-        session.supabase,
-        desiredOrder,
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "create_partner_with_sort_order",
+        { p_partner: toPartnerJson(data) },
       );
-      if (displaced.error) {
-        return { status: "error", pgError: displaced.error };
-      }
 
-      const { data: row, error } = await session.supabase
-        .from("partners")
-        .insert(toPartnerRow(data))
-        .select("id")
-        .single();
-
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (error || !row?.id) {
         return { status: "error", pgError: error ?? {} };
       }
@@ -183,23 +133,16 @@ export async function updatePartner(
     },
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
-      const desiredOrder = data.sortOrder ?? PARTNER_SORT_ORDER_MIN;
-      const displaced = await displaceSortOrderIfNeeded(
-        session.supabase,
-        desiredOrder,
-        data.id,
+      const { id, ...rest } = data;
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_partner_with_sort_order",
+        {
+          p_id: id,
+          p_partner: toPartnerJson(rest),
+        },
       );
-      if (displaced.error) {
-        return { status: "error", pgError: displaced.error };
-      }
 
-      const { data: row, error } = await session.supabase
-        .from("partners")
-        .update(toPartnerRow(data))
-        .eq("id", data.id)
-        .select("id")
-        .maybeSingle();
-
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (error) {
         return { status: "error", pgError: error };
       }
@@ -406,7 +349,9 @@ export async function uploadPartnerLogo(
           session.supabase
             .from("partners")
             .update({ logo_url: publicUrl })
-            .eq("id", partnerId),
+            .eq("id", partnerId)
+            .select("id")
+            .maybeSingle(),
       });
 
       if (uploaded.status === "error") return uploaded;

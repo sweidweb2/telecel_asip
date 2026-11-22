@@ -14,7 +14,10 @@ alwaysApply: false
 - `components/[feature]/` — reused across routes (e.g. `components/projects/project-card.tsx`)
 - One-off page UI stays next to the route in `app/`
 - Never import Supabase clients or `data/`/`actions/` query builders here — pages/actions call those
+- Runtime `data/` imports are forbidden; `import type` from `data/`/`types/` is OK. Routes inject loaders (`fetchPage`, `load`) into shared shells
 - Forms: `react-hook-form` + `zodResolver` against a `validations/` schema
+- Shared field errors: `AdminFieldError` from `components/dashboard/admin-field-error` — do not redefine per dialog
+- Auth copy lives in `constants/auth-labels` (not under `components/auth/`)
 - Skeletons: put them in the route’s `loading.tsx` via `RouteSkeleton` (boneyard-js). Use shadcn `Skeleton` only for small inline placeholders (sidebar menu, form suspense). Do not use either as a substitute for the `loading.tsx` convention.
 
 ## hooks/

@@ -16,8 +16,6 @@ import {
 } from "@/lib/admin/pg-action-error";
 import type { AdminActionResult } from "@/types/admin-action";
 
-export type { AdminActionResult } from "@/types/admin-action";
-
 export type AdminMutationMessages = AuthorizeEditorMessages & {
   invalidDetails: string;
   success: string;
@@ -128,12 +126,13 @@ export function refreshAdminResource({
    */
   bustNavCounts = true,
 }: {
-  listPath: string;
+  /** Omit when the staff list route does not exist yet (cache tags only). */
+  listPath?: string;
   detailPath?: string;
   cacheTags?: readonly string[];
   bustNavCounts?: boolean;
 }) {
-  revalidatePath(listPath);
+  if (listPath) revalidatePath(listPath);
   if (detailPath) revalidatePath(detailPath);
   if (bustNavCounts) {
     revalidateDashboardNavCounts();

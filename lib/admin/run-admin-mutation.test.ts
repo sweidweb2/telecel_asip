@@ -117,4 +117,21 @@ describe("refreshAdminResource", () => {
       "max",
     );
   });
+
+  it("revalidates cache tags without a list path", () => {
+    revalidatePath.mockClear();
+    revalidateTag.mockClear();
+
+    refreshAdminResource({
+      cacheTags: ["investor-interests"],
+      bustNavCounts: false,
+    });
+
+    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(revalidateTag).toHaveBeenCalledWith("investor-interests", "max");
+    expect(revalidateTag).not.toHaveBeenCalledWith(
+      DASHBOARD_NAV_COUNTS_CACHE_TAG,
+      "max",
+    );
+  });
 });

@@ -1,23 +1,15 @@
 /**
- * Apply pending Supabase migrations.
+ * Apply pending Supabase migrations to the remote project.
  *
  * Usage:
- *   node scripts/db-migrate.mjs local
- *   node scripts/db-migrate.mjs remote
+ *   npm run db:migrate:remote
  *
- * Remote builds a Postgres URL from NEXT_PUBLIC_SUPABASE_URL + SUPABASE_DB_PASSWORD
+ * Builds a Postgres URL from NEXT_PUBLIC_SUPABASE_URL + SUPABASE_DB_PASSWORD
  * in `.env` / `.env.local` (file password wins over a stale shell var).
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, readFileSync } from "node:fs"
 import { resolve } from "node:path"
-
-const target = process.argv[2]
-
-if (target !== "local" && target !== "remote") {
-  console.error("Usage: node scripts/db-migrate.mjs <local|remote>")
-  process.exit(1)
-}
 
 /**
  * @param {string} filePath
@@ -136,38 +128,27 @@ if (filePassword !== undefined) {
   process.env.SUPABASE_DB_PASSWORD = filePassword
 }
 
-/** @type {string[]} */
-let args
-
-if (target === "local") {
-  args = ["db", "push", "--local"]
-} else {
-  const password = process.env.SUPABASE_DB_PASSWORD?.trim()
-  if (!password) {
-    console.error(
-      "Missing SUPABASE_DB_PASSWORD. Add it to `.env` (Project Settings → Database).",
-    )
-    process.exit(1)
-  }
-
-  const projectRef = resolveProjectRef()
-  if (!projectRef) {
-    console.error(
-      "Could not resolve project ref. Link the project (`npx supabase link`) or set NEXT_PUBLIC_SUPABASE_URL.",
-    )
-    process.exit(1)
-  }
-
-  const dbUrl = buildRemoteDbUrl(projectRef, password)
-  // --db-url skips login-role API; still set env for any CLI fallbacks.
-  args = ["db", "push", "--db-url", dbUrl, "--yes"]
+const password = process.env.SUPABASE_DB_PASSWORD?.trim()
+if (!password) {
+  console.error(
+    "Missing SUPABASE_DB_PASSWORD. Add it to `.env` (Project Settings → Database).",
+  )
+  process.exit(1)
 }
 
-console.log(
-  target === "remote"
-    ? "Pushing migrations to remote Supabase…"
-    : "Pushing migrations to local Supabase…",
-)
+const projectRef = resolveProjectRef()
+if (!projectRef) {
+  console.error(
+    "Could not resolve project ref. Link the project (`npx supabase link`) or set NEXT_PUBLIC_SUPABASE_URL.",
+  )
+  process.exit(1)
+}
+
+const dbUrl = buildRemoteDbUrl(projectRef, password)
+// --db-url skips login-role API; still set env for any CLI fallbacks.
+const args = ["db", "push", "--db-url", dbUrl, "--yes"]
+
+console.log("Pushing migrations to remote Supabase…")
 
 const result = spawnSync("supabase", args, {
   stdio: "inherit",

@@ -10,9 +10,9 @@ import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   revalidateDashboardNavCounts,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
@@ -207,41 +207,29 @@ export async function updateBlogStatus(
     },
     perfName: "updateBlogStatus",
     execute: async (session, data) => {
-      const { data: existing } = await session.supabase
-        .from("blogs")
-        .select("id, slug, published_at, is_featured")
-        .eq("id", data.id)
-        .maybeSingle();
+      const { data: rpcData, error } = await session.supabase.rpc(
+        "update_blog_status",
+        {
+          p_id: data.id,
+          p_status: data.status,
+        },
+      );
 
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
-
-      const publishedAt =
-        data.status === "published"
-          ? (existing.published_at ?? new Date().toISOString())
-          : existing.published_at;
-
-      const { data: row, error } = await session.supabase
-        .from("blogs")
-        .update({
-          status: data.status,
-          is_featured: data.status === "draft" ? false : existing.is_featured,
-          published_at: publishedAt,
-        })
-        .eq("id", data.id)
-        .select("id, slug")
-        .maybeSingle();
-
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (error) {
-        return { status: "error", message: MESSAGES.genericError };
+        return { status: "error", pgError: error };
       }
-      if (!row) {
+      if (!row?.id) {
         return { status: "error", message: MESSAGES.notFound };
       }
 
       slug = row.slug;
       return { status: "success", id: row.id };
+    },
+    pgMessages: {
+      unauthorized: MESSAGES.unauthorized,
+      notFound: MESSAGES.notFound,
+      genericError: MESSAGES.genericError,
     },
     refresh: (_data, id) => refreshBlogPaths(slug, id),
   });
@@ -359,10 +347,14 @@ async function uploadImage(options: {
                 .from("blogs")
                 .update({ thumbnail_url: publicUrl })
                 .eq("id", blogId)
+                .select("id")
+                .maybeSingle()
             : session.supabase
                 .from("blogs")
                 .update({ author_avatar_url: publicUrl })
-                .eq("id", blogId),
+                .eq("id", blogId)
+                .select("id")
+                .maybeSingle(),
       });
 
       if (uploaded.status === "error") return uploaded;

@@ -35,13 +35,16 @@ const validCreate = {
   sortOrder: 1,
 };
 
-function mockSession(fromImpl: ReturnType<typeof vi.fn>) {
+function mockSession(
+  fromImpl: ReturnType<typeof vi.fn>,
+  rpcImpl: ReturnType<typeof vi.fn> = vi.fn(),
+) {
   authorizeEditor.mockResolvedValue({
     status: "success",
     userId: "admin-1",
     supabase: {
       from: fromImpl,
-      rpc: vi.fn(),
+      rpc: rpcImpl,
       storage: {
         from: vi.fn(() => ({
           list: vi.fn().mockResolvedValue({ data: [], error: null }),
@@ -75,14 +78,16 @@ describe("partners actions", () => {
   });
 
   it("creates, updates, and deletes a partner", async () => {
-    const insertSingle = vi.fn().mockResolvedValue({
-      data: { id: partnerId },
-      error: null,
-    });
-    const updateMaybe = vi.fn().mockResolvedValue({
-      data: { id: partnerId },
-      error: null,
-    });
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: [{ id: partnerId }],
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: [{ id: partnerId }],
+        error: null,
+      });
     const deleteEq = vi.fn().mockResolvedValue({ error: null });
     const existingMaybe = vi.fn().mockResolvedValue({
       data: { id: partnerId, logo_url: null },
@@ -90,30 +95,28 @@ describe("partners actions", () => {
     });
 
     const from = vi.fn(() => ({
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({ single: insertSingle })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({ maybeSingle: updateMaybe })),
-        })),
-      })),
       select: vi.fn(() => ({
         eq: vi.fn(() => ({ maybeSingle: existingMaybe })),
-        order: vi.fn().mockResolvedValue({ data: [], error: null }),
       })),
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
 
-    mockSession(from);
+    mockSession(from, rpc);
 
     await expect(createPartner(validCreate)).resolves.toMatchObject({
       status: "success",
       id: partnerId,
     });
+    expect(rpc).toHaveBeenCalledWith("create_partner_with_sort_order", {
+      p_partner: expect.objectContaining({ name: validCreate.name }),
+    });
     await expect(
       updatePartner({ ...validCreate, id: partnerId, name: "Updated Partner" }),
     ).resolves.toMatchObject({ status: "success", id: partnerId });
+    expect(rpc).toHaveBeenCalledWith("update_partner_with_sort_order", {
+      p_id: partnerId,
+      p_partner: expect.objectContaining({ name: "Updated Partner" }),
+    });
     await expect(deletePartner({ id: partnerId })).resolves.toMatchObject({
       status: "success",
     });

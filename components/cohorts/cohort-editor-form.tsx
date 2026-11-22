@@ -38,7 +38,7 @@ import {
   applyDummyFormValues,
   dummyCohortValues,
   todayIsoDate,
-} from "@/lib/admin/dummy-form-values";
+} from "@/lib/dummy-form-values";
 import type { CohortAdminDetail, CohortLinkOption } from "@/types/cohort";
 import {
   CMS_PUBLISH_STATUSES,

@@ -12,8 +12,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { requireEditor } from "@/data/auth";
 import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
+import { requireEditor } from "@/lib/admin/require-staff";
 
 type OkResult = { status: "ok" };
 

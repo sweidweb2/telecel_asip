@@ -37,7 +37,7 @@ import { EVENT_EDITOR_HELP } from "@/constants/event-editor-help";
 import { eventDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
-import { dummyEventValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
+import { dummyEventValues, todayIsoDate } from "@/lib/dummy-form-values";
 import type { EventDetail, EventStartupOption } from "@/types/event";
 import {
   CMS_PUBLISH_STATUSES,

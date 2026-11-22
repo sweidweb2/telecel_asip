@@ -6,9 +6,9 @@ import { getAdminResource } from "@/constants/admin-resources";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { writeAdminRow } from "@/lib/admin/write-admin-row";
 import {
   createFounderStorySchema,

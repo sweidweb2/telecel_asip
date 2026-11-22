@@ -40,7 +40,7 @@ import {
   applyClearFormValues,
   applyDummyFormValues,
   dummyPartnerValues,
-} from "@/lib/admin/dummy-form-values";
+} from "@/lib/dummy-form-values";
 import {
   AlertDialog,
   AlertDialogCancel,

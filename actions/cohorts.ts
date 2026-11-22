@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 import { getAdminResource } from "@/constants/admin-resources";
 import {
   refreshAdminResource,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import {
   createCohortSchema,
   deleteCohortSchema,

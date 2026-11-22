@@ -19,8 +19,7 @@
     "bones:watch": "boneyard-js build --watch http://localhost:3000",
     "analyze": "cross-env ANALYZE=true next build",
     "media:asip-marketing": "node scripts/build-marketing-media.mjs",
-    "db:migrate:local": "node scripts/db-migrate.mjs local",
-    "db:migrate:remote": "node scripts/db-migrate.mjs remote"
+    "db:migrate:remote": "node scripts/db-migrate.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1127.0",

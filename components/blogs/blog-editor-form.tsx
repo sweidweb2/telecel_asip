@@ -27,7 +27,7 @@ import { AdminImageProcessingBanner } from "@/components/dashboard/admin-image-p
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { dummyBlogValues } from "@/lib/admin/dummy-form-values";
+import { dummyBlogValues } from "@/lib/dummy-form-values";
 
 const BlogRichTextEditor = dynamic(
   () =>

@@ -26,7 +26,7 @@ import {
   applyDummyFormValues,
   dummyStartupValues,
   todayIsoDate,
-} from "@/lib/admin/dummy-form-values";
+} from "@/lib/dummy-form-values";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

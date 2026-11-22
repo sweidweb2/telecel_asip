@@ -52,7 +52,7 @@ import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import {
   dummyImpactMetricValues,
   todayIsoDate,
-} from "@/lib/admin/dummy-form-values";
+} from "@/lib/dummy-form-values";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,

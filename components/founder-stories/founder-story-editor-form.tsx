@@ -35,7 +35,7 @@ import { FOUNDER_STORY_EDITOR_HELP } from "@/constants/founder-story-editor-help
 import { founderStoryEditPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
-import { dummyFounderStoryValues, todayIsoDate } from "@/lib/admin/dummy-form-values";
+import { dummyFounderStoryValues, todayIsoDate } from "@/lib/dummy-form-values";
 import type {
   FounderStoryDetail,
   StartupStoryOption,

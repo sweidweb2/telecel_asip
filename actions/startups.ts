@@ -10,9 +10,9 @@ import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   revalidateDashboardNavCounts,
-  runAdminMutation,
-  type AdminActionResult,
+  runAdminMutation
 } from "@/lib/admin/run-admin-mutation";
+import type { AdminActionResult } from "@/types/admin-action";
 import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
@@ -284,7 +284,9 @@ export async function uploadStartupLogo(
           session.supabase
             .from("startups")
             .update({ logo_url: publicUrl })
-            .eq("id", startupId),
+            .eq("id", startupId)
+            .select("id")
+            .maybeSingle(),
       });
 
       if (uploaded.status === "error") return uploaded;

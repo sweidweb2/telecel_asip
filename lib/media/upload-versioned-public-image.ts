@@ -62,9 +62,11 @@ export async function uploadVersionedPublicImage(options: {
   previousUrl: string | null | undefined;
   maxBytes: number;
   messages: UploadVersionedPublicImageMessages;
-  updateRow: (
-    publicUrl: string,
-  ) => Promise<{ error: { message?: string } | null }>;
+  updateRow: (publicUrl: string) => Promise<{
+    error: { message?: string } | null;
+    /** When provided, null/undefined means the UPDATE matched zero rows. */
+    data?: { id: string } | null;
+  }>;
   allowedMime?: Set<string>;
   cacheControl?: string;
 }): Promise<UploadVersionedPublicImageResult> {
@@ -121,9 +123,9 @@ export async function uploadVersionedPublicImage(options: {
   }
 
   const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
-  const { error: updateError } = await updateRow(publicUrl);
+  const { error: updateError, data: updated } = await updateRow(publicUrl);
 
-  if (updateError) {
+  if (updateError || updated === null) {
     await supabase.storage.from(bucket).remove([path]);
     return { status: "error", message: messages.genericError };
   }

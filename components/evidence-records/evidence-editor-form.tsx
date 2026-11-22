@@ -46,7 +46,7 @@ import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
 import {
   dummyEvidenceValues,
   todayIsoDate,
-} from "@/lib/admin/dummy-form-values";
+} from "@/lib/dummy-form-values";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,

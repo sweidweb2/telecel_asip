@@ -57,7 +57,10 @@ describe("uploadVersionedPublicImage", () => {
   it("uploads a versioned path, updates the row, and removes the previous object", async () => {
     const upload = vi.fn(async () => ({ error: null }));
     const remove = vi.fn(async () => ({ error: null }));
-    const updateRow = vi.fn(async () => ({ error: null }));
+    const updateRow = vi.fn(async () => ({
+      error: null,
+      data: { id: "partner-1" },
+    }));
     const supabase = {
       storage: {
         from: vi.fn(() => ({ upload, remove })),
@@ -122,6 +125,35 @@ describe("uploadVersionedPublicImage", () => {
       maxBytes: 1024,
       messages,
       updateRow: async () => ({ error: { message: "db" } }),
+    });
+
+    expect(result).toEqual({ status: "error", message: "generic" });
+    expect(remove).toHaveBeenCalled();
+  });
+
+  it("rolls back the new object when the DB update matches zero rows", async () => {
+    const upload = vi.fn(async () => ({ error: null }));
+    const remove = vi.fn(async () => ({ error: null }));
+    const supabase = {
+      storage: {
+        from: vi.fn(() => ({ upload, remove })),
+      },
+    };
+
+    const file = new File([new Uint8Array([1])], "logo.png", {
+      type: "image/png",
+    });
+
+    const result = await uploadVersionedPublicImage({
+      supabase: supabase as never,
+      file,
+      bucket: "startups",
+      entityId: "s1",
+      preset: "startupLogo",
+      previousUrl: null,
+      maxBytes: 1024,
+      messages,
+      updateRow: async () => ({ error: null, data: null }),
     });
 
     expect(result).toEqual({ status: "error", message: "generic" });

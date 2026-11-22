@@ -9,7 +9,7 @@ import {
   updatePartnerLogoPermission,
 } from "@/actions/partners";
 import { Switch } from "@/components/ui/switch";
-import { toastWithUndo } from "@/lib/admin/toast-with-undo";
+import { toastWithUndo } from "@/lib/toast-with-undo";
 
 function PartnerFlagToggle({
   checked,

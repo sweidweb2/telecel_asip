@@ -11,8 +11,11 @@ One file per entity: `actions/projects.ts`. Every `'use server'` mutation lives 
 - Validate with a `validations/` Zod schema before touching Supabase
 - Use `ts-pattern` for result/error branching instead of long `if`/`switch` chains
 - INSERT/UPDATE/DELETE only — reads belong in `data/`
+- **Exception:** thin `loadX(id)` exports that only delegate to `data/` are allowed so client dialogs can fetch on demand (e.g. `loadApplication`). Keep them one-liners — no query logic in `actions/`.
+- Shared write orchestrators that need `data/` reads (e.g. intake submit) live under `actions/`, not `lib/`
 - `revalidatePath` / `revalidateTag` after successful mutations
-- Never import from `app/`
+- Never import from `app/` or `components/` (copy → `constants/`)
+- Prefer `AdminActionResult` from `@/types/admin-action`
 
 ```ts
 'use server'
