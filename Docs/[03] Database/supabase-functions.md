@@ -669,7 +669,7 @@ No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK
 | **Timing** | `BEFORE UPDATE`, `FOR EACH ROW` |
 | **Calls** | `public.set_cohorts_updated_at()` |
 
-**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; editors CRUD via `is_editor()`. Junction tables `cohort_partners` and `cohort_startups` cascade on delete. Prefer the write RPCs below so links stay in the same transaction as the cohort row. Reuses shared `cms_publish_status` when already created by another CMS migration.
+**How it works:** Keeps `updated_at` current. Published rows are readable by anon/authenticated via RLS; editors CRUD via `is_editor()`. Junction tables `cohort_partners` and `cohort_startups` cascade on delete. Prefer the write RPCs below so links stay in the same transaction as the cohort row. Reuses shared `cms_publish_status` when already created by another CMS migration. Programme media lives in Storage bucket `cohorts` (`{cohort_id}/{nanoid}.webp`); `media_url` is updated by upload/remove actions, not a pasted URL field.
 
 ### `public.create_cohort_with_links(p_cohort jsonb, p_partner_ids uuid[], p_startup_ids uuid[])`
 

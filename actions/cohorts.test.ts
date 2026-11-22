@@ -70,10 +70,16 @@ describe("cohorts actions", () => {
         data: [{ id: cohortId }],
         error: null,
       });
-    const maybeSingle = vi.fn().mockResolvedValue({
-      data: { id: cohortId },
-      error: null,
-    });
+    const maybeSingle = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: { media_url: null },
+        error: null,
+      })
+      .mockResolvedValue({
+        data: { id: cohortId },
+        error: null,
+      });
     const deleteEq = vi.fn().mockResolvedValue({ error: null });
     const from = vi.fn(() => ({
       select: vi.fn(() => ({
@@ -81,11 +87,15 @@ describe("cohorts actions", () => {
       })),
       delete: vi.fn(() => ({ eq: deleteEq })),
     }));
+    const storageFrom = vi.fn(() => ({
+      list: vi.fn().mockResolvedValue({ data: [], error: null }),
+      remove: vi.fn().mockResolvedValue({ data: null, error: null }),
+    }));
 
     authorizeEditor.mockResolvedValue({
       status: "success",
       userId: "admin-1",
-      supabase: { rpc, from },
+      supabase: { rpc, from, storage: { from: storageFrom } },
     });
 
     await expect(createCohort(validCreate)).resolves.toMatchObject({

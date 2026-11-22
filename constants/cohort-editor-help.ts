@@ -34,9 +34,20 @@ export const COHORT_EDITOR_HELP = {
         detail: "Short description of the cohort for public cards and detail intros.",
       },
       {
-        name: "Media URL",
+        name: "Cover image",
         detail:
-          "Optional image or media URL for the cohort. Not processed as an upload in this form.",
+          "Optional JPEG / PNG / WebP / GIF (max 10 MB). Processed to WebP and stored in the cohorts Storage bucket on save.",
+      },
+    ],
+  },
+  media: {
+    title: "Cover image",
+    intro: "JPEG / PNG / WebP / GIF · max 10 MB",
+    fields: [
+      {
+        name: "Cover image",
+        detail:
+          "Shown on programme past-chapters. On create, the file uploads after the cohort row is saved. Clear the selection before save to skip the upload.",
       },
     ],
   },

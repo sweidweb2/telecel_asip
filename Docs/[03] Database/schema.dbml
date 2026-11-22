@@ -991,7 +991,7 @@ Table cohorts {
   programme_dates_end date [note: 'CHECK >= start when both set']
   programme_status cohort_programme_status [not null]
   summary text [note: 'CHECK length <= 5000']
-  media_url text [note: 'Plain https URL; CHECK length <= 500; bucket later']
+  media_url text [note: 'Storage bucket cohorts; CHECK length <= 500; https URL']
   publish_status cms_publish_status [not null, default: 'draft']
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
@@ -1018,6 +1018,11 @@ Table cohorts {
     Trigger: cohorts_set_updated_at BEFORE UPDATE
     Write RPCs: create_cohort_with_links, update_cohort_with_links
     Do not ALTER startups/partners for cohort FKs — M2M junctions only.
+
+    Storage:
+    - cohorts — programme media / past-chapters covers (10 MB). Objects under
+      `{cohort_id}/` with versioned nanoid WebP paths. Public SELECT; editor
+      INSERT/UPDATE/DELETE via is_editor() (20261122160000).
   '''
 }
 
