@@ -5,6 +5,26 @@ import {
   hasE2ECredentials,
 } from "./helpers";
 
+const STAFF_PATHS = [
+  "/dashboard",
+  "/dashboard/settings",
+  "/dashboard/analytics",
+  "/dashboard/applications",
+  "/dashboard/registrations",
+  "/dashboard/cohorts",
+  "/dashboard/events",
+  "/dashboard/blogs",
+  "/dashboard/newsletter",
+  "/dashboard/impact-metrics",
+  "/dashboard/partners",
+  "/admin",
+  "/admin/performance",
+  "/admin/backup",
+  "/admin/settings",
+  "/admin/users",
+  "/admin/catalog",
+] as const;
+
 test.describe("viewer dashboard redirect matrix", () => {
   test.beforeEach(() => {
     test.skip(
@@ -13,18 +33,9 @@ test.describe("viewer dashboard redirect matrix", () => {
     );
   });
 
-  for (const path of [
-    "/dashboard/settings",
-    "/dashboard/analytics",
-    "/dashboard/cohorts",
-    "/dashboard/events",
-    "/admin/performance",
-    "/admin/backup",
-    "/admin/settings",
-    "/admin/users",
-  ] as const) {
+  for (const path of STAFF_PATHS) {
     test(`viewer is redirected from ${path}`, async ({ page }) => {
-      test.setTimeout(60_000);
+      test.setTimeout(45_000);
       await expectViewerRedirectedFrom(page, path);
     });
   }

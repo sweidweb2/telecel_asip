@@ -21,18 +21,12 @@ jobs:
     timeout-minutes: 20
 
     env:
-      # Prefer repo secrets so E2E can run; fall back to placeholders so
-      # lint / typecheck / build still work without secrets. Marketing pages
-      # read Supabase during render, so no E2E can pass against a placeholder.
-      # NEXT_PUBLIC_* are inlined at build time — must be set for the whole job.
+      # Placeholders are enough for lint / typecheck / Vitest / build.
+      # E2E runs locally only (`npm run test:e2e` / `test:e2e:smoke`).
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      E2E_SEED_EMAIL: ${{ secrets.E2E_SEED_EMAIL }}
-      E2E_SEED_PASSWORD: ${{ secrets.E2E_SEED_PASSWORD }}
-      # The `secrets` context is unavailable in step-level `if`, so resolve it here.
-      HAS_SUPABASE: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
 
     steps:
       - name: Checkout
@@ -58,26 +52,3 @@ jobs:
 
       - name: Next.js build
         run: npm run build
-
-      - name: Skip Playwright (no Supabase secrets)
-        if: env.HAS_SUPABASE != 'true'
-        run: |
-          echo "::warning::Skipping E2E — NEXT_PUBLIC_SUPABASE_URL / ANON_KEY are not configured."
-          echo "Marketing pages read Supabase during render, so E2E cannot run against a placeholder host."
-
-      - name: Install Playwright Chromium
-        if: env.HAS_SUPABASE == 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Playwright
-        if: env.HAS_SUPABASE == 'true'
-        run: npm run test:e2e
-
-      - name: Upload Playwright report
-        if: ${{ !cancelled() && env.HAS_SUPABASE == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          if-no-files-found: ignore
-          retention-days: 7

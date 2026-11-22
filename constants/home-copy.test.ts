@@ -32,12 +32,20 @@ describe("homeCopyFor", () => {
     expect(fr.cohortFilm.posterAlt.length).toBeGreaterThan(10);
     expect(en.hero.continuumAlts).toHaveLength(fr.hero.continuumAlts.length);
     expect(en.cohortFilm.title).not.toEqual(fr.cohortFilm.title);
+    expect(en.pathways.founder.href).toBe("#founders");
+    expect(en.pathways.investor.href).toBe("#investors");
+    expect(en.pathways.founder.label).toBe("I'm a Founder");
+    expect(en.pathways.investor.label).toBe("I'm an Investor");
+    expect(fr.pathways.founder.href).toBe("#founders");
+    expect(fr.pathways.investor.href).toBe("#investors");
     expect(en.nextChapter.primaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.secondaryCta.slug).toBe("register-interest");
     expect(en.nextChapter.primaryCta.label).toBe("Investor");
     expect(en.nextChapter.secondaryCta.label).toBe("Startup");
     expect(fr.nextChapter.primaryCta.label).toBe("Investisseur");
     expect(fr.nextChapter.secondaryCta.label).toBe("Startup");
+    expect(en.hero.nextCohort.href).toBe("#founders");
+    expect(fr.hero.nextCohort.href).toBe("#founders");
     expect(en.outcomes.features.map((feature) => feature.id)).toEqual(
       fr.outcomes.features.map((feature) => feature.id),
     );

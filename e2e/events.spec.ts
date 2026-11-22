@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
+import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, clickSaveChanges } from "./helpers";
 
 test.describe("events cms", () => {
   test.beforeEach(() => {
@@ -56,28 +56,4 @@ test.describe("events cms", () => {
     }
   });
 
-  test("non-admin is redirected away from events", async ({ page }) => {
-    test.setTimeout(60_000);
-    const suffix = e2eSuffix();
-    const email = `events.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = e2eAdminClient();
-    const { data: created, error } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: "Events Viewer" },
-      app_metadata: { app_role: "viewer" },
-    });
-    if (error) throw error;
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fevents");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
-    } finally {
-      if (created.user?.id) await admin.auth.admin.deleteUser(created.user.id);
-    }
-  });
 });

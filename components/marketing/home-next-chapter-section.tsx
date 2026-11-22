@@ -15,7 +15,6 @@ import type { HomePageCopy } from "@/types/marketing-page";
 type HomeNextChapterSectionProps = {
   locale: Locale;
   copy: HomePageCopy["nextChapter"];
-  pathways: HomePageCopy["pathways"];
   intake: IntakeCta;
   className?: string;
 };
@@ -36,24 +35,22 @@ const PILLAR_OFFSETS = ["", "lg:ml-6", "lg:ml-12"] as const;
 /**
  * Home Module 08 — 2026 cohort / next chapter.
  *
- * Light expressive block: ASIP spectrum accents and the 2026 theme.
- * The AI direction lives here only — framed as business problem →
- * applied AI → measurable advantage.
- * `copy.theme.status === "working"` shows a tag until the theme is locked.
+ * Doubles as the hero Founder pathway anchor (`#founders`) until Block B
+ * adds a dedicated founder module higher on the page.
+ * Section CTAs use `nextChapter` copy (Block C will lock AI Advantage labels).
  */
 export function HomeNextChapterSection({
   locale,
   copy,
-  pathways,
   intake,
   className,
 }: HomeNextChapterSectionProps) {
-  const investorHref = publicPath(locale, pathways.investor.slug);
+  const primaryHref = publicPath(locale, copy.primaryCta.slug);
   const headingId = "home-next-chapter-heading";
 
   return (
     <section
-      id="next-chapter"
+      id="founders"
       aria-labelledby={headingId}
       className={cn(
         "home-module-seam-to relative isolate scroll-mt-24 overflow-hidden border-b border-border text-foreground",
@@ -163,16 +160,16 @@ export function HomeNextChapterSection({
 
           <MarketingCtaRow className="lg:col-start-1 lg:row-start-2 lg:self-start">
             <OutlineCtaLink
-              href={investorHref}
+              href={primaryHref}
               className="min-h-12 border-foreground/25 bg-background text-base text-foreground hover:bg-muted"
             >
-              {pathways.investor.label}
+              {copy.primaryCta.label}
             </OutlineCtaLink>
             <CoralCtaLink
               href={intake.href}
               className="group min-h-12 text-base"
             >
-              {pathways.startupLabel}
+              {copy.secondaryCta.label}
               <ArrowRight
                 aria-hidden
                 className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, clickSaveChanges } from "./helpers";
+import { e2eAdminClient, e2eEditorEmail, e2eSuffix, hasE2ECredentials, loginAsEditor, clickSaveChanges } from "./helpers";
 
 async function seedEvidence(primarySource: string): Promise<string> {
   const admin = e2eAdminClient();
@@ -126,28 +126,55 @@ test.describe("impact metrics cms", () => {
     }
   });
 
-  test("non-admin is redirected away from impact metrics", async ({ page }) => {
-    test.setTimeout(60_000);
-    const suffix = e2eSuffix();
-    const email = `impact.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = e2eAdminClient();
-    const { data: created, error } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: "Impact Viewer" },
-      app_metadata: { app_role: "viewer" },
-    });
-    if (error) throw error;
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fimpact-metrics");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
-    } finally {
-      if (created.user?.id) await admin.auth.admin.deleteUser(created.user.id);
-    }
-  });
+  test(
+    "verified homepage_module_02 metric appears on the home strip",
+    { tag: "@writes" },
+    async ({ page }) => {
+      test.setTimeout(120_000);
+      const suffix = e2eSuffix();
+      const claim = `E2E Home Impact ${suffix}`;
+      const evidenceSource = `E2E Home Impact evidence ${suffix}`;
+      const admin = e2eAdminClient();
+      const evidenceId = await seedEvidence(evidenceSource);
+
+      try {
+        await loginAsEditor(page, "/dashboard/impact-metrics/new");
+        await page.getByLabel("Claim label").fill(claim);
+        await page.locator("#impact-value").fill("77");
+        await page.getByLabel("Unit").fill("%");
+        await page.getByRole("tab", { name: /Period/i }).click();
+        await page.getByLabel("Period start").fill("2024-01-01");
+        await page.getByLabel("Period end").fill("2024-12-31");
+
+        await page.getByRole("combobox", { name: "Evidence record" }).click();
+        await page
+          .getByLabel("Search evidence by source…")
+          .fill(evidenceSource);
+        await page
+          .getByRole("option", { name: new RegExp(evidenceSource) })
+          .click();
+
+        await page.getByRole("tab", { name: /Publishing/i }).click();
+        await page.getByLabel("Publish status").click();
+        await page.getByRole("option", { name: "Verified" }).click();
+        await page.getByLabel("Display locations").fill("homepage_module_02");
+
+        await page.getByRole("button", { name: "Create metric" }).click();
+        await expect(page).toHaveURL(/\/dashboard\/impact-metrics\/[0-9a-f-]+/, {
+          timeout: 20_000,
+        });
+
+        await page.goto("/en");
+        await expect(page.locator("#impact-years")).toContainText(claim, {
+          timeout: 20_000,
+        });
+      } finally {
+        await admin
+          .from("impact_metrics")
+          .delete()
+          .ilike("claim_label", `E2E Home Impact ${suffix}%`);
+        await admin.from("evidence_records").delete().eq("id", evidenceId);
+      }
+    },
+  );
 });

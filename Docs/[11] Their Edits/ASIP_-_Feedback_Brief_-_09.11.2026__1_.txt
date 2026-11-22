@@ -1,0 +1,603 @@
+--- PAGE 1 ---
+ 
+                                                                                                                              Page 1 of 16 
+                                                                  TG 
+ 
+ 
+ASIP WEBSITE 
+Final Design & Audience Experience Brief 
+Supplier implementation closure • 08 November 2026 
+     
+ 
+STATUS 
+FINAL DESIGN DIRECTION. This brief consolidates the final UX, audience, visual, 
+interaction and AI-assisted design requirements for implementation. Where any 
+earlier visual comments conflict, this document takes precedence. 
+ 
+PRIMARY OBJECTIVE 
+Shift the website from a corporate information experience to an audience-first founder 
+and investor platform, without rebuilding the approved content architecture or 
+backend. 
+PRIMARY AUDIENCES 1) Founders and startup talent  2) Investors and ecosystem partners  3) Institutions, 
+corporates and media 
+PRIMARY BENCHMARK Antler, for audience-pathway logic, AI prominence, founder-first storytelling and proof-
+led page rhythm. Inspiration only, not a design template. 
+SCOPE 
+Final front-end hierarchy, copy compression, visual system, motion, pathway clarity and 
+responsive UX refinement. Existing CMS, validated content and core functionality remain 
+intact. 
+ 
+CONFIDENTIAL • TELECEL GROUP / SUPPLIER WORKING DOCUMENT 
+ 
+
+
+--- PAGE 2 ---
+   
+ Page 2 of 16 
+ 
+                                                                                                 TG       
+01 
+Final Design Mandate 
+What the revised experience must achieve before sign-off 
+     
+ 
+The website is primarily informative, but it must feel designed around what each audience is trying to do. 
+The final pass is therefore not a visual decoration exercise. It is an experience-hierarchy correction. 
+The six changes that matter 
+• Create two unmistakable entry pathways from the landing page: Founder and Investor. 
+• Elevate the 2026 AI Advantage / AI Next Cohort content into the first meaningful scroll, not lower in the page. 
+• Reduce text density sharply. Replace long explanatory copy with hierarchy, proof, visual storytelling and 
+progressive disclosure. 
+• Move away from recurring corporate conventions: repeated red blocks, identical card grids, frames, safe 
+symmetrical layouts and one visual rhythm on every section. 
+• Use authentic founder and event photography as the human core, supported by contemporary data, AI and 
+technology visual language. 
+• Keep the experience credible and functional for investors and institutions while making it desirable to younger 
+founders and startup audiences. 
+DESIGN TEST 
+If a founder lands on the homepage for five seconds, they should know what ASIP is, 
+what is happening now, and where to go next. If an investor lands on the same page, 
+they should immediately see portfolio quality, current activity and a route to engage. 
+ 
+Do not solve this by 
+• Adding more red, more cards or more animation to the existing layout. 
+• Turning ASIP into an AI-only brand. AI is the 2026 priority layer, not the entire historical identity. 
+• Using generic AI people, robots, neon brains, circuit-board clichés or synthetic startup photography. 
+• Rewriting the entire site architecture or introducing unnecessary new functionality. 
+• Copying another accelerator, VC or startup platform literally. 
+ 
+
+--- PAGE 3 ---
+   
+ Page 3 of 16 
+ 
+                                                                                                 TG       
+02 
+Audience Architecture 
+The homepage must route intent, not make every visitor read the same story  
+     
+ 
+Path A, Founder 
+THEIR QUESTION Is ASIP relevant to me, what is the next cohort, and what can this platform unlock for 
+my company? 
+WHAT THEY NEED FIRST 2026 AI Next Cohort, eligibility/status, founder proof, support model, portfolio 
+examples. 
+PRIMARY CTA I’m a Founder 
+DESTINATION CTA Explore the AI Next Cohort / Register Interest, depending on application status. 
+PROOF REQUIRED Real founders, sectors, cohort stories, markets, outcomes and partner capability. 
+ 
+Path B, Investor 
+THEIR QUESTION What quality of companies sits in this ecosystem, what is happening now, and how 
+can I access opportunities? 
+WHAT THEY NEED FIRST Portfolio proof, impact, current/upcoming activity, sectors, geography, partners and 
+engagement route. 
+PRIMARY CTA I’m an Investor 
+DESTINATION CTA Explore Portfolio & Opportunities / View Current & Upcoming Activity. 
+PROOF REQUIRED Verified metrics, strong company stories, credible partners, clear participation routes 
+and visible 2026 activity. 
+Required homepage behaviour 
+• The two audience buttons must be visible above the fold on desktop and within the first screen on mobile. 
+• Clicking a pathway may scroll to an anchored audience section or open a dedicated page. Use the simplest 
+implementation that feels immediate. 
+• Do not make users choose from five or six equal CTAs. Founder and Investor are the two primary decisions; all 
+other navigation is secondary. 
+• Partner, mentor, media and institutional users can be served through the investor/ecosystem route and global 
+navigation. 
+ 
+
+--- PAGE 4 ---
+   
+ Page 4 of 16 
+ 
+                                                                                                 TG       
+03 
+Homepage Experience Order 
+One clear story, built around audience intent and current relevance  
+     
+ 
+01 Hero + two audience routes 
+One concise proposition, one supporting sentence, Founder and Investor 
+CTAs. Real founder imagery or dynamic founder mosaic, not a generic 
+corporate banner. 
+02 2026 AI Advantage spotlight Move the current 2026 priority directly below the hero or into a high-
+visibility split module. This is the newest and most relevant story. 
+03 Proof strip 3 to 4 verified numbers maximum. Large scale, little copy. Each number 
+must have a clear reporting basis. 
+04 Founder pathway What founders get, what the current status is, and the next action. Use 
+proof and people rather than paragraphs. 
+05 Investor pathway Portfolio quality, current/upcoming activity, sectors, geography and clear 
+engagement route. 
+06 Founder stories / portfolio Strong visual cards or editorial modules. Feature the builders and the 
+companies, not programme administration. 
+07 Africa footprint Interactive but lightweight map using verified portfolio/application data. 
+Use hover/tap founder or market signals. 
+08 Ecosystem / partners Show what partners unlock: technology, capital, markets, mentorship and 
+commercial access. Avoid a logo wall as the only story. 
+09 Current activity / insights Only populated, current content. No empty categories, placeholder 
+articles or internal notes. 
+10 Close + status CTA Register Interest or Apply depending on status, plus investor/partner 
+engagement route. 
+Content-density rule 
+RULE 
+One screen, one job. Hero support copy should stay below 
+roughly 35 words. Standard modules should generally stay below 
+45 to 60 words before progressive disclosure. Cards should 
+communicate one idea in 10 to 25 words. 
+ 
+ 
+
+--- PAGE 5 ---
+   
+ Page 5 of 16 
+ 
+                                                                                                 TG       
+04 
+AI Advantage / AI Next Cohort 
+Make the 2026 priority impossible to miss without making the whole site AI-themed 
+     
+ 
+Recommended placement 
+Place the 2026 module directly after the hero, or integrate it as a prominent hero-adjacent feature. It 
+should be visible before historical programme content, because it answers “what is happening now?” 
+Recommended content hierarchy 
+• Eyebrow: 2026 NEXT CHAPTER 
+• Headline route: Building the AI Advantage 
+• Supporting route: AI Advantage in Action 
+• One sentence: Focus on founders applying AI to real business problems and creating practical advantage in 
+African markets. 
+• Founder CTA: Explore the AI Next Cohort / Register Interest. 
+• Investor CTA: View 2026 Activity / Explore Portfolio Opportunities. 
+Visual treatment 
+• Use authentic founder or startup imagery as the hero layer. 
+• Add restrained AI/data cues: live data points, interface fragments, responsive grids, data trails, model/output 
+patterns, code or system signals where contextually relevant. 
+• Use motion to express iteration, intelligence and progress, not sci-fi spectacle. 
+• Make the module visually distinct from legacy/history sections through colour, scale and interaction. 
+• Keep the treatment premium, fast-loading and mobile-first. 
+AVOID 
+Robots, glowing brains, holographic heads, synthetic founders, blue-neon “future tech” 
+clichés, generic circuit boards, or anything that makes AI look decorative rather than 
+useful. 
+ 
+ 
+
+--- PAGE 6 ---
+   
+ Page 6 of 16 
+ 
+                                                                                                 TG       
+05 
+Visual System Recalibration 
+Distinctive enough to feel startup-native, disciplined enough to remain credible 
+     
+ 
+Colour 
+• Use the existing ASIP multicolour identity as the expressive palette. Let magenta, blue, green, yellow and red 
+create rhythm across sections. 
+• Telecel red should remain an endorsement/recognition anchor, not the default background colour for every 
+module. 
+• White, black and neutral grey should provide breathing room and premium contrast. 
+• Colour should help separate audience journeys, content types and actions, not merely decorate cards. 
+Typography 
+• Century Gothic remains the core brand type system. Create disruption through scale, cropping, weight, 
+spacing, kinetic type and editorial hierarchy rather than random font substitution. 
+• Headlines should be short, confident and visually dominant. Avoid dense title + subtitle + paragraph stacks. 
+• If a secondary display typeface is proposed, present it as a controlled option first; do not deploy it 
+inconsistently across the site. 
+Layout 
+• Break the repeated image-left / text-right and equal-card-grid pattern. 
+• Use asymmetric editorial compositions, oversized proof points, variable card scale, edge-to-edge imagery, 
+controlled overlap, split screens and occasional horizontal movement where useful. 
+• Create 2 to 3 signature layout moments on the homepage rather than making every module unusual. 
+• Preserve generous spacing. Disruptive does not mean crowded. 
+Photography 
+• Prioritise real founders, teams, events, demos, workshops, products and market context. 
+• Use tighter, more human crops and moments of action. Avoid staged handshake imagery and generic 
+business stock. 
+• Where photography is limited, use brand-led graphic/data treatments rather than synthetic human imagery. 
+ 
+
+--- PAGE 7 ---
+   
+ Page 7 of 16 
+ 
+                                                                                                 TG       
+06 
+Page-by-Page Application 
+Where the final design system should change the current experience 
+     
+ 
+HOME Dual audience hero; AI Advantage high; proof strip; founder/investor modules; founder stories; 
+footprint map; partner value; live/current content. 
+ABOUT Compress history. Turn 2019-2026 into a build-log style progression with strong years, short 
+milestones and visual proof. Avoid corporate chronology paragraphs. 
+PROGRAMME Present the journey as momentum: Discover > Build > Test > Accelerate > Scale. Use progressive 
+reveal, not process boxes connected by lines. 
+FOUNDERS Make founders the visual heroes. Bold portraits, company identity, country/sector/cohort tags, 
+one-line “what they are building”, high-quality filtering and full-card interaction. 
+IMPACT Use large verified numbers, founder outcomes, data visualisation and case-study proof. Every 
+metric must have reporting context. Avoid isolated “vanity number” tiles. 
+INVESTOR / ECOSYSTEM Show portfolio quality, sectors, geography, current/upcoming activity and how to engage. Keep 
+participation routes visible. This can sit within Partners if no new top-level page is required. 
+PARTNERS Explain contribution before logos: Technology / Capital / Markets / Mentorship / Commercial 
+Access. Logo wall becomes supporting evidence, not the page concept. 
+INSIGHTS Only show populated categories. Prioritise founder stories, current activity and portfolio news. 
+Remove empty shells and internal implementation language. 
+REGISTER / APPLY Keep simple, lightweight and status-led. No unnecessary visual complexity. Current application 
+state must be unambiguous. 
+FAQ / CONTACT Clean utility pages. No special creative treatment required beyond consistent premium micro-
+interactions and strong mobile usability. 
+ 
+
+--- PAGE 8 ---
+   
+ Page 8 of 16 
+ 
+                                                                                                 TG       
+07 
+Interaction & Motion System 
+Primarily informative, selectively interactive 
+     
+ 
+Use interaction where it improves understanding 
+• Founder / Investor route selection: immediate scroll, anchor or route transition. 
+• Africa map: hover/tap nodes with verified founder/company/market information. 
+• Portfolio: responsive filtering by sector, country and cohort with smooth state changes. 
+• Impact: restrained count-up or reveal animations tied to verified metrics. 
+• Timeline / programme journey: scroll progression with active state, not passive lines and boxes. 
+• Founder cards: image, tag or statement transition on hover, with full card clickable. 
+• AI Advantage module: subtle data/system movement that responds to scroll or pointer movement. 
+Motion standard 
+• Fast, purposeful and low-friction. Motion should clarify hierarchy or create momentum. 
+• Prefer 200-500ms micro-interactions and lightweight CSS/SVG/GSAP-style motion over heavy video effects 
+where possible. 
+• No autoplay audio, no motion that blocks reading, no long intro sequences and no unnecessary parallax on 
+mobile. 
+• Respect reduced-motion accessibility settings. 
+• Protect Core Web Vitals. Compress imagery, lazy-load noncritical media and keep the hero performant on 
+mobile networks. 
+PRINCIPLE The website should feel alive because the content reacts intelligently, not because 
+everything moves. 
+ 
+ 
+
+--- PAGE 9 ---
+   
+ Page 9 of 16 
+ 
+                                                                                                 TG       
+08 
+Primary Benchmark 
+One functional reference, used for principles rather than imitation  
+     
+ 
+Antler, Where Founders Go Further, Faster 
+Reference: https://www.antler.co/ 
+Why this is the strongest single benchmark for this phase: it demonstrates how a global startup platform 
+can serve founders and investors on the same homepage without becoming dense, corporate or 
+confusing. 
+What to learn from it 
+• Founder and investor pathways are made visible very early in the experience. 
+• AI-related founder content is treated as a current, high-value proposition rather than buried in programme 
+history. 
+• Copy is short, decisive and benefit-led. 
+• Portfolio proof and founder stories do much of the persuasion instead of long institutional copy. 
+• Large typography, strong photography and confident spacing create energy without visual noise. 
+• Proof numbers are used as signals, not as entire content sections. 
+What NOT to copy 
+• Antler’s brand palette, typography, layouts, specific headlines, motion signatures or exact information 
+architecture. 
+• Its VC-first positioning. ASIP remains a founder platform backed by Telecel with its own African legacy and 
+programme history. 
+• Its global visual identity. ASIP should feel rooted in African founders, real markets and the existing ASIP identity. 
+BENCHMARK TEST Use Antler to challenge the current level of clarity and confidence. The final ASIP 
+design should be recognisably ASIP, not “Antler in Telecel colours.” 
+ 
+ 
+
+--- PAGE 10 ---
+   
+ Page 10 of 16 
+ 
+                                                                                                 TG       
+09 
+AI Prompt Pack, Strategic Exploration 
+Use AI to generate options, then apply design judgement, verified content and brand discipline 
+     
+ 
+The following prompts are tool-agnostic and can be used in ChatGPT, Claude, Gemini, Figma AI or other 
+design-assist tools. They are intended to accelerate thinking, not replace professional design decisions. 
+MANDATORY AI RULE 
+Every AI prompt in this brief is governed by factual discipline. AI may explore layout, 
+hierarchy, interaction and visual direction, but it must never invent ASIP facts. If verified 
+content is unavailable, use [CONTENT REQUIRED] and a neutral placeholder. Final supplied 
+copy, approved assets and verified datasets remain the authority. 
+PROMPT 1, HOMEPAGE CREATIVE DIRECTOR 
+Act as an award-winning digital creative director and UX strategist specialising in startup ecosystems, venture 
+platforms and Gen Z founder audiences. Reimagine the homepage of the Africa Startup Initiative Program (ASIP), a 
+Telecel Group-backed founder platform. The existing website is credible but feels too corporate, text-heavy and 
+visually conventional. 
+Primary audiences: 1) African technology founders and startup talent, 2) investors and ecosystem partners, 3) 
+institutions/corporates/media. 
+Mandatory requirements: show two prominent pathways above the fold, “I’m a Founder” and “I’m an Investor”; 
+place the 2026 AI Advantage / AI Next Cohort within the first meaningful scroll; preserve authentic African 
+founder/event photography; use the ASIP multicolour identity as the expressive palette; keep Telecel red as a subtle 
+endorsement anchor, not the dominant colour; reduce copy density; avoid generic AI imagery; stay mobile-first and 
+premium. 
+Design character: confident, editorial, energetic, technology-forward, African, human, modular, slightly unexpected. 
+Avoid corporate CSR layouts, equal card grids, red boxes, stock business imagery and startup clichés. 
+Propose three genuinely different homepage creative routes. For each route provide: core idea, first 5-second 
+experience, hero composition, audience-pathway treatment, AI Advantage treatment, proof/data treatment, 
+founder-story treatment, colour logic, motion logic, mobile adaptation and what makes the route distinctive. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Three differentiated creative routes, each strong enough to sketch or prototype. 
+ 
+
+--- PAGE 11 ---
+   
+ Page 11 of 16 
+ 
+                                                                                                 TG       
+PROMPT 2, DUAL-AUDIENCE UX ARCHITECT 
+Act as a senior UX architect. Design a homepage journey for ASIP that serves founders and investors without 
+duplicating the whole website. The site is primarily informative, but the experience must feel audience-specific. 
+Founder intent: understand the next cohort, eligibility/status, what support they receive, proof from other founders 
+and how to register/apply. 
+Investor intent: understand portfolio quality, sectors, geography, current/upcoming activity, verified impact, partners 
+and how to engage. 
+Constraints: use the existing sitemap and CMS where possible; avoid adding unnecessary pages; mobile-first; no 
+more than two primary CTAs above the fold; no section should require long paragraphs to explain itself. 
+Create the recommended information architecture from hero to footer, showing which modules are shared, which 
+are founder-specific, which are investor-specific, and the exact CTA labels. Include the simplest implementation 
+option using anchors/sections and an optional stronger implementation using dedicated route pages. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Annotated homepage architecture plus CTA system for Founder and Investor journeys. 
+ 
+ 
+PROMPT 3, AI ADVANTAGE EXPERIENCE 
+Act as a digital design director for a premium African startup platform. Create a high-impact visual and UX concept 
+for a 2026 website module titled “Building the AI Advantage”, with an optional supporting line “AI Advantage in 
+Action”. 
+The concept must communicate practical AI applied to real businesses, not futuristic fantasy. Use authentic founders 
+and real startup contexts. Visual language may include responsive data points, lightweight code/interface 
+fragments, grids, system diagrams, model-output patterns, data trails or interactive signals. 
+Avoid robots, holograms, glowing brains, circuit-board clichés, synthetic people, blue-neon sci-fi and generic AI 
+stock imagery. 
+The module needs two actions: founder action to explore the AI Next Cohort/register interest, and investor action to 
+view 2026 activity/portfolio opportunity. 
+Describe desktop and mobile composition, colour, typography, imagery, motion, micro-interactions and how the 
+module sits immediately after the hero without overpowering the wider ASIP brand. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: One detailed module concept ready for Figma exploration, plus two alternate visual variants. 
+ 
+ 
+
+--- PAGE 12 ---
+   
+ Page 12 of 16 
+ 
+                                                                                                 TG       
+10 
+AI Prompt Pack, Signature Modules 
+Prompts for the moments most likely to differentiate the final site 
+     
+ 
+PROMPT 4, FOUNDER PORTFOLIO SYSTEM 
+Design a founder-first portfolio browsing system for ASIP. The founders must feel like builders and category creators, 
+not programme beneficiaries or database entries. Use authentic portraits and company/product imagery. Required 
+metadata: founder/company, country, sector, cohort, stage where verified, and one concise line describing what 
+the company is building. 
+Create a card system with varied editorial rhythm rather than identical corporate tiles. Include hover/tap behaviour, 
+filter behaviour by country/sector/cohort, a featured-founder state, and a full profile transition. Keep it accessible 
+and mobile-first. 
+Visual identity: ASIP multicolour palette, strong whitespace, Century Gothic core typography, limited Telecel red, 
+premium but youthful. Avoid badges everywhere, excessive shadows, rounded SaaS-card clichés and long bios on 
+archive pages. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Founder archive wireframe system, featured card, standard card, filter state and mobile behaviour. 
+ 
+PROMPT 5, AFRICA IMPACT MAP 
+Create an interactive Africa map concept for ASIP using only verified portfolio/application data. The map must 
+communicate reach without visually overstating activity. 
+Use active nodes for countries/markets with verified data. On hover/tap reveal founder/company count, selected 
+startups, sector mix or cohort information where available. Differentiate portfolio presence from application reach if 
+both are shown. 
+The map should feel like a living startup network, not a telecom coverage map. Use subtle pulse, node growth, data 
+trails and contextual founder cards. Avoid decorative connections between countries unless they represent verified 
+relationships. 
+Specify the data legend, interaction logic, desktop/mobile behaviour, empty states, accessibility and performance-
+safe animation. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Interactive map specification that a front-end developer can implement without inventing data. 
+ 
+
+--- PAGE 13 ---
+   
+ Page 13 of 16 
+ 
+                                                                                                 TG       
+PROMPT 6, INVESTOR OPPORTUNITY MODULE 
+Design a concise investor-facing section for ASIP that answers four questions in one screen: What quality is in the 
+portfolio? What sectors/markets are represented? What is happening now or next? How can an investor engage? 
+Use verified proof points, featured startup outcomes, current/upcoming programme activity and partner credibility. 
+Keep the tone commercial and opportunity-led, not philanthropic. Avoid long programme descriptions. 
+Create a module structure using one headline, one proof statement, 3-4 data points, 2-3 featured 
+opportunities/stories and one CTA. Show how it should adapt on mobile and how it can live on the homepage 
+without requiring a new top-level page. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Investor module with copy hierarchy, content fields and interaction notes. 
+ 
+ 
+PROMPT 7, MOTION SYSTEM 
+Act as a motion designer for a premium startup platform. Create a lightweight motion system for ASIP that conveys 
+build, progress, intelligence and scale. It must work across homepage hero, AI Advantage, founder cards, impact 
+data, timeline and Africa map. 
+Use motion categories such as reveal, pulse, trace, count, filter transition, node activation and typographic 
+emphasis. Keep interactions mostly between 200 and 500 milliseconds. Respect reduced-motion settings and mobile 
+performance. 
+Do not use cinematic loading screens, excessive parallax, constant floating objects or decorative movement that 
+competes with content. 
+Define 6 reusable motion behaviours with purpose, trigger, duration, easing recommendation, desktop/mobile 
+adaptation and accessibility fallback. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: A reusable motion language rather than isolated animation ideas. 
+ 
+ 
+
+--- PAGE 14 ---
+   
+ Page 14 of 16 
+ 
+                                                                                                 TG       
+11 
+AI Prompt Pack, Critical Review 
+Use AI as a ruthless pre-UAT reviewer before presenting the next version 
+     
+ 
+PROMPT 8, DESIGN CRITIQUE / RED TEAM 
+Act as an independent global digital design jury reviewing the final ASIP website for launch. Do not be polite. 
+Evaluate the design against these criteria: 1) founder/investor pathways are immediately obvious, 2) 2026 AI 
+Advantage is visible and relevant near the top, 3) the site feels built for startup audiences rather than a corporate 
+CSR programme, 4) the experience is less text-heavy, 5) authentic founders are the heroes, 6) visual language is 
+distinctive without becoming chaotic, 7) investor credibility remains strong, 8) ASIP identity is stronger than Telecel red 
+repetition, 9) motion supports meaning, 10) mobile experience is equal in quality to desktop. 
+For every weakness, identify the exact module, explain why it fails the intended audience, and give one specific fix. 
+Then rank the top five changes by impact. Finally, answer one question: “Would an ambitious founder want to 
+belong to this platform after five seconds?” Explain using observable design evidence only. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: Prioritised final design critique with five highest-impact corrections. 
+ 
+PROMPT 9, NON-HUMAN AI VISUAL TEXTURE 
+Generate a visual direction for a technology/data texture that can support an African startup platform without using 
+people. It should feel intelligent, energetic and contemporary, using abstract data nodes, modular grids, signal 
+paths, parameter fields, code-like microstructure and variable geometry. 
+Use the ASIP multicolour palette: magenta, blue, green, yellow and red on white/black/neutral space. Avoid sci-fi 
+blue neon, circuit-board literalism, glowing brains, robots, maps made of binary code and generic “AI network” stock 
+aesthetics. 
+The output should work as a subtle layer behind real founder photography, as a section transition, or as a motion 
+system. Keep generous negative space and premium restraint. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: 3 abstract visual texture directions suitable for web backgrounds, transitions or motion layers. 
+
+--- PAGE 15 ---
+   
+ Page 15 of 16 
+ 
+                                                                                                 TG       
+PROMPT 10, FINAL SCREENSHOT AUDIT 
+Upload the revised ASIP homepage desktop and mobile screenshots together with this brief. Act as a senior global 
+UX and digital creative director conducting a final implementation audit. Compare the implemented design against 
+every acceptance criterion in the brief. Do not redesign the site from scratch. Identify only the gaps between the 
+approved direction and what has actually been implemented. 
+ 
+For every issue, state: 1) screen or section, 2) exact problem, 3) why it weakens the Founder or Investor experience, 
+and 4) the smallest design correction required. 
+ 
+Run four tests: 
+1. FIVE-SECOND FOUNDER TEST: Can a founder immediately understand what ASIP offers now, what the 2026 
+opportunity is, and where to go next? 
+2. FIVE-SECOND INVESTOR TEST: Can an investor immediately see portfolio quality, current or upcoming activity, 
+credible proof and how to engage? 
+3. CORPORATE-PATTERN TEST: Identify any section still relying on conventional red blocks, repetitive card grids, framed 
+layouts, generic corporate imagery or excessive explanatory text. 
+4. AI ADVANTAGE TEST: Does the 2026 priority feel prominent, practical and contemporary without turning the full 
+ASIP experience into an AI-themed brand? 
+ 
+Do not reward visual novelty if it reduces clarity, credibility, accessibility, mobile usability or performance. 
+ 
+FACTUAL RULE: The mandatory AI rule above applies. Never invent ASIP facts; use [CONTENT REQUIRED] wherever verified 
+content is unavailable. 
+OUTPUT REQUIRED: A PASS / REVISE result for every final acceptance criterion, followed by the five highest-priority 
+implementation corrections only. 
+ 
+
+--- PAGE 16 ---
+   
+ Page 16 of 16 
+ 
+                                                                                                 TG       
+12 
+Final Acceptance Criteria 
+The website is ready only when the experience passes these checks 
+     
+ 
+AUDIENCE Founder and Investor pathways are visible above the fold on desktop and within the first 
+mobile screen. 
+CURRENT RELEVANCE AI Advantage / AI Next Cohort appears within the first meaningful scroll and clearly signals 
+2026. 
+COPY DENSITY No core homepage module depends on a long paragraph. Content is broken into 
+hierarchy, proof, cards, tags or progressive disclosure. 
+VISUAL DISTINCTIVENESS The homepage is not built from repeated red sections, identical card grids or conventional 
+corporate split layouts. 
+FOUNDER-FIRST Real founders, teams, events and startup outcomes carry the story. No generic/synthetic 
+founder imagery. 
+INVESTOR CREDIBILITY Portfolio quality, verified proof, sectors, geography, partners and current/upcoming activity 
+are easy to find. 
+AI TREATMENT AI is expressed through practical use, data/system behaviour and real businesses, not 
+clichés. 
+BRAND ASIP multicolour identity leads. Telecel endorsement remains visible and disciplined without 
+dominating every screen. 
+LANGUAGE Repeated use of “connect / connected / connecting / connection” is reduced outside 
+approved brand language. 
+MOTION Motion is purposeful, accessible and performance-safe. Reduced-motion fallback is 
+supported. 
+MOBILE All core interactions, CTAs, filters, map and content hierarchy are intentionally designed for 
+mobile, not merely stacked. 
+QUALITY No placeholder copy, empty categories, broken links, internal notes, duplicated FAQs or 
+unverified claims remain at launch. 
+FACTUAL DISCIPLINE 
+AI-assisted concepts and final website content use verified ASIP data only. No invented 
+startups, metrics, valuations, partner claims, cohort dates or investment opportunities 
+appear anywhere in the experience. 
+Required next design submission 
+• Revised homepage, desktop and mobile, including Founder and Investor pathway states. 
+• AI Advantage / AI Next Cohort module. 
+• Founder card/profile system, Africa map interaction and impact/data treatment. 
+• Proposed motion/micro-interaction notes or short prototype. 
+• Final colour/application rules showing how ASIP colour and Telecel endorsement coexist. 
+• Prompt 10 screenshot audit with PASS / REVISE against the final acceptance criteria and the five highest-priority corrections resolved 
+before sign-off. 
+CLOSURE 
+Treat this as the final design direction. Flag only material scope, technical, data or performance 
+constraints before implementation. Resolve all other points through the design system. Before 
+sign-off, run Prompt 10 on desktop and mobile screenshots and close the five highest-priority 
+deviations. 
+ 

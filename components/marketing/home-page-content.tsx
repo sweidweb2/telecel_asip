@@ -91,7 +91,6 @@ export function HomePageContent({
       <HomeNextChapterSection
         locale={locale}
         copy={copy.nextChapter}
-        pathways={copy.pathways}
         intake={intake}
       />
 

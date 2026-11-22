@@ -1,6 +1,56 @@
 import { expect, test } from "@playwright/test";
 
-import { e2eAdminClient, e2eAnonClient, e2eSuffix, hasE2ECredentials, loginAsEditor, submitLoginForm, adminListRow } from "./helpers";
+import {
+  adminListRow,
+  e2eAdminClient,
+  e2eAnonClient,
+  e2eSuffix,
+  e2eViewerEmail,
+  e2eViewerPassword,
+  hasE2ECredentials,
+  loginAsEditor,
+} from "./helpers";
+
+/**
+ * Service-role inserts still hit `applications_require_open`.
+ * Flip the flag for the insert only; restore afterward.
+ */
+async function insertApplicationWhileOpen(
+  values: Record<string, unknown>,
+): Promise<{ id: string }> {
+  const admin = e2eAdminClient();
+  const { data: before } = await admin
+    .from("site_settings")
+    .select("open_applications")
+    .eq("id", 1)
+    .maybeSingle();
+  const previousOpen = Boolean(before?.open_applications);
+
+  if (!previousOpen) {
+    const { error: openError } = await admin
+      .from("site_settings")
+      .update({ open_applications: true })
+      .eq("id", 1);
+    if (openError) throw openError;
+  }
+
+  try {
+    const { data: inserted, error: insertError } = await admin
+      .from("applications")
+      .insert(values)
+      .select("id")
+      .single();
+    if (insertError) throw insertError;
+    return inserted;
+  } finally {
+    if (!previousOpen) {
+      await admin
+        .from("site_settings")
+        .update({ open_applications: false })
+        .eq("id", 1);
+    }
+  }
+}
 
 test.describe("applications admin", () => {
   test.beforeEach(() => {
@@ -10,38 +60,34 @@ test.describe("applications admin", () => {
     );
   });
 
-  test("admin can search, edit, and delete an application", async ({
-    page,
-  }) => {
+  test(
+    "admin can search, edit, and delete an application",
+    { tag: "@writes" },
+    async ({ page }) => {
     test.setTimeout(90_000);
     const suffix = e2eSuffix();
     const email = `apps.admin.${suffix}@example.com`;
     const company = `Apps Co ${suffix}`;
     const admin = e2eAdminClient();
 
-    const { data: inserted, error: insertError } = await admin
-      .from("applications")
-      .insert({
-        full_name: "Apps Admin E2E",
-        founder_role: "Founder",
-        email,
-        phone: "+233201234567",
-        country: "Ghana",
-        linkedin: "https://linkedin.com/in/appsadmin",
-        company_name: company,
-        website: "https://appsadmin.example.com",
-        company_country: "Ghana",
-        sector: "Fintech",
-        problem_product:
-          "SMEs lack credit. We underwrite inventory loans for African merchants in days.",
-        traction: "100 merchants live and $30k GMV last quarter.",
-        programme_fit: "Need intros to banks and regional operators.",
-        consent: true,
-        comms_opt_in: false,
-      })
-      .select("id")
-      .single();
-    if (insertError) throw insertError;
+    const inserted = await insertApplicationWhileOpen({
+      full_name: "Apps Admin E2E",
+      founder_role: "Founder",
+      email,
+      phone: "+233201234567",
+      country: "Ghana",
+      linkedin: "https://linkedin.com/in/appsadmin",
+      company_name: company,
+      website: "https://appsadmin.example.com",
+      company_country: "Ghana",
+      sector: "Fintech",
+      problem_product:
+        "SMEs lack credit. We underwrite inventory loans for African merchants in days.",
+      traction: "100 merchants live and $30k GMV last quarter.",
+      programme_fit: "Need intros to banks and regional operators.",
+      consent: true,
+      comms_opt_in: false,
+    });
 
     try {
       await loginAsEditor(page, "/dashboard/applications");
@@ -86,48 +132,100 @@ test.describe("applications admin", () => {
       }
       await admin.from("applications").delete().eq("email", email);
     }
-  });
+    },
+  );
 
-  test("viewer cannot open applications and RLS blocks table reads", async ({
-    page,
-  }) => {
-    test.setTimeout(60_000);
-    const suffix = e2eSuffix();
-    const email = `apps.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = e2eAdminClient();
-    const { data: created, error } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: "Apps Viewer" },
-      app_metadata: { app_role: "viewer" },
-    });
-    if (error) throw error;
+  test(
+    "opening an unread application marks reviewed then archive works",
+    { tag: "@writes" },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const suffix = e2eSuffix();
+      const email = `apps.triage.${suffix}@example.com`;
+      const admin = e2eAdminClient();
 
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fapplications");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/en$/, { timeout: 20_000 });
-
-      const anon = e2eAnonClient();
-      const { error: signInError } = await anon.auth.signInWithPassword({
+      const inserted = await insertApplicationWhileOpen({
+        full_name: "Apps Triage E2E",
+        founder_role: "Founder",
         email,
-        password,
+        phone: "+233201234567",
+        country: "Ghana",
+        company_name: `Triage Co ${suffix}`,
+        company_country: "Ghana",
+        sector: "Fintech",
+        problem_product:
+          "SMEs lack credit. We underwrite inventory loans for African merchants in days.",
+        traction: "100 merchants live and $30k GMV last quarter.",
+        programme_fit: "Need intros to banks and regional operators.",
+        consent: true,
+        comms_opt_in: false,
+        inbox_status: "unread",
       });
-      if (signInError) throw signInError;
-      const { data, error: listError } = await anon
-        .from("applications")
-        .select("id")
-        .limit(5);
-      expect(listError).toBeNull();
-      expect(data ?? []).toEqual([]);
-    } finally {
-      if (created.user?.id) {
-        await admin.auth.admin.deleteUser(created.user.id);
+
+      try {
+        await loginAsEditor(page, "/dashboard/applications");
+        await page.getByLabel("Search applications").fill(email);
+        await expect(
+          adminListRow(page, "View application from Apps Triage E2E"),
+        ).toBeVisible({ timeout: 15_000 });
+
+        await adminListRow(
+          page,
+          "View application from Apps Triage E2E",
+        ).click();
+        await expect(page.getByRole("dialog")).toBeVisible({ timeout: 10_000 });
+
+        await expect
+          .poll(
+            async () => {
+              const { data } = await admin
+                .from("applications")
+                .select("inbox_status")
+                .eq("id", inserted.id)
+                .maybeSingle();
+              return data?.inbox_status ?? null;
+            },
+            { timeout: 20_000 },
+          )
+          .toBe("reviewed");
+
+        await page.keyboard.press("Escape");
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+
+        await page.getByRole("button", { name: "Archive" }).click();
+        await expect(
+          page.locator("[data-sonner-toast]").filter({ hasText: "Archived." }),
+        ).toBeVisible({ timeout: 20_000 });
+
+        const { data: after } = await admin
+          .from("applications")
+          .select("inbox_status")
+          .eq("id", inserted.id)
+          .maybeSingle();
+        expect(after?.inbox_status).toBe("archived");
+      } finally {
+        if (inserted?.id) {
+          await admin.from("applications").delete().eq("id", inserted.id);
+        }
+        await admin.from("applications").delete().eq("email", email);
       }
-    }
+    },
+  );
+
+  test("viewer RLS blocks applications table reads", async () => {
+    test.setTimeout(30_000);
+    const anon = e2eAnonClient();
+    const { error: signInError } = await anon.auth.signInWithPassword({
+      email: e2eViewerEmail,
+      password: e2eViewerPassword,
+    });
+    if (signInError) throw signInError;
+
+    const { data, error: listError } = await anon
+      .from("applications")
+      .select("id")
+      .limit(5);
+    expect(listError).toBeNull();
+    expect(data ?? []).toEqual([]);
   });
 });

@@ -2,7 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 import { nanoid } from "nanoid";
 
-import { waitForTurnstileReady, submitLoginForm } from "./helpers";
+import {
+  e2eEditorEmail,
+  e2eEditorPassword,
+  loginAsEditor,
+  submitLoginForm,
+  waitForTurnstileReady,
+} from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -22,7 +28,7 @@ function hasAuthE2ECredentials(): boolean {
 function createAdminClient() {
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for auth E2E."
+      "NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for auth E2E.",
     );
   }
 
@@ -46,7 +52,7 @@ async function confirmUserByEmail(email: string) {
     }
 
     userId = data.users.find(
-      (entry) => entry.email?.toLowerCase() === email.toLowerCase()
+      (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
     )?.id;
 
     if (userId) {
@@ -67,82 +73,26 @@ async function confirmUserByEmail(email: string) {
   if (updateError) {
     throw updateError;
   }
+
+  return userId;
 }
 
-async function createConfirmedUser(
+async function createConfirmedViewer(
   email: string,
   password: string,
-  fullName: string
+  fullName: string,
 ) {
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.createUser({
+  const { data, error } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
-    app_metadata: { app_role: "editor" },
+    app_metadata: { app_role: "viewer" },
   });
 
   if (error) throw error;
-
-  // Remote handle_new_user may ignore app_role; promote via an editor session.
-  await promoteUserToEditor(email);
-}
-
-/**
- * Promote a profile to editor using the seed editor session.
- * service_role cannot change profiles.role (protect trigger requires staff),
- * and some remote DBs still insert viewer even when app_metadata.app_role is set.
- */
-async function promoteUserToEditor(email: string) {
-  if (!supabaseUrl || !anonKey) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required for editor promotion.",
-    );
-  }
-
-  const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.listUsers({
-    page: 1,
-    perPage: 200,
-  });
-  if (error) throw error;
-
-  const user = data.users.find(
-    (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
-  );
-  if (!user) {
-    throw new Error(`User not found for editor promotion: ${email}`);
-  }
-
-  const seedEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
-  const seedPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
-  const sessionClient = createClient(supabaseUrl, anonKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  const { error: signInError } = await sessionClient.auth.signInWithPassword({
-    email: seedEmail,
-    password: seedPassword,
-  });
-  if (signInError) throw signInError;
-
-  const { error: updateError } = await sessionClient
-    .from("profiles")
-    .update({ role: "editor" })
-    .eq("id", user.id);
-  if (updateError) throw updateError;
-
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (profileError) throw profileError;
-  if (profile?.role !== "editor") {
-    throw new Error(
-      `Expected promoted profile role editor, got ${profile?.role ?? "missing"}`,
-    );
-  }
+  return data.user?.id;
 }
 
 async function deleteUserByEmail(email: string) {
@@ -154,7 +104,7 @@ async function deleteUserByEmail(email: string) {
   if (error) throw error;
 
   const user = data.users.find(
-    (entry) => entry.email?.toLowerCase() === email.toLowerCase()
+    (entry) => entry.email?.toLowerCase() === email.toLowerCase(),
   );
   if (!user) return;
 
@@ -162,81 +112,99 @@ async function deleteUserByEmail(email: string) {
   if (deleteError) throw deleteError;
 }
 
+async function loginViewerExpectingHome(page: import("@playwright/test").Page, email: string, password: string) {
+  await page.context().clearCookies();
+  // next=/dashboard is not allowed for viewers — post-auth should land on /en.
+  await page.goto("/en/login?next=%2Fdashboard");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await submitLoginForm(page);
+  await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 30_000 });
+}
+
 test.describe("auth", () => {
   test.beforeEach(() => {
     test.skip(
       !hasAuthE2ECredentials(),
-      "Auth E2E needs real NEXT_PUBLIC_SUPABASE_* and SUPABASE_SERVICE_ROLE_KEY (not CI placeholders)."
+      "Auth E2E needs real NEXT_PUBLIC_SUPABASE_* and SUPABASE_SERVICE_ROLE_KEY (not CI placeholders).",
     );
   });
 
-  test("signup → confirm → login → protected route → logout", async ({
-    page,
-  }) => {
-    test.setTimeout(60_000);
-    const email = `e2e.${nanoid(8).toLowerCase()}@gmail.com`;
-    const password = "Testpass1";
-    const fullName = "E2E Tester";
+  test(
+    "signup creates a viewer who cannot open the dashboard",
+    { tag: "@writes" },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const email = `e2e.${nanoid(8).toLowerCase()}@gmail.com`;
+      const password = "Testpass1";
+      const fullName = "E2E Viewer Signup";
 
-    try {
-      await page.goto("/dashboard");
-      await expect(page).toHaveURL(/\/(en|fr)\/login\?next=%2Fdashboard/);
+      try {
+        await page.goto("/en/signup");
+        await page.getByLabel("Name").fill(fullName);
+        await page.getByLabel("Email").fill(email);
+        await page.getByLabel("Password", { exact: true }).fill(password);
+        await page.getByLabel("Confirm password").fill(password);
+        await waitForTurnstileReady(page, {
+          testId: "signup-turnstile",
+          submitName: "Create account",
+        });
+        await page.getByRole("button", { name: "Create account" }).click();
 
-      await page.goto("/en/signup");
-      await page.getByLabel("Name").fill(fullName);
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await page.getByLabel("Confirm password").fill(password);
-      await waitForTurnstileReady(page, {
-        testId: "signup-turnstile",
-        submitName: "Create account",
-      });
-      await page.getByRole("button", { name: "Create account" }).click();
+        const outcome = await Promise.race([
+          page
+            .waitForURL(/\/(en|fr)\/?$/, { timeout: 20_000 })
+            .then(() => "session" as const),
+          page
+            .locator("[data-sonner-toast]")
+            .filter({
+              hasText: /account created|check your email|compte créé|e-mail/i,
+            })
+            .waitFor({ state: "visible", timeout: 20_000 })
+            .then(() => "confirm" as const),
+          page
+            .locator("[data-sonner-toast][data-type='error']")
+            .waitFor({ state: "visible", timeout: 20_000 })
+            .then(async () => {
+              const text = await page
+                .locator("[data-sonner-toast][data-type='error']")
+                .textContent();
+              if (
+                /email rate limit exceeded|too many attempts/i.test(text ?? "")
+              ) {
+                return "rate-limited" as const;
+              }
 
-      const outcome = await Promise.race([
-        page
-          .waitForURL(/\/(en|fr)\/?$/, { timeout: 20_000 })
-          .then(() => "session" as const),
-        page
-          .locator("[data-sonner-toast]")
-          .filter({
-            hasText: /account created|check your email|compte créé|e-mail/i,
-          })
-          .waitFor({ state: "visible", timeout: 20_000 })
-          .then(() => "confirm" as const),
-        page
-          .locator("[data-sonner-toast][data-type='error']")
-          .waitFor({ state: "visible", timeout: 20_000 })
-          .then(async () => {
-            const text = await page
-              .locator("[data-sonner-toast][data-type='error']")
-              .textContent();
-            if (/email rate limit exceeded|too many attempts/i.test(text ?? "")) {
-              return "rate-limited" as const;
-            }
+              throw new Error(`Signup failed: ${text}`);
+            }),
+        ]);
 
-            throw new Error(`Signup failed: ${text}`);
-          }),
-      ]);
-
-      if (outcome !== "session") {
-        if (outcome === "confirm") {
+        if (outcome === "session") {
+          // Already signed in as viewer on locale home.
+        } else if (outcome === "confirm") {
           await confirmUserByEmail(email);
+          await loginViewerExpectingHome(page, email, password);
         } else {
-          await createConfirmedUser(email, password, fullName);
+          // Rate-limited signup UI — seed a confirmed viewer and continue ACL check.
+          await createConfirmedViewer(email, password, fullName);
+          await loginViewerExpectingHome(page, email, password);
         }
+
+        // Self-serve / viewer accounts must not reach the editor shell.
+        await page.goto("/dashboard");
+        await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
+      } finally {
+        await deleteUserByEmail(email);
       }
+    },
+  );
 
-      // Self-serve signups are viewers; promote so /dashboard is reachable.
-      await promoteUserToEditor(email);
-
-      await page.context().clearCookies();
-      await page.goto("/en/login?next=%2Fdashboard");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 30_000 });
-
+  test(
+    "editor can open dashboard and log out",
+    { tag: "@smoke" },
+    async ({ page }) => {
+      test.setTimeout(60_000);
+      await loginAsEditor(page, "/dashboard");
       await expect(
         page.getByRole("heading", { name: "Dashboard", exact: true }),
       ).toBeVisible({ timeout: 20_000 });
@@ -248,15 +216,15 @@ test.describe("auth", () => {
 
       await page.goto("/dashboard");
       await expect(page).toHaveURL(/\/(en|fr)\/login\?next=%2Fdashboard/);
-    } finally {
-      await deleteUserByEmail(email);
-    }
-  });
+    },
+  );
 
   test("duplicate signup email shows a toast error", async ({ page }) => {
-    const email = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
+    const email = e2eEditorEmail;
     // Must satisfy signup Zod (number required). Need not match the real account password.
-    const password = "Testpass1";
+    const password = e2eEditorPassword.startsWith("T")
+      ? e2eEditorPassword
+      : "Testpass1";
 
     await page.goto("/en/signup");
     await page.getByLabel("Name").fill("Duplicate User");
@@ -272,7 +240,7 @@ test.describe("auth", () => {
     await expect(
       page.locator("[data-sonner-toast]").filter({
         hasText: /already exists|already registered|existe déjà/i,
-      })
+      }),
     ).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveURL(/\/en\/signup/);
   });
@@ -281,30 +249,30 @@ test.describe("auth", () => {
 test("french signup page renders localized copy", async ({ page }) => {
   await page.goto("/fr/signup");
   await expect(
-    page.getByRole("main").getByText("Inscription", { exact: true })
+    page.getByRole("main").getByText("Inscription", { exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel("Nom")).toBeVisible();
   await expect(page.getByLabel("E-mail")).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Créer un compte" })
+    page.getByRole("button", { name: "Créer un compte" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("main").getByRole("link", { name: "Connexion" })
+    page.getByRole("main").getByRole("link", { name: "Connexion" }),
   ).toHaveAttribute("href", "/fr/login");
 });
 
 test("french login page renders localized copy", async ({ page }) => {
   await page.goto("/fr/login");
   await expect(
-    page.getByText("Connexion", { exact: true }).first()
+    page.getByText("Connexion", { exact: true }).first(),
   ).toBeVisible();
   await expect(page.getByLabel("E-mail")).toBeVisible();
   await expect(page.getByLabel("Mot de passe", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Se connecter" })
+    page.getByRole("button", { name: "Se connecter" }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /S.inscrire/ })).toHaveAttribute(
     "href",
-    "/fr/signup"
+    "/fr/signup",
   );
 });

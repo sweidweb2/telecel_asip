@@ -5,7 +5,7 @@ import {
 } from "@supabase/supabase-js";
 import { expect, test } from "@playwright/test";
 
-import { e2eSuffix, submitLoginForm } from "./helpers";
+import { e2eSuffix, submitLoginForm, loginAsEditor } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -67,10 +67,7 @@ test.describe("admin users CRUD", () => {
     const password = "Testpass1";
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fusers");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
+      await loginAsEditor(page, "/dashboard/users");
       await expect(page).toHaveURL(/\/dashboard\/users/, { timeout: 20_000 });
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();

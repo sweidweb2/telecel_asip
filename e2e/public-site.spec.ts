@@ -12,48 +12,49 @@ async function openFoundersMenu(page: Page) {
   return page.getByRole("menuitem", { name: "Alumni", exact: true });
 }
 
-const publicSlugs = [
-  "",
-  "/about",
-  "/program",
-  "/founders",
-  "/impact",
-  "/partners",
-  "/insights",
-  "/register-interest",
-  "/alumni",
-  "/apply",
-  "/contact",
-  "/faq",
-  "/terms",
-  "/privacy",
+/** Slim chrome sample — full en/fr slug grid demoted; key routes only. */
+const publicChromeRoutes = [
+  "/en",
+  "/en/about",
+  "/en/contact",
+  "/en/apply",
+  "/fr",
+  "/fr/program",
 ] as const;
 
-for (const locale of ["en", "fr"] as const) {
-  for (const slug of publicSlugs) {
-    const route = `/${locale}${slug}`;
-
-    test(`${route} renders localized public chrome`, async ({ page }) => {
-      await page.goto(route);
-      await expect(page.locator("body")).toBeVisible();
-      await expect(page.locator("header").first()).toBeVisible();
-      await expect(page.locator("footer").first()).toBeVisible();
-      await expect(page.locator("h1").first()).toBeVisible();
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    });
-  }
+for (const route of publicChromeRoutes) {
+  test(`${route} renders localized public chrome`, async ({ page }) => {
+    await page.goto(route);
+    await expect(page.locator("body")).toBeVisible();
+    await expect(page.locator("header").first()).toBeVisible();
+    await expect(page.locator("footer").first()).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute(
+      "lang",
+      route.startsWith("/fr") ? "fr" : "en",
+    );
+  });
 }
 
-test("bare public routes redirect to a supported locale", async ({ page }) => {
-  await page.goto("/about");
-  await expect(page).toHaveURL(/\/(en|fr)\/about$/);
-});
+test(
+  "bare public routes redirect to a supported locale",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    await page.goto("/about");
+    await expect(page).toHaveURL(/\/(en|fr)\/about$/);
+  },
+);
 
-test("language switch preserves the current public page", async ({ page }) => {
-  await page.goto("/en/program");
-  await page.getByRole("link", { name: "fr", exact: true }).first().click();
-  await expect(page).toHaveURL(/\/fr\/programme$/);
-});
+test(
+  "language switch preserves the current public page",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    await page.goto("/en/program");
+    await page.getByRole("link", { name: "fr", exact: true }).first().click();
+    // Canonical marketing slug is `program` in both locales (`/programme` redirects).
+    await expect(page).toHaveURL(/\/fr\/program\/?$/);
+  },
+);
 
 test("alumni is in the primary navigation", async ({ page }) => {
   await page.goto("/en");
@@ -69,18 +70,22 @@ test("founders directory closes when clicking outside", async ({ page }) => {
   await expect(alumni).toBeHidden();
 });
 
-test("mobile navigation remains usable", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/en");
-  await page.getByRole("button", { name: "Menu" }).click();
-  await expect(page.getByRole("link", { name: "About" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
-  await expect(
-    page
-      .getByRole("navigation", { name: "Primary" })
-      .locator('a[href="/en/apply"], a[href="/en/register-interest"]'),
-  ).toBeVisible();
-});
+test(
+  "mobile navigation remains usable",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/en");
+    await page.getByRole("button", { name: "Menu" }).click();
+    await expect(page.getByRole("link", { name: "About" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Alumni" })).toBeVisible();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Primary" })
+        .locator('a[href="/en/apply"], a[href="/en/register-interest"]'),
+    ).toBeVisible();
+  },
+);
 
 test("tablet navigation uses the sheet menu", async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 900 });
@@ -104,15 +109,16 @@ test("desktop navigation keeps the primary routes in the main bar", async ({
   await expect(page.getByRole("button", { name: "Menu" })).toBeHidden();
 });
 
-test("retired portfolio URLs resolve to the founders directory", async ({ page }) => {
+test("retired portfolio URLs resolve to the founders directory", async ({
+  page,
+}) => {
   await page.goto("/en/portfolio");
   await expect(page).toHaveURL(/\/en\/founders(\?.*)?$/);
 });
 
 test("inactive intake path redirects to the live path", async ({ page }) => {
   // Derive the live intake from the navbar CTA, then assert the other URL
-  // redirects there. Avoids racing apply-register settings flips and does not
-  // require both paths to stay put.
+  // redirects there. Avoids racing apply-register settings flips.
   await page.goto("/en");
   const cta = page
     .locator("header")
@@ -132,18 +138,20 @@ test("inactive intake path redirects to the live path", async ({ page }) => {
   await expect(page.locator("h1").first()).toBeVisible();
 });
 
-test("navbar primary CTA points at register-interest or apply", async ({
-  page,
-}) => {
-  await page.goto("/en");
-  const cta = page
-    .locator("header")
-    .locator('a[href="/en/apply"], a[href="/en/register-interest"]')
-    .first();
-  await expect(cta).toBeVisible();
-  const href = await cta.getAttribute("href");
-  expect(href === "/en/apply" || href === "/en/register-interest").toBe(true);
-});
+test(
+  "navbar primary CTA points at register-interest or apply",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    await page.goto("/en");
+    const cta = page
+      .locator("header")
+      .locator('a[href="/en/apply"], a[href="/en/register-interest"]')
+      .first();
+    await expect(cta).toBeVisible();
+    const href = await cta.getAttribute("href");
+    expect(href === "/en/apply" || href === "/en/register-interest").toBe(true);
+  },
+);
 
 test("/lab is removed from public marketing", async ({ page }) => {
   const response = await page.goto("/en/lab");

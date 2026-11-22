@@ -27,7 +27,7 @@ vi.mock("@/components/marketing/home-hero-signal", () => ({
 }));
 
 describe("HomeHero", () => {
-  it("renders headline and Investor | Startup pathways without brand lockup", () => {
+  it("renders headline and Founder | Investor pathways without brand lockup", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", false);
 
@@ -49,17 +49,17 @@ describe("HomeHero", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("home-hero-continuum")).toBeInTheDocument();
     expect(
-      screen.getByRole("group", { name: copy.pathways.prompt }),
+      screen.getByRole("group", { name: copy.pathways.groupLabel }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Investor" }),
-    ).toHaveAttribute("href", "/en/register-interest");
+      screen.getByRole("link", { name: /I'm a Founder/i }),
+    ).toHaveAttribute("href", "#founders");
     expect(
-      screen.getByRole("link", { name: "Startup" }),
-    ).toHaveAttribute("href", "/en/register-interest");
+      screen.getByRole("link", { name: /I'm an Investor/i }),
+    ).toHaveAttribute("href", "#investors");
   });
 
-  it("routes Startup to apply when applications are open", () => {
+  it("keeps Founder and Investor as the only two primary hero CTAs", () => {
     const copy = homeCopyFor("en");
     const intake = intakeCtaFor("en", true);
 
@@ -72,8 +72,15 @@ describe("HomeHero", () => {
       />,
     );
 
+    const pathwayGroup = screen.getByRole("group", {
+      name: copy.pathways.groupLabel,
+    });
+    expect(pathwayGroup.querySelectorAll("a")).toHaveLength(2);
     expect(
-      screen.getByRole("link", { name: "Startup" }),
-    ).toHaveAttribute("href", "/en/apply");
+      screen.getByRole("link", { name: /I'm a Founder/i }),
+    ).toHaveAttribute("href", "#founders");
+    expect(
+      screen.queryByRole("link", { name: "Startup" }),
+    ).not.toBeInTheDocument();
   });
 });

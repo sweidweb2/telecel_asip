@@ -37,6 +37,8 @@ type HomeEcosystemSectionProps = {
 /**
  * Home Module 06 — Ecosystem.
  * Six partner roles in a light hover grid; CTA to Partners.
+ * `id="investors"` is the hero Investor pathway anchor until Block B
+ * adds a dedicated investor module.
  */
 export function HomeEcosystemSection({
   locale,
@@ -47,10 +49,10 @@ export function HomeEcosystemSection({
 
   return (
     <section
-      id="ecosystem"
+      id="investors"
       aria-labelledby="home-ecosystem-heading"
       className={cn(
-        "relative overflow-hidden border-y border-border bg-background",
+        "relative scroll-mt-24 overflow-hidden border-y border-border bg-background",
         "px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20",
         className,
       )}

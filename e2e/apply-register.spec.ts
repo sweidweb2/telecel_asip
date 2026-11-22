@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { e2eAdminClient, e2eSuffix, hasE2ECredentials, loginAsEditor, waitForTurnstileReady, submitLoginForm } from "./helpers";
+import {
+  e2eAdminClient,
+  e2eSuffix,
+  hasE2ECredentials,
+  setApplicationsOpenViaSettings,
+  submitLoginForm,
+  waitForTurnstileReady,
+} from "./helpers";
 
 const REGISTER_SUCCESS = "Thank you - your interest has been registered.";
 const APPLY_SUCCESS = "Thank you - your application has been submitted.";
@@ -37,24 +44,7 @@ async function createViewerAndSignIn(
   return { email, userId: created.user.id, password };
 }
 
-/** Flip Applications open via Settings so Next cache tags revalidate. */
-async function setApplicationsOpenViaSettings(
-  page: Page,
-  open: boolean,
-): Promise<void> {
-  await loginAsEditor(page, "/dashboard/settings");
-  const appsSwitch = page.locator("#open-applications");
-  const currentlyOpen = await appsSwitch.isChecked();
-  if (currentlyOpen === open) return;
-  await appsSwitch.click();
-  await expect(appsSwitch).toBeChecked({ checked: open });
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(
-    page.locator("[data-sonner-toast]").filter({ hasText: "Settings saved" }),
-  ).toBeVisible({ timeout: 20_000 });
-}
-
-test.describe("apply and register-interest", () => {
+test.describe("apply and register-interest", { tag: "@writes" }, () => {
   test.beforeEach(() => {
     test.skip(
       !hasE2ECredentials(),
@@ -99,9 +89,10 @@ test.describe("apply and register-interest", () => {
     }
   });
 
-  test("register-interest submit creates a registration row when closed", async ({
-    page,
-  }) => {
+  test(
+    "register-interest submit creates a registration row when closed",
+    { tag: "@writes" },
+    async ({ page }) => {
     test.setTimeout(180_000);
     const suffix = e2eSuffix();
     const company = `E2E Register Co ${suffix}`;
@@ -167,7 +158,8 @@ test.describe("apply and register-interest", () => {
         })
         .eq("id", 1);
     }
-  });
+    },
+  );
 
   test("apply submit creates an application when applications are open", async ({
     page,

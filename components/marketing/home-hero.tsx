@@ -12,7 +12,6 @@ import {
 } from "@/components/marketing/page-elements";
 import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
 import type { Locale } from "@/constants/locales";
-import { publicPath } from "@/constants/routes";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import { cn } from "@/lib/utils";
 import type { HomePageCopy } from "@/types/marketing-page";
@@ -32,16 +31,16 @@ type HomeHeroProps = {
   locale: Locale;
   copy: HomePageCopy["hero"];
   pathways: HomePageCopy["pathways"];
+  /** Kept for call-site parity; hero pathways no longer route through intake. */
   intake: IntakeCta;
 };
 
 /**
  * Home Module 01 — Founder Continuum.
- * Upper lockup: spectrum cue → title → fuller description → CTA pair.
- * Next-chapter lives further down the page, not in the hero.
+ * Upper lockup: spectrum cue → title → fuller description → Founder / Investor CTAs.
+ * Audience anchors live further down the page (`#founders`, `#investors`).
  */
-export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
-  const investorHref = publicPath(locale, pathways.investor.slug);
+export function HomeHero({ copy, pathways }: HomeHeroProps) {
   const continuumLabel = copy.continuumAlts[0] ?? copy.title;
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
   const lastLine = copy.titleLines.length - 1;
@@ -124,29 +123,26 @@ export function HomeHero({ locale, copy, pathways, intake }: HomeHeroProps) {
           </p>
 
           <div role="group" aria-labelledby="home-hero-pathways">
-            <p
-              id="home-hero-pathways"
-              className="mt-9 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"
-            >
-              {pathways.prompt}
+            <p id="home-hero-pathways" className="sr-only">
+              {pathways.groupLabel}
             </p>
-            <MarketingCtaRow className="mt-3.5 gap-3.5 sm:flex-wrap">
-              <OutlineCtaLink
-                href={investorHref}
-                className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
-              >
-                {pathways.investor.label}
-              </OutlineCtaLink>
+            <MarketingCtaRow className="mt-9 gap-3.5 sm:mt-11 sm:flex-wrap">
               <CoralCtaLink
-                href={intake.href}
+                href={pathways.founder.href}
                 className="group min-h-14 px-9 text-lg sm:px-10"
               >
-                {pathways.startupLabel}
+                {pathways.founder.label}
                 <ArrowRight
                   aria-hidden
                   className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
                 />
               </CoralCtaLink>
+              <OutlineCtaLink
+                href={pathways.investor.href}
+                className="min-h-14 border-white/55 bg-white/5 px-9 text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
+              >
+                {pathways.investor.label}
+              </OutlineCtaLink>
             </MarketingCtaRow>
           </div>
         </div>

@@ -4,13 +4,11 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
+import { e2eSuffix, clickSaveChanges, loginAsEditor } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
-const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -39,9 +37,10 @@ test.describe("portfolio startups cms", () => {
     );
   });
 
-  test("admin can create draft then activate; public sees active only", async ({
-    page,
-  }) => {
+  test(
+    "admin can create draft then activate; public sees active only",
+    { tag: "@writes" },
+    async ({ page }) => {
     test.setTimeout(120_000);
     const suffix = e2eSuffix();
     const name = `E2E Startup ${suffix}`;
@@ -49,10 +48,7 @@ test.describe("portfolio startups cms", () => {
     const admin = adminClient();
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fportfolio%2Fnew");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
+      await loginAsEditor(page, "/dashboard/portfolio/new");
       await expect(page).toHaveURL(/\/dashboard\/portfolio\/new/, {
         timeout: 20_000,
       });
@@ -132,7 +128,8 @@ test.describe("portfolio startups cms", () => {
     } finally {
       await admin.from("startups").delete().eq("slug", slug);
     }
-  });
+    },
+  );
 
   test("picking a logo enables Save without other field edits", async ({
     page,
@@ -160,15 +157,7 @@ test.describe("portfolio startups cms", () => {
     if (error) throw error;
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fportfolio");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/dashboard\/portfolio/, {
-        timeout: 20_000,
-      });
-
-      await page.goto(`/dashboard/portfolio/${inserted.id}`);
+      await loginAsEditor(page, `/dashboard/portfolio/${inserted.id}`);
       await expect(
         page.getByRole("heading", { name: "Edit startup" }),
       ).toBeVisible({ timeout: 20_000 });
@@ -195,37 +184,4 @@ test.describe("portfolio startups cms", () => {
     }
   });
 
-  test("non-admin is redirected away from portfolio", async ({ page }) => {
-    test.setTimeout(60_000);
-    if (!supabaseUrl || !anonKey) {
-      throw new Error("Supabase credentials missing");
-    }
-
-    const suffix = e2eSuffix();
-    const email = `portfolio.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = adminClient();
-    const { data: created, error: createError } =
-      await admin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name: "Portfolio E2E Viewer" },
-        app_metadata: { app_role: "viewer" },
-      });
-    if (createError) throw createError;
-
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fportfolio");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
-
-      await page.goto("/dashboard/portfolio");
-      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
-    } finally {
-      await admin.auth.admin.deleteUser(created.user.id);
-    }
-  });
 });

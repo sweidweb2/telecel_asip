@@ -1,13 +1,11 @@
 import { expect, test } from "@playwright/test";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
+import { e2eSuffix, clickSaveChanges, loginAsEditor } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
-const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
 
 function hasCredentials(): boolean {
   return Boolean(
@@ -46,10 +44,7 @@ test.describe("partners cms", () => {
     const admin = adminClient();
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
+      await loginAsEditor(page, "/dashboard/partners");
       await expect(page).toHaveURL(/\/dashboard\/partners/, {
         timeout: 20_000,
       });
@@ -128,15 +123,7 @@ test.describe("partners cms", () => {
     if (error) throw error;
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/dashboard\/partners/, {
-        timeout: 20_000,
-      });
-
-      await page.goto(`/dashboard/partners/${inserted.id}`);
+      await loginAsEditor(page, `/dashboard/partners/${inserted.id}`);
       await expect(
         page.getByRole("heading", { name: "Edit partner" }),
       ).toBeVisible({ timeout: 20_000 });
@@ -233,33 +220,4 @@ test.describe("partners cms", () => {
     }
   });
 
-  test("non-admin is redirected away from partners", async ({ page }) => {
-    test.setTimeout(60_000);
-    const suffix = e2eSuffix();
-    const email = `partners.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = adminClient();
-    const { data: created, error: createError } =
-      await admin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name: "Partners E2E Viewer" },
-        app_metadata: { app_role: "viewer" },
-      });
-    if (createError) throw createError;
-
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fpartners");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
-
-      await page.goto("/dashboard/partners");
-      await expect(page).toHaveURL(/\/(en|fr)\/?$/, { timeout: 20_000 });
-    } finally {
-      await admin.auth.admin.deleteUser(created.user.id);
-    }
-  });
 });

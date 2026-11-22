@@ -299,13 +299,22 @@ export type ProgrammePageCopy = {
   };
 };
 
+export type HomeAudiencePathway = {
+  /** Same-page hash (`#founders` / `#investors`) or a public path. */
+  href: string;
+  label: string;
+};
+
 export type HomePageCopy = {
-  /** Investor | Startup entry pathways shared by the hero and next-chapter CTAs. */
+  /**
+   * Hero-only Founder / Investor entry pathways (Text Pack v2).
+   * Next-chapter CTAs stay on `nextChapter.primaryCta` / `secondaryCta`.
+   */
   pathways: {
-    prompt: string;
-    investor: HomePageLink;
-    /** Startup routes to the live intake (apply or register interest). */
-    startupLabel: string;
+    /** Accessible name for the CTA group; not a visible "I am" prompt. */
+    groupLabel: string;
+    founder: HomeAudiencePathway;
+    investor: HomeAudiencePathway;
   };
   hero: {
     /** Kept for copy parity; brand lives in site chrome, not the hero lockup. */

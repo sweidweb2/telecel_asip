@@ -7,9 +7,9 @@ import type { HomePageCopy } from "@/types/marketing-page";
  */
 const en: HomePageCopy = {
   pathways: {
-    prompt: "I am",
-    investor: { slug: "register-interest", label: "Investor" },
-    startupLabel: "Startup",
+    groupLabel: "Choose your path",
+    founder: { href: "#founders", label: "I'm a Founder" },
+    investor: { href: "#investors", label: "I'm an Investor" },
   },
   hero: {
     brand: "ASIP",
@@ -21,7 +21,7 @@ const en: HomePageCopy = {
       "ASIP connects African technology founders to expertise, capital pathways, market access and relationships that help ambitious businesses build, commercialize and grow.",
     primaryCta: { slug: "founders", label: "Explore the founders" },
     secondaryCta: { slug: "register-interest", label: "Register interest" },
-    nextCohort: { label: "2026 next chapter", href: "#next-chapter" },
+    nextCohort: { label: "2026 next chapter", href: "#founders" },
     continuumAlts: [
       "ASIP founder focused in conversation at a program table",
       "ASIP founders listening during a program pitch session",
@@ -225,9 +225,9 @@ const en: HomePageCopy = {
 
 const fr: HomePageCopy = {
   pathways: {
-    prompt: "Je suis",
-    investor: { slug: "register-interest", label: "Investisseur" },
-    startupLabel: "Startup",
+    groupLabel: "Choisissez votre parcours",
+    founder: { href: "#founders", label: "Je suis fondateur" },
+    investor: { href: "#investors", label: "Je suis investisseur" },
   },
   hero: {
     brand: "ASIP",
@@ -235,7 +235,7 @@ const fr: HomePageCopy = {
     endorsement: "Un programme du Groupe Telecel",
     title: "Fondateurs africains. Faits pour grandir.",
     titleLines: ["Fondateurs africains.", "Faits pour grandir."],
-    nextCohort: { label: "Chapitre 2026", href: "#next-chapter" },
+    nextCohort: { label: "Chapitre 2026", href: "#founders" },
     description:
       "ASIP relie des fondateurs technologiques africains à l’expertise, aux voies de financement, à l’accès aux marchés et aux relations qui aident les entreprises ambitieuses à construire, commercialiser et grandir.",
     primaryCta: { slug: "founders", label: "Explorer les fondateurs" },

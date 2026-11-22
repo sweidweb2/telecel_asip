@@ -1,0 +1,1045 @@
+--- PAGE 1 ---
+ 
+                                                                                                                              Page 1 of 24 
+                                                                  TG 
+ 
+ASIP WEBSITE 
+Final Text Pack & Sitemap v2.0 
+Audience-aligned content source of truth • Supplier implementation master • 08 November 2026 
+     
+ 
+STATUS FINAL LOCKED V2. This document supersedes the 24 August text pack. Public copy is final except 
+where an item is explicitly marked VERIFY, CONDITIONAL or CONTENT REQUIRED. 
+ 
+CONTROL FINAL DIRECTION 
+CONTENT AUTHORITY This pack governs public copy, CTA labels, navigation language, metadata, content states and 
+supplier copy implementation. 
+DESIGN AUTHORITY The Final Design & Audience Experience Brief governs UX, visual hierarchy, Founder/Investor 
+pathways, AI Advantage prominence, motion and presentation. 
+AUDIENCE ORDER 1) Founders and startup talent  2) Investors and ecosystem partners  3) Institutions, corporates 
+and media. 
+ENGLISH STANDARD British English in running copy. Use “Program” only where it is part of the approved ASIP logo lock-
+up; use “programme” elsewhere. 
+CORE NARRATIVE Founder-first. Evidence-led. Current opportunity first. Proof before promotion. Real African market 
+problems, real businesses, real progress. 
+SCOPE Website copy and information architecture only. No new portal, fund proposition, login, 
+community platform or unapproved programme commitment is implied. 
+ 
+CONFIDENTIAL • TELECEL GROUP / SUPPLIER WORKING DOCUMENT 
+ 
+
+
+--- PAGE 2 ---
+   
+ Page 2 of 24 
+ 
+                                                                                                 TG       
+ 
+01 
+Document Control & Supplier Rules 
+What is locked, what remains conditional, and how to use this pack without reintroducing old copy 
+USE THIS PACK Use v2 for all website words. Do not merge wording from the August pack, older concept notes, 
+mock-ups or previous website copy. Where wording conflicts, v2 takes precedence. 
+ 
+RULE SUPPLIER INSTRUCTION 
+Public copy Text labelled PUBLIC COPY may be implemented exactly, subject only to status logic and factual 
+validation flags. 
+Conditional copy Text labelled CONDITIONAL is built but shown only when the stated programme status is 
+confirmed. 
+Evidence control Anything marked VERIFY must not go live until the metric, date, partner status or claim is cleared 
+by Telecel. 
+Internal notes Implementation notes, evidence notes, field labels and validation instructions are never public 
+website copy. 
+No internal names Do not place internal stakeholder names, approval references or meeting language anywhere in 
+supplier-facing or public copy. 
+No copy drift Do not “improve”, extend or paraphrase locked copy without written Telecel instruction. 
+No empty shells Do not publish empty categories, placeholder articles, dormant buttons, broken forms or modules 
+with “coming soon” filler. 
+Factual discipline Do not infer dates, startup outcomes, valuations, partner relationships, investment availability or 
+application status. 
+ 
+What changed from v1 
+• Founder and Investor are now the two primary homepage pathways. The old hero CTAs are retired. 
+• The 2026 AI Advantage moves directly below the hero. It is the current story, not a lower-page update. 
+• Homepage copy has been compressed so each screen performs one job. History and institutional explanation 
+move deeper into the site. 
+• Investor language is now explicit: portfolio quality, sectors, markets, current/upcoming activity and a clear 
+engagement route. 
+• Repeated use of “connect”, “connected” and “connecting” has been removed. “Connecting Energies” 
+remains only where it is a deliberate Telecel brand reference. 
+• The 2025 Portfolio Support Year remains protected. The site must not imply a new 2025 cohort. 
+• Register Interest remains the default founder state unless the AI Next Cohort is formally confirmed open. 
+• Internal approval names, old deadlines and outdated supplier instructions have been removed from the 
+master. 
+ 
+
+--- PAGE 3 ---
+   
+ Page 3 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+02 
+Final Sitemap & Audience Architecture 
+Keep the approved architecture, but make audience intent visible from the first screen 
+NAV LABEL URL ROLE / RULE 
+Home / Founder/Investor routing, AI Advantage, proof, founder stories, impact, 
+ecosystem and current activity. 
+About /about/ 2019 origin, purpose, journey, Telecel relationship and programme history. 
+Programme /programme/ What ASIP offers, 2026 AI direction, founder journey, benefits and cohort 
+status. 
+Founders /founders/ Searchable portfolio by country, sector and cohort/year. 
+Impact /impact/ Verified founder outcomes, evidence-led metrics and case studies. 
+Partners /partners/ Investor and ecosystem route, partner contribution model and 
+collaboration contact. 
+Insights /insights/ Founder and portfolio stories plus current programme updates. Only 
+populated categories show. 
+Register Interest /register-interest/ Default founder conversion route until applications are confirmed open. 
+ 
+Conditional / controlled routes 
+PAGE URL RULE 
+Apply /apply/ Use the same form framework. Activate only after confirmed cohort 
+dates, eligibility, terms and submission route. 
+Alumni /alumni/ Keep hidden unless the public Alumni Network proposition and 
+operating model are formally approved. 
+Founder pathway /#founders Homepage anchor or equivalent immediate route. Must be accessible 
+from “I’m a Founder”. 
+Investor pathway /#investors Homepage anchor or equivalent immediate route. Must be accessible 
+from “I’m an Investor”. 
+ 
+Implementation note: Do not create a new top-level Investor page unless technically necessary. The homepage 
+Investor pathway can route into the portfolio and the Partners page, provided the journey remains obvious and 
+immediate. 
+ 
+
+--- PAGE 4 ---
+   
+ Page 4 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+03 
+Voice, Language & Copy Discipline 
+Short, confident, human and commercially credible, with no corporate filler 
+USE AVOID 
+Build, solve, test, launch, grow, scale, commercialise, prove, 
+move, back, open, apply. 
+Empower, enable, leverage, facilitate, foster, synergise or 
+“support” without saying how. 
+Founders, products, markets, customers, pilots, outcomes, 
+sectors, growth. 
+Institutional abstractions, CSR language, self-congratulation 
+or vague ecosystem claims. 
+Short headlines, one clear idea, proof underneath. Headline + sub-headline + paragraph + caption stacks that 
+repeat the same thought. 
+African-rooted confidence with international ambition. Deficit framing or language that presents African founders as 
+needing rescue. 
+Investor-ready facts and verified portfolio signals. Unverified “deal flow”, “investment opportunity”, valuations 
+or return claims. 
+“Connecting Energies” only as a deliberate brand line. Repeating connect/connected/connecting as generic 
+verbs across modules. 
+ 
+DENSITY RULE One screen, one job. Hero support copy: maximum 35 words. Standard homepage modules: generally 
+20-45 words. Cards: one idea in 10-25 words. Move detail into profiles, accordions or deeper pages. 
+ 
+House style 
+• British English in running copy: programme, organisation, commercialise, prioritise, behaviour. 
+• Sentence case for headings. Use title case only where it is part of a formal programme or brand name. 
+• Use numerals for metrics, dates and cohorts. Use commas in thousands and consistent + notation for rounded 
+figures. 
+• Do not use exclamation marks in core corporate copy. 
+• Do not use em dashes. Use commas, colons, parentheses or full stops. 
+• Never use “Africa” redundantly in every headline when ASIP already establishes the geography. 
+• Do not describe ASIP as “the largest”, “leading” or “number one” unless a current independent source 
+supports the claim. 
+ 
+
+--- PAGE 5 ---
+   
+ Page 5 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+04 
+Global Navigation, Status & Footer Copy 
+Site-wide wording to implement once and reuse consistently 
+Header 
+PROGRAMME IDENTITY 
+Africa Startup Initiative Program 
+A Telecel Group Program 
+NOTE Use “A Telecel Group Program” only where it reproduces the approved ASIP identity / lock-
+up. In running copy, use “programme”. 
+ 
+Founder status, default state 
+2026 AI NEXT COHORT 
+Building the AI Advantage 
+Applications are not currently open. Register your interest to receive confirmed eligibility, dates and 
+application details when announced. 
+CTA Register interest 
+ 
+Founder status, open state 
+CONDITIONAL 
+Applications are open. 
+If you are building a technology-led solution for African markets and the published cohort criteria fit your 
+company, we want to hear from you. 
+CTA View criteria   |   Apply to ASIP 
+ 
+Footer proposition 
+PUBLIC COPY 
+Built around African founders. Backed by Telecel Group. 
+ASIP brings founders together with investors, operators and partners around practical pathways to build 
+and scale technology businesses in African markets. 
+CTA Explore founders   |   Contact ASIP 
+ 
+Footer links: About • Programme • Founders • Impact • Partners • Insights • Register Interest / Apply • Contact • FAQ • 
+Privacy • Terms • Cookie preferences. Show official ASIP social channels only when confirmed. 
+ 
+
+--- PAGE 6 ---
+   
+ Page 6 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+05 
+Home Page 
+Current opportunity first, two audience pathways, proof early, history later 
+PAGE OBJECTIVE Within five seconds, a founder should know there is a current 2026 AI-focused opportunity and 
+where to go. An investor should see portfolio proof, current activity and a clear route to 
+engage. 
+ 
+Module 01: Hero 
+PUBLIC COPY 
+African founders. Real solutions. Impact that scales. 
+ASIP helps ambitious technology founders build stronger companies through practical expertise, market 
+access and an ecosystem of investors, operators and partners focused on growth. 
+CTA I’m a Founder   |   I’m an Investor 
+ 
+Route “I’m a Founder” to the 2026 AI Advantage / founder pathway. Route “I’m an Investor” to the investor pathway. 
+These are the only two primary hero CTAs. 
+Module 02: 2026 AI Advantage 
+2026 NEXT CHAPTER 
+Building the AI Advantage 
+The next ASIP chapter focuses on founders applying AI to real business problems, using it to build better 
+products, improve productivity and create measurable advantage in African markets. 
+CTA Explore the AI Next Cohort   |   See 2026 activity 
+ 
+STATUS LOGIC If applications are not open, “Explore the AI Next Cohort” leads to programme information 
+and Register Interest. Do not use “Apply” until the application state is formally switched. 
+ 
+Module 03: Proof strip 
+PROOF POINT PUBLIC LABEL STATUS / SOURCE CONTROL 
+10,000+ Applications Source-backed in Telecel ASIP Story 4. VERIFY current cut-off before go-live. 
+50+ Countries represented 
+through applications 
+Source-backed in Telecel ASIP Story 4. Do not present this as portfolio presence. 
+40+ Startups supported Source-backed in Telecel ASIP Story 4. VERIFY portfolio definition and cut-off. 
+70% Women-led startups Source-backed in Telecel ASIP Story 4. VERIFY definition and denominator. 
+ 
+Implementation note: No sentence is needed under the proof strip. The numbers do the work. If a metric is not cleared, 
+remove it rather than replacing it with filler. 
+
+--- PAGE 7 ---
+   
+ Page 7 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+Module 04: Founder pathway 
+FOR FOUNDERS 
+Build what comes next. 
+See what ASIP offers, how the founder journey works, what the 2026 AI direction means and how to register 
+for the next cohort. 
+CTA Explore the founder journey 
+ 
+Module 05: Investor pathway 
+FOR INVESTORS 
+See what is being built. 
+Explore the portfolio by sector and market, follow current and upcoming programme activity, and speak 
+with ASIP about relevant founder, investment and ecosystem opportunities. 
+CTA Explore the portfolio   |   View current activity 
+ 
+GUARDRAIL Do not imply that every ASIP company is fundraising or that ASIP offers direct investment 
+access. Investment conversations are case-specific and subject to founder consent and 
+applicable terms. 
+ 
+Module 06: Founder stories 
+FOUNDER STORIES 
+Built from first-hand insight. 
+Meet founders turning real market problems into technology products, new business models and 
+companies designed to scale. 
+CTA Meet the founders 
+ 
+Module 07: Impact 
+IMPACT 
+Proof lives in what founders build next. 
+Track verified outcomes across company growth, new markets, partnerships, funding, jobs and real-world 
+product use. 
+CTA See the impact 
+ 
+
+--- PAGE 8 ---
+   
+ Page 8 of 24 
+ 
+                                                                                                 TG       
+ 
+Module 08: Africa footprint 
+PORTFOLIO & REACH 
+Across markets. Grounded in evidence. 
+Explore verified portfolio presence and application reach across African markets. Portfolio countries and 
+application reach must be visually distinguished. 
+CTA Explore the map 
+ 
+Module 09: Ecosystem 
+INVESTORS & PARTNERS 
+More than logos. Practical value. 
+Technology, capital, market access, mentorship and commercial pathways, brought together around 
+founder progress. 
+CTA See the ecosystem 
+ 
+Module 10: Current activity 
+INSIGHTS 
+What’s happening now. 
+Founder stories, portfolio milestones and programme updates, focused on what changed and why it 
+matters. 
+CTA View insights 
+ 
+Module 11: Closing conversion 
+CLOSING CTA 
+Building something that can scale? 
+Choose the route that fits where you are now. 
+CTA Register interest   |   Explore the portfolio 
+ 
+ 
+
+--- PAGE 9 ---
+   
+ Page 9 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+06 
+About ASIP 
+A concise origin story, clear purpose and a build-log style journey 
+HERO 
+Started in 2019. Still building. 
+ASIP launched in Barcelona to give ambitious African technology founders stronger access to expertise, 
+markets, investors and commercial opportunity. The model has evolved, but the focus remains the same: 
+help good companies move faster. 
+Our story 
+PUBLIC COPY 
+Built around founders who know the problem first-hand. 
+Africa does not lack ideas. The harder gap is often access: to the right expertise, market insight, 
+technology, capital pathways and commercial relationships at the right moment. ASIP was created to 
+narrow that gap. Since 2019, the programme has worked with founders across sectors and markets, helping 
+teams sharpen what they are building, test growth assumptions and move towards stronger businesses. 
+Mission 
+PUBLIC COPY 
+Help ambitious founders build stronger companies. 
+ASIP identifies technology ventures solving meaningful problems in African markets and strengthens the 
+company behind the idea: product, strategy, market access, investor readiness and commercial 
+opportunity. 
+Vision 
+PUBLIC COPY 
+African technology companies built for local relevance and global 
+scale. 
+We want more category-defining companies to be built from the continent, grow across borders and 
+compete on the strength of their products, teams and market insight. 
+Belief 
+PUBLIC COPY 
+Local insight is an advantage. 
+The strongest products often begin with people who understand the problem first-hand. ASIP exists to help 
+founders turn that insight into businesses that can grow beyond one customer, one city or one market. 
+ 
+ 
+ 
+
+--- PAGE 10 ---
+   
+ Page 10 of 24 
+ 
+                                                                                                 TG       
+ 
+Journey 
+YEAR PUBLIC-FACING MILESTONE STATUS 
+2019 ASIP launches in Barcelona at Mobile World Congress, bringing African founders into a 
+global technology and investment setting. 
+Source-backed. 
+2021 ASIP expands its Pan-African founder pipeline and structured acceleration support. VERIFY against 
+final cohort 
+records. 
+2022 A new cohort broadens sector reach and deepens founder development. VERIFY against 
+final cohort 
+records. 
+2023 The programme strengthens founder readiness and pathways to markets, partners and 
+investment. 
+VERIFY against 
+final cohort 
+records. 
+2024 Founders progress through acceleration, portfolio development and market-readiness 
+support. 
+VERIFY against 
+final cohort 
+records. 
+2025 Portfolio Support Year: continued founder relationships, portfolio support and 
+preparation for the next phase. 
+LOCKED narrative 
+control. 
+2026 Building the AI Advantage: a renewed focus on founders applying AI to practical 
+business challenges and growth. 
+Current direction. 
+Do not imply 
+applications are 
+open unless 
+confirmed. 
+ 
+Telecel relationship 
+PUBLIC COPY 
+A Telecel Group programme. 
+ASIP draws on Telecel Group’s African experience, technology ecosystem and relationships to help 
+founders move from potential to practical opportunity. “Connecting Energies” is the brand principle behind 
+that role, not a slogan to repeat across every page. 
+Founder / leadership message 
+HOLD Build the module only if required by the approved design. Do not publish placeholder 
+leadership copy, names, titles or quotes. Publish only when final text and imagery are supplied 
+by Telecel. 
+ 
+ 
+
+--- PAGE 11 ---
+   
+ Page 11 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+07 
+The Programme 
+Explain the founder value quickly, then move into the 2026 AI direction and practical journey 
+HERO 
+Build the company, not just the pitch. 
+ASIP helps ambitious technology founders strengthen the fundamentals behind growth: product, strategy, 
+market understanding, commercial readiness, investor readiness and the relationships that can open the 
+next door. 
+CTA Register interest   |   Explore founders 
+ 
+2026 direction 
+BUILDING THE AI ADVANTAGE 
+AI that earns its place in the business. 
+The 2026 direction focuses on founders using AI to solve real operating, customer and market problems. The 
+emphasis is practical advantage: better products, better decisions, stronger productivity and new ways to 
+grow. 
+Who it is for 
+PUBLIC COPY 
+Built for ambitious technology ventures solving real market problems. 
+Exact stage, sector, geography and selection criteria are confirmed for each cohort. At a minimum, ASIP 
+looks for strong founder insight, a credible technology-led solution, evidence of market need and the 
+ambition to scale. 
+Founder journey 
+STAGE PUBLIC COPY 
+Discover Find founders solving meaningful problems with clear market potential. 
+Build Sharpen product, strategy, operations and leadership around the company’s real priorities. 
+Test Pressure-test assumptions with mentors, market insight and relevant technical or commercial 
+expertise. 
+Accelerate Strengthen investor readiness, market access and pathways to pilots, customers or partnerships. 
+Scale Prepare for growth across customers and markets, with continued portfolio visibility where relevant. 
+What founders gain 
+VALUE PUBLIC COPY 
+Practical expertise Specialist input shaped around the company’s real growth constraints, not generic classroom theory. 
+Market access Sharper understanding of customers, sectors, regulation and commercial pathways in relevant 
+markets. 
+Investor readiness Clearer narratives, stronger metrics, better materials and preparation for investor conversations. 
+Technology & tools Access to relevant technical expertise, platforms or partner resources where available. 
+
+--- PAGE 12 ---
+   
+ Page 12 of 24 
+ 
+                                                                                                 TG       
+VALUE PUBLIC COPY 
+Commercial 
+pathways 
+Opportunities to explore pilots, customers and partnerships where there is a genuine strategic fit. 
+Founder visibility A stronger platform for credible founder stories, portfolio milestones and relevant industry exposure. 
+ 
+General eligibility 
+• African-founded, Africa-focused or solving a material challenge in African markets. 
+• Technology-led product, platform or business model with credible potential to scale. 
+• Committed founding team with relevant insight and the ability to execute. 
+• Evidence of a real market need. Traction requirements may vary by cohort. 
+• Clear potential for commercial, social or economic value. 
+• Ability to participate fully in the published programme format and timetable. 
+CONTROL Do not publish cohort-specific sector, stage, geography, dates or participation terms until they 
+are formally confirmed. General eligibility does not replace final cohort criteria. 
+ 
+08 
+Founders & Portfolio 
+Make the portfolio the strongest proof asset on the website 
+HERO 
+Meet the people building what comes next. 
+Explore ASIP founders by country, sector and cohort. Each profile should show the problem, the product, 
+the founder insight and the progress that followed. 
+CTA Explore the portfolio 
+ 
+Directory introduction 
+PUBLIC COPY 
+Different markets. Different models. Real problems to solve. 
+The ASIP portfolio spans financial services, health, agriculture, education, insurance, clean technology, 
+commerce, mobility and other technology-enabled sectors. The common thread is simple: founders 
+building from direct market insight. 
+Founder card copy model 
+FIELD PUBLIC DISPLAY RULE 
+Founder / company Name + company identity. Founder portrait or product image where approved. 
+One-line proposition 10-18 words. Describe what the company is building, not its mission statement. 
+Tags Country • Sector • Cohort/year. Stage only when verified and useful. 
+Outcome signal One verified milestone maximum on archive cards. Keep the deeper proof inside the profile. 
+ 
+
+--- PAGE 13 ---
+   
+ Page 13 of 24 
+ 
+                                                                                                 TG       
+ 
+Founder profile structure 
+MODULE COPY DIRECTION 
+Hero Company, founder, one-line proposition, country, sector, cohort/year and approved media. 
+The problem Plain-language explanation of the customer or market problem. 50-80 words maximum. 
+What they built What the product does, who it serves and what makes the approach useful or different. 
+The ASIP role Specific programme contribution only: mentoring, market access, investor readiness, technical 
+support, pilot pathway or visibility. 
+Where they are now Validated markets, customers, partnerships, funding, jobs, product use or other outcomes. 
+Founder perspective Approved quote with name, title, date and permission. 
+ 
+Priority proof stories 
+STARTUP SOURCE-BACKED PROOF TO VALIDATE BEFORE PUBLICATION 
+Herconomy Women-focused FinTech with a community of 78,000 members. 
+Primed e-Health Partnerships with Nigeria’s Ministry of Health to digitise hospital systems through SmartCard and 
+SmartPay infrastructure. 
+Weza Ventures High-growth FinTech improving access to digital financial services. 
+Qataloog EdTech platform digitising access to academic content. 
+Proxalys FinTech supporting informal retailers through digital credit and tools. 
+Lyfplus Source material reports 3,600 hospital appointments processed monthly. 
+Pharmaserv Source material reports operations across five countries. 
+Moja Ride Source material reports 1.3 million transport tickets digitised in one quarter. 
+ 
+VERIFY All company-specific outcomes above come from Telecel ASIP Story 4 and require current 
+founder/source validation, reporting period and permission before publication. 
+ 
+ 
+
+--- PAGE 14 ---
+   
+ Page 14 of 24 
+ 
+                                                                                                 TG       
+ 
+09 
+Impact 
+Use proof as evidence of founder progress, never as decoration 
+HERO 
+Proof, not promises. 
+ASIP’s impact is measured in what founders build through and beyond the programme: stronger 
+companies, new markets, partnerships, investment readiness, jobs and technology used in the real world. 
+CTA Explore founder outcomes 
+ 
+Core proof points 
+PROOF POINT PUBLIC COPY CONTROL 
+10,000+ Applications received from founders. VERIFY current cut-off and reporting period. 
+50+ Countries represented through applications. Do not label as portfolio presence. 
+40+ Startups supported. VERIFY official portfolio definition. 
+70% Women-led startups. VERIFY denominator / definition. 
+$50M+ Combined valuation of the five highest-valued 
+portfolio companies. 
+Strong investor signal from Telecel ASIP Story 4. VERIFY 
+date, valuation basis and permission before publish. 
+ 
+Impact lenses 
+LENS PUBLIC FRAMING EVIDENCE REQUIRED 
+Pipeline How widely founder interest reaches across 
+African markets. 
+Applications, countries, sectors, selection period. 
+Inclusion Who is building and where opportunity is 
+reaching. 
+Women-led definition, founder data, geography, 
+date. 
+Business growth How companies progress through and 
+beyond ASIP. 
+Funding, revenue, customers, markets, survival/status. 
+Commercialisation Where products become pilots, customers or 
+partnerships. 
+Named proof-of-concepts, contracts, partner 
+confirmation. 
+Jobs & capability How founder growth creates work and builds 
+skills. 
+Jobs methodology, founder/team data, mentor 
+records. 
+Real-world use How portfolio products are used in sectors 
+such as health, finance, mobility or education. 
+Company-level users, transactions, patients, tickets, 
+schools or equivalent. 
+Case study template 
+CASE STUDY HEADLINE 
+From a real problem to measurable progress. 
+Open with the founder problem. Show the company’s response. State the specific ASIP contribution. Close 
+on a verified outcome with a date, source and context. Avoid claiming causality where ASIP cannot prove 
+it. 
+EVIDENCE RULE Every material number must have a source, measurement period, owner, status and next review 
+date in the CMS or evidence tracker. If the evidence is not ready, the number does not go live. 
+
+--- PAGE 15 ---
+   
+ Page 15 of 24 
+ 
+                                                                                                 TG       
+ 
+10 
+Investors & Partners 
+A commercially credible route for portfolio discovery, current activity and practical collaboration 
+HERO 
+Find the founders. Understand the opportunity. 
+Explore the portfolio, sectors and markets represented across ASIP, follow current and upcoming 
+programme activity, and speak with us about relevant investment, technology and commercial 
+collaboration. 
+CTA Explore the portfolio   |   Discuss collaboration 
+ 
+Investor pathway 
+FOR INVESTORS 
+Built for informed engagement. 
+Start with the companies, sectors and markets. Then go deeper into verified founder outcomes, current 
+programme activity and relevant introductions where founder consent and fit allow. 
+CTA View founder portfolio   |   See current activity 
+ 
+QUESTION WEBSITE ANSWER 
+What quality is in the portfolio? Show featured founders, verified outcomes and source-backed proof, not generic 
+claims. 
+Which sectors and markets? Use filters and the verified footprint map. Separate application reach from portfolio 
+presence. 
+What is happening now? Keep 2026 AI Advantage and current/upcoming programme activity visible. 
+How can I engage? Use a direct investor/partner contact route. Introductions and non-public information 
+remain subject to founder consent and confidentiality. 
+ 
+Partner contribution model 
+PARTNER TYPE VALUE TO FOUNDERS 
+Investors Relevant portfolio discovery, founder introductions and investment-readiness dialogue. 
+Technology partners Technical expertise, tools, platforms, credits or specialist mentoring where available. 
+Corporates Real business challenges, pilot pathways, customers and commercial partnerships. 
+Development / public 
+sector 
+Country initiatives, founder programmes, grants, inclusion and impact collaboration. 
+Mentors / operators Practical operating experience founders can apply immediately. 
+Media / ecosystem Credible founder visibility, events, research and access to wider communities. 
+ 
+
+--- PAGE 16 ---
+   
+ Page 16 of 24 
+ 
+                                                                                                 TG       
+ 
+Partner proof 
+PUBLIC COPY 
+An ecosystem built around founder progress. 
+ASIP has worked with ecosystem partners including Startupbootcamp AfriTech, AWS, Google, Microsoft, 
+IBM, FMO, the United Nations and VC4A. Show only partners whose current or historical status and logo 
+permissions have been cleared. 
+PARTNER ROSTER Government of Senegal can be included only after the 
+official entity / ministry / agency name and publication 
+permission are confirmed. Do not publish an 
+approximate title. 
+ 
+11 
+Insights & Current Activity 
+Keep the site alive with useful content, not empty editorial categories 
+HERO 
+From the people building. 
+Founder stories, portfolio milestones and programme updates from across ASIP. Keep the emphasis on what 
+changed, what was built and what matters now. 
+CTA Explore insights 
+ 
+Launch categories 
+CATEGORY PURPOSE RULE 
+Founder & Portfolio Stories Human, evidence-led stories and verified company 
+milestones. 
+Combine founder stories and 
+portfolio news until volume justifies 
+separate categories. 
+Programme Updates Cohort status, AI Advantage activity, events and 
+application updates. 
+Current information only. Date every 
+update clearly. 
+ 
+HIDE UNTIL POPULATED Founder Resources, Partner Perspectives and any other 
+editorial category remain hidden until real content 
+exists. No empty filters or “coming soon” pages. 
+ 
+Updates sign-up 
+CONDITIONAL 
+Stay close to what’s next. 
+Receive confirmed ASIP programme updates, founder stories and relevant ecosystem opportunities. 
+CTA Register for updates 
+ 
+Activate email capture only when privacy wording, routing, storage and owner are confirmed. 
+ 
+
+--- PAGE 17 ---
+   
+ Page 17 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+12 
+Register Interest / Apply 
+One form framework, two controlled states, no ambiguity about application status 
+Default state: Register Interest 
+AI NEXT COHORT 
+Your next build could start here. 
+Applications are not currently open. Register your interest in the AI Next Cohort to receive confirmed dates, 
+eligibility criteria and application details when announced. 
+CTA Register interest 
+ 
+Register Interest fields 
+GROUP FIELDS 
+Founder Name • Role • Email • Phone/WhatsApp • Country • LinkedIn (optional) 
+Company Startup / company name • Website (optional) • Company country • Sector 
+Consent Privacy / data-use consent • Communications preference 
+ 
+IMPORTANT Do not ask for revenue, funding, users, detailed traction or long-form application answers at 
+Register Interest stage. Registrations do not automatically become applications. 
+ 
+Conditional state: Applications Open 
+CONDITIONAL 
+Ready to build the AI Advantage? 
+Applications are now open for the published cohort. Review the criteria before starting, then tell us what 
+you are building, why it matters and where you need to grow. 
+CTA View criteria   |   Start application 
+ 
+Application journey 
+STEP PUBLIC COPY 
+1. Check the criteria Review the published cohort focus, stage, geography and participation requirements. 
+2. Tell us what you are 
+building 
+Share the team, problem, product, traction, market and growth priorities. 
+3. Initial review Eligible applications are assessed against the published selection framework. 
+4. Founder 
+conversations 
+Shortlisted teams may be invited to interviews, diligence or a selection session. 
+5. Final selection Selected founders receive written programme terms, timetable and participation requirements. 
+6. Onboarding The programme begins with clear goals, baseline priorities and a structured support plan. 
+ 
+
+--- PAGE 18 ---
+   
+ Page 18 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+TOGGLE CONTROL The Register Interest / Apply state is a manual CMS switch controlled by Telecel. Never 
+schedule an automatic opening based on an unconfirmed date. 
+ 
+13 
+Contact & FAQ 
+Route questions quickly and remove operational language from the public experience 
+CONTACT HERO 
+Start with the right conversation. 
+Choose the route that best matches what you need. 
+CTA Founder enquiry   |   Investor / partner enquiry   |   Media enquiry 
+ 
+ROUTE MICROCOPY 
+Founder enquiry Eligibility, cohort status, applications or founder support. 
+Investor / partner enquiry Portfolio, current activity, technology, investment or commercial collaboration. 
+Media enquiry Approved data, founder stories, interviews, imagery or programme information. 
+General enquiry Use when none of the defined routes applies. 
+ 
+FAQ master copy 
+QUESTION FINAL PUBLIC ANSWER 
+What is ASIP? ASIP is Telecel Group’s Africa Startup Initiative Program, launched in 2019 to help ambitious 
+technology founders build stronger companies through structured development, market 
+access and an ecosystem of mentors, investors and partners. 
+What is “Building the AI 
+Advantage”? 
+It is the 2026 programme direction, focused on founders applying AI to practical business 
+challenges and measurable growth. Cohort details are published only when formally 
+confirmed. 
+Who can apply? Eligibility varies by cohort. ASIP generally looks for committed founders, a technology-led 
+solution, evidence of a real market need and credible potential to scale in African markets. 
+Are applications open? Not unless the website explicitly shows an open application state. If applications are closed, 
+register your interest to receive confirmed dates, criteria and application details. 
+Does ASIP invest in every 
+startup? 
+No. Participation in ASIP does not guarantee investment. Any investment discussion is subject 
+to separate evaluation, terms and decision-making. 
+Is the programme virtual or in 
+person? 
+Format varies by cohort. The confirmed delivery format, locations and timetable are 
+published with the cohort details. 
+Which sectors does ASIP 
+support? 
+ASIP has supported technology ventures across sectors including FinTech, HealthTech, 
+AgriTech, InsurTech, EdTech, CleanTech, eCommerce and related technology-enabled 
+fields. Cohort-specific priorities may vary. 
+What does Telecel Group 
+contribute? 
+Telecel Group provides programme backing and access to relevant market context, 
+expertise and relationships. Specific support varies by cohort and by founder need. 
+Can investors access the 
+portfolio? 
+Yes. Public founder profiles can be explored on the website. Relevant introductions or non-
+public information are subject to founder consent, confidentiality and applicable process. 
+
+--- PAGE 19 ---
+   
+ Page 19 of 24 
+ 
+                                                                                                 TG       
+QUESTION FINAL PUBLIC ANSWER 
+How can organisations work 
+with ASIP? 
+Organisations can contribute through technology, expertise, market access, pilots, 
+commercial collaboration, investment dialogue, founder visibility or other relevant ecosystem 
+roles. 
+How is impact verified? Material public claims are reviewed against a named source, reporting period and owner 
+before publication. Metrics that cannot be substantiated are not published. 
+ 
+14 
+SEO, Metadata & Discovery Copy 
+Search-ready copy without turning the site into a keyword brochure 
+PAGE META TITLE META DESCRIPTION 
+Home ASIP | African Founders, AI & Startup Growth Explore ASIP, Telecel Group’s founder programme for African 
+technology ventures, with practical expertise, market access, 
+portfolio proof and 2026 AI activity. 
+About About ASIP | Founder Programme by Telecel 
+Group 
+Discover ASIP’s 2019 origin, founder-first purpose and journey 
+supporting technology ventures across African markets. 
+Programme ASIP Programme | Building the AI Advantage See how ASIP works, what founders gain, the 2026 AI direction, 
+eligibility guidance and current application status. 
+Founders ASIP Founders | Portfolio by Sector & Market Explore ASIP founders and startups by country, sector and cohort, 
+with verified company stories and outcomes. 
+Impact ASIP Impact | Verified Founder Outcomes Explore evidence-led ASIP outcomes across company growth, 
+markets, partnerships, jobs and real-world technology use. 
+Partners ASIP Investors & Partners | Portfolio & 
+Collaboration 
+Explore ASIP’s founder portfolio, ecosystem partners, current 
+activity and routes for investment, technology and commercial 
+collaboration. 
+Insights ASIP Insights | Founder Stories & Programme 
+Updates 
+Read founder and portfolio stories, verified milestones and current 
+ASIP programme updates. 
+Register Interest Register Interest | ASIP AI Next Cohort Register interest in the next ASIP cohort and receive confirmed 
+eligibility, dates and application information when announced. 
+ 
+SEO copy rules 
+• Keep page titles specific and human. Do not stuff “Africa”, “startup”, “accelerator” or “AI” into every heading. 
+• Founder and article content must remain searchable HTML, not text embedded inside images. 
+• Use descriptive alt text for real founder/product imagery. Do not write promotional alt text. 
+• Maintain clean URLs, editable social-sharing fields and redirects from relevant legacy URLs. 
+• Templates may remain localisation-ready, but do not populate additional languages unless separately 
+approved. 
+ 
+
+--- PAGE 20 ---
+   
+ Page 20 of 24 
+ 
+                                                                                                 TG       
+ 
+15 
+CMS Content Model & Evidence Fields 
+Build the content system so Telecel can keep the site current without copy drift 
+CONTENT TYPE MINIMUM FIELDS 
+Founder / startup Founder name • company • country • sector • cohort/year • status • website/social • one-line 
+proposition • approved media 
+Founder story Problem • founder insight • solution • ASIP role • key turning point • current outcome • approved quote 
+Cohort / year Year • public label • status • dates when confirmed • partners • selected founders • summary • events 
+• media 
+Current activity Title • date • audience • status • related founder/cohort • CTA • source • expiry/review date 
+Impact metric Claim • value • unit • period • geography • source • methodology • owner • status • permission • last 
+verified 
+Partner Name • organisation • type • role/contribution • current/historical status • logo permission • link 
+Article / case study Title • author • date • category • related founder/cohort • sources • media • SEO fields 
+ 
+Mandatory evidence fields 
+FIELD DEFINITION 
+Evidence ID Unique reference for every material public claim or number. 
+Primary source Report, database, partner confirmation, portfolio record or other supporting evidence. 
+Measurement period Date or period represented by the claim. 
+Owner Role accountable for factual accuracy. 
+Status Verified • pending • outdated • disputed • not for publication. 
+Last verified Date the evidence was last checked. 
+Permission Public • internal only • partner approval required • legal/privacy review required. 
+Review date Next mandatory revalidation date. 
+ 
+ 
+
+--- PAGE 21 ---
+   
+ Page 21 of 24 
+ 
+                                                                                                 TG       
+16 
+2025, 2026 & Sensitive Narrative Controls 
+Protect the current story from factual, legal or programme-governance drift 
+AREA LOCKED TREATMENT SUPPLIER RULE 
+2019 origin Barcelona launch may be referenced as ASIP’s 
+starting point. 
+Use only validated dates and approved archive 
+imagery. 
+2025 Portfolio Support Year: continued founder 
+relationships, portfolio support and preparation for 
+the next phase. 
+Do not imply a new 2025 cohort. 
+2026 Building the AI Advantage is the current public 
+direction. 
+Do not imply applications are open, dates are 
+confirmed or specific benefits are guaranteed unless 
+formally supplied. 
+AI Next Cohort Use as the founder route / cohort reference in this 
+pack. 
+If the official cohort name changes, update globally 
+before launch. 
+Seven Years of Impact May describe the journey since 2019. Do not write “seven years of continuous programme 
+delivery”. 
+Alumni Network Conditional. Keep hidden until the public proposition and 
+operating model are approved. 
+Leadership message Conditional. Do not publish placeholder names, titles, quotes or 
+approval references. 
+AI accelerator / fund Internal strategic material unless separately 
+approved. 
+Do not publish fund size, returns, LP structure or related 
+investment claims. 
+Bloomberg Separate commercial/media deliverable. Do not imply endorsement, ranking, placement or 
+partnership beyond the exact verified public 
+deliverable. 
+Partner logos Current or approved historical partners only. Do not infer status or logo rights from old decks. 
+Metrics Evidence-backed figures only. VERIFY before publication and show correct reporting 
+context. 
+ 
+ 
+
+--- PAGE 22 ---
+   
+ Page 22 of 24 
+ 
+                                                                                                 TG       
+17 
+Final Implementation Map 
+One source of truth for what goes where 
+PAGE / MODULE LOCKED H1 / LABEL PRIMARY ACTION 
+Home hero African founders. Real solutions. Impact that scales. I’m a Founder / I’m an 
+Investor 
+Home 2026 Building the AI Advantage Explore the AI Next 
+Cohort / See 2026 
+activity 
+Home founder Build what comes next. Explore the founder 
+journey 
+Home investor See what is being built. Explore the portfolio / 
+View current activity 
+Home stories Built from first-hand insight. Meet the founders 
+Home impact Proof lives in what founders build next. See the impact 
+About Started in 2019. Still building. Explore the journey 
+Programme Build the company, not just the pitch. Register interest / 
+Explore founders 
+Founders Meet the people building what comes next. Explore the portfolio 
+Impact Proof, not promises. Explore founder 
+outcomes 
+Partners Find the founders. Understand the opportunity. Explore the portfolio / 
+Discuss collaboration 
+Insights From the people building. Explore insights 
+Register Interest Your next build could start here. Register interest 
+Contact Start with the right conversation. Founder / Investor-
+partner / Media 
+enquiry 
+ 
+DESIGN HANDOFF The Final Design & Audience Experience Brief governs visual hierarchy, motion, responsive 
+behaviour, pathway treatment and the Antler benchmark principles. This v2 pack supplies 
+the words and content logic that must sit inside that system. 
+ 
+ 
+
+--- PAGE 23 ---
+   
+ Page 23 of 24 
+ 
+                                                                                                 TG       
+ 
+18 
+Final Copy & Publication Checklist 
+The site is ready only when every item below passes 
+☐ Founder and Investor are the two primary hero pathways on desktop and mobile. 
+☐ A founder can answer within five seconds: what is happening now, what is in it for me, and where do I go 
+next? 
+☐ An investor can answer within five seconds: what quality is in the portfolio, what is happening now, and how do 
+I engage? 
+☐ Building the AI Advantage appears in the first meaningful scroll and is not buried below historical content. 
+☐ No homepage module relies on a long paragraph to explain itself. 
+☐ All CTA labels match this pack and lead to a working destination. 
+☐ “Apply” appears only when the application state is formally open. 
+☐ Application reach and portfolio presence are never presented as the same thing. 
+☐ All metrics have source, period, definition and clearance before publication. 
+☐ Partner status and logo permissions are confirmed before logos go live. 
+☐ No startup outcome, valuation or fundraising status is inferred or generated by AI. 
+☐ 2025 is presented as a Portfolio Support Year, not a cohort year. 
+☐ 2026 wording reflects Building the AI Advantage and the current AI Next Cohort direction. 
+☐ No internal stakeholder names, approval notes, meeting language or supplier notes appear publicly. 
+☐ No empty Insights categories, placeholder stories, duplicated FAQs or dormant forms remain. 
+☐ British English is consistent across running copy, with “Program” retained only in the approved logo lock-up. 
+☐ “Connect”, “connected” and “connecting” are not repeated as generic filler. “Connecting Energies” appears 
+only as an intentional brand reference. 
+☐ Founder profiles use authentic approved imagery and verified one-line propositions. 
+☐ Investor copy is commercial and factual, not philanthropic, and does not imply guaranteed access or 
+investment. 
+☐ Privacy, consent, contact routing and data-storage language are confirmed before forms go live. 
+☐ All pages have final metadata, alt text, mobile line breaks and no clipped or hidden copy. 
+☐ The site has been reviewed against the final design brief and screenshot audit before sign-off. 
+ 
+
+--- PAGE 24 ---
+   
+ Page 24 of 24 
+ 
+                                                                                                 TG       
+ 
+ 
+19 
+Source Basis & Validation Boundaries 
+What this v2 pack is grounded in, and where evidence still controls publication 
+SOURCE USE IN V2 
+Steering Committee MarCom 
+Meeting, 03.11.2026 
+Founder/Investor pathways, AI Advantage prominence, reduced text density, audience-first 
+presentation and departure from recurring corporate conventions. 
+Final Design & Audience Experience 
+Brief, 08.11.2026 
+Homepage order, audience intent, copy-density rules, AI Advantage hierarchy, investor 
+pathway and final acceptance criteria. 
+Final Text Pack & Sitemap, 24.08.2026 Approved sitemap base, historical narrative, forms, CMS model, evidence discipline and 
+status-control logic. Superseded where v2 changes copy or hierarchy. 
+Telecel ASIP Story 4 10,000+ applications, 50+ countries, 40+ startups, 70% women-led, named ecosystem 
+partners, selected founder outcomes and $50M+ top-five valuation claim. All remain subject 
+to current validation. 
+ASIP Profile / legacy website archive 2019 foundation, historical programme framing and archive reference. 
+ASIP 2026 concept note Founder-first direction, Seven Years of Impact narrative and ecosystem framing. 
+Unapproved launch commitments remain conditional. 
+Telecel Message & Communication 
+Guidance 2023 
+Telecel innovation, entrepreneurship, African legacy and Connecting Energies alignment. 
+Telecel Branding Book Brand identity, corporate palette, typography and logo discipline. 
+ 
+KNOWN BOUNDARY This pack locks website-level copy and content architecture. It does not replace 
+final portfolio records, founder permissions, partner permissions, legal/privacy 
+clearance or programme confirmation. Where a fact depends on those records, 
+the wording is locked but publication remains conditional on evidence. 
+ 
+END OF FINAL TEXT PACK v2.0 
+CONFIDENTIAL • TELECEL GROUP / SUPPLIER WORKING DOCUMENT 

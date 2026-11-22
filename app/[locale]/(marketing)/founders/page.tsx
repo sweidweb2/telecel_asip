@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { MarketingPageFallback } from "@/components/marketing/marketing-page-fallback";
 import { PortfolioPageContent } from "@/components/marketing/portfolio-page-content";
 import { RouteSkeleton } from "@/components/skeleton/route-skeleton";
+import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
 import {
   getActiveStartupFilterOptions,
@@ -60,7 +61,7 @@ function FoundersFallback() {
   );
 }
 
-function foundersHref(locale: string, query: RawSearchParams, seed: number) {
+function foundersHref(locale: Locale, query: RawSearchParams, seed: number) {
   const params = new URLSearchParams();
   const page = firstSearchParam(query.page);
   const cohort = firstSearchParam(query.cohort);

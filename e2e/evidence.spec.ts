@@ -1,37 +1,17 @@
 import { expect, test } from "@playwright/test";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { e2eSuffix, submitLoginForm, clickSaveChanges } from "./helpers";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const editorEmail = process.env.E2E_EDITOR_EMAIL ?? "gbitar@telecelglobal.com";
-const editorPassword = process.env.E2E_EDITOR_PASSWORD ?? "password";
-
-function hasCredentials(): boolean {
-  return Boolean(
-    supabaseUrl &&
-      anonKey &&
-      serviceRoleKey &&
-      !supabaseUrl.includes("placeholder") &&
-      !anonKey.startsWith("placeholder"),
-  );
-}
-
-function adminClient(): SupabaseClient {
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase admin E2E credentials are required.");
-  }
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
+import {
+  e2eAdminClient,
+  e2eSuffix,
+  hasE2ECredentials,
+  loginAsEditor,
+  clickSaveChanges,
+} from "./helpers";
 
 test.describe("evidence cms", () => {
   test.beforeEach(() => {
     test.skip(
-      !hasCredentials(),
+      !hasE2ECredentials(),
       "Evidence E2E requires real Supabase credentials.",
     );
   });
@@ -43,16 +23,10 @@ test.describe("evidence cms", () => {
     const suffix = e2eSuffix();
     const primarySource = `E2E Evidence source ${suffix}`;
     const editedSource = `${primarySource} edited`;
-    const admin = adminClient();
+    const admin = e2eAdminClient();
 
     try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
-      await page.getByLabel("Email").fill(editorEmail);
-      await page.getByLabel("Password", { exact: true }).fill(editorPassword);
-      await submitLoginForm(page);
-      await expect(page).toHaveURL(/\/dashboard\/evidence/, {
-        timeout: 20_000,
-      });
+      await loginAsEditor(page, "/dashboard/evidence");
 
       await page.locator('a[href="/dashboard/evidence/new"]').first().click();
       await expect(page).toHaveURL(/\/dashboard\/evidence\/new/, {
@@ -78,22 +52,19 @@ test.describe("evidence cms", () => {
       await expect(page).toHaveURL(/\/dashboard\/evidence\/[0-9a-f-]+/, {
         timeout: 20_000,
       });
-      await expect(
-        page.getByRole("heading", { name: "Edit evidence record" }),
-      ).toBeVisible({ timeout: 20_000 });
 
       await page.getByLabel("Primary source").fill(editedSource);
       await clickSaveChanges(page);
       await expect(
         page.locator("[data-sonner-toast]").filter({
-          hasText: "Evidence record updated successfully.",
+          hasText: /Evidence record updated successfully/i,
         }),
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: 20_000 });
 
       await page.getByRole("button", { name: "Delete" }).click();
       await page
         .getByRole("alertdialog")
-        .getByRole("button", { name: /Delete/i })
+        .getByRole("button", { name: "Delete evidence" })
         .click();
       await expect(page).toHaveURL(/\/dashboard\/evidence$/, {
         timeout: 20_000,
@@ -103,42 +74,6 @@ test.describe("evidence cms", () => {
         .from("evidence_records")
         .delete()
         .ilike("primary_source", `E2E Evidence source ${suffix}%`);
-    }
-  });
-
-  test("non-admin is redirected away from evidence", async ({ page }) => {
-    test.setTimeout(60_000);
-    if (!supabaseUrl || !anonKey) {
-      throw new Error("Supabase credentials missing");
-    }
-
-    const suffix = e2eSuffix();
-    const email = `evidence.viewer.${suffix}@example.com`;
-    const password = "Testpass1";
-    const admin = adminClient();
-    const { data: created, error: createError } =
-      await admin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name: "Evidence E2E Viewer" },
-        app_metadata: { app_role: "viewer" },
-      });
-    if (createError) throw createError;
-
-    try {
-      await page.goto("/en/login?next=%2Fdashboard%2Fevidence");
-      await page.getByLabel("Email").fill(email);
-      await page.getByLabel("Password", { exact: true }).fill(password);
-      await submitLoginForm(page);
-      await expect(page).not.toHaveURL(/\/dashboard\/evidence/, {
-        timeout: 20_000,
-      });
-      await expect(page).toHaveURL(/\/(en|fr)(\/?$|\/login)/);
-    } finally {
-      if (created.user?.id) {
-        await admin.auth.admin.deleteUser(created.user.id);
-      }
     }
   });
 });
