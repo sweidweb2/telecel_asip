@@ -1,18 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { update, eq, createClient } = vi.hoisted(() => {
-  const eq = vi.fn(() => ({ error: null as { message: string } | null }));
-  const update = vi.fn(() => ({ eq }));
-  const from = vi.fn(() => ({ update }));
-  const createClient = vi.fn(async () => ({ from }));
-  return { update, eq, createClient };
-});
-
-vi.mock("@/lib/supabase/server", () => ({ createClient }));
-
 import { applyGoogleSignupAccountType } from "@/actions/auth-callback";
 
 describe("applyGoogleSignupAccountType", () => {
+  const update = vi.fn();
+  const eq = vi.fn(() => ({ error: null as { message: string } | null }));
+  const supabase = {
+    from: vi.fn(() => ({
+      update: (...args: unknown[]) => {
+        update(...args);
+        return { eq };
+      },
+    })),
+  };
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-11-25T12:00:00.000Z"));
@@ -26,6 +27,7 @@ describe("applyGoogleSignupAccountType", () => {
 
   it("updates recent viewer profiles when type differs", async () => {
     await applyGoogleSignupAccountType({
+      supabase: supabase as never,
       userId: "u1",
       accountType: "startup",
       profile: {
@@ -41,6 +43,7 @@ describe("applyGoogleSignupAccountType", () => {
 
   it("skips non-viewer, admin type, same type, and old profiles", async () => {
     await applyGoogleSignupAccountType({
+      supabase: supabase as never,
       userId: "u1",
       accountType: "startup",
       profile: {
@@ -50,6 +53,7 @@ describe("applyGoogleSignupAccountType", () => {
       },
     });
     await applyGoogleSignupAccountType({
+      supabase: supabase as never,
       userId: "u1",
       accountType: "startup",
       profile: {
@@ -59,6 +63,7 @@ describe("applyGoogleSignupAccountType", () => {
       },
     });
     await applyGoogleSignupAccountType({
+      supabase: supabase as never,
       userId: "u1",
       accountType: "startup",
       profile: {
@@ -68,6 +73,7 @@ describe("applyGoogleSignupAccountType", () => {
       },
     });
     await applyGoogleSignupAccountType({
+      supabase: supabase as never,
       userId: "u1",
       accountType: "startup",
       profile: {
@@ -78,6 +84,5 @@ describe("applyGoogleSignupAccountType", () => {
     });
 
     expect(update).not.toHaveBeenCalled();
-    expect(createClient).not.toHaveBeenCalled();
   });
 });

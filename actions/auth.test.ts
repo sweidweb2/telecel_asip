@@ -151,61 +151,14 @@ describe("auth actions", () => {
     }
   });
 
-  it("starts Google OAuth with the safe destination and locale", async () => {
-    const signInWithOAuth = vi.fn().mockResolvedValue({
-      data: { url: "https://accounts.google.com/oauth" },
-      error: null,
+  it("rejects Google OAuth while the provider is temporarily disabled", async () => {
+    const result = await signInWithGoogle("/dashboard/users");
+    expect(result).toEqual({
+      status: "error",
+      message:
+        "Google sign-in is temporarily unavailable. Use email and password.",
     });
-    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
-
-    await expect(signInWithGoogle("/dashboard/users")).resolves.toEqual({
-      status: "success",
-      redirectTo: "https://accounts.google.com/oauth",
-    });
-    expect(signInWithOAuth).toHaveBeenCalledWith({
-      provider: "google",
-      options: {
-        redirectTo:
-          "http://localhost:3000/auth/callback?next=%2Fdashboard%2Fusers&locale=en",
-      },
-    });
-  });
-
-  it("forwards signup account_type on the Google OAuth callback URL", async () => {
-    const signInWithOAuth = vi.fn().mockResolvedValue({
-      data: { url: "https://accounts.google.com/oauth" },
-      error: null,
-    });
-    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
-
-    await signInWithGoogle("/en/apply", "investor");
-
-    expect(signInWithOAuth).toHaveBeenCalledWith({
-      provider: "google",
-      options: {
-        redirectTo:
-          "http://localhost:3000/auth/callback?next=%2Fen%2Fapply&locale=en&account_type=investor",
-      },
-    });
-  });
-
-  it("does not forward an external Google OAuth destination", async () => {
-    const signInWithOAuth = vi.fn().mockResolvedValue({
-      data: { url: "https://accounts.google.com/oauth" },
-      error: null,
-    });
-    createClient.mockResolvedValue({ auth: { signInWithOAuth } });
-
-    await signInWithGoogle("//evil.example");
-
-    expect(signInWithOAuth).toHaveBeenCalledWith(
-      expect.objectContaining({
-        options: {
-          redirectTo:
-            "http://localhost:3000/auth/callback?next=%2Fen&locale=en",
-        },
-      }),
-    );
+    expect(createClient).not.toHaveBeenCalled();
   });
 
   it("signs out locally and redirects to login", async () => {

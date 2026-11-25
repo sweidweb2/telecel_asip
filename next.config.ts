@@ -74,6 +74,12 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  /**
+   * Google OAuth / Site URL often bounce through `127.0.0.1` while the app
+   * was opened on `localhost` (or the reverse). Without this, Next 16 blocks
+   * `/_next` chunks cross-origin and the navbar/buttons go dead after login.
+   */
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   experimental: {
     serverActions: {
       /** Raw request body. Matches the 10 MB upload ceiling in `constants/upload.ts`. */

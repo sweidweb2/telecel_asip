@@ -190,41 +190,22 @@ export async function signIn(
   };
 }
 
+/**
+ * Google OAuth is temporarily disabled in the UI.
+ * Kept as a hard no-op so accidental callers fail closed.
+ */
 export async function signInWithGoogle(
-  redirectTo?: string,
-  accountType?: RegisterAccountType,
+  _redirectTo?: string,
+  _accountType?: RegisterAccountType,
 ): Promise<AuthActionResult> {
   const locale = await getRequestLocale();
-  const copy = authActionMessagesFor(locale);
-  const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const callbackUrl = new URL("/auth/callback", siteUrl);
-
-  callbackUrl.searchParams.set(
-    "next",
-    safeRedirectPath(redirectTo, publicPath(locale, "")),
-  );
-  callbackUrl.searchParams.set("locale", locale);
-  // Signup Google only — login omits this. Callback applies it to new viewer profiles.
-  if (accountType === "startup" || accountType === "investor") {
-    callbackUrl.searchParams.set("account_type", accountType);
-  }
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: callbackUrl.toString(),
-    },
-  });
-
-  if (error || !data.url) {
-    if (error) {
-      console.error("[auth] Google OAuth failed", error);
-    }
-    return { status: "error", message: copy.genericError };
-  }
-
-  return { status: "success", redirectTo: data.url };
+  return {
+    status: "error",
+    message:
+      locale === "fr"
+        ? "La connexion Google est temporairement indisponible. Utilisez e-mail et mot de passe."
+        : "Google sign-in is temporarily unavailable. Use email and password.",
+  };
 }
 
 export async function signOut(): Promise<void> {

@@ -12,7 +12,7 @@ const refresh = vi.hoisted(() => vi.fn());
 const toastError = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
 
-vi.mock("@/actions/auth", () => ({ signIn, signInWithGoogle: vi.fn() }));
+vi.mock("@/actions/auth", () => ({ signIn }));
 
 
 vi.mock("nextjs-toploader/app", () => ({

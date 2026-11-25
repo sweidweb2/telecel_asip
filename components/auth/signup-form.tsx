@@ -4,14 +4,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useTransition } from "react";
-import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signUp } from "@/actions/auth";
 import type { SignupLabels } from "@/constants/auth-labels";
-import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,8 +53,6 @@ export function SignupForm({
     },
   });
 
-  const accountType = useWatch({ control, name: "type" }) ?? "startup";
-
   function onSubmit(values: RegisterInput) {
     if (isPending) return;
     startTransition(async () => {
@@ -81,7 +78,11 @@ export function SignupForm({
           : loginBase;
         router.push(loginHref);
       } catch {
-        toast.error(labels.googleError);
+        toast.error(
+          locale === "fr"
+            ? "Une erreur s’est produite. Veuillez réessayer."
+            : "Something went wrong. Please try again.",
+        );
       }
     });
   }
@@ -132,18 +133,6 @@ export function SignupForm({
         {errors.type ? (
           <p className="text-sm text-destructive">{errors.type.message}</p>
         ) : null}
-      </div>
-      <GoogleAuthButton
-        label={labels.googleLabel}
-        loadingLabel={labels.googleLoadingLabel}
-        errorMessage={labels.googleError}
-        redirectTo={redirectTo}
-        accountType={accountType}
-      />
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-border" />
-        <span>{labels.dividerLabel}</span>
-        <span className="h-px flex-1 bg-border" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="fullName">{labels.nameLabel}</Label>

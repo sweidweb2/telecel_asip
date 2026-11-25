@@ -1,6 +1,6 @@
-"use server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database";
 import type { ProfileType } from "@/types/profile";
 import type { RegisterAccountType } from "@/validations/auth";
 
@@ -15,14 +15,16 @@ type AuthCallbackProfileSlice = {
 
 /**
  * Apply Google signup `account_type` to brand-new viewer profiles only.
- * Call after `exchangeCodeForSession` so the session is on the cookie store.
+ * Route-handler helper — takes the same Supabase client that exchanged the
+ * OAuth code so the session stays visible.
  */
 export async function applyGoogleSignupAccountType(options: {
+  supabase: SupabaseClient<Database>;
   userId: string;
   accountType: RegisterAccountType;
   profile: AuthCallbackProfileSlice;
 }): Promise<void> {
-  const { userId, accountType, profile } = options;
+  const { supabase, userId, accountType, profile } = options;
 
   if (
     profile.role !== "viewer" ||
@@ -38,7 +40,6 @@ export async function applyGoogleSignupAccountType(options: {
     Date.now() - createdAt < NEW_PROFILE_WINDOW_MS;
   if (!isRecent) return;
 
-  const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
     .update({ type: accountType })
