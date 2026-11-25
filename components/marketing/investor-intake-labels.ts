@@ -87,15 +87,15 @@ const STAGE = {
 const TICKET = {
   en: {
     under_50k: "Under $50k",
-    "50k_250k": "$50k–$250k",
-    "250k_1m": "$250k–$1m",
+    "50k_250k": "$50k to $250k",
+    "250k_1m": "$250k to $1m",
     "1m_plus": "$1m+",
     undisclosed: "Prefer not to say",
   },
   fr: {
     under_50k: "Moins de 50 k$",
-    "50k_250k": "50 k$–250 k$",
-    "250k_1m": "250 k$–1 M$",
+    "50k_250k": "50 k$ à 250 k$",
+    "250k_1m": "250 k$ à 1 M$",
     "1m_plus": "1 M$+",
     undisclosed: "Préfère ne pas dire",
   },

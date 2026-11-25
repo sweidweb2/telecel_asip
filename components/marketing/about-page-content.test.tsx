@@ -45,7 +45,7 @@ describe("AboutCeoMessageSection", () => {
       <AboutCeoMessageSection
         message={{
           published: false,
-          imageLabel: "Leadership portrait - to be supplied by Telecel Group",
+          imageLabel: "Leadership portrait, to be supplied by Telecel Group",
         }}
       />,
     );

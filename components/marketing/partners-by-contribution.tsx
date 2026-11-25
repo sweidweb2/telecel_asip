@@ -22,7 +22,7 @@ type PartnersByContributionProps = {
 };
 
 function PartnerMark({ partner }: { partner: PartnerPublicItem }) {
-  const label = partner.org ? `${partner.name} - ${partner.org}` : partner.name;
+  const label = partner.org ? `${partner.name}, ${partner.org}` : partner.name;
   const mark = partner.logo_url ? (
     <Image
       src={partner.logo_url}

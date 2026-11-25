@@ -15,7 +15,7 @@ import type { ActiveStartupFilters } from "@/validations/startup";
 
 const PAGINATION_LABELS = {
   en: {
-    showing: "Showing {from}–{to} of {total}",
+    showing: "Showing {from} to {to} of {total}",
     previous: "Previous",
     next: "Next",
   },

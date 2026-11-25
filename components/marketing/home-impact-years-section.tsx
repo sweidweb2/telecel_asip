@@ -7,6 +7,7 @@ import { AnimatedMetricValue } from "@/components/marketing/animated-metric-valu
 import { LOGO_SPECTRUM } from "@/components/marketing/brand-accents";
 import { SectionEyebrow } from "@/components/marketing/page-elements";
 import type { HomeV2Copy } from "@/constants/home-v2-copy";
+import type { Locale } from "@/constants/locales";
 import { metricPeriod } from "@/lib/marketing/metric-period";
 import { cn } from "@/lib/utils";
 import type { ImpactMetricPublicItem } from "@/types/impact-metric";
@@ -20,6 +21,7 @@ type HomeImpactYearsMetric = Pick<
 };
 
 type HomeImpactYearsSectionProps = {
+  locale: Locale;
   copy: HomeV2Copy["impact"];
   metrics: HomeImpactYearsMetric[];
   className?: string;
@@ -31,6 +33,7 @@ type HomeImpactYearsSectionProps = {
  * on the bottom-right. Cutaway triangle continues the AI section paper + grid.
  */
 export function HomeImpactYearsSection({
+  locale,
   copy,
   metrics,
   className,
@@ -88,7 +91,7 @@ export function HomeImpactYearsSection({
             {metrics.length > 0 ? (
               <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6">
                 {metrics.map((metric, index) => {
-                  const period = metricPeriod(metric);
+                  const period = metricPeriod(metric, locale);
                   return (
                     <li key={metric.id} className="min-w-0">
                       <p className="metric-numeral font-heading text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl">

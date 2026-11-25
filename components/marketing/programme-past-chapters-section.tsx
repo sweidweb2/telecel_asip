@@ -13,14 +13,17 @@ import type { CohortPublicListItem } from "@/types/cohort";
 const PAGE_SIZE = 5;
 const FEATURED_CARD_COUNT = 4;
 
-function formatCohortWindow(cohort: CohortPublicListItem) {
+function formatCohortWindow(
+  cohort: CohortPublicListItem,
+  locale: Locale,
+) {
   if (!cohort.programme_dates_start || !cohort.programme_dates_end) {
     return null;
   }
   try {
     const start = format(parseISO(cohort.programme_dates_start), "MMM yyyy");
     const end = format(parseISO(cohort.programme_dates_end), "MMM yyyy");
-    return `${start} – ${end}`;
+    return locale === "fr" ? `${start} à ${end}` : `${start} to ${end}`;
   } catch {
     return null;
   }
@@ -131,7 +134,7 @@ export function ProgrammePastChaptersSection({
               >
                 <ul className="space-y-0 divide-y divide-asip-ink/12">
                   {pageItems.map((cohort) => {
-                    const window = formatCohortWindow(cohort);
+                    const window = formatCohortWindow(cohort, locale);
                     const isActive = cohort.id === activeId;
                     return (
                       <li key={cohort.id}>
@@ -170,7 +173,7 @@ export function ProgrammePastChaptersSection({
                                 >
                                   {cohort.year}
                                   <span className="font-medium text-asip-ink">
-                                    {" - "}
+                                    {" · "}
                                     {cohort.public_label}
                                   </span>
                                 </span>
@@ -307,7 +310,7 @@ function PastChaptersCards({
       aria-label={label}
     >
       {cohorts.map((cohort, index) => {
-        const window = formatCohortWindow(cohort);
+        const window = formatCohortWindow(cohort, locale);
         const isActive = cohort.id === activeId;
         const body =
           cohort.summary?.trim() ||
@@ -321,7 +324,7 @@ function PastChaptersCards({
             role="listitem"
             onClick={() => onSelect(cohort.id)}
             aria-current={isActive ? "true" : undefined}
-            aria-label={`${cohort.year} - ${cohort.public_label}`}
+            aria-label={`${cohort.year} · ${cohort.public_label}`}
             style={{ zIndex: index + 1 }}
             className={cn(
               "group relative flex h-full min-h-[18rem] w-[8.5rem] shrink-0 flex-col overflow-hidden rounded-2xl bg-white p-4 text-left shadow-[0_12px_28px_-16px_color-mix(in_srgb,var(--asip-ink)_45%,transparent)] transition-[transform,box-shadow,ring-color] duration-300 ease-out sm:min-h-[20rem] sm:w-[9.5rem] sm:p-5 lg:min-h-0 lg:w-[min(10.5rem,28%)]",

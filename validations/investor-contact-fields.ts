@@ -44,7 +44,7 @@ export const INVESTOR_CONTACT_MESSAGES: Record<
     invalidEmail: "Enter a valid email address",
     emailMax: "Email must be at most 254 characters",
     phoneInvalid:
-      "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
+      "Enter a valid phone number (7 to 20 digits; spaces, +, parentheses, or hyphens allowed)",
     organizationMin: "Organization must be at least 2 characters",
     organizationMax: "Organization must be at most 120 characters",
     jobTitleMin: "Job title must be at least 2 characters",
@@ -60,7 +60,7 @@ export const INVESTOR_CONTACT_MESSAGES: Record<
     invalidEmail: "Entrez une adresse e-mail valide",
     emailMax: "L’e-mail doit contenir au plus 254 caractères",
     phoneInvalid:
-      "Entrez un numéro de téléphone valide (7–20 chiffres ; espaces ou +()- autorisés)",
+      "Entrez un numéro de téléphone valide (7 à 20 chiffres ; espaces, +, parenthèses ou tirets autorisés)",
     organizationMin: "L’organisation doit contenir au moins 2 caractères",
     organizationMax: "L’organisation doit contenir au plus 120 caractères",
     jobTitleMin: "Le titre doit contenir au moins 2 caractères",

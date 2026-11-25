@@ -139,14 +139,14 @@ const EN_APPLY: ApplyLabels = {
   pitchHint: "",
   problemLabel: "Problem & product",
   problemPlaceholder: "What problem you solve and what you have built.",
-  problemHint: "40–4000 characters",
+  problemHint: "40 to 4000 characters",
   tractionLabel: "Traction",
   tractionPlaceholder:
     "Users, revenue, funding, pilots, or other proof points.",
-  tractionHint: "20–2000 characters",
+  tractionHint: "20 to 2000 characters",
   fitLabel: "Programme fit",
   fitPlaceholder: "Growth needs and why ASIP now.",
-  fitHint: "20–2000 characters",
+  fitHint: "20 to 2000 characters",
   consentLabel:
     "I agree that ASIP may store and use this information to review my application.",
   commsLabel: "Send me programme updates by email.",
@@ -163,7 +163,7 @@ const EN_APPLY: ApplyLabels = {
 const FR_REGISTER: ApplyLabels = {
   formTitle: "Manifester votre intérêt",
   formDescription:
-    "Présentez brièvement votre profil. L’équipe ASIP s’en sert pour les mises à jour - ce n’est pas une candidature officielle.",
+    "Présentez brièvement votre profil. L’équipe ASIP s’en sert pour les mises à jour. Ce n’est pas une candidature officielle.",
   nameLabel: "Nom du fondateur",
   namePlaceholder: "Votre nom complet",
   roleLabel: "Rôle",
@@ -243,13 +243,13 @@ const FR_APPLY: ApplyLabels = {
   problemLabel: "Problème & produit",
   problemPlaceholder:
     "Le problème que vous résolvez et ce que vous avez construit.",
-  problemHint: "40–4000 caractères",
+  problemHint: "40 à 4000 caractères",
   tractionLabel: "Traction",
   tractionPlaceholder: "Utilisateurs, revenus, financement, pilots…",
-  tractionHint: "20–2000 caractères",
+  tractionHint: "20 à 2000 caractères",
   fitLabel: "Adéquation au programme",
   fitPlaceholder: "Besoins de croissance et pourquoi ASIP maintenant.",
-  fitHint: "20–2000 caractères",
+  fitHint: "20 à 2000 caractères",
   consentLabel:
     "J’accepte qu’ASIP conserve et utilise ces informations pour examiner ma candidature.",
   commsLabel: "Recevoir des mises à jour du programme par e-mail.",

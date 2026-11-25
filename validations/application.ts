@@ -51,7 +51,7 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     invalidEmail: "Enter a valid email address",
     emailMax: "Email must be at most 254 characters",
     phoneInvalid:
-      "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
+      "Enter a valid phone number (7 to 20 digits; spaces, +, parentheses, or hyphens allowed)",
     companyMin: "Startup name must be at least 2 characters",
     companyMax: "Startup name must be at most 120 characters",
     sectorMin: "Sector must be at least 2 characters",
@@ -78,7 +78,7 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     invalidEmail: "Entrez une adresse e-mail valide",
     emailMax: "L’e-mail doit contenir au plus 254 caractères",
     phoneInvalid:
-      "Entrez un numéro de téléphone valide (7–20 chiffres ; espaces ou +()- autorisés)",
+      "Entrez un numéro de téléphone valide (7 à 20 chiffres ; espaces, +, parenthèses ou tirets autorisés)",
     companyMin: "Le nom de la startup doit contenir au moins 2 caractères",
     companyMax: "Le nom de la startup doit contenir au plus 120 caractères",
     sectorMin: "Le secteur doit contenir au moins 2 caractères",

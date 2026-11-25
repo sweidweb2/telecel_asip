@@ -303,7 +303,7 @@ export function StartupDetailPageContent({
                       “{story.quote.text}”
                     </p>
                     <footer className="text-sm text-muted-foreground">
-                      - {story.quote.attribution_name}
+                      {story.quote.attribution_name}
                       {story.quote.attribution_title
                         ? `, ${story.quote.attribution_title}`
                         : null}

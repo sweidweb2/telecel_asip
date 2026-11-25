@@ -36,7 +36,7 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     invalidEmail: "Enter a valid email address",
     emailMax: "Email must be at most 254 characters",
     phoneInvalid:
-      "Enter a valid phone number (7–20 digits, spaces, or +()- allowed)",
+      "Enter a valid phone number (7 to 20 digits; spaces, +, parentheses, or hyphens allowed)",
     subjectMin: "Subject must be at least 2 characters",
     subjectMax: "Subject must be at most 120 characters",
     messageMin: "Message must be at least 20 characters",
@@ -51,7 +51,7 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     invalidEmail: "Entrez une adresse e-mail valide",
     emailMax: "L’e-mail doit contenir au plus 254 caractères",
     phoneInvalid:
-      "Entrez un numéro de téléphone valide (7–20 chiffres ; espaces ou +()- autorisés)",
+      "Entrez un numéro de téléphone valide (7 à 20 chiffres ; espaces, +, parenthèses ou tirets autorisés)",
     subjectMin: "Le sujet doit contenir au moins 2 caractères",
     subjectMax: "Le sujet doit contenir au plus 120 caractères",
     messageMin: "Le message doit contenir au moins 20 caractères",

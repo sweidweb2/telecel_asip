@@ -35,14 +35,14 @@ export async function generateMetadata({
   if (!startup) {
     return {
       title:
-        locale === "fr" ? "Startup introuvable - ASIP" : "Startup not found - ASIP",
+        locale === "fr" ? "Startup introuvable | ASIP" : "Startup not found | ASIP",
     };
   }
 
   return buildMarketingMetadata({
     locale,
     path: `/founders/${slug}`,
-    title: `${startup.name} - ASIP`,
+    title: `${startup.name} | ASIP`,
     description: startup.description,
     image: startup.logo_url || undefined,
   });

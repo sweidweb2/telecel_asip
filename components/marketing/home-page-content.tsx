@@ -81,7 +81,11 @@ export function HomePageContent({
 
       <HomeHero copy={copy.hero} continuumAlts={copy.hero.continuumAlts} />
 
-      <HomeImpactYearsSection copy={copy.impact} metrics={metrics} />
+      <HomeImpactYearsSection
+        locale={locale}
+        copy={copy.impact}
+        metrics={metrics}
+      />
 
       <HomeAiAdvantageSection locale={locale} copy={copy.ai} intake={intake} />
 

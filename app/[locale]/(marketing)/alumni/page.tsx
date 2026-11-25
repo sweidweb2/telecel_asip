@@ -17,7 +17,7 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/alumni",
-          title: "Alumni - ASIP",
+          title: "Alumni | ASIP",
           description:
             "ASIP construit une expérience alumni plus solide, conçue pour garder les fondateurs engagés au-delà du programme formel.",
           noIndex: true,
@@ -25,7 +25,7 @@ export async function generateMetadata({
       : {
           locale,
           path: "/alumni",
-          title: "Alumni - ASIP",
+          title: "Alumni | ASIP",
           description:
             "ASIP is building a stronger alumni experience designed to keep founders engaged beyond the formal programme.",
           noIndex: true,

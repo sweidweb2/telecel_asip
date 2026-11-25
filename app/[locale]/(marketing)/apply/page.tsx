@@ -22,7 +22,7 @@ export async function generateMetadata({
       ? {
           locale,
           path: "/apply",
-          title: "Candidater - ASIP",
+          title: "Candidater | ASIP",
           description:
             "Préparez et présentez le profil de votre entreprise à ASIP.",
           noIndex: !openApplications,
@@ -30,7 +30,7 @@ export async function generateMetadata({
       : {
           locale,
           path: "/apply",
-          title: "Apply - ASIP",
+          title: "Apply | ASIP",
           description: "Prepare and share your ASIP venture profile.",
           // Index only when applications are formally open; closed redirects to Register Interest.
           noIndex: !openApplications,
