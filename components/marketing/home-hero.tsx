@@ -17,26 +17,46 @@ import {
 } from "@/components/marketing/page-elements";
 import { HOME_HERO_CONTINUUM } from "@/constants/home-hero-media";
 import type { HomeV2Copy } from "@/constants/home-v2-copy";
+import type { MarketingAudience } from "@/lib/marketing/role-primary-cta";
 import { cn } from "@/lib/utils";
 
 /** LCP still — 75 is perceptually close at full-bleed and cuts decoder work. */
 const HERO_LCP_QUALITY = 75;
 
-
 type HomeHeroProps = {
   copy: HomeV2Copy["hero"];
   continuumAlts: string[];
+  /** Guest sees both pathways; signed-in audiences get a role-shaped CTA set. */
+  audience?: MarketingAudience;
+  /** Role primary CTA (intake or staff shell). Required when audience !== guest. */
+  primaryCta?: { href: string; label: string };
 };
 
 /**
  * Home Module 01 — Founder Continuum.
- * v2: proposition, one supporting sentence, Founder / Investor routes.
- * The 2026 AI Advantage module sits directly below.
+ * Guest: Startup | Investor. Signed-in: role primary CTA (+ matching pathway).
  */
-export function HomeHero({ copy, continuumAlts }: HomeHeroProps) {
+export function HomeHero({
+  copy,
+  continuumAlts,
+  audience = "guest",
+  primaryCta,
+}: HomeHeroProps) {
   const continuumLabel = continuumAlts[0] ?? copy.title;
   const lcpSlide = HOME_HERO_CONTINUUM[0]!;
   const lastLine = copy.titleLines.length - 1;
+  const showStartup =
+    audience === "guest" || audience === "startup" || audience === "staff";
+  const showInvestor =
+    audience === "guest" || audience === "investor" || audience === "staff";
+  const pathwayPrompt =
+    audience === "guest"
+      ? copy.prompt
+      : audience === "investor"
+        ? copy.investor.label
+        : audience === "startup"
+          ? copy.founder.label
+          : primaryCta?.label ?? copy.prompt;
 
   return (
     <section
@@ -124,33 +144,82 @@ export function HomeHero({ copy, continuumAlts }: HomeHeroProps) {
               id="home-hero-pathways"
               className="mt-6 text-sm font-semibold tracking-[0.14em] text-white/60 uppercase sm:mt-11"
             >
-              {copy.prompt}
+              {pathwayPrompt}
             </p>
-            {/* Founder and Investor are the only two primary hero decisions. */}
-            <MarketingCtaRow className="mt-3.5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3.5">
-              <CoralCtaLink
-                href={`#${copy.founder.hash}`}
-                className={cn(
-                  "group min-h-14 px-3 text-base sm:px-10 sm:text-lg",
-                  coralCtaOnDarkClassName,
-                )}
-              >
-                {copy.founder.label}
-                <ArrowRight
-                  aria-hidden
-                  className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
-                />
-              </CoralCtaLink>
-              <OutlineCtaLink
-                href={`#${copy.investor.hash}`}
-                className="group min-h-14 border-white/55 bg-white/5 px-3 text-base sm:px-10 sm:text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
-              >
-                {copy.investor.label}
-                <ArrowRight
-                  aria-hidden
-                  className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
-                />
-              </OutlineCtaLink>
+            <MarketingCtaRow
+              className={cn(
+                "mt-3.5 sm:flex sm:flex-wrap sm:gap-3.5",
+                audience === "guest"
+                  ? "grid grid-cols-2 gap-2.5"
+                  : "flex flex-col gap-2.5 sm:flex-row",
+              )}
+            >
+              {audience !== "guest" && primaryCta ? (
+                <CoralCtaLink
+                  href={primaryCta.href}
+                  className={cn(
+                    "group min-h-14 px-3 text-base sm:px-10 sm:text-lg",
+                    coralCtaOnDarkClassName,
+                  )}
+                >
+                  {primaryCta.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </CoralCtaLink>
+              ) : null}
+              {showStartup && audience === "guest" ? (
+                <CoralCtaLink
+                  href={`#${copy.founder.hash}`}
+                  className={cn(
+                    "group min-h-14 px-3 text-base sm:px-10 sm:text-lg",
+                    coralCtaOnDarkClassName,
+                  )}
+                >
+                  {copy.founder.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </CoralCtaLink>
+              ) : null}
+              {showInvestor && audience === "guest" ? (
+                <OutlineCtaLink
+                  href={`#${copy.investor.hash}`}
+                  className="group min-h-14 border-white/55 bg-white/5 px-3 text-base sm:px-10 sm:text-lg text-white hover:bg-white hover:text-asip-ink sm:px-10"
+                >
+                  {copy.investor.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </OutlineCtaLink>
+              ) : null}
+              {audience === "startup" ? (
+                <OutlineCtaLink
+                  href={`#${copy.founder.hash}`}
+                  className="group min-h-14 border-white/55 bg-white/5 px-3 text-base sm:px-10 sm:text-lg text-white hover:bg-white hover:text-asip-ink"
+                >
+                  {copy.founder.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </OutlineCtaLink>
+              ) : null}
+              {audience === "investor" ? (
+                <OutlineCtaLink
+                  href={`#${copy.investor.hash}`}
+                  className="group min-h-14 border-white/55 bg-white/5 px-3 text-base sm:px-10 sm:text-lg text-white hover:bg-white hover:text-asip-ink"
+                >
+                  {copy.investor.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </OutlineCtaLink>
+              ) : null}
             </MarketingCtaRow>
           </div>
         </div>

@@ -9,13 +9,14 @@ import { HomeAiAdvantageSection } from "@/components/marketing/home-v2-sections"
 import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 import { programmeCopyFor } from "@/constants/programme-copy";
-import { intakeCtaFor } from "@/lib/marketing/intake-cta";
+import type { IntakeCta } from "@/lib/marketing/intake-cta";
 import type { CohortPublicListItem } from "@/types/cohort";
 
 type ProgrammePageContentProps = {
   locale: Locale;
   cohorts: CohortPublicListItem[];
   openApplications: boolean;
+  intake: IntakeCta;
 };
 
 /**
@@ -26,9 +27,9 @@ export function ProgrammePageContent({
   locale,
   cohorts,
   openApplications,
+  intake,
 }: ProgrammePageContentProps) {
   const copy = programmeCopyFor(locale);
-  const intake = intakeCtaFor(locale, openApplications);
 
   return (
     <main>

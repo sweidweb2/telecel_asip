@@ -26,7 +26,7 @@ export async function generateMetadata({
       : {
           locale,
           path: "/about",
-          title: "About ASIP | Founder Programme by Telecel Group",
+          title: "About ASIP | Founder Program by Telecel Group",
           description:
             "Discover ASIP's 2019 origin, founder-first purpose and journey supporting technology ventures across African markets.",
         },

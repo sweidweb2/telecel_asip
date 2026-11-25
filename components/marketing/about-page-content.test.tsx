@@ -11,19 +11,24 @@ describe("AboutPageContent", () => {
       <AboutPageContent locale="en" copy={marketingCopyFor("en", "about")} />,
     );
 
-    // Text Pack v2 locked About copy.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Started in 2019. Still building." }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Supporting the founders who are shaping Africa’s next chapter.",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/launched in Barcelona/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Telecel Group Program supporting African founders/i)
+        .length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getAllByRole("link", { name: "Explore the portfolio" }).length,
     ).toBeGreaterThan(0);
     for (const name of [
-      "Built around founders who know the problem first-hand.",
+      "Backing founders, building for Africa.",
       "Help ambitious founders build stronger companies.",
       "African technology companies built for local relevance and global scale.",
-      "A Telecel Group programme.",
+      "A Telecel Group Program.",
     ]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }

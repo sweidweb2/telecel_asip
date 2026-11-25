@@ -12,7 +12,7 @@ const en: InsightsPageCopy = {
     eyebrow: "Insights",
     title: "From the people building.",
     description:
-      "Founder stories, portfolio milestones and programme updates from across ASIP. Keep the emphasis on what changed, what was built and what matters now.",
+      "Founder stories, portfolio milestones and program updates from across ASIP. Keep the emphasis on what changed, what was built and what matters now.",
   },
   streams: {
     columns: {
@@ -29,7 +29,7 @@ const en: InsightsPageCopy = {
       },
       {
         id: "programme-updates",
-        stream: "Programme Updates",
+        stream: "Program Updates",
         purpose: "Cohort status, AI Advantage activity, events and application updates.",
         example: "",
       },
@@ -38,7 +38,7 @@ const en: InsightsPageCopy = {
   updates: {
     title: "Stay close to what's next.",
     description:
-      "Receive confirmed ASIP programme updates, founder stories and relevant ecosystem opportunities.",
+      "Receive confirmed ASIP program updates, founder stories and relevant ecosystem opportunities.",
     slug: "register-interest",
     label: "Register for updates",
   },

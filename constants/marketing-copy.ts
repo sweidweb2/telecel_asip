@@ -9,24 +9,24 @@ type MarketingCopy = Record<MarketingContentSlug, MarketingPageCopy>;
 /** FAQ master copy, Text Pack v2 section 13 (final public answers). */
 const FAQ_EN = {
   what: "ASIP is Telecel Group's Africa Startup Initiative Program, launched in 2019 to help ambitious technology founders build stronger companies through structured development, market access and an ecosystem of mentors, investors and partners.",
-  ai: "It is the 2026 programme direction, focused on founders applying AI to practical business challenges and measurable growth. Cohort details are published only when formally confirmed.",
+  ai: "It is the 2026 program direction, focused on founders applying AI to practical business challenges and measurable growth. Cohort details are published only when formally confirmed.",
   who: "Eligibility varies by cohort. ASIP generally looks for committed founders, a technology-led solution, evidence of a real market need and credible potential to scale in African markets.",
   open: "Not unless the website explicitly shows an open application state. If applications are closed, register your interest to receive confirmed dates, criteria and application details.",
   invest: "No. Participation in ASIP does not guarantee investment. Any investment discussion is subject to separate evaluation, terms and decision-making.",
   format: "Format varies by cohort. The confirmed delivery format, locations and timetable are published with the cohort details.",
   sectors: "ASIP has supported technology ventures across sectors including FinTech, HealthTech, AgriTech, InsurTech, EdTech, CleanTech, eCommerce and related technology-enabled fields. Cohort-specific priorities may vary.",
-  telecel: "Telecel Group provides programme backing and access to relevant market context, expertise and relationships. Specific support varies by cohort and by founder need.",
+  telecel: "Telecel Group provides program backing and access to relevant market context, expertise and relationships. Specific support varies by cohort and by founder need.",
   investors: "Yes. Public founder profiles can be explored on the website. Relevant introductions or non-public information are subject to founder consent, confidentiality and applicable process.",
-  organisations: "Organisations can contribute through technology, expertise, market access, pilots, commercial collaboration, investment dialogue, founder visibility or other relevant ecosystem roles.",
+  organizations: "Organizations can contribute through technology, expertise, market access, pilots, commercial collaboration, investment dialogue, founder visibility or other relevant ecosystem roles.",
   impact: "Material public claims are reviewed against a named source, reporting period and owner before publication. Metrics that cannot be substantiated are not published.",
 } as const;
 
 const en: MarketingCopy = {
   about: {
     eyebrow: "About ASIP",
-    title: "Started in 2019. Still building.",
+    title: "Supporting the founders who are shaping Africa’s next chapter.",
     description:
-      "ASIP launched in Barcelona to give ambitious African technology founders stronger access to expertise, markets, investors and commercial opportunity. The model has evolved, but the focus remains the same: help good companies move faster.",
+      "ASIP is a Telecel Group Program supporting African founders with knowledge, capital pathways, markets, and relationships that can accelerate their growth.",
     notice: "",
     sectionTitle: "Origin, purpose and the journey",
     sectionDescription: "",
@@ -40,10 +40,10 @@ const en: MarketingCopy = {
     },
     aboutNarrative: {
       story: {
-        title: "Built around founders who know the problem first-hand.",
+        title: "Backing founders, building for Africa.",
         eyebrow: "Our story",
         paragraphs: [
-          "Africa does not lack ideas. The harder gap is often access: to the right expertise, market insight, technology, capital pathways and commercial relationships at the right moment. ASIP was created to narrow that gap. Since 2019, the programme has worked with founders across sectors and markets, helping teams sharpen what they are building, test growth assumptions and move towards stronger businesses.",
+          "Africa does not lack ideas. The harder gap is often access: to the right expertise, market insight, technology, capital pathways and commercial relationships at the right moment. ASIP was created to narrow that gap. Since 2019, the program has worked with founders across sectors and markets, helping teams sharpen what they are building, test growth assumptions and move toward stronger businesses.",
         ],
         features: [],
         imageCta: { slug: "founders", label: "Explore the portfolio" },
@@ -91,7 +91,7 @@ const en: MarketingCopy = {
           {
             year: "2023",
             description:
-              "The programme strengthens founder readiness and pathways to markets, partners and investment.",
+              "The program strengthens founder readiness and pathways to markets, partners and investment.",
           },
           {
             year: "2024",
@@ -116,10 +116,10 @@ const en: MarketingCopy = {
       },
       telecel: {
         eyebrow: "Telecel Group",
-        title: "A Telecel Group programme.",
-        imageLabel: "ASIP programme leaders and founders in Dakar",
+        title: "A Telecel Group Program.",
+        imageLabel: "ASIP program leaders and founders in Dakar",
         paragraphs: [
-          "ASIP draws on Telecel Group's African experience, technology ecosystem and relationships to help founders move from potential to practical opportunity. \"Connecting Energies\" is the brand principle behind that role, not a slogan to repeat across every page.",
+          "ASIP is a Telecel Group Program supporting African founders with knowledge, capital pathways, markets, and relationships that can accelerate their growth. \"Connecting Energies\" is the brand principle behind that role, not a slogan to repeat across every page.",
         ],
       },
     },
@@ -151,12 +151,12 @@ const en: MarketingCopy = {
     sectionTitle: "",
     sectionDescription: "",
     cards: [],
-    cta: { slug: "contact", label: "Founder enquiry" },
+    cta: { slug: "contact", label: "Founder inquiry" },
     ctaSection: {
       title: "Start with the right conversation.",
       description: "Eligibility, cohort status, applications or founder support.",
       slug: "contact",
-      label: "Founder enquiry",
+      label: "Founder inquiry",
     },
   },
   apply: {
@@ -172,15 +172,15 @@ const en: MarketingCopy = {
       { title: "2. Tell us what you are building", description: "Share the team, problem, product, traction, market and growth priorities." },
       { title: "3. Initial review", description: "Eligible applications are assessed against the published selection framework." },
       { title: "4. Founder conversations", description: "Shortlisted teams may be invited to interviews, diligence or a selection session." },
-      { title: "5. Final selection", description: "Selected founders receive written programme terms, timetable and participation requirements." },
-      { title: "6. Onboarding", description: "The programme begins with clear goals, baseline priorities and a structured support plan." },
+      { title: "5. Final selection", description: "Selected founders receive written program terms, timetable and participation requirements." },
+      { title: "6. Onboarding", description: "The program begins with clear goals, baseline priorities and a structured support plan." },
     ],
-    cta: { slug: "contact", label: "Founder enquiry" },
+    cta: { slug: "contact", label: "Founder inquiry" },
     ctaSection: {
       title: "Start with the right conversation.",
       description: "Eligibility, cohort status, applications or founder support.",
       slug: "contact",
-      label: "Founder enquiry",
+      label: "Founder inquiry",
     },
   },
   faq: {
@@ -196,11 +196,11 @@ const en: MarketingCopy = {
       { title: "Who can apply?", description: FAQ_EN.who },
       { title: "Are applications open?", description: FAQ_EN.open },
       { title: "Does ASIP invest in every startup?", description: FAQ_EN.invest },
-      { title: "Is the programme virtual or in person?", description: FAQ_EN.format },
+      { title: "Is the program virtual or in person?", description: FAQ_EN.format },
       { title: "Which sectors does ASIP support?", description: FAQ_EN.sectors },
       { title: "What does Telecel Group contribute?", description: FAQ_EN.telecel },
       { title: "Can investors access the portfolio?", description: FAQ_EN.investors },
-      { title: "How can organisations work with ASIP?", description: FAQ_EN.organisations },
+      { title: "How can organizations work with ASIP?", description: FAQ_EN.organizations },
       { title: "How is impact verified?", description: FAQ_EN.impact },
     ],
     tabsSectionTitle: "Browse by topic",
@@ -208,11 +208,11 @@ const en: MarketingCopy = {
     tabs: [
       {
         id: "programme",
-        label: "Programme",
+        label: "Program",
         items: [
           { title: "What is ASIP?", description: FAQ_EN.what },
           { title: "What is “Building the AI Advantage”?", description: FAQ_EN.ai },
-          { title: "Is the programme virtual or in person?", description: FAQ_EN.format },
+          { title: "Is the program virtual or in person?", description: FAQ_EN.format },
           { title: "Which sectors does ASIP support?", description: FAQ_EN.sectors },
           { title: "What does Telecel Group contribute?", description: FAQ_EN.telecel },
           { title: "How is impact verified?", description: FAQ_EN.impact },
@@ -232,7 +232,7 @@ const en: MarketingCopy = {
         label: "Investors & partners",
         items: [
           { title: "Can investors access the portfolio?", description: FAQ_EN.investors },
-          { title: "How can organisations work with ASIP?", description: FAQ_EN.organisations },
+          { title: "How can organizations work with ASIP?", description: FAQ_EN.organizations },
         ],
       },
     ],
@@ -263,9 +263,9 @@ const FAQ_FR = {
 const fr: MarketingCopy = {
   about: {
     eyebrow: "À propos d’ASIP",
-    title: "Lancé en 2019. Toujours en construction.",
+    title: "Au côté des fondateurs qui façonnent le prochain chapitre de l’Afrique.",
     description:
-      "ASIP a été lancé à Barcelone pour offrir aux fondateurs technologiques africains ambitieux un meilleur accès à l’expertise, aux marchés, aux investisseurs et aux opportunités commerciales. Le modèle a évolué, mais l’objectif reste le même : aider les bonnes entreprises à avancer plus vite.",
+      "ASIP est un programme du Groupe Telecel qui accompagne les fondateurs africains avec de la connaissance, des voies de capital, des marchés et des relations qui peuvent accélérer leur croissance.",
     notice: "",
     sectionTitle: "Origine, raison d’être et parcours",
     sectionDescription: "",
@@ -279,7 +279,7 @@ const fr: MarketingCopy = {
     },
     aboutNarrative: {
       story: {
-        title: "Construit autour de fondateurs qui connaissent le problème de l’intérieur.",
+        title: "Soutenir les fondateurs, bâtir pour l’Afrique.",
         eyebrow: "Notre histoire",
         paragraphs: [
           "L’Afrique ne manque pas d’idées. Le vrai écart tient souvent à l’accès : à la bonne expertise, à la connaissance du marché, à la technologie, aux voies de financement et aux relations commerciales au bon moment. ASIP a été créé pour réduire cet écart. Depuis 2019, le programme travaille avec des fondateurs de nombreux secteurs et marchés, pour les aider à affiner ce qu’ils construisent, tester leurs hypothèses de croissance et bâtir des entreprises plus solides.",
@@ -330,7 +330,7 @@ const fr: MarketingCopy = {
         title: "Un programme du Groupe Telecel.",
         imageLabel: "Responsables du programme ASIP et fondateurs à Dakar",
         paragraphs: [
-          "ASIP s’appuie sur l’expérience africaine, l’écosystème technologique et les relations du Groupe Telecel pour aider les fondateurs à passer du potentiel à l’opportunité concrète. « Connecting Energies » est le principe de marque derrière ce rôle, pas un slogan à répéter sur chaque page.",
+          "ASIP est un programme du Groupe Telecel qui accompagne les fondateurs africains avec de la connaissance, des voies de capital, des marchés et des relations qui peuvent accélérer leur croissance. « Connecting Energies » est le principe de marque derrière ce rôle, pas un slogan à répéter sur chaque page.",
         ],
       },
     },

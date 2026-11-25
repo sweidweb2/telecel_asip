@@ -99,6 +99,12 @@ function isIntakePath(pathname: string): boolean {
   );
 }
 
+/** Any `/:locale` marketing/public path — session refresh for role-aware CTAs. */
+function isLocalizedPublicPath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return segments.length >= 1 && isLocale(segments[0]);
+}
+
 function isProtectedPath(pathname: string): boolean {
   return (
     pathname === ROUTES.dashboard ||
@@ -207,7 +213,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const locale = detectLocale(request);
   const needsSession =
-    isProtectedPath(pathname) || isAuthPage(pathname) || isIntakePath(pathname);
+    isProtectedPath(pathname) ||
+    isAuthPage(pathname) ||
+    isIntakePath(pathname) ||
+    isLocalizedPublicPath(pathname);
 
   if (needsSession) {
     const { response, userId, isAdmin, isEditor } =
@@ -267,7 +276,7 @@ export async function middleware(request: NextRequest) {
       return withNoStore(withLocaleHeaders(redirect, locale, request));
     }
 
-    // Auth / intake — continue with refreshed session cookies
+    // Auth / intake / localized marketing — continue with refreshed session cookies
     const segments = pathname.split("/").filter(Boolean);
     const first = segments[0];
     if (first && isLocale(first)) {
@@ -284,7 +293,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Marketing / public — locale only (no Supabase session refresh)
+  // Non-localized public — locale redirect only
   const segments = pathname.split("/").filter(Boolean);
   const first = segments[0];
 

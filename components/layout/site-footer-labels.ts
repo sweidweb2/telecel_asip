@@ -77,7 +77,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
     statement:
       "ASIP brings founders together with investors, operators and partners around practical pathways to build and scale technology businesses in African markets.",
     exploreHeading: "Explore",
-    programmeHeading: "Programme",
+    programmeHeading: "Program",
     connectHeading: "Contact",
     socialHeading: "Follow",
     parentLabel: "Explore founders",
@@ -93,7 +93,7 @@ const FOOTER_STRINGS: Record<Locale, FooterStrings> = {
       { slug: "insights", label: "Insights" },
     ],
     programmeBefore: [
-      { slug: "programme", label: "Programme" },
+      { slug: "programme", label: "Program" },
       { slug: "impact", label: "Impact" },
     ],
     programmeAfter: [{ slug: "faq", label: "FAQ" }],

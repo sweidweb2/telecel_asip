@@ -10,7 +10,7 @@ import type { ProgrammePageCopy } from "@/types/marketing-page";
  */
 const en: ProgrammePageCopy = {
   hero: {
-    eyebrow: "The programme",
+    eyebrow: "The program",
     title: "Build the company, not just the pitch.",
     description:
       "ASIP helps ambitious technology founders strengthen the fundamentals behind growth: product, strategy, market understanding, commercial readiness, investor readiness and the relationships that can open the next door.",
@@ -112,14 +112,13 @@ const en: ProgrammePageCopy = {
   },
   eligibility: {
     title: "General eligibility",
-    imageAlt: "ASIP founders working on laptops during a programme session",
+    imageAlt: "ASIP founders working on laptops during a program session",
     items: [
-      "African-founded, Africa-focused or solving a material challenge in African markets.",
-      "Technology-led product, platform or business model with credible potential to scale.",
-      "Committed founding team with relevant insight and the ability to execute.",
-      "Evidence of a real market need. Traction requirements may vary by cohort.",
-      "Clear potential for commercial, social or economic value.",
-      "Ability to participate fully in the published programme format and timetable.",
+      "Solve a real and meaningful problem (business, industry, or community-related).",
+      "Have at least one woman represented within the founding team or executive leadership.",
+      "Have a proven product or solution in market.",
+      "Demonstrate existing revenue or commercial traction.",
+      "Have a founder working full-time within the business.",
     ],
     notice: "",
   },
@@ -182,12 +181,11 @@ const fr: ProgrammePageCopy = {
     title: "Éligibilité générale",
     imageAlt: "Fondateurs ASIP travaillant sur ordinateur lors d’une session du programme",
     items: [
-      "Fondée en Afrique, centrée sur l’Afrique ou répondant à un enjeu important des marchés africains.",
-      "Produit, plateforme ou modèle d’affaires technologique avec un potentiel crédible de croissance.",
-      "Équipe fondatrice engagée, avec une connaissance pertinente et la capacité d’exécuter.",
-      "Preuve d’un besoin réel du marché. Les exigences de traction peuvent varier selon la cohorte.",
-      "Potentiel clair de valeur commerciale, sociale ou économique.",
-      "Capacité à participer pleinement au format et au calendrier publiés du programme.",
+      "Résoudre un problème réel et significatif (business, industrie ou communauté).",
+      "Compter au moins une femme dans l’équipe fondatrice ou la direction exécutive.",
+      "Disposer d’un produit ou d’une solution déjà sur le marché.",
+      "Démontrer un revenu existant ou une traction commerciale.",
+      "Avoir un fondateur engagé à temps plein dans l’entreprise.",
     ],
     notice: "",
   },

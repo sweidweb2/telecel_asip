@@ -34,10 +34,11 @@ function supabaseStorageHostname(): string | null {
 
 const supabaseHostname = supabaseStorageHostname();
 
-/** Shared edge cache for auth-agnostic marketing HTML (Option A).
- *  60s aligns with site-settings tag cache so Apply/Register CTAs lag less. */
-const MARKETING_HTML_CACHE =
-  "public, s-maxage=60, stale-while-revalidate=86400";
+/**
+ * Marketing HTML is personalized (role-aware nav CTAs) — never shared-cache.
+ * Was Option A public s-maxage; lifted when guest/role primary CTAs landed in chrome.
+ */
+const MARKETING_HTML_CACHE = "private, no-store";
 
 /** Long-cache for unhashed public static files (rare; prefer hashed /_next/static). */
 const PUBLIC_STATIC_CACHE = "public, max-age=31536000, immutable";

@@ -7,14 +7,14 @@ const en: PartnersPageCopy = {
     titleLead: "Find the founders.",
     titleAccent: "Understand the opportunity.",
     description:
-      "Explore the portfolio, sectors and markets represented across ASIP, follow current and upcoming programme activity, and speak with us about relevant investment, technology and commercial collaboration.",
+      "Explore the portfolio, sectors and markets represented across ASIP, follow current and upcoming program activity, and speak with us about relevant investment, technology and commercial collaboration.",
     cta: { slug: "contact", label: "Discuss collaboration" },
     proof: ["Investors", "Technology partners", "Corporates", "Mentors"],
   },
   proposition: {
     title: "Built for informed engagement.",
     description:
-      "Start with the companies, sectors and markets. Then go deeper into verified founder outcomes, current programme activity and relevant introductions where founder consent and fit allow.",
+      "Start with the companies, sectors and markets. Then go deeper into verified founder outcomes, current program activity and relevant introductions where founder consent and fit allow.",
   },
   types: {
     title: "Partner contribution model",
@@ -28,7 +28,7 @@ const en: PartnersPageCopy = {
       { id: "investors", type: "Investors", value: "Relevant portfolio discovery, founder introductions and investment-readiness dialogue.", examples: "" },
       { id: "technology", type: "Technology partners", value: "Technical expertise, tools, platforms, credits or specialist mentoring where available.", examples: "" },
       { id: "corporate", type: "Corporates", value: "Real business challenges, pilot pathways, customers and commercial partnerships.", examples: "" },
-      { id: "development", type: "Development / public sector", value: "Country initiatives, founder programmes, grants, inclusion and impact collaboration.", examples: "" },
+      { id: "development", type: "Development / public sector", value: "Country initiatives, founder programs, grants, inclusion and impact collaboration.", examples: "" },
       { id: "mentors", type: "Mentors / operators", value: "Practical operating experience founders can apply immediately.", examples: "" },
       { id: "media", type: "Media / ecosystem", value: "Credible founder visibility, events, research and access to wider communities.", examples: "" },
     ],
@@ -36,7 +36,7 @@ const en: PartnersPageCopy = {
   logos: {
     title: "An ecosystem built around founder progress.",
     description:
-      "ASIP has worked with ecosystem partners including Startupbootcamp AfriTech, AWS, Google, Microsoft, IBM, FMO, the United Nations and VC4A.",
+      "ASIP has worked with ecosystem partners including AWS, Google, Microsoft, IBM, FMO, the United Nations, and VC4A.",
     bringsLabel: "What founders get:",
   },
   ctaSection: {
@@ -78,7 +78,7 @@ const fr: PartnersPageCopy = {
   logos: {
     title: "Un écosystème construit autour de la progression des fondateurs.",
     description:
-      "ASIP a travaillé avec des partenaires de l’écosystème, dont Startupbootcamp AfriTech, AWS, Google, Microsoft, IBM, FMO, les Nations unies et VC4A.",
+      "ASIP a travaillé avec des partenaires de l’écosystème, dont AWS, Google, Microsoft, IBM, FMO, les Nations unies et VC4A.",
     bringsLabel: "Ce que les fondateurs reçoivent :",
   },
   ctaSection: {

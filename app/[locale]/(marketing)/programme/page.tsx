@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { ProgrammePageContent } from "@/components/marketing/programme-page-content";
 import { getPublishedCohorts } from "@/data/cohorts";
 import { getOpenApplications } from "@/data/settings";
+import { getCurrentUserProfile } from "@/data/users";
 import { localeFromParams } from "@/lib/i18n/locale-params";
+import { roleIntakeCtaFor } from "@/lib/marketing/role-primary-cta";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 
 type PageProps = {
@@ -26,7 +28,7 @@ export async function generateMetadata({
       : {
           locale,
           path: "/programme",
-          title: "ASIP Programme | Building the AI Advantage",
+          title: "ASIP Program | Building the AI Advantage",
           description:
             "See how ASIP works, what founders gain, the 2026 AI direction, eligibility guidance and current application status.",
         },
@@ -35,16 +37,19 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const locale = await localeFromParams(params);
-  const [cohorts, openApplications] = await Promise.all([
+  const [cohorts, openApplications, profile] = await Promise.all([
     getPublishedCohorts(),
     getOpenApplications(),
+    getCurrentUserProfile(),
   ]);
+  const intake = roleIntakeCtaFor({ locale, openApplications, profile });
 
   return (
     <ProgrammePageContent
       locale={locale}
       cohorts={cohorts}
       openApplications={openApplications}
+      intake={intake}
     />
   );
 }

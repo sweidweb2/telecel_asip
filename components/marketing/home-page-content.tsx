@@ -17,6 +17,10 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { homeV2CopyFor } from "@/constants/home-v2-copy";
 import type { Locale } from "@/constants/locales";
 import type { IntakeCta } from "@/lib/marketing/intake-cta";
+import type {
+  MarketingAudience,
+  PrimaryCta,
+} from "@/lib/marketing/role-primary-cta";
 import { localeUrl } from "@/lib/seo/alternates";
 import type { ImpactMetricPublicItem } from "@/types/impact-metric";
 import type { StartupPublicListItem } from "@/types/startup";
@@ -33,6 +37,8 @@ type HomePageContentProps = {
   locale: Locale;
   metrics: HomeImpactMetric[];
   intake: IntakeCta;
+  primaryCta: PrimaryCta;
+  audience: MarketingAudience;
   /** ISO country codes with active portfolio startups (verified presence). */
   portfolioCountries: string[];
   /** Featured, published portfolio companies for founder stories. */
@@ -53,12 +59,18 @@ export function HomePageContent({
   locale,
   metrics,
   intake,
+  primaryCta,
+  audience,
   portfolioCountries,
   featuredStartups,
   portfolioStats,
   latestInsights,
 }: HomePageContentProps) {
   const copy = homeV2CopyFor(locale);
+  const showFounderPathway =
+    audience === "guest" || audience === "startup" || audience === "staff";
+  const showInvestorPathway =
+    audience === "guest" || audience === "investor" || audience === "staff";
 
   return (
     <main>
@@ -79,7 +91,12 @@ export function HomePageContent({
         }}
       />
 
-      <HomeHero copy={copy.hero} continuumAlts={copy.hero.continuumAlts} />
+      <HomeHero
+        copy={copy.hero}
+        continuumAlts={copy.hero.continuumAlts}
+        audience={audience}
+        primaryCta={primaryCta}
+      />
 
       <HomeImpactYearsSection
         locale={locale}
@@ -91,8 +108,8 @@ export function HomePageContent({
 
       <HomePathwaysSection
         locale={locale}
-        founder={copy.founder}
-        investor={copy.investor}
+        founder={showFounderPathway ? copy.founder : null}
+        investor={showInvestorPathway ? copy.investor : null}
         intake={intake}
         stats={portfolioStats}
       />
@@ -115,11 +132,13 @@ export function HomePageContent({
 
       <HomeClosingSection locale={locale} copy={copy.closing} intake={intake} />
 
-      <MobilePathwayBar
-        prompt={copy.hero.prompt}
-        investor={{ href: "#investors", label: copy.hero.investor.label }}
-        startup={{ href: "#founders", label: copy.hero.founder.label }}
-      />
-    </main>
+      {audience === "guest" ? (
+        <MobilePathwayBar
+          prompt={copy.hero.prompt}
+          investor={{ href: "#investors", label: copy.hero.investor.label }}
+          startup={{ href: "#founders", label: copy.hero.founder.label }}
+        />
+      ) : null}
+       </main>
   );
 }

@@ -142,7 +142,7 @@ export function IntakeSuccessDialog({
       <DialogContent className="sm:max-w-md" showCloseButton>
         <DialogHeader>
           <DialogTitle className="pr-8 text-lg">
-            {labels.successTitle}
+            <span aria-hidden>🎊</span> {labels.successTitle}
           </DialogTitle>
           <DialogDescription>{labels.successDescription}</DialogDescription>
         </DialogHeader>

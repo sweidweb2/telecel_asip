@@ -45,8 +45,10 @@ test("bare public routes redirect to a supported locale", async ({ page }) => {
 });
 
 test("language switch preserves the current public page", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/en/programme");
-  await page.getByRole("link", { name: "fr", exact: true }).first().click();
+  await page.getByRole("button", { name: "Account and language" }).click();
+  await page.getByRole("link", { name: "fr", exact: true }).click();
   await expect(page).toHaveURL(/\/fr\/programme$/);
 });
 

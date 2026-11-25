@@ -18,7 +18,7 @@ describe("ProgrammeEligibilitySection", () => {
       expect(screen.getByText(item)).toBeInTheDocument();
     }
 
-    expect(copy.items).toHaveLength(6);
+    expect(copy.items).toHaveLength(5);
   });
 
   it("does not render the cohort notice on the public page", () => {

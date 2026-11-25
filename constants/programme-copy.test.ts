@@ -22,8 +22,8 @@ describe("programmeCopyFor", () => {
       fr.value.items.map((item) => item.id),
     );
     expect(en.value.items).toHaveLength(6);
-    // Cohort-specific criteria are not published until formally confirmed.
-    expect(en.eligibility.items.join(" ")).not.toMatch(/woman|revenue|full-time/i);
+    expect(en.eligibility.items.join(" ")).toMatch(/woman|revenue|full-time/i);
+    expect(en.eligibility.items).toHaveLength(5);
     expect(en.eligibility.items).toHaveLength(fr.eligibility.items.length);
 
     expect(en.hero.primaryCta.slug).toBe("register-interest");

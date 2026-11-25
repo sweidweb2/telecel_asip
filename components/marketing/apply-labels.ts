@@ -96,8 +96,8 @@ const EN_REGISTER: ApplyLabels = {
   fitPlaceholder: "",
   fitHint: "",
   consentLabel:
-    "I agree that ASIP may store and use this information to contact me about the programme.",
-  commsLabel: "Send me programme updates by email.",
+    "I agree that ASIP may store and use this information to contact me about the program.",
+  commsLabel: "Send me program updates by email.",
   submitLabel: "Submit interest",
   submittingLabel: "Submitting…",
   successToast: "Thank you. Your interest has been registered.",
@@ -111,7 +111,7 @@ const EN_REGISTER: ApplyLabels = {
 const EN_APPLY: ApplyLabels = {
   formTitle: "Apply to ASIP",
   formDescription:
-    "Official programme intake. Complete the full profile so the team can review your venture.",
+    "Official program intake. Complete the full profile so the team can review your venture.",
   nameLabel: "Founder name",
   namePlaceholder: "Your full name",
   roleLabel: "Founder role",
@@ -144,12 +144,12 @@ const EN_APPLY: ApplyLabels = {
   tractionPlaceholder:
     "Users, revenue, funding, pilots, or other proof points.",
   tractionHint: "20 to 2000 characters",
-  fitLabel: "Programme fit",
+  fitLabel: "Program fit",
   fitPlaceholder: "Growth needs and why ASIP now.",
   fitHint: "20 to 2000 characters",
   consentLabel:
     "I agree that ASIP may store and use this information to review my application.",
-  commsLabel: "Send me programme updates by email.",
+  commsLabel: "Send me program updates by email.",
   submitLabel: "Submit application",
   submittingLabel: "Submitting…",
   successToast: "Thank you. Your application has been submitted.",

@@ -26,13 +26,14 @@ vi.mock("@/components/marketing/home-hero-signal", () => ({
 }));
 
 describe("HomeHero", () => {
-  it("renders the v2 headline and only the Founder / Investor routes", () => {
+  it("renders Startup | Investor pathways for guests", () => {
     const copy = homeV2CopyFor("en");
 
     render(
       <HomeHero
         copy={copy.hero}
         continuumAlts={copy.hero.continuumAlts}
+        audience="guest"
       />,
     );
 
@@ -44,11 +45,36 @@ describe("HomeHero", () => {
       screen.getByRole("group", { name: copy.hero.prompt }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "I'm a Founder" }),
+      screen.getByRole("link", { name: "Startup" }),
     ).toHaveAttribute("href", "#founders");
     expect(
-      screen.getByRole("link", { name: "I'm an Investor" }),
+      screen.getByRole("link", { name: "Investor" }),
     ).toHaveAttribute("href", "#investors");
     expect(screen.getAllByRole("link")).toHaveLength(2);
+  });
+
+  it("shows the role primary CTA for a signed-in investor", () => {
+    const copy = homeV2CopyFor("en");
+
+    render(
+      <HomeHero
+        copy={copy.hero}
+        continuumAlts={copy.hero.continuumAlts}
+        audience="investor"
+        primaryCta={{
+          href: "/en/register-interest",
+          label: "Register as an investor",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Register as an investor" }),
+    ).toHaveAttribute("href", "/en/register-interest");
+    expect(screen.getByRole("link", { name: "Investor" })).toHaveAttribute(
+      "href",
+      "#investors",
+    );
+    expect(screen.queryByRole("link", { name: "Startup" })).not.toBeInTheDocument();
   });
 });

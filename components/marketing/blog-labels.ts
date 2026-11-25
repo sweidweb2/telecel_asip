@@ -17,7 +17,7 @@ export type BlogLabels = {
 const EN: BlogLabels = {
   pageTitle: "From the people building.",
   pageDescription:
-    "Founder stories, portfolio milestones and programme updates from across ASIP. Keep the emphasis on what changed, what was built and what matters now.",
+    "Founder stories, portfolio milestones and program updates from across ASIP. Keep the emphasis on what changed, what was built and what matters now.",
   writtenBy: "Written by",
   publishedOn: "Published on",
   fileUnder: "File under",
@@ -26,7 +26,7 @@ const EN: BlogLabels = {
   tabs: [
     { id: "all", label: "View all" },
     { id: "founder-stories", label: "Founder & Portfolio Stories" },
-    { id: "programme-updates", label: "Programme Updates" },
+    { id: "programme-updates", label: "Program Updates" },
     // Hidden until populated (Text Pack v2): tabs with no articles never render.
     { id: "founder-resources", label: "Founder Resources" },
     { id: "partner-perspectives", label: "Partner Perspectives" },

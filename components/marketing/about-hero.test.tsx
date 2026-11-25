@@ -20,10 +20,15 @@ describe("AboutHero", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Started in 2019. Still building." }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Supporting the founders who are shaping Africa’s next chapter.",
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText("About ASIP")).toBeInTheDocument();
-    expect(screen.getByText(/launched in Barcelona/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Telecel Group Program supporting African founders/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Explore the founders" }),
     ).toBeInTheDocument();

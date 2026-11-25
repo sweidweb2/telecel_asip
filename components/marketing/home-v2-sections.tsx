@@ -210,104 +210,172 @@ export function HomePathwaysSection({
   stats = null,
 }: {
   locale: Locale;
-  founder: HomeV2Copy["founder"];
-  investor: HomeV2Copy["investor"];
+  founder: HomeV2Copy["founder"] | null;
+  investor: HomeV2Copy["investor"] | null;
   intake: IntakeCta;
   /** Live counts from the published portfolio; hidden when unavailable. */
   stats?: PortfolioStats | null;
 }) {
-  const statItems = stats
-    ? [
-        { value: stats.companies, label: investor.statLabels.companies },
-        { value: stats.markets, label: investor.statLabels.markets },
-        // Sectors are not counted: CMS sector values mix combined tags.
-      ].filter((item) => item.value > 0)
-    : [];
+  const statItems =
+    stats && investor
+      ? [
+          { value: stats.companies, label: investor.statLabels.companies },
+          { value: stats.markets, label: investor.statLabels.markets },
+          // Sectors are not counted: CMS sector values mix combined tags.
+        ].filter((item) => item.value > 0)
+      : [];
+
+  const columns = Number(Boolean(founder)) + Number(Boolean(investor));
 
   return (
-    <div className="grid lg:grid-cols-2">
-      <section
-        id="founders"
-        aria-labelledby="home-founder-title"
-        className="home-v2-pathway scroll-mt-20 bg-asip-sun px-4 py-16 text-asip-ink sm:px-6 sm:py-20 lg:px-12 lg:py-24 xl:pl-[max(3rem,calc((100vw-80rem)/2+2rem))]"
-      >
-        <Eyebrow>{founder.eyebrow}</Eyebrow>
-        <h2 id="home-founder-title" className={cn(headingClass, "mt-5 text-5xl sm:text-6xl")}>
-          {founder.title}
-        </h2>
-        <p className="mt-6 max-w-lg text-lg leading-8 text-asip-ink/80">{founder.description}</p>
+    <div
+      className={cn(
+        "grid",
+        columns > 1 ? "lg:grid-cols-2" : "lg:grid-cols-1",
+      )}
+    >
+      {founder ? (
+        <section
+          id="founders"
+          aria-labelledby="home-founder-title"
+          className="home-v2-pathway scroll-mt-20 bg-asip-sun px-4 py-16 text-asip-ink sm:px-6 sm:py-20 lg:px-12 lg:py-24 xl:pl-[max(3rem,calc((100vw-80rem)/2+2rem))]"
+        >
+          <Eyebrow>{founder.eyebrow}</Eyebrow>
+          <h2
+            id="home-founder-title"
+            className={cn(headingClass, "mt-5 text-5xl sm:text-6xl")}
+          >
+            {founder.title}
+          </h2>
+          <p className="mt-6 max-w-lg text-lg leading-8 text-asip-ink/80">
+            {founder.description}
+          </p>
 
-        <ol className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-2 font-heading text-sm font-semibold">
-          {founder.steps.map((step, index) => (
-            <li key={step} className="flex items-center gap-2">
-              <span className="rounded-full bg-asip-ink/[0.08] px-3 py-1.5">{step}</span>
-              {index < founder.steps.length - 1 ? (
-                <ArrowRight aria-hidden className="size-3.5 text-asip-ink/45" />
-              ) : null}
-            </li>
-          ))}
-        </ol>
-
-        <MarketingCtaRow className="mt-10 gap-3.5 sm:flex-wrap">
-          <CoralCtaLink href={href(locale, founder.cta)} className="group min-h-12">
-            {founder.cta.label}
-            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </CoralCtaLink>
-          <OutlineCtaLink href={intake.href} className="min-h-12 border-asip-ink/30 bg-transparent">
-            {intake.label}
-          </OutlineCtaLink>
-        </MarketingCtaRow>
-      </section>
-
-      <section
-        id="investors"
-        aria-labelledby="home-investor-title"
-        className="home-v2-pathway scroll-mt-20 bg-asip-ink px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-12 lg:py-24 xl:pr-[max(3rem,calc((100vw-80rem)/2+2rem))]"
-      >
-        <Eyebrow className="text-asip-mint">{investor.eyebrow}</Eyebrow>
-        <h2 id="home-investor-title" className={cn(headingClass, "mt-5 text-5xl sm:text-6xl")}>
-          {investor.title}
-        </h2>
-        <p className="mt-6 max-w-lg text-lg leading-8 text-white/75">{investor.description}</p>
-
-        {statItems.length > 0 ? (
-          <dl className="mt-8 grid max-w-lg grid-cols-2 gap-4 border-t border-white/15 pt-6">
-            {statItems.map((item) => (
-              <div key={item.label} className="flex flex-col-reverse gap-1">
-                <dt className="text-xs leading-5 text-white/60 sm:text-sm">{item.label}</dt>
-                <dd className="font-heading text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                  <AnimatedMetricValue value={String(item.value)} />
-                </dd>
-              </div>
+          <ol className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-2 font-heading text-sm font-semibold">
+            {founder.steps.map((step, index) => (
+              <li key={step} className="flex items-center gap-2">
+                <span className="rounded-full bg-asip-ink/[0.08] px-3 py-1.5">
+                  {step}
+                </span>
+                {index < founder.steps.length - 1 ? (
+                  <ArrowRight
+                    aria-hidden
+                    className="size-3.5 text-asip-ink/45"
+                  />
+                ) : null}
+              </li>
             ))}
-          </dl>
-        ) : null}
+          </ol>
 
-        <ul className="mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/15">
-          {investor.questions.map((question, index) => (
-            <li key={question} className="flex items-center gap-3 bg-asip-ink px-4 py-4 text-sm font-semibold">
-              <span aria-hidden className={cn("size-2 shrink-0 rounded-full", LOGO_SPECTRUM[index + 1])} />
-              {question}
-            </li>
-          ))}
-        </ul>
+          <MarketingCtaRow className="mt-10 gap-3.5 sm:flex-wrap">
+            <CoralCtaLink
+              href={href(locale, founder.cta)}
+              className="group min-h-12"
+            >
+              {founder.cta.label}
+              <ArrowRight
+                aria-hidden
+                className="size-4 transition-transform group-hover:translate-x-0.5"
+              />
+            </CoralCtaLink>
+            <OutlineCtaLink
+              href={intake.href}
+              className="min-h-12 border-asip-ink/30 bg-transparent"
+            >
+              {intake.label}
+            </OutlineCtaLink>
+          </MarketingCtaRow>
+        </section>
+      ) : null}
 
-        <MarketingCtaRow className="mt-10 gap-3.5 sm:flex-wrap">
-          <CoralCtaLink
-            href={href(locale, investor.primaryCta)}
-            className={cn("group min-h-12", coralCtaOnDarkClassName)}
+      {investor ? (
+        <section
+          id="investors"
+          aria-labelledby="home-investor-title"
+          className="home-v2-pathway scroll-mt-20 bg-asip-ink px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-12 lg:py-24 xl:pr-[max(3rem,calc((100vw-80rem)/2+2rem))]"
+        >
+          <div
+            className={cn(
+              "grid gap-10",
+              // Solo pathway: fill the empty right with proof, not max-w-lg leftovers.
+              columns === 1 &&
+                "mx-auto w-full max-w-6xl lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-x-14 lg:gap-y-12",
+            )}
           >
-            {investor.primaryCta.label}
-            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </CoralCtaLink>
-          <OutlineCtaLink
-            href={href(locale, investor.secondaryCta)}
-            className="min-h-12 border-white/40 bg-transparent text-white hover:bg-white hover:text-asip-ink"
-          >
-            {investor.secondaryCta.label}
-          </OutlineCtaLink>
-        </MarketingCtaRow>
-      </section>
+            <div className="min-w-0">
+              <Eyebrow className="text-asip-mint">{investor.eyebrow}</Eyebrow>
+              <h2
+                id="home-investor-title"
+                className={cn(headingClass, "mt-5 text-5xl sm:text-6xl")}
+              >
+                {investor.title}
+              </h2>
+              <p className="mt-6 max-w-xl text-lg leading-8 text-white/75">
+                {investor.description}
+              </p>
+
+              <MarketingCtaRow className="mt-10 gap-3.5 sm:flex-wrap">
+                <CoralCtaLink
+                  href={href(locale, investor.primaryCta)}
+                  className={cn("group min-h-12", coralCtaOnDarkClassName)}
+                >
+                  {investor.primaryCta.label}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-4 transition-transform group-hover:translate-x-0.5"
+                  />
+                </CoralCtaLink>
+                <OutlineCtaLink
+                  href={intake.href}
+                  className="min-h-12 border-white/40 bg-transparent text-white hover:bg-white hover:text-asip-ink"
+                >
+                  {intake.label}
+                </OutlineCtaLink>
+              </MarketingCtaRow>
+            </div>
+
+            <div className="min-w-0 space-y-6">
+              {statItems.length > 0 ? (
+                <dl
+                  className={cn(
+                    "grid grid-cols-2 gap-4 border-t border-white/15 pt-6",
+                    columns === 1 && "lg:border-t-0 lg:pt-0",
+                  )}
+                >
+                  {statItems.map((item) => (
+                    <div key={item.label} className="flex flex-col-reverse gap-1">
+                      <dt className="text-xs leading-5 text-white/60 sm:text-sm">
+                        {item.label}
+                      </dt>
+                      <dd className="font-heading text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+                        <AnimatedMetricValue value={String(item.value)} />
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+
+              <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-2">
+                {investor.questions.map((question, index) => (
+                  <li
+                    key={question}
+                    className="flex items-center gap-3 bg-asip-ink px-4 py-4 text-sm font-semibold"
+                  >
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "size-2 shrink-0 rounded-full",
+                        LOGO_SPECTRUM[index + 1],
+                      )}
+                    />
+                    {question}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

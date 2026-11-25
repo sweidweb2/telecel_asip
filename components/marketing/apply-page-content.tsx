@@ -97,7 +97,13 @@ export function ApplyPageContent({
                 </CardDescription>
               </div>
               {user?.email ? (
-                <SiteAccountMenu email={user.email} locale={locale} />
+                <SiteAccountMenu
+                  email={user.email}
+                  locale={locale}
+                  languageGroupLabel={
+                    locale === "fr" ? "Langue" : "Language"
+                  }
+                />
               ) : null}
             </div>
           </CardHeader>

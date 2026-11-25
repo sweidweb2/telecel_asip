@@ -33,6 +33,9 @@ export type SiteNavLabels = {
   foundersDirectory: string;
   apply: NavItem;
   login: NavItem;
+  signup: NavItem;
+  /** Desktop settings / account menu trigger. */
+  settingsMenuLabel: string;
 };
 
 export function isNavGroup(entry: NavEntry): entry is NavGroup {
@@ -55,7 +58,7 @@ const HEADER_NAV_LABELS: Record<Locale, Record<HeaderLabelSlug, string>> = {
   en: {
     "": "Home",
     about: "About",
-    programme: "Programme",
+    programme: "Program",
     founders: "Founders",
     impact: "Impact",
     partners: "Partners",
@@ -76,8 +79,12 @@ const NAV_CHROME: Record<
   Locale,
   Pick<
     SiteNavLabels,
-    "languageGroupLabel" | "menuLabel" | "masthead" | "foundersDirectory"
-  > & { loginLabel: string }
+    | "languageGroupLabel"
+    | "menuLabel"
+    | "masthead"
+    | "foundersDirectory"
+    | "settingsMenuLabel"
+  > & { loginLabel: string; signupLabel: string }
 > = {
   en: {
     languageGroupLabel: "Language",
@@ -85,6 +92,8 @@ const NAV_CHROME: Record<
     masthead: "A Telecel Group Program",
     foundersDirectory: "Directory",
     loginLabel: "Login",
+    signupLabel: "Sign up",
+    settingsMenuLabel: "Account and language",
   },
   fr: {
     languageGroupLabel: "Langue",
@@ -92,6 +101,8 @@ const NAV_CHROME: Record<
     masthead: "Un programme du Groupe Telecel",
     foundersDirectory: "Annuaire",
     loginLabel: "Connexion",
+    signupLabel: "S’inscrire",
+    settingsMenuLabel: "Compte et langue",
   },
 };
 
@@ -114,6 +125,7 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
     menuLabel: chrome.menuLabel,
     masthead: chrome.masthead,
     foundersDirectory: chrome.foundersDirectory,
+    settingsMenuLabel: chrome.settingsMenuLabel,
     items: [
       leaf(locale, ""),
       leaf(locale, "about"),
@@ -126,6 +138,7 @@ function navLabels(locale: Locale, openApplications: boolean): SiteNavLabels {
     ],
     apply: { href: intake.href, label: intake.label },
     login: { href: authPath(locale, "login"), label: chrome.loginLabel },
+    signup: { href: authPath(locale, "signup"), label: chrome.signupLabel },
   };
 }
 

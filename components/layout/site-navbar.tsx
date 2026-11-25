@@ -3,7 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDownIcon, MenuIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronDownIcon,
+  MenuIcon,
+  SettingsIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -11,12 +16,15 @@ import {
   type NavEntry,
   type SiteNavLabels,
 } from "@/components/layout/site-nav-labels";
+import { LanguageToggle } from "@/components/layout/language-toggle";
+import { SiteAccountMenu } from "@/components/layout/site-account-menu";
 import { SpectrumLine } from "@/components/marketing/brand-accents";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,14 +34,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { LOCALES, type Locale } from "@/constants/locales";
+import type { Locale } from "@/constants/locales";
 import { publicPath } from "@/constants/routes";
-import { swapLocaleInPath } from "@/lib/i18n/path";
 import { cn } from "@/lib/utils";
 
 type SiteNavbarProps = {
   locale: Locale;
   labels: SiteNavLabels;
+  /** When set, the settings control becomes the account avatar menu. */
+  accountEmail?: string | null;
+  accountFullName?: string | null;
 };
 
 function isNavActive(pathname: string, href: string, locale: Locale) {
@@ -53,51 +63,16 @@ function isEntryActive(pathname: string, entry: NavEntry, locale: Locale) {
   return isNavActive(pathname, entry.href, locale);
 }
 
-function LanguageToggle({
+export function SiteNavbar({
   locale,
-  pathname,
-  groupLabel,
-  onLinkClick,
-}: {
-  locale: Locale;
-  pathname: string;
-  groupLabel: string;
-  onLinkClick?: () => void;
-}) {
-  return (
-    <div
-      className="inline-flex w-fit shrink-0 self-start items-center gap-0.5 overflow-hidden rounded-full border border-black/10 bg-white p-0.5 shadow-sm"
-      role="group"
-      aria-label={groupLabel}
-    >
-      {LOCALES.map((loc) => {
-        const active = loc === locale;
-        return (
-          <Link
-            key={loc}
-            href={swapLocaleInPath(pathname || `/${locale}`, loc)}
-            hrefLang={loc}
-            onClick={onLinkClick}
-            className={cn(
-              "inline-flex min-h-9 min-w-10 items-center justify-center rounded-full px-3 text-xs font-semibold uppercase transition-colors hover:bg-muted",
-              active
-                ? "bg-asip-ink text-white hover:bg-asip-ink"
-                : "text-muted-foreground",
-            )}
-            aria-current={active ? "true" : undefined}
-          >
-            {loc}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
+  labels,
+  accountEmail = null,
+  accountFullName = null,
+}: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const homeHref = publicPath(locale, "");
+  const isSignedIn = Boolean(accountEmail);
 
   const desktopLinkClass = (active: boolean) =>
     cn(
@@ -187,20 +162,6 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
           <p className="hidden border-l border-black/12 pl-4 text-xs font-semibold uppercase text-muted-foreground xl:block">
             {labels.masthead}
           </p>
-          <LanguageToggle
-            locale={locale}
-            pathname={pathname}
-            groupLabel={labels.languageGroupLabel}
-          />
-          <Link
-            href={labels.login.href}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "min-h-10 border-[#14333b]/25 bg-transparent px-4 text-[#14333b] hover:bg-[#14333b]/5",
-            )}
-          >
-            {labels.login.label}
-          </Link>
           <Link
             href={labels.apply.href}
             className={cn(
@@ -211,6 +172,51 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
             {labels.apply.label}
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>
+          {isSignedIn && accountEmail ? (
+            <SiteAccountMenu
+              email={accountEmail}
+              fullName={accountFullName}
+              locale={locale}
+              languageGroupLabel={labels.languageGroupLabel}
+            />
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "icon" }),
+                  "min-h-10 min-w-10 border-[#14333b]/25 bg-transparent text-[#14333b] hover:bg-[#14333b]/5",
+                )}
+                aria-label={labels.settingsMenuLabel}
+              >
+                <SettingsIcon className="size-4" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 min-w-56 p-2">
+                <div className="px-1 py-1.5">
+                  <LanguageToggle
+                    locale={locale}
+                    pathname={pathname}
+                    groupLabel={labels.languageGroupLabel}
+                    className="w-full self-stretch"
+                  />
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="min-h-11 cursor-pointer sm:min-h-9"
+                  nativeButton={false}
+                  render={<Link href={labels.login.href} />}
+                >
+                  {labels.login.label}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="min-h-11 cursor-pointer sm:min-h-9"
+                  nativeButton={false}
+                  render={<Link href={labels.signup.href} />}
+                >
+                  {labels.signup.label}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="flex min-w-0 flex-1 justify-end lg:hidden">
@@ -296,16 +302,42 @@ export function SiteNavbar({ locale, labels }: SiteNavbarProps) {
                   onLinkClick={() => setOpen(false)}
                 />
                 <div className="my-3 shrink-0 border-t border-asip-ink/10" />
-                <Link
-                  href={labels.login.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "w-full shrink-0 rounded-full border-[#14333b]/25 bg-transparent text-[#14333b] hover:bg-[#14333b]/5",
-                  )}
-                >
-                  {labels.login.label}
-                </Link>
+                {isSignedIn && accountEmail ? (
+                  <div className="flex items-center justify-between gap-3 px-2">
+                    <p className="truncate text-sm text-muted-foreground">
+                      {accountEmail}
+                    </p>
+                    <SiteAccountMenu
+                      email={accountEmail}
+                      fullName={accountFullName}
+                      locale={locale}
+                      languageGroupLabel={labels.languageGroupLabel}
+                    />
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    <Link
+                      href={labels.login.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "w-full shrink-0 rounded-full border-[#14333b]/25 bg-transparent text-[#14333b] hover:bg-[#14333b]/5",
+                      )}
+                    >
+                      {labels.login.label}
+                    </Link>
+                    <Link
+                      href={labels.signup.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "w-full shrink-0 rounded-full border-[#14333b]/25 bg-transparent text-[#14333b] hover:bg-[#14333b]/5",
+                      )}
+                    >
+                      {labels.signup.label}
+                    </Link>
+                  </div>
+                )}
                 <Link
                   href={labels.apply.href}
                   onClick={() => setOpen(false)}

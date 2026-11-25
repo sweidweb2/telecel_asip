@@ -13,7 +13,7 @@ const en: ImpactPageCopy = {
     eyebrow: "Impact",
     title: "Proof, not promises.",
     description:
-      "ASIP's impact is measured in what founders build through and beyond the programme: stronger companies, new markets, partnerships, investment readiness, jobs and technology used in the real world.",
+      "ASIP's impact is measured in what founders build through and beyond the program: stronger companies, new markets, partnerships, investment readiness, jobs and technology used in the real world.",
     cta: { slug: "founders", label: "Explore founder outcomes" },
   },
   progress: {

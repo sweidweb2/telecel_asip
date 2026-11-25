@@ -1,9 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Loader2Icon, LogOutIcon } from "lucide-react";
 
 import { signOut } from "@/actions/auth";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -27,12 +29,20 @@ import { cn } from "@/lib/utils";
 type SiteAccountMenuProps = {
   email: string;
   locale: Locale;
+  fullName?: string | null;
+  languageGroupLabel: string;
 };
 
-export function SiteAccountMenu({ email, locale }: SiteAccountMenuProps) {
+export function SiteAccountMenu({
+  email,
+  locale,
+  fullName = null,
+  languageGroupLabel,
+}: SiteAccountMenuProps) {
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const initials = userInitials(null, email);
+  const initials = userInitials(fullName, email);
   const openLabel = locale === "fr" ? "Ouvrir le menu compte" : "Open account menu";
   const logoutLabel = locale === "fr" ? "Se déconnecter" : "Log out";
   const signingOutTitle = locale === "fr" ? "Déconnexion" : "Signing out";
@@ -59,7 +69,7 @@ export function SiteAccountMenu({ email, locale }: SiteAccountMenuProps) {
           aria-label={openLabel}
         >
           <Avatar className="size-8">
-            <AvatarFallback className="bg-asip-ink text-xs text-white">
+            <AvatarFallback className="bg-asip-ink text-xs font-semibold text-white">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -70,6 +80,15 @@ export function SiteAccountMenu({ email, locale }: SiteAccountMenuProps) {
               {locale === "fr" ? "Connecté" : "Signed in"}
             </span>
             <span className="truncate text-sm font-medium">{email}</span>
+          </div>
+          <DropdownMenuSeparator />
+          <div className="px-2 py-2">
+            <LanguageToggle
+              locale={locale}
+              pathname={pathname}
+              groupLabel={languageGroupLabel}
+              className="w-full self-stretch"
+            />
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem

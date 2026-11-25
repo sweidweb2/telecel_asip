@@ -2,10 +2,8 @@ import type { Locale } from "@/constants/locales";
 import type { PublicPageSlug } from "@/constants/public-pages";
 
 /**
- * Homepage copy from the Final Text Pack & Sitemap v2.0 (08.11.2026).
- * English is locked public copy: do not paraphrase without written Telecel
- * instruction. The pack asks for British English in running copy.
- * French is a working translation of the same structure.
+ * Homepage copy. English uses American spelling (client revision Nov 2026).
+ * French mirrors the same structure and meaning.
  */
 
 type Cta = { slug: PublicPageSlug; hash?: string; label: string };
@@ -104,13 +102,13 @@ const en: HomeV2Copy = {
     description:
       "ASIP helps ambitious technology founders build stronger companies through practical expertise, market access and an ecosystem of investors, operators and partners focused on growth.",
     prompt: "Choose your route",
-    founder: { hash: "founders", label: "I'm a Founder" },
-    investor: { hash: "investors", label: "I'm an Investor" },
+    founder: { hash: "founders", label: "Startup" },
+    investor: { hash: "investors", label: "Investor" },
     continuumAlts: [
-      "ASIP founder focused in conversation at a programme table",
-      "ASIP founders listening during a programme pitch session",
-      "ASIP founders collaborating at a programme working table",
-      "ASIP mentor and founders in conversation at a programme event",
+      "ASIP founder focused in conversation at a program table",
+      "ASIP founders listening during a program pitch session",
+      "ASIP founders collaborating at a program working table",
+      "ASIP mentor and founders in conversation at a program event",
     ],
   },
   ai: {
@@ -118,7 +116,7 @@ const en: HomeV2Copy = {
     title: "Building the AI Advantage",
     support: "AI Advantage in Action",
     description:
-      "The next ASIP chapter focuses on founders applying AI to real business problems, using it to build better products, improve productivity and create measurable advantage in African markets.",
+      "The 2026 chapter supports startups using AI to solve existing business challenges and demonstrate measurable gains in revenue, cost efficiency, speed, or market reach.",
     statusClosed:
       "Applications are not currently open. Register your interest to receive confirmed eligibility, dates and application details when announced.",
     statusOpen: "Applications are open.",
@@ -128,7 +126,7 @@ const en: HomeV2Copy = {
     signals: [
       { id: "products", label: "Better products", detail: "AI inside the product customers use" },
       { id: "productivity", label: "Productivity", detail: "Faster operations, fewer manual steps" },
-      { id: "advantage", label: "Measurable advantage", detail: "Results a customer or investor recognises" },
+      { id: "advantage", label: "Measurable advantage", detail: "Results a customer or investor recognizes." },
     ],
   },
   proof: { label: "ASIP in numbers" },
@@ -144,7 +142,7 @@ const en: HomeV2Copy = {
     eyebrow: "For investors",
     title: "See what is being built.",
     description:
-      "Explore the portfolio by sector and market, follow current and upcoming programme activity, and speak with ASIP about relevant founder, investment and ecosystem opportunities.",
+      "Explore the portfolio by sector and market, follow current and upcoming program activity, and speak with ASIP about relevant founder, investment and ecosystem opportunities.",
     primaryCta: { slug: "founders", label: "Explore the portfolio" },
     secondaryCta: { slug: "insights", label: "View current activity" },
     questions: ["Portfolio quality", "Sectors and markets", "Current activity", "How to engage"],
@@ -182,7 +180,7 @@ const en: HomeV2Copy = {
     title: "More than logos. Practical value.",
     description:
       "Technology, capital, market access, mentorship and commercial pathways, brought together around founder progress.",
-    cta: { slug: "partners", label: "See the ecosystem" },
+    cta: { slug: "partners", label: "Explore Partnership Opportunities" },
     values: [
       { id: "technology", title: "Technology", description: "Technical expertise, tools and platforms where available." },
       { id: "capital", title: "Capital", description: "Portfolio discovery and investment-readiness dialogue." },
@@ -195,7 +193,7 @@ const en: HomeV2Copy = {
     eyebrow: "Insights",
     title: "What's happening now.",
     description:
-      "Founder stories, portfolio milestones and programme updates, focused on what changed and why it matters.",
+      "Founder stories, portfolio milestones and program updates, focused on what changed and why it matters.",
     cta: { slug: "insights", label: "View insights" },
     empty: "",
   },
@@ -214,8 +212,8 @@ const fr: HomeV2Copy = {
     description:
       "ASIP aide les fondateurs technologiques ambitieux à bâtir des entreprises plus solides grâce à une expertise concrète, à l’accès aux marchés et à un écosystème d’investisseurs, d’opérateurs et de partenaires tournés vers la croissance.",
     prompt: "Choisissez votre parcours",
-    founder: { hash: "founders", label: "Je suis fondateur" },
-    investor: { hash: "investors", label: "Je suis investisseur" },
+    founder: { hash: "founders", label: "Startup" },
+    investor: { hash: "investors", label: "Investisseur" },
     continuumAlts: [
       "Fondateur ASIP concentré en conversation à une table du programme",
       "Fondateurs ASIP à l’écoute lors d’une session de pitch du programme",
@@ -228,7 +226,7 @@ const fr: HomeV2Copy = {
     title: "Construire l’avantage IA",
     support: "L’avantage IA en action",
     description:
-      "Le prochain chapitre d’ASIP se concentre sur les fondateurs qui appliquent l’IA à de vrais problèmes d’entreprise pour créer de meilleurs produits, gagner en productivité et obtenir un avantage mesurable sur les marchés africains.",
+      "Le chapitre 2026 accompagne les startups qui utilisent l’IA pour résoudre des défis business existants et démontrer des gains mesurables en revenu, efficacité des coûts, vitesse ou portée de marché.",
     statusClosed:
       "Les candidatures ne sont pas ouvertes. Manifestez votre intérêt pour recevoir l’éligibilité, les dates et les modalités confirmées dès leur annonce.",
     statusOpen: "Les candidatures sont ouvertes.",
@@ -292,7 +290,7 @@ const fr: HomeV2Copy = {
     title: "Plus que des logos. Une valeur concrète.",
     description:
       "Technologie, capital, accès aux marchés, mentorat et voies commerciales, réunis autour de la progression des fondateurs.",
-    cta: { slug: "partners", label: "Voir l’écosystème" },
+    cta: { slug: "partners", label: "Explorer les opportunités de partenariat" },
     values: [
       { id: "technology", title: "Technologie", description: "Expertise technique, outils et plateformes selon disponibilité." },
       { id: "capital", title: "Capital", description: "Découverte du portefeuille et préparation à l’investissement." },

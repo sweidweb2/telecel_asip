@@ -29,14 +29,22 @@ describe("site nav apply CTA", () => {
     expect(frNavLabels(false).apply.href).toBe("/fr/register-interest");
   });
 
-  it("exposes a locale-prefixed Login link beside the intake CTA", () => {
+  it("exposes locale-prefixed Login and Sign up links for the settings menu", () => {
     expect(enNavLabels().login).toEqual({
       href: "/en/login",
       label: "Login",
     });
+    expect(enNavLabels().signup).toEqual({
+      href: "/en/signup",
+      label: "Sign up",
+    });
     expect(frNavLabels().login).toEqual({
       href: "/fr/login",
       label: "Connexion",
+    });
+    expect(frNavLabels().signup).toEqual({
+      href: "/fr/signup",
+      label: "S’inscrire",
     });
   });
 });
@@ -75,7 +83,7 @@ describe("site nav chrome copy", () => {
     expect(enNavLabels().items.map((entry) => entry.label)).toEqual([
       "Home",
       "About",
-      "Programme",
+      "Program",
       "Founders",
       "Impact",
       "Partners",
