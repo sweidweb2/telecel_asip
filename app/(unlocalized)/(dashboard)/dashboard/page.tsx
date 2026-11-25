@@ -30,8 +30,6 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { getDashboardInboxUnread } from "@/data/dashboard-inbox";
 import { requireEditor } from "@/data/auth";
-import { traceAsync } from "@/lib/admin/perf";
-
 export const metadata: Metadata = {
   title: "Dashboard | ASIP Editor",
 };
@@ -81,11 +79,7 @@ const LAUNCHER_GROUPS: readonly DashboardNavGroup[] =
 
 export default async function DashboardPage() {
   await requireEditor();
-  const inboxResult = await traceAsync(
-    "dashboardPage",
-    { eventType: "page", route: ROUTES.dashboard },
-    () => getDashboardInboxUnread(),
-  );
+  const inboxResult = await getDashboardInboxUnread();
   const unread =
     inboxResult.status === "ok" ? inboxResult.unread : null;
 

@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/turnstile-widget", () => ({
+  TURNSTILE_WIDGET_ENABLED: true,
+  TURNSTILE_BYPASS_TOKEN: "turnstile-widget-disabled",
+}));
+
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
 
@@ -10,7 +15,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("verifyTurnstileToken", () => {
+describe("verifyTurnstileToken (widget on)", () => {
   it("rejects empty tokens without calling siteverify", async () => {
     vi.stubEnv("TURNSTILE_SECRET", "test-secret");
     vi.stubEnv("TURNSTILE_HOSTNAMES", "localhost");

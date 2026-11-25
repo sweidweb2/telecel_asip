@@ -4,10 +4,11 @@ import { useId, useState, useTransition } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "nextjs-toploader/app";
-import { EyeIcon, EyeOffIcon, Loader2Icon, PlusIcon } from "lucide-react";
+import { Loader2Icon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { createUser } from "@/actions/users";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ADMIN_INBOX_EDIT_HEADER_CLASS } from "@/components/dashboard/admin-detail-row";
 import { AdminFieldError } from "@/components/dashboard/admin-field-error";
 import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
@@ -144,7 +145,6 @@ export function CreateUserDialog({
   const formId = useId();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
   const roles = assignableRolesForActor(actorRole);
   const defaultRole = defaultRoleForActor(actorRole);
@@ -165,7 +165,6 @@ export function CreateUserDialog({
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (next) {
-      setIsPasswordVisible(false);
       form.reset({
         fullName: "",
         email: "",
@@ -256,39 +255,17 @@ export function CreateUserDialog({
               <AdminFormFieldLabel htmlFor="create-password" hint="required">
                 Password
               </AdminFormFieldLabel>
-              <div className="relative">
-                <Input
-                  id="create-password"
-                  type={isPasswordVisible ? "text" : "password"}
-                  autoComplete="new-password"
-                  disabled={isPending}
-                  maxLength={USER_PASSWORD_MAX}
-                  placeholder="At least 8 characters, letter + number"
-                  aria-invalid={Boolean(errors.password)}
-                  className="pr-11"
-                  {...form.register("password")}
-                />
-                <button
-                  type="button"
-                  className="absolute top-1/2 right-0.5 inline-flex size-9 min-h-9 min-w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                  disabled={isPending}
-                  aria-label={
-                    isPasswordVisible ? "Hide password" : "Show password"
-                  }
-                  aria-pressed={isPasswordVisible}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => setIsPasswordVisible((prev) => !prev)}
-                >
-                  <EyeIcon
-                    className={isPasswordVisible ? "hidden size-4" : "size-4"}
-                    aria-hidden
-                  />
-                  <EyeOffIcon
-                    className={isPasswordVisible ? "size-4" : "hidden size-4"}
-                    aria-hidden
-                  />
-                </button>
-              </div>
+              <PasswordInput
+                id="create-password"
+                autoComplete="new-password"
+                disabled={isPending}
+                maxLength={USER_PASSWORD_MAX}
+                placeholder="At least 8 characters, letter + number"
+                aria-invalid={Boolean(errors.password)}
+                showPasswordLabel="Show password"
+                hidePasswordLabel="Hide password"
+                {...form.register("password")}
+              />
               <AdminFieldError
                 message={errors.password?.message}
               />

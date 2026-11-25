@@ -8,9 +8,8 @@ import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
-  runAdminMutation
+  runAdminMutation,
 } from "@/lib/admin/run-admin-mutation";
-import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
   uploadVersionedPublicImage,
@@ -241,63 +240,57 @@ export async function uploadFounderStoryCover(
   storyId: string,
   formData: FormData,
 ): Promise<FounderStoryActionResult> {
-  return traceAsync(
-    "uploadFounderStoryCover",
-    { eventType: "upload", cacheStatus: "n_a", meta: { storyId } },
-    async () => {
-      if (!founderStoryIdSchema.safeParse(storyId).success) {
-        return { status: "error", message: MESSAGES.invalidDetails };
-      }
+  if (!founderStoryIdSchema.safeParse(storyId).success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
 
-      const file = formData.get("file");
-      if (!(file instanceof File)) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { status: "error", message: MESSAGES.invalidImage };
+  }
 
-      const session = await authorizeEditor(MESSAGES);
-      if (session.status === "error") return session;
+  const session = await authorizeEditor(MESSAGES);
+  if (session.status === "error") return session;
 
-      const { data: existing, error: existingError } = await session.supabase
+  const { data: existing, error: existingError } = await session.supabase
+    .from("founder_stories")
+    .select("id, cover_image_url")
+    .eq("id", storyId)
+    .maybeSingle();
+
+  if (existingError) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+  if (!existing) {
+    return { status: "error", message: MESSAGES.notFound };
+  }
+
+  const uploaded = await uploadVersionedPublicImage({
+    supabase: session.supabase,
+    file,
+    bucket: COVER_BUCKET,
+    entityId: storyId,
+    preset: "founderStoryCover",
+    previousUrl: existing.cover_image_url,
+    maxBytes: COVER_MAX_BYTES,
+    messages: MESSAGES,
+    updateRow: async (publicUrl) =>
+      session.supabase
         .from("founder_stories")
-        .select("id, cover_image_url")
+        .update({ cover_image_url: publicUrl })
         .eq("id", storyId)
-        .maybeSingle();
+        .select("id")
+        .maybeSingle(),
+  });
 
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
+  if (uploaded.status === "error") return uploaded;
 
-      const uploaded = await uploadVersionedPublicImage({
-        supabase: session.supabase,
-        file,
-        bucket: COVER_BUCKET,
-        entityId: storyId,
-        preset: "founderStoryCover",
-        previousUrl: existing.cover_image_url,
-        maxBytes: COVER_MAX_BYTES,
-        messages: MESSAGES,
-        updateRow: async (publicUrl) =>
-          session.supabase
-            .from("founder_stories")
-            .update({ cover_image_url: publicUrl })
-            .eq("id", storyId)
-            .select("id")
-            .maybeSingle(),
-      });
-
-      if (uploaded.status === "error") return uploaded;
-
-      refreshFounderStoryPaths(storyId);
-      return {
-        status: "success",
-        message: MESSAGES.uploadSuccess,
-        id: storyId,
-      };
-    },
-  );
+  refreshFounderStoryPaths(storyId);
+  return {
+    status: "success",
+    message: MESSAGES.uploadSuccess,
+    id: storyId,
+  };
 }
 
 export async function removeFounderStoryCover(

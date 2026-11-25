@@ -69,7 +69,6 @@ export async function createEvent(
       ...MESSAGES,
       success: MESSAGES.createSuccess,
     },
-    perfName: "createEvent",
     execute: async (session, data) => {
       const { data: rpcData, error } = await session.supabase.rpc(
         "create_event_with_links",
@@ -102,7 +101,6 @@ export async function updateEvent(
       ...MESSAGES,
       success: MESSAGES.updateSuccess,
     },
-    perfName: "updateEvent",
     execute: async (session, data) => {
       const { id, ...rest } = data;
 

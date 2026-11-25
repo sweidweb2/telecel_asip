@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   Controller,
   useForm,
-  useWatch,
   type Control,
   type FieldValues,
   type Path,
@@ -47,7 +46,8 @@ import {
   INVESTOR_TIMELINES,
 } from "@/constants/investor-intake";
 import type { Locale } from "@/constants/locales";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   investorEngagementSchemaFor,
@@ -76,7 +76,7 @@ const INTEREST_DEFAULTS: InvestorInterestInput = {
   focusNote: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: "",
+  turnstileToken: initialTurnstileToken(),
 };
 
 const ENGAGEMENT_DEFAULTS: InvestorEngagementInput = {
@@ -98,7 +98,7 @@ const ENGAGEMENT_DEFAULTS: InvestorEngagementInput = {
   message: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: "",
+  turnstileToken: initialTurnstileToken(),
 };
 
 export function InvestorIntakeForm({
@@ -148,20 +148,20 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
     defaultValues: { ...INTEREST_DEFAULTS, email: defaultEmail },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
-  const turnstile = useTurnstile({
-    action: TURNSTILE_APPLY_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_APPLY_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: InvestorInterestInput) {
     startTransition(async () => {
       try {
-        const result = await submitInvestorInterest(values);
+        const result = await submitInvestorInterest({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -175,7 +175,7 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
             : "Something went wrong. Please try again.",
         );
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -212,15 +212,18 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <input type="hidden" {...register("turnstileToken")} />
         <TurnstileField
           turnstile={turnstile}
-          hasToken={Boolean(turnstileToken)}
+          token={turnstileToken}
           hint={labels.turnstileHint}
           error={errors.turnstileToken?.message}
           testId="investor-register-turnstile"
         />
-        <IntakeSubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton
+          labels={labels}
+          isPending={isPending}
+          disabled={!hasToken}
+        />
       </form>
       <IntakeSuccessDialog
         open={successOpen}
@@ -248,20 +251,20 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
     defaultValues: { ...ENGAGEMENT_DEFAULTS, email: defaultEmail },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
-  const turnstile = useTurnstile({
-    action: TURNSTILE_APPLY_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_APPLY_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: InvestorEngagementInput) {
     startTransition(async () => {
       try {
-        const result = await submitInvestorEngagement(values);
+        const result = await submitInvestorEngagement({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -275,7 +278,7 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
             : "Something went wrong. Please try again.",
         );
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -476,15 +479,18 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <input type="hidden" {...register("turnstileToken")} />
         <TurnstileField
           turnstile={turnstile}
-          hasToken={Boolean(turnstileToken)}
+          token={turnstileToken}
           hint={labels.turnstileHint}
           error={errors.turnstileToken?.message}
           testId="investor-apply-turnstile"
         />
-        <IntakeSubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton
+          labels={labels}
+          isPending={isPending}
+          disabled={!hasToken}
+        />
       </form>
       <IntakeSuccessDialog
         open={successOpen}

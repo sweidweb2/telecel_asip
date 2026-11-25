@@ -45,7 +45,6 @@ describe("runInboxStatusMutation", () => {
         },
         messages,
         refresh,
-        perfName: "updateInboxStatus:applications",
       }),
     );
 

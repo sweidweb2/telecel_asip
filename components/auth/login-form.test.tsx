@@ -103,7 +103,7 @@ describe("LoginForm", () => {
       {
         email: "admin@example.com",
         password: "Testpass1",
-        turnstileToken: "test-turnstile-token",
+        turnstileToken: "turnstile-widget-disabled",
       },
       ROUTES.users,
     );

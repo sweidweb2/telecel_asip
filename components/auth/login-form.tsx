@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useCallback, useState, useTransition } from "react";
-import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useState, useTransition } from "react";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { signIn } from "@/actions/auth";
 import type { LoginLabels } from "@/constants/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { TurnstileField } from "@/components/marketing/turnstile-field";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,7 +29,8 @@ import { Label } from "@/components/ui/label";
 import { CONTACT } from "@/constants/contact";
 import type { Locale } from "@/constants/locales";
 import { authPath, publicPath } from "@/constants/routes";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { TURNSTILE_LOGIN_ACTION } from "@/types/turnstile";
 import { loginSchemaFor, type LoginInput } from "@/validations/auth";
 
@@ -44,7 +46,6 @@ export function LoginForm({
   const redirectTo = searchParams.get("next") ?? undefined;
   const homePath = publicPath(locale, "");
   const [isPending, startTransition] = useTransition();
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
 
   const {
@@ -52,41 +53,33 @@ export function LoginForm({
     handleSubmit,
     control,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchemaFor(locale)) as Resolver<LoginInput>,
     defaultValues: {
       email: "",
       password: "",
-      turnstileToken: "",
+      turnstileToken: initialTurnstileToken(),
     },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
-  const turnstile = useTurnstile({
-    action: TURNSTILE_LOGIN_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, {
-          shouldValidate: token !== "",
-          shouldDirty: true,
-        }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset } =
+    useFormTurnstile({
+      action: TURNSTILE_LOGIN_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: LoginInput) {
     startTransition(async () => {
       try {
-        // Prefer watched token — hidden register + setValue can race on submit.
-        const payload: LoginInput = {
-          email: values.email ?? getValues("email") ?? "",
-          password: values.password ?? getValues("password") ?? "",
-          turnstileToken:
-            turnstileToken || values.turnstileToken || getValues("turnstileToken") || "",
-        };
-        const result = await signIn(payload, redirectTo);
+        const result = await signIn(
+          {
+            ...values,
+            turnstileToken: submitToken(values.turnstileToken),
+          },
+          redirectTo,
+        );
 
         if (result.status === "error") {
           toast.error(result.message);
@@ -97,7 +90,7 @@ export function LoginForm({
         router.push(result.redirectTo ?? homePath);
         router.refresh();
       } finally {
-        turnstile.reset();
+        reset();
       }
     });
   }
@@ -138,39 +131,16 @@ export function LoginForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="password">{labels.passwordLabel}</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            type={isPasswordVisible ? "text" : "password"}
-            autoComplete="current-password"
-            placeholder={labels.passwordPlaceholder}
-            aria-invalid={Boolean(errors.password)}
-            disabled={isPending}
-            className="pr-11"
-            {...register("password", { setValueAs: (value) => value ?? "" })}
-          />
-          <button
-            type="button"
-            className="absolute top-1/2 right-0.5 inline-flex size-9 min-h-9 min-w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-            disabled={isPending}
-            aria-label={
-              isPasswordVisible ? labels.hidePassword : labels.showPassword
-            }
-            aria-pressed={isPasswordVisible}
-            // Keep focus on the password field so the type swap does not glitch.
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setIsPasswordVisible((prev) => !prev)}
-          >
-            <EyeIcon
-              className={isPasswordVisible ? "hidden size-4" : "size-4"}
-              aria-hidden
-            />
-            <EyeOffIcon
-              className={isPasswordVisible ? "size-4" : "hidden size-4"}
-              aria-hidden
-            />
-          </button>
-        </div>
+        <PasswordInput
+          id="password"
+          autoComplete="current-password"
+          placeholder={labels.passwordPlaceholder}
+          aria-invalid={Boolean(errors.password)}
+          disabled={isPending}
+          showPasswordLabel={labels.showPassword}
+          hidePasswordLabel={labels.hidePassword}
+          {...register("password", { setValueAs: (value) => value ?? "" })}
+        />
         {errors.password ? (
           <p className="text-sm text-destructive">{errors.password.message}</p>
         ) : null}
@@ -218,17 +188,9 @@ export function LoginForm({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <input
-        type="hidden"
-        name="turnstileToken"
-        value={turnstileToken ?? ""}
-        readOnly
-        aria-hidden
-        tabIndex={-1}
-      />
       <TurnstileField
         turnstile={turnstile}
-        hasToken={Boolean(turnstileToken)}
+        token={turnstileToken}
         hint={labels.turnstileHint}
         error={errors.turnstileToken?.message}
         testId="login-turnstile"
@@ -236,7 +198,7 @@ export function LoginForm({
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending || !turnstileToken}
+        disabled={isPending || !hasToken}
       >
         {isPending ? (
           <>

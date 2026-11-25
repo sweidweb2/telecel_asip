@@ -17,7 +17,7 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 **Details:** Checks whether the current session user (`auth.uid()`) has a `profiles` row with `role = 'admin'`.
 
-**How it works:** Runs a single `EXISTS` query on `public.profiles`. Used by backups and `admin_perf_events` RLS, `admin_hard_delete_user`, and admin-only product surfaces. Definer + fixed `search_path` avoids search-path hijacking while still reading profiles under elevated rights for the check.
+**How it works:** Runs a single `EXISTS` query on `public.profiles`. Used by backups RLS, `admin_hard_delete_user`, and admin-only product surfaces. Definer + fixed `search_path` avoids search-path hijacking while still reading profiles under elevated rights for the check.
 
 ---
 
@@ -153,21 +153,6 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 **Details:** Replaces 3–4 parallel PostgREST `count: exact` head queries per list page (blogs, partners, startups, cohorts, events, founder stories, evidence, impact metrics, applications, interest registrations, investor interests, investor engagements, contact messages). Sidebar totals stay on `get_dashboard_nav_counts`; this RPC is one extra round-trip for the page cards, not a recount of every nav table.
 
 **How it works:** Raises `42501` unless `is_editor()`. `CASE` on `p_resource` runs one `count(*)` + `FILTER` scan of that table. Event `upcoming` uses UTC `now()::date`. Inbox `last7Days` uses UTC `now() - 7 days`. Invoker, so RLS applies. Added `20260910250000`; investor inbox resources added `20261122070000`.
-
----
-
-### `public.get_admin_perf_analytics(p_since timestamptz)`
-
-| | |
-| --- | --- |
-| **Role** | RPC (Admin Performance page charts) |
-| **Returns** | `jsonb`: `total`, `hitRatio`, `byEventType`, `slowest` (top 12 names with count, avg, p95, hit/miss avgs), `overTime` (UTC hour buckets) |
-| **Security** | `SECURITY INVOKER`, `STABLE`, `search_path = public`, admin-only |
-| **Granted to** | `authenticated` (raises `42501` unless `is_admin()`) |
-
-**Details:** Replaces the Node fold of the latest 1,000 `admin_perf_events` rows. The list under the charts stays a paged select with `count: "estimated"`.
-
-**How it works:** Raises `42501` unless `is_admin()`. One scan of rows with `created_at >= p_since` (the app passes the last 24 hours). Hit ratio counts only `hit` and `miss`. Name “miss” averages include `miss` and `n_a`, matching the previous charts. p95 is `percentile_cont(0.95)`. Invoker, so RLS applies. Added `20261009233000`.
 
 ---
 
@@ -321,10 +306,6 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 ---
 
 ## Tables without functions / triggers
-
-### `public.admin_perf_events`
-
-No triggers. Temporary CMS admin performance debug table (`ADMIN_PERF_TRACKING`). Admins INSERT/SELECT/DELETE via session client under `is_admin()` RLS. Chart reads use `get_admin_perf_analytics`. No anon grants. App instrumentation lives in `lib/admin/perf/` and must never wrap the recorder’s own inserts or the Performance page reads. Teardown: drop-table migration + remove instrumentation, route, and nav entry.
 
 ### `public.applications`
 

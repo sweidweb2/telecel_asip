@@ -10,43 +10,54 @@ const TURNSTILE_SCRIPT_SRC =
 
 type TurnstileFieldProps = {
   turnstile: TurnstileController;
-  /** True once the form holds a solved token. */
-  hasToken: boolean;
+  /** Current token value for the controlled hidden input. */
+  token: string;
   hint: string;
   error?: string;
   testId: string;
 };
 
 /**
- * Renders the Cloudflare script, the Turnstile widget slot, and its hint /
- * error text. The hint sits above the widget (label level), not under it.
- * Pair with {@link useTurnstile} in the owning form.
+ * Controlled hidden `turnstileToken` input plus (when enabled) the Cloudflare
+ * script, widget slot, and hint / error text. Pair with
+ * {@link useFormTurnstile} in the owning form.
  */
 export function TurnstileField({
   turnstile,
-  hasToken,
+  token,
   hint,
   error,
   testId,
 }: TurnstileFieldProps) {
   const { siteKey, setContainer, render } = turnstile;
-
-  if (!TURNSTILE_WIDGET_ENABLED) return null;
+  const hasToken = Boolean(token);
 
   return (
-    <div className="grid gap-2">
-      {siteKey ? (
-        <Script
-          src={TURNSTILE_SCRIPT_SRC}
-          strategy="afterInteractive"
-          onReady={render}
-        />
+    <>
+      <input
+        type="hidden"
+        name="turnstileToken"
+        value={token}
+        readOnly
+        aria-hidden
+        tabIndex={-1}
+      />
+      {TURNSTILE_WIDGET_ENABLED ? (
+        <div className="grid gap-2">
+          {siteKey ? (
+            <Script
+              src={TURNSTILE_SCRIPT_SRC}
+              strategy="afterInteractive"
+              onReady={render}
+            />
+          ) : null}
+          {!hasToken && !error ? (
+            <p className="text-xs leading-4 text-muted-foreground">{hint}</p>
+          ) : null}
+          <div ref={setContainer} className="min-h-16" data-testid={testId} />
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </div>
       ) : null}
-      {!hasToken && !error ? (
-        <p className="text-xs leading-4 text-muted-foreground">{hint}</p>
-      ) : null}
-      <div ref={setContainer} className="min-h-16" data-testid={testId} />
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-    </div>
+    </>
   );
 }

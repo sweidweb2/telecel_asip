@@ -16,7 +16,6 @@ vi.mock("@/lib/i18n/request-locale", () => ({
 }));
 
 vi.mock("@/lib/turnstile", () => ({
-  TURNSTILE_CONTACT_ACTION: "contact",
   verifyTurnstileToken: vi.fn(),
 }));
 

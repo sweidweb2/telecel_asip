@@ -38,15 +38,12 @@ export const ROUTES = {
   contactUs: "/dashboard/contact-us",
   newsletter: "/dashboard/newsletter",
   analytics: "/dashboard/analytics",
-  /** @deprecated Prefer `adminPerformance` — kept as alias for admin path. */
-  performance: "/admin/performance",
   /** @deprecated Prefer `adminBackup` — kept as alias for admin path. */
   backup: "/admin/backup",
   settings: "/dashboard/settings",
   admin: "/admin",
   adminUsers: "/admin/users",
   adminSettings: "/admin/settings",
-  adminPerformance: "/admin/performance",
   adminBackup: "/admin/backup",
   adminCatalog: "/admin/catalog",
 } as const;

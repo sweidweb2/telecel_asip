@@ -24,15 +24,13 @@ export async function runInboxStatusMutation(options: {
   input: UpdateInboxStatusInput;
   messages: AdminMutationMessages;
   refresh: () => void;
-  perfName?: string;
 }): Promise<AdminActionResult> {
-  const { table, input, messages, refresh, perfName } = options;
+  const { table, input, messages, refresh } = options;
 
   return runAdminMutation({
     schema: updateInboxStatusSchema,
     input,
     messages,
-    perfName: perfName ?? `updateInboxStatus:${table}`,
     execute: async (session, data) => {
       let query = session.supabase
         .from(table)

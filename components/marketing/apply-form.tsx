@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   useForm,
-  useWatch,
   type FieldValues,
   type UseFormRegister,
 } from "react-hook-form";
@@ -28,7 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
 import type { Locale } from "@/constants/locales";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   applicationSchemaFor,
@@ -60,7 +60,7 @@ const REGISTER_DEFAULTS: InterestRegistrationInput = {
   pitch: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: "",
+  turnstileToken: initialTurnstileToken(),
 };
 
 const APPLY_DEFAULTS: ApplicationInput = {
@@ -79,7 +79,7 @@ const APPLY_DEFAULTS: ApplicationInput = {
   programmeFit: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: "",
+  turnstileToken: initialTurnstileToken(),
 };
 
 export function ApplyForm({
@@ -131,20 +131,20 @@ function RegisterIntakeForm({
     defaultValues: { ...REGISTER_DEFAULTS, email: defaultEmail },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
-  const turnstile = useTurnstile({
-    action: TURNSTILE_APPLY_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_APPLY_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: InterestRegistrationInput) {
     startTransition(async () => {
       try {
-        const result = await submitInterestRegistration(values);
+        const result = await submitInterestRegistration({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -158,7 +158,7 @@ function RegisterIntakeForm({
             : "Something went wrong. Please try again.",
         );
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -183,15 +183,18 @@ function RegisterIntakeForm({
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <input type="hidden" {...register("turnstileToken")} />
         <TurnstileField
           turnstile={turnstile}
-          hasToken={Boolean(turnstileToken)}
+          token={turnstileToken}
           hint={labels.turnstileHint}
           error={errors.turnstileToken?.message}
           testId="register-turnstile"
         />
-        <IntakeSubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton
+          labels={labels}
+          isPending={isPending}
+          disabled={!hasToken}
+        />
       </form>
       <IntakeSuccessDialog
         open={successOpen}
@@ -221,20 +224,20 @@ function ApplyIntakeForm({
     defaultValues: { ...APPLY_DEFAULTS, email: defaultEmail },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
-  const turnstile = useTurnstile({
-    action: TURNSTILE_APPLY_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_APPLY_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: ApplicationInput) {
     startTransition(async () => {
       try {
-        const result = await submitApplication(values);
+        const result = await submitApplication({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -248,7 +251,7 @@ function ApplyIntakeForm({
             : "Something went wrong. Please try again.",
         );
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -330,15 +333,18 @@ function ApplyIntakeForm({
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <input type="hidden" {...register("turnstileToken")} />
         <TurnstileField
           turnstile={turnstile}
-          hasToken={Boolean(turnstileToken)}
+          token={turnstileToken}
           hint={labels.turnstileHint}
           error={errors.turnstileToken?.message}
           testId="apply-turnstile"
         />
-        <IntakeSubmitButton labels={labels} isPending={isPending} />
+        <IntakeSubmitButton
+          labels={labels}
+          isPending={isPending}
+          disabled={!hasToken}
+        />
       </form>
       <IntakeSuccessDialog
         open={successOpen}

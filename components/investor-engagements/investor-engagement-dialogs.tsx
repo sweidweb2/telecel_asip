@@ -22,7 +22,6 @@ import {
 import {
   ADMIN_INBOX_EDIT_DIALOG_CLASS,
   ADMIN_INBOX_EDIT_HEADER_CLASS,
-  ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
   AdminDetailSection,
@@ -32,7 +31,7 @@ import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import { InboxDialogLoading } from "@/components/dashboard/inbox-dialog-loading";
-import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { InboxViewDialogShell } from "@/components/dashboard/inbox-view-dialog";
 import {
   formatInvestorValues,
   InvestorCommsOptInField,
@@ -71,7 +70,7 @@ import {
   INVESTOR_TIMELINES,
 } from "@/constants/investor-intake";
 import { useEditorRecord } from "@/hooks/use-editor-record";
-import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
+import { useInboxViewDialog } from "@/hooks/use-inbox-view-dialog";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
@@ -214,88 +213,76 @@ export function InvestorEngagementViewDialog({
   inboxStatus: InvestorEngagement["inbox_status"] | undefined;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { record, isLoading } = useEditorRecord({
+  const { record, isLoading } = useInboxViewDialog({
     open,
     id: engagementId,
+    inboxStatus,
     load: loadInvestorEngagement,
-    missingMessage: "Investor engagement not found.",
-  });
-  useMarkInboxReviewed({
-    id: engagementId ?? "",
-    inboxStatus: inboxStatus ?? "reviewed",
     updateAction: updateInvestorEngagementInboxStatus,
-    isOpen: open && Boolean(engagementId),
+    missingMessage: "Investor engagement not found.",
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
-        <DialogHeader className="min-w-0 gap-3">
-          <div className="flex flex-wrap items-start gap-2 pr-8">
-            <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
-              {record?.full_name ?? "Investor engagement"}
-            </DialogTitle>
-            {record ? <InboxStatusBadge status={record.inbox_status} /> : null}
-          </div>
-          <DialogDescription>
-            {record
-              ? `Investor engagement · submitted ${formatAdminDateTime(record.created_at)}`
-              : "Investor engagement details"}
-          </DialogDescription>
-        </DialogHeader>
-
-        {record ? (
-          <div className="grid min-w-0 gap-6">
-            <InvestorContactViewSections record={record} />
-            <AdminDetailSection title="Focus">
-              <AdminDetailGrid>
-                <AdminDetailRow label="Stages">
-                  {formatInvestorValues(
-                    record.stages,
-                    INVESTOR_ADMIN_LABELS.stageLabels,
-                  )}
-                </AdminDetailRow>
-                <AdminDetailRow label="Ticket size">
-                  {INVESTOR_ADMIN_LABELS.ticketLabels[record.ticket_size] ??
-                    record.ticket_size}
-                </AdminDetailRow>
-                <AdminDetailRow label="Sectors" className="sm:col-span-2">
-                  {formatInvestorValues(record.sectors)}
-                </AdminDetailRow>
-                <AdminDetailRow label="Geographies" className="sm:col-span-2">
-                  {formatInvestorValues(record.geographies)}
-                </AdminDetailRow>
-                <AdminDetailRow label="Intent">
-                  {INVESTOR_ADMIN_LABELS.intentLabels[
-                    record.engagement_intent
-                  ] ?? record.engagement_intent}
-                </AdminDetailRow>
-                <AdminDetailRow label="Timeline">
-                  {record.timeline
-                    ? (INVESTOR_ADMIN_LABELS.timelineLabels[record.timeline] ??
-                      record.timeline)
-                    : null}
-                </AdminDetailRow>
-              </AdminDetailGrid>
-            </AdminDetailSection>
-            <AdminDetailSection title="Thesis">
-              <AdminDetailRow label="Thesis">{record.thesis}</AdminDetailRow>
-              <AdminDetailRow label="Referral">{record.referred_by}</AdminDetailRow>
-              <AdminDetailRow label="Message">{record.message}</AdminDetailRow>
-            </AdminDetailSection>
-            <InvestorContextViewSection
-              locale={record.locale}
-              sourcePath={record.source_path}
-              consentVersion={record.consent_version}
-            />
-          </div>
-        ) : isLoading ? (
-          <InboxDialogLoading />
-        ) : null}
-
-        <DialogFooter showCloseButton />
-      </DialogContent>
-    </Dialog>
+    <InboxViewDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={record?.full_name ?? "Investor engagement"}
+      description={
+        record
+          ? `Investor engagement · submitted ${formatAdminDateTime(record.created_at)}`
+          : "Investor engagement details"
+      }
+      status={record?.inbox_status}
+      hasRecord={Boolean(record)}
+      isLoading={isLoading}
+    >
+      {record ? (
+        <>
+          <InvestorContactViewSections record={record} />
+          <AdminDetailSection title="Focus">
+            <AdminDetailGrid>
+              <AdminDetailRow label="Stages">
+                {formatInvestorValues(
+                  record.stages,
+                  INVESTOR_ADMIN_LABELS.stageLabels,
+                )}
+              </AdminDetailRow>
+              <AdminDetailRow label="Ticket size">
+                {INVESTOR_ADMIN_LABELS.ticketLabels[record.ticket_size] ??
+                  record.ticket_size}
+              </AdminDetailRow>
+              <AdminDetailRow label="Sectors" className="sm:col-span-2">
+                {formatInvestorValues(record.sectors)}
+              </AdminDetailRow>
+              <AdminDetailRow label="Geographies" className="sm:col-span-2">
+                {formatInvestorValues(record.geographies)}
+              </AdminDetailRow>
+              <AdminDetailRow label="Intent">
+                {INVESTOR_ADMIN_LABELS.intentLabels[
+                  record.engagement_intent
+                ] ?? record.engagement_intent}
+              </AdminDetailRow>
+              <AdminDetailRow label="Timeline">
+                {record.timeline
+                  ? (INVESTOR_ADMIN_LABELS.timelineLabels[record.timeline] ??
+                    record.timeline)
+                  : null}
+              </AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
+          <AdminDetailSection title="Thesis">
+            <AdminDetailRow label="Thesis">{record.thesis}</AdminDetailRow>
+            <AdminDetailRow label="Referral">{record.referred_by}</AdminDetailRow>
+            <AdminDetailRow label="Message">{record.message}</AdminDetailRow>
+          </AdminDetailSection>
+          <InvestorContextViewSection
+            locale={record.locale}
+            sourcePath={record.source_path}
+            consentVersion={record.consent_version}
+          />
+        </>
+      ) : null}
+    </InboxViewDialogShell>
   );
 }
 

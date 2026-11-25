@@ -18,7 +18,6 @@ const STAFF_PATHS = [
   "/dashboard/impact-metrics",
   "/dashboard/partners",
   "/admin",
-  "/admin/performance",
   "/admin/backup",
   "/admin/settings",
   "/admin/users",

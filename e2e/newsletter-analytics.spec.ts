@@ -42,24 +42,6 @@ test.describe("editor analytics and admin performance authz", () => {
     },
   );
 
-  test(
-    "admin can open performance",
-    { tag: "@smoke" },
-    async ({ page }) => {
-      await loginAsAdmin(page, "/admin/performance");
-      await expect(
-        page.getByRole("heading", { name: /performance/i }),
-      ).toBeVisible();
-    },
-  );
-
-  test("editor cannot open admin performance", async ({ page }) => {
-    test.setTimeout(60_000);
-    await loginAsEditor(page, "/dashboard");
-    await page.goto("/admin/performance");
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 20_000 });
-  });
-
   test("admin cannot open editor CMS routes", async ({ page }) => {
     test.setTimeout(60_000);
     await loginAsAdmin(page, "/admin/users");

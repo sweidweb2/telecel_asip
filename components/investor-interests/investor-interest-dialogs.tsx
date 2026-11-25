@@ -15,7 +15,6 @@ import {
 import {
   ADMIN_INBOX_EDIT_DIALOG_CLASS,
   ADMIN_INBOX_EDIT_HEADER_CLASS,
-  ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailRow,
   AdminDetailSection,
 } from "@/components/dashboard/admin-detail-row";
@@ -24,7 +23,7 @@ import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import { InboxDialogLoading } from "@/components/dashboard/inbox-dialog-loading";
-import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { InboxViewDialogShell } from "@/components/dashboard/inbox-view-dialog";
 import {
   InvestorCommsOptInField,
   InvestorContactEditFields,
@@ -44,7 +43,7 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { useEditorRecord } from "@/hooks/use-editor-record";
-import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
+import { useInboxViewDialog } from "@/hooks/use-inbox-view-dialog";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
@@ -116,55 +115,43 @@ export function InvestorInterestViewDialog({
   inboxStatus: InvestorInterest["inbox_status"] | undefined;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { record, isLoading } = useEditorRecord({
+  const { record, isLoading } = useInboxViewDialog({
     open,
     id: interestId,
+    inboxStatus,
     load: loadInvestorInterest,
-    missingMessage: "Investor interest not found.",
-  });
-  useMarkInboxReviewed({
-    id: interestId ?? "",
-    inboxStatus: inboxStatus ?? "reviewed",
     updateAction: updateInvestorInterestInboxStatus,
-    isOpen: open && Boolean(interestId),
+    missingMessage: "Investor interest not found.",
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
-        <DialogHeader className="min-w-0 gap-3">
-          <div className="flex flex-wrap items-start gap-2 pr-8">
-            <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
-              {record?.full_name ?? "Investor interest"}
-            </DialogTitle>
-            {record ? <InboxStatusBadge status={record.inbox_status} /> : null}
-          </div>
-          <DialogDescription>
-            {record
-              ? `Investor interest · submitted ${formatAdminDateTime(record.created_at)}`
-              : "Investor interest details"}
-          </DialogDescription>
-        </DialogHeader>
-
-        {record ? (
-          <div className="grid min-w-0 gap-6">
-            <InvestorContactViewSections record={record} />
-            <AdminDetailSection title="Note">
-              <AdminDetailRow label="Focus note">{record.focus_note}</AdminDetailRow>
-            </AdminDetailSection>
-            <InvestorContextViewSection
-              locale={record.locale}
-              sourcePath={record.source_path}
-              consentVersion={record.consent_version}
-            />
-          </div>
-        ) : isLoading ? (
-          <InboxDialogLoading />
-        ) : null}
-
-        <DialogFooter showCloseButton />
-      </DialogContent>
-    </Dialog>
+    <InboxViewDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={record?.full_name ?? "Investor interest"}
+      description={
+        record
+          ? `Investor interest · submitted ${formatAdminDateTime(record.created_at)}`
+          : "Investor interest details"
+      }
+      status={record?.inbox_status}
+      hasRecord={Boolean(record)}
+      isLoading={isLoading}
+    >
+      {record ? (
+        <>
+          <InvestorContactViewSections record={record} />
+          <AdminDetailSection title="Note">
+            <AdminDetailRow label="Focus note">{record.focus_note}</AdminDetailRow>
+          </AdminDetailSection>
+          <InvestorContextViewSection
+            locale={record.locale}
+            sourcePath={record.source_path}
+            consentVersion={record.consent_version}
+          />
+        </>
+      ) : null}
+    </InboxViewDialogShell>
   );
 }
 

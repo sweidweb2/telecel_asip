@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
-import { useCallback, useTransition } from "react";
+import { useTransition } from "react";
 import { Controller, useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -16,9 +16,11 @@ import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import type { Locale } from "@/constants/locales";
 import { authPath } from "@/constants/routes";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { cn } from "@/lib/utils";
 import { TURNSTILE_SIGNUP_ACTION } from "@/types/turnstile";
 import {
@@ -45,7 +47,6 @@ export function SignupForm({
     handleSubmit,
     control,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchemaFor(locale)) as Resolver<RegisterInput>,
@@ -55,41 +56,28 @@ export function SignupForm({
       password: "",
       confirmPassword: "",
       type: "startup",
-      turnstileToken: "",
+      turnstileToken: initialTurnstileToken(),
     },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
   const accountType = useWatch({ control, name: "type" }) ?? "startup";
-  const turnstile = useTurnstile({
-    action: TURNSTILE_SIGNUP_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, {
-          shouldValidate: token !== "",
-          shouldDirty: true,
-        }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset } =
+    useFormTurnstile({
+      action: TURNSTILE_SIGNUP_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: RegisterInput) {
     startTransition(async () => {
       try {
-        const payload: RegisterInput = {
-          fullName: values.fullName ?? getValues("fullName") ?? "",
-          email: values.email ?? getValues("email") ?? "",
-          password: values.password ?? getValues("password") ?? "",
-          confirmPassword:
-            values.confirmPassword ?? getValues("confirmPassword") ?? "",
-          type: values.type ?? getValues("type") ?? "startup",
-          turnstileToken:
-            turnstileToken ||
-            values.turnstileToken ||
-            getValues("turnstileToken") ||
-            "",
-        };
-        const result = await signUp(payload, redirectTo);
+        const result = await signUp(
+          {
+            ...values,
+            turnstileToken: submitToken(values.turnstileToken),
+          },
+          redirectTo,
+        );
 
         if (result.status === "error") {
           toast.error(result.message);
@@ -110,7 +98,7 @@ export function SignupForm({
           : loginBase;
         router.push(loginHref);
       } finally {
-        turnstile.reset();
+        reset();
       }
     });
   }
@@ -206,13 +194,14 @@ export function SignupForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="password">{labels.passwordLabel}</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="new-password"
           placeholder={labels.passwordPlaceholder}
           aria-invalid={Boolean(errors.password)}
           disabled={isPending}
+          showPasswordLabel={labels.showPassword}
+          hidePasswordLabel={labels.hidePassword}
           {...register("password", { setValueAs: (value) => value ?? "" })}
         />
         {errors.password ? (
@@ -221,12 +210,13 @@ export function SignupForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="confirmPassword">{labels.confirmPasswordLabel}</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
-          type="password"
           autoComplete="new-password"
           aria-invalid={Boolean(errors.confirmPassword)}
           disabled={isPending}
+          showPasswordLabel={labels.showPassword}
+          hidePasswordLabel={labels.hidePassword}
           {...register("confirmPassword", {
             setValueAs: (value) => value ?? "",
           })}
@@ -237,17 +227,9 @@ export function SignupForm({
           </p>
         ) : null}
       </div>
-      <input
-        type="hidden"
-        name="turnstileToken"
-        value={turnstileToken ?? ""}
-        readOnly
-        aria-hidden
-        tabIndex={-1}
-      />
       <TurnstileField
         turnstile={turnstile}
-        hasToken={Boolean(turnstileToken)}
+        token={turnstileToken}
         hint={labels.turnstileHint}
         error={errors.turnstileToken?.message}
         testId="signup-turnstile"
@@ -255,7 +237,7 @@ export function SignupForm({
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending || !turnstileToken}
+        disabled={isPending || !hasToken}
       >
         {isPending ? (
           <>

@@ -1,5 +1,7 @@
 ## Admin performance tracker
 
+> Torn down — table dropped (`20261125060000_drop_admin_perf_events`), instrumentation and `/admin/performance` removed.
+
 Temporary CMS debug instrumentation. Records layout/page/action/data timings into `public.admin_perf_events` and surfaces them at `/dashboard/performance`. Product Analytics (`/dashboard/analytics`) stays separate.
 
 ---

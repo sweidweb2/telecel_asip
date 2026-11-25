@@ -15,7 +15,6 @@ import {
 import {
   ADMIN_INBOX_EDIT_DIALOG_CLASS,
   ADMIN_INBOX_EDIT_HEADER_CLASS,
-  ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
   AdminDetailSection,
@@ -26,8 +25,9 @@ import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import { InboxDialogLoading } from "@/components/dashboard/inbox-dialog-loading";
-import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { InboxViewDialogShell } from "@/components/dashboard/inbox-view-dialog";
 import { Button } from "@/components/ui/button";
+import { useInboxViewDialog } from "@/hooks/use-inbox-view-dialog";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +41,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
 import { useEditorRecord } from "@/hooks/use-editor-record";
-import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
@@ -125,91 +124,79 @@ export function RegistrationViewDialog({
   inboxStatus: InterestRegistration["inbox_status"] | undefined;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { record, isLoading } = useEditorRecord({
+  const { record, isLoading } = useInboxViewDialog({
     open,
     id: registrationId,
+    inboxStatus,
     load: loadInterestRegistration,
-    missingMessage: "Registration not found.",
-  });
-  useMarkInboxReviewed({
-    id: registrationId ?? "",
-    inboxStatus: inboxStatus ?? "reviewed",
     updateAction: updateInterestRegistrationInboxStatus,
-    isOpen: open && Boolean(registrationId),
+    missingMessage: "Registration not found.",
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
-        <DialogHeader className="min-w-0 gap-3">
-          <div className="flex flex-wrap items-start gap-2 pr-8">
-            <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
-              {record?.full_name ?? "Registration"}
-            </DialogTitle>
-            {record ? <InboxStatusBadge status={record.inbox_status} /> : null}
-          </div>
-          <DialogDescription>
-            {record
-              ? `Registration · submitted ${formatAdminDateTime(record.created_at)}`
-              : "Registration details"}
-          </DialogDescription>
-        </DialogHeader>
-
-        {record ? (
-          <div className="grid min-w-0 gap-6">
-            <AdminDetailSection title="Contact">
-              <AdminDetailGrid>
-                <AdminDetailRow label="Role">{record.founder_role}</AdminDetailRow>
-                <AdminDetailRow label="Country">{record.country}</AdminDetailRow>
-                <AdminDetailRow label="Email">{record.email}</AdminDetailRow>
-                <AdminDetailRow label="Phone">{record.phone}</AdminDetailRow>
-                <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
-                  {record.linkedin ? (
-                    <AdminExternalLink href={record.linkedin} label={record.linkedin} />
-                  ) : null}
-                </AdminDetailRow>
-              </AdminDetailGrid>
-            </AdminDetailSection>
-            <AdminDetailSection title="Company">
-              <AdminDetailGrid>
-                <AdminDetailRow label="Name">{record.company_name}</AdminDetailRow>
-                <AdminDetailRow label="Sector">{record.sector}</AdminDetailRow>
-                <AdminDetailRow label="Company country">
-                  {record.company_country}
-                </AdminDetailRow>
-                <AdminDetailRow label="Consent">
-                  {record.consent ? "Yes" : "No"}
-                </AdminDetailRow>
-                <AdminDetailRow label="Communications">
-                  {record.comms_opt_in ? "Opted in" : "Not opted in"}
-                </AdminDetailRow>
-                <AdminDetailRow label="Website" className="sm:col-span-2">
-                  {record.website ? (
-                    <AdminExternalLink href={record.website} label={record.website} />
-                  ) : null}
-                </AdminDetailRow>
-              </AdminDetailGrid>
-            </AdminDetailSection>
-            <AdminDetailSection title="Note">
-              <AdminDetailRow label="Pitch">{record.pitch}</AdminDetailRow>
-            </AdminDetailSection>
-            <AdminDetailSection title="Submission context">
-              <AdminDetailGrid>
-                <AdminDetailRow label="Locale">{record.locale.toUpperCase()}</AdminDetailRow>
-                <AdminDetailRow label="Source">{record.source_path}</AdminDetailRow>
-                <AdminDetailRow label="Consent version">
-                  {record.consent_version}
-                </AdminDetailRow>
-              </AdminDetailGrid>
-            </AdminDetailSection>
-          </div>
-        ) : isLoading ? (
-          <InboxDialogLoading />
-        ) : null}
-
-        <DialogFooter showCloseButton />
-      </DialogContent>
-    </Dialog>
+    <InboxViewDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={record?.full_name ?? "Registration"}
+      description={
+        record
+          ? `Registration · submitted ${formatAdminDateTime(record.created_at)}`
+          : "Registration details"
+      }
+      status={record?.inbox_status}
+      hasRecord={Boolean(record)}
+      isLoading={isLoading}
+    >
+      {record ? (
+        <>
+          <AdminDetailSection title="Contact">
+            <AdminDetailGrid>
+              <AdminDetailRow label="Role">{record.founder_role}</AdminDetailRow>
+              <AdminDetailRow label="Country">{record.country}</AdminDetailRow>
+              <AdminDetailRow label="Email">{record.email}</AdminDetailRow>
+              <AdminDetailRow label="Phone">{record.phone}</AdminDetailRow>
+              <AdminDetailRow label="LinkedIn" className="sm:col-span-2">
+                {record.linkedin ? (
+                  <AdminExternalLink href={record.linkedin} label={record.linkedin} />
+                ) : null}
+              </AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
+          <AdminDetailSection title="Company">
+            <AdminDetailGrid>
+              <AdminDetailRow label="Name">{record.company_name}</AdminDetailRow>
+              <AdminDetailRow label="Sector">{record.sector}</AdminDetailRow>
+              <AdminDetailRow label="Company country">
+                {record.company_country}
+              </AdminDetailRow>
+              <AdminDetailRow label="Consent">
+                {record.consent ? "Yes" : "No"}
+              </AdminDetailRow>
+              <AdminDetailRow label="Communications">
+                {record.comms_opt_in ? "Opted in" : "Not opted in"}
+              </AdminDetailRow>
+              <AdminDetailRow label="Website" className="sm:col-span-2">
+                {record.website ? (
+                  <AdminExternalLink href={record.website} label={record.website} />
+                ) : null}
+              </AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
+          <AdminDetailSection title="Note">
+            <AdminDetailRow label="Pitch">{record.pitch}</AdminDetailRow>
+          </AdminDetailSection>
+          <AdminDetailSection title="Submission context">
+            <AdminDetailGrid>
+              <AdminDetailRow label="Locale">{record.locale.toUpperCase()}</AdminDetailRow>
+              <AdminDetailRow label="Source">{record.source_path}</AdminDetailRow>
+              <AdminDetailRow label="Consent version">
+                {record.consent_version}
+              </AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
+        </>
+      ) : null}
+    </InboxViewDialogShell>
   );
 }
 

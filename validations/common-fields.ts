@@ -11,6 +11,8 @@ export const HTTP_URL_REGEX = /^https?:\/\/.+/i;
 
 export const DEFAULT_URL_MAX = 500;
 export const TURNSTILE_TOKEN_MAX = 2048;
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX = 128;
 export const PHONE_MIN = 7;
 export const PHONE_MAX = 20;
 
@@ -84,6 +86,21 @@ export function turnstileTokenField(message: string) {
     .trim()
     .min(1, message)
     .max(TURNSTILE_TOKEN_MAX, message);
+}
+
+/** Password with letter + number complexity (shared by auth + admin users). */
+export function passwordComplexitySchema(messages: {
+  min: string;
+  letter: string;
+  number: string;
+  max?: string;
+}) {
+  return z
+    .string()
+    .min(PASSWORD_MIN, messages.min)
+    .max(PASSWORD_MAX, messages.max ?? messages.min)
+    .regex(/[A-Za-z]/, messages.letter)
+    .regex(/[0-9]/, messages.number);
 }
 
 /**

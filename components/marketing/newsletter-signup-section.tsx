@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -15,7 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/constants/locales";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { TURNSTILE_NEWSLETTER_ACTION } from "@/types/turnstile";
 import {
   newsletterSubscribeSchema,
@@ -49,26 +50,25 @@ export function NewsletterSignupSection({
       email: "",
       consent: false,
       sourcePage,
-      turnstileToken: "",
+      turnstileToken: initialTurnstileToken(),
     },
   });
 
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
   const consent = useWatch({ control, name: "consent" });
-
-  const turnstile = useTurnstile({
-    action: TURNSTILE_NEWSLETTER_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_NEWSLETTER_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: NewsletterSubscribeInput) {
     startTransition(async () => {
       try {
-        const result = await subscribeNewsletter(values);
+        const result = await subscribeNewsletter({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -78,10 +78,10 @@ export function NewsletterSignupSection({
           email: "",
           consent: false,
           sourcePage,
-          turnstileToken: "",
+          turnstileToken: initialTurnstileToken(),
         });
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -151,16 +151,13 @@ export function NewsletterSignupSection({
           ) : null}
 
           {enabled ? (
-            <>
-              <input type="hidden" {...register("turnstileToken")} />
-              <TurnstileField
-                turnstile={turnstile}
-                hasToken={Boolean(turnstileToken)}
-                hint={labels.turnstileHint}
-                error={errors.turnstileToken?.message}
-                testId="newsletter-turnstile"
-              />
-            </>
+            <TurnstileField
+              turnstile={turnstile}
+              token={turnstileToken}
+              hint={labels.turnstileHint}
+              error={errors.turnstileToken?.message}
+              testId="newsletter-turnstile"
+            />
           ) : null}
 
           <Button
@@ -170,7 +167,7 @@ export function NewsletterSignupSection({
               isPending ||
               !enabled ||
               !consent ||
-              (enabled && !turnstileToken)
+              (enabled && !hasToken)
             }
           >
             {isPending ? <Loader2Icon className="animate-spin" /> : null}

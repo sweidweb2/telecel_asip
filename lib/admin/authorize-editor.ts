@@ -7,10 +7,7 @@ import {
 export type AuthorizeEditorMessages = AuthorizeRoleMessages;
 export type EditorSession = StaffActionSession;
 
-/**
- * Session + editor gate for CMS / settings / intake Server Actions.
- * Uses request-cached `getStaffShell` via `isCurrentUserEditor`.
- */
+/** Session + editor gate for CMS / settings / intake Server Actions. */
 export async function authorizeEditor(
   messages: AuthorizeEditorMessages,
 ): Promise<EditorSession> {

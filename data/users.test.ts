@@ -36,10 +36,6 @@ vi.mock("@/lib/admin/get-staff-shell", () => ({
   getStaffShell: (...args: unknown[]) => getStaffShell(...args),
 }));
 
-vi.mock("@/lib/admin/perf", () => ({
-  traceAsync: (_name: string, _attrs: unknown, fn: () => unknown) => fn(),
-}));
-
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ from, rpc })),
 }));

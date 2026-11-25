@@ -6,7 +6,6 @@ import { StaffShellLayout } from "@/components/dashboard/staff-shell-layout";
 import { publicPath, ROUTES } from "@/constants/routes";
 import { getStaffShell } from "@/data/admin-shell";
 import { getDashboardNavCounts } from "@/data/dashboard-nav-counts";
-import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { userDisplayName, userInitials } from "@/lib/user-display";
 import type { DashboardAccount } from "@/types/profile";
@@ -20,11 +19,7 @@ export default async function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  const shell = await traceAsync(
-    "dashboardLayout",
-    { eventType: "layout", meta: { ops: ["getStaffShell"] } },
-    () => getStaffShell(),
-  );
+  const shell = await getStaffShell();
 
   if (shell.isAdmin) {
     redirect(ROUTES.admin);
@@ -40,8 +35,6 @@ export default async function DashboardLayout({
     email,
     initials: userInitials(shell.fullName, email),
   };
-
-  setAdminPerfRoute("/dashboard");
 
   return (
     <StaffShellLayout

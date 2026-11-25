@@ -8,9 +8,8 @@ import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   refreshAdminResource,
-  runAdminMutation
+  runAdminMutation,
 } from "@/lib/admin/run-admin-mutation";
-import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
   uploadVersionedPublicImage,
@@ -248,63 +247,57 @@ export async function uploadCohortMedia(
   cohortId: string,
   formData: FormData,
 ): Promise<CohortActionResult> {
-  return traceAsync(
-    "uploadCohortMedia",
-    { eventType: "upload", cacheStatus: "n_a", meta: { cohortId } },
-    async () => {
-      if (!cohortIdSchema.safeParse(cohortId).success) {
-        return { status: "error", message: MESSAGES.invalidDetails };
-      }
+  if (!cohortIdSchema.safeParse(cohortId).success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
 
-      const file = formData.get("file");
-      if (!(file instanceof File)) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { status: "error", message: MESSAGES.invalidImage };
+  }
 
-      const session = await authorizeEditor(MESSAGES);
-      if (session.status === "error") return session;
+  const session = await authorizeEditor(MESSAGES);
+  if (session.status === "error") return session;
 
-      const { data: existing, error: existingError } = await session.supabase
+  const { data: existing, error: existingError } = await session.supabase
+    .from("cohorts")
+    .select("id, media_url")
+    .eq("id", cohortId)
+    .maybeSingle();
+
+  if (existingError) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+  if (!existing) {
+    return { status: "error", message: MESSAGES.notFound };
+  }
+
+  const uploaded = await uploadVersionedPublicImage({
+    supabase: session.supabase,
+    file,
+    bucket: MEDIA_BUCKET,
+    entityId: cohortId,
+    preset: "cohortCover",
+    previousUrl: existing.media_url,
+    maxBytes: MEDIA_MAX_BYTES,
+    messages: MESSAGES,
+    updateRow: async (publicUrl) =>
+      session.supabase
         .from("cohorts")
-        .select("id, media_url")
+        .update({ media_url: publicUrl })
         .eq("id", cohortId)
-        .maybeSingle();
+        .select("id")
+        .maybeSingle(),
+  });
 
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
+  if (uploaded.status === "error") return uploaded;
 
-      const uploaded = await uploadVersionedPublicImage({
-        supabase: session.supabase,
-        file,
-        bucket: MEDIA_BUCKET,
-        entityId: cohortId,
-        preset: "cohortCover",
-        previousUrl: existing.media_url,
-        maxBytes: MEDIA_MAX_BYTES,
-        messages: MESSAGES,
-        updateRow: async (publicUrl) =>
-          session.supabase
-            .from("cohorts")
-            .update({ media_url: publicUrl })
-            .eq("id", cohortId)
-            .select("id")
-            .maybeSingle(),
-      });
-
-      if (uploaded.status === "error") return uploaded;
-
-      refreshCohortPaths(cohortId);
-      return {
-        status: "success",
-        message: MESSAGES.uploadSuccess,
-        id: cohortId,
-      };
-    },
-  );
+  refreshCohortPaths(cohortId);
+  return {
+    status: "success",
+    message: MESSAGES.uploadSuccess,
+    id: cohortId,
+  };
 }
 
 export async function removeCohortMedia(

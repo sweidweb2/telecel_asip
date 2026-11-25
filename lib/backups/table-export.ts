@@ -34,7 +34,6 @@ const BACKUP_ORDER_COLUMNS: Record<BackupTableName, readonly string[]> = {
   cohorts: ["id"],
   cohort_partners: ["cohort_id", "partner_id"],
   cohort_startups: ["cohort_id", "startup_id"],
-  admin_perf_events: ["id"],
 };
 
 /**

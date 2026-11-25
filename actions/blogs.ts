@@ -10,10 +10,9 @@ import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   revalidateDashboardNavCounts,
-  runAdminMutation
+  runAdminMutation,
 } from "@/lib/admin/run-admin-mutation";
 import type { AdminActionResult } from "@/types/admin-action";
-import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
   uploadVersionedPublicImage,
@@ -49,7 +48,8 @@ const MESSAGES = {
   notFound: "Blog not found.",
   genericError: "Something went wrong. Please try again.",
   slugTaken: "That slug is already in use.",
-  featuredTaken: "Another post is already featured. Unfeature it first, or save again.",
+  featuredTaken:
+    "Another post is already featured. Unfeature it first, or save again.",
   invalidImage: "Please upload a JPEG, PNG, WebP, or GIF under 10 MB.",
 } as const;
 
@@ -132,7 +132,6 @@ export async function createBlog(
       ...MESSAGES,
       success: MESSAGES.createSuccess,
     },
-    perfName: "createBlog",
     execute: async (session, data) => {
       const { data: rpcData, error } = await session.supabase.rpc(
         "create_blog_with_featured",
@@ -162,7 +161,6 @@ export async function updateBlog(
       ...MESSAGES,
       success: MESSAGES.updateSuccess,
     },
-    perfName: "updateBlog",
     execute: async (session, data) => {
       const { id, ...rest } = data;
 
@@ -205,7 +203,6 @@ export async function updateBlogStatus(
       ...MESSAGES,
       success: successMessage,
     },
-    perfName: "updateBlogStatus",
     execute: async (session, data) => {
       const { data: rpcData, error } = await session.supabase.rpc(
         "update_blog_status",
@@ -298,71 +295,61 @@ async function uploadImage(options: {
 }): Promise<BlogActionResult> {
   const { blogId, file, bucket, column, maxBytes } = options;
 
-  return traceAsync(
-    column === "thumbnail_url" ? "uploadBlogThumbnail" : "uploadAuthorAvatar",
-    {
-      eventType: "upload",
-      cacheStatus: "n_a",
-      meta: { column, bucket, bytes: file.size },
-    },
-    async () => {
-      const parsedId = blogIdSchema.safeParse(blogId);
-      if (!parsedId.success) {
-        return { status: "error", message: MESSAGES.invalidDetails };
-      }
+  const parsedId = blogIdSchema.safeParse(blogId);
+  if (!parsedId.success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
 
-      const session = await authorizeEditor(MESSAGES);
-      if (session.status === "error") return session;
+  const session = await authorizeEditor(MESSAGES);
+  if (session.status === "error") return session;
 
-      const { data: existing, error: existingError } = await session.supabase
-        .from("blogs")
-        .select("id, slug, thumbnail_url, author_avatar_url")
-        .eq("id", blogId)
-        .maybeSingle();
+  const { data: existing, error: existingError } = await session.supabase
+    .from("blogs")
+    .select("id, slug, thumbnail_url, author_avatar_url")
+    .eq("id", blogId)
+    .maybeSingle();
 
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
+  if (existingError) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+  if (!existing) {
+    return { status: "error", message: MESSAGES.notFound };
+  }
 
-      const previousUrl =
-        column === "thumbnail_url"
-          ? existing.thumbnail_url
-          : existing.author_avatar_url;
+  const previousUrl =
+    column === "thumbnail_url"
+      ? existing.thumbnail_url
+      : existing.author_avatar_url;
 
-      const uploaded = await uploadVersionedPublicImage({
-        supabase: session.supabase,
-        file,
-        bucket,
-        entityId: blogId,
-        preset: column === "thumbnail_url" ? "blogCover" : "blogAvatar",
-        previousUrl,
-        maxBytes,
-        messages: MESSAGES,
-        updateRow: async (publicUrl) =>
-          column === "thumbnail_url"
-            ? session.supabase
-                .from("blogs")
-                .update({ thumbnail_url: publicUrl })
-                .eq("id", blogId)
-                .select("id")
-                .maybeSingle()
-            : session.supabase
-                .from("blogs")
-                .update({ author_avatar_url: publicUrl })
-                .eq("id", blogId)
-                .select("id")
-                .maybeSingle(),
-      });
+  const uploaded = await uploadVersionedPublicImage({
+    supabase: session.supabase,
+    file,
+    bucket,
+    entityId: blogId,
+    preset: column === "thumbnail_url" ? "blogCover" : "blogAvatar",
+    previousUrl,
+    maxBytes,
+    messages: MESSAGES,
+    updateRow: async (publicUrl) =>
+      column === "thumbnail_url"
+        ? session.supabase
+            .from("blogs")
+            .update({ thumbnail_url: publicUrl })
+            .eq("id", blogId)
+            .select("id")
+            .maybeSingle()
+        : session.supabase
+            .from("blogs")
+            .update({ author_avatar_url: publicUrl })
+            .eq("id", blogId)
+            .select("id")
+            .maybeSingle(),
+  });
 
-      if (uploaded.status === "error") return uploaded;
+  if (uploaded.status === "error") return uploaded;
 
-      refreshBlogPaths(existing.slug, blogId);
-      return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
-    },
-  );
+  refreshBlogPaths(existing.slug, blogId);
+  return { status: "success", message: MESSAGES.uploadSuccess, id: blogId };
 }
 
 export async function uploadBlogThumbnail(
@@ -410,7 +397,8 @@ export async function removeBlogImage(
   const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
-  const bucket = parsed.data.kind === "thumbnail" ? COVER_BUCKET : AUTHOR_BUCKET;
+  const bucket =
+    parsed.data.kind === "thumbnail" ? COVER_BUCKET : AUTHOR_BUCKET;
 
   const { data: existing, error: existingError } = await session.supabase
     .from("blogs")

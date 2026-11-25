@@ -20,10 +20,14 @@ import {
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
 import { AdminFormSection } from "@/components/dashboard/admin-form-section";
+import {
+  CmsTextareaField,
+  CmsTextField,
+  CmsUrlField,
+} from "@/components/dashboard/cms-editor-fields";
 import { EntitySelect } from "@/components/dashboard/entity-select";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { UrlInput } from "@/components/ui/url-input";
 import {
   Select,
   SelectContent,
@@ -31,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { StepperContent } from "@/components/ui/stepper";
 import {
   EVIDENCE_PERMISSION_LABELS,
@@ -43,10 +46,7 @@ import { EVIDENCE_EDITOR_HELP } from "@/constants/evidence-editor-help";
 import { evidenceDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
-import {
-  dummyEvidenceValues,
-  todayIsoDate,
-} from "@/lib/dummy-form-values";
+import { dummyEvidenceValues, todayIsoDate } from "@/lib/dummy-form-values";
 import type {
   EvidenceDetail,
   EvidenceOwnerOption,
@@ -119,7 +119,10 @@ export function EvidenceEditorForm({
   defaultOwnerId: initialDefaultOwnerId = "",
 }: EvidenceEditorFormProps) {
   const formId = useId();
-  const editor = useCmsEditorForm<EvidenceFormValues, CreateEvidenceRecordInput>({
+  const editor = useCmsEditorForm<
+    EvidenceFormValues,
+    CreateEvidenceRecordInput
+  >({
     mode,
     schema: createEvidenceRecordSchema,
     defaultValues: defaultsFor(record, initialDefaultOwnerId),
@@ -141,8 +144,11 @@ export function EvidenceEditorForm({
   const [hasAppliedDefaultOwner, setHasAppliedDefaultOwner] = useState(
     Boolean(record?.owner_id || initialDefaultOwnerId),
   );
-  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(optionsEnabled);
+  const {
+    search: optionSearch,
+    setSearch: setOptionSearch,
+    debouncedSearch,
+  } = useDebouncedOptionSearch(optionsEnabled);
   const ownerId = useWatch({ control: form.control, name: "ownerId" });
 
   useEffect(() => {
@@ -217,10 +223,7 @@ export function EvidenceEditorForm({
             ...dummyEvidenceValues({
               ...current,
               ownerId:
-                current.ownerId ||
-                owners[0]?.id ||
-                initialDefaultOwnerId ||
-                "",
+                current.ownerId || owners[0]?.id || initialDefaultOwnerId || "",
             }),
           },
           { keepDefaultValues: true },
@@ -256,306 +259,261 @@ export function EvidenceEditorForm({
         onConfirm: editor.onDelete,
       }}
     >
-            <StepperContent
-              value="source"
-              className="mx-auto w-full max-w-3xl space-y-6"
+      <StepperContent
+        value="source"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.source.title}
+          description={EVIDENCE_EDITOR_HELP.source.intro}
+          help={EVIDENCE_EDITOR_HELP.source}
+          contentClassName="grid gap-4"
+        >
+          <CmsTextareaField
+            id={`${formId}-primary-source`}
+            label="Primary source"
+            hint={`2–${EVIDENCE_PRIMARY_SOURCE_MAX} chars`}
+            error={errors.primarySource?.message}
+            disabled={isPending}
+            register={form.register}
+            name="primarySource"
+            maxLength={EVIDENCE_PRIMARY_SOURCE_MAX}
+            placeholder="Report title, URL, or citation"
+          />
+
+          <CmsUrlField
+            id={`${formId}-source-url`}
+            label="Source file URL"
+            hint="Optional http(s)"
+            error={errors.sourceFileUrl?.message}
+            disabled={isPending}
+            register={form.register}
+            name="sourceFileUrl"
+            maxLength={EVIDENCE_SOURCE_URL_MAX}
+            placeholder="example.com/report.pdf"
+          />
+        </AdminFormSection>
+      </StepperContent>
+
+      <StepperContent
+        value="period"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.periodOwner.title}
+          description={EVIDENCE_EDITOR_HELP.periodOwner.intro}
+          help={EVIDENCE_EDITOR_HELP.periodOwner}
+          contentClassName="grid gap-4"
+        >
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id={`${formId}-period-start`}
+              label="Period start"
+              hint="Required"
+              error={errors.measurementPeriodStart?.message}
+              disabled={isPending}
+              register={form.register}
+              name="measurementPeriodStart"
+              type="date"
+            />
+
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id={`${formId}-period-end`}
+              label="Period end"
+              hint="Required"
+              error={errors.measurementPeriodEnd?.message}
+              disabled={isPending}
+              register={form.register}
+              name="measurementPeriodEnd"
+              type="date"
+            />
+          </div>
+
+          <Field data-invalid={!!errors.ownerId}>
+            <AdminFormFieldLabel htmlFor={`${formId}-owner`} hint="Required">
+              Owner
+            </AdminFormFieldLabel>
+            <Controller
+              control={form.control}
+              name="ownerId"
+              render={({ field }) => (
+                <EntitySelect
+                  id={`${formId}-owner`}
+                  value={field.value || null}
+                  onValueChange={(next) => field.onChange(next ?? "")}
+                  options={owners.map((owner) => ({
+                    id: owner.id,
+                    label: ownerLabel(owner),
+                  }))}
+                  placeholder={
+                    optionsLoading ? "Loading owners…" : "Select owner"
+                  }
+                  disabled={isPending}
+                  onOpenChange={(open) => {
+                    if (open) setOptionsEnabled(true);
+                  }}
+                  searchValue={optionSearch}
+                  onSearchChange={setOptionSearch}
+                  searchPlaceholder="Search owners by name or email…"
+                  emptyMessage={
+                    optionsLoading
+                      ? "Loading…"
+                      : optionSearch.trim()
+                        ? "No owners match"
+                        : "No owners available"
+                  }
+                  aria-invalid={!!errors.ownerId}
+                />
+              )}
+            />
+            <FieldError>{errors.ownerId?.message}</FieldError>
+          </Field>
+        </AdminFormSection>
+      </StepperContent>
+
+      <StepperContent
+        value="governance"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={EVIDENCE_EDITOR_HELP.governance.title}
+          description={EVIDENCE_EDITOR_HELP.governance.intro}
+          help={EVIDENCE_EDITOR_HELP.governance}
+          contentClassName="grid gap-4"
+        >
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.status}
             >
-              <AdminFormSection
-                title={EVIDENCE_EDITOR_HELP.source.title}
-                description={EVIDENCE_EDITOR_HELP.source.intro}
-                help={EVIDENCE_EDITOR_HELP.source}
-                contentClassName="grid gap-4"
-              >
-                <Field data-invalid={!!errors.primarySource}>
-                  <AdminFormFieldLabel
-                    htmlFor={`${formId}-primary-source`}
-                    hint={`2–${EVIDENCE_PRIMARY_SOURCE_MAX} chars`}
-                  >
-                    Primary source
-                  </AdminFormFieldLabel>
-                  <Textarea
-                    id={`${formId}-primary-source`}
-                    rows={3}
-                    maxLength={EVIDENCE_PRIMARY_SOURCE_MAX}
+              <AdminFormFieldLabel htmlFor={`${formId}-status`} hint="Required">
+                Status
+              </AdminFormFieldLabel>
+              <Controller
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    items={EVIDENCE_STATUSES.map((status) => ({
+                      value: status,
+                      label: EVIDENCE_STATUS_LABELS[status],
+                    }))}
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value);
+                    }}
                     disabled={isPending}
-                    aria-invalid={!!errors.primarySource}
-                    placeholder="Report title, URL, or citation"
-                    {...form.register("primarySource")}
-                  />
-                  <FieldError>{errors.primarySource?.message}</FieldError>
-                </Field>
-
-                <Field data-invalid={!!errors.sourceFileUrl}>
-                  <AdminFormFieldLabel
-                    htmlFor={`${formId}-source-url`}
-                    hint="Optional http(s)"
                   >
-                    Source file URL
-                  </AdminFormFieldLabel>
-                  <UrlInput
-                    id={`${formId}-source-url`}
-                    placeholder="example.com/report.pdf"
-                    className="min-h-11"
-                    maxLength={EVIDENCE_SOURCE_URL_MAX}
+                    <SelectTrigger
+                      id={`${formId}-status`}
+                      className="min-h-11 w-full"
+                      aria-invalid={!!errors.status}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EVIDENCE_STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {EVIDENCE_STATUS_LABELS[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldError>{errors.status?.message}</FieldError>
+            </Field>
+
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.permission}
+            >
+              <AdminFormFieldLabel
+                htmlFor={`${formId}-permission`}
+                hint="Required"
+              >
+                Permission
+              </AdminFormFieldLabel>
+              <Controller
+                control={form.control}
+                name="permission"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    items={EVIDENCE_PERMISSIONS.map((permission) => ({
+                      value: permission,
+                      label: EVIDENCE_PERMISSION_LABELS[permission],
+                    }))}
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value);
+                    }}
                     disabled={isPending}
-                    aria-invalid={!!errors.sourceFileUrl}
-                    {...form.register("sourceFileUrl")}
-                  />
-                  <FieldError>{errors.sourceFileUrl?.message}</FieldError>
-                </Field>
-              </AdminFormSection>
-            </StepperContent>
+                  >
+                    <SelectTrigger
+                      id={`${formId}-permission`}
+                      className="min-h-11 w-full"
+                      aria-invalid={!!errors.permission}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EVIDENCE_PERMISSIONS.map((permission) => (
+                        <SelectItem key={permission} value={permission}>
+                          {EVIDENCE_PERMISSION_LABELS[permission]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldError>{errors.permission?.message}</FieldError>
+            </Field>
+          </div>
 
-            <StepperContent
-              value="period"
-              className="mx-auto w-full max-w-3xl space-y-6"
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.lastVerifiedDate}
             >
-              <AdminFormSection
-                title={EVIDENCE_EDITOR_HELP.periodOwner.title}
-                description={EVIDENCE_EDITOR_HELP.periodOwner.intro}
-                help={EVIDENCE_EDITOR_HELP.periodOwner}
-                contentClassName="grid gap-4"
+              <AdminFormFieldLabel
+                htmlFor={`${formId}-last-verified`}
+                hint="Required"
               >
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.measurementPeriodStart}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-period-start`}
-                      hint="Required"
-                    >
-                      Period start
-                    </AdminFormFieldLabel>
-                    <Input
-                      id={`${formId}-period-start`}
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.measurementPeriodStart}
-                      {...form.register("measurementPeriodStart")}
-                    />
-                    <FieldError>
-                      {errors.measurementPeriodStart?.message}
-                    </FieldError>
-                  </Field>
+                Last verified
+              </AdminFormFieldLabel>
+              <Input
+                id={`${formId}-last-verified`}
+                type="date"
+                className="min-h-11"
+                disabled={isPending}
+                aria-invalid={!!errors.lastVerifiedDate}
+                {...form.register("lastVerifiedDate")}
+              />
+              <FieldError>{errors.lastVerifiedDate?.message}</FieldError>
+            </Field>
 
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.measurementPeriodEnd}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-period-end`}
-                      hint="Required"
-                    >
-                      Period end
-                    </AdminFormFieldLabel>
-                    <Input
-                      id={`${formId}-period-end`}
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.measurementPeriodEnd}
-                      {...form.register("measurementPeriodEnd")}
-                    />
-                    <FieldError>
-                      {errors.measurementPeriodEnd?.message}
-                    </FieldError>
-                  </Field>
-                </div>
-
-                <Field data-invalid={!!errors.ownerId}>
-                  <AdminFormFieldLabel
-                    htmlFor={`${formId}-owner`}
-                    hint="Required"
-                  >
-                    Owner
-                  </AdminFormFieldLabel>
-                  <Controller
-                    control={form.control}
-                    name="ownerId"
-                    render={({ field }) => (
-                      <EntitySelect
-                        id={`${formId}-owner`}
-                        value={field.value || null}
-                        onValueChange={(next) => field.onChange(next ?? "")}
-                        options={owners.map((owner) => ({
-                          id: owner.id,
-                          label: ownerLabel(owner),
-                        }))}
-                        placeholder={
-                          optionsLoading ? "Loading owners…" : "Select owner"
-                        }
-                        disabled={isPending}
-                        onOpenChange={(open) => {
-                          if (open) setOptionsEnabled(true);
-                        }}
-                        searchValue={optionSearch}
-                        onSearchChange={setOptionSearch}
-                        searchPlaceholder="Search owners by name or email…"
-                        emptyMessage={
-                          optionsLoading
-                            ? "Loading…"
-                            : optionSearch.trim()
-                              ? "No owners match"
-                              : "No owners available"
-                        }
-                        aria-invalid={!!errors.ownerId}
-                      />
-                    )}
-                  />
-                  <FieldError>{errors.ownerId?.message}</FieldError>
-                </Field>
-              </AdminFormSection>
-            </StepperContent>
-
-            <StepperContent
-              value="governance"
-              className="mx-auto w-full max-w-3xl space-y-6"
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.reviewDate}
             >
-              <AdminFormSection
-                title={EVIDENCE_EDITOR_HELP.governance.title}
-                description={EVIDENCE_EDITOR_HELP.governance.intro}
-                help={EVIDENCE_EDITOR_HELP.governance}
-                contentClassName="grid gap-4"
-              >
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.status}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-status`}
-                      hint="Required"
-                    >
-                      Status
-                    </AdminFormFieldLabel>
-                    <Controller
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <Select
-                          value={field.value}
-                          items={EVIDENCE_STATUSES.map((status) => ({
-                            value: status,
-                            label: EVIDENCE_STATUS_LABELS[status],
-                          }))}
-                          onValueChange={(value) => {
-                            if (value) field.onChange(value);
-                          }}
-                          disabled={isPending}
-                        >
-                          <SelectTrigger
-                            id={`${formId}-status`}
-                            className="min-h-11 w-full"
-                            aria-invalid={!!errors.status}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {EVIDENCE_STATUSES.map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {EVIDENCE_STATUS_LABELS[status]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    <FieldError>{errors.status?.message}</FieldError>
-                  </Field>
-
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.permission}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-permission`}
-                      hint="Required"
-                    >
-                      Permission
-                    </AdminFormFieldLabel>
-                    <Controller
-                      control={form.control}
-                      name="permission"
-                      render={({ field }) => (
-                        <Select
-                          value={field.value}
-                          items={EVIDENCE_PERMISSIONS.map((permission) => ({
-                            value: permission,
-                            label: EVIDENCE_PERMISSION_LABELS[permission],
-                          }))}
-                          onValueChange={(value) => {
-                            if (value) field.onChange(value);
-                          }}
-                          disabled={isPending}
-                        >
-                          <SelectTrigger
-                            id={`${formId}-permission`}
-                            className="min-h-11 w-full"
-                            aria-invalid={!!errors.permission}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {EVIDENCE_PERMISSIONS.map((permission) => (
-                              <SelectItem key={permission} value={permission}>
-                                {EVIDENCE_PERMISSION_LABELS[permission]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    <FieldError>{errors.permission?.message}</FieldError>
-                  </Field>
-                </div>
-
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.lastVerifiedDate}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-last-verified`}
-                      hint="Required"
-                    >
-                      Last verified
-                    </AdminFormFieldLabel>
-                    <Input
-                      id={`${formId}-last-verified`}
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.lastVerifiedDate}
-                      {...form.register("lastVerifiedDate")}
-                    />
-                    <FieldError>{errors.lastVerifiedDate?.message}</FieldError>
-                  </Field>
-
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.reviewDate}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor={`${formId}-review`}
-                      hint="Required"
-                    >
-                      Review date
-                    </AdminFormFieldLabel>
-                    <Input
-                      id={`${formId}-review`}
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.reviewDate}
-                      {...form.register("reviewDate")}
-                    />
-                    <FieldError>{errors.reviewDate?.message}</FieldError>
-                  </Field>
-                </div>
-              </AdminFormSection>
-            </StepperContent>
+              <AdminFormFieldLabel htmlFor={`${formId}-review`} hint="Required">
+                Review date
+              </AdminFormFieldLabel>
+              <Input
+                id={`${formId}-review`}
+                type="date"
+                className="min-h-11"
+                disabled={isPending}
+                aria-invalid={!!errors.reviewDate}
+                {...form.register("reviewDate")}
+              />
+              <FieldError>{errors.reviewDate?.message}</FieldError>
+            </Field>
+          </div>
+        </AdminFormSection>
+      </StepperContent>
     </CmsEditorFrame>
   );
 }

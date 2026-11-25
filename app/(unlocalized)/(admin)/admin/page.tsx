@@ -3,7 +3,6 @@ import {
   DatabaseBackupIcon,
   MapPinnedIcon,
   SettingsIcon,
-  TimerIcon,
   UsersIcon,
 } from "lucide-react";
 
@@ -34,12 +33,6 @@ export default async function AdminIndexPage() {
             description: "Site-wide switches and intake",
             href: ROUTES.adminSettings,
             icon: SettingsIcon,
-          },
-          {
-            title: "Performance",
-            description: "Staff route timing and cache events",
-            href: ROUTES.adminPerformance,
-            icon: TimerIcon,
           },
           {
             title: "Backup",

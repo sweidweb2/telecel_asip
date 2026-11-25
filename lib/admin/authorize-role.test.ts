@@ -20,14 +20,10 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ mocked: true })),
 }));
 
-vi.mock("@/lib/admin/perf", () => ({
-  traceAsync: vi.fn(async (_name: string, _attrs: unknown, fn: () => Promise<unknown>) =>
-    fn(),
-  ),
-  isAdminPerfTrackingEnabled: vi.fn(() => false),
-}));
-
+import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeEditor } from "@/lib/admin/authorize-editor";
 import { authorizeRole } from "@/lib/admin/authorize-role";
+import { authorizeStaff } from "@/lib/admin/authorize-staff";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
 import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
@@ -73,5 +69,54 @@ describe("authorizeRole", () => {
       message: messages.unauthorized,
     });
     expect(createClient).not.toHaveBeenCalled();
+  });
+});
+
+describe.each([
+  ["authorizeAdmin", authorizeAdmin, isCurrentUserAdmin],
+  ["authorizeEditor", authorizeEditor, isCurrentUserEditor],
+  ["authorizeStaff", authorizeStaff, isCurrentUserStaff],
+] as const)("%s wrapper", (_name, authorize, check) => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns signed-in required when there is no user", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue(null);
+    vi.mocked(check).mockResolvedValue(false);
+
+    const result = await authorize(messages);
+
+    expect(result).toEqual({
+      status: "error",
+      message: messages.signedInRequired,
+    });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("returns unauthorized when the role check fails", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: "u1" } as never);
+    vi.mocked(check).mockResolvedValue(false);
+
+    const result = await authorize(messages);
+
+    expect(result).toEqual({
+      status: "error",
+      message: messages.unauthorized,
+    });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("returns a session when the role check passes", async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: "u1" } as never);
+    vi.mocked(check).mockResolvedValue(true);
+
+    const result = await authorize(messages);
+
+    expect(result).toEqual({
+      status: "success",
+      userId: "u1",
+      supabase: { mocked: true },
+    });
   });
 });

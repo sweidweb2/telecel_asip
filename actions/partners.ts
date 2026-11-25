@@ -9,11 +9,10 @@ import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   refreshAdminResource,
-  runAdminMutation
+  runAdminMutation,
 } from "@/lib/admin/run-admin-mutation";
 import type { AdminActionResult } from "@/types/admin-action";
 import { writeAdminRow } from "@/lib/admin/write-admin-row";
-import { traceAsync } from "@/lib/admin/perf";
 import {
   removeOwnedPublicStorageObject,
   uploadVersionedPublicImage,
@@ -168,7 +167,6 @@ export async function updatePartnerActive(
         : MESSAGES.historicalSuccess,
     },
     pgMessages: PG_MESSAGES,
-    perfName: "updatePartnerActive",
     execute: (session, data) =>
       writeAdminRow(session.supabase, {
         op: "update",
@@ -194,7 +192,6 @@ export async function updatePartnerLogoPermission(
         : MESSAGES.logoRevokedSuccess,
     },
     pgMessages: PG_MESSAGES,
-    perfName: "updatePartnerLogoPermission",
     execute: (session, data) =>
       writeAdminRow(session.supabase, {
         op: "update",
@@ -307,63 +304,57 @@ export async function uploadPartnerLogo(
   partnerId: string,
   formData: FormData,
 ): Promise<PartnerActionResult> {
-  return traceAsync(
-    "uploadPartnerLogo",
-    { eventType: "upload", cacheStatus: "n_a", meta: { partnerId } },
-    async () => {
-      if (!partnerIdSchema.safeParse(partnerId).success) {
-        return { status: "error", message: MESSAGES.invalidDetails };
-      }
+  if (!partnerIdSchema.safeParse(partnerId).success) {
+    return { status: "error", message: MESSAGES.invalidDetails };
+  }
 
-      const file = formData.get("file");
-      if (!(file instanceof File)) {
-        return { status: "error", message: MESSAGES.invalidImage };
-      }
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { status: "error", message: MESSAGES.invalidImage };
+  }
 
-      const session = await authorizeEditor(MESSAGES);
-      if (session.status === "error") return session;
+  const session = await authorizeEditor(MESSAGES);
+  if (session.status === "error") return session;
 
-      const { data: existing, error: existingError } = await session.supabase
+  const { data: existing, error: existingError } = await session.supabase
+    .from("partners")
+    .select("id, logo_url")
+    .eq("id", partnerId)
+    .maybeSingle();
+
+  if (existingError) {
+    return { status: "error", message: MESSAGES.genericError };
+  }
+  if (!existing) {
+    return { status: "error", message: MESSAGES.notFound };
+  }
+
+  const uploaded = await uploadVersionedPublicImage({
+    supabase: session.supabase,
+    file,
+    bucket: LOGO_BUCKET,
+    entityId: partnerId,
+    preset: "partnerLogo",
+    previousUrl: existing.logo_url,
+    maxBytes: LOGO_MAX_BYTES,
+    messages: MESSAGES,
+    updateRow: async (publicUrl) =>
+      session.supabase
         .from("partners")
-        .select("id, logo_url")
+        .update({ logo_url: publicUrl })
         .eq("id", partnerId)
-        .maybeSingle();
+        .select("id")
+        .maybeSingle(),
+  });
 
-      if (existingError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-      if (!existing) {
-        return { status: "error", message: MESSAGES.notFound };
-      }
+  if (uploaded.status === "error") return uploaded;
 
-      const uploaded = await uploadVersionedPublicImage({
-        supabase: session.supabase,
-        file,
-        bucket: LOGO_BUCKET,
-        entityId: partnerId,
-        preset: "partnerLogo",
-        previousUrl: existing.logo_url,
-        maxBytes: LOGO_MAX_BYTES,
-        messages: MESSAGES,
-        updateRow: async (publicUrl) =>
-          session.supabase
-            .from("partners")
-            .update({ logo_url: publicUrl })
-            .eq("id", partnerId)
-            .select("id")
-            .maybeSingle(),
-      });
-
-      if (uploaded.status === "error") return uploaded;
-
-      refreshPartnerPaths(partnerId);
-      return {
-        status: "success",
-        message: MESSAGES.uploadSuccess,
-        id: partnerId,
-      };
-    },
-  );
+  refreshPartnerPaths(partnerId);
+  return {
+    status: "success",
+    message: MESSAGES.uploadSuccess,
+    id: partnerId,
+  };
 }
 
 export async function removePartnerLogo(

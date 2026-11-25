@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import {
+  passwordComplexitySchema,
+  turnstileTokenField,
+} from "@/validations/common-fields";
 
 /** Public signup audience choices only — never `admin`. */
 export const REGISTER_ACCOUNT_TYPES = ["startup", "investor"] as const;
@@ -68,11 +72,7 @@ export function loginSchemaFor(locale: Locale = DEFAULT_LOCALE) {
       z.string().min(1, messages.passwordRequired),
     ),
     turnstileToken: requiredString(messages.turnstileRequired).pipe(
-      z
-        .string()
-        .trim()
-        .min(1, messages.turnstileRequired)
-        .max(2048, messages.turnstileRequired),
+      turnstileTokenField(messages.turnstileRequired),
     ),
   });
 }
@@ -89,22 +89,18 @@ export function registerSchemaFor(locale: Locale = DEFAULT_LOCALE) {
         .pipe(z.string().trim().toLowerCase())
         .pipe(z.email(messages.invalidEmail)),
       password: requiredString(messages.passwordMin).pipe(
-        z
-          .string()
-          .min(8, messages.passwordMin)
-          .regex(/[A-Za-z]/, messages.passwordLetter)
-          .regex(/[0-9]/, messages.passwordNumber),
+        passwordComplexitySchema({
+          min: messages.passwordMin,
+          letter: messages.passwordLetter,
+          number: messages.passwordNumber,
+        }),
       ),
       confirmPassword: requiredString(messages.confirmRequired).pipe(
         z.string().min(1, messages.confirmRequired),
       ),
       type: z.enum(REGISTER_ACCOUNT_TYPES, messages.accountTypeRequired),
       turnstileToken: requiredString(messages.turnstileRequired).pipe(
-        z
-          .string()
-          .trim()
-          .min(1, messages.turnstileRequired)
-          .max(2048, messages.turnstileRequired),
+        turnstileTokenField(messages.turnstileRequired),
       ),
     })
     .refine((data) => data.password === data.confirmPassword, {

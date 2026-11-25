@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +35,8 @@ import {
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
 import type { Locale } from "@/constants/locales";
-import { useTurnstile } from "@/hooks/use-turnstile";
+import { useFormTurnstile } from "@/hooks/use-form-turnstile";
+import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
 import {
   contactMessageSchemaFor,
@@ -70,29 +71,28 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
       phone: "",
       subject: "",
       message: "",
-      turnstileToken: "",
+      turnstileToken: initialTurnstileToken(),
     },
   });
-
-  const turnstileToken = useWatch({ control, name: "turnstileToken" });
 
   useEffect(() => {
     setValue("enquiryType", enquiryType);
   }, [enquiryType, setValue]);
 
-  const turnstile = useTurnstile({
-    action: TURNSTILE_CONTACT_ACTION,
-    onTokenChange: useCallback(
-      (token: string) =>
-        setValue("turnstileToken", token, { shouldValidate: token !== "" }),
-      [setValue],
-    ),
-  });
+  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
+    useFormTurnstile({
+      action: TURNSTILE_CONTACT_ACTION,
+      control,
+      setValue,
+    });
 
   function onSubmit(values: ContactMessageInput) {
     startTransition(async () => {
       try {
-        const result = await submitContactMessage(values);
+        const result = await submitContactMessage({
+          ...values,
+          turnstileToken: submitToken(values.turnstileToken),
+        });
 
         if (result.status === "error") {
           toast.error(result.message);
@@ -106,7 +106,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
           phone: "",
           subject: "",
           message: "",
-          turnstileToken: "",
+          turnstileToken: initialTurnstileToken(),
         });
         setSuccessOpen(true);
       } catch {
@@ -116,7 +116,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
             : "Something went wrong. Please try again.",
         );
       } finally {
-        turnstile.reset();
+        resetTurnstile();
       }
     });
   }
@@ -230,10 +230,9 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
               </p>
             ) : null}
           </div>
-          <input type="hidden" {...register("turnstileToken")} />
           <TurnstileField
             turnstile={turnstile}
-            hasToken={Boolean(turnstileToken)}
+            token={turnstileToken}
             hint={labels.turnstileHint}
             error={errors.turnstileToken?.message}
             testId="contact-turnstile"
@@ -241,7 +240,7 @@ export function ContactForm({ locale, labels }: ContactFormProps) {
           <Button
             type="submit"
             className="min-h-11 w-full sm:w-auto"
-            disabled={isPending || !turnstileToken}
+            disabled={isPending || !hasToken}
           >
             {isPending ? (
               <>

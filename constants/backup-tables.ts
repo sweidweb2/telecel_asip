@@ -20,7 +20,6 @@ export const BACKUP_TABLE_ALLOWLIST = [
   "cohorts",
   "cohort_partners",
   "cohort_startups",
-  "admin_perf_events",
 ] as const;
 
 export type BackupTableName = (typeof BACKUP_TABLE_ALLOWLIST)[number];

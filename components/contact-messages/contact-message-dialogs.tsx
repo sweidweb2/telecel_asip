@@ -15,7 +15,6 @@ import {
 import {
   ADMIN_INBOX_EDIT_DIALOG_CLASS,
   ADMIN_INBOX_EDIT_HEADER_CLASS,
-  ADMIN_INBOX_VIEW_DIALOG_CLASS,
   AdminDetailGrid,
   AdminDetailRow,
   AdminDetailSection,
@@ -25,8 +24,9 @@ import { AdminFormFieldLabel } from "@/components/dashboard/admin-form-layout";
 import { AdminInboxArchiveButton } from "@/components/dashboard/admin-inbox-archive-button";
 import { AdminRowActionButtons } from "@/components/dashboard/admin-row-action-buttons";
 import { InboxDialogLoading } from "@/components/dashboard/inbox-dialog-loading";
-import { InboxStatusBadge } from "@/components/dashboard/inbox-status-badge";
+import { InboxViewDialogShell } from "@/components/dashboard/inbox-view-dialog";
 import { Badge } from "@/components/ui/badge";
+import { useInboxViewDialog } from "@/hooks/use-inbox-view-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -52,7 +52,6 @@ import {
   type ContactEnquiryType,
 } from "@/constants/contact-enquiry";
 import { useEditorRecord } from "@/hooks/use-editor-record";
-import { useMarkInboxReviewed } from "@/hooks/use-mark-inbox-reviewed";
 import { formatAdminDateTime } from "@/lib/admin-format";
 import { isAdminFormSubmitDisabled } from "@/lib/admin/form-submit";
 import type {
@@ -123,61 +122,49 @@ export function ContactMessageViewDialog({
   inboxStatus: ContactMessage["inbox_status"] | undefined;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { record, isLoading } = useEditorRecord({
+  const { record, isLoading } = useInboxViewDialog({
     open,
     id: messageId,
+    inboxStatus,
     load: loadContactMessage,
-    missingMessage: "Message not found.",
-  });
-  useMarkInboxReviewed({
-    id: messageId ?? "",
-    inboxStatus: inboxStatus ?? "reviewed",
     updateAction: updateContactMessageInboxStatus,
-    isOpen: open && Boolean(messageId),
+    missingMessage: "Message not found.",
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={ADMIN_INBOX_VIEW_DIALOG_CLASS}>
-        <DialogHeader className="min-w-0 gap-3">
-          <div className="flex flex-wrap items-start gap-2 pr-8">
-            <DialogTitle className="min-w-0 flex-1 wrap-break-word [overflow-wrap:anywhere]">
-              {record?.subject ?? "Contact message"}
-            </DialogTitle>
-            {record ? <InboxStatusBadge status={record.inbox_status} /> : null}
-          </div>
-          <DialogDescription>
-            {record
-              ? `Contact · submitted ${formatAdminDateTime(record.created_at)}`
-              : "Contact details"}
-          </DialogDescription>
-        </DialogHeader>
-
-        {record ? (
-          <div className="grid min-w-0 gap-6">
-            <AdminDetailSection title="Sender">
-              <AdminDetailGrid>
-                <AdminDetailRow label="Name">{record.full_name}</AdminDetailRow>
-                <AdminDetailRow label="Route">
-                  <Badge variant="secondary" className="whitespace-nowrap">
-                    {CONTACT_ENQUIRY_ADMIN_LABELS[record.enquiry_type]}
-                  </Badge>
-                </AdminDetailRow>
-                <AdminDetailRow label="Email">{record.email}</AdminDetailRow>
-                <AdminDetailRow label="Phone">{record.phone}</AdminDetailRow>
-              </AdminDetailGrid>
-            </AdminDetailSection>
-            <AdminDetailSection title="Message">
-              <AdminDetailRow label="Body">{record.message}</AdminDetailRow>
-            </AdminDetailSection>
-          </div>
-        ) : isLoading ? (
-          <InboxDialogLoading />
-        ) : null}
-
-        <DialogFooter showCloseButton />
-      </DialogContent>
-    </Dialog>
+    <InboxViewDialogShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title={record?.subject ?? "Contact message"}
+      description={
+        record
+          ? `Contact · submitted ${formatAdminDateTime(record.created_at)}`
+          : "Contact details"
+      }
+      status={record?.inbox_status}
+      hasRecord={Boolean(record)}
+      isLoading={isLoading}
+    >
+      {record ? (
+        <>
+          <AdminDetailSection title="Sender">
+            <AdminDetailGrid>
+              <AdminDetailRow label="Name">{record.full_name}</AdminDetailRow>
+              <AdminDetailRow label="Route">
+                <Badge variant="secondary" className="whitespace-nowrap">
+                  {CONTACT_ENQUIRY_ADMIN_LABELS[record.enquiry_type]}
+                </Badge>
+              </AdminDetailRow>
+              <AdminDetailRow label="Email">{record.email}</AdminDetailRow>
+              <AdminDetailRow label="Phone">{record.phone}</AdminDetailRow>
+            </AdminDetailGrid>
+          </AdminDetailSection>
+          <AdminDetailSection title="Message">
+            <AdminDetailRow label="Body">{record.message}</AdminDetailRow>
+          </AdminDetailSection>
+        </>
+      ) : null}
+    </InboxViewDialogShell>
   );
 }
 

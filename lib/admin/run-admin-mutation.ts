@@ -7,7 +7,6 @@ import {
   type AuthorizeEditorMessages,
   type EditorSession,
 } from "@/lib/admin/authorize-editor";
-import { traceAsync } from "@/lib/admin/perf";
 import {
   mapPgActionError,
   type PgActionError,
@@ -47,7 +46,6 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   pgMessages,
   execute,
   refresh,
-  perfName,
 }: {
   schema: TSchema;
   input: unknown;
@@ -58,54 +56,46 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
     data: z.infer<TSchema>,
   ) => Promise<AdminMutationExecuteResult>;
   refresh?: (data: z.infer<TSchema>, id?: string) => void;
-  /** Optional stable name for admin_perf_events (defaults to runAdminMutation). */
-  perfName?: string;
 }): Promise<AdminActionResult> {
-  return traceAsync(
-    perfName ?? "runAdminMutation",
-    { eventType: "mutation", cacheStatus: "n_a" },
-    async () => {
-      const parsed = schema.safeParse(input);
-      if (!parsed.success) {
-        return {
-          status: "error",
-          message: parsed.error.issues[0]?.message ?? messages.invalidDetails,
-        };
-      }
+  const parsed = schema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? messages.invalidDetails,
+    };
+  }
 
-      const session = await authorizeEditor(messages);
-      if (session.status === "error") return session;
+  const session = await authorizeEditor(messages);
+  if (session.status === "error") return session;
 
-      const result = await execute(session, parsed.data);
+  const result = await execute(session, parsed.data);
 
-      if (result.status === "error") {
-        if (result.message) {
-          return { status: "error", message: result.message };
-        }
-        if (result.pgError && pgMessages) {
-          return {
-            status: "error",
-            message: mapPgActionError(
-              result.pgError,
-              pgMessages,
-              result.pgContext ?? "write",
-            ),
-          };
-        }
-        return {
-          status: "error",
-          message: messages.genericError ?? messages.invalidDetails,
-        };
-      }
-
-      refresh?.(parsed.data, result.id);
+  if (result.status === "error") {
+    if (result.message) {
+      return { status: "error", message: result.message };
+    }
+    if (result.pgError && pgMessages) {
       return {
-        status: "success",
-        message: messages.success,
-        id: result.id,
+        status: "error",
+        message: mapPgActionError(
+          result.pgError,
+          pgMessages,
+          result.pgContext ?? "write",
+        ),
       };
-    },
-  );
+    }
+    return {
+      status: "error",
+      message: messages.genericError ?? messages.invalidDetails,
+    };
+  }
+
+  refresh?.(parsed.data, result.id);
+  return {
+    status: "success",
+    message: messages.success,
+    id: result.id,
+  };
 }
 
 /** Bust Editor sidebar badge totals after a counted table changes. */

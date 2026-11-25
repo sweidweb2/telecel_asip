@@ -1,5 +1,21 @@
 import type { Locale } from "@/constants/locales";
 
+export type PasswordVisibilityLabels = {
+  showPassword: string;
+  hidePassword: string;
+};
+
+const PASSWORD_VISIBILITY: Record<Locale, PasswordVisibilityLabels> = {
+  en: {
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+  },
+  fr: {
+    showPassword: "Afficher le mot de passe",
+    hidePassword: "Masquer le mot de passe",
+  },
+};
+
 export type LoginLabels = {
   title: string;
   description: string;
@@ -39,6 +55,8 @@ export type SignupLabels = {
   passwordLabel: string;
   passwordPlaceholder: string;
   confirmPasswordLabel: string;
+  showPassword: string;
+  hidePassword: string;
   submitLabel: string;
   submittingLabel: string;
   hasAccountPrompt: string;
@@ -75,8 +93,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailPlaceholder: "you@example.com",
     passwordLabel: "Password",
     passwordPlaceholder: "Enter your password",
-    showPassword: "Show password",
-    hidePassword: "Hide password",
+    ...PASSWORD_VISIBILITY.en,
     forgotPasswordLink: "Forgot password?",
     forgotPasswordTitle: "Reset password",
     forgotPasswordBody:
@@ -101,8 +118,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     emailPlaceholder: "vous@exemple.com",
     passwordLabel: "Mot de passe",
     passwordPlaceholder: "Entrez votre mot de passe",
-    showPassword: "Afficher le mot de passe",
-    hidePassword: "Masquer le mot de passe",
+    ...PASSWORD_VISIBILITY.fr,
     forgotPasswordLink: "Mot de passe oublié ?",
     forgotPasswordTitle: "Réinitialiser le mot de passe",
     forgotPasswordBody:
@@ -137,6 +153,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     passwordLabel: "Password",
     passwordPlaceholder: "Enter your password",
     confirmPasswordLabel: "Confirm password",
+    ...PASSWORD_VISIBILITY.en,
     submitLabel: "Create account",
     submittingLabel: "Creating account…",
     hasAccountPrompt: "Already have an account?",
@@ -164,6 +181,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     passwordLabel: "Mot de passe",
     passwordPlaceholder: "Entrez votre mot de passe",
     confirmPasswordLabel: "Confirmer le mot de passe",
+    ...PASSWORD_VISIBILITY.fr,
     submitLabel: "Créer un compte",
     submittingLabel: "Création…",
     hasAccountPrompt: "Déjà un compte ?",

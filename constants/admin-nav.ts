@@ -3,7 +3,6 @@ import {
   LayoutDashboardIcon,
   MapPinnedIcon,
   SettingsIcon,
-  TimerIcon,
   UsersIcon,
 } from "lucide-react";
 
@@ -17,7 +16,7 @@ import type {
 } from "@/constants/dashboard-nav";
 
 /**
- * Admin panel sidebar — Overview, Users, Settings, Performance, Backup, Catalog.
+ * Admin panel sidebar — Overview, Users, Settings, Backup, Catalog.
  */
 export const ADMIN_NAV_GROUPS = [
   {
@@ -37,11 +36,6 @@ export const ADMIN_NAV_GROUPS = [
         title: "Settings",
         href: ROUTES.adminSettings,
         icon: SettingsIcon,
-      },
-      {
-        title: "Performance",
-        href: ROUTES.adminPerformance,
-        icon: TimerIcon,
       },
       {
         title: "Backup",

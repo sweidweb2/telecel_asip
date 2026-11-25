@@ -1,8 +1,9 @@
-import { headers } from "next/headers";
-
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-ip";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+
+export { getClientIp } from "@/lib/request-ip";
 
 /** Shared bilingual copy for public form Turnstile + rate-limit failures. */
 export const PUBLIC_SUBMIT_GUARD_COPY = {
@@ -40,20 +41,6 @@ export type PublicSubmitGuardResult =
       admin: ReturnType<typeof createAdminClient>;
     }
   | { status: "error"; message: string };
-
-/**
- * Client IP from proxy headers (`x-forwarded-for`, then `x-real-ip`).
- * Falls back to `"unknown"` when neither is present.
- */
-export async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
-}
 
 /**
  * Shared Turnstile + dual rate-limit gate for public marketing submits

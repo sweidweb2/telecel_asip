@@ -7,10 +7,7 @@ import {
 export type AuthorizeAdminMessages = AuthorizeRoleMessages;
 export type AdminSession = StaffActionSession;
 
-/**
- * Session + admin gate for dashboard Server Actions.
- * Uses request-cached `getStaffShell` via `isCurrentUserAdmin`; callers pass entity-specific copy.
- */
+/** Session + admin gate for dashboard Server Actions. */
 export async function authorizeAdmin(
   messages: AuthorizeAdminMessages,
 ): Promise<AdminSession> {

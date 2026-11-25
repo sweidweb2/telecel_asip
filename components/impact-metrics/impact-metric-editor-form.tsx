@@ -15,6 +15,7 @@ import {
   ADMIN_FORM_PAIR_ROW,
   AdminFormFieldLabel,
 } from "@/components/dashboard/admin-form-layout";
+import { CmsTextField } from "@/components/dashboard/cms-editor-fields";
 import {
   CmsEditorFrame,
   CmsEditorSaveActions,
@@ -27,7 +28,6 @@ import {
   SuggestLinesInput,
 } from "@/components/dashboard/suggest-input";
 import { Field, FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -49,10 +49,7 @@ import {
 import { impactMetricDetailPath, ROUTES } from "@/constants/routes";
 import { useDebouncedOptionSearch } from "@/hooks/use-debounced-option-search";
 import { useCmsEditorForm } from "@/hooks/use-cms-editor-form";
-import {
-  dummyImpactMetricValues,
-  todayIsoDate,
-} from "@/lib/dummy-form-values";
+import { dummyImpactMetricValues, todayIsoDate } from "@/lib/dummy-form-values";
 import type { EvidenceOption, ImpactMetric } from "@/types/impact-metric";
 import {
   createImpactMetricSchema,
@@ -118,7 +115,10 @@ export function ImpactMetricEditorForm({
   metric,
   evidenceOptions: initialOptions = [],
 }: ImpactMetricEditorFormProps) {
-  const editor = useCmsEditorForm<ImpactMetricFormValues, CreateImpactMetricInput>({
+  const editor = useCmsEditorForm<
+    ImpactMetricFormValues,
+    CreateImpactMetricInput
+  >({
     mode,
     schema: createImpactMetricSchema,
     defaultValues: defaultsFor(metric),
@@ -133,15 +133,17 @@ export function ImpactMetricEditorForm({
   });
   const { form, isPending, errors, step, setStep } = editor;
   const { register, control } = form;
-  const [evidenceOptions, setEvidenceOptions] = useState<EvidenceOption[]>(
-    initialOptions,
-  );
+  const [evidenceOptions, setEvidenceOptions] =
+    useState<EvidenceOption[]>(initialOptions);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [optionsEnabled, setOptionsEnabled] = useState(
     Boolean(metric?.evidence_id),
   );
-  const { search: optionSearch, setSearch: setOptionSearch, debouncedSearch } =
-    useDebouncedOptionSearch(optionsEnabled);
+  const {
+    search: optionSearch,
+    setSearch: setOptionSearch,
+    debouncedSearch,
+  } = useDebouncedOptionSearch(optionsEnabled);
 
   useEffect(() => {
     if (!optionsEnabled) return;
@@ -221,370 +223,330 @@ export function ImpactMetricEditorForm({
         open: editor.deleteOpen,
         onOpenChange: editor.setDeleteOpen,
         title: "Delete impact metric?",
-        description: "This permanently deletes this metric. This cannot be undone.",
+        description:
+          "This permanently deletes this metric. This cannot be undone.",
         confirmLabel: "Delete metric",
         onConfirm: editor.onDelete,
       }}
     >
-            <StepperContent
-              value="claim"
-              className="mx-auto w-full max-w-3xl space-y-6"
+      <StepperContent
+        value="claim"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.claim.title}
+          description={IMPACT_METRIC_EDITOR_HELP.claim.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.claim}
+          contentClassName="grid gap-4"
+        >
+          <Field data-invalid={!!errors.claimLabel}>
+            <AdminFormFieldLabel
+              htmlFor="impact-claim"
+              hint={`2–${IMPACT_CLAIM_LABEL_MAX}`}
             >
-              <AdminFormSection
-                title={IMPACT_METRIC_EDITOR_HELP.claim.title}
-                description={IMPACT_METRIC_EDITOR_HELP.claim.intro}
-                help={IMPACT_METRIC_EDITOR_HELP.claim}
-                contentClassName="grid gap-4"
-              >
-                <Field data-invalid={!!errors.claimLabel}>
-                  <AdminFormFieldLabel
-                    htmlFor="impact-claim"
-                    hint={`2–${IMPACT_CLAIM_LABEL_MAX}`}
-                  >
-                    Claim label
-                  </AdminFormFieldLabel>
-                  <Controller
-                    control={control}
-                    name="claimLabel"
-                    render={({ field }) => {
-                      const suggestions = filterImpactClaimLabels(field.value);
-                      return (
-                        <SuggestInput
-                          id="impact-claim"
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          disabled={isPending}
-                          maxLength={IMPACT_CLAIM_LABEL_MAX}
-                          placeholder="e.g. Jobs created"
-                          className="min-h-11"
-                          aria-invalid={!!errors.claimLabel}
-                          suggestions={suggestions}
-                        />
-                      );
-                    }}
+              Claim label
+            </AdminFormFieldLabel>
+            <Controller
+              control={control}
+              name="claimLabel"
+              render={({ field }) => {
+                const suggestions = filterImpactClaimLabels(field.value);
+                return (
+                  <SuggestInput
+                    id="impact-claim"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={isPending}
+                    maxLength={IMPACT_CLAIM_LABEL_MAX}
+                    placeholder="e.g. Jobs created"
+                    className="min-h-11"
+                    aria-invalid={!!errors.claimLabel}
+                    suggestions={suggestions}
                   />
-                  <FieldError>{errors.claimLabel?.message}</FieldError>
-                </Field>
+                );
+              }}
+            />
+            <FieldError>{errors.claimLabel?.message}</FieldError>
+          </Field>
 
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.value}
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id="impact-value"
+              label="Value"
+              hint={`Max ${IMPACT_VALUE_MAX}`}
+              error={errors.value?.message}
+              disabled={isPending}
+              register={register}
+              name="value"
+              maxLength={IMPACT_VALUE_MAX}
+              placeholder="e.g. 120"
+            />
+
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id="impact-unit"
+              label="Unit"
+              hint={`Optional · max ${IMPACT_UNIT_MAX}`}
+              error={errors.unit?.message}
+              disabled={isPending}
+              register={register}
+              name="unit"
+              maxLength={IMPACT_UNIT_MAX}
+              placeholder="e.g. founders"
+            />
+          </div>
+        </AdminFormSection>
+      </StepperContent>
+
+      <StepperContent
+        value="period"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.periodEvidence.title}
+          description={IMPACT_METRIC_EDITOR_HELP.periodEvidence.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.periodEvidence}
+          contentClassName="grid gap-4"
+        >
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id="impact-start"
+              label="Period start"
+              hint="Required"
+              error={errors.periodStart?.message}
+              disabled={isPending}
+              register={register}
+              name="periodStart"
+              type="date"
+            />
+
+            <CmsTextField
+              className={ADMIN_FORM_PAIR_FIELD}
+              id="impact-end"
+              label="Period end"
+              hint="Required"
+              error={errors.periodEnd?.message}
+              disabled={isPending}
+              register={register}
+              name="periodEnd"
+              type="date"
+            />
+          </div>
+
+          <Field data-invalid={!!errors.evidenceId}>
+            <AdminFormFieldLabel htmlFor="impact-evidence" hint="Required">
+              Evidence record
+            </AdminFormFieldLabel>
+            <Controller
+              control={control}
+              name="evidenceId"
+              render={({ field }) => (
+                <EntitySelect
+                  id="impact-evidence"
+                  value={field.value || null}
+                  onValueChange={(next) => field.onChange(next ?? "")}
+                  options={evidenceOptions.map((option) => ({
+                    id: option.id,
+                    label: `${option.primary_source} (${option.status})`,
+                  }))}
+                  placeholder={
+                    optionsLoading ? "Loading evidence…" : "Select evidence"
+                  }
+                  disabled={isPending}
+                  onOpenChange={(open) => {
+                    if (open) setOptionsEnabled(true);
+                  }}
+                  searchValue={optionSearch}
+                  onSearchChange={setOptionSearch}
+                  searchPlaceholder="Search evidence by source…"
+                  emptyMessage={
+                    optionsLoading
+                      ? "Loading…"
+                      : optionSearch.trim()
+                        ? "No evidence matches"
+                        : "No evidence available"
+                  }
+                  aria-invalid={!!errors.evidenceId}
+                />
+              )}
+            />
+            <FieldError>{errors.evidenceId?.message}</FieldError>
+          </Field>
+        </AdminFormSection>
+      </StepperContent>
+
+      <StepperContent
+        value="publishing"
+        className="mx-auto w-full max-w-3xl space-y-6"
+      >
+        <AdminFormSection
+          title={IMPACT_METRIC_EDITOR_HELP.publishing.title}
+          description={IMPACT_METRIC_EDITOR_HELP.publishing.intro}
+          help={IMPACT_METRIC_EDITOR_HELP.publishing}
+          contentClassName="grid gap-4"
+        >
+          <div className={ADMIN_FORM_PAIR_ROW}>
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.publishStatus}
+            >
+              <AdminFormFieldLabel htmlFor="impact-status" hint="Required">
+                Publish status
+              </AdminFormFieldLabel>
+              <Controller
+                control={control}
+                name="publishStatus"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    items={IMPACT_PUBLISH_STATUSES.map((status) => ({
+                      value: status,
+                      label: IMPACT_PUBLISH_STATUS_LABELS[status],
+                    }))}
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value);
+                    }}
+                    disabled={isPending}
                   >
-                    <AdminFormFieldLabel
-                      htmlFor="impact-value"
-                      hint={`Max ${IMPACT_VALUE_MAX}`}
+                    <SelectTrigger
+                      id="impact-status"
+                      className="min-h-11 w-full"
                     >
-                      Value
-                    </AdminFormFieldLabel>
-                    <Input
-                      id="impact-value"
-                      className="min-h-11"
-                      maxLength={IMPACT_VALUE_MAX}
-                      disabled={isPending}
-                      aria-invalid={!!errors.value}
-                      placeholder="e.g. 120"
-                      {...register("value")}
-                    />
-                    <FieldError>{errors.value?.message}</FieldError>
-                  </Field>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {IMPACT_PUBLISH_STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {IMPACT_PUBLISH_STATUS_LABELS[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldError>{errors.publishStatus?.message}</FieldError>
+            </Field>
 
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.unit}
-                  >
-                    <AdminFormFieldLabel
-                      htmlFor="impact-unit"
-                      hint={`Optional · max ${IMPACT_UNIT_MAX}`}
-                    >
-                      Unit
-                    </AdminFormFieldLabel>
-                    <Input
-                      id="impact-unit"
-                      className="min-h-11"
-                      maxLength={IMPACT_UNIT_MAX}
-                      disabled={isPending}
-                      aria-invalid={!!errors.unit}
-                      placeholder="e.g. founders"
-                      {...register("unit")}
-                    />
-                    <FieldError>{errors.unit?.message}</FieldError>
-                  </Field>
-                </div>
-              </AdminFormSection>
-            </StepperContent>
-
-            <StepperContent
-              value="period"
-              className="mx-auto w-full max-w-3xl space-y-6"
+            <Field
+              className={ADMIN_FORM_PAIR_FIELD}
+              data-invalid={!!errors.impactLens}
             >
-              <AdminFormSection
-                title={IMPACT_METRIC_EDITOR_HELP.periodEvidence.title}
-                description={IMPACT_METRIC_EDITOR_HELP.periodEvidence.intro}
-                help={IMPACT_METRIC_EDITOR_HELP.periodEvidence}
-                contentClassName="grid gap-4"
-              >
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.periodStart}
+              <AdminFormFieldLabel htmlFor="impact-lens" hint="Optional">
+                Impact lens
+              </AdminFormFieldLabel>
+              <Controller
+                control={control}
+                name="impactLens"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? "none"}
+                    items={[
+                      { value: "none", label: "None" },
+                      ...IMPACT_LENSES.map((lens) => ({
+                        value: lens,
+                        label: IMPACT_LENS_LABELS[lens],
+                      })),
+                    ]}
+                    onValueChange={(value) =>
+                      field.onChange(!value || value === "none" ? null : value)
+                    }
+                    disabled={isPending}
                   >
-                    <AdminFormFieldLabel htmlFor="impact-start" hint="Required">
-                      Period start
-                    </AdminFormFieldLabel>
-                    <Input
-                      id="impact-start"
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.periodStart}
-                      {...register("periodStart")}
-                    />
-                    <FieldError>{errors.periodStart?.message}</FieldError>
-                  </Field>
+                    <SelectTrigger id="impact-lens" className="min-h-11 w-full">
+                      <SelectValue placeholder="None" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {IMPACT_LENSES.map((lens) => (
+                        <SelectItem key={lens} value={lens}>
+                          {IMPACT_LENS_LABELS[lens]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldError>{errors.impactLens?.message}</FieldError>
+            </Field>
+          </div>
 
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.periodEnd}
-                  >
-                    <AdminFormFieldLabel htmlFor="impact-end" hint="Required">
-                      Period end
-                    </AdminFormFieldLabel>
-                    <Input
-                      id="impact-end"
-                      type="date"
-                      className="min-h-11"
-                      disabled={isPending}
-                      aria-invalid={!!errors.periodEnd}
-                      {...register("periodEnd")}
-                    />
-                    <FieldError>{errors.periodEnd?.message}</FieldError>
-                  </Field>
-                </div>
-
-                <Field data-invalid={!!errors.evidenceId}>
-                  <AdminFormFieldLabel htmlFor="impact-evidence" hint="Required">
-                    Evidence record
-                  </AdminFormFieldLabel>
-                  <Controller
-                    control={control}
-                    name="evidenceId"
-                    render={({ field }) => (
-                      <EntitySelect
-                        id="impact-evidence"
-                        value={field.value || null}
-                        onValueChange={(next) => field.onChange(next ?? "")}
-                        options={evidenceOptions.map((option) => ({
-                          id: option.id,
-                          label: `${option.primary_source} (${option.status})`,
-                        }))}
-                        placeholder={
-                          optionsLoading
-                            ? "Loading evidence…"
-                            : "Select evidence"
-                        }
-                        disabled={isPending}
-                        onOpenChange={(open) => {
-                          if (open) setOptionsEnabled(true);
-                        }}
-                        searchValue={optionSearch}
-                        onSearchChange={setOptionSearch}
-                        searchPlaceholder="Search evidence by source…"
-                        emptyMessage={
-                          optionsLoading
-                            ? "Loading…"
-                            : optionSearch.trim()
-                              ? "No evidence matches"
-                              : "No evidence available"
-                        }
-                        aria-invalid={!!errors.evidenceId}
-                      />
-                    )}
-                  />
-                  <FieldError>{errors.evidenceId?.message}</FieldError>
-                </Field>
-              </AdminFormSection>
-            </StepperContent>
-
-            <StepperContent
-              value="publishing"
-              className="mx-auto w-full max-w-3xl space-y-6"
+          <Field data-invalid={!!errors.geography}>
+            <AdminFormFieldLabel
+              htmlFor="impact-geography"
+              hint={`Optional · max ${IMPACT_GEOGRAPHY_MAX}`}
             >
-              <AdminFormSection
-                title={IMPACT_METRIC_EDITOR_HELP.publishing.title}
-                description={IMPACT_METRIC_EDITOR_HELP.publishing.intro}
-                help={IMPACT_METRIC_EDITOR_HELP.publishing}
-                contentClassName="grid gap-4"
-              >
-                <div className={ADMIN_FORM_PAIR_ROW}>
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.publishStatus}
-                  >
-                    <AdminFormFieldLabel htmlFor="impact-status" hint="Required">
-                      Publish status
-                    </AdminFormFieldLabel>
-                    <Controller
-                      control={control}
-                      name="publishStatus"
-                      render={({ field }) => (
-                        <Select
-                          value={field.value}
-                          items={IMPACT_PUBLISH_STATUSES.map((status) => ({
-                            value: status,
-                            label: IMPACT_PUBLISH_STATUS_LABELS[status],
-                          }))}
-                          onValueChange={(value) => {
-                            if (value) field.onChange(value);
-                          }}
-                          disabled={isPending}
-                        >
-                          <SelectTrigger
-                            id="impact-status"
-                            className="min-h-11 w-full"
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {IMPACT_PUBLISH_STATUSES.map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {IMPACT_PUBLISH_STATUS_LABELS[status]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    <FieldError>{errors.publishStatus?.message}</FieldError>
-                  </Field>
-
-                  <Field
-                    className={ADMIN_FORM_PAIR_FIELD}
-                    data-invalid={!!errors.impactLens}
-                  >
-                    <AdminFormFieldLabel htmlFor="impact-lens" hint="Optional">
-                      Impact lens
-                    </AdminFormFieldLabel>
-                    <Controller
-                      control={control}
-                      name="impactLens"
-                      render={({ field }) => (
-                        <Select
-                          value={field.value ?? "none"}
-                          items={[
-                            { value: "none", label: "None" },
-                            ...IMPACT_LENSES.map((lens) => ({
-                              value: lens,
-                              label: IMPACT_LENS_LABELS[lens],
-                            })),
-                          ]}
-                          onValueChange={(value) =>
-                            field.onChange(
-                              !value || value === "none" ? null : value,
-                            )
-                          }
-                          disabled={isPending}
-                        >
-                          <SelectTrigger
-                            id="impact-lens"
-                            className="min-h-11 w-full"
-                          >
-                            <SelectValue placeholder="None" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {IMPACT_LENSES.map((lens) => (
-                              <SelectItem key={lens} value={lens}>
-                                {IMPACT_LENS_LABELS[lens]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    <FieldError>{errors.impactLens?.message}</FieldError>
-                  </Field>
-                </div>
-
-                <Field data-invalid={!!errors.geography}>
-                  <AdminFormFieldLabel
-                    htmlFor="impact-geography"
-                    hint={`Optional · max ${IMPACT_GEOGRAPHY_MAX}`}
-                  >
-                    Geography
-                  </AdminFormFieldLabel>
-                  <Controller
-                    control={control}
-                    name="geography"
-                    render={({ field }) => {
-                      const suggestions = filterImpactGeographies(
-                        field.value ?? "",
-                      );
-                      return (
-                        <SuggestInput
-                          id="impact-geography"
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          disabled={isPending}
-                          maxLength={IMPACT_GEOGRAPHY_MAX}
-                          placeholder="e.g. West Africa"
-                          className="min-h-11"
-                          aria-invalid={!!errors.geography}
-                          suggestions={suggestions}
-                        />
-                      );
-                    }}
+              Geography
+            </AdminFormFieldLabel>
+            <Controller
+              control={control}
+              name="geography"
+              render={({ field }) => {
+                const suggestions = filterImpactGeographies(field.value ?? "");
+                return (
+                  <SuggestInput
+                    id="impact-geography"
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={isPending}
+                    maxLength={IMPACT_GEOGRAPHY_MAX}
+                    placeholder="e.g. West Africa"
+                    className="min-h-11"
+                    aria-invalid={!!errors.geography}
+                    suggestions={suggestions}
                   />
-                  <FieldError>{errors.geography?.message}</FieldError>
-                </Field>
+                );
+              }}
+            />
+            <FieldError>{errors.geography?.message}</FieldError>
+          </Field>
 
-                <Field data-invalid={!!errors.displayLocations}>
-                  <AdminFormFieldLabel
-                    htmlFor="impact-locations"
-                    hint={`One per line · max ${IMPACT_DISPLAY_LOCATION_MAX} each · up to ${IMPACT_DISPLAY_LOCATIONS_MAX}`}
-                  >
-                    Display locations
-                  </AdminFormFieldLabel>
-                  <Controller
-                    control={control}
-                    name="displayLocations"
-                    render={({ field }) => {
-                      const raw =
-                        typeof field.value === "string"
-                          ? field.value
-                          : Array.isArray(field.value)
-                            ? field.value.join("\n")
-                            : "";
-                      const suggestions = filterImpactDisplayLocations(raw);
-                      return (
-                        <SuggestLinesInput
-                          id="impact-locations"
-                          value={raw}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          disabled={isPending}
-                          maxLength={
-                            IMPACT_DISPLAY_LOCATION_MAX *
-                              IMPACT_DISPLAY_LOCATIONS_MAX +
-                            IMPACT_DISPLAY_LOCATIONS_MAX
-                          }
-                          rows={3}
-                          aria-invalid={!!errors.displayLocations}
-                          placeholder={
-                            "homepage_module_02\nimpact_page"
-                          }
-                          suggestions={suggestions}
-                          applySuggestion={applyImpactDisplayLocationSuggestion}
-                        />
-                      );
-                    }}
+          <Field data-invalid={!!errors.displayLocations}>
+            <AdminFormFieldLabel
+              htmlFor="impact-locations"
+              hint={`One per line · max ${IMPACT_DISPLAY_LOCATION_MAX} each · up to ${IMPACT_DISPLAY_LOCATIONS_MAX}`}
+            >
+              Display locations
+            </AdminFormFieldLabel>
+            <Controller
+              control={control}
+              name="displayLocations"
+              render={({ field }) => {
+                const raw =
+                  typeof field.value === "string"
+                    ? field.value
+                    : Array.isArray(field.value)
+                      ? field.value.join("\n")
+                      : "";
+                const suggestions = filterImpactDisplayLocations(raw);
+                return (
+                  <SuggestLinesInput
+                    id="impact-locations"
+                    value={raw}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={isPending}
+                    maxLength={
+                      IMPACT_DISPLAY_LOCATION_MAX *
+                        IMPACT_DISPLAY_LOCATIONS_MAX +
+                      IMPACT_DISPLAY_LOCATIONS_MAX
+                    }
+                    rows={3}
+                    aria-invalid={!!errors.displayLocations}
+                    placeholder={"homepage_module_02\nimpact_page"}
+                    suggestions={suggestions}
+                    applySuggestion={applyImpactDisplayLocationSuggestion}
                   />
-                  <FieldError>{errors.displayLocations?.message}</FieldError>
-                </Field>
-              </AdminFormSection>
-            </StepperContent>
+                );
+              }}
+            />
+            <FieldError>{errors.displayLocations?.message}</FieldError>
+          </Field>
+        </AdminFormSection>
+      </StepperContent>
     </CmsEditorFrame>
   );
 }

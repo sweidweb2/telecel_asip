@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { match, P } from "ts-pattern";
 
@@ -10,6 +9,7 @@ import { authPath, publicPath } from "@/constants/routes";
 import { resolvePostAuthRedirect } from "@/lib/auth/role-landing";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect-path";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { getClientIp } from "@/lib/request-ip";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
 import { verifyTurnstileToken } from "@/lib/turnstile";
@@ -82,16 +82,6 @@ function mapAuthError(message: string, locale: Locale): string {
       console.error("[auth] unmapped Supabase auth error", message);
       return copy.genericError;
     });
-}
-
-async function getClientIp(): Promise<string> {
-  const headerStore = await headers();
-  const forwarded = headerStore.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headerStore.get("x-real-ip")?.trim() || "unknown";
 }
 
 export async function signUp(

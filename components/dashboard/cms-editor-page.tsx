@@ -12,7 +12,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { setAdminPerfRoute, traceAsync } from "@/lib/admin/perf";
 import { requireEditor } from "@/lib/admin/require-staff";
 
 type OkResult = { status: "ok" };
@@ -55,13 +54,7 @@ export async function CmsEditorPage<T extends OkResult>(
   let record: EditorRecord<T> | null = null;
 
   if (props.load) {
-    const load = props.load;
-    setAdminPerfRoute(listPath);
-    const result = await traceAsync(
-      "cmsEditorPage",
-      { eventType: "page", route: listPath },
-      () => load(),
-    );
+    const result = await props.load();
     if (result.status === "forbidden") redirect(ROUTES.dashboard);
     if (result.status === "not_found") notFound();
     const rest: Partial<typeof result> = { ...result };

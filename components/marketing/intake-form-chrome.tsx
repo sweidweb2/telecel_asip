@@ -100,14 +100,17 @@ export function IntakeConsentFields<T extends FieldValues>({
 export function IntakeSubmitButton({
   labels,
   isPending,
+  disabled = false,
 }: {
   labels: Pick<IntakeChromeLabels, "submitLabel" | "submittingLabel">;
   isPending: boolean;
+  /** Extra gate (e.g. missing Turnstile token). */
+  disabled?: boolean;
 }) {
   return (
     <Button
       type="submit"
-      disabled={isPending}
+      disabled={isPending || disabled}
       className="min-h-11 w-full sm:w-auto"
     >
       {isPending ? (

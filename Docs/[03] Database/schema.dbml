@@ -67,7 +67,7 @@ Table profiles {
     hard-delete may bypass last-editor via app.bypass_last_editor_guard.
 
     Helpers (see supabase-functions.md): is_admin, is_editor, is_staff.
-    CMS/intake/settings/media RLS uses is_editor(); backups + admin_perf stay is_admin().
+    CMS/intake/settings/media RLS uses is_editor(); backups stay is_admin().
     Editor sidebar badge totals: get_dashboard_nav_counts (20260910230000; investor tables 20261122070000).
     Editor list-page stat cards: get_admin_list_stats (20260910250000; investor tables 20261122070000).
     Profiles staff list uses is_admin/is_editor (not raw is_staff) so editors
@@ -1079,38 +1079,6 @@ Table cohort_startups {
     ON DELETE CASCADE from cohorts and startups.
   '''
 }
-
-Table admin_perf_events {
-  id uuid [pk, default: `gen_random_uuid()`]
-  created_at timestamptz [not null, default: `now()`]
-  request_id text [not null]
-  parent_id uuid [null, note: 'Optional parent span']
-  event_type text [not null, note: 'layout|page|action|data_read|option_load|mutation|upload']
-  name text [not null]
-  route text [null]
-  duration_ms float [not null]
-  db_ms float [null]
-  cache_status text [not null, note: 'hit|miss|bypass|n_a']
-  ok boolean [not null, default: true]
-  error_message text [null]
-  meta jsonb [not null, default: '{}']
-
-  indexes {
-    (created_at) [name: 'admin_perf_events_created_at_idx', note: 'DESC in SQL']
-    (name, created_at) [name: 'admin_perf_events_name_created_at_idx']
-    (cache_status, created_at) [name: 'admin_perf_events_cache_status_created_at_idx']
-    (request_id) [name: 'admin_perf_events_request_id_idx']
-    (event_type, created_at) [name: 'admin_perf_events_event_type_created_at_idx']
-  }
-
-  Note: '''
-    Temporary CMS perf debug table. RLS enabled. Admin-only SELECT/INSERT/DELETE via is_admin().
-    No anon grants. Performance page aggregates via get_admin_perf_analytics (20261009233000).
-    Teardown: drop table + remove lib/admin/perf instrumentation.
-  '''
-}
-
-Ref: admin_perf_events.parent_id > admin_perf_events.id [delete: set null]
 
 Enum backup_scope {
   full

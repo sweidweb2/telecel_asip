@@ -5,18 +5,13 @@ import { AdminAnalyticsDashboard } from "@/components/dashboard/admin-analytics-
 import { AdminListPageShell } from "@/components/dashboard/admin-list-page-shell";
 import { ROUTES } from "@/constants/routes";
 import { getAdminAnalytics } from "@/data/admin-analytics";
-import { traceAsync } from "@/lib/admin/perf";
 
 export const metadata: Metadata = {
   title: "Analytics | ASIP Editor",
 };
 
 export default async function AnalyticsPage() {
-  const result = await traceAsync(
-    "analyticsPage",
-    { eventType: "page", route: ROUTES.analytics },
-    () => getAdminAnalytics(),
-  );
+  const result = await getAdminAnalytics();
   if (result.status === "forbidden") redirect(ROUTES.dashboard);
 
   return (

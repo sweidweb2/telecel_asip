@@ -1,12 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { nanoid } from "nanoid";
-import { TURNSTILE_WIDGET_ENABLED } from "../lib/turnstile-widget";
 
 import {
   adminListRow,
   e2eAdminClient,
   hasE2ECredentials,
   loginAsEditor,
+  waitForTurnstileReady,
 } from "./helpers";
 
 const RATE_LIMIT_TOAST =
@@ -48,24 +48,11 @@ async function fillContactForm(
   await page.locator("#contact-message").fill(values.message);
 }
 
-/** Wait until Turnstile issues a token (submit becomes enabled). */
-async function waitForTurnstileReady(page: Page) {
-  const submit = page.getByRole("button", { name: "Send message" });
-  if (!TURNSTILE_WIDGET_ENABLED) {
-    await expect(submit).toBeEnabled({ timeout: 15_000 });
-    return;
-  }
-  await expect(page.getByTestId("contact-turnstile")).toBeVisible({
-    timeout: 30_000,
+async function waitForContactTurnstile(page: Page) {
+  await waitForTurnstileReady(page, {
+    testId: "contact-turnstile",
+    submitName: "Send message",
   });
-  try {
-    await expect(submit).toBeEnabled({ timeout: 60_000 });
-  } catch {
-    test.skip(
-      true,
-      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY and hostname allowlist for localhost.",
-    );
-  }
 }
 
 /** Contact success UI is a dialog (not a Sonner toast). */
@@ -111,7 +98,7 @@ test.describe("contact messages", () => {
           subject,
           message: BODY,
         });
-        await waitForTurnstileReady(page);
+        await waitForContactTurnstile(page);
         await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
         expect(await countMessagesByEmail(email)).toBe(1);
@@ -123,7 +110,7 @@ test.describe("contact messages", () => {
           subject,
           message: `${BODY} Follow-up details included.`,
         });
-        await waitForTurnstileReady(page);
+        await waitForContactTurnstile(page);
         await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
         expect(await countMessagesByEmail(email)).toBe(2);
@@ -152,7 +139,7 @@ test.describe("contact messages", () => {
           subject: `Rate limit subject ${suffix}-${i}`,
           message: `${BODY} Attempt ${i + 1}.`,
         });
-        await waitForTurnstileReady(page);
+        await waitForContactTurnstile(page);
         await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
       }
@@ -166,7 +153,7 @@ test.describe("contact messages", () => {
         subject: `Rate limit subject ${suffix}-blocked`,
         message: `${BODY} Attempt 4 should be blocked.`,
       });
-      await waitForTurnstileReady(page);
+      await waitForContactTurnstile(page);
       await page.getByRole("button", { name: "Send message" }).click();
       await expect(
         page

@@ -10,7 +10,7 @@ import {
   guardPublicFormSubmission,
   PUBLIC_SUBMIT_GUARD_COPY,
 } from "@/lib/intake/submit-guard";
-import { TURNSTILE_CONTACT_ACTION } from "@/lib/turnstile";
+import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
 import {
   contactMessageSchemaFor,
   type ContactMessageInput,

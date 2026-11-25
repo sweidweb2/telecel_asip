@@ -28,7 +28,6 @@ const ROLE_CHECKS = {
 /**
  * Session + role gate for staff Server Actions.
  * Uses request-cached `getStaffShell` via the matching `isCurrentUser*` helper.
- * Not traced: `runAdminMutation` already records the action.
  */
 export async function authorizeRole(
   role: StaffAuthorizeRole,

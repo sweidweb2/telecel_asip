@@ -24,10 +24,6 @@ vi.mock("@/lib/admin/is-current-user-admin", () => ({
   isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
 }));
 
-vi.mock("@/lib/admin/perf", () => ({
-  traceAsync: (_name: string, _attrs: unknown, fn: () => unknown) => fn(),
-}));
-
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ from })),
 }));

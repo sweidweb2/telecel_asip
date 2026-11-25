@@ -2,13 +2,10 @@ import {
   TURNSTILE_BYPASS_TOKEN,
   TURNSTILE_WIDGET_ENABLED,
 } from "@/lib/turnstile-widget";
-import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
-
-export { TURNSTILE_CONTACT_ACTION };
+import { TURNSTILE_TOKEN_MAX } from "@/validations/common-fields";
 
 const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const TOKEN_MAX_LENGTH = 2048;
 const SITEVERIFY_TIMEOUT_MS = 10_000;
 
 /** Cloudflare published always-pass testing secret (local/E2E only). */
@@ -45,21 +42,25 @@ export async function verifyTurnstileToken(options: {
   remoteip?: string;
 }): Promise<boolean> {
   const { token, expectedAction, remoteip } = options;
-  if (!TURNSTILE_WIDGET_ENABLED && token === TURNSTILE_BYPASS_TOKEN) {
-    // Bypass is for local/E2E only. Production must not accept the stand-in
-    // unless ALLOW_TURNSTILE_BYPASS=true is set explicitly (emergency).
+
+  // Widget is currently off (see `turnstile-widget.ts`). Local / preview /
+  // explicit ALLOW_TURNSTILE_BYPASS skip Cloudflare entirely so flaky client
+  // token timing cannot block signup/login while the challenge is hidden.
+  if (!TURNSTILE_WIDGET_ENABLED) {
     const allowBypass =
       process.env.ALLOW_TURNSTILE_BYPASS === "true" ||
       process.env.NODE_ENV !== "production" ||
       process.env.VERCEL_ENV === "preview" ||
       process.env.VERCEL_ENV === "development";
-    if (!allowBypass) {
+    if (allowBypass) {
+      return true;
+    }
+    if (token === TURNSTILE_BYPASS_TOKEN) {
       console.error(
         "[turnstile] bypass token rejected outside local/preview",
       );
-      return false;
     }
-    return true;
+    return false;
   }
 
   const hostnames = expectedHostnames();
@@ -68,7 +69,7 @@ export async function verifyTurnstileToken(options: {
   if (
     typeof token !== "string" ||
     token.length === 0 ||
-    token.length > TOKEN_MAX_LENGTH ||
+    token.length > TURNSTILE_TOKEN_MAX ||
     hostnames.size === 0 ||
     !secret
   ) {

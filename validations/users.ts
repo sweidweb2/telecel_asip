@@ -4,6 +4,11 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
+import {
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  passwordComplexitySchema,
+} from "@/validations/common-fields";
 
 export const USER_ROLES = ["admin", "editor", "viewer"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
@@ -24,8 +29,8 @@ export const EDITOR_ASSIGNABLE_ROLES = ["editor", "viewer"] as const;
 export const USER_FULL_NAME_MIN = 2;
 export const USER_FULL_NAME_MAX = 80;
 export const USER_EMAIL_MAX = 254;
-export const USER_PASSWORD_MIN = 8;
-export const USER_PASSWORD_MAX = 128;
+export const USER_PASSWORD_MIN = PASSWORD_MIN;
+export const USER_PASSWORD_MAX = PASSWORD_MAX;
 
 const fullNameSchema = z
   .string()
@@ -41,12 +46,12 @@ const emailSchema = z
   .email("Enter a valid email address")
   .transform((value) => value.toLowerCase());
 
-const passwordSchema = z
-  .string()
-  .min(USER_PASSWORD_MIN, "Password must be at least 8 characters")
-  .max(USER_PASSWORD_MAX, "Password must be 128 characters or fewer")
-  .regex(/[A-Za-z]/, "Password must include a letter")
-  .regex(/[0-9]/, "Password must include a number");
+const passwordSchema = passwordComplexitySchema({
+  min: "Password must be at least 8 characters",
+  max: "Password must be 128 characters or fewer",
+  letter: "Password must include a letter",
+  number: "Password must include a number",
+});
 
 const userRoleSchema = z.enum(USER_ROLES);
 const staffAudienceTypeSchema = z.enum(STAFF_AUDIENCE_TYPES);

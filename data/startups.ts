@@ -299,17 +299,20 @@ function shuffleSeeded<T>(items: readonly T[], seed: number): T[] {
   return out;
 }
 
-async function fetchActiveStartupsMatching(
+/**
+ * Matching active startup ids only — narrow enough to shuffle the full
+ * portfolio in-process without pulling list/card payloads on every page.
+ * Filters may reference `name` / `description` without selecting those columns.
+ */
+async function fetchActiveStartupIdsMatching(
   filters: ActiveStartupFilters,
-): Promise<StartupPublicListItem[]> {
+): Promise<string[]> {
   const supabase = createPublicClient();
 
-  let request = supabase.from("startups_public").select(PUBLIC_LIST_COLUMNS);
-
+  let request = supabase.from("startups_public").select("id");
   if (filters.cohort) request = request.eq("cohort", filters.cohort);
   if (filters.country) request = request.eq("country_code", filters.country);
   if (filters.sector) request = request.eq("sector", filters.sector);
-
   if (filters.query) {
     const pattern = escapeIlikePattern(filters.query);
     request = request.or(
@@ -322,12 +325,37 @@ async function fetchActiveStartupsMatching(
 
   if (error) throw error;
 
-  return mapPublicListItems(data ?? []);
+  return (data ?? []).flatMap((row) => (row.id ? [row.id] : []));
+}
+
+/** Wide list columns for a single page of ids, re-ordered to match `ids`. */
+async function fetchPublicListItemsByIds(
+  ids: readonly string[],
+): Promise<StartupPublicListItem[]> {
+  if (ids.length === 0) return [];
+
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("startups_public")
+    .select(PUBLIC_LIST_COLUMNS)
+    .in("id", ids);
+
+  if (error) throw error;
+
+  const byId = new Map(
+    mapPublicListItems(data ?? []).map((item) => [item.id, item]),
+  );
+
+  return ids.flatMap((id) => {
+    const item = byId.get(id);
+    return item ? [item] : [];
+  });
 }
 
 /**
- * One page of the public founders list. Matching rows are cached; the shuffle
+ * One page of the public founders list. Matching ids are cached; the shuffle
  * seed (`?s=`) randomises order per visit without duplicating rows across pages.
+ * Full list columns load only for the current page slice.
  */
 export async function getActiveStartupsPage(
   page: number,
@@ -340,14 +368,14 @@ export async function getActiveStartupsPage(
   shuffleSeed = 0,
 ): Promise<StartupPublicPageResult> {
   // Free-text search is attacker-controlled and would mint unbounded cache
-  // entries, so those queries go straight to Postgres. Filter-only lists are
-  // small and safe to cache; shuffle happens after the cache hit.
-  const all = filters.query
-    ? await fetchActiveStartupsMatching(filters)
+  // entries, so those id queries go straight to Postgres. Filter-only id lists
+  // are small and safe to cache; shuffle happens after the cache hit.
+  const allIds = filters.query
+    ? await fetchActiveStartupIdsMatching(filters)
     : await unstable_cache(
-        () => fetchActiveStartupsMatching(filters),
+        () => fetchActiveStartupIdsMatching(filters),
         [
-          "active-startups-all",
+          "active-startup-ids",
           filters.cohort ?? "all",
           filters.country ?? "all",
           filters.sector ?? "all",
@@ -356,14 +384,16 @@ export async function getActiveStartupsPage(
       )();
 
   const pageSize = STARTUP_PUBLIC_PAGE_SIZE;
-  const shuffled = shuffleSeeded(all, shuffleSeed);
-  const total = shuffled.length;
+  const shuffledIds = shuffleSeeded(allIds, shuffleSeed);
+  const total = shuffledIds.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(Math.max(1, page), totalPages);
   const from = (safePage - 1) * pageSize;
+  const pageIds = shuffledIds.slice(from, from + pageSize);
+  const items = await fetchPublicListItemsByIds(pageIds);
 
   return {
-    items: shuffled.slice(from, from + pageSize),
+    items,
     total,
     totalPages,
     currentPage: safePage,
