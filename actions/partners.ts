@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -338,13 +338,14 @@ export async function uploadPartnerLogo(
     previousUrl: existing.logo_url,
     maxBytes: LOGO_MAX_BYTES,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      session.supabase
-        .from("partners")
-        .update({ logo_url: publicUrl })
-        .eq("id", partnerId)
-        .select("id")
-        .maybeSingle(),
+    persistMediaUrl: {
+      column: "logo_url",
+      prepareUpdate: (publicUrl) =>
+        session.supabase
+          .from("partners")
+          .update({ logo_url: publicUrl })
+          .eq("id", partnerId),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;

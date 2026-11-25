@@ -16,7 +16,6 @@ const validInput = {
   subject: "Partnership inquiry",
   message:
     "I would like to learn more about partnering with ASIP for the next cohort.",
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("contactMessageSchema", () => {
@@ -57,17 +56,6 @@ describe("contactMessageSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a missing turnstile token", () => {
-    const result = contactMessageSchema.safeParse({
-      ...validInput,
-      turnstileToken: "",
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/security check/i);
-    }
-  });
-
   it("returns french validation messages", () => {
     const result = contactMessageSchemaFor("fr").safeParse({
       ...validInput,
@@ -84,9 +72,8 @@ describe("contactMessageSchema", () => {
 describe("updateContactMessageSchema / deleteContactMessageSchema", () => {
   const id = "33333333-3333-4333-8333-333333333333";
 
-  it("accepts an admin update without turnstile", () => {
-    const { turnstileToken: _t, ...fields } = validInput;
-    void _t;
+  it("accepts an admin update of listed fields", () => {
+    const fields = { ...validInput };
     expect(updateContactMessageSchema.safeParse({ id, ...fields }).success).toBe(
       true,
     );

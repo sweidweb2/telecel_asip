@@ -34,7 +34,7 @@ describe("legalCopyFor", () => {
       ...privacy.sections.flatMap((s) => s.paragraphs),
     ].join(" ");
     expect(blob).toContain(CONTACT.email);
-    expect(blob).toContain("Turnstile");
+    expect(blob).toContain("rate limit");
     expect(blob).toMatch(/signed in|sign in/i);
     expect(blob.toLowerCase()).not.toContain("draft");
     expect(blob.toLowerCase()).not.toContain("provisional");

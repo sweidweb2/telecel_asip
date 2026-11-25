@@ -14,7 +14,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: () => Promise<unknown>) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeAdmin: vi.fn(),
 }));
 
@@ -51,7 +51,7 @@ import {
   getBackupStatus,
   runBackupNow,
 } from "@/actions/backups";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeAdmin } from "@/lib/admin/authorize-role";
 import {
   applyAutomatedBackupRetention,
   failStuckInFlightBackups,

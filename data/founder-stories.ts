@@ -6,7 +6,7 @@ import { STARTUPS_CACHE_TAG } from "@/data/startups";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -136,8 +136,7 @@ export async function getFounderStoriesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: FounderStoryListResult; stats: FounderStoryListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchFounderStoriesPage(supabase, query),
         fetchFounderStoryListStats(supabase),
@@ -158,8 +157,7 @@ export const getFounderStoryByIdForAdmin = cache(
         return { status: "not_found" };
       }
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const { data, error } = await supabase
             .from("founder_stories")
             .select(DETAIL_COLUMNS)
@@ -193,8 +191,7 @@ export async function getStartupsForStoryPicker(options?: {
   | { status: "forbidden" }
   | { status: "ok"; startups: StartupStoryOption[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const includeId = options?.includeStartupId;
       const term = (options?.search ?? "").trim().slice(0, 100);
 

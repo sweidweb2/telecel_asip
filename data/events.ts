@@ -4,7 +4,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
@@ -87,8 +87,7 @@ export async function getEventsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: EventListResult; stats: EventListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchEventsPage(supabase, query),
         fetchEventListStats(supabase),
@@ -107,8 +106,7 @@ export const getEventByIdForAdmin = cache(
     async (id: string): Promise<EventDetailResult> => {
       if (!eventIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const [eventResult, linksResult] = await Promise.all([
             supabase
               .from("events")
@@ -169,8 +167,7 @@ export async function getEventStartupOptions(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EventStartupOption[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("startups")

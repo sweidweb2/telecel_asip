@@ -1,5 +1,5 @@
 import { fetchAdminListStats } from "@/data/admin-list-stats";
-import { gateEditorPageData } from "@/lib/admin/admin-list-query";
+import { gatePageDataByRole } from "@/lib/admin/admin-list-query";
 
 export type DashboardInboxUnread = {
   registrations: number;
@@ -17,7 +17,7 @@ export type DashboardInboxUnread = {
 export async function getDashboardInboxUnread(): Promise<
   { status: "forbidden" } | { status: "ok"; unread: DashboardInboxUnread }
 > {
-  const gated = await gateEditorPageData(async (supabase) => {
+  const gated = await gatePageDataByRole("editor", async (supabase) => {
     const [
       registrations,
       applications,

@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createClient, getRequestLocale, redirect, verifyTurnstileToken } =
+const { createClient, getRequestLocale, redirect } =
   vi.hoisted(() => ({
     createClient: vi.fn(),
     getRequestLocale: vi.fn(async () => "en" as const),
     redirect: vi.fn(),
-    verifyTurnstileToken: vi.fn(),
   }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -26,9 +25,6 @@ vi.mock("next/headers", () => ({
   })),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken,
-}));
 
 import { signIn, signInWithGoogle, signOut, signUp } from "@/actions/auth";
 
@@ -38,19 +34,16 @@ const validSignup = {
   password: "Testpass1",
   confirmPassword: "Testpass1",
   type: "startup" as const,
-  turnstileToken: "test-turnstile-token",
 };
 
 const validLogin = {
   email: "ada@example.com",
   password: "Testpass1",
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("auth actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    verifyTurnstileToken.mockResolvedValue(true);
   });
 
   it("rejects invalid signup details", async () => {
@@ -60,21 +53,8 @@ describe("auth actions", () => {
       password: "short",
       confirmPassword: "short",
       type: "startup",
-      turnstileToken: "test-turnstile-token",
     });
     expect(result.status).toBe("error");
-    expect(createClient).not.toHaveBeenCalled();
-  });
-
-  it("rejects signup when Turnstile fails", async () => {
-    verifyTurnstileToken.mockResolvedValue(false);
-
-    const result = await signUp(validSignup);
-
-    expect(result).toEqual({
-      status: "error",
-      message: "Security check failed. Please try again.",
-    });
     expect(createClient).not.toHaveBeenCalled();
   });
 
@@ -153,18 +133,6 @@ describe("auth actions", () => {
       status: "success",
       redirectTo: "/dashboard",
     });
-  });
-
-  it("rejects login when Turnstile fails", async () => {
-    verifyTurnstileToken.mockResolvedValue(false);
-
-    const result = await signIn(validLogin);
-
-    expect(result).toEqual({
-      status: "error",
-      message: "Security check failed. Please try again.",
-    });
-    expect(createClient).not.toHaveBeenCalled();
   });
 
   it("maps invalid login credentials", async () => {

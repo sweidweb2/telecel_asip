@@ -1,7 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { TURNSTILE_WIDGET_ENABLED } from "../lib/turnstile-widget";
 import { customAlphabet } from "nanoid";
 import {
   createClient,
@@ -190,52 +189,8 @@ export async function loginAsAdmin(
   );
 }
 
-/**
- * Wait until Turnstile issues a token into the form's hidden field.
- * Skips the test when the widget cannot mint a token on localhost.
- */
-export async function waitForTurnstileReady(
-  page: Page,
-  options: { testId: string; submitName: string | RegExp },
-): Promise<void> {
-  // Default Playwright timeout (30s) is too tight once the challenge wait is
-  // included — bump so a missing token becomes a clean skip, not a hard fail.
-  if (!TURNSTILE_WIDGET_ENABLED) {
-    await expect(
-      page.getByRole("button", { name: options.submitName }),
-    ).toBeEnabled({ timeout: 15_000 });
-    return;
-  }
-
-  const info = test.info();
-  if (info.timeout > 0 && info.timeout < 90_000) {
-    info.setTimeout(90_000);
-  }
-
-  await expect(page.getByTestId(options.testId)).toBeVisible({
-    timeout: 30_000,
-  });
-  const tokenInput = page.locator('input[name="turnstileToken"]');
-  try {
-    // Headless + network can delay Cloudflare's challenge mint.
-    await expect(tokenInput).not.toHaveValue("", { timeout: 25_000 });
-  } catch {
-    test.skip(
-      true,
-      "Turnstile did not issue a token - check NEXT_PUBLIC_TURNSTILE_SITE_KEY, Cloudflare hostname allowlist for localhost, and DNS to *.challenges.cloudflare.com.",
-    );
-  }
-  await expect(
-    page.getByRole("button", { name: options.submitName }),
-  ).toBeEnabled({ timeout: 5_000 });
-}
-
-/** Complete the login form Turnstile challenge and click Sign in. */
+/** Click Sign in. */
 export async function submitLoginForm(page: Page): Promise<void> {
-  await waitForTurnstileReady(page, {
-    testId: "login-turnstile",
-    submitName: "Sign in",
-  });
   await page.getByRole("button", { name: "Sign in" }).click();
 }
 

@@ -3,7 +3,7 @@
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
+import { authorizeAdmin } from "@/lib/admin/authorize-role";
 import {
   applyAutomatedBackupRetention,
   failStuckInFlightBackups,

@@ -18,12 +18,10 @@ vi.mock("@/data/settings", () => ({
   getNewsletterSignupEnabled: vi.fn(),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken: vi.fn(),
-}));
 
 vi.mock("@/lib/rate-limit", () => ({
   consumeSharedRateLimit: vi.fn(async () => true),
+  releaseSharedRateLimit: vi.fn(async () => undefined),
 }));
 
 const insertMock = vi.fn();
@@ -39,13 +37,11 @@ vi.mock("@/lib/supabase/admin", () => ({
 import { subscribeNewsletter } from "@/actions/newsletter";
 import { getNewsletterSignupEnabled } from "@/data/settings";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validInput = {
   email: "founder@example.com",
   consent: true,
   sourcePage: "/en/insights",
-  turnstileToken: "test-token",
 };
 
 describe("subscribeNewsletter", () => {
@@ -64,13 +60,11 @@ describe("subscribeNewsletter", () => {
     if (result.status === "error") {
       expect(result.message).toMatch(/not open/i);
     }
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("rejects when rate limited", async () => {
     vi.mocked(getNewsletterSignupEnabled).mockResolvedValue(true);
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await subscribeNewsletter(validInput);
@@ -84,12 +78,10 @@ describe("subscribeNewsletter", () => {
 
   it("accepts a valid payload when the toggle is on", async () => {
     vi.mocked(getNewsletterSignupEnabled).mockResolvedValue(true);
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
     const result = await subscribeNewsletter(validInput);
 
     expect(result.status).toBe("success");
-    expect(verifyTurnstileToken).toHaveBeenCalled();
     expect(consumeSharedRateLimit).toHaveBeenCalled();
     expect(insertMock).toHaveBeenCalledWith({
       email: "founder@example.com",

@@ -65,7 +65,7 @@ export async function updateContactMessage(
         .maybeSingle();
 
       if (error) {
-        return { status: "error", message: ADMIN_MESSAGES.genericError };
+        return { status: "error", message: ADMIN_MESSAGES.genericError, pgError: error };
       }
       if (!row) {
         return { status: "error", message: ADMIN_MESSAGES.notFound };
@@ -95,7 +95,7 @@ export async function deleteContactMessage(
         .maybeSingle();
 
       if (error) {
-        return { status: "error", message: ADMIN_MESSAGES.genericError };
+        return { status: "error", message: ADMIN_MESSAGES.genericError, pgError: error };
       }
       if (!row) {
         return { status: "error", message: ADMIN_MESSAGES.notFound };

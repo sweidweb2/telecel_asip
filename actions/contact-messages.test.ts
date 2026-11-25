@@ -15,15 +15,13 @@ vi.mock("@/lib/i18n/request-locale", () => ({
   getRequestLocale: vi.fn(async () => "en" as const),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken: vi.fn(),
-}));
 
 vi.mock("@/lib/rate-limit", () => ({
   consumeSharedRateLimit: vi.fn(async () => true),
+  releaseSharedRateLimit: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor: vi.fn(),
 }));
 
@@ -45,9 +43,8 @@ import {
   updateContactMessageInboxStatus,
 } from "@/actions/contact-messages";
 import { submitContactMessage } from "@/actions/submit-contact-message";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
   enquiryType: "partner" as const,
@@ -57,7 +54,6 @@ const validSubmit = {
   subject: "Partnership inquiry",
   message:
     "I would like to learn more about partnering with ASIP for the next cohort.",
-  turnstileToken: "test-turnstile-token",
 };
 
 const messageId = "33333333-3333-4333-8333-333333333333";
@@ -83,29 +79,16 @@ describe("submitContactMessage", () => {
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
   });
 
-  it("rejects invalid payloads before Turnstile", async () => {
+  it("rejects invalid payloads before rate limits", async () => {
     const result = await submitContactMessage({
       ...validSubmit,
       message: "short",
     });
 
     expect(result.status).toBe("error");
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
-  });
-
-  it("rejects when Turnstile fails", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(false);
-
-    const result = await submitContactMessage(validSubmit);
-
-    expect(result).toEqual({
-      status: "error",
-      message: "Security check failed. Please try again.",
-    });
   });
 
   it("rejects when rate limited", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitContactMessage(validSubmit);
@@ -117,7 +100,6 @@ describe("submitContactMessage", () => {
   });
 
   it("inserts on success", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
     const result = await submitContactMessage(validSubmit);
 

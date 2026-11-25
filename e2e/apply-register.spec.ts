@@ -6,7 +6,6 @@ import {
   hasE2ECredentials,
   setApplicationsOpenViaSettings,
   submitLoginForm,
-  waitForTurnstileReady,
 } from "./helpers";
 
 const REGISTER_SUCCESS = "Thank you - your interest has been registered.";
@@ -127,13 +126,7 @@ test.describe("apply and register-interest", { tag: "@writes" }, () => {
       await page.locator("#intake-sector").fill("Fintech");
       await page
         .getByRole("checkbox", { name: /I agree that ASIP may store/i })
-        .click();
-
-      await waitForTurnstileReady(page, {
-        testId: "register-turnstile",
-        submitName: "Submit interest",
-      });
-      await page.getByRole("button", { name: "Submit interest" }).click();
+        .click();      await page.getByRole("button", { name: "Submit interest" }).click();
       await expect(
         page.getByRole("heading", { name: "Thank you" }),
       ).toBeVisible({ timeout: 20_000 });
@@ -208,13 +201,7 @@ test.describe("apply and register-interest", { tag: "@writes" }, () => {
         );
       await page
         .getByRole("checkbox", { name: /I agree that ASIP may store/i })
-        .click();
-
-      await waitForTurnstileReady(page, {
-        testId: "apply-turnstile",
-        submitName: "Submit application",
-      });
-      await page.getByRole("button", { name: "Submit application" }).click();
+        .click();      await page.getByRole("button", { name: "Submit application" }).click();
       await expect(
         page.getByRole("heading", { name: "Thank you" }),
       ).toBeVisible({ timeout: 20_000 });

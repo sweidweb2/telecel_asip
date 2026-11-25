@@ -1,17 +1,18 @@
-import { z } from "zod";
+import {
+  z } from "zod";
 
-import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import { DEFAULT_LOCALE,
+  type Locale } from "@/constants/locales";
 import type { Application } from "@/types/application";
 import {
   parseAdminListQuery,
   type RawSearchParams,
-} from "@/validations/admin-list-query";
+  } from "@/validations/admin-list-query";
 import {
   optionalHttpUrl,
   requiredConsent,
   requiredPhone,
   trimmedEmail,
-  turnstileTokenField,
 } from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
@@ -38,7 +39,6 @@ type ApplicationMessages = {
   fitMin: string;
   fitMax: string;
   consentRequired: string;
-  turnstileRequired: string;
   invalidId: string;
 };
 
@@ -67,7 +67,6 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     fitMin: "Program fit must be at least 20 characters",
     fitMax: "Program fit must be at most 2000 characters",
     consentRequired: "You must agree before submitting",
-    turnstileRequired: "Please complete the security check",
     invalidId: "Invalid application id",
   },
   fr: {
@@ -94,7 +93,6 @@ const VALIDATION_MESSAGES: Record<Locale, ApplicationMessages> = {
     fitMin: "Adéquation au programme : au moins 20 caractères",
     fitMax: "Adéquation au programme : au plus 2000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
-    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant de candidature invalide",
   },
 };
@@ -182,7 +180,6 @@ export function applicationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
   return z.object({
     ...applicationFieldsSchema(messages),
     consent: requiredConsent(messages.consentRequired),
-    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 

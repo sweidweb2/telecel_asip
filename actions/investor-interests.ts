@@ -116,9 +116,9 @@ export async function updateInvestorInterest(
 
       if (error) {
         if (isUniqueViolation(error)) {
-          return { status: "error", message: copy.duplicate };
+          return { status: "error", message: copy.duplicate, pgError: error };
         }
-        return { status: "error", message: copy.genericError };
+        return { status: "error", message: copy.genericError, pgError: error };
       }
       if (!row) {
         return { status: "error", message: copy.notFound };
@@ -155,7 +155,7 @@ export async function deleteInvestorInterest(
         .maybeSingle();
 
       if (error) {
-        return { status: "error", message: copy.genericError };
+        return { status: "error", message: copy.genericError, pgError: error };
       }
       if (!row) {
         return { status: "error", message: copy.notFound };

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserAdmin = vi.fn();
+const checkStaffRole = vi.fn();
 const range = vi.fn();
 const orderId = vi.fn(() => ({ range }));
 const orderPrimary = vi.fn(() => ({ order: orderId }));
@@ -20,8 +20,8 @@ const from = vi.fn((table: string) => {
   return { select: selectProfiles };
 });
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
-  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+vi.mock("@/lib/admin/current-user-role", () => ({
+  checkStaffRole: (...args: unknown[]) => checkStaffRole(...args),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -45,7 +45,7 @@ describe("getBackupsPageData", () => {
   });
 
   it("returns forbidden for non-admins", async () => {
-    isCurrentUserAdmin.mockResolvedValue(false);
+    checkStaffRole.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
 
     const result = await getBackupsPageData(defaultQuery);
@@ -53,7 +53,7 @@ describe("getBackupsPageData", () => {
   });
 
   it("maps actor names for admin list", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -98,7 +98,7 @@ describe("getBackupsPageData", () => {
   });
 
   it("applies status and scope filters when set", async () => {
-    isCurrentUserAdmin.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
 
     await getBackupsPageData({

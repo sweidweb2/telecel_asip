@@ -5,7 +5,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -118,8 +118,7 @@ export async function getImpactMetricsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ImpactMetricListResult; stats: ImpactMetricListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchImpactMetricsPage(supabase, query),
         fetchImpactMetricListStats(supabase),
@@ -148,8 +147,7 @@ export const getImpactMetricByIdForAdmin = cache(
         return { status: "not_found" };
       }
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const { data, error } = await supabase
             .from("impact_metrics")
             .select(DETAIL_COLUMNS)
@@ -191,8 +189,7 @@ export async function listEvidenceOptionsForAdmin(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; options: EvidenceOption[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("evidence_records")
@@ -249,10 +246,23 @@ export const getVerifiedImpactMetrics = unstable_cache(
   { tags: [IMPACT_METRICS_CACHE_TAG], revalidate: 300 },
 );
 
-/** Homepage strip — only metrics tagged `homepage_module_02`. */
-export async function getHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> {
-  const metrics = await getVerifiedImpactMetrics();
-  return metrics.filter((metric) =>
-    metric.display_locations?.includes("homepage_module_02"),
-  );
+async function fetchHomeImpactMetrics(): Promise<ImpactMetricPublicItem[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("impact_metrics")
+    .select(PUBLIC_COLUMNS)
+    .eq("publish_status", "verified")
+    .contains("display_locations", ["homepage_module_02"])
+    .order("updated_at", { ascending: false })
+    .limit(PUBLIC_LIMIT);
+
+  if (error) throw error;
+  return (data ?? []) as ImpactMetricPublicItem[];
 }
+
+/** Homepage strip — only metrics tagged `homepage_module_02` (filtered in SQL). */
+export const getHomeImpactMetrics = unstable_cache(
+  fetchHomeImpactMetrics,
+  ["home-impact-metrics"],
+  { tags: [IMPACT_METRICS_CACHE_TAG], revalidate: 300 },
+);

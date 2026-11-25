@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import {
+  describe,
+  expect,
+  it } from "vitest";
 
 import {
   optionalHttpUrl,
@@ -7,7 +10,6 @@ import {
   requiredConsent,
   requiredPhone,
   trimmedEmail,
-  turnstileTokenField,
 } from "@/validations/common-fields";
 
 describe("common-fields", () => {
@@ -47,11 +49,9 @@ describe("common-fields", () => {
     if (parsed.success) expect(parsed.data).toBe("name@example.com");
   });
 
-  it("requires consent true and a turnstile token", () => {
+  it("requires consent true", () => {
     expect(requiredConsent("need").safeParse(true).success).toBe(true);
     expect(requiredConsent("need").safeParse(false).success).toBe(false);
-    expect(turnstileTokenField("need").safeParse("token").success).toBe(true);
-    expect(turnstileTokenField("need").safeParse("").success).toBe(false);
   });
 
   it("enforces optional min length when non-empty", () => {

@@ -6,7 +6,7 @@ import { ROUTES } from "@/constants/routes";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { BLOGS_CACHE_TAG } from "@/data/blogs";
 import { estimateReadingTimeMinutes } from "@/lib/blog-utils";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   revalidateDashboardNavCounts,
@@ -330,20 +330,19 @@ async function uploadImage(options: {
     previousUrl,
     maxBytes,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      column === "thumbnail_url"
-        ? session.supabase
-            .from("blogs")
-            .update({ thumbnail_url: publicUrl })
-            .eq("id", blogId)
-            .select("id")
-            .maybeSingle()
-        : session.supabase
-            .from("blogs")
-            .update({ author_avatar_url: publicUrl })
-            .eq("id", blogId)
-            .select("id")
-            .maybeSingle(),
+    persistMediaUrl: {
+      column,
+      prepareUpdate: (publicUrl) =>
+        column === "thumbnail_url"
+          ? session.supabase
+              .from("blogs")
+              .update({ thumbnail_url: publicUrl })
+              .eq("id", blogId)
+          : session.supabase
+              .from("blogs")
+              .update({ author_avatar_url: publicUrl })
+              .eq("id", blogId),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;

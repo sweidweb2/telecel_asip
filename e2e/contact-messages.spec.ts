@@ -6,7 +6,6 @@ import {
   e2eAdminClient,
   hasE2ECredentials,
   loginAsEditor,
-  waitForTurnstileReady,
 } from "./helpers";
 
 const RATE_LIMIT_TOAST =
@@ -48,12 +47,6 @@ async function fillContactForm(
   await page.locator("#contact-message").fill(values.message);
 }
 
-async function waitForContactTurnstile(page: Page) {
-  await waitForTurnstileReady(page, {
-    testId: "contact-turnstile",
-    submitName: "Send message",
-  });
-}
 
 /** Contact success UI is a dialog (not a Sonner toast). */
 async function expectContactSuccessDialog(page: Page) {
@@ -97,9 +90,7 @@ test.describe("contact messages", () => {
           email,
           subject,
           message: BODY,
-        });
-        await waitForContactTurnstile(page);
-        await page.getByRole("button", { name: "Send message" }).click();
+        });        await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
         expect(await countMessagesByEmail(email)).toBe(1);
 
@@ -109,9 +100,7 @@ test.describe("contact messages", () => {
           email,
           subject,
           message: `${BODY} Follow-up details included.`,
-        });
-        await waitForContactTurnstile(page);
-        await page.getByRole("button", { name: "Send message" }).click();
+        });        await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
         expect(await countMessagesByEmail(email)).toBe(2);
       } finally {
@@ -138,9 +127,7 @@ test.describe("contact messages", () => {
           email,
           subject: `Rate limit subject ${suffix}-${i}`,
           message: `${BODY} Attempt ${i + 1}.`,
-        });
-        await waitForContactTurnstile(page);
-        await page.getByRole("button", { name: "Send message" }).click();
+        });        await page.getByRole("button", { name: "Send message" }).click();
         await expectContactSuccessDialog(page);
       }
 
@@ -152,9 +139,7 @@ test.describe("contact messages", () => {
         email,
         subject: `Rate limit subject ${suffix}-blocked`,
         message: `${BODY} Attempt 4 should be blocked.`,
-      });
-      await waitForContactTurnstile(page);
-      await page.getByRole("button", { name: "Send message" }).click();
+      });      await page.getByRole("button", { name: "Send message" }).click();
       await expect(
         page
           .locator("[data-sonner-toast][data-type='error']")

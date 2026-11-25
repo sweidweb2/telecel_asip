@@ -1,14 +1,15 @@
-import { z } from "zod";
+import {
+  z } from "zod";
 
 import { INVESTOR_KINDS } from "@/constants/investor-intake";
-import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import { DEFAULT_LOCALE,
+  type Locale } from "@/constants/locales";
 import {
   optionalHttpUrl,
   optionalMinLengthString,
   optionalPhone,
   requiredConsent,
   trimmedEmail,
-  turnstileTokenField,
 } from "@/validations/common-fields";
 
 export const INVESTOR_FULL_NAME_MAX = 100;
@@ -31,7 +32,6 @@ export type InvestorContactMessages = {
   linkedinInvalid: string;
   investorTypeInvalid: string;
   consentRequired: string;
-  turnstileRequired: string;
 };
 
 export const INVESTOR_CONTACT_MESSAGES: Record<
@@ -52,7 +52,6 @@ export const INVESTOR_CONTACT_MESSAGES: Record<
     linkedinInvalid: "LinkedIn must be a valid http(s) URL",
     investorTypeInvalid: "Choose an investor type",
     consentRequired: "You must agree before submitting",
-    turnstileRequired: "Please complete the security check",
   },
   fr: {
     fullNameMin: "Le nom doit contenir au moins 2 caractères",
@@ -68,11 +67,10 @@ export const INVESTOR_CONTACT_MESSAGES: Record<
     linkedinInvalid: "LinkedIn doit être une URL http(s) valide",
     investorTypeInvalid: "Choisissez un type d’investisseur",
     consentRequired: "Vous devez accepter avant d’envoyer",
-    turnstileRequired: "Veuillez compléter la vérification de sécurité",
   },
 };
 
-/** Shared contact + consent + turnstile fields for investor interest/engagement. */
+/** Shared contact + consent fields for investor interest/engagement. */
 export function investorContactFields(
   messages: InvestorContactMessages = INVESTOR_CONTACT_MESSAGES[DEFAULT_LOCALE],
 ) {
@@ -99,6 +97,5 @@ export function investorContactFields(
     investorType: z.enum(INVESTOR_KINDS, messages.investorTypeInvalid),
     consent: requiredConsent(messages.consentRequired),
     commsOptIn: z.boolean(),
-    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   };
 }

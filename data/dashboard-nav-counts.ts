@@ -6,7 +6,7 @@ import {
   mapDashboardNavCounts,
   type DashboardNavCounts,
 } from "@/constants/dashboard-nav-counts";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import { isCurrentUserEditor } from "@/lib/admin/current-user-role";
 import { createAccessTokenClient } from "@/lib/supabase/editor-access-client";
 import { createClient } from "@/lib/supabase/server";
 

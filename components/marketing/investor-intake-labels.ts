@@ -37,7 +37,6 @@ export type InvestorIntakeLabels = {
   messagePlaceholder: string;
   consentLabel: string;
   commsLabel: string;
-  turnstileHint: string;
   submitLabel: string;
   submittingLabel: string;
   successTitle: string;
@@ -175,7 +174,6 @@ const REGISTER: Record<Locale, Omit<InvestorIntakeLabels, "kindLabels" | "stageL
     consentLabel:
       "I agree that ASIP may store and use this information to contact me about portfolio and program opportunities.",
     commsLabel: "Send me ASIP investor and program updates by email.",
-    turnstileHint: "Complete the security check before submitting.",
     submitLabel: "Register interest",
     submittingLabel: "Submitting…",
     successTitle: "Interest registered",
@@ -226,7 +224,6 @@ const REGISTER: Record<Locale, Omit<InvestorIntakeLabels, "kindLabels" | "stageL
       "J’accepte qu’ASIP conserve et utilise ces informations pour me contacter au sujet d’opportunités de portefeuille et de programme.",
     commsLabel:
       "Recevoir par e-mail les mises à jour investisseur et programme d’ASIP.",
-    turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
     submitLabel: "Manifester mon intérêt",
     submittingLabel: "Envoi…",
     successTitle: "Intérêt enregistré",

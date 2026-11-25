@@ -9,7 +9,6 @@ export type NewsletterSignupLabels = {
   consentLabel: string;
   submit: string;
   submitting: string;
-  turnstileHint: string;
 };
 
 const EN: NewsletterSignupLabels = {
@@ -22,7 +21,6 @@ const EN: NewsletterSignupLabels = {
   emailPlaceholder: "you@company.com",
   consentLabel: "I agree to ASIP storing my email for program updates.",  submit: "Register for updates",
   submitting: "Submitting…",
-  turnstileHint: "Complete the security check to continue.",
 };
 
 const FR: NewsletterSignupLabels = {
@@ -37,7 +35,6 @@ const FR: NewsletterSignupLabels = {
     "J’accepte qu’ASIP conserve mon e-mail pour les mises à jour du programme.",
   submit: "S’inscrire aux mises à jour",
   submitting: "Envoi…",
-  turnstileHint: "Complétez la vérification de sécurité pour continuer.",
 };
 
 export function newsletterSignupLabelsFor(

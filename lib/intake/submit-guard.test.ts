@@ -6,12 +6,9 @@ vi.mock("next/headers", () => ({
   })),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken: vi.fn(),
-}));
-
 vi.mock("@/lib/rate-limit", () => ({
   consumeSharedRateLimit: vi.fn(),
+  releaseSharedRateLimit: vi.fn(async () => undefined),
 }));
 
 const adminClient = { tag: "admin" };
@@ -23,9 +20,12 @@ vi.mock("@/lib/supabase/admin", () => ({
 import {
   getClientIp,
   guardPublicFormSubmission,
+  runGuardedAdminWork,
 } from "@/lib/intake/submit-guard";
-import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstileToken } from "@/lib/turnstile";
+import {
+  consumeSharedRateLimit,
+  releaseSharedRateLimit,
+} from "@/lib/rate-limit";
 
 describe("getClientIp", () => {
   it("returns the first forwarded address", async () => {
@@ -36,27 +36,7 @@ describe("getClientIp", () => {
 describe("guardPublicFormSubmission", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
-  });
-
-  it("rejects when Turnstile fails", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(false);
-
-    const result = await guardPublicFormSubmission({
-      turnstileToken: "bad",
-      expectedAction: "contact",
-      rateLimitPrefix: "contact",
-      identityKind: "email",
-      identity: "a@example.com",
-      messages: {
-        verificationFailed: "verify-fail",
-        rateLimited: "rate-fail",
-      },
-    });
-
-    expect(result).toEqual({ status: "error", message: "verify-fail" });
-    expect(consumeSharedRateLimit).not.toHaveBeenCalled();
   });
 
   it("rejects when either rate limit is exhausted", async () => {
@@ -65,43 +45,36 @@ describe("guardPublicFormSubmission", () => {
       .mockResolvedValueOnce(false);
 
     const result = await guardPublicFormSubmission({
-      turnstileToken: "ok",
-      expectedAction: "apply",
       rateLimitPrefix: "application",
       identityKind: "user",
       identity: "user-1",
       messages: {
-        verificationFailed: "verify-fail",
         rateLimited: "rate-fail",
       },
     });
 
     expect(result).toEqual({ status: "error", message: "rate-fail" });
+    expect(releaseSharedRateLimit).toHaveBeenCalledWith(
+      adminClient,
+      "application:ip:203.0.113.9",
+    );
   });
 
-  it("returns admin client and distinct rate-limit keys on success", async () => {
+  it("returns admin client and a release helper on success", async () => {
     const result = await guardPublicFormSubmission({
-      turnstileToken: "ok",
-      expectedAction: "apply",
       rateLimitPrefix: "application",
       identityKind: "user",
       identity: "user-1",
       messages: {
-        verificationFailed: "verify-fail",
         rateLimited: "rate-fail",
       },
     });
 
-    expect(result).toEqual({
-      status: "ok",
-      ip: "203.0.113.9",
-      admin: adminClient,
-    });
-    expect(verifyTurnstileToken).toHaveBeenCalledWith({
-      token: "ok",
-      expectedAction: "apply",
-      remoteip: "203.0.113.9",
-    });
+    expect(result.status).toBe("ok");
+    if (result.status !== "ok") return;
+    expect(result.ip).toBe("203.0.113.9");
+    expect(result.admin).toBe(adminClient);
+    expect(typeof result.releaseRateLimits).toBe("function");
     expect(consumeSharedRateLimit).toHaveBeenNthCalledWith(
       1,
       adminClient,
@@ -116,5 +89,62 @@ describe("guardPublicFormSubmission", () => {
       3,
       60 * 60 * 1000,
     );
+
+    await result.releaseRateLimits();
+    expect(releaseSharedRateLimit).toHaveBeenCalledWith(
+      adminClient,
+      "application:ip:203.0.113.9",
+    );
+    expect(releaseSharedRateLimit).toHaveBeenCalledWith(
+      adminClient,
+      "application:user:user-1",
+    );
+  });
+});
+
+describe("runGuardedAdminWork", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(consumeSharedRateLimit).mockResolvedValue(true);
+  });
+
+  it("refunds quota when the insert returns an error", async () => {
+    const guard = await guardPublicFormSubmission({
+      rateLimitPrefix: "contact",
+      identityKind: "email",
+      identity: "a@example.com",
+      messages: { rateLimited: "rate-fail" },
+    });
+    expect(guard.status).toBe("ok");
+    if (guard.status !== "ok") return;
+
+    const result = await runGuardedAdminWork(guard, async () => ({
+      error: { message: "boom", code: "23505" },
+    }));
+
+    expect(result.error?.code).toBe("23505");
+    expect(releaseSharedRateLimit).toHaveBeenCalledWith(
+      adminClient,
+      "contact:ip:203.0.113.9",
+    );
+    expect(releaseSharedRateLimit).toHaveBeenCalledWith(
+      adminClient,
+      "contact:email:a@example.com",
+    );
+  });
+
+  it("keeps quota when the insert succeeds", async () => {
+    const guard = await guardPublicFormSubmission({
+      rateLimitPrefix: "contact",
+      identityKind: "email",
+      identity: "a@example.com",
+      messages: { rateLimited: "rate-fail" },
+    });
+    expect(guard.status).toBe("ok");
+    if (guard.status !== "ok") return;
+
+    await runGuardedAdminWork(guard, async () => ({ error: null }));
+
+    expect(releaseSharedRateLimit).not.toHaveBeenCalled();
   });
 });

@@ -5,7 +5,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { adminOrderAscending } from "@/lib/admin/list-sort";
@@ -113,8 +113,7 @@ export async function getBlogsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: BlogListResult; stats: BlogListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchBlogsPage(supabase, query),
         fetchBlogListStats(supabase),
@@ -138,8 +137,7 @@ export const getBlogByIdForAdmin = cache(
   > => {
     if (!blogIdSchema.safeParse(id).success) return { status: "not_found" };
 
-    const gated = await gateEditorPageData(
-      async (supabase) => {
+    const gated = await gatePageDataByRole("editor", async (supabase) => {
         const { data, error } = await supabase
           .from("blogs")
           .select(DETAIL_COLUMNS)

@@ -65,7 +65,7 @@ Insights listing also hosts a newsletter module:
 
 - Toggle: `site_settings.newsletter_signup_enabled` (**default false**).
 - When off: UI shows inactive copy + disabled controls; `subscribeNewsletter` **hard-rejects**.
-- When on: email + consent + Turnstile; rows land in `newsletter_subscribers` (DB only — no email/CRM delivery in this pass).
+- When on: email + consent + rate limits; rows land in `newsletter_subscribers` (DB only — no email/CRM delivery in this pass).
 
 ---
 

@@ -11,7 +11,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor,
 }));
 

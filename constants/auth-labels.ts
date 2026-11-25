@@ -34,9 +34,7 @@ export type LoginLabels = {
   submittingLabel: string;
   noAccountPrompt: string;
   signUpLink: string;
-  successToast: string;
-  turnstileHint: string;
-  googleLabel: string;
+  successToast: string;  googleLabel: string;
   googleLoadingLabel: string;
   dividerLabel: string;
   googleError: string;
@@ -62,9 +60,7 @@ export type SignupLabels = {
   hasAccountPrompt: string;
   loginLink: string;
   viewerNote: string;
-  successToast: string;
-  turnstileHint: string;
-  googleLabel: string;
+  successToast: string;  googleLabel: string;
   googleLoadingLabel: string;
   dividerLabel: string;
   googleError: string;
@@ -81,9 +77,7 @@ export type AuthActionMessages = {
   invalidLoginDetails: string;
   accountCreated: string;
   confirmEmail: string;
-  signedIn: string;
-  verificationFailed: string;
-};
+  signedIn: string;};
 
 const LOGIN: Record<Locale, LoginLabels> = {
   en: {
@@ -104,9 +98,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     submittingLabel: "Signing in…",
     noAccountPrompt: "No account?",
     signUpLink: "Sign up",
-    successToast: "Signed in.",
-    turnstileHint: "Complete the security check before signing in.",
-    googleLabel: "Continue with Google",
+    successToast: "Signed in.",    googleLabel: "Continue with Google",
     googleLoadingLabel: "Redirecting…",
     dividerLabel: "or continue with email",
     googleError: "Could not start Google sign-in. Please try again.",
@@ -129,9 +121,7 @@ const LOGIN: Record<Locale, LoginLabels> = {
     submittingLabel: "Connexion…",
     noAccountPrompt: "Pas de compte ?",
     signUpLink: "S’inscrire",
-    successToast: "Connecté.",
-    turnstileHint: "Complétez la vérification de sécurité avant de vous connecter.",
-    googleLabel: "Continuer avec Google",
+    successToast: "Connecté.",    googleLabel: "Continuer avec Google",
     googleLoadingLabel: "Redirection…",
     dividerLabel: "ou continuer avec l’e-mail",
     googleError: "Impossible de lancer la connexion Google. Réessayez.",
@@ -160,9 +150,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     loginLink: "Login",
     viewerNote:
       "New accounts are viewers. They can use intake forms, not the Editor or Admin panels.",
-    successToast: "Account created.",
-    turnstileHint: "Complete the security check before creating your account.",
-    googleLabel: "Sign up with Google",
+    successToast: "Account created.",    googleLabel: "Sign up with Google",
     googleLoadingLabel: "Redirecting…",
     dividerLabel: "or sign up with email",
     googleError: "Could not start Google sign-up. Please try again.",
@@ -188,10 +176,7 @@ const SIGNUP: Record<Locale, SignupLabels> = {
     loginLink: "Connexion",
     viewerNote:
       "Les nouveaux comptes sont des viewers. Ils peuvent utiliser les formulaires d’admission, pas le tableau de bord admin.",
-    successToast: "Compte créé.",
-    turnstileHint:
-      "Complétez la vérification de sécurité avant de créer votre compte.",
-    googleLabel: "S’inscrire avec Google",
+    successToast: "Compte créé.",    googleLabel: "S’inscrire avec Google",
     googleLoadingLabel: "Redirection…",
     dividerLabel: "ou s’inscrire avec l’e-mail",
     googleError: "Impossible de lancer l’inscription Google. Réessayez.",
@@ -211,9 +196,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     invalidLoginDetails: "Invalid login details.",
     accountCreated: "Account created.",
     confirmEmail: "Check your email to confirm your account, then sign in.",
-    signedIn: "Signed in.",
-    verificationFailed: "Security check failed. Please try again.",
-  },
+    signedIn: "Signed in.",  },
   fr: {
     invalidCredentials: "E-mail ou mot de passe invalide.",
     emailExists: "Un compte avec cet e-mail existe déjà.",
@@ -227,10 +210,7 @@ const ACTION_MESSAGES: Record<Locale, AuthActionMessages> = {
     accountCreated: "Compte créé.",
     confirmEmail:
       "Vérifiez votre e-mail pour confirmer votre compte, puis connectez-vous.",
-    signedIn: "Connecté.",
-    verificationFailed:
-      "La vérification de sécurité a échoué. Veuillez réessayer.",
-  },
+    signedIn: "Connecté.",  },
 };
 
 export function loginLabelsFor(locale: Locale): LoginLabels {

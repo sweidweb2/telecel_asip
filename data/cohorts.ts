@@ -5,7 +5,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -99,8 +99,7 @@ export async function getCohortsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: CohortListResult; stats: CohortListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchCohortsPage(supabase, query),
         fetchCohortListStats(supabase),
@@ -120,8 +119,7 @@ export const getCohortByIdForAdmin = cache(
     > => {
       if (!cohortIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const [cohortResult, partnersResult, startupsResult] =
             await Promise.all([
               supabase
@@ -177,8 +175,7 @@ export async function getCohortLinkOptionsForAdmin(
       startups: CohortLinkOption[];
     }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       const pattern = term ? escapeIlikePattern(term) : "";
 
@@ -236,8 +233,7 @@ export async function getCohortsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; cohorts: { id: string; label: string }[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("cohorts")

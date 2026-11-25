@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import type { BackupListQuery } from "@/validations/backup";
 import type { Database } from "@/types/database";
@@ -34,8 +34,7 @@ export async function getBackupsPageData(
 ): Promise<
   { status: "forbidden" } | ({ status: "ok" } & BackupsListResult)
 > {
-  return gateAdminPageData(
-    async (supabase) => {
+  return gatePageDataByRole("admin", async (supabase) => {
       const { from, to } = adminListRange(query.page, query.pageSize);
 
       let listQuery = supabase

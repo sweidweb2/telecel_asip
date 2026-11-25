@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import {
   refreshAdminResource,
@@ -187,21 +187,16 @@ export async function updateFounderStory(
     },
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
-      // Cover is owned by upload/remove — never let a form save wipe a Storage URL.
-      const { data: existing, error: coverLookupError } = await session.supabase
-        .from("founder_stories")
-        .select("cover_image_url")
-        .eq("id", data.id)
-        .maybeSingle();
-      if (coverLookupError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
+      // Cover is owned by upload/remove — omit so form saves cannot clobber it.
+      const { cover_image_url: _omitCover, ...values } = toFounderStoryRow(
+        data,
+      );
 
       return writeAdminRow(session.supabase, {
         op: "update",
         table: "founder_stories",
         id: data.id,
-        values: toFounderStoryRow(data, existing?.cover_image_url ?? null),
+        values,
         notFound: MESSAGES.notFound,
       });
     },
@@ -274,13 +269,14 @@ export async function uploadFounderStoryCover(
     previousUrl: existing.cover_image_url,
     maxBytes: COVER_MAX_BYTES,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      session.supabase
-        .from("founder_stories")
-        .update({ cover_image_url: publicUrl })
-        .eq("id", storyId)
-        .select("id")
-        .maybeSingle(),
+    persistMediaUrl: {
+      column: "cover_image_url",
+      prepareUpdate: (publicUrl) =>
+        session.supabase
+          .from("founder_stories")
+          .update({ cover_image_url: publicUrl })
+          .eq("id", storyId),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;

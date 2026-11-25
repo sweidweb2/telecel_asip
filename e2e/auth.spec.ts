@@ -7,7 +7,6 @@ import {
   e2eEditorPassword,
   loginAsEditor,
   submitLoginForm,
-  waitForTurnstileReady,
 } from "./helpers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -144,12 +143,7 @@ test.describe("auth", () => {
         await page.getByLabel("Name").fill(fullName);
         await page.getByLabel("Email").fill(email);
         await page.getByLabel("Password", { exact: true }).fill(password);
-        await page.getByLabel("Confirm password").fill(password);
-        await waitForTurnstileReady(page, {
-          testId: "signup-turnstile",
-          submitName: "Create account",
-        });
-        await page.getByRole("button", { name: "Create account" }).click();
+        await page.getByLabel("Confirm password").fill(password);        await page.getByRole("button", { name: "Create account" }).click();
 
         const outcome = await Promise.race([
           page
@@ -232,12 +226,7 @@ test.describe("auth", () => {
     await page.getByLabel("Name").fill("Duplicate User");
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
-    await page.getByLabel("Confirm password").fill(password);
-    await waitForTurnstileReady(page, {
-      testId: "signup-turnstile",
-      submitName: "Create account",
-    });
-    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByLabel("Confirm password").fill(password);    await page.getByRole("button", { name: "Create account" }).click();
 
     await expect(
       page.locator("[data-sonner-toast]").filter({

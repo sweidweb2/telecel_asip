@@ -43,7 +43,7 @@ const en: LegalCopy = {
           "When applications are open, Apply is available and Register Interest redirects to Apply. Interest submissions are rejected.",
           "Register Interest records a short founder and venture profile for updates when the next chapter opens. Apply is the official program intake and asks for additional product, traction, and program-fit detail. Submitting either form does not create a contractual right to join ASIP, receive investment, or obtain any other benefit.",
           "Interest registrations and applications are separate tables. Registering interest does not become an application when Apply opens. Duplicate submissions for the same email and company name may be rejected.",
-          "You must confirm the consent checkbox before submit. Optional program-update opt-in is separate. We use Cloudflare Turnstile and rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
+          "You must confirm the consent checkbox before submit. Optional program-update opt-in is separate. We use rate limits to reduce spam; abuse or automated bulk submit may be blocked.",
         ],
       },
       {
@@ -98,7 +98,7 @@ const en: LegalCopy = {
           "Apply (signed-in, when applications are open): the same profile fields as Register Interest, plus problem and product description, traction, and program fit, with required consent and optional communications opt-in.",
           "Contact (may be anonymous): inquiry type (founder, partner, media, or general), name, email, phone, subject, and message. No separate consent checkbox is required on Contact beyond these terms and this policy.",
           "Newsletter: there is no public signup UI in the current phase; forced or future subscriptions would use email and required consent only when that feature is turned on.",
-          "Security and operations: Cloudflare Turnstile tokens for public form abuse protection; limited request metadata such as IP used for short-window rate limiting; and technical data needed to run the site (for example language preference and signed-in session).",
+          "Security and operations: limited request metadata such as IP used for short-window rate limiting; and technical data needed to run the site (for example language preference and signed-in session).",
         ],
       },
       {
@@ -120,7 +120,7 @@ const en: LegalCopy = {
       {
         title: "5. Sharing, processors, and retention",
         paragraphs: [
-          "We use trusted processors to host and run the product, including our database and authentication provider (Supabase), application hosting, and Cloudflare Turnstile for bot checks, under appropriate agreements. We do not sell your personal data.",
+          "We use trusted processors to host and run the product, including our database and authentication provider (Supabase), application hosting, under appropriate agreements. We do not sell your personal data.",
           "Admin users with authorized access can view and manage intake and contact records inside the dashboard. Viewer accounts cannot access other people’s submissions through the admin UI.",
           "We retain personal data only as long as needed for program administration, security, and legal requirements, then delete or anonymize it where practicable. You can ask us to review retention for your records using the contact details above.",
         ],
@@ -187,7 +187,7 @@ const fr: LegalCopy = {
           "Lorsque les candidatures sont ouvertes, Postuler est disponible et Manifester votre intérêt redirige vers Postuler. Les manifestations d’intérêt sont refusées.",
           "Manifester votre intérêt enregistre un court profil fondateur et entreprise pour les mises à jour à l’ouverture du prochain chapitre. Postuler est l’admission officielle et demande des détails supplémentaires sur le produit, la traction et l’adéquation au programme. L’envoi d’un formulaire ne crée aucun droit contractuel d’intégrer ASIP, de recevoir un investissement ou d’obtenir un autre avantage.",
           "Les manifestations d’intérêt et les candidatures sont des tables distinctes. Une manifestation d’intérêt ne devient pas une candidature à l’ouverture de Postuler. Les doublons pour le même e-mail et le même nom d’entreprise peuvent être refusés.",
-          "Vous devez cocher la case de consentement avant l’envoi. L’opt-in facultatif aux mises à jour du programme est distinct. Nous utilisons Cloudflare Turnstile et des limites de débit pour réduire le spam ; les abus ou envois automatisés massifs peuvent être bloqués.",
+          "Vous devez cocher la case de consentement avant l’envoi. L’opt-in facultatif aux mises à jour du programme est distinct. Nous utilisons des limites de débit pour réduire le spam ; les abus ou envois automatisés massifs peuvent être bloqués.",
         ],
       },
       {
@@ -242,7 +242,7 @@ const fr: LegalCopy = {
           "Postuler (connecté, lorsque les candidatures sont ouvertes) : les mêmes champs de profil que Manifester votre intérêt, plus description du problème et du produit, traction et adéquation au programme, avec consentement obligatoire et opt-in communications facultatif.",
           "Contact (peut être anonyme) : type de demande (fondateur, partenaire, presse ou générale), nom, e-mail, téléphone, objet et message. Aucune case de consentement séparée n’est exigée sur Contact au-delà des présentes conditions et de cette politique.",
           "Newsletter : il n’y a pas d’interface publique d’inscription dans la phase actuelle ; des abonnements forcés ou futurs utiliseraient e-mail et consentement obligatoire uniquement lorsque cette fonctionnalité sera activée.",
-          "Sécurité et exploitation : jetons Cloudflare Turnstile pour la protection anti-abus des formulaires publics ; métadonnées limitées de requête telles que l’IP pour le rate limiting à court terme ; et données techniques nécessaires au fonctionnement du site (par exemple préférence de langue et session connectée).",
+          "Sécurité et exploitation : métadonnées limitées de requête telles que l’IP pour le rate limiting à court terme ; et données techniques nécessaires au fonctionnement du site (par exemple préférence de langue et session connectée).",
         ],
       },
       {
@@ -264,7 +264,7 @@ const fr: LegalCopy = {
       {
         title: "5. Partage, sous-traitants et conservation",
         paragraphs: [
-          "Nous utilisons des prestataires de confiance pour héberger et faire tourner le produit, notamment notre base de données et authentification (Supabase), l’hébergement applicatif, et Cloudflare Turnstile pour les contrôles anti-bots, dans le cadre d’accords appropriés. Nous ne vendons pas vos données personnelles.",
+          "Nous utilisons des prestataires de confiance pour héberger et faire tourner le produit, notamment notre base de données et authentification (Supabase), l’hébergement applicatif, dans le cadre d’accords appropriés. Nous ne vendons pas vos données personnelles.",
           "Les utilisateurs admin autorisés peuvent consulter et gérer les dossiers d’admission et de contact dans le tableau de bord. Les comptes viewer ne peuvent pas accéder aux dossiers d’autrui via l’interface admin.",
           "Nous conservons les données personnelles uniquement aussi longtemps que nécessaire à l’administration du programme, à la sécurité et aux exigences légales, puis les supprimons ou anonymisons lorsque c’est possible. Vous pouvez nous demander d’examiner la conservation de vos dossiers avec les coordonnées ci-dessus.",
         ],

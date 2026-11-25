@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 
 import { DASHBOARD_NAV_COUNTS_CACHE_TAG } from "@/constants/dashboard-nav-counts";
 import { ROUTES } from "@/constants/routes";
-import { gateEditorPageData } from "@/lib/admin/admin-list-query";
+import { gatePageDataByRole } from "@/lib/admin/admin-list-query";
 import { createAccessTokenClient } from "@/lib/supabase/editor-access-client";
 import type { Json } from "@/types/database";
 
@@ -208,8 +208,7 @@ function readCachedAdminAnalytics(
 export async function getAdminAnalytics(): Promise<
   { status: "forbidden" } | { status: "ok"; analytics: AdminAnalytics }
 > {
-  const gated = await gateEditorPageData(
-    async (supabase) => {
+  const gated = await gatePageDataByRole("editor", async (supabase) => {
       const {
         data: { session },
       } = await supabase.auth.getSession();

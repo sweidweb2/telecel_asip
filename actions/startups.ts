@@ -5,7 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { ROUTES } from "@/constants/routes";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
 import { STARTUPS_CACHE_TAG } from "@/data/startups";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { emptyToNull } from "@/lib/admin/empty-to-null";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
@@ -216,26 +216,13 @@ export async function updateStartup(
       success: MESSAGES.updateSuccess,
     },
     execute: async (session, data) => {
-      // Cover is owned by upload/remove — never let a form save wipe a Storage URL.
-      const { data: existingDetails, error: coverLookupError } =
-        await session.supabase
-          .from("startup_details")
-          .select("cover_image_url")
-          .eq("startup_id", data.id)
-          .maybeSingle();
-      if (coverLookupError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
+      // Cover is owned by upload/remove — RPC preserves cover_image_url.
       const { data: rpcData, error } = await session.supabase.rpc(
         "update_startup_with_details",
         {
           p_id: data.id,
           p_core: toStartupCoreJson(data),
-          p_details: toDetailsJson(
-            data.details,
-            existingDetails?.cover_image_url ?? null,
-          ),
+          p_details: toDetailsJson(data.details, null),
         },
       );
 
@@ -335,13 +322,14 @@ export async function uploadStartupLogo(
     previousUrl: existing.logo_url,
     maxBytes: MEDIA_MAX_BYTES,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      session.supabase
-        .from("startups")
-        .update({ logo_url: publicUrl })
-        .eq("id", startupId)
-        .select("id")
-        .maybeSingle(),
+    persistMediaUrl: {
+      column: "logo_url",
+      prepareUpdate: (publicUrl) =>
+        session.supabase
+          .from("startups")
+          .update({ logo_url: publicUrl })
+          .eq("id", startupId),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;
@@ -412,28 +400,28 @@ export async function uploadStartupCover(
   const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug")
-    .eq("id", startupId)
-    .maybeSingle();
+  const [startupResult, detailsResult] = await Promise.all([
+    session.supabase
+      .from("startups")
+      .select("id, slug")
+      .eq("id", startupId)
+      .maybeSingle(),
+    session.supabase
+      .from("startup_details")
+      .select("cover_image_url")
+      .eq("startup_id", startupId)
+      .maybeSingle(),
+  ]);
 
-  if (existingError) {
+  if (startupResult.error || detailsResult.error) {
     return { status: "error", message: MESSAGES.genericError };
   }
-  if (!existing) {
+  if (!startupResult.data) {
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  const { data: details, error: detailsError } = await session.supabase
-    .from("startup_details")
-    .select("cover_image_url")
-    .eq("startup_id", startupId)
-    .maybeSingle();
-
-  if (detailsError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+  const existing = startupResult.data;
+  const details = detailsResult.data;
 
   const uploaded = await uploadVersionedPublicImage({
     supabase: session.supabase,
@@ -444,17 +432,16 @@ export async function uploadStartupCover(
     previousUrl: details?.cover_image_url,
     maxBytes: MEDIA_MAX_BYTES,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      session.supabase
-        .from("startup_details")
-        .update({ cover_image_url: publicUrl })
-        .eq("startup_id", startupId)
-        .select("startup_id")
-        .maybeSingle()
-        .then((result) => ({
-          error: result.error,
-          data: result.data ? { id: startupId } : null,
-        })),
+    persistMediaUrl: {
+      column: "cover_image_url",
+      prepareUpdate: (publicUrl) =>
+        session.supabase
+          .from("startup_details")
+          .update({ cover_image_url: publicUrl })
+          .eq("startup_id", startupId),
+      selectColumns: "startup_id",
+      mapRow: () => ({ id: startupId }),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;
@@ -477,28 +464,28 @@ export async function removeStartupCover(
   const session = await authorizeEditor(MESSAGES);
   if (session.status === "error") return session;
 
-  const { data: existing, error: existingError } = await session.supabase
-    .from("startups")
-    .select("id, slug")
-    .eq("id", startupId)
-    .maybeSingle();
+  const [startupResult, detailsResult] = await Promise.all([
+    session.supabase
+      .from("startups")
+      .select("id, slug")
+      .eq("id", startupId)
+      .maybeSingle(),
+    session.supabase
+      .from("startup_details")
+      .select("cover_image_url")
+      .eq("startup_id", startupId)
+      .maybeSingle(),
+  ]);
 
-  if (existingError) {
+  if (startupResult.error || detailsResult.error) {
     return { status: "error", message: MESSAGES.genericError };
   }
-  if (!existing) {
+  if (!startupResult.data) {
     return { status: "error", message: MESSAGES.notFound };
   }
 
-  const { data: details, error: detailsError } = await session.supabase
-    .from("startup_details")
-    .select("cover_image_url")
-    .eq("startup_id", startupId)
-    .maybeSingle();
-
-  if (detailsError) {
-    return { status: "error", message: MESSAGES.genericError };
-  }
+  const existing = startupResult.data;
+  const details = detailsResult.data;
 
   const { error: updateError } = await session.supabase
     .from("startup_details")

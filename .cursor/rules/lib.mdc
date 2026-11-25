@@ -14,6 +14,6 @@ If it does not know about app entities (projects, users, teams), it belongs here
 - Dates: `date-fns` named imports. Client temp IDs: `nanoid`
 - Third-party SDK setup (Stripe, Resend, etc.)
 
-`admin.ts` is server-only. Import it only from `actions/`, `app/api/`, or `lib/backups/**` — never from Client Components, hooks, or `data/` called on the client.
+`admin.ts` is server-only. Import it only from `actions/`, `app/api/`, `lib/backups/**`, or `lib/intake/**` — never from Client Components, hooks, or `data/` called on the client.
 
-`lib/admin/**` is the intentional staff/auth kernel (`authorizeAdmin` / `authorizeEditor` / `authorizeStaff`, shell RPCs, list helpers). Prefer it for dashboard gates rather than scattering role checks.
+`lib/admin/**` is the intentional staff/auth kernel (`authorizeRole` / `authorizeAdmin|Editor|Staff`, `checkStaffRole`, shell RPCs, list helpers). Prefer it for dashboard gates rather than scattering role checks.

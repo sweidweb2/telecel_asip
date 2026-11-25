@@ -1,15 +1,16 @@
-import { z } from "zod";
+import {
+  z } from "zod";
 
 import { CONTACT_ENQUIRY_TYPES } from "@/constants/contact-enquiry";
-import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import { DEFAULT_LOCALE,
+  type Locale } from "@/constants/locales";
 import {
   parseAdminListQuery,
   type RawSearchParams,
-} from "@/validations/admin-list-query";
+  } from "@/validations/admin-list-query";
 import {
   requiredPhone,
   trimmedEmail,
-  turnstileTokenField,
 } from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
@@ -24,7 +25,6 @@ type ContactMessageMessages = {
   subjectMax: string;
   messageMin: string;
   messageMax: string;
-  turnstileRequired: string;
   invalidId: string;
 };
 
@@ -41,7 +41,6 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     subjectMax: "Subject must be at most 120 characters",
     messageMin: "Message must be at least 20 characters",
     messageMax: "Message must be at most 2000 characters",
-    turnstileRequired: "Please complete the security check",
     invalidId: "Invalid message id",
   },
   fr: {
@@ -56,7 +55,6 @@ const VALIDATION_MESSAGES: Record<Locale, ContactMessageMessages> = {
     subjectMax: "Le sujet doit contenir au plus 120 caractères",
     messageMin: "Le message doit contenir au moins 20 caractères",
     messageMax: "Le message doit contenir au plus 2000 caractères",
-    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant de message invalide",
   },
 };
@@ -96,7 +94,6 @@ export function contactMessageSchemaFor(locale: Locale = DEFAULT_LOCALE) {
   const messages = VALIDATION_MESSAGES[locale];
   return z.object({
     ...contactMessageFieldsSchema(messages),
-    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 

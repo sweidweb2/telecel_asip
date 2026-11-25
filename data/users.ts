@@ -4,7 +4,7 @@ import { getAuthUser } from "@/data/auth";
 import {
   adminListRange,
   adminListTotalPages,
-  gateStaffPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { getStaffShell } from "@/lib/admin/get-staff-shell";
@@ -137,8 +137,7 @@ export async function getUsersPageData(query: UserListQuery): Promise<
   | { status: "forbidden" }
   | { status: "ok"; list: UserListResult; stats: UserStats }
 > {
-  return gateStaffPageData(
-    async (supabase) => {
+  return gatePageDataByRole("staff", async (supabase) => {
       const shell = await getStaffShell();
       const hideAdmins = shell.isEditor && !shell.isAdmin;
       const visibility = { hideAdmins };

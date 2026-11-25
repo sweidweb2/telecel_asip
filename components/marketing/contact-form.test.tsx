@@ -8,14 +8,6 @@ import { contactLabelsFor } from "@/components/marketing/contact-labels";
 vi.mock("@/actions/submit-contact-message", () => ({
   submitContactMessage: vi.fn(),
 }));
-vi.mock("@/hooks/use-turnstile", () => ({
-  useTurnstile: () => ({
-    siteKey: "",
-    setContainer: vi.fn(),
-    render: vi.fn(),
-    reset: vi.fn(),
-  }),
-}));
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), success: vi.fn() },
 }));

@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
@@ -67,8 +67,7 @@ export async function getApplicationsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ApplicationListResult; stats: InboxTableStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchApplications(supabase, query),
         fetchInboxTableStats(supabase, "applications"),
@@ -89,8 +88,7 @@ export async function getApplicationById(
     return { status: "not_found" };
   }
 
-  const gated = await gateEditorPageData(
-    async (supabase) => {
+  const gated = await gatePageDataByRole("editor", async (supabase) => {
       const { data, error } = await supabase
         .from("applications")
         .select(APPLICATION_DETAIL_COLUMNS)

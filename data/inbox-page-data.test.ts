@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserEditor = vi.fn();
+const checkStaffRole = vi.fn();
 const range = vi.fn();
 const or = vi.fn(() => ({ range }));
 const eqStatus = vi.fn();
@@ -38,8 +38,8 @@ function makeSelectChain() {
 const select = vi.fn(() => makeSelectChain());
 const from = vi.fn(() => ({ select }));
 
-vi.mock("@/lib/admin/is-current-user-editor", () => ({
-  isCurrentUserEditor: (...args: unknown[]) => isCurrentUserEditor(...args),
+vi.mock("@/lib/admin/current-user-role", () => ({
+  checkStaffRole: (...args: unknown[]) => checkStaffRole(...args),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -78,7 +78,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns forbidden for applications when not admin", async () => {
-    isCurrentUserEditor.mockResolvedValue(false);
+    checkStaffRole.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
 
     const result = await getApplicationsPageData(baseQuery);
@@ -86,7 +86,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns applications list for admins", async () => {
-    isCurrentUserEditor.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -109,7 +109,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns interest registrations for admins", async () => {
-    isCurrentUserEditor.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [{ id: "r1", full_name: "Bo", email: "bo@example.com" }],
       error: null,
@@ -123,7 +123,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("returns contact messages for admins", async () => {
-    isCurrentUserEditor.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -147,7 +147,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("loads a full application by id for the shared dialog", async () => {
-    isCurrentUserEditor.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     maybeSingle.mockResolvedValue({
       data: {
         id: "11111111-1111-4111-8111-111111111111",
@@ -173,7 +173,7 @@ describe("inbox page data loaders", () => {
   });
 
   it("loads registration and contact details by id", async () => {
-    isCurrentUserEditor.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     maybeSingle
       .mockResolvedValueOnce({
         data: { id: "11111111-1111-4111-8111-111111111111", pitch: "hello" },

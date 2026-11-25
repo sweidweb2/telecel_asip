@@ -1,29 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  maybeSingle,
-  from,
   applyAutomatedBackupRetention,
   runScheduledBackupWindow,
   isScheduleDue,
   scheduleWindowKey,
+  getCronBackupSchedule,
 } = vi.hoisted(() => {
-  const maybeSingle = vi.fn();
-  const eq = vi.fn(() => ({ maybeSingle }));
-  const select = vi.fn(() => ({ eq }));
-  const from = vi.fn(() => ({ select }));
   return {
-    maybeSingle,
-    from,
     applyAutomatedBackupRetention: vi.fn(),
     runScheduledBackupWindow: vi.fn(),
     isScheduleDue: vi.fn(),
     scheduleWindowKey: vi.fn(),
+    getCronBackupSchedule: vi.fn(),
   };
 });
 
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: vi.fn(() => ({ from })),
+vi.mock("@/lib/backups/get-cron-backup-schedule", () => ({
+  getCronBackupSchedule,
 }));
 
 vi.mock("@/lib/backups/automated", () => ({
@@ -68,10 +62,7 @@ describe("POST /api/cron/backup", () => {
   });
 
   it("skips when schedule is off", async () => {
-    maybeSingle.mockResolvedValue({
-      data: { backup_time: "off" },
-      error: null,
-    });
+    getCronBackupSchedule.mockResolvedValue("off");
 
     const response = await POST(
       new Request("http://localhost/api/cron/backup", {
@@ -88,10 +79,7 @@ describe("POST /api/cron/backup", () => {
   });
 
   it("skips when schedule is not due this hour", async () => {
-    maybeSingle.mockResolvedValue({
-      data: { backup_time: "weekly_sun_03" },
-      error: null,
-    });
+    getCronBackupSchedule.mockResolvedValue("weekly_sun_03");
     isScheduleDue.mockReturnValue(false);
 
     const response = await POST(
@@ -107,10 +95,7 @@ describe("POST /api/cron/backup", () => {
   });
 
   it("runs the scheduled window when due", async () => {
-    maybeSingle.mockResolvedValue({
-      data: { backup_time: "weekly_sun_03" },
-      error: null,
-    });
+    getCronBackupSchedule.mockResolvedValue("weekly_sun_03");
     isScheduleDue.mockReturnValue(true);
     scheduleWindowKey.mockReturnValue("weekly:2026-09-06:sun03");
     runScheduledBackupWindow.mockResolvedValue({

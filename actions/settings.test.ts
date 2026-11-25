@@ -27,11 +27,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: () => Promise<unknown>) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeAdmin,
-}));
-
-vi.mock("@/lib/admin/authorize-staff", () => ({
   authorizeStaff,
 }));
 

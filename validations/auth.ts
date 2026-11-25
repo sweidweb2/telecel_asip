@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
-import {
-  passwordComplexitySchema,
-  turnstileTokenField,
-} from "@/validations/common-fields";
+import { passwordComplexitySchema } from "@/validations/common-fields";
 
 /** Public signup audience choices only — never `admin`. */
 export const REGISTER_ACCOUNT_TYPES = ["startup", "investor"] as const;
@@ -20,7 +17,6 @@ type AuthValidationMessages = {
   nameMax: string;
   confirmRequired: string;
   passwordsMismatch: string;
-  turnstileRequired: string;
   accountTypeRequired: string;
 };
 
@@ -35,7 +31,6 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     nameMax: "Name is too long",
     confirmRequired: "Confirm your password",
     passwordsMismatch: "Passwords do not match",
-    turnstileRequired: "Please complete the security check",
     accountTypeRequired: "Choose Startup or Investor",
   },
   fr: {
@@ -48,7 +43,6 @@ const VALIDATION_MESSAGES: Record<Locale, AuthValidationMessages> = {
     nameMax: "Le nom est trop long",
     confirmRequired: "Confirmez votre mot de passe",
     passwordsMismatch: "Les mots de passe ne correspondent pas",
-    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     accountTypeRequired: "Choisissez Startup ou Investor",
   },
 };
@@ -70,9 +64,6 @@ export function loginSchemaFor(locale: Locale = DEFAULT_LOCALE) {
       .pipe(z.email(messages.invalidEmail)),
     password: requiredString(messages.passwordRequired).pipe(
       z.string().min(1, messages.passwordRequired),
-    ),
-    turnstileToken: requiredString(messages.turnstileRequired).pipe(
-      turnstileTokenField(messages.turnstileRequired),
     ),
   });
 }
@@ -99,9 +90,6 @@ export function registerSchemaFor(locale: Locale = DEFAULT_LOCALE) {
         z.string().min(1, messages.confirmRequired),
       ),
       type: z.enum(REGISTER_ACCOUNT_TYPES, messages.accountTypeRequired),
-      turnstileToken: requiredString(messages.turnstileRequired).pipe(
-        turnstileTokenField(messages.turnstileRequired),
-      ),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: messages.passwordsMismatch,

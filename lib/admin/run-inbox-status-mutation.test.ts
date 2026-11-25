@@ -75,4 +75,51 @@ describe("runInboxStatusMutation", () => {
     expect(eq).toHaveBeenCalledWith("inbox_status", "unread");
     expect(result).toEqual({ status: "success" });
   });
+
+  it("returns pgError on inbox update failure so runAdminMutation can log it", async () => {
+    const messages = {
+      unauthorized: "no",
+      signedInRequired: "sign-in",
+      invalidDetails: "invalid",
+      success: "updated",
+      genericError: "generic",
+      notFound: "missing",
+    };
+
+    await runInboxStatusMutation({
+      table: "contact_messages",
+      input: {
+        id: "11111111-1111-4111-8111-111111111111",
+        inboxStatus: "archived",
+      },
+      messages,
+      refresh: vi.fn(),
+    });
+
+    const call = vi.mocked(runAdminMutation).mock.calls[0]?.[0];
+    const pgError = { code: "57014", message: "canceling statement" };
+    const maybeSingle = vi.fn(async () => ({
+      data: null,
+      error: pgError,
+    }));
+    const select = vi.fn(() => ({ maybeSingle }));
+    const eq = vi.fn(() => ({ select }));
+    const from = vi.fn(() => ({
+      update: vi.fn(() => ({ eq })),
+    }));
+
+    const result = await call!.execute(
+      { status: "success", userId: "u1", supabase: { from } } as never,
+      {
+        id: "11111111-1111-4111-8111-111111111111",
+        inboxStatus: "archived",
+      },
+    );
+
+    expect(result).toEqual({
+      status: "error",
+      message: "generic",
+      pgError,
+    });
+  });
 });

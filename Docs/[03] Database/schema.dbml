@@ -248,6 +248,9 @@ Table investor_interests {
     (user_id) [name: 'investor_interests_user_id_idx']
     (user_id, organization) [name: 'investor_interests_user_org_uidx', note: 'UNIQUE when user_id set']
     (inbox_status, created_at) [name: 'investor_interests_inbox_status_created_at_idx']
+    full_name [type: gin, name: 'investor_interests_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
+    email [type: gin, name: 'investor_interests_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
+    organization [type: gin, name: 'investor_interests_organization_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
   }
 
   Note: '''
@@ -293,6 +296,9 @@ Table investor_engagements {
     (user_id) [name: 'investor_engagements_user_id_idx']
     (user_id, organization) [name: 'investor_engagements_user_org_uidx']
     (inbox_status, created_at) [name: 'investor_engagements_inbox_status_created_at_idx']
+    full_name [type: gin, name: 'investor_engagements_full_name_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
+    email [type: gin, name: 'investor_engagements_email_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
+    organization [type: gin, name: 'investor_engagements_organization_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
   }
 
   Note: '''
@@ -391,13 +397,14 @@ Table rate_limit_buckets {
   updated_at timestamptz [not null, default: `now()`]
 
   Note: '''
-    RLS enabled. Service-role / security definer only (consume_rate_limit).
+    RLS enabled. Service-role / security definer only (consume_rate_limit / release_rate_limit).
 
     Grants:
     - service_role: ALL
     - anon, authenticated: none (REVOKED)
 
-    Used by public.consume_rate_limit (20260910210000).
+    Used by public.consume_rate_limit (20260910210000) and
+    public.release_rate_limit (20261125070000).
   '''
 }
 
@@ -535,6 +542,7 @@ Table startups {
     (created_at) [name: 'startups_created_at_idx', note: 'created_at DESC']
     name [type: gin, name: 'startups_name_trgm_idx', note: 'pg_trgm gin_trgm_ops']
     slug [type: gin, name: 'startups_slug_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+    description [type: gin, name: 'startups_description_trgm_idx', note: 'pg_trgm gin_trgm_ops — public portfolio ILIKE (20261125080000)']
   }
 
   Note: '''
@@ -824,6 +832,8 @@ Table impact_metrics {
     (created_at) [name: 'impact_metrics_created_at_idx', note: 'created_at DESC']
     (evidence_id) [name: 'impact_metrics_evidence_id_idx']
     claim_label [type: gin, name: 'impact_metrics_claim_label_trgm_idx', note: 'pg_trgm gin_trgm_ops']
+    value [type: gin, name: 'impact_metrics_value_trgm_idx', note: 'pg_trgm gin_trgm_ops — CMS ILIKE search (20261125080000)']
+    geography [type: gin, name: 'impact_metrics_geography_trgm_idx', note: 'pg_trgm gin_trgm_ops; partial WHERE geography IS NOT NULL (20261125080000)']
   }
 
   Note: '''

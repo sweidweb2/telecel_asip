@@ -1,14 +1,14 @@
 import { unstable_cache } from "next/cache";
 
 import type { BackupScheduleValue } from "@/constants/backup-schedule";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { SITE_SETTINGS_ID } from "@/constants/site-settings";
+import { isCurrentUserAdmin } from "@/lib/admin/current-user-role";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export const SITE_SETTINGS_CACHE_TAG = "site-settings";
+export { SITE_SETTINGS_ID } from "@/constants/site-settings";
 
-/** Singleton row id enforced by `site_settings_singleton_chk`. */
-export const SITE_SETTINGS_ID = 1;
+export const SITE_SETTINGS_CACHE_TAG = "site-settings";
 
 export type SiteSettingsPublic = {
   openApplications: boolean;

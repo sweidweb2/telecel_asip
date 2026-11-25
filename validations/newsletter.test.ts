@@ -8,7 +8,6 @@ describe("newsletterSubscribeSchema", () => {
       email: "ada@example.com",
       consent: true,
       sourcePage: "/en/insights",
-      turnstileToken: "token",
     });
     expect(result.success).toBe(true);
   });
@@ -17,7 +16,6 @@ describe("newsletterSubscribeSchema", () => {
     const result = newsletterSubscribeSchema.safeParse({
       email: "ada@example.com",
       consent: false,
-      turnstileToken: "token",
     });
     expect(result.success).toBe(false);
   });

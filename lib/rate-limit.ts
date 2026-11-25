@@ -99,6 +99,37 @@ export async function consumeSharedRateLimit(
   return Boolean(data);
 }
 
+/** Drop the newest in-memory hit for a key (local fallback refund). */
+export function releaseRateLimitHit(key: string): void {
+  const prior = windows.get(key);
+  if (!prior || prior.length === 0) return;
+  prior.pop();
+  windows.set(key, prior);
+}
+
+/**
+ * Refund the latest hit for a shared rate-limit key after a failed insert.
+ * Best-effort: logs and continues when the RPC is unavailable.
+ */
+export async function releaseSharedRateLimit(
+  admin: AdminClient,
+  key: string,
+): Promise<void> {
+  const { error } = await admin.rpc("release_rate_limit", {
+    p_key: key,
+  });
+
+  if (error) {
+    console.error("[rate-limit] release_rate_limit RPC failed", {
+      key,
+      message: error.message,
+      code: error.code,
+    });
+    // Keep in-memory buckets consistent when the RPC is missing locally.
+    releaseRateLimitHit(key);
+  }
+}
+
 /** Test helper — clears all in-memory buckets. */
 export function resetRateLimitBuckets(): void {
   windows.clear();

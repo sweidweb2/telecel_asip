@@ -115,7 +115,7 @@ export function IntakeSubmitButton({
 }: {
   labels: Pick<IntakeChromeLabels, "submitLabel" | "submittingLabel">;
   isPending: boolean;
-  /** Extra gate (e.g. missing Turnstile token). */
+  /** Extra gate (e.g. missing consent). */
   disabled?: boolean;
 }) {
   return (

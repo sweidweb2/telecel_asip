@@ -12,17 +12,13 @@ import { toast } from "sonner";
 import { signUp } from "@/actions/auth";
 import type { SignupLabels } from "@/constants/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { Locale } from "@/constants/locales";
 import { authPath } from "@/constants/routes";
-import { useFormTurnstile } from "@/hooks/use-form-turnstile";
-import { initialTurnstileToken } from "@/lib/turnstile-widget";
 import { cn } from "@/lib/utils";
-import { TURNSTILE_SIGNUP_ACTION } from "@/types/turnstile";
 import {
   REGISTER_ACCOUNT_TYPES,
   registerSchemaFor,
@@ -46,7 +42,6 @@ export function SignupForm({
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchemaFor(locale)) as Resolver<RegisterInput>,
@@ -56,28 +51,16 @@ export function SignupForm({
       password: "",
       confirmPassword: "",
       type: "startup",
-      turnstileToken: initialTurnstileToken(),
     },
   });
 
   const accountType = useWatch({ control, name: "type" }) ?? "startup";
-  const { turnstile, turnstileToken, hasToken, submitToken, reset } =
-    useFormTurnstile({
-      action: TURNSTILE_SIGNUP_ACTION,
-      control,
-      setValue,
-    });
 
   function onSubmit(values: RegisterInput) {
+    if (isPending) return;
     startTransition(async () => {
       try {
-        const result = await signUp(
-          {
-            ...values,
-            turnstileToken: submitToken(values.turnstileToken),
-          },
-          redirectTo,
-        );
+        const result = await signUp(values, redirectTo);
 
         if (result.status === "error") {
           toast.error(result.message);
@@ -97,8 +80,8 @@ export function SignupForm({
           ? `${loginBase}?next=${encodeURIComponent(redirectTo)}`
           : loginBase;
         router.push(loginHref);
-      } finally {
-        reset();
+      } catch {
+        toast.error(labels.googleError);
       }
     });
   }
@@ -227,17 +210,10 @@ export function SignupForm({
           </p>
         ) : null}
       </div>
-      <TurnstileField
-        turnstile={turnstile}
-        token={turnstileToken}
-        hint={labels.turnstileHint}
-        error={errors.turnstileToken?.message}
-        testId="signup-turnstile"
-      />
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending || !hasToken}
+        disabled={isPending}
       >
         {isPending ? (
           <>

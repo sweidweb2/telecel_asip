@@ -54,7 +54,6 @@ export type ApplyLabels = {
   successTitle: string;
   successDescription: string;
   successCloseLabel: string;
-  turnstileHint: string;
 };
 
 const EN_REGISTER: ApplyLabels = {
@@ -105,7 +104,6 @@ const EN_REGISTER: ApplyLabels = {
   successDescription:
     "Your interest has been registered. The ASIP team will use this for updates when the next chapter opens.",
   successCloseLabel: "Close",
-  turnstileHint: "Complete the security check before submitting.",
 };
 
 const EN_APPLY: ApplyLabels = {
@@ -157,7 +155,6 @@ const EN_APPLY: ApplyLabels = {
   successDescription:
     "Your application has been submitted. The ASIP team will review it and follow up when ready.",
   successCloseLabel: "Close",
-  turnstileHint: "Complete the security check before submitting.",
 };
 
 const FR_REGISTER: ApplyLabels = {
@@ -208,7 +205,6 @@ const FR_REGISTER: ApplyLabels = {
   successDescription:
     "Votre intérêt a bien été enregistré. L’équipe ASIP s’en servira pour les mises à jour lorsque le prochain chapitre ouvrira.",
   successCloseLabel: "Fermer",
-  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 const FR_APPLY: ApplyLabels = {
@@ -260,7 +256,6 @@ const FR_APPLY: ApplyLabels = {
   successDescription:
     "Votre candidature a bien été envoyée. L’équipe ASIP l’examinera et vous contactera le moment venu.",
   successCloseLabel: "Fermer",
-  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 export function applyLabelsFor(

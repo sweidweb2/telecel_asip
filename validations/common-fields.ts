@@ -10,7 +10,6 @@ export const PHONE_REGEX = /^\+?[0-9\s().-]+$/;
 export const HTTP_URL_REGEX = /^https?:\/\/.+/i;
 
 export const DEFAULT_URL_MAX = 500;
-export const TURNSTILE_TOKEN_MAX = 2048;
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 128;
 export const PHONE_MIN = 7;
@@ -77,15 +76,6 @@ export function trimmedEmail(invalidMessage: string, maxMessage?: string) {
 /** Consent must be explicitly true. */
 export function requiredConsent(message: string) {
   return z.boolean().refine((value) => value === true, { message });
-}
-
-/** Turnstile token present and bounded. */
-export function turnstileTokenField(message: string) {
-  return z
-    .string()
-    .trim()
-    .min(1, message)
-    .max(TURNSTILE_TOKEN_MAX, message);
 }
 
 /** Password with letter + number complexity (shared by auth + admin users). */

@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
@@ -53,8 +53,7 @@ export async function getNewsletterSubscribersPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: NewsletterSubscriberListResult }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const list = await fetchNewsletterSubscribers(supabase, query);
       return { list };
     }

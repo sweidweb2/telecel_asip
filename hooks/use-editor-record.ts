@@ -11,6 +11,9 @@ export type EditorRecordLoadResult<T> =
 /**
  * Load a full editor row when a shared dialog opens.
  * Keeps essay-length fields off the list payload (fetch on demand).
+ *
+ * Exposes a record only when it matches the current `id` so consumers
+ * (e.g. mark-reviewed) never act on a stale previous row.
  */
 export function useEditorRecord<T>({
   open,
@@ -24,6 +27,7 @@ export function useEditorRecord<T>({
   missingMessage?: string;
 }) {
   const [record, setRecord] = useState<T | null>(null);
+  const [loadedId, setLoadedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const shouldLoad = open && Boolean(id);
 
@@ -31,42 +35,47 @@ export function useEditorRecord<T>({
     if (!shouldLoad || !id) return;
 
     let cancelled = false;
-    // Defer so the effect does not set state synchronously on mount/open.
-    const startId = window.setTimeout(() => {
+    const requestId = id;
+
+    void (async () => {
+      // Async boundary keeps React Compiler happy (no sync setState in effect).
+      await Promise.resolve();
       if (cancelled) return;
       setIsLoading(true);
       setRecord(null);
+      setLoadedId(null);
 
-      void load(id)
-        .then((result) => {
-          if (cancelled) return;
-          if (result.status === "ok") {
-            setRecord(result.record);
-            return;
-          }
-          toast.error(
-            result.status === "forbidden"
-              ? "You do not have permission to view this."
-              : missingMessage,
-          );
-        })
-        .catch(() => {
-          if (cancelled) return;
-          toast.error("Could not load details. Please try again.");
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false);
-        });
-    }, 0);
+      try {
+        const result = await load(requestId);
+        if (cancelled) return;
+        if (result.status === "ok") {
+          setRecord(result.record);
+          setLoadedId(requestId);
+          return;
+        }
+        toast.error(
+          result.status === "forbidden"
+            ? "You do not have permission to view this."
+            : missingMessage,
+        );
+      } catch {
+        if (cancelled) return;
+        toast.error("Could not load details. Please try again.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(startId);
     };
   }, [shouldLoad, id, load, missingMessage]);
 
+  const recordForCurrentId =
+    shouldLoad && id && loadedId === id ? record : null;
+
   return {
-    record: shouldLoad ? record : null,
-    isLoading: shouldLoad ? isLoading : false,
+    record: recordForCurrentId,
+    isLoading: shouldLoad ? isLoading || loadedId !== id : false,
   };
 }

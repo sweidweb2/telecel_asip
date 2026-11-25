@@ -1,16 +1,15 @@
 "use server";
 
 import { getAdminResource } from "@/constants/admin-resources";
-import {
-  refreshAdminResource
-} from "@/lib/admin/run-admin-mutation";
+import { logServerActionError } from "@/lib/admin/log-server-action-error";
+import { refreshAdminResource } from "@/lib/admin/run-admin-mutation";
 import type { AdminActionResult } from "@/types/admin-action";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
   PUBLIC_SUBMIT_GUARD_COPY,
+  runGuardedAdminWork,
 } from "@/lib/intake/submit-guard";
-import { TURNSTILE_CONTACT_ACTION } from "@/types/turnstile";
 import {
   contactMessageSchemaFor,
   type ContactMessageInput,
@@ -52,12 +51,9 @@ export async function submitContactMessage(
     phone,
     subject,
     message,
-    turnstileToken,
   } = parsed.data;
 
   const guard = await guardPublicFormSubmission({
-    turnstileToken,
-    expectedAction: TURNSTILE_CONTACT_ACTION,
     rateLimitPrefix: "contact",
     identityKind: "email",
     identity: email,
@@ -65,16 +61,19 @@ export async function submitContactMessage(
   });
   if (guard.status === "error") return guard;
 
-  const { error } = await guard.admin.from("contact_messages").insert({
-    enquiry_type: enquiryType,
-    full_name: fullName,
-    email,
-    phone,
-    subject,
-    message,
-  });
+  const { error } = await runGuardedAdminWork(guard, (admin) =>
+    admin.from("contact_messages").insert({
+      enquiry_type: enquiryType,
+      full_name: fullName,
+      email,
+      phone,
+      subject,
+      message,
+    }),
+  );
 
   if (error) {
+    logServerActionError("[contact-submit]", error, { kind: "insert_failed" });
     return { status: "error", message: copy.genericError };
   }
 

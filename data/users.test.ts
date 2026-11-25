@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const isCurrentUserStaff = vi.fn();
+const checkStaffRole = vi.fn();
 const getStaffShell = vi.fn();
 const range = vi.fn();
 const eqRole = vi.fn();
@@ -28,8 +28,8 @@ function mockQuery() {
   return query;
 }
 
-vi.mock("@/lib/admin/is-current-user-staff", () => ({
-  isCurrentUserStaff: (...args: unknown[]) => isCurrentUserStaff(...args),
+vi.mock("@/lib/admin/current-user-role", () => ({
+  checkStaffRole: (...args: unknown[]) => checkStaffRole(...args),
 }));
 
 vi.mock("@/lib/admin/get-staff-shell", () => ({
@@ -56,7 +56,7 @@ describe("getUsersPageData", () => {
   });
 
   it("returns forbidden for non-staff", async () => {
-    isCurrentUserStaff.mockResolvedValue(false);
+    checkStaffRole.mockResolvedValue(false);
     range.mockResolvedValue({ data: [], error: null, count: 0 });
     rpc.mockResolvedValue({ data: null, error: null });
 
@@ -72,7 +72,7 @@ describe("getUsersPageData", () => {
   });
 
   it("returns users list and mapped stats for staff", async () => {
-    isCurrentUserStaff.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     range.mockResolvedValue({
       data: [
         {
@@ -124,7 +124,7 @@ describe("getUsersPageData", () => {
   });
 
   it("excludes admin profiles when the actor is an editor", async () => {
-    isCurrentUserStaff.mockResolvedValue(true);
+    checkStaffRole.mockResolvedValue(true);
     getStaffShell.mockResolvedValue({
       role: "editor",
       isAdmin: false,

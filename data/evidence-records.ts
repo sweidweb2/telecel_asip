@@ -4,7 +4,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createClient } from "@/lib/supabase/server";
@@ -120,8 +120,7 @@ export async function getEvidenceRecordsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: EvidenceListResult; stats: EvidenceListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchEvidencePage(supabase, query),
         fetchEvidenceListStats(supabase),
@@ -142,8 +141,7 @@ export const getEvidenceRecordByIdForAdmin = cache(
         return { status: "not_found" };
       }
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const { data, error } = await supabase
             .from("evidence_records")
             .select(DETAIL_COLUMNS)
@@ -182,8 +180,7 @@ export async function getEvidenceOwnerOptions(
 ): Promise<
   { status: "forbidden" } | { status: "ok"; owners: EvidenceOwnerOption[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("profiles")

@@ -18,7 +18,7 @@ vi.mock("next/cache", () => ({
   revalidateTag,
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor: vi.fn(async () => ({
     status: "success" as const,
     userId: "user-1",
@@ -82,6 +82,34 @@ describe("runAdminMutation", () => {
     });
 
     expect(result).toEqual({ status: "error", message: "not found" });
+  });
+
+  it("logs postgres errors before returning mapped or message failures", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await runAdminMutation({
+      schema,
+      input: { id: "11111111-1111-4111-8111-111111111111" },
+      messages,
+      execute: async () => ({
+        status: "error",
+        message: "generic",
+        pgError: { code: "57014", message: "canceling statement" },
+      }),
+    });
+
+    expect(result).toEqual({ status: "error", message: "generic" });
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[admin-mutation]",
+      expect.objectContaining({
+        code: "57014",
+        message: "canceling statement",
+        context: "write",
+        mapped: true,
+      }),
+    );
+
+    errorSpy.mockRestore();
   });
 });
 

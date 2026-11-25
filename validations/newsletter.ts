@@ -4,7 +4,6 @@ import {
   parseAdminListQuery,
   type RawSearchParams,
 } from "@/validations/admin-list-query";
-import { turnstileTokenField } from "@/validations/common-fields";
 
 export const NEWSLETTER_PAGE_SIZE = 20;
 
@@ -52,7 +51,6 @@ export const newsletterSubscribeSchema = z.object({
       const trimmed = value.trim();
       return trimmed.length > 0 ? trimmed : null;
     }),
-  turnstileToken: turnstileTokenField("Complete the security check"),
 });
 
 export type NewsletterSubscribeInput = z.infer<

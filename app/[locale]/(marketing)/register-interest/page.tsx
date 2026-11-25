@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { ApplyPageContent } from "@/components/marketing/apply-page-content";
 import { marketingCopyFor } from "@/constants/marketing-copy";
+import { getAuthUser } from "@/data/auth";
 import { getOpenApplications } from "@/data/settings";
 import { getCurrentUserProfile } from "@/data/users";
-import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { localeFromParams } from "@/lib/i18n/locale-params";
 import { buildMarketingMetadata } from "@/lib/seo/marketing-metadata";
 

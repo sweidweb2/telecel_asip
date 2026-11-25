@@ -10,7 +10,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: () => Promise<unknown>) => fn,
 }));
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
+vi.mock("@/lib/admin/current-user-role", () => ({
   isCurrentUserAdmin: vi.fn(),
 }));
 
@@ -35,7 +35,7 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
+import { isCurrentUserAdmin } from "@/lib/admin/current-user-role";
 import {
   getNewsletterSignupEnabled,
   getOpenApplications,

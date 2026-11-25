@@ -1301,6 +1301,10 @@ export type Database = {
         Args: { p_key: string; p_limit: number; p_window_ms: number }
         Returns: boolean
       }
+      release_rate_limit: {
+        Args: { p_key: string }
+        Returns: undefined
+      }
       create_blog_with_featured: {
         Args: { p_blog: Json }
         Returns: {

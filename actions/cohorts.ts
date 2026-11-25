@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { getAdminResource } from "@/constants/admin-resources";
 import { UPLOAD_MAX_BYTES } from "@/constants/upload";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { mapPgActionError } from "@/lib/admin/pg-action-error";
 import {
   refreshAdminResource,
@@ -168,28 +168,13 @@ export async function updateCohort(
     pgMessages: PG_MESSAGES,
     execute: async (session, data) => {
       const { id, ...rest } = data;
-      // Media is owned by upload/remove actions — never let a form save wipe
-      // a Storage URL that was set after the page loaded.
-      const { data: existingMedia, error: mediaLookupError } =
-        await session.supabase
-          .from("cohorts")
-          .select("media_url")
-          .eq("id", id)
-          .maybeSingle();
-      if (mediaLookupError) {
-        return { status: "error", message: MESSAGES.genericError };
-      }
-
-      const cohortJson = {
-        ...toCohortJson(rest),
-        media_url: existingMedia?.media_url ?? "",
-      };
+      // Media is owned by upload/remove — RPC preserves media_url.
 
       const { data: rpcData, error } = await session.supabase.rpc(
         "update_cohort_with_links",
         {
           p_id: id,
-          p_cohort: cohortJson,
+          p_cohort: toCohortJson(rest),
           p_partner_ids: rest.partnerIds,
           p_startup_ids: rest.startupIds,
         },
@@ -281,13 +266,14 @@ export async function uploadCohortMedia(
     previousUrl: existing.media_url,
     maxBytes: MEDIA_MAX_BYTES,
     messages: MESSAGES,
-    updateRow: async (publicUrl) =>
-      session.supabase
-        .from("cohorts")
-        .update({ media_url: publicUrl })
-        .eq("id", cohortId)
-        .select("id")
-        .maybeSingle(),
+    persistMediaUrl: {
+      column: "media_url",
+      prepareUpdate: (publicUrl) =>
+        session.supabase
+          .from("cohorts")
+          .update({ media_url: publicUrl })
+          .eq("id", cohortId),
+    },
   });
 
   if (uploaded.status === "error") return uploaded;

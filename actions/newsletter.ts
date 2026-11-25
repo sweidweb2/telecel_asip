@@ -1,12 +1,13 @@
 "use server";
 
 import { getNewsletterSignupEnabled } from "@/data/settings";
+import { logServerActionError } from "@/lib/admin/log-server-action-error";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
   PUBLIC_SUBMIT_GUARD_COPY,
+  runGuardedAdminWork,
 } from "@/lib/intake/submit-guard";
-import { TURNSTILE_NEWSLETTER_ACTION } from "@/types/turnstile";
 import {
   newsletterSubscribeSchema,
   type NewsletterSubscribeInput,
@@ -51,11 +52,9 @@ export async function subscribeNewsletter(
     };
   }
 
-  const { email, consent, sourcePage, turnstileToken } = parsed.data;
+  const { email, consent, sourcePage } = parsed.data;
 
   const guard = await guardPublicFormSubmission({
-    turnstileToken,
-    expectedAction: TURNSTILE_NEWSLETTER_ACTION,
     rateLimitPrefix: "newsletter",
     identityKind: "email",
     identity: email.toLowerCase(),
@@ -63,16 +62,24 @@ export async function subscribeNewsletter(
   });
   if (guard.status === "error") return guard;
 
-  const { error } = await guard.admin.from("newsletter_subscribers").insert({
-    email,
-    consent,
-    source_page: sourcePage,
-  });
+  const { error } = await runGuardedAdminWork(guard, (admin) =>
+    admin.from("newsletter_subscribers").insert({
+      email,
+      consent,
+      source_page: sourcePage,
+    }),
+  );
 
   if (error) {
     if (error.code === "23505") {
+      logServerActionError("[newsletter-subscribe]", error, {
+        kind: "duplicate",
+      });
       return { status: "error", message: copy.alreadySubscribed };
     }
+    logServerActionError("[newsletter-subscribe]", error, {
+      kind: "insert_failed",
+    });
     return { status: "error", message: copy.genericError };
   }
 

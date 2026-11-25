@@ -48,6 +48,7 @@ export async function runInboxStatusMutation(options: {
         return {
           status: "error",
           message: messages.genericError ?? messages.invalidDetails,
+          pgError: error,
         };
       }
       if (!row) {

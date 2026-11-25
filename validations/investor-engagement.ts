@@ -129,7 +129,7 @@ export const investorEngagementSchema =
 export type InvestorEngagementInput = z.infer<typeof investorEngagementSchema>;
 
 export const updateInvestorEngagementSchema = investorEngagementSchema
-  .omit({ consent: true, turnstileToken: true })
+  .omit({ consent: true })
   .extend({ id: z.uuid(MESSAGES.en.invalidId) });
 
 export const deleteInvestorEngagementSchema = z.object({

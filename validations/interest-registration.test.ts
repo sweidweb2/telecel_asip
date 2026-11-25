@@ -22,7 +22,6 @@ const validInput = {
   pitch: "",
   commsOptIn: false,
   consent: true as const,
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("interestRegistrationSchema", () => {
@@ -91,17 +90,6 @@ describe("interestRegistrationSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a missing turnstile token", () => {
-    const result = interestRegistrationSchema.safeParse({
-      ...validInput,
-      turnstileToken: "",
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.message).toMatch(/security check/i);
-    }
-  });
-
   it("returns french validation messages", () => {
     const result = interestRegistrationSchemaFor("fr").safeParse({
       ...validInput,
@@ -119,9 +107,9 @@ describe("interestRegistrationSchema", () => {
 describe("updateInterestRegistrationSchema / deleteInterestRegistrationSchema", () => {
   const id = "22222222-2222-4222-8222-222222222222";
 
-  it("accepts an admin update without consent or turnstile", () => {
-    const { consent: _c, turnstileToken: _t, ...fields } = validInput;
-    void [_c, _t];
+  it("accepts an admin update without consent", () => {
+    const { consent: _c, ...fields } = validInput;
+    void _c;
     expect(
       updateInterestRegistrationSchema.safeParse({ id, ...fields }).success,
     ).toBe(true);

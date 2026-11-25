@@ -3,14 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   adminListRange,
   adminListTotalPages,
-  gateAdminPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 
-const isCurrentUserAdmin = vi.fn();
+const checkStaffRole = vi.fn();
 const createClient = vi.fn();
 
-vi.mock("@/lib/admin/is-current-user-admin", () => ({
-  isCurrentUserAdmin: (...args: unknown[]) => isCurrentUserAdmin(...args),
+vi.mock("@/lib/admin/current-user-role", () => ({
+  checkStaffRole: (...args: unknown[]) => checkStaffRole(...args),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -37,23 +37,23 @@ describe("adminListTotalPages", () => {
   });
 });
 
-describe("gateAdminPageData", () => {
+describe("gatePageDataByRole", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     createClient.mockResolvedValue({ tag: "supabase" });
   });
 
-  it("awaits the admin check before loading data", async () => {
+  it("awaits the role check before loading data", async () => {
     const order: string[] = [];
 
-    isCurrentUserAdmin.mockImplementation(async () => {
-      order.push("admin-start");
+    checkStaffRole.mockImplementation(async () => {
+      order.push("role-start");
       await new Promise((resolve) => setTimeout(resolve, 20));
-      order.push("admin-end");
+      order.push("role-end");
       return true;
     });
 
-    const result = await gateAdminPageData(async (supabase) => {
+    const result = await gatePageDataByRole("admin", async (supabase) => {
       order.push("load-start");
       expect(supabase).toEqual({ tag: "supabase" });
       order.push("load-end");
@@ -61,19 +61,20 @@ describe("gateAdminPageData", () => {
     });
 
     expect(result).toEqual({ status: "ok", rows: [1] });
+    expect(checkStaffRole).toHaveBeenCalledWith("admin");
     expect(order).toEqual([
-      "admin-start",
-      "admin-end",
+      "role-start",
+      "role-end",
       "load-start",
       "load-end",
     ]);
   });
 
-  it("returns forbidden without loading when the user is not an admin", async () => {
-    isCurrentUserAdmin.mockResolvedValue(false);
+  it("returns forbidden without loading when the role check fails", async () => {
+    checkStaffRole.mockResolvedValue(false);
     const load = vi.fn(async () => ({ rows: [] }));
 
-    const result = await gateAdminPageData(load);
+    const result = await gatePageDataByRole("admin", load);
 
     expect(result).toEqual({ status: "forbidden" });
     expect(load).not.toHaveBeenCalled();

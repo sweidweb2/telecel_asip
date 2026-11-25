@@ -48,7 +48,16 @@ export function ImpactCaseStudyCard({
           : "border border-border bg-white transition-[transform,box-shadow] duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-20px_rgb(20_51_59/0.45)]",
       )}
     >
-      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-muted">
+      <div
+        className={cn(
+          "relative aspect-[16/9] w-full shrink-0 overflow-hidden",
+          isPending
+            ? "bg-muted"
+            : story?.coverImageUrl
+              ? "bg-white"
+              : "bg-asip-ink",
+        )}
+      >
         {isPending ? (
           <div className="size-full bg-muted" aria-hidden />
         ) : story?.coverImageUrl ? (
@@ -56,10 +65,7 @@ export function ImpactCaseStudyCard({
             src={story.coverImageUrl}
             alt=""
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            style={{
-              objectPosition: `${story.imageFocalX}% ${story.imageFocalY}%`,
-            }}
+            className="object-contain p-5 transition-transform duration-500 group-hover:scale-[1.03] sm:p-6"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (

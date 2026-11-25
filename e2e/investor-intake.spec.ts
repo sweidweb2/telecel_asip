@@ -6,7 +6,6 @@ import {
   hasE2ECredentials,
   setApplicationsOpenViaSettings,
   submitLoginForm,
-  waitForTurnstileReady,
 } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
@@ -93,13 +92,7 @@ test.describe("public investor intake submit", { tag: "@writes" }, () => {
         .getByRole("checkbox", {
           name: /I agree that ASIP may store and use this information/i,
         })
-        .click();
-
-      await waitForTurnstileReady(page, {
-        testId: "investor-register-turnstile",
-        submitName: "Register interest",
-      });
-      await page.getByRole("button", { name: "Register interest" }).click();
+        .click();      await page.getByRole("button", { name: "Register interest" }).click();
       await expect(
         page.getByRole("heading", { name: "Interest registered" }),
       ).toBeVisible({ timeout: 20_000 });
@@ -164,13 +157,7 @@ test.describe("public investor intake submit", { tag: "@writes" }, () => {
         .getByRole("checkbox", {
           name: /I agree that ASIP may store and use this information/i,
         })
-        .click();
-
-      await waitForTurnstileReady(page, {
-        testId: "investor-apply-turnstile",
-        submitName: "Submit engagement request",
-      });
-      await page
+        .click();      await page
         .getByRole("button", { name: "Submit engagement request" })
         .click();
       await expect(

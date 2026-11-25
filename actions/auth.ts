@@ -9,14 +9,8 @@ import { authPath, publicPath } from "@/constants/routes";
 import { resolvePostAuthRedirect } from "@/lib/auth/role-landing";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect-path";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
-import { getClientIp } from "@/lib/request-ip";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
-import { verifyTurnstileToken } from "@/lib/turnstile";
-import {
-  TURNSTILE_LOGIN_ACTION,
-  TURNSTILE_SIGNUP_ACTION,
-} from "@/types/turnstile";
 import {
   loginSchemaFor,
   registerSchemaFor,
@@ -99,16 +93,7 @@ export async function signUp(
     };
   }
 
-  const { fullName, email, password, type, turnstileToken } = parsed.data;
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: turnstileToken,
-    expectedAction: TURNSTILE_SIGNUP_ACTION,
-    remoteip: ip,
-  });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
+  const { fullName, email, password, type } = parsed.data;
 
   const supabase = await createClient();
   const homePath = publicPath(locale, "");
@@ -170,16 +155,6 @@ export async function signIn(
     };
   }
 
-  const ip = await getClientIp();
-  const turnstileOk = await verifyTurnstileToken({
-    token: parsed.data.turnstileToken,
-    expectedAction: TURNSTILE_LOGIN_ACTION,
-    remoteip: ip,
-  });
-  if (!turnstileOk) {
-    return { status: "error", message: copy.verificationFailed };
-  }
-
   const supabase = await createClient();
   const { data: signedIn, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
@@ -192,11 +167,15 @@ export async function signIn(
 
   let role: Database["public"]["Enums"]["user_role"] | null = null;
   if (signedIn.user?.id) {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", signedIn.user.id)
       .maybeSingle();
+    if (profileError) {
+      console.error("[auth] profile role lookup failed", profileError);
+      return { status: "error", message: copy.genericError };
+    }
     role = profile?.role ?? null;
   }
 

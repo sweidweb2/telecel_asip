@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { publicPath } from "@/constants/routes";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
+import {
+  isCurrentUserAdmin,
+  isCurrentUserEditor,
+} from "@/lib/admin/current-user-role";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 /**

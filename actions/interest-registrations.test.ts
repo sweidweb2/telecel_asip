@@ -15,15 +15,13 @@ vi.mock("@/lib/i18n/request-locale", () => ({
   getRequestLocale: vi.fn(async () => "en" as const),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken: vi.fn(),
-}));
 
 vi.mock("@/lib/rate-limit", () => ({
   consumeSharedRateLimit: vi.fn(async () => true),
+  releaseSharedRateLimit: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor: vi.fn(),
 }));
 
@@ -63,10 +61,9 @@ import {
   getOpenApplicationsFresh,
 } from "@/data/settings";
 import { getCurrentUserProfile } from "@/data/users";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
   fullName: "Ada Lovelace",
@@ -82,7 +79,6 @@ const validSubmit = {
   pitch: "",
   commsOptIn: false,
   consent: true as const,
-  turnstileToken: "test-turnstile-token",
 };
 
 const regId = "22222222-2222-4222-8222-222222222222";
@@ -131,8 +127,6 @@ describe("submitInterestRegistration", () => {
       message:
         "Applications are open. Submit an official application instead of registering interest.",
     });
-    expect(getAuthUser).not.toHaveBeenCalled();
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
@@ -145,11 +139,10 @@ describe("submitInterestRegistration", () => {
       status: "error",
       message: "Sign in to register your interest.",
     });
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("rejects non-startup accounts before Turnstile", async () => {
+  it("rejects non-startup accounts before rate limits", async () => {
     vi.mocked(getCurrentUserProfile).mockResolvedValue({
       id: "user-1",
       email: "ada@example.com",
@@ -164,33 +157,19 @@ describe("submitInterestRegistration", () => {
       status: "error",
       message: "Only startup accounts can register interest.",
     });
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("rejects invalid payloads before Turnstile", async () => {
+  it("rejects invalid payloads before rate limits", async () => {
     const result = await submitInterestRegistration({
       ...validSubmit,
       fullName: "A",
     });
 
     expect(result.status).toBe("error");
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
-  });
-
-  it("rejects when Turnstile fails", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(false);
-
-    const result = await submitInterestRegistration(validSubmit);
-
-    expect(result).toEqual({
-      status: "error",
-      message: "Security check failed. Please try again.",
-    });
   });
 
   it("rejects when rate limited", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitInterestRegistration(validSubmit);
@@ -202,7 +181,6 @@ describe("submitInterestRegistration", () => {
   });
 
   it("inserts with session email and user_id on success", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
     const result = await submitInterestRegistration({
       ...validSubmit,

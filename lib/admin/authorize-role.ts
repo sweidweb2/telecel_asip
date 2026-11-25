@@ -1,7 +1,5 @@
+import { checkStaffRole, type StaffRoleGate } from "@/lib/admin/current-user-role";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
-import { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-import { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-import { isCurrentUserStaff } from "@/lib/admin/is-current-user-staff";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthorizeRoleMessages = {
@@ -17,35 +15,58 @@ export type StaffActionSession =
     }
   | { status: "error"; message: string };
 
-export type StaffAuthorizeRole = "admin" | "editor" | "staff";
-
-const ROLE_CHECKS = {
-  admin: isCurrentUserAdmin,
-  editor: isCurrentUserEditor,
-  staff: isCurrentUserStaff,
-} as const;
+export type StaffAuthorizeRole = StaffRoleGate;
 
 /**
  * Session + role gate for staff Server Actions.
- * Uses request-cached `getStaffShell` via the matching `isCurrentUser*` helper.
+ * Uses request-cached `getStaffShell` via `checkStaffRole`.
  */
 export async function authorizeRole(
   role: StaffAuthorizeRole,
   messages: AuthorizeRoleMessages,
 ): Promise<StaffActionSession> {
-  const [user, allowed] = await Promise.all([
-    getAuthUser(),
-    ROLE_CHECKS[role](),
-  ]);
+  try {
+    const [user, allowed] = await Promise.all([
+      getAuthUser(),
+      checkStaffRole(role),
+    ]);
 
-  if (!user) {
-    return { status: "error", message: messages.signedInRequired };
-  }
+    if (!user) {
+      return { status: "error", message: messages.signedInRequired };
+    }
 
-  if (!allowed) {
+    if (!allowed) {
+      return { status: "error", message: messages.unauthorized };
+    }
+
+    const supabase = await createClient();
+    return { status: "success", userId: user.id, supabase };
+  } catch (error) {
+    console.error("[authorizeRole] unexpected failure", error);
     return { status: "error", message: messages.unauthorized };
   }
+}
 
-  const supabase = await createClient();
-  return { status: "success", userId: user.id, supabase };
+/** Session + admin gate for dashboard Server Actions. */
+export function authorizeAdmin(
+  messages: AuthorizeRoleMessages,
+): Promise<StaffActionSession> {
+  return authorizeRole("admin", messages);
+}
+
+/** Session + editor gate for CMS / settings / intake Server Actions. */
+export function authorizeEditor(
+  messages: AuthorizeRoleMessages,
+): Promise<StaffActionSession> {
+  return authorizeRole("editor", messages);
+}
+
+/**
+ * Session + staff gate (admin OR editor) for Users list mutations shared by both shells.
+ * Hard-delete and other admin-only paths should keep using `authorizeAdmin`.
+ */
+export function authorizeStaff(
+  messages: AuthorizeRoleMessages,
+): Promise<StaffActionSession> {
+  return authorizeRole("staff", messages);
 }

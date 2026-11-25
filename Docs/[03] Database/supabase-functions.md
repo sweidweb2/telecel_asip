@@ -66,6 +66,19 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ---
 
+### `public.release_rate_limit(p_key)`
+
+| | |
+| --- | --- |
+| **Role** | Refund latest rate-limit hit after a failed insert |
+| **Returns** | `void` |
+| **Security** | `SECURITY DEFINER`, `search_path = public` |
+| **Granted to** | `service_role` only |
+
+**Details:** Removes the newest hit from `rate_limit_buckets` for `p_key` (no-op when missing/empty). Used when rate-limit already passed but the entity insert failed (unique / gate trigger / transient), so quota is not burned. Also refunds the IP key when the identity key rejects after IP was consumed. Migration `20261125070000_preserve_media_and_release_rate_limit.sql`.
+
+---
+
 ### `public.get_user_stats()`
 
 | | |
@@ -309,11 +322,11 @@ Derived from `supabase/migrations/`. Schema tables live in `Docs/[03] Database/s
 
 ### `public.applications`
 
-Public Apply inserts via Server Action + service role after Zod, Turnstile, and rate limits. `BEFORE INSERT` trigger `applications_require_open` → `enforce_intake_requires_open()` rejects inserts while `site_settings.open_applications` is false (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
+Public Apply inserts via Server Action + service role after Zod and rate limits. `BEFORE INSERT` trigger `applications_require_open` → `enforce_intake_requires_open()` rejects inserts while `site_settings.open_applications` is false (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.interest_registrations`
 
-Public inserts via Server Action + service role after Zod, Turnstile, and rate limits. `BEFORE INSERT` trigger `interest_registrations_require_closed` → `enforce_intake_requires_closed()` rejects inserts while `site_settings.open_applications` is true (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
+Public inserts via Server Action + service role after Zod and rate limits. `BEFORE INSERT` trigger `interest_registrations_require_closed` → `enforce_intake_requires_closed()` rejects inserts while `site_settings.open_applications` is true (`20261122060000`). Editors list/update/delete under `is_editor()` RLS.
 
 ### `public.investor_interests`
 
@@ -325,7 +338,7 @@ Investor deeper engagement intake (`20261110210000`). Public inserts require ope
 
 ### `public.contact_messages`
 
-No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, Cloudflare Turnstile siteverify (`action=contact`), and in-memory rate limits (hits recorded only after a successful insert). Editors list/update/delete via the session client under `is_editor()` RLS policies. Length CHECKs mirror the Zod schema; there is no unique constraint on email/subject (follow-ups allowed).
+No RPCs, functions, or triggers. Public rows are inserted from a Server Action via the service-role client after Zod validation, dual rate limits (IP + identity; hits recorded before insert, refunded on insert failure). Editors list/update/delete via the session client under `is_editor()` RLS policies. Length CHECKs mirror the Zod schema; there is no unique constraint on email/subject (follow-ups allowed).
 
 ### `public.blogs`
 
@@ -445,9 +458,9 @@ No RPCs, functions, or triggers. Public rows are inserted from a Server Action v
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Updates core + upserts details atomically; returns previous slug so callers can revalidate renamed public paths.
+**Details:** Updates core + upserts details atomically; returns previous slug so callers can revalidate renamed public paths. `cover_image_url` is owned by upload/remove and is preserved on conflict update (`20261125070000`).
 
-**How it works:** Raises `42501` unless `is_editor()` (CMS write gate since `20260910180000`). Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `startups`, then `INSERT … ON CONFLICT (startup_id) DO UPDATE` on `startup_details`.
+**How it works:** Raises `42501` unless `is_editor()` (CMS write gate since `20260910180000`). Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `startups`, then `INSERT … ON CONFLICT (startup_id) DO UPDATE` on `startup_details` without overwriting `cover_image_url`.
 
 ### `public.create_blog_with_featured(p_blog jsonb)`
 
@@ -674,9 +687,9 @@ No RPCs, functions, or triggers. 1:1 child of `public.startups` (`startup_id` PK
 | **Security** | `SECURITY INVOKER`, `search_path = public` |
 | **Granted to** | `authenticated` |
 
-**Details:** Updates the cohort and fully replaces both junction sets atomically.
+**Details:** Updates the cohort and fully replaces both junction sets atomically. `media_url` is owned by upload/remove and is left untouched on form update (`20261125070000`).
 
-**How it works:** Raises `42501` unless `is_editor()` (CMS write gate since `20260910180000`). Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `cohorts`, deletes existing junction rows for `p_id`, then re-inserts from the uuid arrays.
+**How it works:** Raises `42501` unless `is_editor()` (CMS write gate since `20260910180000`). Locks the existing row (`FOR UPDATE`); raises `P0002` if missing. Updates `cohorts` (excluding `media_url`), deletes existing junction rows for `p_id`, then re-inserts from the uuid arrays.
 
 ---
 

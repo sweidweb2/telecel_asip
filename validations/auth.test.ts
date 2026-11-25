@@ -7,7 +7,6 @@ describe("loginSchema", () => {
     const result = loginSchema.safeParse({
       email: "asweid657@gmail.com",
       password: "ali@1234",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
@@ -17,17 +16,6 @@ describe("loginSchema", () => {
     const result = loginSchema.safeParse({
       email: "not-an-email",
       password: "ali@1234",
-      turnstileToken: "test-turnstile-token",
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects a missing turnstile token", () => {
-    const result = loginSchema.safeParse({
-      email: "asweid657@gmail.com",
-      password: "ali@1234",
-      turnstileToken: "",
     });
 
     expect(result.success).toBe(false);
@@ -37,7 +25,6 @@ describe("loginSchema", () => {
     const result = loginSchema.safeParse({
       email: undefined,
       password: undefined,
-      turnstileToken: undefined,
     });
 
     expect(result.success).toBe(false);
@@ -58,7 +45,6 @@ describe("registerSchema", () => {
       password: "ali@1234",
       confirmPassword: "ali@1234",
       type: "startup",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
@@ -71,7 +57,6 @@ describe("registerSchema", () => {
       password: "ali@1234",
       confirmPassword: "ali@1234",
       type: "investor",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(true);
@@ -84,7 +69,6 @@ describe("registerSchema", () => {
       password: "ali@1234",
       confirmPassword: "ali@1234",
       type: "admin",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
@@ -97,7 +81,6 @@ describe("registerSchema", () => {
       password: "ali@1234",
       confirmPassword: "ali@9999",
       type: "startup",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
@@ -110,7 +93,6 @@ describe("registerSchema", () => {
       password: "short",
       confirmPassword: "short",
       type: "startup",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);
@@ -124,7 +106,6 @@ describe("registerSchema", () => {
       password: "short",
       confirmPassword: "other",
       type: "startup",
-      turnstileToken: "test-turnstile-token",
     });
 
     expect(result.success).toBe(false);

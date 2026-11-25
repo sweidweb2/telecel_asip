@@ -38,7 +38,6 @@ export type ContactLabels = {
   successTitle: string;
   successDescription: string;
   successCloseLabel: string;
-  turnstileHint: string;
 };
 
 const EN: ContactLabels = {
@@ -96,7 +95,6 @@ const EN: ContactLabels = {
   successDescription:
     "Your message has been sent. The ASIP team will get back to you shortly.",
   successCloseLabel: "Close",
-  turnstileHint: "Complete the security check before sending.",
 };
 
 const FR: ContactLabels = {
@@ -156,7 +154,6 @@ const FR: ContactLabels = {
   successDescription:
     "Votre message a bien été envoyé. L’équipe ASIP vous répondra rapidement.",
   successCloseLabel: "Fermer",
-  turnstileHint: "Complétez la vérification de sécurité avant d’envoyer.",
 };
 
 export function contactLabelsFor(locale: Locale): ContactLabels {

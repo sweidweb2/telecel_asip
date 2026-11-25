@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
@@ -71,8 +71,7 @@ export async function getContactMessagesPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: ContactMessageListResult; stats: InboxTableStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchContactMessages(supabase, query),
         fetchInboxTableStats(supabase, "contact_messages"),
@@ -93,8 +92,7 @@ export async function getContactMessageById(
     return { status: "not_found" };
   }
 
-  const gated = await gateEditorPageData(
-    async (supabase) => {
+  const gated = await gatePageDataByRole("editor", async (supabase) => {
       const { data, error } = await supabase
         .from("contact_messages")
         .select(MESSAGE_DETAIL_COLUMNS)

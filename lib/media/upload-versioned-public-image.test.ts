@@ -20,7 +20,34 @@ vi.mock("@/lib/storage/public-url", () => ({
 import { processImageBuffer } from "@/lib/media/process-image";
 import {
   uploadVersionedPublicImage,
+  withMediaUrlCas,
+  type PersistMediaUrl,
 } from "@/lib/media/upload-versioned-public-image";
+
+function mockPersist(options?: {
+  error?: { message?: string } | null;
+  data?: { id: string } | null;
+  trackEq?: ReturnType<typeof vi.fn>;
+  trackIs?: ReturnType<typeof vi.fn>;
+}) {
+  const eq = options?.trackEq ?? vi.fn(function (this: unknown) {
+    return this;
+  });
+  const is = options?.trackIs ?? vi.fn(function (this: unknown) {
+    return this;
+  });
+  const maybeSingle = vi.fn(async () => ({
+    error: options?.error ?? null,
+    data: options?.data === undefined ? { id: "row-1" } : options.data,
+  }));
+  const select = vi.fn(() => ({ maybeSingle }));
+  const prepareUpdate = vi.fn(() => ({
+    eq,
+    is,
+    select,
+  })) as unknown as PersistMediaUrl["prepareUpdate"];
+  return { prepareUpdate, eq, is, select, maybeSingle };
+}
 
 describe("uploadVersionedPublicImage", () => {
   const messages = {
@@ -49,27 +76,29 @@ describe("uploadVersionedPublicImage", () => {
       previousUrl: null,
       maxBytes: 100,
       messages,
-      updateRow: vi.fn(),
+      persistMediaUrl: {
+        column: "logo_url",
+        prepareUpdate: vi.fn(),
+      },
     });
     expect(result).toEqual({ status: "error", message: "bad-image" });
   });
 
-  it("uploads a versioned path, updates the row, and removes the previous object", async () => {
+  it("uploads a versioned path, CAS-updates the row, and removes the previous object", async () => {
     const upload = vi.fn(async () => ({ error: null }));
     const remove = vi.fn(async () => ({ error: null }));
-    const updateRow = vi.fn(async () => ({
-      error: null,
-      data: { id: "partner-1" },
-    }));
     const supabase = {
       storage: {
         from: vi.fn(() => ({ upload, remove })),
       },
     };
+    const persist = mockPersist({ data: { id: "partner-1" } });
 
     const file = new File([new Uint8Array([1, 2, 3])], "logo.png", {
       type: "image/png",
     });
+    const previousUrl =
+      "https://example.supabase.co/storage/v1/object/public/partners/partner-1/old.webp";
 
     const result = await uploadVersionedPublicImage({
       supabase: supabase as never,
@@ -77,11 +106,13 @@ describe("uploadVersionedPublicImage", () => {
       bucket: "partners",
       entityId: "partner-1",
       preset: "partnerLogo",
-      previousUrl:
-        "https://example.supabase.co/storage/v1/object/public/partners/partner-1/old.webp",
+      previousUrl,
       maxBytes: 1024,
       messages,
-      updateRow,
+      persistMediaUrl: {
+        column: "logo_url",
+        prepareUpdate: persist.prepareUpdate,
+      },
     });
 
     expect(result.status).toBe("success");
@@ -98,8 +129,42 @@ describe("uploadVersionedPublicImage", () => {
         cacheControl: "31536000",
       }),
     );
-    expect(updateRow).toHaveBeenCalledWith(result.publicUrl);
+    expect(persist.prepareUpdate).toHaveBeenCalledWith(result.publicUrl);
+    expect(persist.eq).toHaveBeenCalledWith("logo_url", previousUrl);
     expect(remove).toHaveBeenCalledWith(["partner-1/old.webp"]);
+  });
+
+  it("CAS-requires null when there was no previous URL", async () => {
+    const upload = vi.fn(async () => ({ error: null }));
+    const remove = vi.fn(async () => ({ error: null }));
+    const supabase = {
+      storage: {
+        from: vi.fn(() => ({ upload, remove })),
+      },
+    };
+    const persist = mockPersist();
+
+    const file = new File([new Uint8Array([1])], "logo.png", {
+      type: "image/png",
+    });
+
+    const result = await uploadVersionedPublicImage({
+      supabase: supabase as never,
+      file,
+      bucket: "partners",
+      entityId: "p1",
+      preset: "partnerLogo",
+      previousUrl: null,
+      maxBytes: 1024,
+      messages,
+      persistMediaUrl: {
+        column: "logo_url",
+        prepareUpdate: persist.prepareUpdate,
+      },
+    });
+
+    expect(result.status).toBe("success");
+    expect(persist.is).toHaveBeenCalledWith("logo_url", null);
   });
 
   it("rolls back the new object when the DB update fails", async () => {
@@ -110,6 +175,7 @@ describe("uploadVersionedPublicImage", () => {
         from: vi.fn(() => ({ upload, remove })),
       },
     };
+    const persist = mockPersist({ error: { message: "db" }, data: null });
 
     const file = new File([new Uint8Array([1])], "logo.png", {
       type: "image/png",
@@ -124,7 +190,10 @@ describe("uploadVersionedPublicImage", () => {
       previousUrl: null,
       maxBytes: 1024,
       messages,
-      updateRow: async () => ({ error: { message: "db" } }),
+      persistMediaUrl: {
+        column: "logo_url",
+        prepareUpdate: persist.prepareUpdate,
+      },
     });
 
     expect(result).toEqual({ status: "error", message: "generic" });
@@ -139,6 +208,7 @@ describe("uploadVersionedPublicImage", () => {
         from: vi.fn(() => ({ upload, remove })),
       },
     };
+    const persist = mockPersist({ data: null });
 
     const file = new File([new Uint8Array([1])], "logo.png", {
       type: "image/png",
@@ -153,10 +223,45 @@ describe("uploadVersionedPublicImage", () => {
       previousUrl: null,
       maxBytes: 1024,
       messages,
-      updateRow: async () => ({ error: null, data: null }),
+      persistMediaUrl: {
+        column: "logo_url",
+        prepareUpdate: persist.prepareUpdate,
+      },
     });
 
     expect(result).toEqual({ status: "error", message: "generic" });
     expect(remove).toHaveBeenCalled();
+  });
+});
+
+describe("withMediaUrlCas", () => {
+  it("matches the previous URL when present", () => {
+    const eq = vi.fn(function (this: unknown) {
+      return this;
+    });
+    const is = vi.fn(function (this: unknown) {
+      return this;
+    });
+    const query = { eq, is };
+
+    withMediaUrlCas(query as never, "logo_url", "https://cdn.example/old.webp");
+
+    expect(eq).toHaveBeenCalledWith("logo_url", "https://cdn.example/old.webp");
+    expect(is).not.toHaveBeenCalled();
+  });
+
+  it("requires null when there was no previous URL", () => {
+    const eq = vi.fn(function (this: unknown) {
+      return this;
+    });
+    const is = vi.fn(function (this: unknown) {
+      return this;
+    });
+    const query = { eq, is };
+
+    withMediaUrlCas(query as never, "logo_url", null);
+
+    expect(is).toHaveBeenCalledWith("logo_url", null);
+    expect(eq).not.toHaveBeenCalled();
   });
 });

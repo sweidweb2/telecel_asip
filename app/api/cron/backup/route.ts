@@ -5,16 +5,11 @@ import {
   failStuckInFlightBackups,
   runScheduledBackupWindow,
 } from "@/lib/backups/automated";
+import { getCronBackupSchedule } from "@/lib/backups/get-cron-backup-schedule";
 import {
   isScheduleDue,
   scheduleWindowKey,
 } from "@/lib/backups/schedule";
-import {
-  BACKUP_SCHEDULE_VALUES,
-  type BackupScheduleValue,
-} from "@/constants/backup-schedule";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { SITE_SETTINGS_ID } from "@/data/settings";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -24,10 +19,6 @@ function authorizeCron(request: Request): boolean {
   if (!secret) return false;
   // Bearer only — never accept ?secret= (leaks via logs / Referer).
   return request.headers.get("authorization") === `Bearer ${secret}`;
-}
-
-function isBackupSchedule(value: string): value is BackupScheduleValue {
-  return (BACKUP_SCHEDULE_VALUES as readonly string[]).includes(value);
 }
 
 export async function POST(request: Request) {
@@ -41,15 +32,8 @@ export async function POST(request: Request) {
     console.error("[backups] stuck cleanup failed", err);
   }
 
-  const admin = createAdminClient();
-  const { data: settings, error: settingsError } = await admin
-    .from("site_settings")
-    .select("backup_time")
-    .eq("id", SITE_SETTINGS_ID)
-    .maybeSingle();
-
-  if (settingsError || !settings) {
-    console.error("[backups] cron settings read failed", settingsError);
+  const backupTime = await getCronBackupSchedule();
+  if (backupTime === null) {
     return NextResponse.json(
       { error: "Could not read backup schedule." },
       { status: 500 },
@@ -66,8 +50,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const backupTime = settings.backup_time;
-  if (!isBackupSchedule(backupTime) || backupTime === "off") {
+  if (backupTime === "off") {
     const retentionDeleted = await safeRetention();
     return NextResponse.json({
       ok: true,

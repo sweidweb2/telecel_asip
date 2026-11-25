@@ -91,7 +91,7 @@ export default async function BackupPage({ searchParams }: BackupPageProps) {
                 </li>
                 <li>
                   Keep credentials and secrets outside the app (env vars,
-                  service role, R2 keys, Turnstile).
+                  service role, R2 keys).
                 </li>
                 <li>
                   After a restore, re-check CMS lists and public forms before

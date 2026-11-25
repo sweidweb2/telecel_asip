@@ -11,7 +11,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn,
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor: vi.fn(),
 }));
 
@@ -28,7 +28,7 @@ import {
   deleteBlog,
   updateBlog,
 } from "@/actions/blogs";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 
 const blogId = "22222222-2222-4222-8222-222222222222";
 

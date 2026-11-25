@@ -12,9 +12,8 @@ import { toast } from "sonner";
 import { signIn } from "@/actions/auth";
 import type { LoginLabels } from "@/constants/auth-labels";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
-import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Dialog,
   DialogClose,
@@ -29,9 +28,6 @@ import { Label } from "@/components/ui/label";
 import { CONTACT } from "@/constants/contact";
 import type { Locale } from "@/constants/locales";
 import { authPath, publicPath } from "@/constants/routes";
-import { useFormTurnstile } from "@/hooks/use-form-turnstile";
-import { initialTurnstileToken } from "@/lib/turnstile-widget";
-import { TURNSTILE_LOGIN_ACTION } from "@/types/turnstile";
 import { loginSchemaFor, type LoginInput } from "@/validations/auth";
 
 export function LoginForm({
@@ -51,35 +47,20 @@ export function LoginForm({
   const {
     register,
     handleSubmit,
-    control,
-    setValue,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchemaFor(locale)) as Resolver<LoginInput>,
     defaultValues: {
       email: "",
       password: "",
-      turnstileToken: initialTurnstileToken(),
     },
   });
 
-  const { turnstile, turnstileToken, hasToken, submitToken, reset } =
-    useFormTurnstile({
-      action: TURNSTILE_LOGIN_ACTION,
-      control,
-      setValue,
-    });
-
   function onSubmit(values: LoginInput) {
+    if (isPending) return;
     startTransition(async () => {
       try {
-        const result = await signIn(
-          {
-            ...values,
-            turnstileToken: submitToken(values.turnstileToken),
-          },
-          redirectTo,
-        );
+        const result = await signIn(values, redirectTo);
 
         if (result.status === "error") {
           toast.error(result.message);
@@ -89,8 +70,8 @@ export function LoginForm({
         toast.success(result.message ?? labels.successToast);
         router.push(result.redirectTo ?? homePath);
         router.refresh();
-      } finally {
-        reset();
+      } catch {
+        toast.error(labels.googleError);
       }
     });
   }
@@ -188,17 +169,10 @@ export function LoginForm({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <TurnstileField
-        turnstile={turnstile}
-        token={turnstileToken}
-        hint={labels.turnstileHint}
-        error={errors.turnstileToken?.message}
-        testId="login-turnstile"
-      />
       <Button
         type="submit"
         className="min-h-11 w-full sm:min-h-8"
-        disabled={isPending || !hasToken}
+        disabled={isPending}
       >
         {isPending ? (
           <>

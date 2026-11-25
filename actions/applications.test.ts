@@ -15,15 +15,13 @@ vi.mock("@/lib/i18n/request-locale", () => ({
   getRequestLocale: vi.fn(async () => "en" as const),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstileToken: vi.fn(),
-}));
 
 vi.mock("@/lib/rate-limit", () => ({
   consumeSharedRateLimit: vi.fn(async () => true),
+  releaseSharedRateLimit: vi.fn(async () => undefined),
 }));
 
-vi.mock("@/lib/admin/authorize-editor", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeEditor: vi.fn(),
 }));
 
@@ -63,10 +61,9 @@ import {
   getOpenApplicationsFresh,
 } from "@/data/settings";
 import { getCurrentUserProfile } from "@/data/users";
-import { authorizeEditor } from "@/lib/admin/authorize-editor";
+import { authorizeEditor } from "@/lib/admin/authorize-role";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
 import { consumeSharedRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const validSubmit = {
   fullName: "Ada Lovelace",
@@ -87,7 +84,6 @@ const validSubmit = {
     "We need market access and investor intros to expand beyond Accra.",
   commsOptIn: true,
   consent: true as const,
-  turnstileToken: "test-turnstile-token",
 };
 
 const appId = "11111111-1111-4111-8111-111111111111";
@@ -136,8 +132,6 @@ describe("submitApplication", () => {
       message:
         "Applications are closed. Register your interest to hear when the next chapter opens.",
     });
-    expect(getAuthUser).not.toHaveBeenCalled();
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
@@ -150,11 +144,10 @@ describe("submitApplication", () => {
       status: "error",
       message: "Sign in to submit an application.",
     });
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("rejects non-startup accounts before Turnstile", async () => {
+  it("rejects non-startup accounts before rate limits", async () => {
     vi.mocked(getCurrentUserProfile).mockResolvedValue({
       id: "user-1",
       email: "ada@example.com",
@@ -169,7 +162,6 @@ describe("submitApplication", () => {
       status: "error",
       message: "Only startup accounts can submit an application.",
     });
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
@@ -182,35 +174,20 @@ describe("submitApplication", () => {
       status: "error",
       message: "Only startup accounts can submit an application.",
     });
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
     expect(insertMock).not.toHaveBeenCalled();
   });
 
-  it("rejects invalid payloads before Turnstile", async () => {
+  it("rejects invalid payloads before rate limits", async () => {
     const result = await submitApplication({
       ...validSubmit,
       fullName: "A",
     });
 
     expect(result.status).toBe("error");
-    expect(verifyTurnstileToken).not.toHaveBeenCalled();
-    expect(insertMock).not.toHaveBeenCalled();
-  });
-
-  it("rejects when Turnstile fails", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(false);
-
-    const result = await submitApplication(validSubmit);
-
-    expect(result).toEqual({
-      status: "error",
-      message: "Security check failed. Please try again.",
-    });
     expect(insertMock).not.toHaveBeenCalled();
   });
 
   it("rejects when rate limited", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     vi.mocked(consumeSharedRateLimit).mockResolvedValue(false);
 
     const result = await submitApplication(validSubmit);
@@ -223,7 +200,6 @@ describe("submitApplication", () => {
   });
 
   it("inserts with session email and user_id on success", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
     const result = await submitApplication({
       ...validSubmit,
@@ -243,7 +219,6 @@ describe("submitApplication", () => {
   });
 
   it("stores empty LinkedIn and website as null", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
 
     const result = await submitApplication({
       ...validSubmit,
@@ -261,7 +236,6 @@ describe("submitApplication", () => {
   });
 
   it("maps unique violations to a duplicate message", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     insertMock.mockResolvedValue({
       error: {
         code: "23505",
@@ -278,7 +252,6 @@ describe("submitApplication", () => {
   });
 
   it("maps bare unique violations without a constraint message", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     insertMock.mockResolvedValue({ error: { code: "23505" } });
 
     const result = await submitApplication(validSubmit);
@@ -290,7 +263,6 @@ describe("submitApplication", () => {
   });
 
   it("maps open/closed INSERT trigger failures to the gate message", async () => {
-    vi.mocked(verifyTurnstileToken).mockResolvedValue(true);
     insertMock.mockResolvedValue({
       error: { code: "P0001", message: "applications are closed" },
     });

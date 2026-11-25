@@ -5,7 +5,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -113,8 +113,7 @@ export async function getPartnersPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: PartnerListResult; stats: PartnerListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchPartnersPage(supabase, query),
         fetchPartnerListStats(supabase),
@@ -137,8 +136,7 @@ export const getPartnerByIdForAdmin = cache(
     async (id: string): Promise<PartnerDetailResult> => {
       if (!partnerIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const { data, error } = await supabase
             .from("partners")
             .select(LIST_COLUMNS)
@@ -219,8 +217,7 @@ export async function getPartnerSortOrderOccupants(): Promise<
   | { status: "forbidden" }
   | { status: "ok"; partners: PartnerSortOrderOccupant[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       // Cap at the display-order range — map + displacement only need 1…MAX.
       const { data, error } = await supabase
         .from("partners")

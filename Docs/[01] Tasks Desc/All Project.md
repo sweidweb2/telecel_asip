@@ -134,7 +134,7 @@
 - [x] ✅ Build **Open state** (HOLD): Hero copy + [Start application] CTA + form — activate only after written confirmation — `/apply` exists, `noindex`, and is redirected away until `open_applications` is flipped
 - [ ] Build Application Journey component — 6 steps (Check criteria, Tell us what you're building, Initial review, Founder conversations, Final selection, Onboarding) — apply copy ships 3 preparation cards, not the 6-step journey
 - [x] ✅ Build form fields exactly per doc — 🟡 `interest_registrations` captures name/email/phone/company/sector/country/pitch/consent; missing role, LinkedIn, website, year founded, stage, team size, traction, programme fit, and separate comms-preference/accuracy declarations
-- [x] ✅ Server + client validation; spam protection (captcha/honeypot) — Zod on both sides + Cloudflare Turnstile (`action=apply`) + per-IP/per-email rate limiting; 🟡 no honeypot field
+- [x] ✅ Server + client validation; spam protection (captcha/honeypot) — Zod on both sides + per-IP/per-email rate limiting; 🟡 no honeypot field
 - [ ] Confirm and wire submission routing (inbox/CRM) — flag as a dependency for Guy to confirm owner — submissions land in the DB only; no email/CRM delivery
 - [ ] Data retention + consent-timestamp logging (coordinate with Legal/DPO) — consent is a boolean with no timestamp, policy version, or retention job
 - [x] ✅ Page-level SEO: meta title/description from Section 15
@@ -215,7 +215,7 @@
 - [x] ✅ SSL/HTTPS, CDN, caching strategy for the whole site — HSTS + security headers and a marketing/static/dashboard cache-control split in `next.config.ts`; see `Docs/[06] Documentation/[6.6] CDN and storage architecture.md`
 - [ ] Backups (automated, tested restore) + credentials/secrets handover list — a `/dashboard/backup` route exists but no automated backup, tested restore, or credentials handover list
 - [ ] Analytics (GA4/tag manager) + cookie consent banner (blocks non-essential tags pre-consent) — neither is implemented; `/dashboard/analytics` is an empty page
-- [x] ✅ Security hardening: WAF/rate limiting on form + search endpoints, spam protection — 🟡 Turnstile + `lib/rate-limit.ts` on both public forms, RLS on every table, service-role-only inserts; the limiter is in-memory (not shared across serverless instances) and there is no WAF or search-endpoint limit
+- [x] ✅ Security hardening: WAF/rate limiting on form + search endpoints, spam protection — ✅ shared rate limits (`lib/intake/submit-guard.ts` + `rate_limit_buckets`) on public forms, RLS on every table, service-role-only inserts; no WAF or search-endpoint limit
 - [ ] Accessibility pass sitewide (WCAG 2.1 AA) — automated + manual screen-reader spot checks — no axe/a11y tooling installed
 - [x] ✅ Performance budget sitewide (Core Web Vitals) + image pipeline (responsive/WebP/lazy-load) — 🟡 image pipeline done (`lib/media/process-image`, Sharp → WebP, versioned paths, `next/image`); no measured CWV budget or Lighthouse CI
 - [x] ✅ CI/CD pipeline staging→production with rollback — 🟡 `.github/workflows/ci.yml` (lint, typecheck, Vitest, build, Playwright) and `deploy-migrations.yml` are in place; there is no staging→production deploy job and no rollback path
@@ -228,7 +228,7 @@
 The gate dates in Section 18 (24 Aug → 10 Sep) were written before today. Since today is 29 Aug 2026, the first real task on the board should be confirming with Guy which Section 18 gates have already passed (mark those "Done" retroactively with evidence) versus which need re-baselining against the 10 Sep deadline.
 
 ### Scan summary (29 Aug 2026)
-**Strong:** all 14 marketing pages built in `en` + `fr` with real French copy, full SEO metadata/sitemap/robots/JSON-LD, founders directory with detail pages and search, insights/blogs, contact + register-interest forms with Turnstile and rate limiting, admin dashboard CRUD, RLS on every table, image pipeline, CI with 23 Vitest files and 6 Playwright specs.
+**Strong:** all 14 marketing pages built in `en` + `fr` with real French copy, full SEO metadata/sitemap/robots/JSON-LD, founders directory with detail pages and search, insights/blogs, contact + register-interest forms with rate limiting, admin dashboard CRUD, RLS on every table, image pipeline, CI with 23 Vitest files and 6 Playwright specs.
 
 **Biggest remaining risks, in order:**
 1. **Evidence Register does not exist** — blocks Impact publish rules, Home metrics, and the editorial workflow (§09, §16, §17).

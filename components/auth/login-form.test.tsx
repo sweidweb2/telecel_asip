@@ -11,30 +11,9 @@ const push = vi.hoisted(() => vi.fn());
 const refresh = vi.hoisted(() => vi.fn());
 const toastError = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
-const turnstileToken = vi.hoisted(() => ({ value: "test-turnstile-token" }));
 
 vi.mock("@/actions/auth", () => ({ signIn, signInWithGoogle: vi.fn() }));
 
-vi.mock("@/hooks/use-turnstile", async () => {
-  const React = await import("react");
-  return {
-    useTurnstile: ({
-      onTokenChange,
-    }: {
-      onTokenChange: (token: string) => void;
-    }) => {
-      React.useEffect(() => {
-        onTokenChange(turnstileToken.value);
-      }, [onTokenChange]);
-      return {
-        siteKey: "test-site-key",
-        setContainer: vi.fn(),
-        render: vi.fn(),
-        reset: vi.fn(),
-      };
-    },
-  };
-});
 
 vi.mock("nextjs-toploader/app", () => ({
   useRouter: () => ({ push, refresh }),
@@ -55,15 +34,6 @@ function renderLoginForm() {
 describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    turnstileToken.value = "test-turnstile-token";
-  });
-
-  it("blocks submit when the security check has no token", async () => {
-    turnstileToken.value = "";
-    renderLoginForm();
-
-    expect(screen.getByRole("button", { name: "Sign in" })).toBeDisabled();
-    expect(signIn).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed email without calling the action", async () => {
@@ -103,7 +73,6 @@ describe("LoginForm", () => {
       {
         email: "admin@example.com",
         password: "Testpass1",
-        turnstileToken: "turnstile-widget-disabled",
       },
       ROUTES.users,
     );

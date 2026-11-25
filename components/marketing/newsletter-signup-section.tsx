@@ -7,7 +7,6 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { subscribeNewsletter } from "@/actions/newsletter";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Section } from "@/components/marketing/page-elements";
 import type { NewsletterSignupLabels } from "@/components/marketing/newsletter-signup-labels";
 import { Button } from "@/components/ui/button";
@@ -15,9 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Locale } from "@/constants/locales";
-import { useFormTurnstile } from "@/hooks/use-form-turnstile";
-import { initialTurnstileToken } from "@/lib/turnstile-widget";
-import { TURNSTILE_NEWSLETTER_ACTION } from "@/types/turnstile";
 import {
   newsletterSubscribeSchema,
   type NewsletterSubscribeInput,
@@ -41,7 +37,6 @@ export function NewsletterSignupSection({
     register,
     handleSubmit,
     control,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<NewsletterSubscribeInput>({
@@ -50,25 +45,15 @@ export function NewsletterSignupSection({
       email: "",
       consent: false,
       sourcePage,
-      turnstileToken: initialTurnstileToken(),
     },
   });
 
   const consent = useWatch({ control, name: "consent" });
-  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
-    useFormTurnstile({
-      action: TURNSTILE_NEWSLETTER_ACTION,
-      control,
-      setValue,
-    });
 
   function onSubmit(values: NewsletterSubscribeInput) {
     startTransition(async () => {
       try {
-        const result = await subscribeNewsletter({
-          ...values,
-          turnstileToken: submitToken(values.turnstileToken),
-        });
+        const result = await subscribeNewsletter(values);
         if (result.status === "error") {
           toast.error(result.message);
           return;
@@ -78,10 +63,9 @@ export function NewsletterSignupSection({
           email: "",
           consent: false,
           sourcePage,
-          turnstileToken: initialTurnstileToken(),
         });
-      } finally {
-        resetTurnstile();
+      } catch {
+        toast.error("Something went wrong. Please try again.");
       }
     });
   }
@@ -150,25 +134,10 @@ export function NewsletterSignupSection({
             <p className="text-sm text-destructive">{errors.consent.message}</p>
           ) : null}
 
-          {enabled ? (
-            <TurnstileField
-              turnstile={turnstile}
-              token={turnstileToken}
-              hint={labels.turnstileHint}
-              error={errors.turnstileToken?.message}
-              testId="newsletter-turnstile"
-            />
-          ) : null}
-
           <Button
             type="submit"
             className="min-h-11 w-full sm:w-auto"
-            disabled={
-              isPending ||
-              !enabled ||
-              !consent ||
-              (enabled && !hasToken)
-            }
+            disabled={isPending || !enabled || !consent}
           >
             {isPending ? <Loader2Icon className="animate-spin" /> : null}
             {isPending ? labels.submitting : labels.submit}

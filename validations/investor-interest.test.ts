@@ -13,7 +13,6 @@ const valid = {
   focusNote: "",
   consent: true,
   commsOptIn: false,
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("investorInterestSchema", () => {

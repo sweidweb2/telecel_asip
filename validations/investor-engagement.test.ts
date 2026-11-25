@@ -22,7 +22,6 @@ const valid = {
   message: "",
   consent: true,
   commsOptIn: true,
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("investorEngagementSchema", () => {

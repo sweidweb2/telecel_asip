@@ -54,7 +54,7 @@ const CRAWLER_FILE_CACHE =
  * Baseline security headers for every response.
  *
  * `frame-ancestors` is sent as a one-directive CSP rather than a full policy:
- * a script-src policy needs per-request nonces (Next inline bootstrap, Turnstile,
+ * a script-src policy needs per-request nonces (Next inline bootstrap,
  * TipTap) and would have to be introduced with report-only first.
  */
 const SECURITY_HEADERS = [

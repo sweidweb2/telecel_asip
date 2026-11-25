@@ -2,6 +2,7 @@ import type { Locale } from "@/constants/locales";
 import { getOpenApplicationsFresh } from "@/data/settings";
 import { getCurrentUserProfile } from "@/data/users";
 import { getAuthUser } from "@/lib/admin/get-auth-user";
+import { logServerActionError } from "@/lib/admin/log-server-action-error";
 import {
   mapPgActionError,
   type PgActionError,
@@ -9,12 +10,12 @@ import {
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
   guardPublicFormSubmission,
+  runGuardedAdminWork,
   type PublicSubmitGuardMessages,
 } from "@/lib/intake/submit-guard";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { AdminActionResult } from "@/types/admin-action";
 import type { ProfileType } from "@/types/profile";
-import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -45,7 +46,7 @@ type IntakeParseResult<TParsed> =
  */
 export async function runAuthenticatedIntakeSubmit<
   TInput,
-  TParsed extends { turnstileToken: string },
+  TParsed extends Record<string, unknown>,
 >(options: {
   input: TInput;
   messages: Record<Locale, AuthenticatedIntakeMessages>;
@@ -70,17 +71,20 @@ export async function runAuthenticatedIntakeSubmit<
   const locale = await getRequestLocale();
   const copy = options.messages[locale];
 
-  const applicationsOpen = await getOpenApplicationsFresh();
+  // Settings + session + profile are independent; profile reuses cached auth.
+  const [applicationsOpen, user, profile] = await Promise.all([
+    getOpenApplicationsFresh(),
+    getAuthUser(),
+    getCurrentUserProfile(),
+  ]);
   if (options.applicationsMustBeOpen ? !applicationsOpen : applicationsOpen) {
     return { status: "error", message: copy.applicationsGate };
   }
 
-  const user = await getAuthUser();
   if (!user?.email) {
     return { status: "error", message: copy.signedInRequired };
   }
 
-  const profile = await getCurrentUserProfile();
   const profileType = profile?.type;
   if (options.accountGate.mode === "require") {
     if (profileType !== options.accountGate.type) {
@@ -106,8 +110,6 @@ export async function runAuthenticatedIntakeSubmit<
 
   const data = parsed.data;
   const guard = await guardPublicFormSubmission({
-    turnstileToken: data.turnstileToken,
-    expectedAction: TURNSTILE_APPLY_ACTION,
     rateLimitPrefix: options.rateLimitPrefix,
     identityKind: "user",
     identity: user.id,
@@ -115,13 +117,15 @@ export async function runAuthenticatedIntakeSubmit<
   });
   if (guard.status === "error") return guard;
 
-  const { error } = await options.insert({
-    admin: guard.admin,
-    user,
-    data,
-    sessionEmail,
-    locale,
-  });
+  const { error } = await runGuardedAdminWork(guard, (admin) =>
+    options.insert({
+      admin,
+      user,
+      data,
+      sessionEmail,
+      locale,
+    }),
+  );
 
   if (error) {
     const lower = (error.message ?? "").toLowerCase();
@@ -130,12 +134,24 @@ export async function runAuthenticatedIntakeSubmit<
       lower.includes("applications are closed") ||
       lower.includes("applications are open")
     ) {
+      logServerActionError("[intake-submit]", error, {
+        kind: "applications_gate",
+        rateLimitPrefix: options.rateLimitPrefix,
+      });
       return { status: "error", message: copy.applicationsGate };
     }
     // Intake inserts have no junction-table uniques — any 23505 is a duplicate.
     if (error.code === "23505" || lower.includes("duplicate")) {
+      logServerActionError("[intake-submit]", error, {
+        kind: "duplicate",
+        rateLimitPrefix: options.rateLimitPrefix,
+      });
       return { status: "error", message: copy.duplicate };
     }
+    logServerActionError("[intake-submit]", error, {
+      kind: "insert_failed",
+      rateLimitPrefix: options.rateLimitPrefix,
+    });
     return {
       status: "error",
       message: mapPgActionError(error, {

@@ -1,17 +1,18 @@
-import { z } from "zod";
+import {
+  z } from "zod";
 
-import { DEFAULT_LOCALE, type Locale } from "@/constants/locales";
+import { DEFAULT_LOCALE,
+  type Locale } from "@/constants/locales";
 import {
   parseAdminListQuery,
   type RawSearchParams,
-} from "@/validations/admin-list-query";
+  } from "@/validations/admin-list-query";
 import {
   optionalHttpUrl,
   optionalMinLengthString,
   requiredConsent,
   requiredPhone,
   trimmedEmail,
-  turnstileTokenField,
 } from "@/validations/common-fields";
 import { inboxListFilterSchema } from "@/validations/inbox";
 
@@ -33,7 +34,6 @@ type InterestRegistrationMessages = {
   websiteInvalid: string;
   pitchMax: string;
   consentRequired: string;
-  turnstileRequired: string;
   invalidId: string;
 };
 
@@ -57,7 +57,6 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     websiteInvalid: "Website must be a valid http(s) URL",
     pitchMax: "Note must be at most 1000 characters",
     consentRequired: "You must agree before submitting",
-    turnstileRequired: "Please complete the security check",
     invalidId: "Invalid registration id",
   },
   fr: {
@@ -79,7 +78,6 @@ const VALIDATION_MESSAGES: Record<Locale, InterestRegistrationMessages> = {
     websiteInvalid: "Le site web doit être une URL http(s) valide",
     pitchMax: "La note doit contenir au plus 1000 caractères",
     consentRequired: "Vous devez accepter avant d’envoyer",
-    turnstileRequired: "Veuillez compléter la vérification de sécurité",
     invalidId: "Identifiant d’inscription invalide",
   },
 };
@@ -160,7 +158,6 @@ export function interestRegistrationSchemaFor(locale: Locale = DEFAULT_LOCALE) {
   return z.object({
     ...registrationFieldsSchema(messages),
     consent: requiredConsent(messages.consentRequired),
-    turnstileToken: turnstileTokenField(messages.turnstileRequired),
   });
 }
 

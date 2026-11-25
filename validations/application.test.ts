@@ -28,7 +28,6 @@ const validInput = {
     "We need market access and investor intros to expand beyond Accra.",
   commsOptIn: true,
   consent: true as const,
-  turnstileToken: "test-turnstile-token",
 };
 
 describe("applicationSchema", () => {
@@ -138,9 +137,9 @@ describe("toUpdateApplicationInput", () => {
 describe("updateApplicationSchema / deleteApplicationSchema", () => {
   const id = "11111111-1111-4111-8111-111111111111";
 
-  it("accepts an admin update without consent or turnstile", () => {
-    const { consent: _c, turnstileToken: _t, ...fields } = validInput;
-    void [_c, _t];
+  it("accepts an admin update without consent", () => {
+    const { consent: _c, ...fields } = validInput;
+    void _c;
     const result = updateApplicationSchema.safeParse({ id, ...fields });
     expect(result.success).toBe(true);
   });

@@ -5,8 +5,7 @@ import { match, P } from "ts-pattern";
 
 import { ROUTES } from "@/constants/routes";
 import { revalidateDashboardNavCounts } from "@/lib/admin/run-admin-mutation";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { authorizeStaff } from "@/lib/admin/authorize-staff";
+import { authorizeAdmin, authorizeStaff } from "@/lib/admin/authorize-role";
 import { getStaffShell } from "@/lib/admin/get-staff-shell";
 import {
   consumeStaffMutationRateLimit,

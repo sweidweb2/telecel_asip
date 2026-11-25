@@ -20,7 +20,7 @@ vi.mock("next/cache", () => ({
       fn(),
 }));
 
-vi.mock("@/lib/admin/is-current-user-editor", () => ({
+vi.mock("@/lib/admin/current-user-role", () => ({
   isCurrentUserEditor: () => isCurrentUserEditor(),
 }));
 

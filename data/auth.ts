@@ -1,13 +1,15 @@
 /**
- * Auth helpers for route gates and staff checks.
- * Implementation lives in `lib/admin` (staff kernel); this file re-exports for
- * `data/` / `app/` consumers that already import from `@/data/auth`.
+ * Canonical auth import for `app/`, `components/`, and `data/`.
+ * Implementation lives in `lib/admin` (staff kernel); keep `lib/admin/**` and
+ * `actions/` on direct `@/lib/admin/*` imports to avoid a data↔lib cycle.
  */
 
 export { getAuthUser } from "@/lib/admin/get-auth-user";
-export { isCurrentUserAdmin } from "@/lib/admin/is-current-user-admin";
-export { isCurrentUserEditor } from "@/lib/admin/is-current-user-editor";
-export { isCurrentUserStaff } from "@/lib/admin/is-current-user-staff";
+export {
+  isCurrentUserAdmin,
+  isCurrentUserEditor,
+  isCurrentUserStaff,
+} from "@/lib/admin/current-user-role";
 export {
   requireAdmin,
   requireEditor,

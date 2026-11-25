@@ -12,7 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ROUTES } from "@/constants/routes";
-import { requireEditor } from "@/lib/admin/require-staff";
+import { requireEditor } from "@/data/auth";
 
 type OkResult = { status: "ok" };
 

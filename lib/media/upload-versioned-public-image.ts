@@ -31,6 +31,50 @@ export type UploadVersionedPublicImageResult =
   | { status: "success"; publicUrl: string; path: string }
   | { status: "error"; message: string };
 
+type MediaUrlCasQuery = {
+  eq: (column: string, value: string) => MediaUrlCasQuery;
+  is: (column: string, value: null) => MediaUrlCasQuery;
+};
+
+type MediaUrlUpdateQuery = MediaUrlCasQuery & {
+  select: (columns: string) => {
+    maybeSingle: () => PromiseLike<{
+      data: unknown;
+      error: { message?: string } | null;
+    }>;
+  };
+};
+
+/**
+ * Optimistic concurrency for media replaces: only match the row when the
+ * media column still equals the URL we read before upload (or is still null).
+ * A concurrent replace makes the UPDATE match zero rows so the new object
+ * is rolled back instead of orphaning the winner.
+ */
+export function withMediaUrlCas<T extends MediaUrlCasQuery>(
+  query: T,
+  column: string,
+  previousUrl: string | null | undefined,
+): T {
+  if (previousUrl) {
+    return query.eq(column, previousUrl) as T;
+  }
+  return query.is(column, null) as T;
+}
+
+/**
+ * DB step for media replace — CAS is applied here so call sites cannot skip it.
+ * Pass `.update({ [column]: url }).eq(...)` via `prepareUpdate`; do not CAS yourself.
+ */
+export type PersistMediaUrl = {
+  column: string;
+  prepareUpdate: (publicUrl: string) => MediaUrlUpdateQuery;
+  /** Defaults to `id`. Use e.g. `startup_id` for 1:1 detail tables. */
+  selectColumns?: string;
+  /** Map the selected row to `{ id }` when the PK column is not `id`. */
+  mapRow?: (row: Record<string, unknown>) => { id: string };
+};
+
 /**
  * Best-effort delete of a public object owned by `bucket`. Logs and continues
  * when Storage remove fails so the DB remains the source of truth.
@@ -48,10 +92,48 @@ export async function removeOwnedPublicStorageObject(
   }
 }
 
+async function persistMediaUrlWithCas(
+  persist: PersistMediaUrl,
+  publicUrl: string,
+  previousUrl: string | null | undefined,
+): Promise<{
+  error: { message?: string } | null;
+  data: { id: string } | null;
+}> {
+  const selectColumns = persist.selectColumns ?? "id";
+  const result = await withMediaUrlCas(
+    persist.prepareUpdate(publicUrl),
+    persist.column,
+    previousUrl,
+  )
+    .select(selectColumns)
+    .maybeSingle();
+
+  if (result.error) {
+    return { error: result.error, data: null };
+  }
+  if (result.data == null) {
+    return { error: null, data: null };
+  }
+
+  const row = result.data as Record<string, unknown>;
+  if (persist.mapRow) {
+    return { error: null, data: persist.mapRow(row) };
+  }
+
+  const id = row.id;
+  if (typeof id !== "string") {
+    return { error: { message: "media CAS select missing id" }, data: null };
+  }
+  return { error: null, data: { id } };
+}
+
 /**
  * CDN-safe replace: process → versioned path (`entityId/nanoid.ext`) →
- * `upsert: false` + long cacheControl → DB update → delete previous object.
- * Rolls back the new object if the DB update fails.
+ * `upsert: false` + long cacheControl → CAS DB update → delete previous object.
+ * Rolls back the new object if the DB update fails or CAS misses.
+ *
+ * Always pass `persistMediaUrl` (not a raw update) so concurrent replaces stay safe.
  */
 export async function uploadVersionedPublicImage(options: {
   supabase: ServerClient;
@@ -62,11 +144,7 @@ export async function uploadVersionedPublicImage(options: {
   previousUrl: string | null | undefined;
   maxBytes: number;
   messages: UploadVersionedPublicImageMessages;
-  updateRow: (publicUrl: string) => Promise<{
-    error: { message?: string } | null;
-    /** When provided, null/undefined means the UPDATE matched zero rows. */
-    data?: { id: string } | null;
-  }>;
+  persistMediaUrl: PersistMediaUrl;
   allowedMime?: Set<string>;
   cacheControl?: string;
 }): Promise<UploadVersionedPublicImageResult> {
@@ -79,7 +157,7 @@ export async function uploadVersionedPublicImage(options: {
     previousUrl,
     maxBytes,
     messages,
-    updateRow,
+    persistMediaUrl,
     allowedMime = ADMIN_IMAGE_ALLOWED_MIME,
     cacheControl = PUBLIC_MEDIA_CACHE_CONTROL,
   } = options;
@@ -134,9 +212,13 @@ export async function uploadVersionedPublicImage(options: {
   const publicUrl = publicObjectUrl(supabaseUrl, bucket, path);
 
   let updateError: { message?: string } | null = null;
-  let updated: { id: string } | null | undefined;
+  let updated: { id: string } | null = null;
   try {
-    const result = await updateRow(publicUrl);
+    const result = await persistMediaUrlWithCas(
+      persistMediaUrl,
+      publicUrl,
+      previousUrl,
+    );
     updateError = result.error;
     updated = result.data;
   } catch (err) {

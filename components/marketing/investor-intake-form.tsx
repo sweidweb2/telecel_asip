@@ -23,7 +23,6 @@ import {
   IntakeSuccessDialog,
 } from "@/components/marketing/intake-form-chrome";
 import type { InvestorIntakeLabels } from "@/components/marketing/investor-intake-labels";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,9 +45,6 @@ import {
   INVESTOR_TIMELINES,
 } from "@/constants/investor-intake";
 import type { Locale } from "@/constants/locales";
-import { useFormTurnstile } from "@/hooks/use-form-turnstile";
-import { initialTurnstileToken } from "@/lib/turnstile-widget";
-import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   investorEngagementSchemaFor,
   type InvestorEngagementInput,
@@ -76,7 +72,6 @@ const INTEREST_DEFAULTS: InvestorInterestInput = {
   focusNote: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: initialTurnstileToken(),
 };
 
 const ENGAGEMENT_DEFAULTS: InvestorEngagementInput = {
@@ -98,7 +93,6 @@ const ENGAGEMENT_DEFAULTS: InvestorEngagementInput = {
   message: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: initialTurnstileToken(),
 };
 
 export function InvestorIntakeForm({
@@ -148,19 +142,11 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
     defaultValues: { ...INTEREST_DEFAULTS, email: defaultEmail },
   });
 
-  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
-    useFormTurnstile({
-      action: TURNSTILE_APPLY_ACTION,
-      control,
-      setValue,
-    });
-
   function onSubmit(values: InvestorInterestInput) {
     startTransition(async () => {
       try {
         const result = await submitInvestorInterest({
           ...values,
-          turnstileToken: submitToken(values.turnstileToken),
         });
         if (result.status === "error") {
           toast.error(result.message);
@@ -175,7 +161,6 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
             : "Something went wrong. Please try again.",
         );
       } finally {
-        resetTurnstile();
       }
     });
   }
@@ -212,17 +197,10 @@ function InvestorInterestForm({ locale, labels, defaultEmail }: SharedProps) {
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <TurnstileField
-          turnstile={turnstile}
-          token={turnstileToken}
-          hint={labels.turnstileHint}
-          error={errors.turnstileToken?.message}
-          testId="investor-register-turnstile"
-        />
         <IntakeSubmitButton
           labels={labels}
           isPending={isPending}
-          disabled={!hasToken}
+          disabled={isPending}
         />
       </form>
       <IntakeSuccessDialog
@@ -251,19 +229,11 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
     defaultValues: { ...ENGAGEMENT_DEFAULTS, email: defaultEmail },
   });
 
-  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
-    useFormTurnstile({
-      action: TURNSTILE_APPLY_ACTION,
-      control,
-      setValue,
-    });
-
   function onSubmit(values: InvestorEngagementInput) {
     startTransition(async () => {
       try {
         const result = await submitInvestorEngagement({
           ...values,
-          turnstileToken: submitToken(values.turnstileToken),
         });
         if (result.status === "error") {
           toast.error(result.message);
@@ -278,7 +248,6 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
             : "Something went wrong. Please try again.",
         );
       } finally {
-        resetTurnstile();
       }
     });
   }
@@ -479,17 +448,10 @@ function InvestorEngagementForm({ locale, labels, defaultEmail }: SharedProps) {
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <TurnstileField
-          turnstile={turnstile}
-          token={turnstileToken}
-          hint={labels.turnstileHint}
-          error={errors.turnstileToken?.message}
-          testId="investor-apply-turnstile"
-        />
         <IntakeSubmitButton
           labels={labels}
           isPending={isPending}
-          disabled={!hasToken}
+          disabled={isPending}
         />
       </form>
       <IntakeSuccessDialog

@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { eq, limit } = vi.hoisted(() => {
+const { eq, contains, limit } = vi.hoisted(() => {
   const limit = vi.fn();
   const order = vi.fn(() => ({ limit }));
-  const eq = vi.fn(() => ({ order }));
-  return { eq, order, limit };
+  const contains = vi.fn(() => ({ order }));
+  const eq = vi.fn(() => ({ order, contains }));
+  return { eq, contains, order, limit };
 });
 
 vi.mock("next/cache", () => ({
@@ -19,7 +20,10 @@ vi.mock("@/lib/supabase/public", () => ({
   })),
 }));
 
-import { getVerifiedImpactMetrics } from "@/data/impact-metrics";
+import {
+  getHomeImpactMetrics,
+  getVerifiedImpactMetrics,
+} from "@/data/impact-metrics";
 
 describe("getVerifiedImpactMetrics", () => {
   beforeEach(() => {
@@ -30,5 +34,21 @@ describe("getVerifiedImpactMetrics", () => {
   it("filters to verified publish_status only", async () => {
     await getVerifiedImpactMetrics();
     expect(eq).toHaveBeenCalledWith("publish_status", "verified");
+    expect(contains).not.toHaveBeenCalled();
+  });
+});
+
+describe("getHomeImpactMetrics", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    limit.mockResolvedValue({ data: [], error: null });
+  });
+
+  it("filters verified metrics tagged homepage_module_02 in SQL", async () => {
+    await getHomeImpactMetrics();
+    expect(eq).toHaveBeenCalledWith("publish_status", "verified");
+    expect(contains).toHaveBeenCalledWith("display_locations", [
+      "homepage_module_02",
+    ]);
   });
 });

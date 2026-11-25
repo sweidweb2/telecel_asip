@@ -5,8 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { LOCALES } from "@/constants/locales";
 import { ROUTES } from "@/constants/routes";
 import { SITE_SETTINGS_CACHE_TAG, SITE_SETTINGS_ID } from "@/data/settings";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { authorizeStaff } from "@/lib/admin/authorize-staff";
+import { authorizeAdmin, authorizeStaff } from "@/lib/admin/authorize-role";
 import {
   updateAdminSiteSettingsSchema,
   updateEditorSiteSettingsSchema,

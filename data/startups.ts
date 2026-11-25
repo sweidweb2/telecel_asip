@@ -5,7 +5,7 @@ import { fetchAdminListStats } from "@/data/admin-list-stats";
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
 import { publicStartupDescription } from "@/lib/marketing/public-startup-description";
@@ -160,8 +160,7 @@ export async function getStartupsPageData(
   | { status: "forbidden" }
   | { status: "ok"; list: StartupListResult; stats: StartupListStats }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const [list, stats] = await Promise.all([
         fetchStartupsPage(supabase, query),
         fetchStartupListStats(supabase),
@@ -185,8 +184,7 @@ export const getStartupByIdForAdmin = cache(
     > => {
       if (!startupIdSchema.safeParse(id).success) return { status: "not_found" };
 
-      const gated = await gateEditorPageData(
-        async (supabase) => {
+      const gated = await gatePageDataByRole("editor", async (supabase) => {
           const [
             { data: startup, error: startupError },
             { data: details, error: detailsError },
@@ -234,8 +232,7 @@ export async function getStartupsForBlogPicker(
   | { status: "forbidden" }
   | { status: "ok"; startups: { id: string; name: string }[] }
 > {
-  return gateEditorPageData(
-    async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
       const term = search.trim().slice(0, 100);
       let request = supabase
         .from("startups")
@@ -389,8 +386,18 @@ export async function getActiveStartupsPage(
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(Math.max(1, page), totalPages);
   const from = (safePage - 1) * pageSize;
-  const pageIds = shuffledIds.slice(from, from + pageSize);
-  const items = await fetchPublicListItemsByIds(pageIds);
+
+  // Fill the page even if some ids disappeared between the id scan and the
+  // wide fetch (deleted/deactivated mid-cache).
+  let cursor = from;
+  const items: StartupPublicListItem[] = [];
+  while (items.length < pageSize && cursor < shuffledIds.length) {
+    const need = pageSize - items.length;
+    const batchIds = shuffledIds.slice(cursor, cursor + need);
+    cursor += batchIds.length;
+    const batch = await fetchPublicListItemsByIds(batchIds);
+    items.push(...batch);
+  }
 
   return {
     items,

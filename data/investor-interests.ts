@@ -1,7 +1,7 @@
 import {
   adminListRange,
   adminListTotalPages,
-  gateEditorPageData,
+  gatePageDataByRole,
 } from "@/lib/admin/admin-list-query";
 import { applyInboxStatusFilter } from "@/lib/admin/apply-inbox-status-filter";
 import { escapeIlikePattern } from "@/lib/admin/escape-ilike";
@@ -71,7 +71,7 @@ export async function getInvestorInterestsPageData(
       stats: InboxTableStats;
     }
 > {
-  return gateEditorPageData(async (supabase) => {
+  return gatePageDataByRole("editor", async (supabase) => {
     const [list, stats] = await Promise.all([
       fetchInvestorInterests(supabase, query),
       fetchInboxTableStats(supabase, "investor_interests"),
@@ -91,7 +91,7 @@ export async function getInvestorInterestById(
     return { status: "not_found" };
   }
 
-  const gated = await gateEditorPageData(async (supabase) => {
+  const gated = await gatePageDataByRole("editor", async (supabase) => {
     const { data, error } = await supabase
       .from("investor_interests")
       .select(INVESTOR_INTEREST_DETAIL_COLUMNS)

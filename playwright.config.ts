@@ -12,26 +12,9 @@ import { join } from "node:path";
 import { loadEnvConfig } from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
 
-import { TURNSTILE_WIDGET_ENABLED } from "./lib/turnstile-widget";
 
 loadEnvConfig(process.cwd());
 
-/**
- * Local Windows + Playwright often cannot reach Cloudflare challenge-platform
- * hosts (AAAA-only / broken IPv6 → Turnstile never mints a token and most of
- * the suite skips). Default to Cloudflare's published always-pass test keys
- * for the Playwright-managed webServer when the widget is enabled.
- * Set E2E_TURNSTILE_LIVE=1 to use .env keys instead.
- *
- * @see https://developers.cloudflare.com/turnstile/troubleshooting/testing/
- */
-const useDummyTurnstile =
-  TURNSTILE_WIDGET_ENABLED && process.env.E2E_TURNSTILE_LIVE !== "1";
-
-if (useDummyTurnstile) {
-  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
-  process.env.TURNSTILE_SECRET = "1x0000000000000000000000000000000AA";
-}
 
 /**
  * Default away from `next dev`'s usual :3000 so local E2E can start an
@@ -193,8 +176,7 @@ export default (async () => {
     command = preferStart
       ? `npm run start -- -p ${e2ePort}`
       : `npm run dev -- -p ${e2ePort}`;
-    // Isolate only when dummy Turnstile keys must differ from a running server.
-    reuseExistingServer = useDummyTurnstile ? false : !isCi;
+    reuseExistingServer = !isCi;
 
     if (preferredBusy) {
       // Next allows only one `next dev` per project dir, so a second `next dev`
@@ -253,9 +235,6 @@ export default (async () => {
       env: {
         ...process.env,
         PORT: port,
-        NEXT_PUBLIC_TURNSTILE_SITE_KEY:
-          process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
-        TURNSTILE_SECRET: process.env.TURNSTILE_SECRET ?? "",
       },
     },
     projects: [

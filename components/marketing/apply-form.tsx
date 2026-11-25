@@ -21,15 +21,11 @@ import {
   IntakeSubmitButton,
   IntakeSuccessDialog,
 } from "@/components/marketing/intake-form-chrome";
-import { TurnstileField } from "@/components/marketing/turnstile-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UrlInput } from "@/components/ui/url-input";
 import type { Locale } from "@/constants/locales";
-import { useFormTurnstile } from "@/hooks/use-form-turnstile";
-import { initialTurnstileToken } from "@/lib/turnstile-widget";
-import { TURNSTILE_APPLY_ACTION } from "@/types/turnstile";
 import {
   applicationSchemaFor,
   type ApplicationInput,
@@ -60,7 +56,6 @@ const REGISTER_DEFAULTS: InterestRegistrationInput = {
   pitch: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: initialTurnstileToken(),
 };
 
 const APPLY_DEFAULTS: ApplicationInput = {
@@ -79,7 +74,6 @@ const APPLY_DEFAULTS: ApplicationInput = {
   programmeFit: "",
   consent: false,
   commsOptIn: false,
-  turnstileToken: initialTurnstileToken(),
 };
 
 export function ApplyForm({
@@ -131,19 +125,11 @@ function RegisterIntakeForm({
     defaultValues: { ...REGISTER_DEFAULTS, email: defaultEmail },
   });
 
-  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
-    useFormTurnstile({
-      action: TURNSTILE_APPLY_ACTION,
-      control,
-      setValue,
-    });
-
   function onSubmit(values: InterestRegistrationInput) {
     startTransition(async () => {
       try {
         const result = await submitInterestRegistration({
           ...values,
-          turnstileToken: submitToken(values.turnstileToken),
         });
         if (result.status === "error") {
           toast.error(result.message);
@@ -158,7 +144,6 @@ function RegisterIntakeForm({
             : "Something went wrong. Please try again.",
         );
       } finally {
-        resetTurnstile();
       }
     });
   }
@@ -183,17 +168,10 @@ function RegisterIntakeForm({
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <TurnstileField
-          turnstile={turnstile}
-          token={turnstileToken}
-          hint={labels.turnstileHint}
-          error={errors.turnstileToken?.message}
-          testId="register-turnstile"
-        />
         <IntakeSubmitButton
           labels={labels}
           isPending={isPending}
-          disabled={!hasToken}
+          disabled={isPending}
         />
       </form>
       <IntakeSuccessDialog
@@ -224,19 +202,11 @@ function ApplyIntakeForm({
     defaultValues: { ...APPLY_DEFAULTS, email: defaultEmail },
   });
 
-  const { turnstile, turnstileToken, hasToken, submitToken, reset: resetTurnstile } =
-    useFormTurnstile({
-      action: TURNSTILE_APPLY_ACTION,
-      control,
-      setValue,
-    });
-
   function onSubmit(values: ApplicationInput) {
     startTransition(async () => {
       try {
         const result = await submitApplication({
           ...values,
-          turnstileToken: submitToken(values.turnstileToken),
         });
         if (result.status === "error") {
           toast.error(result.message);
@@ -251,7 +221,6 @@ function ApplyIntakeForm({
             : "Something went wrong. Please try again.",
         );
       } finally {
-        resetTurnstile();
       }
     });
   }
@@ -333,17 +302,10 @@ function ApplyIntakeForm({
           consentError={errors.consent?.message}
           isPending={isPending}
         />
-        <TurnstileField
-          turnstile={turnstile}
-          token={turnstileToken}
-          hint={labels.turnstileHint}
-          error={errors.turnstileToken?.message}
-          testId="apply-turnstile"
-        />
         <IntakeSubmitButton
           labels={labels}
           isPending={isPending}
-          disabled={!hasToken}
+          disabled={isPending}
         />
       </form>
       <IntakeSuccessDialog

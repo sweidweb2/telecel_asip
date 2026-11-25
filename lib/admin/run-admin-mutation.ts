@@ -4,9 +4,10 @@ import type { z } from "zod";
 import { DASHBOARD_NAV_COUNTS_CACHE_TAG } from "@/constants/dashboard-nav-counts";
 import {
   authorizeEditor,
-  type AuthorizeEditorMessages,
-  type EditorSession,
-} from "@/lib/admin/authorize-editor";
+  type AuthorizeRoleMessages,
+  type StaffActionSession,
+} from "@/lib/admin/authorize-role";
+import { logServerActionError } from "@/lib/admin/log-server-action-error";
 import {
   mapPgActionError,
   type PgActionError,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/admin/pg-action-error";
 import type { AdminActionResult } from "@/types/admin-action";
 
-export type AdminMutationMessages = AuthorizeEditorMessages & {
+export type AdminMutationMessages = AuthorizeRoleMessages & {
   invalidDetails: string;
   success: string;
   notFound?: string;
@@ -52,7 +53,7 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   messages: AdminMutationMessages;
   pgMessages?: PgActionErrorMessages;
   execute: (
-    session: Extract<EditorSession, { status: "success" }>,
+    session: Extract<StaffActionSession, { status: "success" }>,
     data: z.infer<TSchema>,
   ) => Promise<AdminMutationExecuteResult>;
   refresh?: (data: z.infer<TSchema>, id?: string) => void;
@@ -71,6 +72,13 @@ export async function runAdminMutation<TSchema extends z.ZodTypeAny>({
   const result = await execute(session, parsed.data);
 
   if (result.status === "error") {
+    if (result.pgError) {
+      logServerActionError("[admin-mutation]", result.pgError, {
+        context: result.pgContext ?? "write",
+        mapped: Boolean(result.message),
+      });
+    }
+
     if (result.message) {
       return { status: "error", message: result.message };
     }

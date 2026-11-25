@@ -5,11 +5,8 @@ vi.mock("next/cache", () => ({
   revalidateTag: vi.fn(),
 }));
 
-vi.mock("@/lib/admin/authorize-admin", () => ({
+vi.mock("@/lib/admin/authorize-role", () => ({
   authorizeAdmin: vi.fn(),
-}));
-
-vi.mock("@/lib/admin/authorize-staff", () => ({
   authorizeStaff: vi.fn(),
 }));
 
@@ -45,8 +42,7 @@ import {
   hardDeleteUser,
   updateUser,
 } from "@/actions/users";
-import { authorizeAdmin } from "@/lib/admin/authorize-admin";
-import { authorizeStaff } from "@/lib/admin/authorize-staff";
+import { authorizeAdmin, authorizeStaff } from "@/lib/admin/authorize-role";
 import { getStaffShell } from "@/lib/admin/get-staff-shell";
 
 const userId = "44444444-4444-4444-8444-444444444444";
