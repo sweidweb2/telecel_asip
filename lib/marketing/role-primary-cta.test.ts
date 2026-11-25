@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   marketingAudienceFor,
+  portalCtaFor,
   rolePrimaryCtaFor,
 } from "@/lib/marketing/role-primary-cta";
 
@@ -23,11 +24,40 @@ describe("rolePrimaryCtaFor", () => {
         locale: "en",
         openApplications: true,
         profile: null,
-      }).href,
-    ).toBe("/en/apply");
+      }),
+    ).toEqual({
+      href: "/en/apply",
+      label: "Apply to ASIP",
+    });
   });
 
-  it("uses distinct founder / investor labels when signed in", () => {
+  it("uses Apply to ASIP for every audience while applications are open", () => {
+    expect(
+      rolePrimaryCtaFor({
+        locale: "en",
+        openApplications: true,
+        profile: { role: "viewer", type: "startup" },
+      }).label,
+    ).toBe("Apply to ASIP");
+
+    expect(
+      rolePrimaryCtaFor({
+        locale: "en",
+        openApplications: true,
+        profile: { role: "viewer", type: "investor" },
+      }).label,
+    ).toBe("Apply to ASIP");
+
+    expect(
+      rolePrimaryCtaFor({
+        locale: "en",
+        openApplications: true,
+        profile: { role: "editor", type: "startup" },
+      }),
+    ).toEqual({ href: "/en/apply", label: "Apply to ASIP" });
+  });
+
+  it("uses distinct founder / investor labels when signed in and closed", () => {
     expect(
       rolePrimaryCtaFor({
         locale: "en",
@@ -39,44 +69,48 @@ describe("rolePrimaryCtaFor", () => {
     expect(
       rolePrimaryCtaFor({
         locale: "en",
-        openApplications: true,
-        profile: { role: "viewer", type: "startup" },
-      }).label,
-    ).toBe("Apply as a founder");
-
-    expect(
-      rolePrimaryCtaFor({
-        locale: "en",
         openApplications: false,
         profile: { role: "viewer", type: "investor" },
       }).label,
     ).toBe("Register as an investor");
-
-    expect(
-      rolePrimaryCtaFor({
-        locale: "en",
-        openApplications: true,
-        profile: { role: "viewer", type: "investor" },
-      }).label,
-    ).toBe("Engage as an investor");
   });
 
-  it("routes staff to their shells", () => {
+  it("keeps staff on Feeling interested in chrome (portal is separate)", () => {
     expect(
       rolePrimaryCtaFor({
         locale: "en",
         openApplications: false,
         profile: { role: "editor", type: "startup" },
       }),
-    ).toEqual({ href: "/dashboard", label: "Dashboard" });
+    ).toEqual({
+      href: "/en/register-interest",
+      label: "Feeling interested",
+    });
 
     expect(
       rolePrimaryCtaFor({
         locale: "en",
         openApplications: false,
         profile: { role: "admin", type: "admin" },
-      }).href,
-    ).toBe("/admin");
+      }).label,
+    ).toBe("Feeling interested");
+  });
+});
+
+describe("portalCtaFor", () => {
+  it("returns shell links for editor and admin only", () => {
+    expect(portalCtaFor(null, "en")).toBeNull();
+    expect(
+      portalCtaFor({ role: "viewer", type: "startup" }, "en"),
+    ).toBeNull();
+    expect(portalCtaFor({ role: "editor", type: "startup" }, "en")).toEqual({
+      href: "/dashboard",
+      label: "Dashboard",
+    });
+    expect(portalCtaFor({ role: "admin", type: "admin" }, "en")).toEqual({
+      href: "/admin",
+      label: "Admin",
+    });
   });
 });
 

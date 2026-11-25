@@ -1,7 +1,4 @@
-import {
-  TURNSTILE_BYPASS_TOKEN,
-  TURNSTILE_WIDGET_ENABLED,
-} from "@/lib/turnstile-widget";
+import { TURNSTILE_WIDGET_ENABLED } from "@/lib/turnstile-widget";
 import { TURNSTILE_TOKEN_MAX } from "@/validations/common-fields";
 
 const SITEVERIFY_URL =
@@ -32,6 +29,10 @@ function expectedHostnames(): Set<string> {
  * Verifies a Turnstile token via Cloudflare siteverify.
  * Requires `TURNSTILE_SECRET` and a non-empty `TURNSTILE_HOSTNAMES` allowlist.
  *
+ * When {@link TURNSTILE_WIDGET_ENABLED} is false the challenge is intentionally
+ * off — skip Cloudflare entirely (all environments). Re-enable the widget flag
+ * to require a real token again.
+ *
  * Cloudflare's published always-pass test secret returns a fixed dummy
  * `action` (`"test"`), so action/hostname checks are skipped for that secret
  * only — production secrets still enforce both.
@@ -43,24 +44,10 @@ export async function verifyTurnstileToken(options: {
 }): Promise<boolean> {
   const { token, expectedAction, remoteip } = options;
 
-  // Widget is currently off (see `turnstile-widget.ts`). Local / preview /
-  // explicit ALLOW_TURNSTILE_BYPASS skip Cloudflare entirely so flaky client
-  // token timing cannot block signup/login while the challenge is hidden.
+  // Feature off: forms hide the widget and send a stand-in. Do not call
+  // Cloudflare or gate on env bypass flags — that would block production.
   if (!TURNSTILE_WIDGET_ENABLED) {
-    const allowBypass =
-      process.env.ALLOW_TURNSTILE_BYPASS === "true" ||
-      process.env.NODE_ENV !== "production" ||
-      process.env.VERCEL_ENV === "preview" ||
-      process.env.VERCEL_ENV === "development";
-    if (allowBypass) {
-      return true;
-    }
-    if (token === TURNSTILE_BYPASS_TOKEN) {
-      console.error(
-        "[turnstile] bypass token rejected outside local/preview",
-      );
-    }
-    return false;
+    return true;
   }
 
   const hostnames = expectedHostnames();

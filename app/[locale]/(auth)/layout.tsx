@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 
-import { ApplicationStatusBanner } from "@/components/layout/application-status-banner";
 import { footerLabelsFor } from "@/components/layout/site-footer-labels";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { navLabelsFor } from "@/components/layout/site-nav-labels";
@@ -30,10 +29,6 @@ export default async function AuthLayout({ children, params }: LayoutProps) {
       <SiteNavbar
         locale={locale}
         labels={navLabelsFor(locale, openApplications)}
-      />
-      <ApplicationStatusBanner
-        locale={locale}
-        openApplications={openApplications}
       />
       <div className="flex flex-1 flex-col scheme-light">{children}</div>
       <SiteFooter labels={footerLabels} />

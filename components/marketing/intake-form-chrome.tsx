@@ -64,7 +64,13 @@ export function IntakeConsentFields<T extends FieldValues>({
         control={control}
         name={"consent" as Path<T>}
         render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
+          <label
+            className="flex cursor-pointer items-start gap-3 text-sm leading-6 [overflow-anchor:none]"
+            onMouseDown={(event) => {
+              // Stop focus scroll-into-view under the sticky navbar.
+              event.preventDefault();
+            }}
+          >
             <Checkbox
               checked={field.value === true}
               disabled={isPending}
@@ -82,7 +88,12 @@ export function IntakeConsentFields<T extends FieldValues>({
         control={control}
         name={"commsOptIn" as Path<T>}
         render={({ field }) => (
-          <label className="flex items-start gap-3 text-sm leading-6">
+          <label
+            className="flex cursor-pointer items-start gap-3 text-sm leading-6 [overflow-anchor:none]"
+            onMouseDown={(event) => {
+              event.preventDefault();
+            }}
+          >
             <Checkbox
               checked={field.value === true}
               disabled={isPending}

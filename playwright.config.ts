@@ -256,11 +256,6 @@ export default (async () => {
         NEXT_PUBLIC_TURNSTILE_SITE_KEY:
           process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
         TURNSTILE_SECRET: process.env.TURNSTILE_SECRET ?? "",
-        // `next start` is NODE_ENV=production — allow the widget-off bypass
-        // token so auth.setup / login helpers can sign in without Cloudflare.
-        ...(TURNSTILE_WIDGET_ENABLED
-          ? {}
-          : { ALLOW_TURNSTILE_BYPASS: "true" }),
       },
     },
     projects: [

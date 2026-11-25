@@ -19,8 +19,9 @@ type ApplicationStatusBannerProps = {
 };
 
 /**
- * Under-nav strip only while applications are open.
- * When closed, Register Interest lives in the navbar CTA — no banner row.
+ * Optional under-nav strip while applications are open.
+ * Marketing / auth chrome no longer mounts this — Apply lives in the navbar
+ * so a second Apply row does not appear under the header.
  */
 export function ApplicationStatusBanner({
   locale,

@@ -37,11 +37,12 @@ export function useInboxViewDialog<T>({
     load,
     missingMessage,
   });
+  // Only mark after a successful load — failed fetches must not clear unread.
   useMarkInboxReviewed({
     id: id ?? "",
     inboxStatus: inboxStatus ?? "reviewed",
     updateAction,
-    isOpen: open && Boolean(id),
+    isOpen: open && Boolean(id) && Boolean(record) && !isLoading,
   });
 
   return { record, isLoading };

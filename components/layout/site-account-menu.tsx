@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Loader2Icon, LogOutIcon } from "lucide-react";
+import { LayoutDashboardIcon, Loader2Icon, LogOutIcon } from "lucide-react";
 
 import { signOut } from "@/actions/auth";
 import { LanguageToggle } from "@/components/layout/language-toggle";
@@ -31,6 +32,9 @@ type SiteAccountMenuProps = {
   locale: Locale;
   fullName?: string | null;
   languageGroupLabel: string;
+  /** Editor / admin shell — shown in the menu, not as the navbar CTA. */
+  portalHref?: string | null;
+  portalLabel?: string | null;
 };
 
 export function SiteAccountMenu({
@@ -38,6 +42,8 @@ export function SiteAccountMenu({
   locale,
   fullName = null,
   languageGroupLabel,
+  portalHref = null,
+  portalLabel = null,
 }: SiteAccountMenuProps) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -50,6 +56,7 @@ export function SiteAccountMenu({
     locale === "fr"
       ? "Fin de votre session. Redirection en cours…"
       : "Ending your session. You will be redirected…";
+  const hasPortal = Boolean(portalHref && portalLabel);
 
   function handleSignOut() {
     setIsSigningOut(true);
@@ -69,7 +76,7 @@ export function SiteAccountMenu({
           aria-label={openLabel}
         >
           <Avatar className="size-8">
-            <AvatarFallback className="bg-asip-ink text-xs font-semibold text-white">
+            <AvatarFallback className="bg-brand text-xs font-semibold text-white">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -81,6 +88,19 @@ export function SiteAccountMenu({
             </span>
             <span className="truncate text-sm font-medium">{email}</span>
           </div>
+          {hasPortal ? (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="min-h-11 cursor-pointer sm:min-h-9"
+                nativeButton={false}
+                render={<Link href={portalHref!} />}
+              >
+                <LayoutDashboardIcon />
+                {portalLabel}
+              </DropdownMenuItem>
+            </>
+          ) : null}
           <DropdownMenuSeparator />
           <div className="px-2 py-2">
             <LanguageToggle

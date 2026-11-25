@@ -163,7 +163,7 @@ type CmsSelectOption = {
 };
 
 /**
- * Standard CMS select via Controller.
+ * Standard CMS select via Controller (Base UI `items` + labeled SelectValue).
  */
 export function CmsSelectField<TFieldValues extends FieldValues>({
   id,
@@ -182,9 +182,18 @@ export function CmsSelectField<TFieldValues extends FieldValues>({
   name: FieldPath<TFieldValues>;
   options: readonly CmsSelectOption[];
   placeholder?: string;
-  /** Sent when the select clears / uses a sentinel empty option. */
+  /**
+   * Value written when the selection is cleared / matches a sentinel.
+   * Pass `null` for nullable fields; omit to clear to `""`.
+   */
   emptyValue?: string | null;
 }) {
+  const items = options.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
+  const clearTo = emptyValue === undefined ? "" : emptyValue;
+
   return (
     <Field className={className} data-invalid={Boolean(error)}>
       <AdminFormFieldLabel htmlFor={id} hint={hint}>
@@ -193,38 +202,51 @@ export function CmsSelectField<TFieldValues extends FieldValues>({
       <Controller
         control={control}
         name={name}
-        render={({ field }) => (
-          <Select
-            value={
-              field.value == null || field.value === ""
-                ? (emptyValue ?? "")
-                : String(field.value)
-            }
-            onValueChange={(value) => {
-              if (value == null || value === "" || value === emptyValue) {
-                field.onChange(emptyValue ?? "");
-                return;
-              }
-              field.onChange(value);
-            }}
-            disabled={disabled}
-          >
-            <SelectTrigger
-              id={id}
-              className="min-h-11 w-full"
-              aria-invalid={Boolean(error)}
+        render={({ field }) => {
+          const selected =
+            field.value == null || field.value === ""
+              ? clearTo
+              : String(field.value);
+          const selectedLabel =
+            options.find((option) => option.value === selected)?.label ??
+            placeholder;
+
+          return (
+            <Select
+              value={selected == null ? "" : selected}
+              items={items}
+              onValueChange={(value) => {
+                if (
+                  value == null ||
+                  value === "" ||
+                  (emptyValue !== undefined && value === emptyValue)
+                ) {
+                  field.onChange(clearTo);
+                  return;
+                }
+                field.onChange(value);
+              }}
+              disabled={disabled}
             >
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+              <SelectTrigger
+                id={id}
+                className="min-h-11 w-full"
+                aria-invalid={Boolean(error)}
+              >
+                <SelectValue placeholder={placeholder}>
+                  {selectedLabel}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }}
       />
       {error ? <FieldError>{error}</FieldError> : null}
     </Field>

@@ -657,7 +657,7 @@ function CheckboxGroup<T extends FieldValues>({
   isPending: boolean;
 }) {
   return (
-    <fieldset className="grid gap-2">
+    <fieldset className="grid gap-2 [overflow-anchor:none]">
       <legend className="text-sm font-medium">{legend}</legend>
       <Controller
         control={control}
@@ -671,7 +671,12 @@ function CheckboxGroup<T extends FieldValues>({
                 return (
                   <label
                     key={option.value}
-                    className="flex min-h-11 items-center gap-3 rounded-lg border px-3 py-2 text-sm"
+                    className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-white px-3 py-2 text-sm"
+                    onMouseDown={(event) => {
+                      // Avoid native label focus scroll; Checkbox also focuses
+                      // with preventScroll via components/ui/checkbox.
+                      event.preventDefault();
+                    }}
                   >
                     <Checkbox
                       checked={checked}

@@ -113,6 +113,11 @@ export function AppSidebar({
                   const Icon = item.icon;
                   const expectsCount =
                     Boolean(countsPromise) && isDashboardNavCountHref(item.href);
+                  const isActive = isStaffNavActive(
+                    pathname,
+                    item.href,
+                    homeHref,
+                  );
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -120,11 +125,7 @@ export function AppSidebar({
                         render={
                           <Link href={item.href} onClick={closeMobileSidebar} />
                         }
-                        isActive={isStaffNavActive(
-                          pathname,
-                          item.href,
-                          homeHref,
-                        )}
+                        isActive={isActive}
                         tooltip={item.title}
                         className={expectsCount ? "pr-8" : undefined}
                       >
@@ -136,6 +137,7 @@ export function AppSidebar({
                           <NavItemBadgeFromPromise
                             href={item.href}
                             countsPromise={countsPromise}
+                            isActive={isActive}
                           />
                         </Suspense>
                       ) : null}
@@ -155,17 +157,25 @@ export function AppSidebar({
 function NavItemBadgeFromPromise({
   href,
   countsPromise,
+  isActive,
 }: {
   href: string;
   countsPromise: Promise<DashboardNavCounts>;
+  isActive: boolean;
 }) {
   const counts = use(countsPromise);
   const count = counts[href];
   if (typeof count !== "number") return null;
-  return <NavItemBadge count={count} />;
+  return <NavItemBadge count={count} isActive={isActive} />;
 }
 
-function NavItemBadge({ count }: { count: number }) {
+function NavItemBadge({
+  count,
+  isActive,
+}: {
+  count: number;
+  isActive: boolean;
+}) {
   return (
     <SidebarMenuBadge
       className="gap-1 bg-transparent p-0"
@@ -173,7 +183,9 @@ function NavItemBadge({ count }: { count: number }) {
     >
       <span
         className={cn(
-          "flex h-5 min-w-5 items-center justify-center rounded-full bg-sidebar-accent px-1 text-xs leading-none",
+          "flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs leading-none tabular-nums",
+          "bg-sidebar-accent",
+          isActive ? "text-white" : "text-sidebar-accent-foreground",
         )}
       >
         {formatNavCount(count)}

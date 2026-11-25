@@ -19,18 +19,14 @@ const LABELS = {
   en: {
     guest: "Feeling interested",
     startupClosed: "Register as a founder",
-    startupOpen: "Apply as a founder",
     investorClosed: "Register as an investor",
-    investorOpen: "Engage as an investor",
     dashboard: "Dashboard",
     admin: "Admin",
   },
   fr: {
     guest: "Je suis intéressé(e)",
     startupClosed: "S’inscrire comme fondateur",
-    startupOpen: "Postuler comme fondateur",
     investorClosed: "S’inscrire comme investisseur",
-    investorOpen: "Échanger comme investisseur",
     dashboard: "Tableau de bord",
     admin: "Admin",
   },
@@ -47,9 +43,28 @@ export function marketingAudienceFor(
 }
 
 /**
- * Primary marketing CTA: guest vs audience type vs staff shell.
- * Guest always uses “Feeling interested”; intake href still follows
- * `open_applications`. Staff land on their role home.
+ * Staff shell link for the account menu — never the marketing chrome CTA.
+ */
+export function portalCtaFor(
+  profile: Pick<CurrentUserProfile, "role" | "type"> | null,
+  locale: Locale,
+): PrimaryCta | null {
+  if (!profile) return null;
+  const copy = LABELS[locale];
+  if (profile.role === "admin" || profile.type === "admin") {
+    return { href: roleHomePath("admin", locale), label: copy.admin };
+  }
+  if (profile.role === "editor") {
+    return { href: roleHomePath("editor", locale), label: copy.dashboard };
+  }
+  return null;
+}
+
+/**
+ * Primary marketing CTA for chrome + page heroes.
+ * Open cohort → always “Apply to ASIP” (portal lives in the avatar menu).
+ * Closed → guest/staff “Feeling interested”; founders/investors get
+ * register-interest labels. Intake href always follows `open_applications`.
  */
 export function rolePrimaryCtaFor(options: {
   locale: Locale;
@@ -61,28 +76,19 @@ export function rolePrimaryCtaFor(options: {
   const intake = intakeCtaFor(locale, openApplications);
   const audience = marketingAudienceFor(profile);
 
-  if (audience === "guest") {
+  if (openApplications) {
+    return { href: intake.href, label: intake.label };
+  }
+
+  if (audience === "guest" || audience === "staff") {
     return { href: intake.href, label: copy.guest };
   }
 
-  if (audience === "staff") {
-    if (profile?.role === "admin" || profile?.type === "admin") {
-      return { href: roleHomePath("admin", locale), label: copy.admin };
-    }
-    return { href: roleHomePath("editor", locale), label: copy.dashboard };
-  }
-
   if (audience === "investor") {
-    return {
-      href: intake.href,
-      label: openApplications ? copy.investorOpen : copy.investorClosed,
-    };
+    return { href: intake.href, label: copy.investorClosed };
   }
 
-  return {
-    href: intake.href,
-    label: openApplications ? copy.startupOpen : copy.startupClosed,
-  };
+  return { href: intake.href, label: copy.startupClosed };
 }
 
 /** Intake-shaped CTA for pages that still expect {@link IntakeCta}. */
@@ -95,7 +101,6 @@ export function roleIntakeCtaFor(options: {
   const base = intakeCtaFor(options.locale, options.openApplications);
   return {
     slug: base.slug,
-    // Staff may point at /admin or /dashboard; page CTAs use href as-is.
     href: primary.href,
     label: primary.label,
   };

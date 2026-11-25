@@ -67,7 +67,7 @@ export function ApplyPageContent({
   const startupOnlyLabels = applyStartupOnlyLabelsFor(locale);
 
   return (
-    <main>
+    <main className="bg-white">
       <InstitutionalHero
         eyebrow={investorLabels?.pageEyebrow ?? copy.eyebrow}
         title={investorLabels?.pageTitle ?? copy.title}
@@ -80,8 +80,8 @@ export function ApplyPageContent({
         size="default"
       />
 
-      <Section>
-        <Card>
+      <Section className="bg-white">
+        <Card className="bg-white text-asip-ink">
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">

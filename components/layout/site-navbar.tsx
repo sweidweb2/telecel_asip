@@ -44,6 +44,9 @@ type SiteNavbarProps = {
   /** When set, the settings control becomes the account avatar menu. */
   accountEmail?: string | null;
   accountFullName?: string | null;
+  /** Editor / admin portal — lives in the avatar menu, not the Apply CTA. */
+  portalHref?: string | null;
+  portalLabel?: string | null;
 };
 
 function isNavActive(pathname: string, href: string, locale: Locale) {
@@ -68,6 +71,8 @@ export function SiteNavbar({
   labels,
   accountEmail = null,
   accountFullName = null,
+  portalHref = null,
+  portalLabel = null,
 }: SiteNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -166,11 +171,11 @@ export function SiteNavbar({
             href={labels.apply.href}
             className={cn(
               buttonVariants({ size: "sm" }),
-              "min-h-10 gap-2 px-4",
+              "min-h-10 shrink-0 gap-2 whitespace-nowrap px-4",
             )}
           >
             {labels.apply.label}
-            <ArrowUpRight className="size-4" aria-hidden />
+            <ArrowUpRight className="size-4 shrink-0" aria-hidden />
           </Link>
           {isSignedIn && accountEmail ? (
             <SiteAccountMenu
@@ -178,6 +183,8 @@ export function SiteNavbar({
               fullName={accountFullName}
               locale={locale}
               languageGroupLabel={labels.languageGroupLabel}
+              portalHref={portalHref}
+              portalLabel={portalLabel}
             />
           ) : (
             <DropdownMenu>
@@ -312,6 +319,8 @@ export function SiteNavbar({
                       fullName={accountFullName}
                       locale={locale}
                       languageGroupLabel={labels.languageGroupLabel}
+                      portalHref={portalHref}
+                      portalLabel={portalLabel}
                     />
                   </div>
                 ) : (
